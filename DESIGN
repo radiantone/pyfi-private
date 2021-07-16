@@ -1,0 +1,32 @@
+
+PYFI - CLI for pyfi admin and monitoring - queries celery/amqp network along with pyfi database
+
+PROCESSORS - Each python processor script is wrapped in a pyfi harness that marshalls messages and events from amqp to the script
+and provides the script with additional framework support routines. A single processor in a flow can be run across many servers and workers (CPUs)
+giving it scalability, high-availability and redundancy that is separate from the behavior of other processors or nodes.
+
+RABBITMQ - Provides the persistent transactional messaging layer
+
+CELERY - Distributed task service on top of RabbitMQ. Processors trigger invocations to other processors via unique task queues.
+This allows for HA and redundancy as celery workers can be spawned for each processor listening on respective queues.
+
+FLOW - Represents the messaging queue topologies and tasks (processors). Flows are designed and then built because specific workers
+need to be spawned across targeted nodes that run the processor and listen on inbound queues. Processor harness code tracks and monitors
+state in the pyfi database so the UI can monitor what processors are built and running, etc.
+
+OBJECTS - A flow contains various kinds of objects on the canvas. Script objects are python scripts that process inbound data
+and send results to outbound ports for other processors to receive. Logic objects are special kinds of script objects that
+perform certain flow logic like conditional routing (or router). A router will evaluate all the inbound data and send it to
+one or more outbound queues depending on some internal logic it implements. Best practive is for the router to not manipulate
+the outbound data.
+
+SERVER - The PYFI server orchestrates the remote celery workers by creating ssh processes that are connected to them. Anytime 
+processor changes, pyfi server can restart all its workers using the new processor task and schedule (e.g. how often it runs)
+The server process also maintains the pyfi database and registry. When the server spawns a remote worker task, information
+is embedded in the task about the pyfi cluster such as where the server API is located. This allows remote workers to reconnect
+to the server should the server go down.
+
+Processors will retrieve their state information from the server in a stateless manner. If that state indicates the processor
+should terminate, then it terminates. If a script update is available in the database, the worker will request a refresh and then
+that process will terminate after the new process has started - when the server API returns.
+

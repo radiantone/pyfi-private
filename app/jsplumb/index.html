@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>jsPlumb Toolkit Jump Page</title>
+        <link rel="stylesheet" href="css/main.css">
+        <script id="readme" type="readme" src="README.md"></script>
+        <style type="text/css">
+            a, a:visited {
+                color:#2766b5;
+                text-decoration:none;
+            }
+
+            a:hover {
+                text-decoration:underline;
+            }
+
+            hr {
+                margin:25px 0;
+            }
+
+            pre {
+                outline: 1px solid #CCC;
+                margin: 20px;
+                background-color: #f9f9f9;
+                color: #343434;
+                padding: 15px;
+            }
+
+            #logo {
+                position: absolute;
+                right: 15px;
+                top: 15px;
+            }
+        </style>
+
+    </head>
+
+    <body>
+
+        <img id="logo" src="img/logo-docs-jsplumb.png">
+        <div id="content"><h1>jsPlumb Toolkit Edition</h1>
+Welcome to the Toolkit edition of jsPlumb.
+
+
+<hr />
+
+<h2>Requirements</h2>
+ To get started, you'll need these things installed:
+<ul><li>NodeJS  (version 5 or higher)</li><li>npm     (this is installed with NodeJS)</li></ul>
+
+    
+    
+<h3>Optional </h3>
+In order to clone an existing application or install a Webpack demo, you need: 
+<ul><li>Grunt   (after installing Node, <strong>npm install grunt-cli -g</strong> will install this)</li></ul>
+
+
+<hr />
+
+<h2>Setup</h2>
+The Toolkit ships with demonstrations that are in "vanilla" JS, as well as some in Angular, React and Vue. 
+
+<h3>Setup everything at once</h3>
+You can choose to setup everything at one time by running this command in the root directory of your download:
+
+
+<pre>
+npm install
+</pre>
+
+    
+This will iterate through every demonstration and run:
+<ul><li><strong>npm install</strong> for all demos </li><li><strong>grunt webpack</strong> for those demos that use Webpack</li><li><strong>npm run prod-build</strong> for Angular demos</li><li><strong>npm run build</strong> for React or Vue demos </li></ul>
+
+
+It can take a little while to run this, but it's a good idea to do it as you can then get an overview of everything the
+Toolkit has to offer.
+
+Once you've installed everything, you can either host this entire directory on a webserver somewhere, or you can use
+the embedded webserver:
+
+<hr />
+
+<h2>Hosting the Toolkit package</h2>
+After installation, you can spin up a webserver to host the package using one of these commands: 
+
+<h3>Mac/Linux/Unix</h3>
+<pre>
+npm run start
+</pre>
+
+
+<h3>Windows</h3>
+<pre>
+npm run start_windows
+</pre>
+
+
+By default, this will start up a webserver on port 8910.
+
+
+<h3>Setup a single demonstration</h3>
+Navigate to <strong>demo/demo name</strong> and run <strong>npm i</strong>.
+
+Then, you may need to take extra steps, depending on the demonstration:
+<ul><li>for Vanilla demonstrations there is nothing left to do. You will need to serve the demonstration via a webserver in order for the javascript to work.</li><li>for Angular, you can either run <strong>ng serve</strong> to get the demo going, or you can run <strong>npm run prod_build</strong> to build the app.</li><li>for React, you can either run <strong>npm run start</strong> to get the demo going, or you can run <strong>npm run build</strong> to build the app.</li><li>For Vue, you can either run <strong>npm run serve</strong> to get the demo going, or you can run <strong>npm run build</strong> to build the app.</li></ul>
+
+
+<hr />
+
+<h2>Creating Applications</h2>
+With Grunt you can get started straight away with a copy of an existing demo, or with an almost empty app you can use as a template.
+
+<h3>Cloning an existing demo</h3>
+This will work for any demonstration
+
+<pre>
+grunt clone --app=database-visualizer --o=&lt;your output directory&gt;
+</pre>
+
+
+Valid values for <strong>app</strong> are:
+<ul><li>database-visualiser</li><li>flowchart-builder</li><li>layouts</li><li>multiple-hierarchy</li><li>paths</li><li>multiple</li><li>skeleton</li><li>groups</li><li>active-filtering</li><li>angular-1.x</li><li>angular-1.x-groups</li><li>angular</li><li>database-visualizer-angular</li><li>database-visualizer-react</li><li>angular-1.x-groups</li><li>angular-groups</li><li>angular-skeleton</li><li>react</li><li>vue</li></ul>
+
+
+
+<h3>Creating a new skeleton app</h3>
+For Vanilla JS you can use this:
+
+<pre>
+grunt create --o=&lt;your output directory&gt;
+</pre>
+
+
+For Angular/Vue we recommend using their respective CLI to create a new app. For React, we use <strong>create-react-app</strong> ourselves; it
+seems to be the current standard.
+
+<h3>Creating a new app manually</h3>
+See instructions at <a href="https://docs.jsplumbtoolkit.com/toolkit/current/articles/getting-started.html">https://docs.jsplumbtoolkit.com/toolkit/current/articles/getting-started.html</a>
+
+<h3>Ingesting an existing jsPlumb instance</h3>
+If you have an existing jsPlumb instance and you want to try the simplest upgrade path, this is for you.
+
+See instructions at <a href="https://docs.jsplumbtoolkit.com/toolkit/current/articles/getting-started.html#ingest">https://docs.jsplumbtoolkit.com/toolkit/current/articles/getting-started.html#ingest</a>
+
+<hr />
+
+<h2>Demonstrations</h2>
+The full list of available demonstrations are the valid values for <strong>app</strong> described in the cloning a demo section above:
+<ul><li><a href="demo/layouts/index.html">Layouts</a></li><li><a href="demo/multiple-hierarchy/index.html">Hierarchy Layout - Multiple Roots</a></li><li><a href="demo/multiple/index.html">Multiple Renderers</a></li><li><a href="demo/paths/index.html">Path Traversal</a></li><li><a href="demo/database-visualizer/index.html">Database Visualizer</a>       </li><li><a href="demo/flowchart-builder/index.html">Flowchart Builder</a></li><li><a href="demo/database-visualizer-angular/dist/index.html">Database Visualizer - Angular</a></li><li><a href="demo/angular/dist/index.html">Flowchart Builder - Angular</a></li><li><a href="demo/angular-skeleton/dist/index.html">Angular Skeleton</a></li><li><a href="demo/active-filtering/index.html">Active Filtering</a></li><li><a href="demo/angular-1.x/index.html">Angular 1.x Integration</a>           </li><li><a href="demo/groups/index.html">Groups</a></li><li><a href="demo/angular-groups/dist/index.html">Groups - Angular</a></li><li><a href="demo/angular-1.x-groups/index.html">Groups - Angular 1.x</a>       </li><li><a href="demo/react/index.html">React Flowchart Builder</a></li><li><a href="demo/database-visualizer-react/index.html">React Database Visualizer</a></li><li><a href="demo/react-skeleton/index.html">React Integration Skeleton</a></li><li><a href="demo/vue/dist/index.html">Vue 2 Integration</a></li></ul>
+
+
+You can also see the full list here:
+
+<a href="https://jsplumbtoolkit.com/demos.html">https://jsplumbtoolkit.com/demos.html</a>
+
+All of the Toolkit demonstrations on this page are included in your evaluation or licensed distribution. If you serve
+the Toolkit as discussed above in "Hosting the Toolkit package", the launch page at <a href="http://localhost:8910">http://localhost:8910</a> provides links
+to each of the demonstration pages.
+
+<hr />
+
+<h2>Documentation</h2>
+Documentation for the jsPlumb Toolkit is available at <a href="https://docs.jsplumbtoolkit.com">https://docs.jsplumbtoolkit.com</a>
+
+</div>
+
+    </body>
+
+</html>

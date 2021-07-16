@@ -1,0 +1,71 @@
+{
+  "name": "pyfi",
+  "version": "0.0.1",
+  "description": "A Python NIFI Clone",
+  "productName": "PYFI",
+  "author": "Darren Govoni",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js,.ts,.vue ./",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/app": "^2.2.6",
+    "@quasar/extras": "^1.10.4",
+    "@vue/composition-api": "^0.6.4",
+    "apexcharts": "^3.22.3",
+    "axios": "^0.18.1",
+    "core-js": "^3.6.5",
+    "drip-drop": "^2.0.3",
+    "jQuery": "^1.7.4",
+    "jsplumbtoolkit": "file:jsplumb/jsplumbtoolkit.tgz",
+    "jsplumbtoolkit-demo-support": "file:jsplumb/jsplumbtoolkit-demo-support.tgz",
+    "jsplumbtoolkit-drop": "file:jsplumb/jsplumbtoolkit-drop.tgz",
+    "jsplumbtoolkit-editable-connectors": "file:jsplumb/jsplumbtoolkit-editable-connectors.tgz",
+    "jsplumbtoolkit-syntax-highlighter": "file:jsplumb/jsplumbtoolkit-syntax-highlighter.tgz",
+    "jsplumbtoolkit-undo-redo": "file:jsplumb/jsplumbtoolkit-undo-redo.tgz",
+    "jsplumbtoolkit-vue2": "file:jsplumb/jsplumbtoolkit-vue2.tgz",
+    "jsplumbtoolkit-vue2-drop": "file:jsplumb/jsplumbtoolkit-vue2-drop.tgz",
+    "quasar": "^1.15.15",
+    "raphael": "^2.3.0",
+    "uuid": "^8.3.2",
+    "vue-apexcharts": "^1.6.0",
+    "vue-i18n": "^8.0.0",
+    "vue-morris": "^1.1.0",
+    "vue-resizable": "^2.0.5",
+    "vue2-ace-editor": "0.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^10.17.15",
+    "@typescript-eslint/eslint-plugin": "^3.3.0",
+    "@typescript-eslint/parser": "^3.3.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettierx": "^0.18.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-vue": "^6.1.2",
+    "prettier": "github:aMarCruz/prettier"
+  },
+  "browserslist": [
+    "ie >= 11",
+    "last 10 Chrome versions",
+    "last 10 Firefox versions",
+    "last 4 Edge versions",
+    "last 7 Safari versions",
+    "last 8 Android versions",
+    "last 8 ChromeAndroid versions",
+    "last 8 FirefoxAndroid versions",
+    "last 10 iOS versions",
+    "last 5 Opera versions"
+  ],
+  "engines": {
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}
