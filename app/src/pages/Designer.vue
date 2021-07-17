@@ -211,10 +211,10 @@
           indicator-color="primary"
           active-bg-color="accent"
         >
+          <q-tab name="files" class="text-dark" label="Processors" />
           <q-tab name="network" class="text-dark" label="Network" />
           <q-tab name="queues" class="text-dark" label="Queues" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
-          <q-tab name="files" class="text-dark" label="Files" />
         </q-tabs>
 
         <q-tab-panels v-model="tab" keep-alive>
@@ -223,7 +223,7 @@
             ref="network"
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
           ></q-tab-panel>
-           <q-tab-panel
+          <q-tab-panel
             name="queues"
             ref="queues"
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
@@ -273,7 +273,7 @@
           v-bind:render-params="renderParams"
           v-bind:view="view"
           id="toolkit"
-          surface-id="surfaceId"
+          :surface-id="surfaceId"
           v-bind:toolkit-params="toolkitParams"
           style="height: 100vh; width: 100%;"
         ></jsplumb-toolkit>
@@ -454,7 +454,7 @@
             </q-toolbar>
             <jsplumb-miniview
               style="width: 100%; height: 200px;"
-              surface-id="surfaceId"
+              :surface-id="surfaceId"
             ></jsplumb-miniview>
           </q-card-section>
         </q-card>
@@ -474,7 +474,7 @@
         expand-icon="far fa-plus-square text-blue-grey-5"
         expanded-icon="far fa-minus-square text-blue-grey-5"
         icon="far fa-hand-pointer"
-        label="Operate"
+        label="Selection"
       >
         <q-card style="padding: 0px;">
           <q-card-section>
@@ -487,7 +487,15 @@
                 left: 45px;
               "
             >
-              Processor
+              <q-popup-edit v-model="node.data.name" v-if="node != null" title="Name" buttons>
+                <q-input
+                  type="string"
+                  v-model="node.data.name"
+                  dense
+                  autofocus
+                />
+              </q-popup-edit>
+              {{ node != null ? node.data.name : "No Selection" }}
             </div>
             <div
               class="text-info"
@@ -499,7 +507,15 @@
                 left: 45px;
               "
             >
-              A processor description
+              <q-popup-edit v-model="node.data.description" v-if="node != null" title="Description" buttons>
+                <q-input
+                  type="string"
+                  v-model="node.data.description"
+                  dense
+                  autofocus
+                />
+              </q-popup-edit>
+              {{ node != null ? node.data.description : "" }}
             </div>
             <div
               class="text-primary"
@@ -511,7 +527,7 @@
                 left: 45px;
               "
             >
-              3adf0e36-58f0-4896-9bd0-1bdc279eea04
+              {{ node != null ? node.id : "" }}
             </div>
 
             <img src="~assets/images/droplet.svg" style="width: 30px;" />
@@ -524,6 +540,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-cog"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -533,6 +550,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-bolt"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -541,6 +559,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="far fa-times-circle"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -550,6 +569,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-play"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -558,6 +578,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-stop"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -567,6 +588,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-save"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -575,6 +597,7 @@
                 dense
                 flat
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-upload"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -584,8 +607,8 @@
               <q-btn
                 dense
                 flat
-                disable
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-copy"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -594,8 +617,8 @@
               <q-btn
                 dense
                 flat
-                disable
                 size="sm"
+                :disable="node == null"
                 icon="fas fa-paste"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -605,8 +628,8 @@
               <q-btn
                 dense
                 flat
-                disable
                 size="sm"
+                :disable="node == null"
                 icon="far fa-object-group"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -614,7 +637,7 @@
               <q-btn
                 dense
                 flat
-                disable
+                :disable="node == null"
                 size="sm"
                 icon="fas fa-paint-brush"
                 class="text-dark"
@@ -624,7 +647,7 @@
               <q-btn
                 dense
                 flat
-                disable
+                :disable="node == null"
                 size="sm"
                 label="Delete"
                 icon="far fa-trash-alt"
@@ -761,8 +784,11 @@ import {
 import { jsPlumbToolkitVue2 } from "jsplumbtoolkit-vue2";
 import { jsPlumbSyntaxHighlighter } from "jsplumbtoolkit-syntax-highlighter";
 import { jsPlumbToolkitUndoRedo } from "jsplumbtoolkit-undo-redo";
-import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
+import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop'
+
 import ScriptTemplate from "components/templates/ScriptTemplate.vue";
+import GroupTemplate from "components/templates/GroupTemplate.vue";
+
 import PortInTemplate from "components/templates/PortInTemplate.vue";
 import PortOutTemplate from "components/templates/PortOutTemplate.vue";
 import Objects from "components/Objects.vue";
@@ -777,7 +803,9 @@ var typeFunction = function (n) {
 };
 
 var dd = require("drip-drop");
+
 import { v4 as uuidv4 } from "uuid";
+
 import "assets/css/jsplumbtoolkit.css";
 import "assets/css/jsplumbtoolkit-editable-connectors.css";
 import "assets/css/jsplumbtoolkit-syntax-highlighter.css";
@@ -806,26 +834,6 @@ export default {
     },
   },
   methods: {
-    dataGenerator: function (el) {
-      // This probably needs to be automated
-      return {
-        type: el.getAttribute("data-node-type"),
-        w: 120,
-        h: 80,
-        properties: [],
-        rules: [],
-        events: [],
-        callbacks: [],
-        facts: [],
-        behaviors: [],
-        notes: [],
-        package: el.getAttribute("data-node-package"),
-        description: el.getAttribute("data-node-desc"),
-        icon: el.getAttribute("data-node-icon"),
-        name: el.getAttribute("data-node-name"),
-        id: jsPlumbUtil.uuid(),
-      };
-    },
   },
   created() {},
   mounted() {
@@ -835,8 +843,9 @@ export default {
     this.toolkit = this.toolkitComponent.toolkit;
     console.log("MOUNTED");
     jsPlumbToolkit.ready(function () {
-      jsPlumbToolkitVue2.getSurface("surfaceId", (s) => {
+      jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
+        console.log("SURFACE ",me.surfaceId, s);
         s.bind("lasso:end", function () {
           me.isdisabled = false;
           me.selectedNodes = me.toolkit.getSelection().getAll().length;
@@ -846,7 +855,12 @@ export default {
         });
         window.root = me.$root;
         window.toolkit = me.toolkit;
+        window.toolkit.surface = me.surface;
         window.designer = me;
+        me.$root.$on("node.selected", (node) => {
+          //console.log("NODE: ", node);
+          me.node = node;
+        });
         me.toolkit.uuid = uuidv4();
         console.log("toolkit myUUID: ", me.toolkit.uuid);
         me.toolkit.$root = me.$root;
@@ -865,7 +879,15 @@ export default {
               node.node.left = number.left - 390 / 2;
               node.node.top = number.top - 135 / 2;
               console.log("DROP NODE:", node);
-              window.toolkit.addNode(node.node, data);
+              var data = JSON.parse(JSON.stringify(node.node));
+              console.log("DROP DATA:", data);
+              if(data.group) {
+                delete data.group;
+                data.id = uuidv4();
+                window.toolkit.addFactoryGroup(data.type, data);
+              } else {
+                window.toolkit.addNode(node.node, data);
+              }
               node.toolkit = window.toolkit;
             }
           });
@@ -1236,6 +1258,7 @@ export default {
       mode: "pan",
       console: true,
       toolbar: true,
+      node: null,
       filename: "",
       updateGraphConfirm: false,
       deleteCandidate: {},
@@ -1359,13 +1382,13 @@ export default {
               var source = params.sourceId.split(".");
               var target = params.targetId.split(".");
 
-              var sourceType = params.source.data['type'];
-              var targetType = params.target.data['type'];
+              var sourceType = params.source.data["type"];
+              var targetType = params.target.data["type"];
 
               console.log(sourceType, targetType);
-              if (!(sourceType == 'Output' && targetType == 'Input')) {
+              if (!(sourceType == "Output" && targetType == "Input")) {
                 window.toolkit.removeEdge(params.edge);
-              }      
+              }
 
               console.log(params.target.getEdges());
               console.log(params.source.getEdges());
@@ -1424,6 +1447,8 @@ export default {
             console.log("Canvas clicked");
             window.toolkit.$root.$emit("set.mode", "pan");
             window.toolkit.clearSelection();
+            window.root.$emit("node.selected", null);
+            window.root.$emit("nodes.selected", null);
           },
         },
         dragOptions: {
@@ -1439,10 +1464,25 @@ export default {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
-                console.log("PARAMS:", params)
-                if(params.e.srcElement.localName != 'i' && params.e.srcElement.localName != 'td') {
+                console.log("PARAMS:", params);
+                if (
+                  params.e.srcElement.localName != "i" &&
+                  params.e.srcElement.localName != "td"
+                ) {
                   toolkit.toggleSelection(params.node);
-                  params.el.style['z-index'] = 999;
+                  var elems = document.querySelectorAll(".jtk-node");
+
+                  elems.forEach((el) => {
+                    el.style["z-index"] = 0;
+                  });
+                  params.el.style["z-index"] = 99999;
+                  var nodes = toolkit.getSelection().getAll();
+                  if (nodes.length == 0) {
+                    window.root.$emit("node.selected", null);
+                  } else {
+                    window.root.$emit("node.selected", params.node);
+                    window.root.$emit("nodes.selected", nodes);
+                  }
                 }
               },
             },
@@ -1451,9 +1491,24 @@ export default {
             component: PortInTemplate,
             events: {
               tap: function (params) {
-                if(params.e.srcElement.localName != 'i' && params.e.srcElement.localName != 'td') {
+                if (
+                  params.e.srcElement.localName != "i" &&
+                  params.e.srcElement.localName != "td"
+                ) {
                   toolkit.toggleSelection(params.node);
-                  params.el.style['z-index'] = 999;
+                  var elems = document.querySelectorAll(".jtk-node");
+
+                  elems.forEach((el) => {
+                    el.style["z-index"] = 0;
+                  });
+                  params.el.style["z-index"] = 99999;
+                  var nodes = toolkit.getSelection().getAll();
+                  if (nodes.length == 0) {
+                    window.root.$emit("node.selected", null);
+                  } else {
+                    window.root.$emit("node.selected", params.node);
+                    window.root.$emit("nodes.selected", nodes);
+                  }
                 }
               },
             },
@@ -1462,13 +1517,28 @@ export default {
             component: PortOutTemplate,
             events: {
               tap: function (params) {
-                if(params.e.srcElement.localName != 'i' && params.e.srcElement.localName != 'td') {
+                if (
+                  params.e.srcElement.localName != "i" &&
+                  params.e.srcElement.localName != "td"
+                ) {
                   toolkit.toggleSelection(params.node);
-                  params.el.style['z-index'] = 999;
+                  var elems = document.querySelectorAll(".jtk-node");
+
+                  elems.forEach((el) => {
+                    el.style["z-index"] = 0;
+                  });
+                  params.el.style["z-index"] = 99999;
+                  var nodes = toolkit.getSelection().getAll();
+                  if (nodes.length == 0) {
+                    window.root.$emit("node.selected", null);
+                  } else {
+                    window.root.$emit("node.selected", params.node);
+                    window.root.$emit("nodes.selected", nodes);
+                  }
                 }
               },
             },
-          }
+          },
         },
         // Three edge types  - '1:1', '1:N' and 'N:M',
         // sharing  a common parent, in which the connector type, anchors
@@ -1542,10 +1612,17 @@ export default {
             ],
           },
         },
+        groups: {
+          group: {
+            component: GroupTemplate,
+            constrain: false,
+            orphan: true,
+          },
+        },
         ports: {
           default: {
             template: "tmplColumn",
-            paintStyle: { fill: "#2BA2FD" }, // the endpoint's appearance
+            paintStyle: { fill: "#abbcc3" }, // the endpoint's appearance
             hoverPaintStyle: { fill: "#434343" }, // appearance when mouse hovering on endpoint or connection
             edgeType: "default", // the type of edge for connections from this port type
             maxConnections: -1, // no limit on connections

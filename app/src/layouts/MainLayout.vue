@@ -1,249 +1,9 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar>
-        <img
-          src="~assets/images/pyfi.svg"
-          style="padding-left: 15px; height: 45px; padding-right: 10px;"
-        />
-        <q-btn
-          flat
-          align="left"
-          icon="icon-processor"
-          aria-label="Processor"
-          size="large"
-          id="processor"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Processor
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-port-in"
-          aria-label="Port In"
-          size="large"
-          id="portin"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Port In
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-port-out"
-          aria-label="Port Out"
-          id="portout"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Port Out
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-group"
-          aria-label="Group"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Process Group
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-group-remote"
-          aria-label="Remote Group"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Remote Process Group
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-funnel"
-          aria-label="Funnel"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Funnel
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-template"
-          aria-label="Template"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Template
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          align="left"
-          icon="icon-label"
-          aria-label="Label"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Label
-          </q-tooltip>
-        </q-btn>
-        <q-space />
-
-        <q-btn
-          flat
-          aria-label="Menu"
-          icon="menu"
-          size="large"
-          style="min-height: 56px; cursor: grabbing;"
-          class="text-dark text-bold"
-        >
-          <q-menu>
-            <q-list dense>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-table"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Summary
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-calculator"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Counters
-                </q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="far fa-sticky-note"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Bulletin Board
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-database"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Data Provenance
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-wrench"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Controller Settings
-                </q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-list-alt"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Parameter Contexts
-                </q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fa fa-history"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Flow Configuration History
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fa fa-area-chart"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Node Status History
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-project-diagram"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Templates
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-question-circle"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Help
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  <q-icon name="fas fa-info-circle"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  About
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </q-toolbar>
+    
+      <ToolPalette v-bind:data-generator="dataGenerator"  surfaceId="flow1"
+                    selector="[data-node-type]"/>
       <q-toolbar class="bg-accent" style="min-height: 40px; padding: 0px;">
         <q-btn
           color="secondary"
@@ -395,21 +155,21 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow1"
         >
-          <Designer ref="flow1designer" />
+          <Designer ref="flow1designer" surfaceId="flow1"/>
         </q-tab-panel>
         <q-tab-panel
           name="flow2"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow2"
         >
-          <Designer ref="flow2designer" />
+          <Designer ref="flow2designer" surfaceId="flow2"/>
         </q-tab-panel>
         <q-tab-panel
           name="flow3"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow3"
         >
-          <Designer ref="flow3designer" />
+          <Designer ref="flow3designer" surfaceId="flow3"/>
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -478,6 +238,7 @@ var dd = require("drip-drop");
 import { QSpinnerOval } from "quasar";
 import { defineComponent, ref } from "@vue/composition-api";
 import Designer from "src/pages/Designer.vue";
+import ToolPalette from "src/components/ToolPalette.vue";
 
 import "assets/css/font-awesome.min.css";
 import "assets/css/flowfont.css";
@@ -489,12 +250,38 @@ import "assets/fonts/flowfont.woff2";
 
 export default defineComponent({
   name: "MainLayout",
-  components: { Designer },
+  components: { Designer, ToolPalette },
   setup() {
     return {};
   },
   created() {},
+  computed: {
+    getSurfaceId() {
+      return window.toolkit.surfaceId
+    }
+  },
   methods: {
+
+    dataGenerator: function (el) {
+      // This probably needs to be automated
+      return {
+        type: el.getAttribute("data-node-type"),
+        w: 120,
+        h: 80,
+        properties: [],
+        rules: [],
+        events: [],
+        callbacks: [],
+        facts: [],
+        behaviors: [],
+        notes: [],
+        package: el.getAttribute("data-node-package"),
+        description: el.getAttribute("data-node-desc"),
+        icon: el.getAttribute("data-node-icon"),
+        name: el.getAttribute("data-node-name"),
+        id: jsPlumbUtil.uuid(),
+      };
+    },
     tabChanged(tab) {
       console.log("TAB:", tab, this.$refs[tab]);
       window.toolkit = this.$refs[tab + "designer"].toolkit;
@@ -509,6 +296,7 @@ export default defineComponent({
       spinnerSize: 154,
       spinnerThickness: 1,
     });
+    console.log("Mounting....")
     window.toolkit = this.$refs["flow1designer"].toolkit;
     window.toolkit.$q = this.$q;
     window.renderer = window.toolkit.renderer;
@@ -539,7 +327,7 @@ export default defineComponent({
           name: "Port In",
           label: "Port In",
           description: "A port in description",
-          package: "my.python.package",
+          package: "queue name",
           disabled: false,
           columns: [],
           properties: [],
@@ -554,13 +342,30 @@ export default defineComponent({
           name: "Port Out",
           label: "Port Out",
           description: "A port out description",
-          package: "my.python.package",
+          package: "queue name",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
-      var els = [processor, portin, portout];
+
+      var group = document.querySelector("#processorgroup");
+      group.data = {
+        node: {
+          icon: "far fa-object-group",
+          style: "size:50px",
+          type: "group",
+          name: "Group",
+          label: "Group",
+          description: "A processor group description",
+          package: "my.python.package",
+          disabled: false,
+          group: true,
+          columns: [],
+          properties: [],
+        },
+      };      
+      var els = [processor, portin, portout, group];
 
       els.forEach((el) => {
         var data = el.data;

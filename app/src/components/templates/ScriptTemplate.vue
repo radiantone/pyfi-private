@@ -221,7 +221,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Input Plug
+            Add Outlet
           </q-tooltip>
         </div>
         <div
@@ -236,14 +236,14 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Output Plug
+            Add Plug
           </q-tooltip>
         </div>
 
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
-            icon="fa fa-code"
+            icon="fas fa-code"
             dense
             flat
             @click="showPanel('codeview', !codeview)"
@@ -521,7 +521,45 @@
         :columns="columns"
         row-key="name"
         style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-      />
+      >
+        <template v-slot:body="props">
+          <q-tr :props="props" :key="getUuid">
+            <q-td
+              :key="props.cols[0].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+            >
+              {{ props.cols[0].value }}
+            </q-td>
+            <q-td
+              :key="props.cols[1].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+            >
+              {{ props.cols[1].value }}
+            </q-td>
+            <q-td :key="props.cols[3].name"
+            :props="props"
+            :style="rowStripe(props.row.index)+';width:80px'"
+            >
+            <v-sparkline
+                :labels="props.row.spark.labels"
+                :value="props.row.spark.value"
+                color="white"
+                line-width="2"
+                padding="0"
+              ></v-sparkline>
+            </q-td>
+            <q-td
+              :key="props.cols[2].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+            >
+              {{ props.cols[2].value }}
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
     </div>
     <q-dialog v-model="deleteItem" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
@@ -882,17 +920,19 @@ import BaseEditableNode from "./BaseEditableNode.vue";
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 import { v4 as uuidv4 } from "uuid";
 import VueResizable from "vue-resizable";
+import Vuetify from "vuetify";
 
 export default {
   name: "SpeakerTemplate",
   mixins: [BaseNodeComponent, BaseEditableNode],
+  vuetify: new Vuetify(),
   components: {
     editor: require("vue2-ace-editor"),
     VueResizable,
   },
   created() {
     var me = this;
-    
+
     console.log("me.tooltips ", me.tooltips);
     console.log("start listening for show.tooltips");
     window.root.$on("show.tooltips", (value) => {
@@ -901,6 +941,24 @@ export default {
       console.log("ME:", me);
       console.log("TOOLTIPS", me.tooltips);
     });
+  },
+  
+  mounted() {
+    var me = this;
+
+    function shiftvalues() {
+      console.log("Rotating...");
+      var front = me.data[0].spark.value.shift();
+      me.data[0].spark.value.push(front);
+      var front = me.data[1].spark.value.shift();
+      me.data[1].spark.value.push(front);
+      var front = me.data[2].spark.value.shift();
+      me.data[2].spark.value.push(front);
+      var front = me.data[3].spark.value.shift();
+      me.data[3].spark.value.push(front);
+      setTimeout(shiftvalues, 1000)
+    }
+    setTimeout(shiftvalues, 1000);
   },
   data() {
     return {
@@ -943,27 +1001,54 @@ export default {
           label: "Time",
           field: "time",
         },
+        {
+          name: "spark",
+          align: "center",
+          classes: "text-secondary",
+          label: "Spark",
+          field: "spark",
+        }
       ],
       data: [
         {
           name: "In",
           bytes: "0 (0 bytes)",
           time: "5 min",
+          spark: {
+            name:"in",
+            labels: ["12am", "3am", "6am", "9am", "12pm", "3pm", "6pm", "9pm"],
+            value: [200, 675, 410, 390, 310, 460, 250, 240],
+          },
         },
         {
           name: "Read/Write",
           bytes: "0 (0 bytes)",
           time: "5 min",
+          spark: {
+            name:"readwrite",
+            labels: ["12am", "3am", "12pm", "3pm", "6pm", "6am", "9am", "9pm"],
+            value: [200, 390, 310, 460, 675, 410, 250, 240],
+          },
         },
         {
           name: "Out",
           bytes: "0 (0 bytes)",
           time: "5 min",
+          spark: {
+            name:"readoutwrite",
+            labels: ["3pm", "6pm", "9pm","12am", "3am", "6am", "9am", "12pm", ],
+            value: [460, 250, 240,200, 675, 410, 390, 310, ],
+          },
         },
         {
           name: "Tasks/Time",
           bytes: "0 (0 bytes)",
           time: "5 min",
+          spark: {
+            name:"taskstime",
+            labels: ["9am", "12pm", "3pm", "6pm", "9pm","12am", "3am", "6am", ],
+            value: [390, 310, 460, 250, 240,200, 675, 410, ],
+          },
         },
       ],
       codeview: false,
@@ -1004,6 +1089,14 @@ export default {
     };
   },
   methods: {
+    getUuid() {
+      return "key_"+uuidv4()
+    },
+    rowStripe(row) {
+      if (row % 2 == 0) {
+        return "background-color:white";
+      }
+    },
     showPanel(view, show) {
       this.configview = false;
       this.codeview = false;
