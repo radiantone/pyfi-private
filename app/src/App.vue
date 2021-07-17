@@ -9,7 +9,9 @@ import { defineComponent } from "@vue/composition-api";
 import { JsPlumbToolkitVue2Plugin } from "jsplumbtoolkit-vue2";
 
 import Vue from "vue";
+import Vuetify from "vuetify";
 
+Vue.use(Vuetify);
 Vue.use(JsPlumbToolkitVue2Plugin);
 
 LoadingBar.setDefaults({
