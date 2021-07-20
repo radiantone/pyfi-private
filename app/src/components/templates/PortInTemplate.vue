@@ -3,6 +3,7 @@
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important; border-radius: 15px;"
     id="jtknode"
+    v-if="!collapsed"
     :style="
       'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '
     "
@@ -214,6 +215,29 @@
         </div>
 
         <div style="position: absolute; right: 8px; top: 0px;">        
+<q-btn
+            dense
+            flat
+            size="xs"
+            icon="fa fa-dot-circle"
+            class="edit-name text-secondary"
+            style="
+              position: absolute;
+              right: 75px;
+              top: -68px;
+              width: 30px;
+              height: 30px;
+            "
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Collapse
+            </q-tooltip>
+          </q-btn>        
           <q-btn
             dense
             flat
@@ -834,6 +858,7 @@ export default {
   },
   data() {
     return {
+      collapsed: false,
       obj: {
         icon: "fab fa-python",
         style: "",

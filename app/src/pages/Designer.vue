@@ -487,7 +487,12 @@
                 left: 45px;
               "
             >
-              <q-popup-edit v-model="node.data.name" v-if="node != null" title="Name" buttons>
+              <q-popup-edit
+                v-model="node.data.name"
+                v-if="node != null"
+                title="Name"
+                buttons
+              >
                 <q-input
                   type="string"
                   v-model="node.data.name"
@@ -507,7 +512,12 @@
                 left: 45px;
               "
             >
-              <q-popup-edit v-model="node.data.description" v-if="node != null" title="Description" buttons>
+              <q-popup-edit
+                v-model="node.data.description"
+                v-if="node != null"
+                title="Description"
+                buttons
+              >
                 <q-input
                   type="string"
                   v-model="node.data.description"
@@ -784,7 +794,7 @@ import {
 import { jsPlumbToolkitVue2 } from "jsplumbtoolkit-vue2";
 import { jsPlumbSyntaxHighlighter } from "jsplumbtoolkit-syntax-highlighter";
 import { jsPlumbToolkitUndoRedo } from "jsplumbtoolkit-undo-redo";
-import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop'
+import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
 
 import ScriptTemplate from "components/templates/ScriptTemplate.vue";
 import GroupTemplate from "components/templates/GroupTemplate.vue";
@@ -833,8 +843,7 @@ export default {
       else return "text-black";
     },
   },
-  methods: {
-  },
+  methods: {},
   created() {},
   mounted() {
     var me = this;
@@ -845,7 +854,7 @@ export default {
     jsPlumbToolkit.ready(function () {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
-        console.log("SURFACE ",me.surfaceId, s);
+        console.log("SURFACE ", me.surfaceId, s);
         s.bind("lasso:end", function () {
           me.isdisabled = false;
           me.selectedNodes = me.toolkit.getSelection().getAll().length;
@@ -858,8 +867,17 @@ export default {
         window.toolkit.surface = me.surface;
         window.designer = me;
         me.$root.$on("node.selected", (node) => {
-          //console.log("NODE: ", node);
           me.node = node;
+          console.log("Animate node");
+          var adhocSelection = toolkit.filter(function (obj) {
+            console.log("OBJ:", obj);
+            console.log("NODE: ", node);
+            return obj == node;
+          });
+          if (node != null) {
+            //me.surface.setZoom(0.001);
+          
+          }
         });
         me.toolkit.uuid = uuidv4();
         console.log("toolkit myUUID: ", me.toolkit.uuid);
@@ -881,7 +899,7 @@ export default {
               console.log("DROP NODE:", node);
               var data = JSON.parse(JSON.stringify(node.node));
               console.log("DROP DATA:", data);
-              if(data.group) {
+              if (data.group) {
                 delete data.group;
                 data.id = uuidv4();
                 window.toolkit.addFactoryGroup(data.type, data);
@@ -1465,10 +1483,10 @@ export default {
             events: {
               tap: function (params) {
                 console.log("PARAMS:", params);
-                if (
-                  params.e.srcElement.localName != "i" &&
-                  params.e.srcElement.localName != "td"
-                ) {
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
                   toolkit.toggleSelection(params.node);
                   var elems = document.querySelectorAll(".jtk-node");
 

@@ -209,7 +209,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Input Plug
+            Add Outlet
           </q-tooltip>
         </div>
 

@@ -1,56 +1,75 @@
 """
 cli.py - pyfi CLI
 """
-import functools
-import socketserver
 import click
-import http
 import logging
-import signal
 
-import pyfi.celery
 
 from pyfi.server import app
-from pyfi.model import User, Flow, Processor, Node, Queue, Settings, Task, Log
-
+from pyfi.model import User, Flow, Processor, Node, Queue, Settings, Task, Log, db
+from pyfi.http import run_http
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
 def cli(debug):
-    logging.info(f"Debug mode is {'on' if debug else 'off'}")
+    logging.debug(f"Debug mode is {'on' if debug else 'off'}")
 
 
-DIRECTORY = "app/dist/spa"
-
-Handler = functools.partial(
-    http.server.SimpleHTTPRequestHandler, directory=DIRECTORY)
-
-
-def run_http(port):
+@cli.group()
+def processor():
     """
-    Run web server to serve UI
+    Processor lifecycle commands
     """
-    import http.server
+    pass
 
-    PORT = port
 
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        logging.info("Serving app on port %s", PORT)
+@processor.command()
+@click.argument('package')
+def start(package):
+    logging.info("Starting processor %s", package)
 
-        def http_shutdown():
-            """
-            Handle any cleanup here
-            """
-            # Kill all processes
-            httpd.shutdown()
+@cli.group()
+def add():
+    """
+    Add an object to the database
+    """
+    pass
 
-        signal.signal(signal.SIGINT, http_shutdown)
 
-        try:
-            httpd.serve_forever()
-        except:
-            pass
+@add.command()
+@click.argument('name')
+@click.argument('email')
+def user(name, email):
+    """
+    Add user object to the database
+    """
+    admin = User(username=name, email=email)
+    db.session.add(admin)
+    db.session.commit()
 
+@cli.group()
+def ls():
+    """
+    List resources
+    """
+    pass
+
+@ls.command()
+def queues():
+    """
+    List queues
+    """
+    logging.info("ls queues")
+
+
+@ls.command()
+def users():
+    """
+    List queues
+    """
+    users = User.query.all()
+    for user in users:
+        print("{}:{}".format(user.username,user.email))
 
 @cli.command()
 @click.option('--port', default=8000, help='Listen port')

@@ -5,8 +5,7 @@ import logging
 import asyncio
 from pyfi.celery.tasks import add
 from pyfi.blueprints.show import blueprint
-import pyfi.celery
-from pyfi.model import init_db, User, Flow, Processor, Node, Queue, Settings, Task, Log
+from pyfi.model import init_db
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
 

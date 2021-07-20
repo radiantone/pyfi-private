@@ -84,7 +84,7 @@
             align="top"
             anchor="top middle"
             self="bottom middle"
-            content-class="bg-primary"
+            content-class="bg-black text-white"
           >
             Delete Group & Nodes
           </q-tooltip>
