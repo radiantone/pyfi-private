@@ -3,18 +3,32 @@ PYFI TODOs
 
 1. For delete dialogs, mention the thing being deleted by name and type
 2. Restrict plugs from attaching to self node
-3. Restrixt input plugs from attaching to output plugs. Also same type plugs
+3. Restrict input plugs from attaching to output plugs. Also same type plugs. DONE
 4. Complete all popup menu designs
 5. Complete all floating dialogs for nodes
+      Read/Write
+      Config
+      Code
+      
 6. Complete all drag and drop node types and templates
+    Processor
+    Port In
+    Port Out
+    Process Group
+    Remote Process Group
+    Funnel
+    Router
+    Template
+    Label
 7. Application wide dialogs
-8. Code cleanup, remove old references
+8. Code cleanup, remove old references. DONE
 9. Backend service objects (e.g. ObjectService etc)
 10. Security plugin (e.g. OAuth), or use Okta
-11. SQLAlchemy data model (e.g. Flow, Processor, Settings, User, Node, Task, Log, Queue, etc)
+11. SQLAlchemy data model (e.g. Flow, Processor, Settings, User, Node, Task, Log, Queue, etc) 10%
      This data model is managed by PYFI micro-service, UI and also task callbacks that need to store metadata about the task completion.
      The UI will read from this database to display info
      The CLI will also read from this database
      Celery can use this as a backend as well, allowing for joins across PYFI data tables and celery result tables.
-12. Click a processor and it rises to front and triggers selection event
-13. Processor selection event enables operation buttons gui
+12. Click select processor DONE
+13. Click a processor and it rises to front and triggers selection event DONE
+14. Processor selection event enables operation buttons gui DONE
