@@ -1,9 +1,10 @@
 """
-server.py - pyfi API server
+server.py - pyfi agent server
 """
 import logging
 import asyncio
 from pyfi.celery.tasks import add
+from pyfi.model import User
 from pyfi.blueprints.show import blueprint
 from pyfi.model import init_db
 
@@ -18,8 +19,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 init_db(app)
 
+
 @app.route('/')
 def hello():
-    logging.debug('Invoking hello')
-    result = add.delay(4,5)
-    return "Hello World!! {}".format(result.get())
+    users = User.query.all()
+    _users = ""
+    for user in users:
+        _users += "{}:{}".format(user.username, user.email)
+        _users += "\n"
+    logging.debug('Agent API')
+    result = add.delay(4, 5)
+    return "Hello World from agent!! {} {}".format(result.get(), _users)

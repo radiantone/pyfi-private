@@ -21,7 +21,7 @@ def run_http(port):
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         logging.info("Serving app on port %s", PORT)
         logging.warn(
-            "DO NOT use the app web server on port %s for production! Use NGINX", PORT)
+            "DO NOT use this server for production! Use NGINX")
 
         def http_shutdown():
             """
