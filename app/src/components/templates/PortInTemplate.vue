@@ -1099,7 +1099,6 @@ export default {
       this.error = true;
     },
     showNewSpeechDialog() {
-      console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(
         {
@@ -1117,21 +1116,17 @@ export default {
         },
         "New",
         function (obj) {
-          console.log("Created speech ", obj);
           me.addPort(obj);
         }
       );
     },
     showEditSpeechDialog(data) {
-      console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(data, "Edit", function (obj) {
-        console.log("Created speech ", obj);
         me.addPort(obj);
       });
     },
     showEditEntityDialog() {
-      console.log("show Edit entity");
       window.root.$emit("new.speaker.dialog", {
         mode: "edit",
         obj: this.obj,

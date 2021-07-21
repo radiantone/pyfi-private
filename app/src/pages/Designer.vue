@@ -1487,19 +1487,23 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
-                  toolkit.toggleSelection(params.node);
-                  var elems = document.querySelectorAll(".jtk-node");
+                    var parentId = params.e.srcElement.firstChild.parentNode.id;
+                    var childId = params.e.srcElement.firstChild.id;
+                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll(".jtk-node");
 
-                  elems.forEach((el) => {
-                    el.style["z-index"] = 0;
-                  });
-                  params.el.style["z-index"] = 99999;
-                  var nodes = toolkit.getSelection().getAll();
-                  if (nodes.length == 0) {
-                    window.root.$emit("node.selected", null);
-                  } else {
-                    window.root.$emit("node.selected", params.node);
-                    window.root.$emit("nodes.selected", nodes);
+                    elems.forEach((el) => {
+                      el.style["z-index"] = 0;
+                    });
+                    params.el.style["z-index"] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit("node.selected", null);
+                    } else {
+                      window.root.$emit("node.selected", params.node);
+                      window.root.$emit("nodes.selected", nodes);
+                    }
                   }
                 }
               },
@@ -1609,10 +1613,10 @@ export default {
                   event: "${event}",
                   name: "${name}",
                   create: function (component) {
-                    console.log("getData():", component.getData());
+                    console.log("getData():", component, component.getData());
                     return htmlToElement(
                       "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
-                        "<span style='font-weight: bold; color: #775351'>" +
+                        "<span style='font-weight: bold; color: #775351' data-source='"+component.source.attributes['data-port-id'].nodeValue+"'>" +
                         component.getData()["name"] +
                         "</span><i class='pull-right fas fa-cog text-primary'/>" +
                         '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +

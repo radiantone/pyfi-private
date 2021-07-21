@@ -1061,7 +1061,6 @@ export default {
       this.error = true;
     },
     showNewSpeechDialog() {
-      console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(
         {
@@ -1079,7 +1078,6 @@ export default {
         },
         "New",
         function (obj) {
-          console.log("Created speech ", obj);
           me.addPort(obj);
         }
       );
@@ -1088,7 +1086,6 @@ export default {
       console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(data, "Edit", function (obj) {
-        console.log("Created speech ", obj);
         me.addPort(obj);
       });
     },

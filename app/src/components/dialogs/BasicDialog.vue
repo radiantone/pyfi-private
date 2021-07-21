@@ -399,7 +399,6 @@ export default {
       console.log("selectClass");
     },
     updateSpeech: function() {
-      console.log("updateSpeech:", this.obj);
       if (this.callback) {
         console.log("Calling callback!");
         this.callback(this.obj);
@@ -408,26 +407,20 @@ export default {
       }
     },
     createSpeech: function() {
-      // this.obj.properties = this.$refs.properties.getProperties();
-      console.log("createSpeech:", this.obj);
       this.callback(this.obj);
     },
     newFunction: function() {
-      console.log("new prop");
       this.$refs.functions.addFunction();
     },
     newProperty: function() {
-      console.log("new prop");
       this.$refs.properties.addProperty();
     },
     showDialog: function(obj, mode, callback) {
-      console.log("showDialog: ", obj);
       this.dialog = true;
       this.callback = callback;
       this.titleMode = mode;
       if (obj) {
         if (!obj.functions) obj.functions = [];
-        console.log("EDIT:", obj);
         this.obj = obj;
       }
     },

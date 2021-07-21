@@ -469,8 +469,8 @@
               style="margin-right: 5px;"
             />
           </div>
-          <span>{{ column.name }} : {{ column.description }}</span>
-          <q-popup-edit
+          <span>
+            <span :id="column.id">{{ column.name }}<q-popup-edit
             style="
               width: 50%;
               font-weight: bold;
@@ -479,7 +479,9 @@
               margin-top: 5px;
             "
             v-model="column.name"
-            @save="updateName"
+            @save="
+              (val, initialValue) => updateName(val, initialValue, column.id)
+            "
           >
             <q-input
               style="
@@ -492,7 +494,10 @@
               dense
               autofocus
             />
-          </q-popup-edit>
+          </q-popup-edit></span>
+            : {{ column.description }}
+          </span>
+          
         </div>
 
         <jtk-source
@@ -917,14 +922,14 @@
           height: 400px;
         "
       >
-              <div id="chart">
-                  <apexchart
-                    type="candlestick"
-                    height="390"
-                    :options="chartOptions2"
-                    :series="series2"
-                  ></apexchart>
-                </div>
+        <div id="chart">
+          <apexchart
+            type="candlestick"
+            height="390"
+            :options="chartOptions2"
+            :series="series2"
+          ></apexchart>
+        </div>
       </q-card-section>
       <q-card-actions align="left"></q-card-actions>
       <q-card-actions align="right">
@@ -1005,11 +1010,11 @@ export default {
       me.data[3].spark.value.push(front);
       setTimeout(shiftvalues, 1000);
     }
-    setTimeout(shiftvalues, 1000);
+    //setTimeout(shiftvalues, 1000);
   },
   data() {
     return {
-            series2: [
+      series2: [
         {
           data: [
             {
@@ -1428,15 +1433,17 @@ export default {
     showPanel(view, show) {
       this.configview = false;
       this.codeview = false;
+      this.dataview = false;
       this[view] = show;
+      /*
       window.toolkit.surface.setZoom(1.0);
       var node = this.toolkit.getNode(this.obj);
-          window.toolkit.surface.centerOn(node, {
-            doNotAnimate: true,
-            onComplete: function() {
-                window.toolkit.surface.pan(-350, -350);
-          }
-          });
+      window.toolkit.surface.centerOn(node, {
+        doNotAnimate: true,
+        onComplete: function () {
+          window.toolkit.surface.pan(-350, -350);
+        },
+      });*/
     },
     updateDescription(value, initialValue) {
       console.log("updateDesc", value, initialValue);
@@ -1444,11 +1451,19 @@ export default {
       this.renameValue = value;
       this.initialValue = initialValue;
     },
-    updateName(value, initialValue) {
+    updateName(value, initialValue, column) {
+      console.log("column edited ", column);
       console.log("updateName", value, initialValue);
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
+      var edges = document.querySelectorAll(
+        "[data-source=" + column + "]"
+      );
+
+      edges.forEach((edge) => {
+        edge.innerText = value;
+      })
     },
     editorInit: function () {
       var me = this;
@@ -1537,8 +1552,9 @@ export default {
     addPort(port) {
       port.background = "white";
       port.datatype = "Column";
-      port.id = "speech" + uuidv4();
-
+      port.id = "port" + uuidv4();
+      port.id = port.id.replace(/-/g,"")
+      port.description = "A description"
       console.log("Port:", port);
       window.toolkit.addNewPort(this.obj.id, "column", port);
       window.renderer.repaint(this.obj);
@@ -1573,7 +1589,6 @@ export default {
       this.error = true;
     },
     showNewSpeechDialog() {
-      console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(
         {
@@ -1591,16 +1606,13 @@ export default {
         },
         "New",
         function (obj) {
-          console.log("Created speech ", obj);
           me.addPort(obj);
         }
       );
     },
     showEditSpeechDialog(data) {
-      console.log("New speech dialog");
       var me = this;
       this.$refs.speechDialog.showDialog(data, "Edit", function (obj) {
-        console.log("Created speech ", obj);
         me.addPort(obj);
       });
     },
