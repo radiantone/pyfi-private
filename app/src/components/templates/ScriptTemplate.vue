@@ -9,6 +9,9 @@
     @touchstart.stop
     @contextmenu.stop
   >
+    <q-inner-loading :showing="refreshing" style="z-index:999999">
+        <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
     <q-menu context-menu style="border: 1px solid black;">
       <q-list dense>
         <q-item clickable v-close-popup>
@@ -166,6 +169,21 @@
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
         <div
           class="text-secondary"
+          @click=""
+          style="margin-right: 10px;"
+        >
+          <i class="fas fa-hard-hat" style="cursor: pointer;" />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Workers
+          </q-tooltip>
+        </div>      
+        <div
+          class="text-secondary"
           @click="bandwidth = !bandwidth"
           style="margin-right: 10px;"
         >
@@ -179,6 +197,7 @@
             Bandwidth Toggle
           </q-tooltip>
         </div>
+        <!--
         <div
           class="text-secondary"
           style="margin-right: 10px;"
@@ -193,7 +212,7 @@
           >
             Add Complete Plug
           </q-tooltip>
-        </div>
+        </div>-->
         <div
           class="text-secondary"
           style="margin-right: 10px;"
@@ -361,7 +380,7 @@
                 Save
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="refreshProcessor">
               <q-item-section side>
                 <q-icon name="fas fa-refresh"></q-icon>
               </q-item-section>
@@ -380,12 +399,16 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('gitview', !gitview)"
+            >
               <q-item-section side>
                 <q-icon name="fab fa-github"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Github
+                Git
               </q-item-section>
             </q-item>
             <q-item clickable v-close-popup>
@@ -470,34 +493,37 @@
             />
           </div>
           <span>
-            <span :id="column.id">{{ column.name }}<q-popup-edit
-            style="
-              width: 50%;
-              font-weight: bold;
-              font-size: 25px;
-              font-family: 'Indie Flower', cursive;
-              margin-top: 5px;
-            "
-            v-model="column.name"
-            @save="
-              (val, initialValue) => updateName(val, initialValue, column.id)
-            "
-          >
-            <q-input
-              style="
-                font-weight: bold;
-                font-size: 25px;
-                font-family: 'Indie Flower', cursive;
-                margin-top: 5px;
-              "
-              v-model="column.name"
-              dense
-              autofocus
-            />
-          </q-popup-edit></span>
+            <span :id="column.id">
+              {{ column.name }}
+              <q-popup-edit
+                style="
+                  width: 50%;
+                  font-weight: bold;
+                  font-size: 25px;
+                  font-family: 'Indie Flower', cursive;
+                  margin-top: 5px;
+                "
+                v-model="column.name"
+                @save="
+                  (val, initialValue) =>
+                    updateName(val, initialValue, column.id)
+                "
+              >
+                <q-input
+                  style="
+                    font-weight: bold;
+                    font-size: 25px;
+                    font-family: 'Indie Flower', cursive;
+                    margin-top: 5px;
+                  "
+                  v-model="column.name"
+                  dense
+                  autofocus
+                />
+              </q-popup-edit>
+            </span>
             : {{ column.description }}
           </span>
-          
         </div>
 
         <jtk-source
@@ -832,6 +858,105 @@
         position: absolute;
         right: -655px;
         top: 0px;
+        height: 500px;
+      "
+      v-if="gitview"
+    >
+      <q-card-section>
+        <q-splitter v-model="splitterModel" horizontal style="height: 465px;">
+          <template v-slot:before>
+            <div class="q-pa-md">
+              <div class="text-h4 q-mb-md">Before</div>
+              <div v-for="n in 20" :key="n" class="q-my-md">
+                {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
+                elit. Quis praesentium cumque magnam odio iure quidem, quod
+                illum numquam possimus obcaecati commodi minima assumenda
+                consectetur culpa fuga nulla ullam. In, libero.
+              </div>
+            </div>
+          </template>
+
+          <template v-slot:after>
+            <div class="q-pa-md">
+              <div class="text-h4 q-mb-md">After</div>
+              <div v-for="n in 20" :key="n" class="q-my-md">
+                {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
+                elit. Quis praesentium cumque magnam odio iure quidem, quod
+                illum numquam possimus obcaecati commodi minima assumenda
+                consectetur culpa fuga nulla ullam. In, libero.
+              </div>
+            </div>
+          </template>
+        </q-splitter>
+      </q-card-section>
+      <q-card-section
+        style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
+      ></q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish To Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="gitview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
       "
       v-if="configview"
     >
@@ -968,15 +1093,14 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import BaseEditableNode from "./BaseEditableNode.vue";
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 import { v4 as uuidv4 } from "uuid";
 import VueResizable from "vue-resizable";
 import Vuetify from "vuetify";
 
 export default {
-  name: "SpeakerTemplate",
-  mixins: [BaseNodeComponent, BaseEditableNode],
+  name: "ScriptTemplate",
+  mixins: [BaseNodeComponent],
   vuetify: new Vuetify(),
   components: {
     editor: require("vue2-ace-editor"),
@@ -1014,6 +1138,8 @@ export default {
   },
   data() {
     return {
+      refreshing: false,
+      splitterModel: 50,
       series2: [
         {
           data: [
@@ -1385,6 +1511,7 @@ export default {
         },
       ],
       codeview: false,
+      gitview: false,
       entityName: "",
       columnName: "",
       thecode: "",
@@ -1422,6 +1549,13 @@ export default {
     };
   },
   methods: {
+    refreshProcessor() {
+      var me = this;
+      this.refreshing = true
+      setTimeout(() => {
+        me.refreshing = false
+      },2000)
+    },
     getUuid() {
       return "key_" + uuidv4();
     },
@@ -1434,6 +1568,7 @@ export default {
       this.configview = false;
       this.codeview = false;
       this.dataview = false;
+      this.gitview = false;
       this[view] = show;
       /*
       window.toolkit.surface.setZoom(1.0);
@@ -1457,13 +1592,11 @@ export default {
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
-      var edges = document.querySelectorAll(
-        "[data-source=" + column + "]"
-      );
+      var edges = document.querySelectorAll("[data-source=" + column + "]");
 
       edges.forEach((edge) => {
         edge.innerText = value;
-      })
+      });
     },
     editorInit: function () {
       var me = this;
@@ -1553,8 +1686,8 @@ export default {
       port.background = "white";
       port.datatype = "Column";
       port.id = "port" + uuidv4();
-      port.id = port.id.replace(/-/g,"")
-      port.description = "A description"
+      port.id = port.id.replace(/-/g, "");
+      port.description = "A description";
       console.log("Port:", port);
       window.toolkit.addNewPort(this.obj.id, "column", port);
       window.renderer.repaint(this.obj);

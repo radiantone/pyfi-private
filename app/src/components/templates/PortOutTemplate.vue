@@ -310,7 +310,7 @@
                 <q-icon name="fab fa-github"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Github
+                Git
               </q-item-section>
             </q-item>
             <q-item clickable v-close-popup>
@@ -809,14 +809,13 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import BaseEditableNode from "./BaseEditableNode.vue";
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 import { v4 as uuidv4 } from "uuid";
 import VueResizable from "vue-resizable";
 
 export default {
-  name: "SpeakerTemplate",
-  mixins: [BaseNodeComponent, BaseEditableNode],
+  name: "PortOutTemplate",
+  mixins: [BaseNodeComponent],
   components: {
     editor: require("vue2-ace-editor"),
     VueResizable,

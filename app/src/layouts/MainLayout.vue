@@ -333,6 +333,7 @@ export default defineComponent({
           properties: [],
         },
       };
+
       var portout = document.querySelector("#portout");
       portout.data = {
         node: {
@@ -378,6 +379,7 @@ export default defineComponent({
           setData("object", JSON.stringify(data));
         });
       });
+      
     });
     var me = this;
     setTimeout(function () {

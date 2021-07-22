@@ -24,7 +24,7 @@ class User(db.Model):
 
 class Flow(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(10), unique=True, nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -32,7 +32,20 @@ class Flow(db.Model):
 
 class Agent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(10), unique=True, nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
+
+class Action(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), unique=True, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    params = db.Column(db.String(80))
+
+    # host, worker, processor, queue, or all
+    target = db.Column(db.String(20), nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -40,7 +53,7 @@ class Agent(db.Model):
 
 class Processor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(10), unique=True, nullable=False)
+    name = db.Column(db.String(20), unique=True, nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name

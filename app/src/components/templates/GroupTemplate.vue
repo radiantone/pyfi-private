@@ -216,12 +216,11 @@
 }
 </style>
 <script>
-import BaseEditableNode from "./BaseEditableNode.vue";
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 
 export default {
   name: "GroupTemplate",
-  mixins: [BaseNodeComponent, BaseEditableNode],
+  mixins: [BaseNodeComponent],
   components: {},
   mounted() {
     this.toolkit = window.toolkit;

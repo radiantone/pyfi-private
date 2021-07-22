@@ -7,6 +7,8 @@ giving it scalability, high-availability and redundancy that is separate from th
 
 RABBITMQ - Provides the persistent transactional messaging layer
 
+ACTION - And action for an agent to perform
+
 CELERY - Distributed task service on top of RabbitMQ. Processors trigger invocations to other processors via unique task queues.
 This allows for HA and redundancy as celery workers can be spawned for each processor listening on respective queues.
 
@@ -30,3 +32,21 @@ Processors will retrieve their state information from the server in a stateless 
 should terminate, then it terminates. If a script update is available in the database, the worker will request a refresh and then
 that process will terminate after the new process has started - when the server API returns.
 
+CLI design
+----------
+
+CLI commands add an ACTION record to the database and the PYFI agent implements them across the network.
+Actions can be targeted to specific hosts or workers.
+
+
+
+
+AGENT design
+------------
+
+Agent process monitors database and performs outcomes.
+It will spawn Processes for each worker/processor and pause, delete or restart that process as actions are taken
+in the UI and stored in the database.
+
+For example a processor might have an action to RESTART with status PENDING. When the agent completes the task,
+it updates the status to COMPLETED.

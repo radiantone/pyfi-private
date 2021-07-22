@@ -50,10 +50,35 @@ def init():
     except Exception as ex:
         logging.error(ex)
 
+
 @proc.command()
-@click.argument('package')
-def start(package):
-    logging.info("Starting processor %s", package)
+@click.argument('function', required=True)
+@click.option('--schedule', required=True)
+@click.option('--queue', required=True)
+def start(function, schedule, queue):
+    """
+    Start a processor
+    """
+    logging.info("Starting processor %s", function)
+    # Run a worker with a beat cron schdule
+    from celery import Celery
+    from multiprocessing import Process
+
+    celery = Celery('pyfi', backend='redis://localhost', broker='pyamqp://')
+
+    @celery.on_after_configure.connect
+    def setup_periodic_tasks(sender, **kwargs):
+
+        # Executes every Monday morning at 7:30 a.m.
+        """
+        sender.add_periodic_task(
+            crontab(hour=7, minute=30, day_of_week=1),
+            test.s('Happy Mondays!'),
+        )
+        """
+        # Add a wrapper task as the periodic task that retrieves
+        # messages off a queue and dispatches it to the function
+        pass
 
 @cli.group()
 def add():
@@ -61,6 +86,33 @@ def add():
     Add an object to the database
     """
     pass
+
+
+@cli.group()
+def task():
+    """
+    Pyfi task management
+    """
+    pass
+
+
+@task.command()
+@click.argument('task', required=True)
+def run(task):
+    """
+    Run a task
+    """
+    import importlib
+
+    taskname = ''.join(task.rsplit('.')[-1])
+    modulename = '.'.join(task.rsplit('.')[:-1])
+
+    module = importlib.import_module(modulename)
+    task = getattr(module, taskname)
+
+    result = task.delay()
+
+    print(result.get())
 
 
 @add.command()
@@ -86,7 +138,8 @@ def agent(name, id):
     agent = Agent(name=name, id=id)
     database.session.add(agent)
     database.session.commit()
-    logging.info("Agent %s added.",name)
+    logging.info("Agent %s added.", name)
+
 
 @cli.group()
 def ls():
@@ -97,11 +150,57 @@ def ls():
 
 
 @cli.group()
+def worker():
+    """
+    Run pyfi worker
+    """
+    pass
+
+
+@worker.command()
+@click.option('-h', '--host', default='localhost')
+@click.option('-m', '--module', required=True, multiple=True)
+def start(host, module):
+    """
+    Start a worker
+    """
+    from celery import Celery
+
+    celery = Celery('pyfi', backend='redis://localhost', broker='pyamqp://', )
+
+    worker = celery.Worker(
+        include=module
+    )
+    worker.start()
+
+
+@worker.command()
+@click.option('-h', '--host', default='localhost')
+@click.option('-p', '--procid', required=True)
+def stop(host, procid):
+    """
+    Stop a worker
+    """
+    pass
+
+
+@worker.command()
+@click.option('-h', '--host', default='localhost')
+@click.option('-p', '--procid', required=True)
+def status(host, procid):
+    """
+    Get the status of a worker
+    """
+    pass
+
+
+@cli.group()
 def agent():
     """
     Run pyfi agent
     """
     pass
+
 
 @ls.command()
 def queues():
@@ -114,17 +213,17 @@ def queues():
 @ls.command()
 def users():
     """
-    List queues
+    List users
     """
     users = User.query.all()
     for user in users:
-        print("{}:{}".format(user.username,user.email))
+        print("{}:{}".format(user.username, user.email))
 
 
 @ls.command()
 def agents():
     """
-    List queues
+    List agents
     """
     agents = Agent.query.all()
     for agent in agents:
@@ -138,6 +237,7 @@ def api(port):
     Run pyfi API server
     """
     import bjoern
+
     logging.info("Serving API on port {}".format(port))
 
     try:
@@ -155,6 +255,7 @@ def agent(port, database):
     Run pyfi agent server
     """
     import bjoern
+
     logging.info("Serving agent on port {}".format(port))
     agentapp.config['SQLALCHEMY_DATABASE_URI'] = database
 
@@ -166,13 +267,13 @@ def agent(port, database):
         logging.error(ex)
         logging.info("Shutting down...")
 
+
 @cli.command()
 @click.option('--port', default=8001, help='Listen port')
 def web(port):
     """
     Run pyfi test web server
     """
-
     from multiprocessing import Process
 
     try:
@@ -182,4 +283,3 @@ def web(port):
     except Exception as ex:
         logging.error(ex)
         logging.info("Shutting down...")
-

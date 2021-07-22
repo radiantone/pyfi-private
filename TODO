@@ -20,7 +20,7 @@ PYFI TODOs
     Router
     Template
     Label
-7. Application wide dialogs
+7. Application wide dialogs & wizards
 8. Code cleanup, remove old references. DONE
 9. Backend service objects (e.g. ObjectService etc)
 10. Security plugin (e.g. OAuth), or use Okta
@@ -32,3 +32,21 @@ PYFI TODOs
 12. Click select processor DONE
 13. Click a processor and it rises to front and triggers selection event DONE
 14. Processor selection event enables operation buttons gui DONE
+15. 
+
+
+CLI TODO
+--------
+
+1. Factor out database and celery configs
+2. Agent server and process. database update
+3. Run postgres container for sqlaclchemy
+4. Use postgresdb for cli persistence (not sqllite)
+5. 
+
+Agent TODO
+----------
+
+1. Agent can manage local git repos for processor code.
+2. Agent monitors database and will affect local git repo to the commit version specified by the user and restart workers
+3. Agent uses a file lock to synchronize with workers so it can do things in between worker tasks without race conditions
