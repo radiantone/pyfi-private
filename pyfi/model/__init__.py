@@ -40,7 +40,7 @@ class Agent(db.Model):
 
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), unique=True, nullable=False)
+    name = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(20), nullable=False)
     params = db.Column(db.String(80))
 
@@ -51,9 +51,23 @@ class Action(db.Model):
         return '<Name %r>' % self.name
 
 
-class Processor(db.Model):
+class Worker(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20), unique=True, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    requested_status = db.Column(db.String(40))
+    concurrency = db.Column(db.Integer)
+    process = db.Column(db.Integer)
+    host = db.Column(db.String(60))
+    queues = db.relationship('Queue', backref='worker', lazy=True)
+
+    def __repr__(self):
+        return '{} {} {} {} {}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.host, self.queues)
+
+
+class Processor(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -61,8 +75,8 @@ class Processor(db.Model):
 
 class Settings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), unique=True, nullable=False)
-    value = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(20), nullable=False)
+    value = db.Column(db.String(80), nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -77,8 +91,8 @@ class Node(db.Model):
 
 
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), unique=True, nullable=False)
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -86,7 +100,7 @@ class Task(db.Model):
 
 class Log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(80), unique=True, nullable=False)
+    text = db.Column(db.String(80), nullable=False)
 
     def __repr__(self):
         return '<id %r>' % self.id
@@ -94,7 +108,22 @@ class Log(db.Model):
 
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(80), unique=False, nullable=False)
+    worker_id = db.Column(db.Integer, db.ForeignKey('worker.id'),
+                      nullable=False)
 
     def __repr__(self):
-        return '<Name %r>' % self.name
+        return '{}:{}:{}'.format(self.id, self.name, self.worker_id)
+
+'''
+class WorkerQueues(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    worker_id = db.Column(db.Integer, db.ForeignKey(
+        'Worker.id'), nullable=False)
+    queue_id = db.Column(db.Integer, db.ForeignKey('Queue.id'), nullable=False)
+    workerR = db.relationship('Worker', foreign_keys='WorkerQueues.worker_id')
+    queueR = db.relationship('Queue', foreign_keys='WorkerQueues.queue_id')
+
+    def __repr__(self):
+        return '{} {} {}'.format(self.id, self.worker_id, self.queue_id)
+'''
