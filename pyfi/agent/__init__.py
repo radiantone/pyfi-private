@@ -1,5 +1,5 @@
 """
-server.py - pyfi agent server
+agent.py - pyfi agent server responsible for managing worker/processor lifecycle on a host
 """
 import socket
 import logging
@@ -11,7 +11,7 @@ from sqlalchemy import inspect
 from pyfi.celery.tasks import add
 from pyfi.model import User
 from pyfi.blueprints.show import blueprint
-from pyfi.model import init_db, User, Worker
+from pyfi.model import init_db, User, Worker, Agent as PyfiAgent
 from pyfi.worker import Worker as PyfiWorker
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
@@ -22,6 +22,7 @@ app = Flask(__name__)
 app.register_blueprint(blueprint)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+hostname = socket.gethostbyname(socket.gethostname())
 
 class Agent:
 
@@ -29,12 +30,12 @@ class Agent:
         self.port = port
         self.backend = backend
         self.broker = broker
-
         self.database = database
 
     def start(self):
         import bjoern
         from multiprocessing import Process
+        from uuid import uuid4
 
         logging.info("Serving agent on port {} {} {}".format(self.port, self.backend, self.broker))
 
@@ -42,6 +43,9 @@ class Agent:
         # agent process will monitor database and manage worker process pool
         # agent will report local available resources to database
         # agent will report # of active processors/CPUs and free CPUs
+        agent = PyfiAgent(id=uuid4(), hostname=hostname, name="agent")
+        self.database.session.add(agent)
+        self.database.session.commit()
 
         def monitor_workers():
             import time

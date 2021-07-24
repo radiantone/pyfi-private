@@ -1570,15 +1570,20 @@ export default {
       this.dataview = false;
       this.gitview = false;
       this[view] = show;
-      /*
-      window.toolkit.surface.setZoom(1.0);
-      var node = this.toolkit.getNode(this.obj);
-      window.toolkit.surface.centerOn(node, {
-        doNotAnimate: true,
-        onComplete: function () {
-          window.toolkit.surface.pan(-350, -350);
-        },
-      });*/
+
+      if(show) {
+        window.toolkit.surface.setZoom(1.0);
+        
+        var node = this.toolkit.getNode(this.obj);
+        window.toolkit.surface.centerOn(node, {
+          doNotAnimate: true,
+          onComplete: function () {
+            var loc = window.toolkit.surface.mapLocation(300,50)
+            console.log(loc)
+            window.toolkit.surface.pan(-350,-300);
+          },
+        });
+      }
     },
     updateDescription(value, initialValue) {
       console.log("updateDesc", value, initialValue);

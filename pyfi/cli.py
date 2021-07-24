@@ -22,10 +22,13 @@ POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 def cli(context, debug, db):
     logging.debug(f"Debug mode is {'on' if debug else 'off'}")
     context.obj = {}
+
+    # if db is None then check the .pyfi property file
     context.obj['dburi'] = db
 
     app = init_app(db)
     database = model_init(app)
+    context.obj['app'] = app
     context.obj['database'] = database
     database.init_app(app)
     app.app_context().push()
@@ -70,8 +73,29 @@ def db():
 
 @db.command()
 @click.pass_context
-def init(context):
+def drop(context):
+    """
+    Drop all database tables
+    """
+    try:
+        if click.confirm('Are you sure you want to drop the database?', default=False):
+            if click.confirm('Are you REALLY sure you want to drop the database?', default=False):
+                context.obj['database'].drop_all()
+                print("Database dropped.")
+            else:
+                print("Operation aborted.")
+        else:
+            print("Operation aborted.")
+    except Exception as ex:
+        logging.error(ex)
 
+
+@db.command()
+@click.pass_context
+def init(context):
+    """
+    Initialize database tables
+    """
     try:
         context.obj['database'].create_all()
         logging.info("Database create all schemas done.")
@@ -79,11 +103,11 @@ def init(context):
         logging.error(ex)
 
 
-@proc.command()
+@proc.command(name='start')
 @click.argument('function', required=True)
 @click.option('--schedule', required=True)
 @click.option('--queue', required=True)
-def start(function, schedule, queue):
+def start_processor(function, schedule, queue):
     """
     Start a processor
     """
@@ -109,12 +133,20 @@ def start(function, schedule, queue):
         # messages off a queue and dispatches it to the function
         pass
 
+
 @cli.group()
-def add():
+@click.option('--id', default=None, help="ID of object being added")
+@click.pass_context
+def add(context, id):
     """
-    Add an object to the database
+    Add an object to the databasepyfi 
     """
-    pass
+    from uuid import uuid4
+
+    if id is None:
+        id = uuid4()
+
+    context.obj['id'] = id
 
 
 @cli.group()
@@ -155,7 +187,7 @@ def user(context, name, email):
     admin = User(username=name, email=email)
     context.obj['database'].session.add(admin)
     context.obj['database'].session.commit()
-    logging.info("User %s[%s] added.", name, id)
+    logging.info("%s added.", user)
 
 
 @add.command()
@@ -164,13 +196,9 @@ def user(context, name, email):
 @click.pass_context
 def agent(context, id, name):
     """
-    Add user object to the database
+    Add agent object to the database
     """
-
-    from uuid import uuid4
-
-    if id is None:
-        id = uuid4().hex
+    id = context.obj['id']
 
     agent = Agent(name=name, id=id)
     context.obj['database'].session.add(agent)
@@ -185,13 +213,9 @@ def agent(context, id, name):
 @click.pass_context
 def queue(context, name, id, workerid):
     """
-    Add user object to the database
+    Add queue object to the database
     """
-
-    from uuid import uuid4
-
-    if id is None:
-        id = uuid4().hex
+    id = context.obj['id']
 
     worker = Worker.query.filter_by(id=workerid).first()
     queue = Queue(name=name, id=id, worker_id=workerid)
@@ -202,8 +226,7 @@ def queue(context, name, id, workerid):
     logging.info("Queue %s[%s] added.", name, id)
 
 
-@add.command()
-@click.option('--id', default=None)
+@add.command(name='worker')
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.option('-c', '--concurrency', default=3, help='Number of worker tasks')
 @click.option('-s', '--status', default='ready', help='Status string')
@@ -211,19 +234,17 @@ def queue(context, name, id, workerid):
 @click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
 @click.option('-h', '--hostname', default=hostname, help='Target server hostname')
 @click.pass_context
-def worker(context, id, name, concurrency, status, backend, broker, hostname):
+def add_worker(context, name, concurrency, status, backend, broker, hostname):
     """
-    Add a worker request
+    Add worker object to the database
     """
-
     from pyfi.model import Processor
     from uuid import uuid4
 
-    if id is None:
-        id = uuid4().hex
+    uuid = uuid4()
+    id = context.obj['id']
 
-    uuid = uuid4().hex
-    processor = Processor(uuid=uuid, module='pyfi.tt')
+    processor = Processor(id=uuid, uuid=uuid, module='pyfi.tt')
     processor.name = 'processor'
     worker = Worker(id=id, name=name, processor=processor, concurrency=concurrency,
                     status='ready',
@@ -263,14 +284,8 @@ def start(context, host, module, concurrency):
     Start a worker
     """
     from pyfi.worker import Worker
-    from pyfi.model import Processor
-    from uuid import uuid4
-
-    uuid = uuid4().hex
-    processor = Processor(uuid=uuid, module='pyfi.tt')
 
     worker = Worker(module, host, concurrency)
-    worker.processor = processor
     worker.start()
 
 
@@ -309,7 +324,7 @@ def update(context, id, concurrency, status):
     worker.concurrency = concurrency
     worker.requested_status = status
     context.obj['database'].session.add(worker)
-    context.database.session.commit()
+    context.obj['database'].session.commit()
     logging.info("Worker %s updated.", id)
 
 @cli.group()
@@ -328,7 +343,7 @@ def queues(context):
     """
     queues = Queue.query.all()
     for queue in queues:
-        print("{}:{}:{}".format(queue.id, queue.name, queue.worker_id))
+        print(queue)
 
 
 @ls.command()
@@ -337,10 +352,9 @@ def users(context):
     """
     List users
     """
-
     users = User.query.all()
     for user in users:
-        print("{}:{}".format(user.username, user.email))
+        print(user)
 
 
 @ls.command()
@@ -349,12 +363,9 @@ def workers(context):
     """
     List workers
     """
-
     workers = Worker.query.all()
     for _worker in workers:
-        print("{}:{}:{}:{}:{}:{}:{} {}".format(_worker.id, _worker.name,
-              _worker.concurrency, _worker.requested_status, _worker.processor, _worker.hostname, _worker.status, _worker.queues))
-
+        print(_worker)
 
 @ls.command()
 @click.option('-d', '--db', default=POSTGRES, help='Database URI')
@@ -362,10 +373,6 @@ def processors(db):
     """
     List processors
     """
-
-    app = init_app(db)
-    database = model_init(app)
-
     processors = Processor.query.all()
     for processor in processors:
         print(processor)
@@ -373,38 +380,47 @@ def processors(db):
 
 @ls.command()
 @click.pass_context
-def agents():
+def agents(context):
     """
     List agents
     """
     agents = Agent.query.all()
     for agent in agents:
-        print("{}:{}".format(agent.name, agent.id))
+        print(agent)
 
 
-@cli.command()
-@click.option('-p','--port', default=8000, help='Listen port')
-def api(port):
+@cli.group()
+def api():
+    pass
+
+
+@api.command(name='start')
+@click.option('-ip', default=hostname, help='IP bind address')
+@click.option('-p', '--port', default=8000, help='Listen port')
+@click.pass_context
+def api_start(context, ip, port):
     """
     Run pyfi API server
     """
     import bjoern
-
-    logging.info("Serving API on port {}".format(port))
+    from pyfi.server import app as server
+    logging.info("Initializing server app....")
+    init_db(server)
+    logging.info("Serving API on {}:{}".format(ip,port))
 
     try:
-        bjoern.run(app, "0.0.0.0", port)
+        bjoern.run(server, ip, port)
     except Exception as ex:
         logging.error(ex)
         logging.info("Shutting down...")
 
 
-@agent.command()
+@agent.command(name='start')
 @click.option('-p','--port', default=8002, help='Listen port')
 @click.option('-b','--backend', default='redis://192.168.1.23', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
 @click.pass_context
-def start(context, port, backend, broker):
+def start_agent(context, port, backend, broker):
     """
     Run pyfi agent server
     """
@@ -415,14 +431,18 @@ def start(context, port, backend, broker):
     agent.start()
 
 
-@cli.command()
+@cli.group()
+@click.pass_context
+def web(context):
+    pass
+
+@web.command(name='start')
 @click.option('-p','--port', default=8001, help='Listen port')
-def web(port):
+def web_start(port):
     """
     Run pyfi test web server
     """
     from multiprocessing import Process
-
     try:
         process = Process(target=run_http, args=[port])
         process.start()

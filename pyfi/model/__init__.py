@@ -16,7 +16,7 @@ def init_db(app):
     return db
 
 class User(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
 
@@ -25,7 +25,7 @@ class User(db.Model):
 
 
 class Flow(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(20), unique=True, nullable=False)
 
     def __repr__(self):
@@ -33,15 +33,16 @@ class Flow(db.Model):
 
 
 class Agent(db.Model):
-    id = Column(Integer, primary_key=True)
-    name = Column(String(20), unique=True, nullable=False)
+    id = Column(String(40), primary_key=True)
+    name = Column(String(20), nullable=False)
+    hostname = Column(String(60))
 
     def __repr__(self):
-        return '<Name %r>' % self.name
+        return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 
 
 class Action(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
     params = Column(String(80))
@@ -54,7 +55,7 @@ class Action(db.Model):
 
 
 class Worker(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(20), unique=True, nullable=False)
     status = Column(String(20), nullable=False)
     backend = Column(String(40), nullable=False)
@@ -67,15 +68,15 @@ class Worker(db.Model):
     processor = db.relationship('Processor', backref='processor', uselist=False, lazy=True)
 
     def __repr__(self):
-        return '{} {} {} {} {}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname, self.queues)
+        return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname, self.queues)
 
 
 class Processor(db.Model):
-    id = Column(Integer, unique=True, primary_key=True)
+    id = Column(String(40), unique=True, primary_key=True)
     name = Column(String(20), nullable=False)
     module = Column(String(80), nullable=False)
     uuid = Column(String(40), nullable=False)
-    worker_id = Column(Integer, ForeignKey('worker.id'),
+    worker_id = Column(String(40), ForeignKey('worker.id'),
                         nullable=False)
                         
     def __repr__(self):
@@ -83,7 +84,7 @@ class Processor(db.Model):
 
 
 class Settings(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(20), nullable=False)
     value = Column(String(80), nullable=False)
 
@@ -92,7 +93,7 @@ class Settings(db.Model):
 
 
 class Node(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(20), unique=True, nullable=False)
 
     def __repr__(self):
@@ -100,7 +101,7 @@ class Node(db.Model):
 
 
 class Task(db.Model):
-    id = Column(Integer, unique=True, primary_key=True)
+    id = Column(String(40), unique=True, primary_key=True)
     name = Column(String(20), nullable=False)
 
     def __repr__(self):
@@ -108,7 +109,7 @@ class Task(db.Model):
 
 
 class Log(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     text = Column(String(80), nullable=False)
 
     def __repr__(self):
@@ -116,9 +117,9 @@ class Log(db.Model):
 
 
 class Queue(db.Model):
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     name = Column(String(80), unique=False, nullable=False)
-    worker_id = Column(Integer, ForeignKey('worker.id'),
+    worker_id = Column(String(40), ForeignKey('worker.id'),
                       nullable=False)
 
     def __repr__(self):
@@ -126,10 +127,10 @@ class Queue(db.Model):
 
 '''
 class WorkerQueues(db.Model):
-    id = Column(Integer, primary_key=True)
-    worker_id = Column(Integer, db.ForeignKey(
+    id = Column(String(40), primary_key=True)
+    worker_id = Column(String(40), db.ForeignKey(
         'Worker.id'), nullable=False)
-    queue_id = Column(Integer, db.ForeignKey('Queue.id'), nullable=False)
+    queue_id = Column(String(40), db.ForeignKey('Queue.id'), nullable=False)
     workerR = db.relationship('Worker', foreign_keys='WorkerQueues.worker_id')
     queueR = db.relationship('Queue', foreign_keys='WorkerQueues.queue_id')
 

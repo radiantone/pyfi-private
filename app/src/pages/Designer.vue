@@ -414,6 +414,7 @@
         expanded-icon="far fa-minus-square text-blue-grey-5"
         icon="far fa-compass"
         label="Navigate"
+        id="navigator"
       >
         <q-card style="padding: 0px;">
           <q-card-section>

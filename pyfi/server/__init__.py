@@ -21,10 +21,13 @@ app.register_blueprint(blueprint)
 app.config['SQLALCHEMY_DATABASE_URI'] = POSTGRES
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-#init_db(app)
 
 @app.route('/')
 def hello():
     logging.debug('Invoking hello')
     result = add.delay(4,5)
     return "Hello World!! {}".format(result.get())
+
+
+if __name__ == '__main__':
+    init_db(app)
