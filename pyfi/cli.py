@@ -1,21 +1,56 @@
 """
 cli.py - pyfi CLI
 """
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 import click
 import logging
-
+import socket
 
 from pyfi.server import app
-from pyfi.agent import app as agentapp
-from pyfi.model import User, Agent, Worker, Action, Flow, Processor, Node, Queue, Settings, Task, Log, db as database
+from pyfi.model import User, Agent, Worker, Action, Flow, Processor, Node, Queue, Settings, Task, Log, init_db as model_init
 from pyfi.http import run_http
 
+hostname = socket.gethostbyname(socket.gethostname())
+
+POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
-def cli(debug):
+@click.option('-d', '--db', default=POSTGRES, help='Database URI')
+@click.pass_context
+def cli(context, debug, db):
     logging.debug(f"Debug mode is {'on' if debug else 'off'}")
+    context.obj = {}
+    context.obj['dburi'] = db
 
+    app = init_app(db)
+    database = model_init(app)
+    context.obj['database'] = database
+    database.init_app(app)
+    app.app_context().push()
+
+
+def init_app(db):
+    app = Flask(__name__)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = db
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.app_context().push()
+
+    return app
+
+
+def init_db(db):
+    app = Flask(__name__)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = db
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    database = SQLAlchemy(app)
+    app.app_context().push()
+
+    return database, app
 
 @cli.group()
 def proc():
@@ -34,18 +69,11 @@ def db():
 
 
 @db.command()
-def init():
-    from flask import Flask
+@click.pass_context
+def init(context):
 
     try:
-        app = Flask(__name__)
-
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-        database.init_app(app)
-        app.app_context().push()
-        database.create_all()
+        context.obj['database'].create_all()
         logging.info("Database create all schemas done.")
     except Exception as ex:
         logging.error(ex)
@@ -64,7 +92,8 @@ def start(function, schedule, queue):
     from celery import Celery
     from multiprocessing import Process
 
-    celery = Celery('pyfi', backend='redis://localhost', broker='pyamqp://')
+    celery = Celery('pyfi', backend='redis://192.168.1.23',
+                    broker='pyamqp://192.168.1.23')
 
     @celery.on_after_configure.connect
     def setup_periodic_tasks(sender, **kwargs):
@@ -118,44 +147,95 @@ def run(task):
 @add.command()
 @click.argument('name')
 @click.argument('email')
-def user(name, email):
+@click.pass_context
+def user(context, name, email):
     """
     Add user object to the database
     """
     admin = User(username=name, email=email)
-    database.session.add(admin)
-    database.session.commit()
-    logging.info("User %s added.", name)
+    context.obj['database'].session.add(admin)
+    context.obj['database'].session.commit()
+    logging.info("User %s[%s] added.", name, id)
 
 
 @add.command()
-@click.argument('name')
-@click.argument('id')
-def agent(name, id):
+@click.option('--id', default=None)
+@click.option('-n', '--name', required=True)
+@click.pass_context
+def agent(context, id, name):
     """
     Add user object to the database
     """
+
+    from uuid import uuid4
+
+    if id is None:
+        id = uuid4().hex
+
     agent = Agent(name=name, id=id)
-    database.session.add(agent)
-    database.session.commit()
-    logging.info("Agent %s added.", name)
+    context.obj['database'].session.add(agent)
+    context.obj['database'].session.commit()
+    logging.info("Agent %s[%s] added.", name, id)
 
 
 @add.command()
-@click.argument('name')
-@click.argument('id')
-@click.argument('worker_id')
-def queue(name, id, worker_id):
+@click.option('-n','--name', required=True)
+@click.option('--id', default=None)
+@click.option('-w', '--workerid', required=True)
+@click.pass_context
+def queue(context, name, id, workerid):
     """
     Add user object to the database
     """
-    worker = Worker.query.filter_by(id=worker_id).first()
-    queue = Queue(name=name, id=id, worker_id=worker_id)
+
+    from uuid import uuid4
+
+    if id is None:
+        id = uuid4().hex
+
+    worker = Worker.query.filter_by(id=workerid).first()
+    queue = Queue(name=name, id=id, worker_id=workerid)
     worker.queues += [queue]
-    database.session.add(queue)
-    database.session.add(worker)
-    database.session.commit()
-    logging.info("Queue %s added.", name)
+    context.obj['database'].session.add(queue)
+    context.obj['database'].session.add(worker)
+    context.obj['database'].session.commit()
+    logging.info("Queue %s[%s] added.", name, id)
+
+
+@add.command()
+@click.option('--id', default=None)
+@click.option('-n', '--name', required=True, help="Name of worker")
+@click.option('-c', '--concurrency', default=3, help='Number of worker tasks')
+@click.option('-s', '--status', default='ready', help='Status string')
+@click.option('-b', '--backend', default='redis://192.168.1.23', help='Message backend URI')
+@click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
+@click.option('-h', '--hostname', default=hostname, help='Target server hostname')
+@click.pass_context
+def worker(context, id, name, concurrency, status, backend, broker, hostname):
+    """
+    Add a worker request
+    """
+
+    from pyfi.model import Processor
+    from uuid import uuid4
+
+    if id is None:
+        id = uuid4().hex
+
+    uuid = uuid4().hex
+    processor = Processor(uuid=uuid, module='pyfi.tt')
+    processor.name = 'processor'
+    worker = Worker(id=id, name=name, processor=processor, concurrency=concurrency,
+                    status='ready',
+                    backend=backend,
+                    broker=broker,
+                    hostname=hostname,
+                    requested_status=status)
+
+    context.obj['database'].session.add(worker)
+    context.obj['database'].session.commit()
+    logging.info("Worker %s added.", name)
+
 
 @cli.group()
 def ls():
@@ -177,53 +257,28 @@ def worker():
 @click.option('-h', '--host', default='worker@localhost', required=True)
 @click.option('-m', '--module', required=True, multiple=True)
 @click.option('-c', '--concurrency')
-def start(host, module, concurrency):
+@click.pass_context
+def start(context, host, module, concurrency):
     """
     Start a worker
     """
-    from multiprocessing import Process
-    import time
-    import psutil
-    import os
-    import signal
+    from pyfi.worker import Worker
+    from pyfi.model import Processor
+    from uuid import uuid4
 
-    def worker_proc():
-        from celery import Celery
-        
-        celery = Celery('pyfi', backend='redis://localhost', broker='pyamqp://', )
+    uuid = uuid4().hex
+    processor = Processor(uuid=uuid, module='pyfi.tt')
 
-        worker = celery.Worker(
-            include=module,
-            hostname=host,
-            concurrency=int(concurrency)
-        )
-        worker.start()
-
-    print("Starting worker process...")
-    proc = Process(target=worker_proc)
-    proc.start()
-    print("Started ",proc.pid)
-    time.sleep(3)
-    print("Suspending")
-    p = psutil.Process(proc.pid)
-    p.suspend()
-    print("Sleeping 5")
-    time.sleep(5)
-    print("Awakening")
-    print("Terminating")
-    
-    pgrp = os.getpgid(proc.pid)
-
-    os.killpg(pgrp, signal.SIGKILL)
-    proc.terminate()
-    proc.kill()
-    print("Terminated")
+    worker = Worker(module, host, concurrency)
+    worker.processor = processor
+    worker.start()
 
 
 @worker.command()
 @click.option('-h', '--host', default='localhost')
 @click.option('-p', '--procid', required=True)
-def stop(host, procid):
+@click.pass_context
+def stop(context, host, procid, db):
     """
     Stop a worker
     """
@@ -233,7 +288,8 @@ def stop(host, procid):
 @worker.command()
 @click.option('-h', '--host', default='localhost')
 @click.option('-p', '--procid', required=True)
-def status(host, procid):
+@click.pass_context
+def status(context, host, procid):
     """
     Get the status of a worker
     """
@@ -241,21 +297,20 @@ def status(host, procid):
 
 
 @worker.command()
-@click.argument('id')
-@click.argument('name')
-@click.argument('concurrency')
-@click.argument('requested_status')
-def add(id, name, concurrency, requested_status):
+@click.option('--id', required=True)
+@click.option('-c', '--concurrency', default=3, help='Number of worker tasks')
+@click.option('-s', '--status', default='ready', help='Status string')
+@click.pass_context
+def update(context, id, concurrency, status):
     """
-    Add a worker request
+    Update a worker
     """
-    worker = Worker(id=id, name=name, concurrency=concurrency,
-                    status='ready',
-                    requested_status=requested_status)
-    database.session.add(worker)
-    database.session.commit()
-    logging.info("Worker %s added.", name)
-
+    worker = Worker.query.filter_by(id=id).first()
+    worker.concurrency = concurrency
+    worker.requested_status = status
+    context.obj['database'].session.add(worker)
+    context.database.session.commit()
+    logging.info("Worker %s updated.", id)
 
 @cli.group()
 def agent():
@@ -266,34 +321,58 @@ def agent():
 
 
 @ls.command()
-def queues():
+@click.pass_context
+def queues(context):
     """
     List queues
     """
-    logging.info("ls queues")
+    queues = Queue.query.all()
+    for queue in queues:
+        print("{}:{}:{}".format(queue.id, queue.name, queue.worker_id))
 
 
 @ls.command()
-def users():
+@click.pass_context
+def users(context):
     """
     List users
     """
+
     users = User.query.all()
     for user in users:
         print("{}:{}".format(user.username, user.email))
 
 
 @ls.command()
-def workers():
+@click.pass_context
+def workers(context):
     """
-    List users
+    List workers
     """
+
     workers = Worker.query.all()
     for _worker in workers:
-        print("{}:{}:{}:{} {}".format(_worker.id, _worker.name,
-              _worker.concurrency, _worker.status, _worker.queues))
+        print("{}:{}:{}:{}:{}:{}:{} {}".format(_worker.id, _worker.name,
+              _worker.concurrency, _worker.requested_status, _worker.processor, _worker.hostname, _worker.status, _worker.queues))
+
 
 @ls.command()
+@click.option('-d', '--db', default=POSTGRES, help='Database URI')
+def processors(db):
+    """
+    List processors
+    """
+
+    app = init_app(db)
+    database = model_init(app)
+
+    processors = Processor.query.all()
+    for processor in processors:
+        print(processor)
+
+
+@ls.command()
+@click.pass_context
 def agents():
     """
     List agents
@@ -304,7 +383,7 @@ def agents():
 
 
 @cli.command()
-@click.option('--port', default=8000, help='Listen port')
+@click.option('-p','--port', default=8000, help='Listen port')
 def api(port):
     """
     Run pyfi API server
@@ -321,98 +400,23 @@ def api(port):
 
 
 @agent.command()
-@click.option('--port', default=8002, help='Listen port')
-@click.option('--db', default='sqlite:////tmp/test.db', help='Listen port')
-def start(port, db):
+@click.option('-p','--port', default=8002, help='Listen port')
+@click.option('-b','--backend', default='redis://192.168.1.23', help='Message backend URI')
+@click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
+@click.pass_context
+def start(context, port, backend, broker):
     """
     Run pyfi agent server
     """
-    import bjoern
-    from multiprocessing import Process
+    from pyfi.agent import Agent
 
-    logging.info("Serving agent on port {}".format(port))
-    agentapp.config['SQLALCHEMY_DATABASE_URI'] = db
+    agent = Agent(context.obj['database'], port, backend=backend, broker=broker)
 
-    # Create database ping process to notify pyfi that I'm here and active
-    # agent process will monitor database and manage worker process pool
-    # agent will report local available resources to database
-    # agent will report # of active processors/CPUs and free CPUs
-
-    def monitor_workers():
-        import time
-        workers = []
-
-        while True:
-            logging.info("agent:monitor: sleep 3")
-            time.sleep(3)
-            logging.info("agent:monitor: wakeup")
-
-
-            for worker in workers:
-                # refresh worker from database
-                database.session.refresh(worker['worker'])
-
-                # Depending on its requested status take action
-                
-            # Grab a new worker request and process it
-            # Only one agent will grab this worker
-            _worker = Worker.query.with_for_update(of=Worker).filter_by(requested_status='deployed').first()
-
-            if _worker is None:
-                continue
-
-            logging.info("Grabbing worker status='%s'",_worker.status)
-
-            def worker_proc(worker, module, queues):
-                from celery import Celery
-
-                celery = Celery('pyfi', backend='redis://localhost',
-                                broker='pyamqp://', )
-
-
-                # Add queues to worker
-
-                worker = celery.Worker(
-                    include=module,
-                    hostname=worker.name,
-                    queues=['pyfi'],
-                    concurrency=int(worker.concurrency)
-                )
-                worker.start()
-
-                #celery.control.add_consumer('foo', reply=True,
-                #                           destination=[worker.name])
-
-            _worker.status = 'deploying'
-            database.session.add(_worker)
-            database.session.commit()
-            process = Process(target=worker_proc,
-                              args=(_worker, 'pyfi.worker', []))
-            _worker.process = process.pid
-            _worker.host = 'thishost'
-
-            # Store process so it can be managed
-            workers += [{'process':process, 'worker':_worker}]
-
-            process.start()
-
-            _worker.requested_status = 'ready'
-            _worker.status = 'deployed'
-            database.session.add(_worker)
-            database.session.commit()
-
-    process = Process(target=monitor_workers)
-    process.start()
-
-    try:
-        bjoern.run(agentapp, "0.0.0.0", port)
-    except Exception as ex:
-        logging.error(ex)
-        logging.info("Shutting down...")
+    agent.start()
 
 
 @cli.command()
-@click.option('--port', default=8001, help='Listen port')
+@click.option('-p','--port', default=8001, help='Listen port')
 def web(port):
     """
     Run pyfi test web server

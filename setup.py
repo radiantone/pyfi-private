@@ -120,16 +120,16 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['pyfi', 'pyfi.tests','pyfi.agent','pyfi.celery','pyfi.blueprints','pyfi.celery.tasks','pyfi.model','pyfi.http'],
+    packages=['pyfi', 'pyfi.tests','pyfi.worker', 'pyfi.agent','pyfi.celery','pyfi.blueprints','pyfi.celery.tasks','pyfi.model','pyfi.http'],
     include_package_data=True,
     python_requires="==3.8.*",
     install_requires=[
         'click<8.0,>=7.0',
         'flask',
-        'Flask[async]',
         'celery',
         'bjoern',
         'redis',
+        'psycopg2',
         'sqlalchemy',
         'flask_sqlalchemy',
         'py-entangle'
