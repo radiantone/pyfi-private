@@ -1,18 +1,21 @@
 """
 cli.py - pyfi CLI command tools
 """
-from werkzeug.utils import cached_property
-from sqlalchemy.sql import func
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
-import click
 import logging
 import socket
+from datetime import datetime
+
+import click
+
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+from flask_migrate import Migrate, migrate as db_migrate, init as migrate_init, upgrade as migrate_upgrade
 
 import pyfi.db.postgres
+
 from pyfi.server import app
 from pyfi.db.model import UserModel, AgentModel, WorkerModel, ActionModel, FlowModel, ProcessorModel, NodeModel, QueueModel, SettingsModel, TaskModel, LogModel, init_db as model_init
-from pyfi.http import run_http
+from pyfi.web import run_http
 
 hostname = socket.gethostbyname(socket.gethostname())
 
@@ -23,7 +26,9 @@ POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 @click.option('-d', '--db', default=POSTGRES, help='Database URI')
 @click.pass_context
 def cli(context, debug, db):
-    logging.debug(f"Debug mode is {'on' if debug else 'off'}")
+    """
+    Pyfi CLI for managing the pyfi network
+    """
     context.obj = {}
 
     # if db is None then check the .pyfi property file
@@ -34,6 +39,7 @@ def cli(context, debug, db):
         database = model_init(app)
         context.obj['app'] = app
         context.obj['database'] = database
+        Migrate(app, database)
         database.init_app(app)
         app.app_context().push()
     except:
@@ -42,6 +48,9 @@ def cli(context, debug, db):
 
 
 def init_app(db):
+    """
+    Docstring
+    """
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db
@@ -52,6 +61,9 @@ def init_app(db):
 
 
 def init_db(db):
+    """
+    Docstring
+    """
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db
@@ -89,6 +101,16 @@ def db(context):
 
 @db.command()
 @click.pass_context
+def migrate(context):
+    """
+    Perform database migration/upgrade
+    """
+    db_migrate(directory='migration')
+    migrate_upgrade(directory='migration')
+
+
+@db.command()
+@click.pass_context
 def drop(context):
     """
     Drop all database tables
@@ -106,10 +128,10 @@ def drop(context):
         logging.error(ex)
 
 
-@db.command()
+@db.command(name='init')
 @click.option('-d', '--db', default= 'postgresql://postgres:pyfi101@'+hostname+':5432/postgres', help='Database URI')
 @click.pass_context
-def init(context, db):
+def db_init(context, db):
     """
     Initialize database tables
     """
@@ -118,6 +140,8 @@ def init(context, db):
             from sqlalchemy import create_engine
             from sqlalchemy.orm import sessionmaker
 
+            Migrate(context.obj['app'], context.obj['database'])
+            migrate_init(directory='migration')
             engine = create_engine(db)
             session = sessionmaker(bind=engine)()
             session.connection().connection.set_isolation_level(0)
@@ -259,7 +283,7 @@ def add_processor(context, name, module, hostname, tasks, gitrepo, commit, reque
     processor = ProcessorModel(
         id=id, status='ready', hostname=hostname, gitrepo=gitrepo, commit=commit, concurrency=tasks, requested_status=requested_status, name=name, module=module)
 
-    processor.updated = func.now()
+    processor.updated = datetime.now()()
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
     print(processor)
@@ -276,7 +300,7 @@ def user(context, name, email):
     id = context.obj['id']
     user = UserModel(id=id, username=name, email=email)
 
-    user.updated = func.now()
+    user.updated = datetime.now()()
     context.obj['database'].session.add(user)
     context.obj['database'].session.commit()
     print(user)
@@ -292,17 +316,17 @@ def add_agent(context, name):
     id = context.obj['id']
 
     agent = AgentModel(name=name, id=id)
-    agent.updated = func.now()
+    agent.updated = datetime.now()()
     context.obj['database'].session.add(agent)
     context.obj['database'].session.commit()
     print(agent)
 
 
-@add.command()
+@add.command(name='queue')
 @click.option('-n','--name', required=True)
 @click.option('-p', '--procid', required=True)
 @click.pass_context
-def queue(context, name, procid):
+def add_queue(context, name, procid):
     """
     Add queue object to the database
     """
@@ -312,7 +336,7 @@ def queue(context, name, procid):
     queue = QueueModel(name=name, id=id, requested_status='create',
                        status='ready', processor_id=procid)
 
-    queue.updated = func.now()
+    queue.updated = datetime.now()()
     processor.queues += [queue]
     context.obj['database'].session.add(queue)
     context.obj['database'].session.add(processor)

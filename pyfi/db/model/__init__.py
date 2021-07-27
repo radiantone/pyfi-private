@@ -86,6 +86,7 @@ class AgentModel(db.Model):
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
     cpus = Column(Integer)
+
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.cpus, self.status, self.name, self.hostname)
 
@@ -120,6 +121,8 @@ class WorkerModel(db.Model):
     requested_status = Column(String(40))
     concurrency = Column(Integer)
     process = Column(Integer)
+    #role = Column(String(40), nullable=False)
+    #user = Column(String(40), nullable=False)
     hostname = Column(String(60))
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
@@ -151,7 +154,7 @@ class ProcessorModel(db.Model):
     worker = db.relationship(
         'WorkerModel', backref='processor', uselist=False, lazy=True)
     queues = db.relationship('QueueModel', backref='processor', lazy=True)
-                        
+
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker)
 
@@ -217,8 +220,7 @@ class QueueModel(db.Model):
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
-                      nullable=False)
+                          nullable=False)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.requested_status, self.status, self.name, self.processor_id)
-
