@@ -1,3 +1,6 @@
+"""
+
+"""
 from flask import request
 from flask_restx import Resource
 
@@ -6,17 +9,32 @@ from pyfi.api.resource.dto import UserDto
 api = UserDto.api
 _user = UserDto.user
 
+
 def get_a_user(id):
+    """
+    Docstring
+    """
     return {}
 
+
 def get_all_users():
+    """
+    Docstring
+    """
     return []
 
+
 def save_new_user(data={}):
+    """
+    Docstring
+    """
     return
 
 @api.route('/')
 class UserList(Resource):
+    """
+    Docstring
+    """
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
     def get(self):
@@ -36,6 +54,9 @@ class UserList(Resource):
 @api.param('public_id', 'The User identifier')
 @api.response(404, 'User not found.')
 class User(Resource):
+    """
+    Docstring
+    """
     @api.doc('get a user')
     @api.marshal_with(_user)
     def get(self, public_id):
