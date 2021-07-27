@@ -1,0 +1,10 @@
+"""
+Patch for drop_all function in SQLAlchemy for postgres
+"""
+from sqlalchemy.schema import DropTable
+from sqlalchemy.ext.compiler import compiles
+
+
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    return compiler.visit_drop_table(element) + " CASCADE"

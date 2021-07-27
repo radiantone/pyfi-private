@@ -38,10 +38,10 @@ PYFI TODOs
 CLI TODO
 --------
 
-1. Factor out database and celery configs
-2. Agent server and process. database update
-3. Run postgres container for sqlaclchemy
-4. Use postgresdb for cli persistence (not sqllite)
+1. Factor out database and celery configs (passed in on cli) DONE
+2. Agent server and process. database update DONE
+3. Run postgres container for sqlaclchemy DONE
+4. Use postgresdb for cli persistence (not sqllite) DONE
 5. 
 
 Agent TODO
@@ -50,3 +50,7 @@ Agent TODO
 1. Agent can manage local git repos for processor code.
 2. Agent monitors database and will affect local git repo to the commit version specified by the user and restart workers
 3. Agent uses a file lock to synchronize with workers so it can do things in between worker tasks without race conditions
+4. Agent monitors database for processors, spawns workers to match. DONE
+5. Create queues before launching worker based on queues attached to processor.
+
+

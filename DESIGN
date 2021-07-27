@@ -32,21 +32,43 @@ Processors will retrieve their state information from the server in a stateless 
 should terminate, then it terminates. If a script update is available in the database, the worker will request a refresh and then
 that process will terminate after the new process has started - when the server API returns.
 
+SERVICES design
+---------------
+
+Using supervisord pyfi agent start and pyfi agent start --queues are run as process apps on each hosts
+This ensures that the host is available for processors to run on
+From there, the agent will monitor the datbase for new processors targeted for that host
+A separate scheduler will pair processor records with agents based on available resources.
+The scheduler may rebalance the network by re-assigning processors that are packed onto a single server.
+For example, if server A has 12 CPUS and 4 processors with concurrency of 3 and server B has 12 CPUs with no processors.
+The scheduler will move 2 of the processors to server B. If later, a new processor requests a concurrency of 12,
+the scheduler can move the 2 processors on server B, back to server A and then assign the new 12 CPU processor to server B.
+
+
 CLI design
 ----------
 
 CLI commands add an ACTION record to the database and the PYFI agent implements them across the network.
 Actions can be targeted to specific hosts or workers.
 
-
-
-
 AGENT design
 ------------
 
-Agent process monitors database and performs outcomes.
-It will spawn Processes for each worker/processor and pause, delete or restart that process as actions are taken
-in the UI and stored in the database.
+Agent process monitors processor table and launchers workers to serve processor needs (e.g. concurrency)
+Agent will remember which processors it is responsible for and restart them when it boots
+Processor lifecycle is managed through database using its requested_status attribute. Agent then responds
+When the processor achieves its state, agent changes requested_status to 'ready' and status to the desired state.
+If any error occurs it is stored in the error field (TBD).
 
-For example a processor might have an action to RESTART with status PENDING. When the agent completes the task,
-it updates the status to COMPLETED.
+Any queues associated with the processor are mapped down to the worker and celery worker.
+Whenever the processor state changes, the agent will kill the current worker and create a new one
+
+
+DEPLOY 
+------
+
+- Processors are added to the database
+- Aftewards, agents will obtain listed processors (read lock) and create a worker with the concurrency needs of the processor, 
+passing in the module/code for the processor and assigning the worker to the queues of the processor.
+   - Whenever objects in the flow change such as processor concurrency, or connected queues, it is tagged with an "update" status
+   and the agent will terminate existing workers assigned to the processor and respawn new ones.

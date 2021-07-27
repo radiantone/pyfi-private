@@ -3,16 +3,16 @@ agent.py - pyfi agent server responsible for managing worker/processor lifecycle
 """
 import socket
 import logging
-import asyncio
+import multiprocessing
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import inspect
 
 from pyfi.celery.tasks import add
-from pyfi.model import User
+from pyfi.db.model import ProcessorModel, UserModel
 from pyfi.blueprints.show import blueprint
-from pyfi.model import init_db, User, Worker, Agent as PyfiAgent
-from pyfi.worker import Worker as PyfiWorker
+from pyfi.db.model import init_db, UserModel, WorkerModel, AgentModel, QueueModel
+from pyfi.worker import Worker
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
 
@@ -23,6 +23,7 @@ app.register_blueprint(blueprint)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 hostname = socket.gethostbyname(socket.gethostname())
+cpus = multiprocessing.cpu_count()
 
 class Agent:
 
@@ -32,151 +33,252 @@ class Agent:
         self.broker = broker
         self.database = database
 
-    def start(self):
+    def start(self, queues):
+        from datetime import datetime
         import bjoern
         from multiprocessing import Process
         from uuid import uuid4
 
         logging.info("Serving agent on port {} {} {}".format(self.port, self.backend, self.broker))
 
-        # Create database ping process to notify pyfi that I'm here and active
-        # agent process will monitor database and manage worker process pool
-        # agent will report local available resources to database
-        # agent will report # of active processors/CPUs and free CPUs
-        agent = PyfiAgent(id=uuid4(), hostname=hostname, name="agent")
+        # Retrieve any existing Agent for this hose
+        agent = AgentModel.query.filter_by(hostname=hostname).first()
+        if agent is None:
+            # Create database ping process to notify pyfi that I'm here and active
+            # agent process will monitor database and manage worker process pool
+            # agent will report local available resources to database
+            # agent will report # of active processors/CPUs and free CPUs
+            agent = AgentModel(id=uuid4(), hostname=hostname, name="agent")
+
+        agent.status = 'running'
+        agent.cpus = cpus
+        agent.updated = datetime.now()
         self.database.session.add(agent)
         self.database.session.commit()
 
-        def monitor_workers():
+        def monitor_queues():
             import time
+
+            def manage_queues():
+                from uuid import uuid4
+
+                while True:
+                    try:
+                        time.sleep(3)
+                        logging.info("Checking queues...")
+                        queue = QueueModel.query.with_for_update(
+                            of=QueueModel).filter_by(requested_status='create').first()
+
+                        if queue is not None:
+                            logging.info("Creating queue %s", queue)
+                            queue.requested_status = 'ready'
+                            queue.status = 'created'
+                            self.database.session.commit()
+                    except:
+                        pass
+
+            manage_queues()
+
+        def monitor_processors():
+            """
+            Retrieve any processors that need compute resources, determine if you have free CPU's or idle workers,
+            then create a worker with the processor's module and link the worker to the processor    
+            """
+            import time
+            processors = []
             workers = []
             hostname = socket.gethostbyname(socket.gethostname())
-    
-            while True:
-                logging.info("agent:monitor: sleep 3")
-                time.sleep(3)
-                logging.info("agent:monitor: wakeup %s", hostname)
 
-                myworkers = Worker.query.filter_by(hostname=hostname)
-                for myworker in myworkers:
-                    self.database.session.refresh(myworker)
-                    found = False
-                    for worker in workers:
-                        logging.info("%s %s", worker['worker'].id, myworker.id)
-                        print("Updating worker from ",
-                            worker['worker'], " to ", myworker)
-                        if worker['worker'].id == myworker.id:
-                            worker['worker'] = myworker
-                            found = True
-                    
-                    if not found:
-                        workers += [{'process':None, 'worker':myworker}]
+            def manage_processors(workers, processors):
+                """
+                Agents manage processors assigned to them and connect them to workers
+                """
+                from uuid import uuid4
+                import shutil
+                import os
 
-                for worker in workers:
-                    try:
-                        logging.info("Agent worker %s %s %s %s %s", worker['worker'].requested_status, worker['worker'].name,
-                                 worker['worker'].queues, worker['worker'].backend, worker['worker'].broker)
-                    except:
-                        import traceback
-                        print(traceback.format_exc())
+                while True:
+                    logging.info("processor:monitor: sleep 3")
+                    time.sleep(3)
+                    logging.info("processor:monitor: wakeup %s", hostname)
+                    myprocessors = ProcessorModel.query.filter_by(
+                        hostname=hostname).all()
 
-                    if worker['worker'].requested_status == 'resume':
-                        if worker['process'] is not None:
-                            worker['process'].suspend()
-                            logging.info("Suspended worker %s",
-                                         worker['worker'].id)
+                    for myprocessor in myprocessors:
+                        self.database.session.refresh(myprocessor)
+                        found = False
+                        for processor in processors:
+                            if processor['processor'].id == myprocessor.id:
+                                processor['processor'] = myprocessor
+                                found = True
 
-                        worker['worker'].status = 'running'
-                        worker['worker'].requested_status = 'ready'
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+                        if not found:
+                            processors += [{'worker': None,
+                                            'processor': myprocessor}]
+
+                    for processor in processors:
+
+                        if processor['processor'].requested_status == 'removed':
+                            if processor['worker'] is not None:
+                                logging.info("Killing worker")
+                                try:
+                                    processor['worker']['process'].kill()
+                                    processor['worker'] = None
+                                    logging.info("Killed worker %s",
+                                                 worker['worker'].id)
+                                except:
+                                    import traceback
+                                    print(traceback.format_exc())
+                            
+                            processor['delete'] = True
+                            self.database.session.delete(
+                                processor['processor'].worker)
+                            self.database.session.delete(
+                                processor['processor'])
+                            self.database.session.commit()
+
+                            if os.path.exists('work/'+processor['processor'].id):
+                                logging.debug(
+                                    "Removing work directory %s", 'work/'+processor['processor'])
+                                shutil.rmtree('work/'+processor['processor'])
+
+                            logging.info("Processor is removed")
+                            continue                            
+
+                        if processor['processor'].requested_status == 'restart':
+                            if processor['worker'] is not None:
+                                logging.info("Killing worker")
+                                try:
+                                    processor['worker']['process'].kill()
+                                    processor['worker'] = None
+                                    logging.info("Killed worker %s",
+                                                worker['worker'].id)
+                                except:
+                                    import traceback
+                                    print(traceback.format_exc())
+
+                            processor['processor'].requested_status == 'start'
+                            processor['processor'].status == 'stopped'
+                            processor['processor'].worker.status = 'stopped'
+                            processor['processor'].worker.requested_status = 'ready'
+                            logging.info("Processor is stopped")
+                            self.database.session.add(
+                                processor['processor'].worker)
+                            self.database.session.add(
+                                processor['processor'])
+                            self.database.session.commit()
 
 
-                    if worker['worker'].requested_status == 'suspend':
-                        if worker['process'] is not None:
-                            worker['process'].suspend()
-                            logging.info("Suspended worker %s",
-                                         worker['worker'].id)
+                        if processor['processor'].requested_status == 'stopped':
+                            if processor['worker'] is not None:
+                                logging.info("Killing worker")
+                                try:
+                                    processor['worker']['process'].kill()
+                                    processor['worker'] = None
+                                    logging.info("Killed worker %s",
+                                                worker['worker'].id)
+                                except:
+                                    import traceback
+                                    print(traceback.format_exc())
 
-                        worker['worker'].status = 'suspended'
-                        worker['worker'].requested_status = 'ready'
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+                            processor['processor'].requested_status == 'ready'
+                            processor['processor'].status == 'stopped'
+                            processor['processor'].worker.status = 'stopped'
+                            processor['processor'].worker.requested_status = 'ready'
+                            logging.info("Processor is stopped")
+                            self.database.session.add(
+                                processor['processor'].worker)
+                            self.database.session.add(
+                                processor['processor'])
+                            self.database.session.commit()
 
-                    if worker['worker'].requested_status == 'start':
-                        worker['worker'].status = 'ready'
+                        if processor['processor'].requested_status == 'started':
+                            if processor['worker'] is None:
+                                # Spin up worker if I have CPU's available
+                                # Create a worker, link it to the processor
+                                # Add it to workers list
+                                pass
+                            pass
 
-                    if worker['worker'].requested_status == 'stop':
-                        if worker['process'] is not None:
-                            worker['process'].kill()
-                            worker['process'] = None
-                            logging.info("Killed worker %s",
-                                            worker['worker'].id)
+                        if (processor['processor'].requested_status == 'update' or processor['worker'] is None) and (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped'):
+                            logging.info("Updating processor")
 
-                        worker['worker'].status = 'stopped'
-                        worker['worker'].requested_status = 'ready'
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+                            if processor['processor'].worker is None:
+                                """ If there is no worker model, create one and link to Processor """                                
+                                workerModel = WorkerModel(id=str(uuid4()), name=processor['processor'].name+'-worker', concurrency=processor['processor'].concurrency,
+                                                     status='ready',
+                                                     backend=self.backend,
+                                                     broker=self.broker,
+                                                     hostname=hostname,
+                                                     requested_status='start')
 
-                    if worker['worker'].requested_status == 'kill':
-                        if worker['process'] is not None:
-                            worker['process'].kill()
-                            worker['process'] = None
-                            logging.info("Killed worker %s",
-                                         worker['worker'].id)
+                                self.database.session.add(workerModel)
+                                logging.info(
+                                    "Worker %s created.", workerModel.id)
+                                processor['processor'].worker = workerModel
+                                self.database.session.add(processor['processor'])
+                                self.database.session.commit()
 
-                        worker['worker'].status = 'ready'
-                        worker['worker'].requested_status = 'ready'
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+                            print(processor['processor'].worker)
+                            if processor['worker'] is None:
+                                """ If there is no worker Process create it """
+                                import os
+                                worker = {}
+                            
+                                dir = 'work/'+processor['processor'].id
+                                os.makedirs(dir, exist_ok=True)
+                                workerproc = Worker(
+                                    processor['processor'], workdir=dir, backend=self.backend, broker=self.broker)
+                                workerproc.start()
+                                processor['processor'].worker.requested_status = 'ready'
+                                processor['processor'].worker.status = 'running'
+                                self.database.session.add(
+                                    processor['processor'].worker)
+                                self.database.session.commit()
 
-                    if (worker['worker'].requested_status == 'update' or worker['process'] is None) and worker['worker'].status != 'stopped':
-                        logging.info("Updating worker")
-                        if worker['process'] is not None:
-                            worker['process'].kill()
-                            logging.info("Killed worker %s", worker['worker'].id)
-                        else:
-                            logging.info("Worker process is None")
+                                logging.info(
+                                    "Worker process %s started.", workerproc.process.pid)
+                                worker['worker'] = processor['processor'].worker
+                                worker['worker'].process = workerproc.process.pid
+                                worker['process'] = workerproc
+                                processor['worker'] = worker
 
-                        logging.info("Updating worker status='%s'",
-                                     worker['worker'].status)
+                                workers += [worker]
 
-                        worker['worker'].status = 'updating'
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+                            """ At this point we should have linked Processor & Worker and running worker Process """
 
-                        workerproc = PyfiWorker(
-                            worker['worker'], backend=self.backend, broker=self.broker)
-                        workerproc.start()
 
-                        worker['worker'].process = workerproc.process.pid
+                    processors = list(filter(lambda p: not hasattr(p,'delete'), processors))
 
-                        worker['process'] = workerproc
+            manage_processors(workers, processors)
 
-                        worker['worker'].process = workerproc.process.pid
-                        worker['worker'].hostname = hostname
-                        worker['worker'].requested_status = 'running'
-                        worker['worker'].status = 'running'
+        def web_server():
+            try:
+                bjoern.run(app, "0.0.0.0", self.port)
+            except Exception as ex:
+                logging.error(ex)
+                logging.info("Shutting down...")
 
-                        self.database.session.add(worker['worker'])
-                        self.database.session.commit()
+        #server = Process(target=web_server)
+        #server.start()
 
-        process = Process(target=monitor_workers)
-        process.start()
+        if queues:
+            logging.info("Monitoring queues only")
+            monitor_queues()
+        else:
+            logging.info("Monitoring processors")
+            monitor_processors()
 
-        try:
-            bjoern.run(app, "0.0.0.0", self.port)
-        except Exception as ex:
-            logging.error(ex)
-            logging.info("Shutting down...")
-
+"""
+Agent HTTP interface routes
+"""
 @app.route('/')
 def hello():
-    users = User.query.all()
+    users = UserModel.query.all()
     _users = ""
     for user in users:
         _users += "{}:{}".format(user.username, user.email)
         _users += "\n"
-    logging.debug('Agent API')
+    logging.debug('AgentModel API')
     result = add.delay(4, 5)
     return "Hello World from agent!! {} {}".format(result.get(), _users)

@@ -1,0 +1,36 @@
+
+Phase 1 Goals
+-------------
+
+- General UI design, initial implementation and flow DONE
+- pyfi cli design DONE
+- pyfi agent that monitors remote db and updates worker processes DONE
+- pyfi api that executes tasks over pyfi cli workers controlled by pyfi cli agent only DONE (concept)
+- execute dynamic code task over pyfi agent/worker network DONE(concept)
+- pyfi cli database admin DONE(concept)
+- pyfi database models DONE
+- pyfi architecture slides DONE
+- pyfi architecture containers (running)
+- pyfi-ui repo DONE
+- 
+
+
+Phase 2 Goals
+-------------
+
+- Create/Manage pyfi network across machines
+- Remote deploy/manage of pyfi agents using paramiko ssh
+- Remote syncing of venv's with pyfi
+- Remotely execute tasks and dynamic code
+- pyfi cli network/queue/cluster/agent status DONE
+- use postgres container for sqlalchemy DONE
+- data model/table migration
+- Use Cases:
+    - Agents spawn workers for processors across machines 
+    - pyfi cli creates, starts, stops, restarts processors
+    - Agents resume workers after restart unless processor is in stopped model
+    - User modules are retrieved from git
+- --gitrepo, --commit and --dir options for agents to locate git repo and where to store it. Agent
+then updates its local repo based on the desired commit level for the code before running the worker
+so the proper code is in place.
+

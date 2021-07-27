@@ -120,7 +120,8 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['pyfi', 'pyfi.tests','pyfi.api','pyfi.server','pyfi.worker', 'pyfi.agent','pyfi.celery','pyfi.blueprints','pyfi.celery.tasks','pyfi.model','pyfi.http'],
+    packages=['pyfi', 'pyfi.tests', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
+              'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.http'],
     include_package_data=True,
     python_requires="==3.8.*",
     install_requires=[
@@ -130,8 +131,12 @@ setup(
         'bjoern',
         'redis',
         'psycopg2',
+        'flask-restx',
         'sqlalchemy',
-        'flask_sqlalchemy',
+        'flask-sqlalchemy',
+        'flask-migrate',
+        'flask-script',
+        'pyjwt',
         'py-entangle'
     ],
     license=about['__license__'],

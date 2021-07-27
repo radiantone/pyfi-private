@@ -1,3 +1,6 @@
+"""
+Basic HTTP web server to test the UI from
+"""
 import socketserver
 import http
 import functools
@@ -27,7 +30,6 @@ def run_http(port):
             """
             Handle any cleanup here
             """
-            # Kill all processes
             httpd.shutdown()
 
         signal.signal(signal.SIGINT, http_shutdown)

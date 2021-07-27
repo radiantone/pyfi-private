@@ -1,12 +1,12 @@
 """
-server.py - pyfi API server
+pyfi API server Flask app
 """
 import logging
 import socket
 
 from pyfi.celery.tasks import add
 from pyfi.blueprints.show import blueprint
-from pyfi.model import init_db
+from pyfi.db.model import init_db
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
 
