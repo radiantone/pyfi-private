@@ -11,6 +11,9 @@ celery = Celery('pyfi', backend='redis://192.168.1.23',
 
 @celery.task
 def add(x, y):
+    """
+    Docstring
+    """
     return x + y
 
 

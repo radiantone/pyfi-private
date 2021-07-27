@@ -121,7 +121,7 @@ setup(
     author_email=about['__author_email__'],
     url=about['__url__'],
     packages=['pyfi', 'pyfi.tests', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
-              'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.http'],
+              'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.web'],
     include_package_data=True,
     python_requires="==3.8.*",
     install_requires=[

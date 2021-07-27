@@ -36,5 +36,5 @@ def run_http(port):
 
         try:
             httpd.serve_forever()
-        except:
+        except Exception:
             pass

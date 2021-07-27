@@ -6,3 +6,5 @@ dist
 **/.~lock*
 git
 .vscode
+.idea
+migration
