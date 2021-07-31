@@ -6,7 +6,6 @@ import socket
 
 from pyfi.celery.tasks import add
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import init_db
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
 
@@ -18,16 +17,9 @@ POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 
 app = Flask(__name__)
 app.register_blueprint(blueprint)
-app.config['SQLALCHEMY_DATABASE_URI'] = POSTGRES
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 
 @app.route('/')
 def hello():
     logging.debug('Invoking hello')
     result = add.delay(4,5)
     return "Hello World!! {}".format(result.get())
-
-
-if __name__ == '__main__':
-    init_db(app)
