@@ -12,7 +12,7 @@ Phase 1 Goals
 - pyfi architecture slides DONE
 - pyfi architecture containers (running)
 - pyfi-ui repo DONE
-- 
+- Data model design
 
 
 Phase 2 Goals
@@ -24,6 +24,7 @@ Phase 2 Goals
 - Remotely execute tasks and dynamic code
 - pyfi cli network/queue/cluster/agent status DONE
 - use postgres container for sqlalchemy DONE
+- Detailed data model
 - data model/table migration
 - Use Cases:
     - Agents spawn workers for processors across machines 

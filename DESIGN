@@ -45,6 +45,37 @@ The scheduler will move 2 of the processors to server B. If later, a new process
 the scheduler can move the 2 processors on server B, back to server A and then assign the new 12 CPU processor to server B.
 
 
+FILESYSTEM design
+-----------------
+
+A special pyfi fuse filesystem reflects the contents of the database, allowing 3rd party commands and apps to work seamlessly with
+the pyfi cluster. Since the database is the single-source-of-truth only changes made through it are reflected in the network.
+
+For example, to list all the processors in pyfi using the filesystem, you simply:
+
+$ cd pyfi
+$ ls processors/
+
+If you want to add a new processor, you can create a new processor document in the processors directory and the filesystem will
+commit it to the database or report an error
+
+If you want to add a new server to the network, simply do this:
+
+$ cd servers
+$ mkdir my.server.name
+$ cd my.server.name
+$ mkdir processors
+$ cd processors
+$ vi proc1.json
+$ cd ../agents
+$ ls 
+$ cd ..
+$ cd modules
+$ git clone http://my.git.repo with python code (the code is then copied to the host and available to the agent)
+
+When you make a new server directory in servers the filesystem will deploy pyfi to that host using ssh.
+Creating or copying packages within those server directories makes them available to agents running on that server.
+
 CLI design
 ----------
 

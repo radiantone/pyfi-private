@@ -1,3 +1,19 @@
+UPCOMING
+--------
+
+1. Agent clones gitrepo for processor DONE
+2. Agent loads module from local repo, executes tasks within it across celery DONE
+3. Agent defines queues in its worker app based on queues in database, including type (direct, topic, etc)
+4. Adding outlets and plugs to processors DONE
+5. Specifying module for processor DONE
+6. Specifying function within processor module for a schedule DONE
+7. Execute processor function with beat schedule from harness DONE
+8. Processor subscribes to outlet queues on startup
+9. Client executes processor function across its outlet queues
+
+
+
+
 PYFI TODOs
 -------------
 
