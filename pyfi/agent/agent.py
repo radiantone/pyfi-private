@@ -204,7 +204,15 @@ class Agent:
                                 pass
                             pass
 
-                        if (processor['processor'].requested_status == 'update' or processor['worker'] is None) and (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped'):
+                        """
+                        If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
+                        Otherwise, if processor requested state is 'update', then restart process
+                        or if processor worker is None, restart it (e.g. on startup)
+                        """
+                        if (('wprocess' in processor['worker'] and processor['worker']['wprocess'] is not None and not processor['worker']['wprocess'].is_alive()) or \
+                            (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
+                            (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped'):
+
                             logging.info("Updating processor")
 
                             if processor['processor'].worker is None:
@@ -233,7 +241,7 @@ class Agent:
                                 os.makedirs(dir, exist_ok=True)
                                 workerproc = Worker(
                                     processor['processor'], workdir=dir, database=self.database, backend=self.backend, broker=self.broker)
-                                workerproc.start()
+                                wprocess = workerproc.start()
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'
                                 self.database.session.add(
@@ -246,7 +254,7 @@ class Agent:
                                 worker['worker'].process = workerproc.process.pid
                                 worker['process'] = workerproc
                                 processor['worker'] = worker
-
+                                worker['wprocess'] = wprocess
                                 workers += [worker]
 
                             """ At this point we should have linked Processor & Worker and running worker Process """
@@ -262,9 +270,6 @@ class Agent:
             except Exception as ex:
                 logging.error(ex)
                 logging.info("Shutting down...")
-
-        #server = Process(target=web_server)
-        #server.start()
 
         if queues:
             logging.info("Monitoring queues only")

@@ -100,14 +100,46 @@ def db(context):
 
 
 @db.command()
+@click.option('-d', '--directory', default='migrations', help="Directory of migration config")
 @click.pass_context
-def migrate(context):
+def migrate(context, directory):
     """
     Perform database migration/upgrade
     """
     #db_migrate(directory='migration')
     #migrate_upgrade(directory='migration')
-    pass
+    from pyfi.db.model import Base
+    from alembic.migration import MigrationContext
+    from alembic.autogenerate import compare_metadata, produce_migrations
+    from alembic.config import Config
+
+    target_metadata = Base.metadata
+
+    engine = context.obj['database']
+
+    
+    mc = MigrationContext.configure(engine.connect())
+    diff = compare_metadata(mc, target_metadata)
+    script = produce_migrations(mc, target_metadata)
+    
+    '''
+    with engine.connect() as connection:
+        mc.configure(
+            connection=connection,
+            target_metadata=target_metadata
+        )
+
+        with mc.begin_transaction():
+            mc.run_migrations()
+    '''
+
+    from alembic.config import Config
+    from alembic import command
+
+    alembic_cfg = Config('alembic.ini')
+    alembic_cfg.set_main_option('script_location', directory)
+    alembic_cfg.set_main_option('sqlalchemy.url', context.obj['dburi'])
+    command.upgrade(alembic_cfg, 'head')
 
 @db.command()
 @click.pass_context
@@ -690,15 +722,16 @@ def api_start(context, ip, port):
 @click.option('-p','--port', default=8002, help='Listen port')
 @click.option('-b','--backend', default='redis://192.168.1.23', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
+@click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.pass_context
-def start_agent(context, port, backend, broker, queues):
+def start_agent(context, port, backend, broker, config, queues):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
-    agent = Agent(context.obj['database'], port, backend=backend, broker=broker)
+    agent = Agent(context.obj['database'], port, config=config, backend=backend, broker=broker)
     agent.start(queues)
 
 

@@ -1,3 +1,28 @@
+
+SMALL TASKS
+--------------
+- Port to sqlalchemy and alembic DONE
+- Steps to migrate database DONE
+- Update object commands 80%
+- Move processor from one host to another (db only) 100%
+    - Show agents responding on each end to datbase 50%
+- Processor lifecycle logging
+- Processor code logging, events?
+- Processor error handling
+- Processor Security
+- Processor restart and update when git repo changes?
+- Internal thread to refresh outlet queue processors so its not hitting database every invoke
+- Additional processor configs e.g. rate_limit, TTL, etc
+- Invocation/Message expiries
+- Abandoned queues get deleted automatically
+- Agent refreshes processor if lastupdated time changes
+    - Processor config determines if/when/how often a processor can be updated
+- Organize repo directories DONE
+- Add alembic config
+- Edit migrations/env.py with target_metadata DONE
+- pyfi db init calls alembic init and fixes env.py?
+- 
+
 UPCOMING
 --------
 
@@ -8,8 +33,8 @@ UPCOMING
 5. Specifying module for processor DONE
 6. Specifying function within processor module for a schedule DONE
 7. Execute processor function with beat schedule from harness DONE
-8. Processor subscribes to outlet queues on startup
-9. Client executes processor function across its outlet queues
+8. Processor subscribes to outlet queues on startup DONE
+9. Client executes processor function across its outlet queues DONE
 
 
 

@@ -8,5 +8,4 @@ result1 = processor('Hello World!')
 
 print(result1.get())
 
-
 #print(result2.get())

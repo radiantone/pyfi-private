@@ -133,8 +133,7 @@ setup(
         'psycopg2',
         'flask-restx',
         'sqlalchemy',
-        'flask-sqlalchemy',
-        'flask-migrate',
+        'alembic',
         'flask-script',
         'pyjwt',
         'py-entangle'

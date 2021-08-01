@@ -21,7 +21,7 @@ class Worker:
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
 
-    def __init__(self, processor, workdir, database=None, backend='redis://192.168.1.23', broker='pyamqp://192.168.1.23'):
+    def __init__(self, processor, workdir, database=None, backend='redis://192.168.1.23', config=None, broker='pyamqp://192.168.1.23'):
         """
         """
         from pyfi.db.model import Base
@@ -34,7 +34,15 @@ class Worker:
         self.database = database
         self.dburi = database.uri
 
-        self.celery = celery = Celery('pyfi', backend=backend, broker=broker)
+        if config is not None:
+            import importlib
+
+            module = importlib.import_module(config.split['.'][:-1])
+            config = getattr(module, config.split['.'][-1:])
+            self.celery = Celery()
+            self.celery.config_from_object(config)
+        else:
+            self.celery = celery = Celery('pyfi', backend=backend, broker=broker)
         self.process = None
         logging.info("Starting worker {} {}".format(backend, broker))
 
@@ -156,9 +164,11 @@ class Worker:
             print(os.getcwd())
             os.chdir('git')
 
-        process = Process(target=worker_proc, args=(self.celery,))
+        process = Process(target=worker_proc, daemon=True, args=(self.celery,))
         process.start()
         self.process = process
+
+        return process
 
     def busy(self):
         """
