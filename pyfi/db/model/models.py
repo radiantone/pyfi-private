@@ -263,6 +263,7 @@ class QueueModel(Base):
     id = Column(String(40), primary_key=True)
     name = Column(String(80), unique=True, nullable=False)
     requested_status = Column(String(20), nullable=False)
+    qtype = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)

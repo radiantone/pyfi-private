@@ -1,6 +1,7 @@
 """
 pyfi API server Flask app
 """
+import platform
 import logging
 import socket
 
@@ -11,7 +12,7 @@ from flask import Flask, request, send_from_directory, current_app, send_from_di
 
 logging.basicConfig(level=logging.INFO)
 
-hostname = socket.gethostbyname(socket.gethostname())
+hostname = platform.node()
 
 POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 

@@ -21,7 +21,7 @@ class Worker:
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
 
-    def __init__(self, processor, workdir, database=None, backend='redis://192.168.1.23', config=None, broker='pyamqp://192.168.1.23'):
+    def __init__(self, processor, workdir, pool=4, database=None, backend='redis://192.168.1.23', config=None, broker='pyamqp://192.168.1.23'):
         """
         """
         from pyfi.db.model import Base
@@ -33,6 +33,7 @@ class Worker:
         self.workdir = workdir
         self.database = database
         self.dburi = database.uri
+        self.pool = pool
 
         if config is not None:
             import importlib
@@ -44,7 +45,7 @@ class Worker:
         else:
             self.celery = celery = Celery('pyfi', backend=backend, broker=broker)
         self.process = None
-        logging.info("Starting worker {} {}".format(backend, broker))
+        logging.info("Starting worker with pool[{}] backend:{} broker:{}".format(pool, backend, broker))
 
 
     def start(self):
@@ -56,6 +57,7 @@ class Worker:
 
         def worker_proc(app):
             """ Set up celery queues for self.celery """
+            from billiard.pool import Pool
 
             logging.info("Processor beat: %s", self.processor.beat)
             # Expects that the gitrepo pull and commit provide
@@ -67,14 +69,13 @@ class Worker:
             session = sessionmaker(bind=engine)()
             self.processor = session.query(
                 ProcessorModel).filter_by(id=self.processor.id).first()
+                
             if self.processor and self.processor.outlets and len(self.processor.outlets) > 0:
                 for outlet in self.processor.outlets:
                     if outlet.queue:
                         print("queue: ",outlet.queue)
                         queues += [outlet.queue.name]
 
-            print("QUEUES:",queues)
-            
             @worker_process_init.connect()
             def prep_db_pool(**kwargs):
                 """
@@ -87,16 +88,19 @@ class Worker:
                 # The "with" here is for a flask app using Flask-SQLAlchemy.  If you don't
                 # have a flask app, just remove the "with" here and call .dispose()
                 # on your SQLAlchemy db engine.
-                print("Disposing engine")
+                #print("Disposing engine")
                 #self.database.dispose()
+                pass
 
-            worker = self.celery.Worker(
+            worker = app.Worker(
                 include=self.processor.module,
                 hostname=self.processor.name+'@'+self.worker.hostname,
                 backend=self.backend,
                 broker=self.broker,
-                beat=self.processor.beat,
+                beat=self.processor.beat,            
                 queues=queues,
+                without_mingle=True,
+                without_gossip=True,
                 concurrency=int(self.processor.concurrency)
             )
 
@@ -115,59 +119,89 @@ class Worker:
             module = importlib.import_module(self.processor.module)
             func = getattr(module, self.processor.task)
 
+            plugs = {}
+            for plug in self.processor.plugs:
+                plugs[plug.queue.name] = []
+
 
             @worker.app.task(name=self.processor.module+'.'+self.processor.task)
             def harness(message):
-                plugs = {}
-                for plug in self.processor.plugs:
-                    plugs[plug.queue.name] = []
-
+                from celery import Celery
+                from pyfi.config.celery import Config
+                # Add log here
                 result = func(message, plugs=plugs)
+                # Add log here
+
+                celery = Celery()
+
+                celery.config_from_object(Config)
+
+                count = 0
                 for key in plugs:
+
+                    print("PLUGS:", plugs)
                     for msg in plugs[key]:
-                            print("Sending {} to queue {}".format(msg, key))
+                            logging.info("Sending {} to queue {}".format(msg, key))
+
                             processors = self.database.session.query(
                                 ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
-                            print("Linked Processors: ", [
-                                  processor.name for processor in processors])
+
                             # Use workerpool to invoke
                             # Query all processors with outlets connected to this queue
                             # Obtain their module and tasks, construct harness call
                             # Invoke
 
+
                             for processor in processors:
-                                print("Invoking {}=>{}.{}({})".format(key, processor.module,processor.task, result))
+                                print("Len processors = ", len(list(processors)))
+                                count += 1
+                                print("Count = ", count)
+                                print("Invoking {}=>{}.{}({})".format(
+                                    key, processor.module, processor.task, result))
 
-                                proc = Processor(key, processor.module+'.'+processor.task)
-                                proc(result)
+                                #proc = Processor(
+                                #    key, processor.module+'.'+processor.task)
+                                celery.signature(
+                                    processor.module+'.'+processor.task, args=(result,), queue=key, kwargs={}).delay()
+                                # Invoke downstream processor with result of this processor
+                                #proc(result)
+                                #proc(result)
+                            '''
+                            with Pool(processes=self.pool) as pool:
+                                for processor in processors:
+                                    print("Invoking {}=>{}.{}({})".format(key, processor.module,processor.task, result))
 
+                                    proc = Processor(key, processor.module+'.'+processor.task)
+
+                                    # Invoke downstream processor with result of this processor
+                                    #proc(result)
+                                    pool.apply(proc, (result,))
+                            '''
                 return result
             
             worker.start()
 
-        logging.info("Starting worker %s %s %s %s %s", self.worker.name,
+        logging.info("Preparing worker %s %s %s %s %s", self.worker.name,
                      self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         # Pull git commit into workdir
         # self.processor.gitrepo, self.processor.commit
         # If no module code located at self.processor.module then put an error on the processor
         os.chdir(self.workdir)
-        print(self.workdir)
+        
         if self.processor.gitrepo:
-            print(os.getcwd())
             logging.info("git clone -b {} --single-branch {} git".format(
                 self.processor.branch, self.processor.gitrepo))
             shutil.rmtree("git", ignore_errors=True)
             os.system(
                 "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo))
             sys.path.append(self.workdir+'/git')
-            print(os.getcwd())
             os.chdir('git')
 
-        process = Process(target=worker_proc, daemon=True, args=(self.celery,))
+        process = Process(target=worker_proc, args=(self.celery,))
         process.start()
         self.process = process
-
+        logging.info("Started worker process with pid[%s]", process.pid)
         return process
 
     def busy(self):

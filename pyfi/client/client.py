@@ -1,11 +1,9 @@
 from pyfi.processor import Processor
 
-processor = Processor('pyfi.queue1', 'pyfi.processors.sample.do_something')
+processor = Processor(queue='pyfi.queue1', name='pyfi.processors.sample.do_something')
 
-result1 = processor('Hello World!')
-#print("Calling processor 2")
-#result2 = processor('It\'s me!')
-
-print(result1.get())
-
-#print(result2.get())
+while True:
+    #app.signature('pyfi.processors.sample.do_something', args=('Hello World!',),
+    #              queue='pyfi.queue1', kwargs={}).delay()
+    processor("Hello World!")
+    print("Hello World!")

@@ -18,7 +18,8 @@ from pyfi.server import app
 from pyfi.db.model import UserModel, AgentModel, WorkerModel,PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 
-hostname = socket.gethostbyname(socket.gethostname())
+import platform
+hostname = platform.node()
 
 POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 
@@ -430,15 +431,16 @@ def add_role(context, name):
 
 
 @add.command(name='queue')
-@click.option('-n','--name', required=True)
+@click.option('-n', '--name', required=True)
+@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True, default='topic', required=True)
 @click.pass_context
-def add_queue(context, name):
+def add_queue(context, name, type):
     """
     Add queue object to the database
     """
     id = context.obj['id']
 
-    queue = QueueModel(name=name, id=id, requested_status='create',
+    queue = QueueModel(name=name, id=id, qtype=type, requested_status='create',
                        status='ready')
 
     queue.updated = datetime.now()
@@ -720,18 +722,19 @@ def api_start(context, ip, port):
 
 @agent.command(name='start')
 @click.option('-p','--port', default=8002, help='Listen port')
-@click.option('-b','--backend', default='redis://192.168.1.23', help='Message backend URI')
+@click.option('-b', '--backend', default='redis://192.168.1.23', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
+@click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
 @click.pass_context
-def start_agent(context, port, backend, broker, config, queues):
+def start_agent(context, port, backend, broker, config, queues, pool):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
-    agent = Agent(context.obj['database'], port, config=config, backend=backend, broker=broker)
+    agent = Agent(context.obj['database'], port, pool=pool, config=config, backend=backend, broker=broker)
     agent.start(queues)
 
 

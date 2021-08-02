@@ -1,6 +1,7 @@
 """
 agent.py - pyfi agent server responsible for managing worker/processor lifecycle on a host
 """
+import platform
 import socket
 import logging
 import multiprocessing
@@ -20,21 +21,26 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 app.register_blueprint(blueprint)
 
-hostname = socket.gethostbyname(socket.gethostname())
+hostname = platform.node()
 cpus = multiprocessing.cpu_count()
 
 class Agent:
 
-    def __init__(self, database, port, backend='redis://192.168.1.23', broker='pyamqp://192.168.1.23'):
+    def __init__(self, database, port, config=None, pool=4, backend='redis://192.168.1.23', broker='pyamqp://192.168.1.23'):
         self.port = port
         self.backend = backend
         self.broker = broker
         self.database = database
+        self.config = config
+        self.pool = pool
 
     def start(self, queues):
         from datetime import datetime
         import bjoern
-        from multiprocessing import Process
+        #from multiprocessing import Process
+        from billiard.context import Process
+
+
         from uuid import uuid4
 
         logging.info("Serving agent on port {} {} {}".format(self.port, self.backend, self.broker))
@@ -56,31 +62,6 @@ class Agent:
         self.database.session.add(agent)
         self.database.session.commit()
 
-        def monitor_queues():
-            import time
-
-            def manage_queues():
-                from uuid import uuid4
-
-                while True:
-                    try:
-                        time.sleep(3)
-                        logging.info("Checking queues...")
-                        
-                        queue = self.database.session.query(
-                            QueueModel).with_for_update(
-                            of=QueueModel).filter_by(requested_status='create').first()
-
-                        if queue is not None:
-                            logging.info("Creating queue %s", queue)
-                            queue.requested_status = 'ready'
-                            queue.status = 'created'
-                            self.database.session.commit()
-                    except:
-                        pass
-
-            manage_queues()
-
         def monitor_processors():
             """
             Retrieve any processors that need compute resources, determine if you have free CPU's or idle workers,
@@ -89,27 +70,48 @@ class Agent:
             import time
             processors = []
             workers = []
-            hostname = socket.gethostbyname(socket.gethostname())
+
+            hostname = platform.node()
 
             def manage_processors(workers, processors):
                 """
                 Agents manage processors assigned to them and connect them to workers
                 """
                 from uuid import uuid4
+                import psutil
                 import shutil
                 import os
+                refresh = 0
 
                 while True:
                     logging.info("processor:monitor: sleep 3")
                     time.sleep(3)
                     logging.info("processor:monitor: wakeup %s", hostname)
 
-                    myprocessors = self.database.session.query(
-                        ProcessorModel).filter_by(
-                        hostname=hostname).all()
+                    sm = psutil.virtual_memory()
+                    if sm.percent > 90.0:
+                        for processor in processors:
+                            if processor['worker'] is not None:
+                                # Mark process last killed date and if it was killed
+                                # a few times recently, then mark it stopped and save it
+                                # adding a log.
+                                processor['worker']['process'].kill()
+                                processor['worker'] = None
+                                processor['processor'].status = 'stopped'
 
+                    if refresh == 0:
+                        myprocessors = self.database.session.query(
+                            ProcessorModel).filter_by(
+                            hostname=hostname).all()
+
+                    refresh += 1
+                    
                     for myprocessor in myprocessors:
-                        self.database.session.refresh(myprocessor)
+
+                        if refresh >= 100:
+                            self.database.session.refresh(myprocessor)
+                            refresh = 0
+
                         found = False
                         for processor in processors:
                             if processor['processor'].id == myprocessor.id:
@@ -147,6 +149,7 @@ class Agent:
                                 shutil.rmtree('work/'+processor['processor'])
 
                             logging.info("Processor is removed")
+
                             continue                            
 
                         if processor['processor'].requested_status == 'restart':
@@ -165,11 +168,15 @@ class Agent:
                             processor['processor'].status == 'stopped'
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
+
                             logging.info("Processor is stopped")
+
                             self.database.session.add(
                                 processor['processor'].worker)
+
                             self.database.session.add(
                                 processor['processor'])
+
                             self.database.session.commit()
 
 
@@ -189,11 +196,15 @@ class Agent:
                             processor['processor'].status == 'stopped'
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
+
                             logging.info("Processor is stopped")
+
                             self.database.session.add(
                                 processor['processor'].worker)
+
                             self.database.session.add(
                                 processor['processor'])
+
                             self.database.session.commit()
 
                         if processor['processor'].requested_status == 'started':
@@ -209,8 +220,15 @@ class Agent:
                         Otherwise, if processor requested state is 'update', then restart process
                         or if processor worker is None, restart it (e.g. on startup)
                         """
-                        if (('wprocess' in processor['worker'] and processor['worker']['wprocess'] is not None and not processor['worker']['wprocess'].is_alive()) or \
-                            (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
+                        process_died = False
+                        if 'worker' in processor:
+                            try:
+                                process_died = not processor['worker']['wprocess'].is_alive()
+                            except:
+                                pass
+
+                        logging.info("Process died: %s",process_died)
+                        if (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
                             (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped'):
 
                             logging.info("Updating processor")
@@ -232,20 +250,24 @@ class Agent:
                                 self.database.session.commit()
 
                             print(processor['processor'].worker)
-                            if processor['worker'] is None:
+                            if processor['worker'] is None or process_died:
                                 """ If there is no worker Process create it """
                                 import os
                                 worker = {}
                             
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
+
                                 workerproc = Worker(
-                                    processor['processor'], workdir=dir, database=self.database, backend=self.backend, broker=self.broker)
+                                    processor['processor'], workdir=dir, pool=self.pool, database=self.database, config=self.config, backend=self.backend, broker=self.broker)
+
                                 wprocess = workerproc.start()
+
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'
                                 self.database.session.add(
                                     processor['processor'].worker)
+
                                 self.database.session.commit()
 
                                 logging.info(
@@ -260,7 +282,7 @@ class Agent:
                             """ At this point we should have linked Processor & Worker and running worker Process """
 
 
-                    processors = list(filter(lambda p: not hasattr(p,'delete'), processors))
+                    #processors = list(filter(lambda p: not hasattr(p,'delete'), processors))
 
             manage_processors(workers, processors)
 
@@ -271,12 +293,8 @@ class Agent:
                 logging.error(ex)
                 logging.info("Shutting down...")
 
-        if queues:
-            logging.info("Monitoring queues only")
-            monitor_queues()
-        else:
-            logging.info("Monitoring processors")
-            monitor_processors()
+        logging.info("Monitoring processors")
+        monitor_processors()
 
 """
 Agent HTTP interface routes
