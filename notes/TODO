@@ -1,4 +1,22 @@
 
+
+DESIGN
+------
+1. Re-write worker/task dispatching to use signals DONE
+
+- Use task signals instead of harness so Flower will reflect actual task info (instead of harness) DONE
+- task_prerun signal will query database for connected plugs and then populate the tasks kwargs with the IO objects it needs DONE
+- task_postrun will inspect the tasks kwargs IO object for results and then invoke the downstream processor tasks with those results DONE
+This way, all the task reporting reflects the actual tasks
+
+TESTS
+-----
+
+1. Verified multi server, multi processor, multi agent realtime, reliable messaging across processors that all pull from git
+    a. All messages get delivered
+    b. Message queues are consumed in timely manner
+    c. No exceptions
+
 SMALL TASKS
 --------------
 - Port to sqlalchemy and alembic DONE
@@ -18,7 +36,7 @@ SMALL TASKS
 - Agent refreshes processor if lastupdated time changes
     - Processor config determines if/when/how often a processor can be updated
 - Organize repo directories DONE
-- Add alembic config
+- Add alembic config DONE
 - Edit migrations/env.py with target_metadata DONE
 - pyfi db init calls alembic init and fixes env.py?
 - 
