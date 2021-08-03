@@ -2,7 +2,6 @@
 agent.py - pyfi agent server responsible for managing worker/processor lifecycle on a host
 """
 import platform
-import socket
 import logging
 import multiprocessing
 
@@ -68,6 +67,7 @@ class Agent:
             then create a worker with the processor's module and link the worker to the processor    
             """
             import time
+            
             processors = []
             workers = []
 
@@ -249,7 +249,6 @@ class Agent:
                                 self.database.session.add(processor['processor'])
                                 self.database.session.commit()
 
-                            print(processor['processor'].worker)
                             if processor['worker'] is None or process_died:
                                 """ If there is no worker Process create it """
                                 import os
@@ -279,10 +278,6 @@ class Agent:
                                 worker['wprocess'] = wprocess
                                 workers += [worker]
 
-                            """ At this point we should have linked Processor & Worker and running worker Process """
-
-
-                    #processors = list(filter(lambda p: not hasattr(p,'delete'), processors))
 
             manage_processors(workers, processors)
 
@@ -296,9 +291,7 @@ class Agent:
         logging.info("Monitoring processors")
         monitor_processors()
 
-"""
-Agent HTTP interface routes
-"""
+
 @app.route('/')
 def hello():
     users = UserModel.query.all()

@@ -2,16 +2,17 @@
 """
 Class database model definitions
 """
+import logging
+
+from datetime import datetime
+
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine
 
 Base = declarative_base()
 
-from datetime import datetime
-
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime, Boolean
-import logging
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime, Boolean, Float
 
 
 class RoleModel(Base):
@@ -140,20 +141,33 @@ class ProcessorModel(Base):
     gitrepo = Column(String(80))
     branch = Column(String(30))
     commit = Column(String(30))
+    retries = Column(Integer)
     concurrency = Column(Integer)
     schedule = Column(Integer)
     beat = Column(Boolean)
+    ratelimit = Column(String(10))
+    timelimit = Column(Integer)
+    ignoreresult = Column(Boolean)
+    serializer = Column(String(10))
+    backend = Column(String(80))
+    ackslate = Column(Boolean)
+    trackstarted = Column(Boolean)
+    retrydelay = Column(Integer)
+
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
+
     flow_id = Column(String(40), ForeignKey(
         'flow.id'), nullable=True)
+
     worker = relationship(
         'WorkerModel', backref='processor', uselist=False, lazy=True)
+
     plugs = relationship('PlugModel', backref='processor', lazy=True)
     outlets = relationship('OutletModel', backref='processor', lazy=True)
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}:{}:{} '.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker)
+        return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Outlets:{}'.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker, self.plugs, self.outlets)
 
 
 class SettingsModel(Base):
@@ -270,6 +284,28 @@ class QueueModel(Base):
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.requested_status, self.status, self.name, self.lastupdated)
+
+
+class QueueLogModel(Base):
+    """
+    Docstring
+    """
+    __tablename__ = 'queuelog'
+    id = Column(String(40), primary_key=True)
+    name = Column(String(80), unique=True, nullable=False)
+    date = Column(DateTime, default=datetime.now,
+                  onupdate=datetime.now, nullable=False)
+    text = Column(String(80), nullable=False)
+
+    # processor
+    # queue
+
+    task = Column(String(80), nullable=False)
+    type = Column(String(20), nullable=False)
+    quantity = Column(Float)
+
+    def __repr__(self):
+        return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.date, self.text)
 
 
 '''

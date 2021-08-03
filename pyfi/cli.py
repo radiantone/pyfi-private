@@ -1,5 +1,5 @@
 """
-cli.py - pyfi CLI command tools
+cli.py - pyfi CLI command tool for managing database
 """
 import logging
 from pyfi.db.model.models import PlugModel
@@ -21,6 +21,7 @@ from pyfi.web import run_http
 import platform
 hostname = platform.node()
 
+POSTGRES_ROOT = 'postgresql://postgres:pyfi101@'+hostname+':5432/'
 POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
 
 @click.group()
@@ -107,8 +108,6 @@ def migrate(context, directory):
     """
     Perform database migration/upgrade
     """
-    #db_migrate(directory='migration')
-    #migrate_upgrade(directory='migration')
     from pyfi.db.model import Base
     from alembic.migration import MigrationContext
     from alembic.autogenerate import compare_metadata, produce_migrations
@@ -122,17 +121,6 @@ def migrate(context, directory):
     mc = MigrationContext.configure(engine.connect())
     diff = compare_metadata(mc, target_metadata)
     script = produce_migrations(mc, target_metadata)
-    
-    '''
-    with engine.connect() as connection:
-        mc.configure(
-            connection=connection,
-            target_metadata=target_metadata
-        )
-
-        with mc.begin_transaction():
-            mc.run_migrations()
-    '''
 
     from alembic.config import Config
     from alembic import command
@@ -174,19 +162,26 @@ def db_init(context, db):
     try:
         try:
             from sqlalchemy import create_engine
-
-            session = context.obj['session']
+            engine = create_engine(POSTGRES_ROOT+'postgres')
+            session = sessionmaker(bind=engine)()
             session.connection().connection.set_isolation_level(0)
             session.execute('CREATE DATABASE pyfi')
             session.connection().connection.set_isolation_level(1)
             print("Database created")
+            engine = create_engine(context.obj['dburi'])
+            engine.uri = db
+            session = sessionmaker(bind=engine)()
+            context.obj['database'] = engine
+            context.obj['session'] = session
+            engine.session = session
         except:
+            import traceback
+            print(traceback.format_exc())
             pass
         
         from pyfi.db.model import Base
 
         Base.metadata.create_all(context.obj['database'])
-        #context.obj['database'].create_all()
         logging.info("Database create all schemas done.")
     except Exception as ex:
         logging.error(ex)
@@ -273,7 +268,7 @@ def add(context, id):
 @click.pass_context
 def update(context, id):
     """
-    Add an object to the database
+    Update a database object
     """
     from uuid import uuid4
 
@@ -311,7 +306,9 @@ def run(task):
 
 
 def update_object(obj, locals):
-
+    """
+    Docstring
+    """
     for var in locals.keys():
         if locals[var] is not None and var != 'id':
             setattr(obj,var,locals[var])
@@ -355,25 +352,26 @@ def update_processor(context, name, module, task, hostname, workers, gitrepo, co
 
 
 @add.command(name='processor')
-@click.option('-n', '--name', required=True)
-@click.option('-m', '--module', required=True)
-@click.option('-t', '--task', required=True)
+@click.option('-n', '--name', required=True, help="Name of this processor")
+@click.option('-m', '--module', required=True, help="Python module (e.g. some.module.path")
+@click.option('-t', '--task', required=True, help="Python function name within the model")
 @click.option('-h', '--hostname', default=hostname, help='Target server hostname')
 @click.option('-w', '--workers', default=3, help='Number of worker tasks')
+@click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
 @click.option('-g', '--gitrepo', default=None, help='Git repo URI')
 @click.option('-c', '--commit', default=None, help='Git commit id for processor code')
-@click.option('-r', '--requested_status', default='ready', required=False)
-@click.option('-s', '--schedule', default=10, required=False)
-@click.option('-b', '--beat', default=False, is_flag=True, required=False)
-@click.option('-br', '--branch', default='main', required=False)
+@click.option('-rs', '--requested_status', default='ready', required=False, help="The requested status for this processor")
+@click.option('-s', '--schedule', default=10, required=False, help="Interval in seconds this processor is triggered")
+@click.option('-b', '--beat', default=False, is_flag=True, required=False, help="Enable the beat scheduler")
+@click.option('-br', '--branch', default='main', required=False, help="Git branch to be used for checkouts")
 @click.pass_context
-def add_processor(context, name, module, task, hostname, workers, gitrepo, commit, requested_status, schedule, beat, branch):
+def add_processor(context, name, module, task, hostname, workers, retries, gitrepo, commit, requested_status, schedule, beat, branch):
     """
     Add processor to the database
     """
     id = context.obj['id']
     processor = ProcessorModel(
-        id=id, status='ready', hostname=hostname, task=task, schedule=schedule, branch=branch, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
+        id=id, status='ready', hostname=hostname, task=task, schedule=schedule, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
     processor.updated = datetime.now()
     context.obj['database'].session.add(processor)
@@ -705,7 +703,6 @@ def api_start(context, ip, port):
     import bjoern
     from pyfi.server import app as server
     logging.info("Initializing server app....")
-    init_db(server)
     logging.info("Serving API on {}:{}".format(ip, port))
 
     from pyfi.api import blueprint

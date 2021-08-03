@@ -1,19 +1,20 @@
 """
-Agent worker class. Primary task/code execution context for processors
+Agent workerclass. Primary task/code execution context for processors
 """
-from datetime import timedelta
 import logging
 import shutil
 import os
 import sys
 import psutil
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.processor import Processor
 
 from celery import Celery
-from celery.signals import worker_process_init
+from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
 
 
 class Worker:
@@ -40,10 +41,11 @@ class Worker:
 
             module = importlib.import_module(config.split['.'][:-1])
             config = getattr(module, config.split['.'][-1:])
-            self.celery = Celery()
+            self.celery = Celery(include=self.processor.module)
             self.celery.config_from_object(config)
         else:
-            self.celery = celery = Celery('pyfi', backend=backend, broker=broker)
+            self.celery = celery = Celery(
+                'pyfi', backend=backend, broker=broker)
         self.process = None
         logging.info("Starting worker with pool[{}] backend:{} broker:{}".format(pool, backend, broker))
 
@@ -57,11 +59,12 @@ class Worker:
 
         def worker_proc(app):
             """ Set up celery queues for self.celery """
+            import builtins
+            import importlib
+            import sys
             from billiard.pool import Pool
-
+            
             logging.info("Processor beat: %s", self.processor.beat)
-            # Expects that the gitrepo pull and commit provide
-            # code at the module located by self.processor.module
 
             queues = []
             engine = create_engine(self.dburi)
@@ -85,19 +88,13 @@ class Worker:
                     processes as needed.
                     More info: https://docs.sqlalchemy.org/en/latest/core/pooling.html#using-connection-pools-with-multiprocessing
                 """
-                # The "with" here is for a flask app using Flask-SQLAlchemy.  If you don't
-                # have a flask app, just remove the "with" here and call .dispose()
-                # on your SQLAlchemy db engine.
-                #print("Disposing engine")
-                #self.database.dispose()
-                pass
+                return
 
             worker = app.Worker(
-                include=self.processor.module,
                 hostname=self.processor.name+'@'+self.worker.hostname,
                 backend=self.backend,
                 broker=self.broker,
-                beat=self.processor.beat,            
+                beat=self.processor.beat,
                 queues=queues,
                 without_mingle=True,
                 without_gossip=True,
@@ -114,79 +111,64 @@ class Worker:
                     }
                 }
 
-            import importlib
+            sys.path.append(os.getcwd())
+
+            setattr(builtins,'worker',worker)
 
             module = importlib.import_module(self.processor.module)
             func = getattr(module, self.processor.task)
 
-            plugs = {}
+            _plugs = {}
             for plug in self.processor.plugs:
-                plugs[plug.queue.name] = []
+                _plugs[plug.queue.name] = []
 
+            # Processor properties are set on the task here
+            func = self.celery.task(func, name=self.processor.module+'.'+self.processor.task, retries=self.processor.retries)
 
-            @worker.app.task(name=self.processor.module+'.'+self.processor.task)
-            def harness(message):
-                from celery import Celery
-                from pyfi.config.celery import Config
-                # Add log here
-                result = func(message, plugs=plugs)
-                # Add log here
+            @task_prerun.connect(sender=func)
+            def pyfi_task_prerun(sender=None, **kwargs):
+                task_kwargs = kwargs.get('kwargs')
+                task_kwargs['plugs'] = _plugs
+                task_kwargs['output'] = {}
 
-                celery = Celery()
+            @task_success.connect(sender=func)
+            def pyfi_task_success(sender=None, **kwargs):
+                pass
 
-                celery.config_from_object(Config)
+            @task_failure.connect(sender=func)
+            def pyfi_task_failure(sender=None, **kwargs):
+                pass
 
-                count = 0
+            @task_internal_error.connect(sender=func)
+            def pyfi_task_internal_error(sender=None, **kwargs):
+                pass
+
+            @task_received.connect(sender=func)
+            def pyfi_task_received(sender=None, **kwargs):
+                pass
+
+            @task_postrun.connect(sender=func)
+            def pyfi_task_postrun(sender=None, **kwargs):
+                task_kwargs = kwargs.get('kwargs')
+                plugs = task_kwargs['plugs']
                 for key in plugs:
-
-                    print("PLUGS:", plugs)
                     for msg in plugs[key]:
-                            logging.info("Sending {} to queue {}".format(msg, key))
+                        logging.info("Sending {} to queue {}".format(msg, key))
 
-                            processors = self.database.session.query(
-                                ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
+                        processors = self.database.session.query(
+                            ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
 
-                            # Use workerpool to invoke
-                            # Query all processors with outlets connected to this queue
-                            # Obtain their module and tasks, construct harness call
-                            # Invoke
-
-
-                            for processor in processors:
-                                print("Len processors = ", len(list(processors)))
-                                count += 1
-                                print("Count = ", count)
-                                print("Invoking {}=>{}.{}({})".format(
-                                    key, processor.module, processor.task, result))
-
-                                #proc = Processor(
-                                #    key, processor.module+'.'+processor.task)
-                                celery.signature(
-                                    processor.module+'.'+processor.task, args=(result,), queue=key, kwargs={}).delay()
-                                # Invoke downstream processor with result of this processor
-                                #proc(result)
-                                #proc(result)
-                            '''
-                            with Pool(processes=self.pool) as pool:
-                                for processor in processors:
-                                    print("Invoking {}=>{}.{}({})".format(key, processor.module,processor.task, result))
-
-                                    proc = Processor(key, processor.module+'.'+processor.task)
-
-                                    # Invoke downstream processor with result of this processor
-                                    #proc(result)
-                                    pool.apply(proc, (result,))
-                            '''
-                return result
+                        for processor in processors:
+                            print("Invoking {}=>{}.{}({})".format(
+                                key, processor.module, processor.task, msg))
+                            self.celery.signature(
+                                processor.module+'.'+processor.task, args=(msg,), queue=key, kwargs={}).delay()
             
             worker.start()
 
         logging.info("Preparing worker %s %s %s %s %s", self.worker.name,
                      self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
-        # Pull git commit into workdir
-        # self.processor.gitrepo, self.processor.commit
-        # If no module code located at self.processor.module then put an error on the processor
         os.chdir(self.workdir)
         
         if self.processor.gitrepo:

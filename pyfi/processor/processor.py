@@ -1,5 +1,4 @@
 from celery import Celery
-from celery.local import class_property
 from pyfi.config.celery import Config
 
 class Processor:
