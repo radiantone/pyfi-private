@@ -1,0 +1,39 @@
+Components
+-----------
+
+NGINX - Reverse proxy
+CELERY - Task broker
+RABBITMQ - Message broker
+REDIS - Result backend/broker/cache
+POSTGRES - database
+SUPERVISOR - Watchdog
+
+Core Design
+------------
+
+Agents are launched and maintained by supervisor on a host. This ensures the agent will always be running.
+The agent will pull its work from the database and manage it automatically
+
+Workers are launched by agents to manage processors. There can be many workers accepting tasks for a processor.
+When a worker dies, the agent restarts it.
+When processors change in the database, the agent initiates changes in the worker (e.g. start/stop/update)
+
+Workers listen to queues associated with processor outlets (incoming messages) for the specific python task the processor is utilizing.
+When processor queues, plugs or outlets change, the worker has to be restarted.
+
+All database objects have a requested_status and a status. When the requested_status changes, the controlling entity (e.g. agent) will need
+time to execute the status change and when complete, it will update both the requested_status and status to reflect the new state.
+This is called "eventual consistency" and ensures that the agent is not interrupted while doing other things.
+
+If a worker is offline, messages are stored until the worker is active again and will resume processing task messages.
+Task messages that are not processed within a certain time (e.g. 1 day) are deleted.
+
+Each worker (processor) occupies a CPU and runs in its own Process. If a worker dies, it does not impact other workers.
+This achieves maximum parallel behavior and isolation from resource problems or fault conditions.
+
+Workers can be told to scale out or in on the fly, including auto-scaling. This scaling is completely hardware dependent
+in that workers can reside on their own servers separate from each other and scaled according to need. i.e. not zero sum.
+You can add processors for the same tasks and queues on different hosts and scale them independently.
+
+
+

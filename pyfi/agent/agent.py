@@ -104,26 +104,30 @@ class Agent:
                             ProcessorModel).filter_by(
                             hostname=hostname).all()
 
-                    refresh += 1
                     
-                    for myprocessor in myprocessors:
+                    if refresh == 0:
+                        for myprocessor in myprocessors:
 
-                        if refresh >= 100:
                             self.database.session.refresh(myprocessor)
                             refresh = 0
 
-                        found = False
-                        for processor in processors:
-                            if processor['processor'].id == myprocessor.id:
-                                processor['processor'] = myprocessor
-                                found = True
+                            found = False
+                            for processor in processors:
+                                if processor['processor'].id == myprocessor.id:
+                                    processor['processor'] = myprocessor
+                                    found = True
 
-                        if not found:
-                            processors += [{'worker': None,
-                                            'processor': myprocessor}]
+                            if not found:
+                                processors += [{'worker': None,
+                                                'processor': myprocessor}]
+
+                    refresh += 1
+                    if refresh >= 10:
+                        refresh = 0
 
                     for processor in processors:
-
+                        logging.info("Processor requested_status %s",
+                                     processor['processor'].requested_status)
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
                                 logging.info("Killing worker")
@@ -150,7 +154,7 @@ class Agent:
 
                             logging.info("Processor is removed")
 
-                            continue                            
+                            continue
 
                         if processor['processor'].requested_status == 'restart':
                             if processor['worker'] is not None:
@@ -164,8 +168,8 @@ class Agent:
                                     import traceback
                                     print(traceback.format_exc())
 
-                            processor['processor'].requested_status == 'start'
-                            processor['processor'].status == 'stopped'
+                            processor['processor'].requested_status = 'start'
+                            processor['processor'].status = 'stopped'
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
 
@@ -192,8 +196,8 @@ class Agent:
                                     import traceback
                                     print(traceback.format_exc())
 
-                            processor['processor'].requested_status == 'ready'
-                            processor['processor'].status == 'stopped'
+                            processor['processor'].requested_status = 'ready'
+                            processor['processor'].status = 'stopped'
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
 
@@ -228,8 +232,8 @@ class Agent:
                                 pass
 
                         logging.info("Process died: %s",process_died)
-                        if (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
-                            (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped'):
+                        if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
+                            (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
 
                             logging.info("Updating processor")
 
@@ -246,8 +250,6 @@ class Agent:
                                 logging.info(
                                     "Worker %s created.", workerModel.id)
                                 processor['processor'].worker = workerModel
-                                self.database.session.add(processor['processor'])
-                                self.database.session.commit()
 
                             if processor['worker'] is None or process_died:
                                 """ If there is no worker Process create it """
@@ -277,6 +279,12 @@ class Agent:
                                 processor['worker'] = worker
                                 worker['wprocess'] = wprocess
                                 workers += [worker]
+
+
+                            processor['processor'].requested_status = 'ready'
+                            processor['processor'].status = 'running'
+                            self.database.session.add(processor['processor'])
+                            self.database.session.commit()
 
 
             manage_processors(workers, processors)

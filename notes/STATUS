@@ -18,20 +18,46 @@ Phase 1 Goals
 Phase 2 Goals
 -------------
 
-- Create/Manage pyfi network across machines
+- Create/Manage pyfi network across machines DONE
 - Remote deploy/manage of pyfi agents using paramiko ssh
 - Remote syncing of venv's with pyfi
-- Remotely execute tasks and dynamic code
+- Remotely execute tasks and dynamic code DONE
 - pyfi cli network/queue/cluster/agent status DONE
 - use postgres container for sqlalchemy DONE
-- Detailed data model
-- data model/table migration
+- Detailed data model DONE
+- data model/table migration DONE
 - Use Cases:
-    - Agents spawn workers for processors across machines 
-    - pyfi cli creates, starts, stops, restarts processors
-    - Agents resume workers after restart unless processor is in stopped model
-    - User modules are retrieved from git
+    - Agents spawn workers for processors across machines  DONE
+    - pyfi cli creates, starts, stops, restarts processors DONE
+    - Agents resume workers after restart unless processor is in stopped model DONE
+    - User modules are retrieved from git DONE
 - --gitrepo, --commit and --dir options for agents to locate git repo and where to store it. Agent
 then updates its local repo based on the desired commit level for the code before running the worker
-so the proper code is in place.
+so the proper code is in place. DONE
+- Throughput TESTS DONE
+- Fix memory issues DONE
+
+Phase 3 Goals
+-------------
+
+- Monitor tasks using flower and rabbitmq admin. See individual task info. DONE
+- Expand processor/task configs e.g. retries, etc. 
+- Implement logging inside task signal functions
+- Use flower API to get metadata?
+- Stop a processor after restarting it 5 times in 5 minutes
+- Test/Observe rate limiting
+- Test/Observe worker scaling (via flower) and worker auto-scaling
+- Initial PYFI API for UI
+- Add pyfi API to compose file
+- Add nginx to compose file to front PYFI API and Flower API into one API Route 65%
+- Create nginx volume with app static build in it or mounted as volume DONE
+- Run agent in supervisor, test fault tolerance and message reliability
+
+- Flow objects and data model
+   - Link to all processors
+   - Stopping or starting a flow invokes same method on processors
+
+- Password protect processors: lock & unlock. Login dialogs
+
+- Obtain queue message status from Flower for a particular queue or task
 

@@ -15,7 +15,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
 from pyfi.server import app
-from pyfi.db.model import UserModel, AgentModel, WorkerModel,PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 
 import platform
@@ -23,6 +23,7 @@ hostname = platform.node()
 
 POSTGRES_ROOT = 'postgresql://postgres:pyfi101@'+hostname+':5432/'
 POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
+
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -117,7 +118,6 @@ def migrate(context, directory):
 
     engine = context.obj['database']
 
-    
     mc = MigrationContext.configure(engine.connect())
     diff = compare_metadata(mc, target_metadata)
     script = produce_migrations(mc, target_metadata)
@@ -129,6 +129,7 @@ def migrate(context, directory):
     alembic_cfg.set_main_option('script_location', directory)
     alembic_cfg.set_main_option('sqlalchemy.url', context.obj['dburi'])
     command.upgrade(alembic_cfg, 'head')
+
 
 @db.command()
 @click.pass_context
@@ -153,7 +154,7 @@ def drop(context):
 
 
 @db.command(name='init')
-@click.option('-d', '--db', default= 'postgresql://postgres:pyfi101@'+hostname+':5432/postgres', help='Database URI')
+@click.option('-d', '--db', default='postgresql://postgres:pyfi101@'+hostname+':5432/postgres', help='Database URI')
 @click.pass_context
 def db_init(context, db):
     """
@@ -175,10 +176,8 @@ def db_init(context, db):
             context.obj['session'] = session
             engine.session = session
         except:
-            import traceback
-            print(traceback.format_exc())
             pass
-        
+
         from pyfi.db.model import Base
 
         Base.metadata.create_all(context.obj['database'])
@@ -193,7 +192,8 @@ def remove_processor(context):
     """
     Remove a processor
     """
-    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=context.obj['id']).first()
+    processor = context.obj['database'].session.query(
+        ProcessorModel).filter_by(id=context.obj['id']).first()
     # Business logic here?
     processor.requested_status = 'removed'
     database = context.obj['database']
@@ -203,13 +203,24 @@ def remove_processor(context):
 
 
 @proc.command(name='stop')
+@click.option('-n', '--name', default=None, required=False)
 @click.pass_context
-def stop_processor(context):
+def stop_processor(context, name):
     """
     Stop a processor
     """
-    print("Stopping ", context.obj['id'])
-    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=context.obj['id']).first()
+    id = context.obj['id']
+
+    if name is not None:
+        print("Stopping ", name)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=name).first()
+        print("old ", processor)
+    elif id is not None:
+        print("Stopping ", id)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=id).first()
+
     # Business logic here?
     processor.requested_status = 'stopped'
     database = context.obj['database']
@@ -219,14 +230,26 @@ def stop_processor(context):
 
 
 @proc.command(name='start')
+@click.option('-n', '--name', default=None, required=False)
 @click.pass_context
-def start_processor(context):
+def start_processor(context, name):
     """
     Start a processor
     """
-    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=context.obj['id']).first()
+    id = context.obj['id']
+
+    if name is not None:
+        print("Starting", name)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=name).first()
+        print("old ", processor)
+    elif id is not None:
+        print("Starting", id)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=id).first()
+
     # Business logic here?
-    processor.requested_status = 'started'
+    processor.requested_status = 'start'
     database = context.obj['database']
     database.session.add(processor)
     database.session.commit()
@@ -234,12 +257,24 @@ def start_processor(context):
 
 
 @proc.command(name='restart')
+@click.option('-n', '--name', default=None, required=False)
 @click.pass_context
-def restart_processor(context):
+def restart_processor(context, name):
     """
-    Retart a processor
+    Start a processor
     """
-    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=context.obj['id']).first()
+    id = context.obj['id']
+
+    if name is not None:
+        print("Restarting", name)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=name).first()
+        print("old ", processor)
+    elif id is not None:
+        print("Restarting", id)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=id).first()
+
     # Business logic here?
     processor.requested_status = 'restart'
     database = context.obj['database']
@@ -311,10 +346,11 @@ def update_object(obj, locals):
     """
     for var in locals.keys():
         if locals[var] is not None and var != 'id':
-            setattr(obj,var,locals[var])
+            setattr(obj, var, locals[var])
 
     obj.updated = datetime.now()
     return obj
+
 
 @update.command(name='processor')
 @click.option('-n', '--name', default=None, required=False)
@@ -337,16 +373,18 @@ def update_processor(context, name, module, task, hostname, workers, gitrepo, co
     id = context.obj['id']
 
     if name is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(name=name).first()
-        print("old ",processor)
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=name).first()
+        print("old ", processor)
     elif id is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=id).first()
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=id).first()
 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
 
-    print("new ",processor)
+    print("new ", processor)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
@@ -430,7 +468,7 @@ def add_role(context, name):
 
 @add.command(name='queue')
 @click.option('-n', '--name', required=True)
-@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True, default='topic', required=True)
+@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True, default='direct', required=True)
 @click.pass_context
 def add_queue(context, name, type):
     """
@@ -467,13 +505,16 @@ def update_plug(context, name, queue, procid, procname):
         plug = PlugModel.query.filter_by(id=id).first()
 
     # Get the plug's current processor
-    current_processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=plug.processor_id).first()
+    current_processor = context.obj['database'].session.query(
+        ProcessorModel).filter_by(id=plug.processor_id).first()
 
     # Get the processor referenced in the CLI
     if procname is not None:
-        new_processor = context.obj['database'].session.query(ProcessorModel).filter_by(name=procname).first()
+        new_processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=procname).first()
     elif procid is not None:
-        new_processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=procid).first()
+        new_processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=procid).first()
 
     # If the new processor is different, then add it to the transaction
     if new_processor.id != current_processor.id:
@@ -512,13 +553,16 @@ def add_plug(context, name, queue, procid, procname):
     id = context.obj['id']
 
     if procname is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(name=procname).first()
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=procname).first()
     elif procid is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=procid).first()
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=procid).first()
 
-    queue = context.obj['database'].session.query(QueueModel).filter_by(name=queue).first()
+    queue = context.obj['database'].session.query(
+        QueueModel).filter_by(name=queue).first()
     plug = PlugModel(name=name, id=id, requested_status='create',
-                       status='ready', processor_id=procid)
+                     status='ready', processor_id=procid)
     plug.queue = queue
     plug.updated = datetime.now()
     processor.plugs += [plug]
@@ -541,21 +585,23 @@ def add_outlet(context, name, queue, procid, procname):
     id = context.obj['id']
 
     if procname is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(name=procname).first()
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=procname).first()
     elif procid is not None:
-        processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=procid).first()
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=procid).first()
 
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
     outlet = OutletModel(name=name, id=id, requested_status='create',
-                       status='ready', processor_id=procid)
+                         status='ready', processor_id=procid)
     outlet.queue = queue
     outlet.updated = datetime.now()
     processor.outlets += [outlet]
     context.obj['database'].session.add(outlet)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
-    print(outlet) 
+    print(outlet)
 
 
 @cli.group()
@@ -577,7 +623,8 @@ def get():
 @get.command(name='queue')
 @click.pass_context
 def get_queue(context):
-    queue = QueueModel.query.with_for_update(of=QueueModel).filter_by(requested_status='create').first()
+    queue = QueueModel.query.with_for_update(
+        of=QueueModel).filter_by(requested_status='create').first()
     if queue is not None:
         queue.requested_status = 'ready'
         queue.status = 'created'
@@ -634,22 +681,50 @@ def workers(context):
     """
     List workers
     """
-    
+
     workers = context.obj['database'].session.query(WorkerModel).all()
     for _worker in workers:
         print(_worker)
 
 
 @ls.command()
-@click.option('-d', '--db', default=POSTGRES, help='Database URI')
+@click.option('-g','--gitrepo', is_flag=True, default=False)
+@click.option('-m','--module', is_flag=True, default=False)
+@click.option('-t','--task', is_flag=True, default=False)
 @click.pass_context
-def processors(context, db):
+def processors(context, gitrepo, module, task):
     """
     List processors
     """
+    from prettytable import PrettyTable
     processors = context.obj['database'].session.query(ProcessorModel).all()
+    x = PrettyTable()
+
+
+    names = ["Name","ID","Host", "Requested Status","Status","Workers"]
+
+    if gitrepo:
+        names += ["Git"]
+    if module:
+        names += ["Module"]
+    if task:
+        names += ["Task"]
+
+    x.field_names = names
+
     for processor in processors:
-        print(processor)
+        row = [processor.name, processor.id, processor.hostname, processor.requested_status, processor.status, processor.concurrency]
+
+        if gitrepo:
+            row += [processor.gitrepo]
+        if module:
+            row += [processor.module]
+        if task:
+            row += [processor.task]
+
+        x.add_row(row)
+
+    print(x)
 
 
 @ls.command()
@@ -683,6 +758,7 @@ def plugs(context):
     agents = context.obj['database'].session.query(PlugModel).all()
     for agent in agents:
         print(agent)
+
 
 @cli.group()
 def api():
@@ -718,7 +794,7 @@ def api_start(context, ip, port):
 
 
 @agent.command(name='start')
-@click.option('-p','--port', default=8002, help='Listen port')
+@click.option('-p', '--port', default=8002, help='Listen port')
 @click.option('-b', '--backend', default='redis://192.168.1.23', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://192.168.1.23', help='Message broker URI')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
@@ -731,7 +807,8 @@ def start_agent(context, port, backend, broker, config, queues, pool):
     """
     from pyfi.agent import Agent
 
-    agent = Agent(context.obj['database'], port, pool=pool, config=config, backend=backend, broker=broker)
+    agent = Agent(context.obj['database'], port, pool=pool,
+                  config=config, backend=backend, broker=broker)
     agent.start(queues)
 
 
@@ -743,8 +820,9 @@ def web(context):
     """
     pass
 
+
 @web.command(name='start')
-@click.option('-p','--port', default=8001, help='Listen port')
+@click.option('-p', '--port', default=8001, help='Listen port')
 def web_start(port):
     """
     Run pyfi test web server

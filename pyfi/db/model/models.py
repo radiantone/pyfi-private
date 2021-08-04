@@ -283,7 +283,7 @@ class QueueModel(Base):
                          onupdate=datetime.now, nullable=False)
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}'.format(self.id, self.requested_status, self.status, self.name, self.lastupdated)
+        return '{}:{}:{}:{}:{}:{}'.format(self.id, self.qtype, self.requested_status, self.status, self.name, self.lastupdated)
 
 
 class QueueLogModel(Base):

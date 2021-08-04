@@ -77,7 +77,20 @@ class Worker:
                 for outlet in self.processor.outlets:
                     if outlet.queue:
                         print("queue: ",outlet.queue)
-                        queues += [outlet.queue.name]
+                        queues += [outlet.queue.name+'.'+self.processor.name]
+                        queues += [outlet.queue.name+'.topic']
+                        from kombu import Exchange, Queue, binding
+                        from kombu.common import Broadcast
+
+                        app.conf.task_queues = (
+                            Broadcast(outlet.queue.name+'.topic'),)
+                        app.conf.task_routes = {
+                            self.processor.module+'.'+self.processor.task: {
+                                'queue': [outlet.queue.name+'.topic', outlet.queue.name],
+                                'exchange': [outlet.queue.name+'.topic', outlet.queue.name]
+                            }
+                        }
+
 
             @worker_process_init.connect()
             def prep_db_pool(**kwargs):
@@ -151,18 +164,29 @@ class Worker:
             def pyfi_task_postrun(sender=None, **kwargs):
                 task_kwargs = kwargs.get('kwargs')
                 plugs = task_kwargs['plugs']
+
                 for key in plugs:
+
+                    processor_plug = None
+                    for _plug in self.processor.plugs:
+                        if _plug.queue.name == key:
+                            processor_plug = _plug
+
+                    processors = self.database.session.query(
+                        ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
+
                     for msg in plugs[key]:
                         logging.info("Sending {} to queue {}".format(msg, key))
 
-                        processors = self.database.session.query(
-                            ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
+                        if processor_plug.queue.qtype == 'direct':
+                            for processor in processors:
+                                print("Invoking {}=>{}.{}({})".format(
+                                    key, processor.module, processor.task, msg))
 
-                        for processor in processors:
-                            print("Invoking {}=>{}.{}({})".format(
-                                key, processor.module, processor.task, msg))
-                            self.celery.signature(
-                                processor.module+'.'+processor.task, args=(msg,), queue=key, kwargs={}).delay()
+                                # Target specific worker queue here
+                                worker_queue = key+'.'+processor.name
+                                self.celery.signature(
+                                    processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
             
             worker.start()
 

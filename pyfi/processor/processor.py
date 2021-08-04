@@ -1,5 +1,6 @@
 from celery import Celery
 from pyfi.config.celery import Config
+from kombu import Exchange, Queue, binding
 
 class Processor:
     """
@@ -7,6 +8,8 @@ class Processor:
     """
 
     def __init__(self, queue=None, name=None, config=None):
+        from kombu.common import Broadcast
+
         self.queue = queue
         self.name = name
         self.app = Celery()
@@ -15,7 +18,27 @@ class Processor:
         else:
             self.app.config_from_object(config)
 
+        if queue.find('topic') > -1:
+            self.app.conf.task_queues = (
+                Broadcast(queue),)
 
+            self.app.conf.task_routes = {
+                name: {
+                    'queue': queue,
+                    'exchange': queue
+                }
+            }
+        """
+
+
+        self.app.conf.task_routes = {
+            name: {
+                'queue': queue,
+                'exchange': queue
+            }
+        }
+
+        """
     def __call__(self, *args, **kwargs):
 
         # Add logging callbacks in here

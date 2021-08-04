@@ -1,0 +1,12 @@
+- Add a processor
+- Agent runs worker for processor, clones git
+- Start, stop, restart processor
+- Run tasks for processor
+- Send message to processor queue
+- Send message to queue topic - all processors receive it
+- Agent worker uses signal callbacks to log status, outcome/errors of task
+- Agent worker uses signal callbacks to log queue data metrics (e.g. messages, message size etc)
+    - Query with SUM() function will perform reporting on results to avoid read lock bottlenecks
+- Stop a processor, send messages, start the processor => processor resumes processing messages
+- Removing a processor: cannot remove a processor that is running, must stop first.
+    - prompts user to complete

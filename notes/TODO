@@ -1,3 +1,4 @@
+- Implement pretty table for ls command
 
 
 DESIGN
@@ -13,9 +14,9 @@ TESTS
 -----
 
 1. Verified multi server, multi processor, multi agent realtime, reliable messaging across processors that all pull from git
-    a. All messages get delivered
-    b. Message queues are consumed in timely manner
-    c. No exceptions
+    a. All messages get delivered DONE
+    b. Message queues are consumed in timely manner DONE
+    c. No exceptions DONE
 
 SMALL TASKS
 --------------
@@ -39,7 +40,7 @@ SMALL TASKS
 - Add alembic config DONE
 - Edit migrations/env.py with target_metadata DONE
 - pyfi db init calls alembic init and fixes env.py?
-- 
+
 
 UPCOMING
 --------
@@ -53,8 +54,6 @@ UPCOMING
 7. Execute processor function with beat schedule from harness DONE
 8. Processor subscribes to outlet queues on startup DONE
 9. Client executes processor function across its outlet queues DONE
-
-
 
 
 PYFI TODOs
@@ -91,7 +90,8 @@ PYFI TODOs
 12. Click select processor DONE
 13. Click a processor and it rises to front and triggers selection event DONE
 14. Processor selection event enables operation buttons gui DONE
-15. 
+15. Create queue objects and specify type of queue and qualities like durable, etc  
+      When adding plugs to outlets, you select the existing queue that connection is to use or create a new one on-the-fly with wizard dialog
 
 
 CLI TODO
