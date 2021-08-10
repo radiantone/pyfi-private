@@ -61,3 +61,12 @@ Phase 3 Goals
 
 - Obtain queue message status from Flower for a particular queue or task
 
+- Add user CLI commands
+- Delete CLI commands
+
+
+Phase 4 Goals
+-------------
+
+- User RLS row level security in database
+

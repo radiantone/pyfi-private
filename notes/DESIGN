@@ -1,4 +1,10 @@
 
+SCHEDULER->NODE->AGENT->PROCESSOR->WORKER->TASK
+
+
+
+
+
 PYFI - CLI for pyfi admin and monitoring - queries celery/amqp network along with pyfi database
 
 PROCESSORS - Each python processor script is wrapped in a pyfi harness that marshalls messages and events from amqp to the script

@@ -1,12 +1,14 @@
-Components
------------
+Enterprise Class Components
+---------------------------
 
 NGINX - Reverse proxy
 CELERY - Task broker
 RABBITMQ - Message broker
 REDIS - Result backend/broker/cache
-POSTGRES - database
-SUPERVISOR - Watchdog
+POSTGRES - SQL database
+SUPERVISOR - Process manager
+PGADMIN - DB administration
+UVICORN/SOCKETIO - Real time event distribution
 
 Core Design
 ------------

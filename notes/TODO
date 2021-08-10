@@ -1,4 +1,27 @@
-- Implement pretty table for ls command
+
+- Add basic scheduler and pseudo logic. DONE
+
+- Implement task beat schedules
+- Git username/password 
+
+- Implement socketio task notifications in worker 80%
+     - Websocket server DONE
+     - Websocket container
+     - Error notifications, complete notifications, etc
+          - Each has its own room
+          - Each task has its own room
+
+- Implement pretty table for ls command. DONE
+- Implement -i, --interactive for prompted add commands. DONE
+- Add user to database 
+    - Admin add user script
+- Set current_user in database session in base command Group DONE
+- Pause/Resume a worker. This serves two purposes. When a processor is paused by a human
+and when an agent scheduler is rotating worker time on the same CPU. For example, let's say 
+you have 12 workers on a 6 CPU server. Only 6 are running at any one time and the scheduler will
+ensure that the other 6 are paused. DONE
+
+- Implement update for all objects with prompting
 
 
 DESIGN
