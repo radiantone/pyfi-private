@@ -2,6 +2,35 @@ version: '3.9'
 
 services:
 
+  #supervisor:
+  #  build: 
+  #    context: containers/
+  #    dockerfile: Dockerfile.supervisor
+  #  container_name: supervisor
+  #  image: supervisor:latest
+  #  volumes:
+  #    - ./conf/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+
+  # Admin UI - http://localhost:8008
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    ports:
+      - 8008:80
+
+  # Console - http://localhost:8888
+  flower:  
+    image: mher/flower:latest
+    container_name: flower
+    environment:
+      - CELERY_BROKER_URL=pyamqp://phoenix
+      - FLOWER_PORT=8888
+    ports:  
+      - 8888:8888  
+
   nginx: 
     image: nginx:latest
     container_name: nginx
@@ -14,6 +43,7 @@ services:
       - 80:80
       - 443:443
 
+  # Admin UI - http://localhost:15672/
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq
