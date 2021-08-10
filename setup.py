@@ -79,7 +79,7 @@ class PylintCommand(distutils.cmd.Command):
 
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
-    CLEAN_FILES = './celerybeat* ./*.out ./*.log ./work/* ./build ./dist ./__pycache__ **/*/__pycache__ ./*.pyc ./ssh*py ./*.tgz ./.pytest_cache ./*.egg-info'.split(
+    CLEAN_FILES = './celerybeat* ./*.out ./*.log ./work/* ./build ./dist ./__pycache__ ./*/__pycache__ ./*.pyc ./ssh*py ./*.tgz ./.pytest_cache ./*.egg-info'.split(
         ' ')
 
     user_options = []
@@ -120,10 +120,10 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['pyfi', 'pyfi.tests', 'pyfi.config', 'pyfi.processor', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
+    packages=['pyfi', 'pyfi.tests', 'pyfi.scheduler', 'pyfi.config', 'pyfi.processor', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
               'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.web'],
     include_package_data=True,
-    python_requires="==3.8.*",
+    python_requires=">=3.8.*",
     install_requires=[
         'click<8.0,>=7.0',
         'flask',
@@ -135,7 +135,13 @@ setup(
         'prettytable',
         'sqlalchemy',
         'alembic',
-        'flask-script'
+        'eventlet',
+        'gunicorn',
+        'paramiko',
+        'uvicorn',
+        'uvicorn[standard]',
+        'python-socketio',
+        'python-socketio[asyncio_client]'
     ],
     license=about['__license__'],
     zip_safe=False,
