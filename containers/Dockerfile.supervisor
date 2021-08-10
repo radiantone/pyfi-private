@@ -1,0 +1,20 @@
+FROM ubuntu:latest
+RUN mkdir -p /var/log/supervisor
+RUN apt-get update && \
+    apt-get install -y supervisor && \
+    apt-get clean
+RUN apt install -y supervisor
+RUN apt-get install -y python3-pip
+RUN apt install -y libpq-dev
+RUN apt install -y libevent-dev libev-dev libevdev2
+ADD pyfi /opt/pyfi/pyfi
+ADD setup.py /opt/pyfi/setup.py
+ADD README.md /opt/pyfi/README.md
+WORKDIR /opt/pyfi
+RUN pip3 install virtualenv
+RUN virtualenv --python=python3 venv
+RUN venv/bin/pip install flask
+RUN venv/bin/python setup.py install
+
+RUN ls -l 
+CMD ["/usr/bin/supervisord","-n"]

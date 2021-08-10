@@ -1,0 +1,25 @@
+FROM python:3
+
+#ENV DEBIAN_FRONTEND=noninteractive
+
+#RUN apt-get update \
+#    && apt-get install -y python3-pip python3-dev \
+#    && cd /usr/local/bin \
+#    && ln -s /usr/bin/python3 python \
+#    && pip3 install --upgrade pip
+
+RUN mkdir /opt/pyfi
+ADD pyfi /opt/pyfi/pyfi
+ADD setup.py /opt/pyfi/setup.py
+ADD README.md /opt/pyfi/README.md
+WORKDIR /opt/pyfi
+
+RUN ls /opt/pyfi
+
+RUN apt update
+RUN apt-get install -y libpq-dev
+RUN apt install -y libevent-dev libev-dev libevdev2
+RUN pip install -e .
+RUN python setup.py install
+
+CMD ["python", "pyfi/server/events.py"]
