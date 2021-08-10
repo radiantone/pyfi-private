@@ -23,15 +23,17 @@ app.register_blueprint(blueprint)
 hostname = platform.node()
 cpus = multiprocessing.cpu_count()
 
+
 class Agent:
 
-    def __init__(self, database, port, config=None, pool=4, backend='redis://192.168.1.23', broker='pyamqp://192.168.1.23'):
+    def __init__(self, database, dburi, port, config=None, pool=4, backend='redis://phoenix', broker='pyamqp://phoenix'):
         self.port = port
         self.backend = backend
         self.broker = broker
         self.database = database
         self.config = config
         self.pool = pool
+        self.dburi = dburi
 
     def start(self, queues):
         from datetime import datetime
@@ -39,10 +41,10 @@ class Agent:
         #from multiprocessing import Process
         from billiard.context import Process
 
-
         from uuid import uuid4
 
-        logging.info("Serving agent on port {} {} {}".format(self.port, self.backend, self.broker))
+        logging.info("Serving agent on port {} {} {}".format(
+            self.port, self.backend, self.broker))
 
         # Retrieve any existing Agent for this hose
         agent = self.database.session.query(
@@ -53,10 +55,12 @@ class Agent:
             # agent process will monitor database and manage worker process pool
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
-            agent = AgentModel(id=uuid4(), hostname=hostname, name="agent")
+            agent = AgentModel(id=uuid4(), hostname=hostname,
+                               name=hostname+".agent")
 
         agent.status = 'running'
         agent.cpus = cpus
+        agent.port = self.port
         agent.updated = datetime.now()
         self.database.session.add(agent)
         self.database.session.commit()
@@ -67,7 +71,7 @@ class Agent:
             then create a worker with the processor's module and link the worker to the processor    
             """
             import time
-            
+
             processors = []
             workers = []
 
@@ -90,6 +94,7 @@ class Agent:
 
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
+                        # Send health alert log
                         for processor in processors:
                             if processor['worker'] is not None:
                                 # Mark process last killed date and if it was killed
@@ -99,12 +104,13 @@ class Agent:
                                 processor['worker'] = None
                                 processor['processor'].status = 'stopped'
 
+                    myprocessors = []
+
                     if refresh == 0:
                         myprocessors = self.database.session.query(
                             ProcessorModel).filter_by(
                             hostname=hostname).all()
 
-                    
                     if refresh == 0:
                         for myprocessor in myprocessors:
 
@@ -128,6 +134,10 @@ class Agent:
                     for processor in processors:
                         logging.info("Processor requested_status %s",
                                      processor['processor'].requested_status)
+
+                        # if this processor is not in myprocessors, then kill it
+                        # it could have been deleted or moved
+
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
                                 logging.info("Killing worker")
@@ -139,7 +149,7 @@ class Agent:
                                 except:
                                     import traceback
                                     print(traceback.format_exc())
-                            
+
                             processor['delete'] = True
                             self.database.session.delete(
                                 processor['processor'].worker)
@@ -163,7 +173,7 @@ class Agent:
                                     processor['worker']['process'].kill()
                                     processor['worker'] = None
                                     logging.info("Killed worker %s",
-                                                worker['worker'].id)
+                                                 worker['worker'].id)
                                 except:
                                     import traceback
                                     print(traceback.format_exc())
@@ -183,6 +193,59 @@ class Agent:
 
                             self.database.session.commit()
 
+                        if processor['processor'].requested_status == 'paused':
+                            if processor['worker'] is not None:
+                                logging.info("Pausing worker")
+                                try:
+                                    processor['worker']['process'].suspend()
+                                    logging.info("Paused worker %s",
+                                                 worker['worker'].id)
+                                except:
+                                    import traceback
+                                    print(traceback.format_exc())
+
+                            processor['processor'].requested_status = 'ready'
+                            processor['processor'].status = 'paused'
+                            processor['processor'].worker.status = 'paused'
+                            processor['processor'].worker.requested_status = 'ready'
+
+                            logging.info("Processor is paused")
+
+                            self.database.session.add(
+                                processor['processor'].worker)
+
+                            self.database.session.add(
+                                processor['processor'])
+
+                            self.database.session.commit()
+                            continue
+
+                        if processor['processor'].requested_status == 'resumed':
+                            if processor['worker'] is not None:
+                                logging.info("Resuming worker")
+                                try:
+                                    processor['worker']['process'].resume()
+                                    logging.info("Paused worker %s",
+                                                 worker['worker'].id)
+                                except:
+                                    import traceback
+                                    print(traceback.format_exc())
+
+                            processor['processor'].requested_status = 'ready'
+                            processor['processor'].status = 'resumed'
+                            processor['processor'].worker.status = 'resumed'
+                            processor['processor'].worker.requested_status = 'ready'
+
+                            logging.info("Processor is resumed")
+
+                            self.database.session.add(
+                                processor['processor'].worker)
+
+                            self.database.session.add(
+                                processor['processor'])
+
+                            self.database.session.commit()
+                            continue
 
                         if processor['processor'].requested_status == 'stopped':
                             if processor['worker'] is not None:
@@ -191,7 +254,7 @@ class Agent:
                                     processor['worker']['process'].kill()
                                     processor['worker'] = None
                                     logging.info("Killed worker %s",
-                                                worker['worker'].id)
+                                                 worker['worker'].id)
                                 except:
                                     import traceback
                                     print(traceback.format_exc())
@@ -227,24 +290,25 @@ class Agent:
                         process_died = False
                         if 'worker' in processor:
                             try:
-                                process_died = not processor['worker']['wprocess'].is_alive()
+                                process_died = not processor['worker']['wprocess'].is_alive(
+                                )
                             except:
                                 pass
 
-                        logging.info("Process died: %s",process_died)
-                        if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and \
-                            (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
+                        logging.info("Process died: %s", process_died)
+                        if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
+                                (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
 
                             logging.info("Updating processor")
 
                             if processor['processor'].worker is None:
-                                """ If there is no worker model, create one and link to Processor """                                
+                                """ If there is no worker model, create one and link to Processor """
                                 workerModel = WorkerModel(id=str(uuid4()), name=processor['processor'].name+'-worker', concurrency=processor['processor'].concurrency,
-                                                     status='ready',
-                                                     backend=self.backend,
-                                                     broker=self.broker,
-                                                     hostname=hostname,
-                                                     requested_status='start')
+                                                          status='ready',
+                                                          backend=self.backend,
+                                                          broker=self.broker,
+                                                          hostname=hostname,
+                                                          requested_status='start')
 
                                 self.database.session.add(workerModel)
                                 logging.info(
@@ -255,12 +319,12 @@ class Agent:
                                 """ If there is no worker Process create it """
                                 import os
                                 worker = {}
-                            
+
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
 
                                 workerproc = Worker(
-                                    processor['processor'], workdir=dir, pool=self.pool, database=self.database, config=self.config, backend=self.backend, broker=self.broker)
+                                    processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, config=self.config, backend=self.backend, broker=self.broker)
 
                                 wprocess = workerproc.start()
 
@@ -280,21 +344,23 @@ class Agent:
                                 worker['wprocess'] = wprocess
                                 workers += [worker]
 
-
                             processor['processor'].requested_status = 'ready'
                             processor['processor'].status = 'running'
                             self.database.session.add(processor['processor'])
                             self.database.session.commit()
 
-
             manage_processors(workers, processors)
 
         def web_server():
             try:
+                logging.info("Starting web server on %s",self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
                 logging.info("Shutting down...")
+
+        webserver = Process(target=web_server)
+        webserver.start()
 
         logging.info("Monitoring processors")
         monitor_processors()
@@ -302,11 +368,4 @@ class Agent:
 
 @app.route('/')
 def hello():
-    users = UserModel.query.all()
-    _users = ""
-    for user in users:
-        _users += "{}:{}".format(user.username, user.email)
-        _users += "\n"
-    logging.debug('AgentModel API')
-    result = add.delay(4, 5)
-    return "Hello World from agent!! {} {}".format(result.get(), _users)
+    return "Agent is running"
