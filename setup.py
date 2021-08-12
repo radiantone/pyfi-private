@@ -125,7 +125,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
-        'click<8.0,>=7.0',
+        'click<=8.0,>=7.0',
         'flask',
         'celery',
         'bjoern',
@@ -139,9 +139,12 @@ setup(
         'gunicorn',
         'paramiko',
         'uvicorn',
+        'psutil',
+        'requests',
         'uvicorn[standard]',
         'python-socketio',
-        'python-socketio[asyncio_client]'
+        'python-socketio[asyncio_client]',
+        'python-socketio[client]'
     ],
     license=about['__license__'],
     zip_safe=False,
