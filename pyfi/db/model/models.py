@@ -264,9 +264,24 @@ class QueueModel(BaseModel):
     requested_status = Column(String(20), nullable=False)
     qtype = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
+    durable = Column(Boolean, default=True)
+    reliable = Column(Boolean, default=True)
+    auto_delete = Column(Boolean, default=True)
+    max_length = Column(Integer, default=-1)
+    max_length_bytes = Column(Integer, default=-1)
+    message_ttl = Column(Integer, default=30)
+    expires = Column(Integer, default=30)
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}'.format(self.id, self.qtype, self.requested_status, self.status, self.name, self.lastupdated)
+        return '{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.qtype, self.requested_status, 
+        self.status, self.name, self.lastupdated,
+        self.durable,
+        self.reliable,
+        self.auto_delete,
+        self.max_length,
+        self.max_length_bytes,
+        self.message_ttl,
+        self.expires)
 
 
 class QueueLogModel(Base):

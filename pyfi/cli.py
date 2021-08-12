@@ -37,21 +37,37 @@ CONFIG = configparser.ConfigParser()
 
 @click.group(invoke_without_command=True)
 @click.option('--debug', is_flag=True, default=False, help='Debug switch')
-@click.option('-d', '--db', default=None, help='Database URI')
+@click.option('-d', '--db', help='Database URI')
+@click.option('--backend', help='Task queue backend')
+@click.option('--broker', help='Message broker URI')
 @click.option('-i', '--ini', default=home+"/pyfi.ini", help='PYFI .ini configuration file')
 @click.option('-c', '--config', default=False, is_flag=True, help='Configure pyfi')
 @click.pass_context
-def cli(context, debug, db, ini, config):
+def cli(context, debug, db, backend, broker, ini, config):
     """
     Pyfi CLI for managing the pyfi network
     """
     context.obj = {}
     if config:
-        dburi = click.prompt('Database connection URI',
+        if not db:
+            db = click.prompt('Database connection URI',
                              type=str, default=POSTGRES)
+        if not backend:
+            backend = click.prompt('Result backend URI',
+                                   type=str, default='redis://localhost')
+        if not broker:
+            broker = click.prompt('Message broker URI',
+                             type=str, default='pyamqp://localhost')
+
         _config = configparser.ConfigParser()
         _config.add_section('database')
-        _config.set('database', 'uri', dburi)
+        _config.set('database', 'uri', db)
+
+        _config.add_section('backend')
+        _config.set('backend', 'uri', backend)
+
+        _config.add_section('broker')
+        _config.set('broker', 'uri', broker)
         with open(home+"/pyfi.ini", "w") as configfile:
             _config.write(configfile)
 
@@ -1068,8 +1084,8 @@ def api_start(context, ip, port):
 
 @agent.command(name='start')
 @click.option('-p', '--port', default=8002, help='Listen port')
-@click.option('-b', '--backend', default='redis://phoenix', help='Message backend URI')
-@click.option('-r', '--broker', default='pyamqp://phoenix', help='Message broker URI')
+@click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
+@click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')

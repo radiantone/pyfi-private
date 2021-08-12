@@ -2,13 +2,29 @@ Enterprise Class Components
 ---------------------------
 
 NGINX - Reverse proxy
+AMPLIFY - NGINX Monitoring
+
+PYFI Agents
+PYFI UI
+
 CELERY - Task broker
+FLOWER - Celery UI
+
 RABBITMQ - Message broker
+RABBITMQ Admin - RabbitMQ UI
+
 REDIS - Result backend/broker/cache
+REDISINSIGHTS - Redis UI
+
 POSTGRES - SQL database
-SUPERVISOR - Process manager
 PGADMIN - DB administration
-UVICORN/SOCKETIO - Real time event distribution
+
+SUPERVISOR - Process manager
+UVICORN/SOCKETIO - Real time event distribution server
+
+LOGSTASH - Pull results from Redis into ElasticSearch for search, ML and analysis
+ELASTICSEARCH - Archive and search result data, real-time analytics. redis data expires
+KIBANA - Visualize and Analyze dataflow traffic. Perform predictive ML on data trends
 
 Core Design
 ------------

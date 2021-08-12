@@ -6,8 +6,8 @@ things such as security, logging, message dispatching, enqueing/dequeuing, error
 """
 from celery import Celery
 
-celery = Celery('pyfi', backend='redis://phoenix',
-                broker='pyamqp://phoenix')
+celery = Celery('pyfi', backend='redis://localhost',
+                broker='pyamqp://localhost')
 
 
 @celery.task

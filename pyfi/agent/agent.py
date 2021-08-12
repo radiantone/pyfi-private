@@ -4,6 +4,10 @@ agent.py - pyfi agent server responsible for managing worker/processor lifecycle
 import platform
 import logging
 import multiprocessing
+import configparser
+import os
+
+from pathlib import Path
 
 from sqlalchemy import inspect
 
@@ -20,13 +24,15 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 app.register_blueprint(blueprint)
 
+home = str(Path.home())
+CONFIG = configparser.ConfigParser()
 hostname = platform.node()
 cpus = multiprocessing.cpu_count()
 
 
 class Agent:
 
-    def __init__(self, database, dburi, port, config=None, pool=4, backend='redis://phoenix', broker='pyamqp://phoenix'):
+    def __init__(self, database, dburi, port, config=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -34,6 +40,10 @@ class Agent:
         self.config = config
         self.pool = pool
         self.dburi = dburi
+        if os.path.exists(home+"/pyfi.ini"):
+            CONFIG.read(home+"/pyfi.ini")
+            self.backend = CONFIG.get('backend', 'uri')
+            self.broker = CONFIG.get('broker', 'uri')
 
     def start(self, queues):
         from datetime import datetime
@@ -324,7 +334,7 @@ class Agent:
                                 os.makedirs(dir, exist_ok=True)
 
                                 workerproc = Worker(
-                                    processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, config=self.config, backend=self.backend, broker=self.broker)
+                                    processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 wprocess = workerproc.start()
 

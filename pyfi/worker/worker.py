@@ -7,6 +7,8 @@ import os
 import sys
 import psutil
 import signal
+import configparser
+from pathlib import Path
 
 from multiprocessing import Condition, Queue
 from sqlalchemy import create_engine
@@ -17,10 +19,13 @@ from pyfi.processor import Processor
 
 from celery import Celery
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
+from kombu import Exchange, Queue as KQueue
 
 
 import socketio
 
+home = str(Path.home())
+CONFIG = configparser.ConfigParser()
 
 lock = Condition()
 queue = Queue()
@@ -45,7 +50,7 @@ class Worker:
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
 
-    def __init__(self, processor, workdir, pool=4, database=None, backend='redis://phoenix', config=None, broker='pyamqp://phoenix'):
+    def __init__(self, processor, workdir, pool=4, database=None, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -62,13 +67,18 @@ class Worker:
         self.database.session = self.session
         self.pool = pool
 
-        if config is not None:
+        if os.path.exists(home+"/pyfi.ini"):
+            CONFIG.read(home+"/pyfi.ini")
+            self.backend = CONFIG.get('backend', 'uri')
+            self.broker = CONFIG.get('broker', 'uri')
+
+        if celeryconfig is not None:
             import importlib
 
-            module = importlib.import_module(config.split['.'][:-1])
-            config = getattr(module, config.split['.'][-1:])
+            module = importlib.import_module(celeryconfig.split['.'][:-1])
+            celeryconfig = getattr(module, celeryconfig.split['.'][-1:])
             self.celery = Celery(include=self.processor.module)
-            self.celery.config_from_object(config)
+            self.celery.config_from_object(celeryconfig)
         else:
             self.celery = celery = Celery(
                 'pyfi', backend=backend, broker=broker)
@@ -119,7 +129,7 @@ class Worker:
 
             while True:
                 try:
-                    sio.connect('http://localhost:5000',
+                    sio.connect('http://events:5000',
                                 namespaces=['/tasks'])
                     break
                 except Exception as ex:
@@ -130,13 +140,33 @@ class Worker:
                 for outlet in self.processor.outlets:
                     if outlet.queue:
                         print("queue: ", outlet.queue)
+
+                        # This queue is bound to a broadcast(fanout) exchange that delivers
+                        # a message to all the connected queues however sending a task to 
+                        # this queue will deliver to this processor only
                         queues += [outlet.queue.name+'.'+self.processor.name]
+
+                        # This topic queue represents the broadcast fanout to all workers connected
+                        # to it. Sending a task to this queue delivers to all connected workers
                         queues += [outlet.queue.name+'.topic']
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
-
+                        print("OUTLET EXPIRES: ", outlet.queue.expires)
                         app.conf.task_queues = (
-                            Broadcast(outlet.queue.name+'.topic'),)
+                            Broadcast(outlet.queue.name+'.topic', queue_arguments={
+                                'x-message-ttl': outlet.queue.expires,
+                                'x-expires': outlet.queue.expires
+                            }),
+                            KQueue(
+                                outlet.queue.name+'.'+self.processor.name,
+                                Exchange(outlet.queue.name+'.topic', type='fanout'),
+                                routing_key=self.processor.module+'.'+self.processor.task,
+                                message_ttl = outlet.queue.message_ttl,
+                                durable=outlet.queue.durable,
+                                expires=outlet.queue.expires
+                            ))
+
+
                         app.conf.task_routes = {
                             self.processor.module+'.'+self.processor.task: {
                                 'queue': [outlet.queue.name+'.topic', outlet.queue.name],
@@ -291,7 +321,7 @@ class Worker:
 
             while True:
                 try:
-                    sio.connect('http://localhost:5000',
+                    sio.connect('http://events:5000',
                                 namespaces=['/tasks'])
                     break
                 except Exception as ex:

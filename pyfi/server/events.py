@@ -36,5 +36,5 @@ def disconnect(sid):
 
 if __name__ == '__main__':
     #eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
-    uvicorn.run("pyfi.server.events:app", host="127.0.0.1",
+    uvicorn.run("pyfi.server.events:app", host="0.0.0.0",
                 port=5000, log_level="info")
