@@ -1,0 +1,19 @@
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+
+RUN mkdir /opt/pyfi
+RUN python -m pip install --upgrade pip
+RUN pip install redis
+RUN pip install supervisor
+
+COPY pyfi/server/logs.py /opt/pyfi/logs.py
+COPY conf/supervisord-logs.conf /etc/supervisord.conf
+RUN ls -l /etc/super*
+WORKDIR /opt/pyfi
+ENV REDIS_SERVER=redis
+
+# Run inside supervisord
+
+#CMD ["python", "logs.py"]
+
+CMD ["supervisord", "-n"]
+
