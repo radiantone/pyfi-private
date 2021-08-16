@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
 from pyfi.server import app
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 
 import platform
@@ -51,13 +51,13 @@ def cli(context, debug, db, backend, broker, ini, config):
     if config:
         if not db:
             db = click.prompt('Database connection URI',
-                             type=str, default=POSTGRES)
+                              type=str, default=POSTGRES)
         if not backend:
             backend = click.prompt('Result backend URI',
                                    type=str, default='redis://localhost')
         if not broker:
             broker = click.prompt('Message broker URI',
-                             type=str, default='pyamqp://localhost')
+                                  type=str, default='pyamqp://localhost')
 
         _config = configparser.ConfigParser()
         _config.add_section('database')
@@ -102,6 +102,7 @@ def cli(context, debug, db, backend, broker, ini, config):
 
     if len(sys.argv) == 1:
         click.echo(context.get_help())
+
 
 @cli.group()
 @click.pass_context
@@ -405,6 +406,7 @@ def scheduler(context, id, name):
     context.obj['id'] = str(id)
     context.obj['name'] = name
 
+
 @cli.group(name="delete")
 def delete():
     """
@@ -452,7 +454,6 @@ def update(context, id):
         id = uuid4()
 
     context.obj['id'] = str(id)
-
 
 
 @scheduler.command(name='run', help='Run the basic scheduler')
@@ -715,6 +716,20 @@ def add_queue(context, name, type):
     print(queue)
 
 
+@update.command(name='socket')
+@click.option('-n', '--name', required=True)
+@click.option('-q', '--queue', required=True, help="Queue name")
+@click.option('-pi', '--procid', default=None, required=False, help="Processor id")
+@click.option('-pn', '--procname', default=None, required=False, help="Processor name")
+@click.option('-t', '--task', default=None, required=False, help="Task name")
+@click.pass_context
+def update_socket(context, name, queue, procid, procname, task):
+
+    # Setting processor requested status to 'update' will cause the agent to reload
+    # the processor from the database and reset the task worker
+    return
+
+
 @update.command(name='plug')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
@@ -747,7 +762,9 @@ def update_plug(context, name, queue, procid, procname):
             ProcessorModel).filter_by(id=procid).first()
 
     # If the new processor is different, then add it to the transaction
+    # and request it be updated by the agent
     if new_processor.id != current_processor.id:
+        new_processor.requested_status = 'update'
         context.obj['database'].session.add(new_processor)
 
     # Update all the values in the plug object
@@ -763,7 +780,7 @@ def update_plug(context, name, queue, procid, procname):
             new_plugs += [_plug]
 
     current_processor.plugs = new_plugs
-
+    current_processor.requested_status = 'update'
     context.obj['database'].session.add(plug)
     context.obj['database'].session.add(current_processor)
     context.obj['database'].session.commit()
@@ -802,36 +819,39 @@ def add_plug(context, name, queue, procid, procname):
     print(plug)
 
 
-@add.command(name='outlet')
+@add.command(name='socket')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-pi', '--procid', default=None, required=False, help="Processor id")
-@click.option('-pn', '--procname', default=None, required=False, help="Processor name")
+@click.option('-pn', '--procname', default=None, required=True, help="Processor name")
+@click.option('-t', '--task', default=None, required=True, help="Task name")
 @click.pass_context
-def add_outlet(context, name, queue, procid, procname):
+def add_socket(context, name, queue, procname, task):
     """
-    Add outlet to a processor
+    Add socket to a processor
     """
     id = context.obj['id']
 
-    if procname is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=procname).first()
-    elif procid is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=procid).first()
+    processor = context.obj['database'].session.query(
+        ProcessorModel).filter_by(name=procname).first()
 
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
-    outlet = OutletModel(name=name, id=id, requested_status='create',
-                         status='ready', processor_id=procid)
-    outlet.queue = queue
-    outlet.updated = datetime.now()
-    processor.outlets += [outlet]
-    context.obj['database'].session.add(outlet)
+    socket = SocketModel(name=name, id=id, requested_status='create',
+                         status='ready', processor_id=processor.id)
+
+    if task is not None:
+        _task = context.obj['database'].session.query(
+            TaskModel).filter_by(name=task).first()
+        socket.task = _task
+
+    socket.queue = queue
+    socket.updated = datetime.now()
+    processor.sockets += [socket]
+    processor.requested_status = 'update'
+    context.obj['database'].session.add(socket)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
-    print(outlet)
+    print(socket)
 
 
 @cli.group()
@@ -862,7 +882,8 @@ def schedulers(context):
     x.field_names = names
     nodes = context.obj['database'].session.query(SchedulerModel).all()
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated, [n.name for n in node.nodes]])
+        x.add_row([node.name, node.id, node.owner,
+                  node.lastupdated, [n.name for n in node.nodes]])
 
     print(x)
 
@@ -958,7 +979,8 @@ def processors(context, gitrepo, module, task, owner):
     x = PrettyTable()
 
     print("I am ", context.obj['owner'])
-    names = ["Name", "ID", "Host", "Owner", "Last Updated", "Requested Status", "Status", "Workers"]
+    names = ["Name", "ID", "Host", "Owner", "Last Updated",
+             "Requested Status", "Status", "Workers"]
 
     if gitrepo:
         names += ["Git"]
@@ -1011,18 +1033,18 @@ def agents(context):
 
 @ls.command()
 @click.pass_context
-def outlets(context):
+def sockets(context):
     """
-    List outlets
+    List sockets
     """
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
              "Status", "Processor ID", "Queue"]
     x.field_names = names
-    outlets = context.obj['database'].session.query(OutletModel).all()
+    sockets = context.obj['database'].session.query(SocketModel).all()
 
-    for node in outlets:
+    for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
                   node.status, node.processor_id, node.queue.name])
 

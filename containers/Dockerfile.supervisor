@@ -9,14 +9,21 @@ RUN apt install -y libpq-dev
 RUN apt install -y libevent-dev libev-dev libevdev2
 RUN apt install -y git
 RUN apt clean
+
 ADD pyfi /opt/pyfi/pyfi
 ADD setup.py /opt/pyfi/setup.py
 ADD README.md /opt/pyfi/README.md
+ADD scripts/supervisor.sh /opt/pyfi/supervisor.sh
+
 WORKDIR /opt/pyfi
 RUN pip3 install virtualenv
+
 RUN virtualenv --python=python3 venv
+
 RUN venv/bin/pip install --upgrade flask
 RUN venv/bin/python setup.py install
+
 RUN venv/bin/pyfi --config --db postgresql://postgres:pyfi101@postgres:5432/pyfi --broker pyamqp://rabbitmq --backend redis://redis
-RUN ls -l 
-CMD ["/usr/bin/supervisord","-n"]
+
+#CMD ["/usr/bin/supervisord","-n"]
+CMD ["bash", "/opt/pyfi/supervisor.sh"]

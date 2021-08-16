@@ -1,3 +1,8 @@
+- Create 2 processors, connect them with plug and outlet. Proc2 listens on queue for proc1 plug.
+- Update proc1 plug name, triggers update for proc2 queue
+
+
+
 - Add a processor
 - Agent runs worker for processor, clones git
 - Start, stop, restart processor

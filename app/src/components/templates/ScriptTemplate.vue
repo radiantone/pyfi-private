@@ -9,8 +9,8 @@
     @touchstart.stop
     @contextmenu.stop
   >
-    <q-inner-loading :showing="refreshing" style="z-index:999999">
-        <q-spinner-gears size="50px" color="primary" />
+    <q-inner-loading :showing="refreshing" style="z-index: 999999;">
+      <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
     <q-menu context-menu style="border: 1px solid black;">
       <q-list dense>
@@ -167,11 +167,7 @@
         v1.2.2
       </span>
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
-        <div
-          class="text-secondary"
-          @click=""
-          style="margin-right: 10px;"
-        >
+        <div class="text-secondary" @click="" style="margin-right: 10px;">
           <i class="fas fa-hard-hat" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
@@ -181,7 +177,7 @@
           >
             Workers
           </q-tooltip>
-        </div>      
+        </div>
         <div
           class="text-secondary"
           @click="bandwidth = !bandwidth"
@@ -240,7 +236,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Outlet
+            Add Socket
           </q-tooltip>
         </div>
         <div
@@ -1551,10 +1547,10 @@ export default {
   methods: {
     refreshProcessor() {
       var me = this;
-      this.refreshing = true
+      this.refreshing = true;
       setTimeout(() => {
-        me.refreshing = false
-      },2000)
+        me.refreshing = false;
+      }, 2000);
     },
     getUuid() {
       return "key_" + uuidv4();
@@ -1571,16 +1567,16 @@ export default {
       this.gitview = false;
       this[view] = show;
 
-      if(show) {
+      if (show) {
         window.toolkit.surface.setZoom(1.0);
-        
+
         var node = this.toolkit.getNode(this.obj);
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
           onComplete: function () {
-            var loc = window.toolkit.surface.mapLocation(300,50)
-            console.log(loc)
-            window.toolkit.surface.pan(-350,-300);
+            var loc = window.toolkit.surface.mapLocation(300, 50);
+            console.log(loc);
+            window.toolkit.surface.pan(-350, -300);
           },
         });
       }

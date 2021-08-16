@@ -8,7 +8,7 @@ from .model.models import QueueModel as Queue
 from .model.models import PlugModel as Plug
 from .model.models import TaskModel as Task
 from .model.models import LogModel as Log
-from .model.models import OutletModel as Outlet
+from .model.models import SocketModel as Socket
 from .model.models import FlowModel as Flow
 from .model.models import ActionModel as Action
 from .model.models import SettingsModel as Settings
@@ -16,4 +16,4 @@ from .model.models import NodeModel as Node
 from .model.models import Base
 
 __all__ = ('Worker', 'Agent', 'Role', 'Processor', 'User', 'Queue', 'Log',
-           'Plug', 'Outlet', 'Flow', 'Action', 'Settings', 'Node', 'Task', 'Scheduler', 'Base')
+           'Plug', 'Socket', 'Flow', 'Action', 'Settings', 'Node', 'Task', 'Scheduler', 'Base')

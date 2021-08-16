@@ -134,7 +134,10 @@
           margin-right: 5px;
         "
       >
-        <i :class="obj.icon + ' text-secondary'" style="transform: rotate(90deg);" />
+        <i
+          :class="obj.icon + ' text-secondary'"
+          style="transform: rotate(90deg);"
+        />
       </div>
       <span
         style="position: absolute; left: 50px; font-size: 20px; top: 5px;"
@@ -197,7 +200,7 @@
             Add Error Plug
           </q-tooltip>
         </div>
-       <div
+        <div
           class="text-secondary"
           @click="addNewPort('Input', 'outlet-icon')"
           style="margin-right: 10px;"
@@ -209,11 +212,11 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Outlet
+            Add Socket
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">        
+        <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             dense
             flat

@@ -10,6 +10,11 @@ class Processor:
     def __init__(self, queue=None, name=None, config=None):
         from kombu.common import Broadcast
 
+        '''
+        Load the processor by name and match the queue by name, then use
+        the queue object to create the kombu Queue() class so it matches
+        '''
+
         self.queue = queue
         self.name = name
         self.app = Celery()

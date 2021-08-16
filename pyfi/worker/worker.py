@@ -14,7 +14,7 @@ from multiprocessing import Condition, Queue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, OutletModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.processor import Processor
 
 from celery import Celery
@@ -39,11 +39,12 @@ def shutdown(*args):
         print("Terminating ", process.pid)
         os.kill(process.pid, signal.SIGKILL)
         process.terminate()
-        
+
     exit(0)
-    
+
 
 signal.signal(signal.SIGINT, shutdown)
+
 
 class Worker:
     """
@@ -136,41 +137,43 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
-            if self.processor and self.processor.outlets and len(self.processor.outlets) > 0:
-                for outlet in self.processor.outlets:
-                    if outlet.queue:
-                        print("queue: ", outlet.queue)
+            if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
+                for socket in self.processor.sockets:
+                    if socket.queue:
+                        print("queue: ", socket.queue)
 
                         # This queue is bound to a broadcast(fanout) exchange that delivers
-                        # a message to all the connected queues however sending a task to 
+                        # a message to all the connected queues however sending a task to
                         # this queue will deliver to this processor only
-                        queues += [outlet.queue.name+'.'+self.processor.name]
+                        queues += [socket.queue.name+'.' +
+                                   self.processor.name.replace(' ', '.')]
 
                         # This topic queue represents the broadcast fanout to all workers connected
                         # to it. Sending a task to this queue delivers to all connected workers
-                        queues += [outlet.queue.name+'.topic']
+                        queues += [socket.queue.name+'.topic']
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
-                        print("OUTLET EXPIRES: ", outlet.queue.expires)
+                        print("OUTLET EXPIRES: ", socket.queue.expires)
                         app.conf.task_queues = (
-                            Broadcast(outlet.queue.name+'.topic', queue_arguments={
-                                'x-message-ttl': outlet.queue.expires,
-                                'x-expires': outlet.queue.expires
+                            Broadcast(socket.queue.name+'.topic', queue_arguments={
+                                'x-message-ttl': socket.queue.expires,
+                                'x-expires': socket.queue.expires
                             }),
                             KQueue(
-                                outlet.queue.name+'.'+self.processor.name,
-                                Exchange(outlet.queue.name+'.topic', type='fanout'),
+                                socket.queue.name+'.' +
+                                self.processor.name.replace(' ', '.'),
+                                Exchange(socket.queue.name +
+                                         '.topic', type='fanout'),
                                 routing_key=self.processor.module+'.'+self.processor.task,
-                                message_ttl = outlet.queue.message_ttl,
-                                durable=outlet.queue.durable,
-                                expires=outlet.queue.expires
+                                message_ttl=socket.queue.message_ttl,
+                                durable=socket.queue.durable,
+                                expires=socket.queue.expires
                             ))
-
 
                         app.conf.task_routes = {
                             self.processor.module+'.'+self.processor.task: {
-                                'queue': [outlet.queue.name+'.topic', outlet.queue.name],
-                                'exchange': [outlet.queue.name+'.topic', outlet.queue.name]
+                                'queue': [socket.queue.name+'.topic', socket.queue.name],
+                                'exchange': [socket.queue.name+'.topic', socket.queue.name]
                             }
                         }
 
@@ -264,7 +267,7 @@ class Worker:
                                 processor_plug = _plug
 
                         processors = self.database.session.query(
-                            ProcessorModel).filter(ProcessorModel.outlets.any(OutletModel.queue.has(name=key)))
+                            ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
                         for msg in plugs[key]:
                             logging.info(
@@ -276,7 +279,8 @@ class Worker:
                                         key, processor.module, processor.task, msg))
 
                                     # Target specific worker queue here
-                                    worker_queue = key+'.'+processor.name
+                                    worker_queue = key+'.' + \
+                                        processor.name.replace(' ', '.')
                                     self.celery.signature(
                                         processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
                 except:
@@ -311,7 +315,7 @@ class Worker:
         process = Process(target=worker_proc, args=(self.celery, queue))
         processes += [process]
         process.start()
-        print("PROCESS PID",process.pid)
+        print("PROCESS PID", process.pid)
         self.process = process
 
         def emit_messages():
