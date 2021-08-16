@@ -4,10 +4,12 @@ dist
 *egg-info
 /**/__pycache__
 **/.~lock*
-git
+./git
 .vscode
 .idea
 migration
 logs
 agent.log
 events.log
+
+./git/*
