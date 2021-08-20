@@ -117,6 +117,7 @@ class Agent:
                     myprocessors = []
 
                     if refresh == 0:
+                        # Time to refresh all the processors from the database
                         myprocessors = self.database.session.query(
                             ProcessorModel).filter_by(
                             hostname=hostname).all()
@@ -124,16 +125,17 @@ class Agent:
                     if refresh == 0:
                         for myprocessor in myprocessors:
 
-                            self.database.session.refresh(myprocessor)
-                            refresh = 0
+                            self.database.session.refresh(myprocessor) # Might not be needed
 
                             found = False
                             for processor in processors:
                                 if processor['processor'].id == myprocessor.id:
+                                    # If I already have it in my cache, update it
                                     processor['processor'] = myprocessor
                                     found = True
 
                             if not found:
+                                # If this is a new processor, add it to cache
                                 processors += [{'worker': None,
                                                 'processor': myprocessor}]
 
@@ -141,12 +143,10 @@ class Agent:
                     if refresh >= 10:
                         refresh = 0
 
+                    # Loop through my processor cache and act on them
                     for processor in processors:
                         logging.info("Processor requested_status %s",
-                                     processor['processor'].requested_status)
-
-                        # if this processor is not in myprocessors, then kill it
-                        # it could have been deleted or moved
+                                     processor['processor'].requested_status)                                     
 
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
@@ -305,7 +305,6 @@ class Agent:
                             except:
                                 pass
 
-                        logging.info("Process died: %s", process_died)
                         if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
                                 (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
 
@@ -326,8 +325,7 @@ class Agent:
                                 processor['processor'].worker = workerModel
 
                             if processor['worker'] is None or process_died:
-                                """ If there is no worker Process create it """
-                                import os
+                                # If there is no worker Process create it
                                 worker = {}
 
                                 dir = 'work/'+processor['processor'].id

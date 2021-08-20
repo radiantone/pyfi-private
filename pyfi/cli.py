@@ -6,6 +6,7 @@ import configparser
 from pathlib import Path
 import logging
 import os
+from pyfi.db.model.models import PrivilegeModel
 import sys
 from datetime import datetime
 
@@ -185,24 +186,58 @@ def migrate(context, directory):
     command.upgrade(alembic_cfg, 'head')
 
 
-@db.command()
+@db.command(help="Drop and rebuild database tables")
+@click.option('-y', '--yes', is_flag=True, prompt=True, help="Yes to rebuild now")
 @click.pass_context
-def drop(context):
+def rebuild(context, yes):
+
+    if yes:
+        dropdb(context)
+        context.invoke(db_init)
+
+def dropdb(context):
+    from pyfi.db.model import Base
+
+    # For every user in "user" table, DROP USER name
+
+    _users = [u.name for u in context.obj['database'].session.query(
+        UserModel).all()]
+    context.obj['database'].session.commit()
+    for t in Base.metadata.sorted_tables:
+        try:
+            t.drop(context.obj['database'])
+            print("Dropped {}".format(t.name))
+        except:
+            pass
+
+
+    context.obj['database'].session.commit()
+    for user in _users:
+        context.obj['database'].session.execute(
+            f"DROP OWNED BY {user}")
+        context.obj['database'].session.execute(
+            f"DROP USER {user}")
+        print("Dropped user {}".format(user))
+
+    context.obj['database'].session.commit()
+    print("Database dropped.")
+            
+@db.command(name='drop')
+@click.pass_context
+def db_drop(context, confirm=False):
     """
     Drop all database tables
     """
     try:
         if click.confirm('Are you sure you want to drop the database?', default=False):
             if click.confirm('Are you REALLY sure you want to drop the database?', default=False):
-                from pyfi.db.model import Base
-                for t in Base.metadata.sorted_tables:
-                    t.drop(context.obj['database'])
-                    print("Dropped {}".format(t.name))
-                print("Database dropped.")
+                dropdb(context)
             else:
                 print("Operation aborted.")
         else:
             print("Operation aborted.")
+
+        # Drop roles
     except Exception as ex:
         logging.error(ex)
 
@@ -220,6 +255,7 @@ def db_init(context):
             session = sessionmaker(bind=engine)()
             session.connection().connection.set_isolation_level(0)
             session.execute('CREATE DATABASE pyfi')
+            session.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
             session.connection().connection.set_isolation_level(1)
             print("Database created")
             engine = create_engine(context.obj['dburi'])
@@ -234,6 +270,17 @@ def db_init(context):
         from pyfi.db.model import Base
 
         Base.metadata.create_all(context.obj['database'])
+        for t in Base.metadata.sorted_tables:
+            try:
+                sql = f"ALTER TABLE \"{t.name}\" ENABLE ROW LEVEL SECURITY"
+                print("Enabling security on table {}".format(t.name))
+                context.obj['database'].session.execute(sql)
+                sql = f"CREATE POLICY {t.name}_security ON \"{t.name}\" USING ({t.name}.owner::text = current_user)"
+                context.obj['database'].session.execute(sql)
+            except:
+                pass
+
+            context.obj['session'].commit()
         print("Database create all schemas done.")
     except Exception as ex:
         logging.error(ex)
@@ -415,8 +462,19 @@ def delete():
     pass
 
 
+@delete.command(name='processor', help="Delete a processor from the database")
+@click.option('-n','--name', default=None, required=True, help="Name of processor being deleted")
+@click.pass_context
+def delete_processor(context, name):
+    model = context.obj['database'].session.query(
+        ProcessorModel).filter_by(name=name).first()
+
+    context.obj['database'].session.delete(model)
+    context.obj['database'].session.commit()
+
+
 @delete.command(name='user', help="Delete a user object from the database")
-@click.option('--id', default=None, required=True, help="ID of object being deleted")
+@click.option('--id', default=None, required=True, help="ID of user being deleted")
 @click.pass_context
 def delete_user(context, id):
     model = context.obj['database'].session.query(
@@ -572,7 +630,7 @@ def update_processor(context, name, module, task, hostname, workers, gitrepo, co
 @add.command(name='processor')
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
-@click.option('-t', '--task', prompt=True, required=True, default=None, help="Python function name within the model")
+#click.option('-t', '--task', prompt=True, required=True, default=None, help="Python function name within the model")
 @click.option('-h', '--hostname', prompt=True, default=HOSTNAME, help='Target server hostname')
 @click.option('-w', '--workers', default=1, help='Number of worker tasks')
 @click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
@@ -583,19 +641,49 @@ def update_processor(context, name, module, task, hostname, workers, gitrepo, co
 @click.option('-b', '--beat', default=False, is_flag=True, required=False, help="Enable the beat scheduler")
 @click.option('-br', '--branch', default='main', required=False, help="Git branch to be used for checkouts")
 @click.pass_context
-def add_processor(context, name, module, task, hostname, workers, retries, gitrepo, commit, requested_status, schedule, beat, branch):
+def add_processor(context, name, module, hostname, workers, retries, gitrepo, commit, requested_status, schedule, beat, branch):
     """
     Add processor to the database
     """
     id = context.obj['id']
 
+    # Create a task object and add to processor
+
     processor = ProcessorModel(
-        id=id, status='ready', hostname=hostname, task=task, schedule=schedule, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
+        id=id, status='ready', hostname=hostname, schedule=schedule, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
     processor.updated = datetime.now()
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
     print(processor)
+
+
+@add.command()
+@click.option('-u', '--user', prompt=True, default=None, required=True)
+@click.option('-n', '--name', prompt=True, default=None, required=True)
+@click.pass_context
+def privilege(context, user, name):
+    """
+    Add privilege to the database
+    """
+    from sqlalchemy.exc import IntegrityError
+
+    id = context.obj['id']
+    try:
+        user = context.obj['database'].session.query(
+            UserModel).filter_by(name=user).first()
+        user.lastupdated = datetime.now()
+        privilege = PrivilegeModel(id=id, name=name, right=name)
+        user.privileges += [privilege]
+        context.obj['database'].session.add(privilege)
+        context.obj['database'].session.add(user)
+        context.obj['database'].session.commit()
+        print("User added")
+    except IntegrityError:
+        import traceback
+        print(traceback.format_exc())
+        context.obj['database'].session.rollback()
+        print("Error: Database constraint violation")
 
 
 @add.command()
@@ -608,6 +696,7 @@ def user(context, name, email, password):
     Add user object to the database
     """
     from sqlalchemy.exc import IntegrityError
+    from pyfi.db.model import Base
 
     id = context.obj['id']
 
@@ -615,19 +704,27 @@ def user(context, name, email, password):
         raise click.UsageError("Name and Email are required")
 
     try:
-        user = UserModel(id=id, name=name, password=password, email=email)
+        user = UserModel(name=name, password=password, email=email)
         user.lastupdated = datetime.now()
-
-        sql = f"CREATE USER \"{name}\" WITH PASSWORD :passwd"
-        sql_data = {
-            'passwd': password,
-        }
-        context.obj['database'].session.execute(sql, sql_data)
 
         context.obj['database'].session.add(user)
         context.obj['database'].session.commit()
-        print("User added")
+        
+        sql = f"CREATE USER {name} WITH PASSWORD '{password}'"
+        print(sql)
+        context.obj['database'].session.execute(sql)
+
+        for t in Base.metadata.sorted_tables:
+            sql = f"GRANT CONNECT ON DATABASE pyfi TO \"{name}\""
+            context.obj['database'].session.execute(sql)
+            sql = f"GRANT SELECT, UPDATE, INSERT, DELETE ON \"{t.name}\" TO \"{name}\""
+            context.obj['database'].session.execute(sql)
+
+        context.obj['database'].session.commit()
+        print(f"User \"{name}\" added")
     except IntegrityError:
+        import traceback
+        print(traceback.format_exc())
         context.obj['database'].session.rollback()
         print("Error: Database constraint violation")
 
@@ -745,9 +842,11 @@ def update_plug(context, name, queue, procid, procname):
 
     # Get the named or id of the plug model
     if name is not None:
-        plug = PlugModel.query.filter_by(name=name).first()
+        plug = context.obj['database'].session.query(
+            PlugModel).filter_by(name=name).first()
     elif id is not None:
-        plug = PlugModel.query.filter_by(id=id).first()
+        plug = context.obj['database'].session.query(
+            PlugModel).filter_by(id=id).first()
 
     # Get the plug's current processor
     current_processor = context.obj['database'].session.query(
@@ -842,6 +941,9 @@ def add_socket(context, name, queue, procname, task):
     if task is not None:
         _task = context.obj['database'].session.query(
             TaskModel).filter_by(name=task).first()
+        if _task is None:
+            _task = TaskModel(name=task)
+            context.obj['database'].session.add(_task)
         socket.task = _task
 
     socket.queue = queue
@@ -931,7 +1033,6 @@ def users(context):
     """
     List users
     """
-    processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Email"]
@@ -939,6 +1040,33 @@ def users(context):
     users = context.obj['database'].session.query(UserModel).all()
     for user in users:
         x.add_row([user.name, user.id, user.owner, user.email])
+
+    print(x)
+
+
+@ls.command(name='user')
+@click.option('-n', '--name', default=None, required=True)
+@click.pass_context
+def ls_user(context, name):
+    """
+    List users
+    """
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Email"]
+    x.field_names = names
+    user = context.obj['database'].session.query(UserModel).filter_by(name=name).first()
+    x.add_row([user.name, user.id, user.owner, user.email])
+
+    print(x)
+
+    x = PrettyTable()
+    print("Privileges")
+    names = ["Name", "Right", "Last Updated", "By"]
+    x.field_names = names
+
+    for priv in user.privileges:
+        x.add_row([user.name, priv.right, priv.lastupdated, priv.owner])
 
     print(x)
 
@@ -979,7 +1107,7 @@ def processors(context, gitrepo, module, task, owner):
     x = PrettyTable()
 
     print("I am ", context.obj['owner'])
-    names = ["Name", "ID", "Host", "Owner", "Last Updated",
+    names = ["Name", "ID", "Module", "Host", "Owner", "Last Updated",
              "Requested Status", "Status", "Workers"]
 
     if gitrepo:
@@ -994,7 +1122,7 @@ def processors(context, gitrepo, module, task, owner):
     x.field_names = names
 
     for processor in processors:
-        row = [processor.name, processor.id, processor.hostname, processor.owner, processor.lastupdated,
+        row = [processor.name, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
                processor.requested_status, processor.status, processor.concurrency]
 
         if gitrepo:
@@ -1007,6 +1135,24 @@ def processors(context, gitrepo, module, task, owner):
             row += [processor.owner]
 
         x.add_row(row)
+
+    print(x)
+
+
+@ls.command()
+@click.pass_context
+def tasks(context):
+    """
+    List agents
+    """
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated"]
+    x.field_names = names
+    tasks = context.obj['database'].session.query(TaskModel).all()
+
+    for node in tasks:
+        x.add_row([node.name, node.id, node.owner, node.lastupdated])
 
     print(x)
 
@@ -1039,13 +1185,13 @@ def sockets(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated",
+    names = ["Name", "ID", "Owner", "Task", "Last Updated",
              "Status", "Processor ID", "Queue"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated,
+        x.add_row([node.name, node.id, node.owner, node.task.name, node.lastupdated,
                   node.status, node.processor_id, node.queue.name])
 
     print(x)
@@ -1070,6 +1216,18 @@ def plugs(context):
 
     print(x)
 
+
+@cli.command(help="Listen to a processor output")
+@click.option('-n', '--name', default=None, required=True, help="Name of processor")
+@click.pass_context
+def listen(context, name):
+    pass
+
+
+@cli.command(help="Database login user")
+@click.pass_context
+def whoami(context):
+    print("I am", context.obj['owner'])
 
 @cli.group()
 def api():

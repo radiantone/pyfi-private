@@ -81,7 +81,7 @@ class Worker:
             self.celery = Celery(include=self.processor.module)
             self.celery.config_from_object(celeryconfig)
         else:
-            self.celery = celery = Celery(
+            self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
 
         self.process = None
@@ -116,7 +116,7 @@ class Worker:
                 ProcessorModel).filter_by(id=self.processor.id).first()
 
             sio = socketio.Client()
-
+            events_server = os.environ['EVENTS']
             @sio.on('queue', namespace='/tasks')
             def message(data):
                 print('I received a message!', data)
@@ -126,11 +126,11 @@ class Worker:
                 logging.info("I'm connected to namespace /tasks!")
 
                 sio.emit('servermsg', {
-                    'module': self.processor.module, 'task': self.processor.task}, namespace='/tasks')
+                    'module': self.processor.module }, namespace='/tasks')
 
             while True:
                 try:
-                    sio.connect('http://events:5000',
+                    sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
                     break
                 except Exception as ex:
@@ -140,20 +140,24 @@ class Worker:
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
                     if socket.queue:
-                        print("queue: ", socket.queue)
+
+                        # TODO: Use socket.task.name as the task name and self.processor.module as the module
+                        # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
+                        # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
 
                         # This queue is bound to a broadcast(fanout) exchange that delivers
                         # a message to all the connected queues however sending a task to
                         # this queue will deliver to this processor only
-                        queues += [socket.queue.name+'.' +
-                                   self.processor.name.replace(' ', '.')]
+                        queues += [socket.queue.name + '.' +
+                                   self.processor.name.replace(' ', '.'), socket.queue.name + '.' +
+                                   self.processor.name.replace(' ', '.')+'.'+socket.task.name]
 
                         # This topic queue represents the broadcast fanout to all workers connected
                         # to it. Sending a task to this queue delivers to all connected workers
                         queues += [socket.queue.name+'.topic']
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
-                        print("OUTLET EXPIRES: ", socket.queue.expires)
+                        print('socket.queue.expires', socket.queue.expires)
                         app.conf.task_queues = (
                             Broadcast(socket.queue.name+'.topic', queue_arguments={
                                 'x-message-ttl': socket.queue.expires,
@@ -161,17 +165,34 @@ class Worker:
                             }),
                             KQueue(
                                 socket.queue.name+'.' +
-                                self.processor.name.replace(' ', '.'),
+                                self.processor.name.replace(
+                                    ' ', '.')+'.'+socket.task.name,
+                                #Exchange(socket.queue.name +
+                                #         '.topic', type='fanout'),
+                                Exchange(socket.queue.name + '.' + self.processor.name.replace(
+                                    ' ', '.')+'.'+socket.task.name, type='direct'),
+                                routing_key=socket.queue.name + '.' + self.processor.name.replace(
+                                    ' ', '.')+'.'+socket.task.name,
+                                message_ttl=socket.queue.message_ttl,
+                                durable=socket.queue.durable,
+                                expires=socket.queue.expires
+                            ),
+                            KQueue(
+                                socket.queue.name+'.' +
+                                self.processor.name.replace(
+                                    ' ', '.'),
                                 Exchange(socket.queue.name +
                                          '.topic', type='fanout'),
-                                routing_key=self.processor.module+'.'+self.processor.task,
+                                routing_key=socket.queue.name+'.' +
+                                self.processor.name.replace(
+                                    ' ', '.'),
                                 message_ttl=socket.queue.message_ttl,
                                 durable=socket.queue.durable,
                                 expires=socket.queue.expires
                             ))
 
                         app.conf.task_routes = {
-                            self.processor.module+'.'+self.processor.task: {
+                            self.processor.module+'.'+socket.task.name: {
                                 'queue': [socket.queue.name+'.topic', socket.queue.name],
                                 'exchange': [socket.queue.name+'.topic', socket.queue.name]
                             }
@@ -213,80 +234,82 @@ class Worker:
             setattr(builtins, 'worker', worker)
 
             module = importlib.import_module(self.processor.module)
-            func = getattr(module, self.processor.task)
-
             _plugs = {}
             for plug in self.processor.plugs:
                 _plugs[plug.queue.name] = []
 
-            # Processor properties are set on the task here
-            func = self.celery.task(func, name=self.processor.module +
-                                    '.'+self.processor.task, retries=self.processor.retries)
+            
+            if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
+                for socket in self.processor.sockets:
+                    func = getattr(module, socket.task.name)
 
-            @task_prerun.connect(sender=func)
-            def pyfi_task_prerun(sender=None, **kwargs):
-                task_kwargs = kwargs.get('kwargs')
-                task_kwargs['plugs'] = _plugs
-                task_kwargs['output'] = {}
+                    func = self.celery.task(func, name=self.processor.module +
+                                            '.'+socket.task.name, retries=self.processor.retries)
+                    
+                    @task_prerun.connect(sender=func)
+                    def pyfi_task_prerun(sender=None, **kwargs):
+                        task_kwargs = kwargs.get('kwargs')
+                        task_kwargs['plugs'] = _plugs
+                        task_kwargs['output'] = {}
 
-            @task_success.connect(sender=func)
-            def pyfi_task_success(sender=None, **kwargs):
-                pass
+                    @task_success.connect(sender=func)
+                    def pyfi_task_success(sender=None, **kwargs):
+                        pass
 
-            @task_failure.connect(sender=func)
-            def pyfi_task_failure(sender=None, **kwargs):
-                pass
+                    @task_failure.connect(sender=func)
+                    def pyfi_task_failure(sender=None, **kwargs):
+                        pass
 
-            @task_internal_error.connect(sender=func)
-            def pyfi_task_internal_error(sender=None, **kwargs):
-                pass
+                    @task_internal_error.connect(sender=func)
+                    def pyfi_task_internal_error(sender=None, **kwargs):
+                        pass
 
-            @task_received.connect(sender=func)
-            def pyfi_task_received(sender=None, **kwargs):
-                pass
+                    @task_received.connect(sender=func)
+                    def pyfi_task_received(sender=None, **kwargs):
+                        pass
 
-            @task_postrun.connect(sender=func)
-            def pyfi_task_postrun(sender=None, **kwargs):
-                task_kwargs = kwargs.get('kwargs')
-                plugs = task_kwargs['plugs']
+                    @task_postrun.connect(sender=func)
+                    def pyfi_task_postrun(sender=None, **kwargs):
+                        task_kwargs = kwargs.get('kwargs')
+                        plugs = task_kwargs['plugs']
 
-                try:
-                    while _queue.qsize() > 1000:
-                        loggin.info("Waiting for queue to shrink")
-                        time.sleep(0.5)
+                        try:
+                            while _queue.qsize() > 1000:
+                                loggin.info("Waiting for queue to shrink")
+                                time.sleep(0.5)
 
-                    _queue.put(['servermsg', {
-                               'module': self.processor.module, 'task': self.processor.task}])
-                    print("PLUGS:", plugs)
-                    for key in plugs:
+                            _queue.put(['servermsg', {
+                                    'module': self.processor.module, 'task': self.processor.task}])
+                            print("PLUGS:", plugs)
+                            for key in plugs:
 
-                        processor_plug = None
+                                processor_plug = None
 
-                        for _plug in self.processor.plugs:
-                            if _plug.queue.name == key:
-                                processor_plug = _plug
+                                for _plug in self.processor.plugs:
+                                    if _plug.queue.name == key:
+                                        processor_plug = _plug
 
-                        processors = self.database.session.query(
-                            ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
+                                processors = self.database.session.query(
+                                    ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
-                        for msg in plugs[key]:
-                            logging.info(
-                                "Sending {} to queue {}".format(msg, key))
+                                for msg in plugs[key]:
+                                    logging.info(
+                                        "Sending {} to queue {}".format(msg, key))
 
-                            if processor_plug.queue.qtype == 'direct':
-                                for processor in processors:
-                                    print("Invoking {}=>{}.{}({})".format(
-                                        key, processor.module, processor.task, msg))
+                                    if processor_plug.queue.qtype == 'direct':
+                                        for processor in processors:
+                                            print("Invoking {}=>{}.{}({})".format(
+                                                key, processor.module, processor.task, msg))
 
-                                    # Target specific worker queue here
-                                    worker_queue = key+'.' + \
-                                        processor.name.replace(' ', '.')
-                                    self.celery.signature(
-                                        processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
-                except:
-                    import traceback
-                    print(traceback.format_exc())
-                    pass
+                                            # Target specific worker queue here
+                                            worker_queue = key+'.' + \
+                                                processor.name.replace(' ', '.')
+                                            self.celery.signature(
+                                                processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                        except:
+                            import traceback
+                            print(traceback.format_exc())
+                            pass
 
             worker.start()
 

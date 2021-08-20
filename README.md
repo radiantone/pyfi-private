@@ -21,6 +21,7 @@ Using the power of reliable, transactional messaging, compute tasks are never lo
 * [Detailed Architecture](#detailed-architecture)
   * [Why A SQL Database?](#why-a-sql-database)
   * [Data Model](#data-model)
+  * [Security Model](#security-model)
 * [Command Line Interface](#command-line-interface)  
 * [System Objects](#system-objects)
   * [Nodes](#nodes)
@@ -29,6 +30,7 @@ Using the power of reliable, transactional messaging, compute tasks are never lo
   * [Workers](#workers)
   * [Tasks](#tasks)
 * [Building Dataflows](#building-dataflows)
+* [Stack Tools](#stack-tools)
 
 ## High-Level Architecture
 The following diagram shows one cross-section of the current *reference implementation* of PYFI. Since everything behind the database can be implemented in a variety of ways, this architecture is not absolute.
@@ -63,6 +65,7 @@ Some important design goals for this technology are:
 12. **GIT Integration** - All the code used by processors can be pulled from your own git repositories giving you instant integration into existing devops and CM processes. PYFI will let you select which repo and commit version you want a processor to execute code from in your flows.
 
 ## Detailed Architecture
+The center of the PYFI architecture is an enterprise-grade transactional database that maintains the relational models used by the PYFI network.
 
 ### Why a SQL Database?
 Some of you might be asking why a SQL database is the center abstraction point of PYFI, SQL databases have been around for decades! Let me explain.
@@ -75,13 +78,134 @@ There are some important enterprise qualities we want from the logical database 
 * ***Scaling*** - SQL databases such as Postgres have mature scaling mechanics that allow them to cluster and scale appropriately.
 * ***Administration*** - Mature tools exist to administer and manage SQL databases that don't need to be reinvented.
 
-Coupling the PYFI physical network from the logical model through a transactional databases allows for future implementation-independence of a particular PYFI network.
+Coupling the PYFI physical network from the logical model through a transactional database allows for future implementation-independence of a particular PYFI network.
 All the existing PYFI CLI tools that operate on the database will continue to work as is, if you choose to implement a different backend.
 
 ### Data Model
 
+The data model is the system abstraction behind which the PYFI reference implementation operates. Services monitor the data models and reflect the semantics of the data in the PYFI network state.
+
+For example, if a processor model *requested_status* is changed to "STOPPED" then the agent responsible for that processor will stop the processor and put its *status* field to "STOPPED".
+
+Simply put, the PYFI network "reacts" to the current state of the database.
+
 ![datamodel](./screens/pyfi-data-model.png)
 
+### Security Model
+
+PYFI uses a fine grained access control model for user actions against the data model (via UI or CLI or API). At the database level this is also enforced with RLS (Row Level Security) features of Postgres (or your database of choice).
+It is vital to the security model of PYFI to implement access control all the way through the stack down to the row data.
+
+Using the CLI you can add and remove privileges for individual users and view their current privileges.
+
+```python
+$ pyfi add privilege --user darren --name DELETE
+
+# You can only add privileges that are named in the list of rights further below. Trying to add something not in this list will result in an error.
+
+$ pyfi ls user --name darren
++--------+--------------------------------------+----------+------------+
+|  Name  |                  ID                  |  Owner   |   Email    |
++--------+--------------------------------------+----------+------------+
+| darren | a725b5ff-bb60-401a-a79a-7bfcb87dfc93 | postgres | d@some.com |
++--------+--------------------------------------+----------+------------+
+Privileges
++--------+--------+----------------------------+----------+
+|  Name  | Right  |        Last Updated        |    By    |
++--------+--------+----------------------------+----------+
+| darren | CREATE | 2021-08-18 08:59:42.749164 | postgres |
+| darren | DELETE | 2021-08-19 08:36:29.922190 | postgres |
++--------+--------+----------------------------+----------+
+```
+
+Here is an initial list of the privileges ("rights") that can be assigned to a user.
+
+```python
+
+rights = [  'ALL',
+            'CREATE',
+            'READ',
+            'UPDATE',
+            'DELETE',
+
+            'DB_DROP',
+            'DB_INIT',
+
+            'START_AGENT',
+
+            'RUN_TASK',
+            'CANCEL_TASK',
+
+            'UPDATE_PROCESSOR',
+            'DELETE_PROCESSOR',
+            'START_PROCESSOR',
+            'STOP_PROCESSOR',
+            'PAUSE_PROCESSOR',
+            'RESUME_PROCESSOR',
+            'LOCK_PROCESSOR',
+            'UNLOCK_PROCESSOR',
+            'VIEW_PROCESSOR',
+            'VIEW_PROCESSOR_CONFIG',
+            'VIEW_PROCESSOR_CODE',
+            'EDIT_PROCESSOR_CONFIG',
+            'EDIT_PROCESSOR_CODE'
+
+            'LS_PROCESSORS',
+            'LS_USERS',
+            'LS_USER',
+            'LS_PLUGS',
+            'LS_SOCKETS',
+            'LS_QUEUES',
+            'LS_AGENTS',
+            'LS_NODES',
+            'LS_SCHEDULERS',
+            'LS_WORKERS',
+
+            'ADD_PROCESSOR',
+            'ADD_AGENT',
+            'ADD_NODE',
+            'ADD_PLUG',
+            'ADD_PRIVILEGE',
+            'ADD_QUEUE',
+            'ADD_ROLE',
+            'ADD_SCHEDULER',
+            'ADD_SOCKET',
+            'ADD_USER',
+
+            'UPDATE_PROCESSOR',
+            'UPDATE_AGENT',
+            'UPDATE_NODE',
+            'UPDATE_PLUG',
+            'UPDATE_PRIVILEGE',
+            'UPDATE_QUEUE',
+            'UPDATE_ROLE',
+            'UPDATE_SCHEDULER',
+            'UPDATE_SOCKET',
+            'UPDATE_USER',
+
+            'DELETE_PROCESSOR',
+            'DELETE_AGENT',
+            'DELETE_NODE',
+            'DELETE_PLUG',
+            'DELETE_PRIVILEGE',
+            'DELETE_QUEUE',
+            'DELETE_ROLE',
+            'DELETE_SCHEDULER',
+            'DELETE_SOCKET',
+            'DELETE_USER',
+
+            'READ_PROCESSOR',
+            'READ_AGENT',
+            'READ_NODE',
+            'READ_PLUG',
+            'READ_PRIVILEGE',
+            'READ_QUEUE',
+            'READ_ROLE',
+            'READ_SCHEDULER',
+            'READ_SOCKET',
+            'READ_USER'
+            ]
+```
 ## Command Line Interface
 
 One of the design goals for PYFI was to allow both Graphical and Command line User Interfaces. A CLI will open up access to various server-side automations, devops pipelines and human sysops that can interact with the PYFI network through a remote console.
@@ -227,3 +351,49 @@ PYFI uses a custom built, modern User Interface derived from the core design of 
 
 **Advanced Workflows with Embedded Subflows**
 ![screen1](./screens/screen16.png)
+
+## Stack Tools
+
+The follow section shows screenshots of the tech stack UI tools. PYFI uses best-of-breed components in its stack and does not try to reinvent the wheel or tackle all the needs itself (being average in all of them).
+
+### pgAdmin
+
+pgadmin is the UI for postgres.
+
+![pgadmin](./screens/pgadmin.png)
+
+### Portainer
+
+Manage your docker container stack
+
+![portainer](./screens/portainer.png)
+
+### Redis Insights
+
+Manage your cache and task results datastore
+
+![portainer](./screens/redis.png)
+
+### RabbitMQ Admin UI
+
+Manage your message broker and queues
+
+![rabbitmq](./screens/rabbitmq.png)
+
+### Flower
+
+Manage your task queues
+
+![flower](./screens/flower.png)
+
+### Kibana
+
+Build dashboards from your logs and long-term persistence
+
+![kibana](./screens/kibana.png)
+
+### Amplify
+
+Monitor your network reverse proxy (NGINX)
+
+![amplify](./screens/amplify.png)

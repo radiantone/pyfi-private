@@ -4,7 +4,7 @@ Class database model definitions
 """
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
+from sqlalchemy import Enum, Table, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
 import logging
 
 from datetime import datetime
@@ -28,11 +28,112 @@ class BaseModel(Base):
     Docstring
     """
     __abstract__ = True
-    id = Column(String(40), autoincrement=False, unique=True, primary_key=True)
+    id = Column(String(40), autoincrement=False, default=literal_column('uuid_generate_v4()'), unique=True, primary_key=True)
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
+
+
+rights = [  'ALL',
+            'CREATE',
+            'READ',
+            'UPDATE',
+            'DELETE',
+
+            'DB_DROP',
+            'DB_INIT',
+
+            'START_AGENT',
+
+            'RUN_TASK',
+            'CANCEL_TASK',
+
+            'START_PROCESSOR',
+            'STOP_PROCESSOR',
+            'PAUSE_PROCESSOR',
+            'RESUME_PROCESSOR',
+            'LOCK_PROCESSOR',
+            'UNLOCK_PROCESSOR',
+            'VIEW_PROCESSOR',
+            'VIEW_PROCESSOR_CONFIG',
+            'VIEW_PROCESSOR_CODE',
+            'EDIT_PROCESSOR_CONFIG',
+            'EDIT_PROCESSOR_CODE'
+
+            'LS_PROCESSORS',
+            'LS_USERS',
+            'LS_USER',
+            'LS_PLUGS',
+            'LS_SOCKETS',
+            'LS_QUEUES',
+            'LS_AGENTS',
+            'LS_NODES',
+            'LS_SCHEDULERS',
+            'LS_WORKERS',
+
+            'ADD_PROCESSOR',
+            'ADD_AGENT',
+            'ADD_NODE',
+            'ADD_PLUG',
+            'ADD_PRIVILEGE',
+            'ADD_QUEUE',
+            'ADD_ROLE',
+            'ADD_SCHEDULER',
+            'ADD_SOCKET',
+            'ADD_USER',
+
+            'UPDATE_PROCESSOR',
+            'UPDATE_AGENT',
+            'UPDATE_NODE',
+            'UPDATE_PLUG',
+            'UPDATE_PRIVILEGE',
+            'UPDATE_QUEUE',
+            'UPDATE_ROLE',
+            'UPDATE_SCHEDULER',
+            'UPDATE_SOCKET',
+            'UPDATE_USER',
+
+            'DELETE_PROCESSOR',
+            'DELETE_AGENT',
+            'DELETE_NODE',
+            'DELETE_PLUG',
+            'DELETE_PRIVILEGE',
+            'DELETE_QUEUE',
+            'DELETE_ROLE',
+            'DELETE_SCHEDULER',
+            'DELETE_SOCKET',
+            'DELETE_USER',
+
+            'READ_PROCESSOR',
+            'READ_AGENT',
+            'READ_NODE',
+            'READ_PLUG',
+            'READ_PRIVILEGE',
+            'READ_QUEUE',
+            'READ_ROLE',
+            'READ_SCHEDULER',
+            'READ_SOCKET',
+            'READ_USER'
+            ]
+
+class PrivilegeModel(BaseModel):
+    """
+    Docstring
+    """
+    __tablename__ = 'privilege'
+
+
+    right = Column('right', Enum(*rights, name='right'))
+
+    def __repr__(self):
+        return '{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated)
+
+
+role_privileges = Table('role_privileges', Base.metadata,
+                        Column('role_id', ForeignKey('role.id')),
+                        Column('privilege_id', ForeignKey('privilege.id'))
+                        )
 
 
 class RoleModel(BaseModel):
@@ -41,9 +142,17 @@ class RoleModel(BaseModel):
     """
     __tablename__ = 'role'
 
+    privileges = relationship("PrivilegeModel",
+                             secondary=role_privileges)
+
     def __repr__(self):
         return '{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
+
+user_privileges = Table('user_privileges', Base.metadata,
+                   Column('user_id', ForeignKey('user.id')),
+                   Column('privilege_id', ForeignKey('privilege.id'))
+                   )
 
 user_roles = Table('user_roles', Base.metadata,
                    Column('user_id', ForeignKey('user.id')),
@@ -57,7 +166,10 @@ class UserModel(BaseModel):
     """
     __tablename__ = 'user'
     email = Column(String(120), unique=True, nullable=False)
-    password = Column(String(20), unique=True, nullable=False)
+    password = Column(String(20), unique=False, nullable=False)
+
+    privileges = relationship("PrivilegeModel",
+                         secondary=user_privileges)
 
     roles = relationship("RoleModel",
                          secondary=user_roles)
@@ -135,7 +247,7 @@ class ProcessorModel(BaseModel):
     status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
-    task = Column(String(80), nullable=False)
+    #task = Column(String(80), nullable=False)
     gitrepo = Column(String(80))
     branch = Column(String(30))
     commit = Column(String(30))
@@ -156,10 +268,12 @@ class ProcessorModel(BaseModel):
         'flow.id'), nullable=True)
 
     worker = relationship(
-        'WorkerModel', backref='processor', uselist=False, lazy=True)
+        'WorkerModel', backref='processor', uselist=False, lazy=True, cascade="all, delete-orphan")
 
-    plugs = relationship('PlugModel', backref='processor', lazy=True)
-    sockets = relationship('SocketModel', backref='processor', lazy=True)
+    plugs = relationship('PlugModel', backref='processor',
+                         lazy=True, cascade="all, delete-orphan")
+    sockets = relationship('SocketModel', backref='processor',
+                           lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker, self.plugs, self.sockets)
