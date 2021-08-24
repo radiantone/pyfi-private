@@ -35,6 +35,27 @@ home = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;21m"
+    yellow = "\x1b[33;21m"
+    red = "\x1b[31;21m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
 
 @click.group(invoke_without_command=True)
 @click.option('--debug', is_flag=True, default=False, help='Debug switch')
@@ -48,6 +69,17 @@ def cli(context, debug, db, backend, broker, ini, config):
     """
     Pyfi CLI for managing the pyfi network
     """
+
+
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    if debug:
+        logging.basicConfig(
+            format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
+    else:
+        logging.basicConfig(
+            format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
     context.obj = {}
     if config:
         if not db:
@@ -1219,10 +1251,54 @@ def plugs(context):
 
 @cli.command(help="Listen to a processor output")
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
+@click.option('-c', '--channel', default='task', required=True, help="Listen channel (e.g. task, log, etc)")
+@click.option('-s', '--server', default=None, required=True, help="Events server")
 @click.pass_context
-def listen(context, name):
-    pass
+def listen(context, name, channel, server):
+    import socketio
 
+    sio = socketio.Client()
+
+    logging.info(
+        "Attempting connect to events server {}".format(server))
+
+    @sio.on('connect', namespace='/tasks')
+    def connect():
+        logging.info("I'm connected to namespace /tasks!")
+
+    @sio.on('log', namespace='/tasks')
+    def tmessage(message):
+        if channel == 'log':
+            print("log message: ", message)
+
+    @sio.on('task', namespace='/tasks')
+    def tmessage(message):
+        if channel == 'task':
+            print("message: ", message)
+
+    while True:
+        try:
+            sio.connect('http://'+server+':5000',
+                        namespaces=['/tasks'])
+            logging.info("Connected to events server {}".format(server))
+            sio.emit('join', {'room':name }, namespace='/tasks' )
+            logging.info("Joined room %s", name)
+            logging.info("Listening on channel %s", channel)
+            break
+        except Exception as ex:
+            pass  # Silent error
+
+    def fetch():
+        from multiprocessing import Queue
+
+        q = Queue()
+        
+        q.get()
+
+    from threading import Thread
+
+    thread = Thread(target=fetch)
+    thread.start()
 
 @cli.command(help="Database login user")
 @click.pass_context

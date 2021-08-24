@@ -98,9 +98,7 @@ class Agent:
                 refresh = 0
 
                 while True:
-                    logging.info("processor:monitor: sleep 3")
                     time.sleep(3)
-                    logging.info("processor:monitor: wakeup %s", hostname)
 
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
@@ -144,9 +142,7 @@ class Agent:
                         refresh = 0
 
                     # Loop through my processor cache and act on them
-                    for processor in processors:
-                        logging.info("Processor requested_status %s",
-                                     processor['processor'].requested_status)                                     
+                    for processor in processors:                                 
 
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:

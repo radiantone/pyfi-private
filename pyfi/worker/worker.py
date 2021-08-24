@@ -21,12 +21,20 @@ from celery import Celery
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
 from kombu import Exchange, Queue as KQueue
 
+from celery.signals import setup_logging
+
+
+@setup_logging.connect
+def setup_celery_logging(**kwargs):
+    logging.debug("DISABLE LOGGING SETUP")
+    pass
 
 import socketio
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
 
+events_server = os.environ['EVENTS']
 lock = Condition()
 queue = Queue()
 
@@ -36,7 +44,7 @@ processes = []
 
 def shutdown(*args):
     for process in processes:
-        print("Terminating ", process.pid)
+        logging.info("Terminating %s", process.pid)
         os.kill(process.pid, signal.SIGKILL)
         process.terminate()
 
@@ -80,6 +88,7 @@ class Worker:
             celeryconfig = getattr(module, celeryconfig.split['.'][-1:])
             self.celery = Celery(include=self.processor.module)
             self.celery.config_from_object(celeryconfig)
+
         else:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
@@ -116,10 +125,15 @@ class Worker:
                 ProcessorModel).filter_by(id=self.processor.id).first()
 
             sio = socketio.Client()
-            events_server = os.environ['EVENTS']
+
+            @sio.on('task', namespace='/tasks')
+            def tmessage(message):
+                print("message: ", message)
+
             @sio.on('queue', namespace='/tasks')
             def message(data):
-                print('I received a message!', data)
+                logging.info(
+                    '\x1b[33;21m I received a message! %s\x1b[0m', data)
 
             @sio.on('connect', namespace='/tasks')
             def connect():
@@ -128,19 +142,23 @@ class Worker:
                 sio.emit('servermsg', {
                     'module': self.processor.module }, namespace='/tasks')
 
+                sio.emit('join', {'room': 'pyfi.queue1.proc1'}, namespace='/tasks')
+
+            logging.info("Attempting connect to events server {}".format(events_server))
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
+                    logging.info(
+                        "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
-                    logging.error(ex)
-                    time.sleep(3)
+                    pass # Silent error
 
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
+                    logging.info("Socket %s",socket)
                     if socket.queue:
-
                         # TODO: Use socket.task.name as the task name and self.processor.module as the module
                         # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
                         # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
@@ -148,16 +166,26 @@ class Worker:
                         # This queue is bound to a broadcast(fanout) exchange that delivers
                         # a message to all the connected queues however sending a task to
                         # this queue will deliver to this processor only
-                        queues += [socket.queue.name + '.' +
-                                   self.processor.name.replace(' ', '.'), socket.queue.name + '.' +
-                                   self.processor.name.replace(' ', '.')+'.'+socket.task.name]
+                        processor_path = socket.queue.name + '.' + self.processor.name.replace(' ', '.')
+                        if processor_path not in queues:
+                            queues += [processor_path]
+                            room = {'room': processor_path}
+                            logging.info("Joining room %s", room)
+                            sio.emit('join', room, namespace='/tasks')
+
+                        processor_task = socket.queue.name + '.' + self.processor.name.replace(
+                            ' ', '.')+'.'+socket.task.name
+                        if processor_task not in queues:
+
+                            room = {'room': processor_task}
+                            queues += [processor_task]
 
                         # This topic queue represents the broadcast fanout to all workers connected
                         # to it. Sending a task to this queue delivers to all connected workers
                         queues += [socket.queue.name+'.topic']
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
-                        print('socket.queue.expires', socket.queue.expires)
+                        logging.debug('socket.queue.expires %s', socket.queue.expires)
                         app.conf.task_queues = (
                             Broadcast(socket.queue.name+'.topic', queue_arguments={
                                 'x-message-ttl': socket.queue.expires,
@@ -275,12 +303,36 @@ class Worker:
 
                         try:
                             while _queue.qsize() > 1000:
-                                loggin.info("Waiting for queue to shrink")
+                                logging.info("Waiting for queue to shrink")
                                 time.sleep(0.5)
 
-                            _queue.put(['servermsg', {
-                                    'module': self.processor.module, 'task': self.processor.task}])
-                            print("PLUGS:", plugs)
+                            data = {
+                                'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
+
+                            for socket in self.processor.sockets:
+                                if socket.task.name == sender.__name__:
+                                    processor_path = socket.queue.name + '.' + \
+                                        self.processor.name.replace(' ', '.')
+                                    data = {
+                                        'module': self.processor.module, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                    payload = json.dumps(data)
+                                    data['message'] = payload
+                                    break
+
+                            logging.debug(data)
+
+                            result = kwargs.get('args')[0]
+                            data['message'] = json.dumps(result)
+                            data['message'] = json.dumps(data)
+                            logging.info(
+                                "EMITTING ROOMSG: %s", data)
+                            _queue.put(['servermsg', data])
+                            _queue.put(['roomsg', data])
+
+                            _queue.put(
+                                ['roomsg', {'channel': 'log', 'room': processor_path, 'message': 'A log message!'}])
+
+                            logging.debug("PLUGS: %s", plugs)
                             for key in plugs:
 
                                 processor_plug = None
@@ -288,6 +340,9 @@ class Worker:
                                 for _plug in self.processor.plugs:
                                     if _plug.queue.name == key:
                                         processor_plug = _plug
+
+                                if processor_plug is None:
+                                    continue
 
                                 processors = self.database.session.query(
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
@@ -298,7 +353,7 @@ class Worker:
 
                                     if processor_plug.queue.qtype == 'direct':
                                         for processor in processors:
-                                            print("Invoking {}=>{}.{}({})".format(
+                                            logging.debug("Invoking {}=>{}.{}({})".format(
                                                 key, processor.module, processor.task, msg))
 
                                             # Target specific worker queue here
@@ -338,7 +393,7 @@ class Worker:
         process = Process(target=worker_proc, args=(self.celery, queue))
         processes += [process]
         process.start()
-        print("PROCESS PID", process.pid)
+        logging.debug("PROCESS PID", process.pid)
         self.process = process
 
         def emit_messages():
@@ -346,21 +401,21 @@ class Worker:
 
             sio = socketio.Client()
 
+            logging.info(
+                "Attempting connect to events server {}".format(events_server))
             while True:
                 try:
-                    sio.connect('http://events:5000',
+                    sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
+                    logging.info("Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
-                    logging.error(ex)
-                    time.sleep(3)
+                    pass  # Silent error
 
             last_qsize = 0
             while True:
                 try:
-                    print("QSIZE: ", queue.qsize())
                     message = queue.get()
-                    print("EMITTING: ", message)
                     sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
