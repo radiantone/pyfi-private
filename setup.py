@@ -136,6 +136,7 @@ setup(
         'sqlalchemy',
         'alembic',
         'eventlet',
+        'coloredlogs',
         'gunicorn',
         'paramiko',
         'uvicorn',
