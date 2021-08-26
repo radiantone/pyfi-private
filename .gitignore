@@ -11,5 +11,6 @@ migration
 logs
 agent.log
 events.log
-
+./data
+./work
 ./git/*
