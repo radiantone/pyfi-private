@@ -287,12 +287,12 @@ def db_init(context):
             session = sessionmaker(bind=engine)()
             session.connection().connection.set_isolation_level(0)
             session.execute('CREATE DATABASE pyfi')
-            session.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
             session.connection().connection.set_isolation_level(1)
             print("Database created")
             engine = create_engine(context.obj['dburi'])
             engine.uri = db
             session = sessionmaker(bind=engine)()
+            session.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
             context.obj['database'] = engine
             context.obj['session'] = session
             engine.session = session
@@ -347,7 +347,6 @@ def pause_processor(context, name):
         print("Pausing ", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
-        print("old ", processor)
     elif id is not None:
         print("Pausing ", id)
         processor = context.obj['database'].session.query(
@@ -374,7 +373,6 @@ def resume_processor(context, name):
         print("Pausing ", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
-        print("old ", processor)
     elif id is not None:
         print("Pausing ", id)
         processor = context.obj['database'].session.query(
@@ -401,7 +399,6 @@ def stop_processor(context, name):
         print("Stopping ", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
-        print("old ", processor)
     elif id is not None:
         print("Stopping ", id)
         processor = context.obj['database'].session.query(
@@ -428,7 +425,6 @@ def start_processor(context, name):
         print("Starting", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
-        print("old ", processor)
     elif id is not None:
         print("Starting", id)
         processor = context.obj['database'].session.query(
@@ -455,7 +451,6 @@ def restart_processor(context, name):
         print("Restarting", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
-        print("old ", processor)
     elif id is not None:
         print("Restarting", id)
         processor = context.obj['database'].session.query(
@@ -492,6 +487,28 @@ def delete():
     Delete an object from the database
     """
     pass
+
+
+@delete.command(name='socket', help="Delete a socket from the database")
+@click.option('-n','--name', default=None, required=True, help="Name of socket being deleted")
+@click.pass_context
+def delete_socket(context, name):
+    model = context.obj['database'].session.query(
+        SocketModel).filter_by(name=name).first()
+
+    context.obj['database'].session.delete(model)
+    context.obj['database'].session.commit()
+
+
+@delete.command(name='task', help="Delete a task from the database")
+@click.option('-n','--name', default=None, required=True, help="Name of task being deleted")
+@click.pass_context
+def delete_task(context, name):
+    model = context.obj['database'].session.query(
+        TaskModel).filter_by(name=name).first()
+
+    context.obj['database'].session.delete(model)
+    context.obj['database'].session.commit()
 
 
 @delete.command(name='processor', help="Delete a processor from the database")
@@ -853,9 +870,9 @@ def add_queue(context, name, type):
 @click.option('-t', '--task', default=None, required=False, help="Task name")
 @click.pass_context
 def update_socket(context, name, queue, procid, procname, task):
-
-    # Setting processor requested status to 'update' will cause the agent to reload
-    # the processor from the database and reset the task worker
+    """
+    Update a socket in the database
+    """
     return
 
 
