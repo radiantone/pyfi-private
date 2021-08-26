@@ -4,12 +4,12 @@
 - Implement task beat schedules
 - Git username/password 
 
-- Implement socketio task notifications in worker 80%
+- Implement socketio task notifications in worker DONE
      - Websocket server DONE
-     - Websocket container
+     - Websocket container DONE
      - Error notifications, complete notifications, etc
-          - Each has its own room
-          - Each task has its own room
+          - Each has its own room DONE
+          - Each task has its own room DONE
 
 - Implement pretty table for ls command. DONE
 - Implement -i, --interactive for prompted add commands. DONE

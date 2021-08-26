@@ -42,7 +42,7 @@ Phase 3 Goals
 
 - Monitor tasks using flower and rabbitmq admin. See individual task info. DONE
 - Expand processor/task configs e.g. retries, etc. 
-- Implement logging inside task signal functions
+- Implement logging inside task signal functions DONE
 - Use flower API to get metadata?
 - Stop a processor after restarting it 5 times in 5 minutes
 - Test/Observe rate limiting
@@ -51,7 +51,7 @@ Phase 3 Goals
 - Add pyfi API to compose file
 - Add nginx to compose file to front PYFI API and Flower API into one API Route 65%
 - Create nginx volume with app static build in it or mounted as volume DONE
-- Run agent in supervisor, test fault tolerance and message reliability
+- Run agent in supervisor, test fault tolerance and message reliability DONE
 
 - Flow objects and data model
    - Link to all processors
@@ -68,5 +68,8 @@ Phase 3 Goals
 Phase 4 Goals
 -------------
 
-- User RLS row level security in database
+- User RLS row level security in database DONE
+- Scheduler CLI commands
+- Scheduler task
+    - Monitors nodes associated with scheduler
 
