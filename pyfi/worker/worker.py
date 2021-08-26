@@ -34,7 +34,7 @@ import socketio
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
 
-events_server = os.environ['EVENTS']
+events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
 queue = Queue()
 
@@ -159,6 +159,7 @@ class Worker:
                 for socket in self.processor.sockets:
                     logging.info("Socket %s",socket)
                     if socket.queue:
+
                         # TODO: Use socket.task.name as the task name and self.processor.module as the module
                         # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
                         # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
@@ -266,41 +267,43 @@ class Worker:
             for plug in self.processor.plugs:
                 _plugs[plug.queue.name] = []
 
-            
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
                     func = getattr(module, socket.task.name)
 
                     func = self.celery.task(func, name=self.processor.module +
                                             '.'+socket.task.name, retries=self.processor.retries)
-                    
-                    @task_prerun.connect(sender=func)
+
+                    print("FUNC ",func)
+                    @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, **kwargs):
+                        logging.info("Task prerun")
                         task_kwargs = kwargs.get('kwargs')
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
 
-                    @task_success.connect(sender=func)
+                    @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
                         pass
 
-                    @task_failure.connect(sender=func)
+                    @task_failure.connect()
                     def pyfi_task_failure(sender=None, **kwargs):
                         pass
 
-                    @task_internal_error.connect(sender=func)
+                    @task_internal_error.connect()
                     def pyfi_task_internal_error(sender=None, **kwargs):
                         pass
 
-                    @task_received.connect(sender=func)
+                    @task_received.connect()
                     def pyfi_task_received(sender=None, **kwargs):
+                        logging.info("Task received")
                         pass
 
-                    @task_postrun.connect(sender=func)
+                    @task_postrun.connect()
                     def pyfi_task_postrun(sender=None, **kwargs):
+                        print("pyfi_task_postrun")
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
-
                         try:
                             while _queue.qsize() > 1000:
                                 logging.info("Waiting for queue to shrink")
