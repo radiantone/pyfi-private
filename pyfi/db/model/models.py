@@ -320,8 +320,7 @@ class TaskModel(BaseModel):
     """
     __tablename__ = 'task'
 
-    socket_id = Column(String(40), ForeignKey('socket.id'),
-                       nullable=False)
+    sockets = relationship("SocketModel", back_populates="task")
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -344,7 +343,6 @@ sockets_queues = Table('sockets_queues', Base.metadata,
                        Column('queue_id', ForeignKey('queue.id'))
                        )
 
-
 class SocketModel(BaseModel):
     """
     Docstring
@@ -355,8 +353,9 @@ class SocketModel(BaseModel):
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
-    task = relationship(
-        'TaskModel', backref='socket', uselist=False, lazy=True)
+    task_id = Column(String(40), ForeignKey('task.id'))
+    task = relationship("TaskModel", back_populates="sockets", single_parent=True,
+                        cascade="delete, delete-orphan")
 
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
