@@ -105,7 +105,7 @@ def cli(context, debug, db, backend, broker, ini, config):
             _config.write(configfile)
 
         print("Configuration file created at {}".format(home+"/pyfi.ini"))
-        return
+        
 
     if not os.path.exists(ini) and db is None:
         print("No database uri configured. Please run \033[1m $ pyfi --config")
