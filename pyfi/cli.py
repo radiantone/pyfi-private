@@ -643,7 +643,6 @@ def update_object(obj, locals):
 @update.command(name='processor')
 @click.option('-n', '--name', default=None, required=False)
 @click.option('-m', '--module', default=None, required=False)
-@click.option('-t', '--task', default=None, required=False)
 @click.option('-h', '--hostname', default=None, help='Target server hostname')
 @click.option('-w', '--workers', default=None, help='Number of worker tasks')
 @click.option('-g', '--gitrepo', default=None, help='Git repo URI')
@@ -653,7 +652,7 @@ def update_object(obj, locals):
 @click.option('-b', '--beat', default=None, is_flag=True, required=False)
 @click.option('-br', '--branch', default=None, required=False)
 @click.pass_context
-def update_processor(context, name, module, task, hostname, workers, gitrepo, commit, requested_status, schedule, beat, branch):
+def update_processor(context, name, module, hostname, workers, gitrepo, commit, requested_status, schedule, beat, branch):
     """
     Update a processor in the database
     """
@@ -663,15 +662,52 @@ def update_processor(context, name, module, task, hostname, workers, gitrepo, co
     if name is not None:
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
+
     elif id is not None:
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
+    processor.requested_status = 'update'
+
+    if not hostname:
+        if hostname != processor.hostname:
+            processor.requested_status = 'move'
+
+        processor.hostname = click.prompt('Hostname',
+                            type=str, default=processor.hostname)
+
+    if not module:
+        processor.module = click.prompt('Module',
+                                          type=str, default=processor.module)
+
+    if not workers:
+        processor.concurrency = click.prompt('Workers',
+                                             type=int, default=processor.concurrency)
+
+    if not gitrepo:
+        processor.gitrepo = click.prompt('Gitrepo',
+                                         type=str, default=processor.gitrepo)
+
+    if not commit:
+        processor.commit = click.prompt('Commit',
+                                        type=str, default=processor.commit)
+
+    if not schedule:
+        processor.schedule = click.prompt('Schedule',
+                                          type=int, default=processor.schedule)
+
+    if not beat:
+        processor.commit = click.prompt('Beat',
+                                        type=bool, default=processor.beat)
+
+    if not branch:
+        processor.commit = click.prompt('Branch',
+                                        type=str, default=processor.branch)
+
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
-
-    print("new ", processor)
+    print(processor)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
@@ -1155,7 +1191,6 @@ def processors(context, gitrepo, module, task, owner):
     processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
-    print("I am ", context.obj['owner'])
     names = ["Name", "ID", "Module", "Host", "Owner", "Last Updated",
              "Requested Status", "Status", "Workers"]
 

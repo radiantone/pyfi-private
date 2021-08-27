@@ -99,7 +99,6 @@ class Agent:
 
                 while True:
                     time.sleep(3)
-
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
@@ -120,10 +119,39 @@ class Agent:
                             ProcessorModel).filter_by(
                             hostname=hostname).all()
 
-                    if refresh == 0:
+                        for processor in processors:
+                            self.database.session.refresh(
+                                processor['processor'])
+
+                            if processor['processor'].hostname != hostname:
+                                if processor['worker'] is not None:
+                                    # Processor has been moved, kill it
+
+                                    processor['processor'].requested_status = 'move'
+                                    self.database.session.add(processor['processor'])
+                                    self.database.session.commit()
+
+                                    logging.info("Processor {} moved from {} to {}.".format(
+                                        processor['processor'].name, hostname, processor['processor'].hostname))
+                                    logging.info("Killing processor {}.".format(
+                                        processor['processor'].name))
+                                    processor['worker']['process'].kill()
+                                    processor['worker'] = None
+                                    processors.remove(processor)
+                                    logging.info("Removed processor {} from list.".format(
+                                        processor['processor'].name))
+
+                                    processor['processor'].requested_status = 'update'
+                                    self.database.session.add(
+                                        processor['processor'])
+                                    self.database.session.commit()
+
+
                         for myprocessor in myprocessors:
 
                             self.database.session.refresh(myprocessor) # Might not be needed
+                            if myprocessor.requested_status == 'move':
+                                continue
 
                             found = False
                             for processor in processors:
@@ -137,12 +165,14 @@ class Agent:
                                 processors += [{'worker': None,
                                                 'processor': myprocessor}]
 
+                                
+
                     refresh += 1
-                    if refresh >= 10:
+                    if refresh >= 3:
                         refresh = 0
 
                     # Loop through my processor cache and act on them
-                    for processor in processors:                                 
+                    for processor in processors:
 
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
@@ -368,6 +398,7 @@ class Agent:
 
         logging.info("Monitoring processors")
         monitor_processors()
+        logging.info("END Monitoring")
 
 
 @app.route('/')

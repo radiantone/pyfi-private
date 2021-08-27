@@ -45,8 +45,11 @@ processes = []
 def shutdown(*args):
     for process in processes:
         logging.info("Terminating %s", process.pid)
-        os.kill(process.pid, signal.SIGKILL)
-        process.terminate()
+        try:
+            os.kill(process.pid, signal.SIGKILL)
+            process.terminate()
+        except:
+            pass
 
     exit(0)
 
@@ -183,15 +186,15 @@ class Worker:
 
                         # This topic queue represents the broadcast fanout to all workers connected
                         # to it. Sending a task to this queue delivers to all connected workers
-                        queues += [socket.queue.name+'.topic']
+                        queues += []
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
                         logging.debug('socket.queue.expires %s', socket.queue.expires)
                         app.conf.task_queues = (
-                            Broadcast(socket.queue.name+'.topic', queue_arguments={
-                                'x-message-ttl': socket.queue.expires,
-                                'x-expires': socket.queue.expires
-                            }),
+                            #Broadcast(socket.queue.name+'.topic', queue_arguments={
+                            #    'x-message-ttl': socket.queue.expires,
+                            #    'x-expires': socket.queue.expires
+                            #}),
                             KQueue(
                                 socket.queue.name+'.' +
                                 self.processor.name.replace(
@@ -222,7 +225,7 @@ class Worker:
 
                         app.conf.task_routes = {
                             self.processor.module+'.'+socket.task.name: {
-                                'queue': [socket.queue.name+'.topic', socket.queue.name],
+                                'queue': [socket.queue.name],
                                 'exchange': [socket.queue.name+'.topic', socket.queue.name]
                             }
                         }
@@ -274,7 +277,6 @@ class Worker:
                     func = self.celery.task(func, name=self.processor.module +
                                             '.'+socket.task.name, retries=self.processor.retries)
 
-                    print("FUNC ",func)
                     @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, **kwargs):
                         logging.info("Task prerun")
@@ -301,13 +303,19 @@ class Worker:
 
                     @task_postrun.connect()
                     def pyfi_task_postrun(sender=None, **kwargs):
+                        from datetime import datetime
+
                         print("pyfi_task_postrun")
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:
-                            while _queue.qsize() > 1000:
-                                logging.info("Waiting for queue to shrink")
-                                time.sleep(0.5)
+                            #while _queue.qsize() > 1000:
+                            #    logging.info("Waiting for queue to shrink")
+                            #    time.sleep(0.5)
+
+                            # Create MetricDataModel and save to database
+                            # time, size, processor, host, module, task, flow, owner
+                            # Send this over 'data' channel
 
                             data = {
                                 'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
@@ -317,7 +325,7 @@ class Worker:
                                     processor_path = socket.queue.name + '.' + \
                                         self.processor.name.replace(' ', '.')
                                     data = {
-                                        'module': self.processor.module, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                        'module': self.processor.module, 'date':str(datetime.now()), 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
                                     payload = json.dumps(data)
                                     data['message'] = payload
                                     break
@@ -333,7 +341,7 @@ class Worker:
                             _queue.put(['roomsg', data])
 
                             _queue.put(
-                                ['roomsg', {'channel': 'log', 'room': processor_path, 'message': 'A log message!'}])
+                                ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
                             logging.debug("PLUGS: %s", plugs)
                             for key in plugs:
@@ -460,6 +468,7 @@ class Worker:
         Docstring
         """
         logging.info("Terminating process")
+        os.kill(self.process.pid, signal.SIGKILL)
         self.process.terminate()
         logging.info("Finishing.")
         self.process.join()
