@@ -1,6 +1,7 @@
 """
 Agent workerclass. Primary task/code execution context for processors
 """
+import socketio
 import logging
 import shutil
 import os
@@ -8,6 +9,8 @@ import sys
 import psutil
 import signal
 import configparser
+import platform
+
 from pathlib import Path
 
 from multiprocessing import Condition, Queue
@@ -23,13 +26,14 @@ from kombu import Exchange, Queue as KQueue
 
 from celery.signals import setup_logging
 
+hostname = platform.node()
+
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
     pass
 
-import socketio
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -43,11 +47,16 @@ processes = []
 
 
 def shutdown(*args):
+    from psutil import Process
+
     for process in processes:
-        logging.info("Terminating %s", process.pid)
         try:
-            os.kill(process.pid, signal.SIGKILL)
+            process = Process(process.pid)
+            for child in process.children(recursive=True):
+                child.kill()
+            process.kill()
             process.terminate()
+            os.kill(process.pid, signal.SIGKILL)
         except:
             pass
 
@@ -143,11 +152,13 @@ class Worker:
                 logging.info("I'm connected to namespace /tasks!")
 
                 sio.emit('servermsg', {
-                    'module': self.processor.module }, namespace='/tasks')
+                    'module': self.processor.module}, namespace='/tasks')
 
-                sio.emit('join', {'room': 'pyfi.queue1.proc1'}, namespace='/tasks')
+                sio.emit('join', {'room': 'pyfi.queue1.proc1'},
+                         namespace='/tasks')
 
-            logging.info("Attempting connect to events server {}".format(events_server))
+            logging.info(
+                "Attempting connect to events server {}".format(events_server))
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
@@ -156,11 +167,14 @@ class Worker:
                         "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
-                    pass # Silent error
+                    pass  # Silent error
+
+            task_queues = []
+            task_routes = {}
 
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
-                    logging.info("Socket %s",socket)
+                    logging.info("Socket %s", socket)
                     if socket.queue:
 
                         # TODO: Use socket.task.name as the task name and self.processor.module as the module
@@ -170,7 +184,9 @@ class Worker:
                         # This queue is bound to a broadcast(fanout) exchange that delivers
                         # a message to all the connected queues however sending a task to
                         # this queue will deliver to this processor only
-                        processor_path = socket.queue.name + '.' + self.processor.name.replace(' ', '.')
+                        processor_path = socket.queue.name + '.' + \
+                            self.processor.name.replace(' ', '.')
+
                         if processor_path not in queues:
                             queues += [processor_path]
                             room = {'room': processor_path}
@@ -189,26 +205,30 @@ class Worker:
                         queues += []
                         from kombu import Exchange, Queue, binding
                         from kombu.common import Broadcast
-                        logging.debug('socket.queue.expires %s', socket.queue.expires)
-                        app.conf.task_queues = (
-                            #Broadcast(socket.queue.name+'.topic', queue_arguments={
-                            #    'x-message-ttl': socket.queue.expires,
-                            #    'x-expires': socket.queue.expires
-                            #}),
+                        logging.debug('socket.queue.expires %s',
+                                      socket.queue.expires)
+                                      
+                        task_queues += [
                             KQueue(
                                 socket.queue.name+'.' +
                                 self.processor.name.replace(
                                     ' ', '.')+'.'+socket.task.name,
-                                #Exchange(socket.queue.name +
-                                #         '.topic', type='fanout'),
                                 Exchange(socket.queue.name + '.' + self.processor.name.replace(
                                     ' ', '.')+'.'+socket.task.name, type='direct'),
                                 routing_key=socket.queue.name + '.' + self.processor.name.replace(
                                     ' ', '.')+'.'+socket.task.name,
                                 message_ttl=socket.queue.message_ttl,
                                 durable=socket.queue.durable,
-                                expires=socket.queue.expires
-                            ),
+                                expires=socket.queue.expires,
+                                # socket.queue.message_ttl
+                                # socket.queue.expires
+                                queue_arguments={
+                                    'x-message-ttl': 30000,
+                                    'x-expires': 30}
+                            )
+                        ]
+
+                        task_queues += [
                             KQueue(
                                 socket.queue.name+'.' +
                                 self.processor.name.replace(
@@ -220,15 +240,18 @@ class Worker:
                                     ' ', '.'),
                                 message_ttl=socket.queue.message_ttl,
                                 durable=socket.queue.durable,
-                                expires=socket.queue.expires
-                            ))
+                                expires=socket.queue.expires,
+                                queue_arguments={
+                                    'x-message-ttl': 30000,
+                                    'x-expires': 30}
+                            )
+                        ]
 
-                        app.conf.task_routes = {
-                            self.processor.module+'.'+socket.task.name: {
-                                'queue': [socket.queue.name],
-                                'exchange': [socket.queue.name+'.topic', socket.queue.name]
-                            }
+                        task_routes[self.processor.module+'.'+socket.task.name] = {
+                            'queue': [socket.queue.name],
+                            'exchange': [socket.queue.name+'.topic', socket.queue.name]
                         }
+                        
 
             @worker_process_init.connect()
             def prep_db_pool(**kwargs):
@@ -241,12 +264,16 @@ class Worker:
                 """
                 return
 
+
+            app.conf.task_queues = task_queues
+            app.conf.task_routes = task_routes
+
             worker = app.Worker(
                 hostname=self.processor.name+'@'+self.worker.hostname,
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
-                queues=queues,
+                #queues=queues,
                 without_mingle=True,
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
@@ -264,7 +291,7 @@ class Worker:
             sys.path.append(os.getcwd())
 
             setattr(builtins, 'worker', worker)
-
+            print("CWD ",os.getcwd())
             module = importlib.import_module(self.processor.module)
             _plugs = {}
             for plug in self.processor.plugs:
@@ -309,7 +336,7 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:
-                            #while _queue.qsize() > 1000:
+                            # while _queue.qsize() > 1000:
                             #    logging.info("Waiting for queue to shrink")
                             #    time.sleep(0.5)
 
@@ -325,7 +352,7 @@ class Worker:
                                     processor_path = socket.queue.name + '.' + \
                                         self.processor.name.replace(' ', '.')
                                     data = {
-                                        'module': self.processor.module, 'date':str(datetime.now()), 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                        'module': self.processor.module, 'date': str(datetime.now()), 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
                                     payload = json.dumps(data)
                                     data['message'] = payload
                                     break
@@ -369,7 +396,8 @@ class Worker:
 
                                             # Target specific worker queue here
                                             worker_queue = key+'.' + \
-                                                processor.name.replace(' ', '.')
+                                                processor.name.replace(
+                                                    ' ', '.')
                                             self.celery.signature(
                                                 processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
@@ -402,9 +430,9 @@ class Worker:
                     time.sleep(3)
 
         process = Process(target=worker_proc, args=(self.celery, queue))
+        process.app = self.celery
         processes += [process]
         process.start()
-        logging.debug("PROCESS PID", process.pid)
         self.process = process
 
         def emit_messages():
@@ -418,7 +446,8 @@ class Worker:
                 try:
                     sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
-                    logging.info("Connected to events server {}".format(events_server))
+                    logging.info(
+                        "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
                     pass  # Silent error
@@ -434,6 +463,7 @@ class Worker:
 
         process2 = Process(target=emit_messages)
         process2.daemon = True
+        logging.info("Starting emit_messages")
         #print("PROCESS2 PID", process2.pid)
         #processes += [process2]
         process2.start()

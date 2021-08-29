@@ -69,8 +69,6 @@ def cli(context, debug, db, backend, broker, ini, config):
     """
     Pyfi CLI for managing the pyfi network
     """
-
-
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
     if debug:
@@ -707,7 +705,6 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
-    print(processor)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
@@ -1050,12 +1047,49 @@ def ls():
 
 
 @cli.group()
+def worker():
+    """
+    Run pyfi worker
+    """
+    pass
+
+
+@cli.group()
 def agent():
     """
     Run pyfi agent
     """
     pass
 
+
+@worker.command(name='start', help='Start a pyfi worker')
+@click.option('-n', '--name', required=True)
+@click.option('-p', '--pool', default=4, required=False)
+@click.pass_context
+def start_worker(context, name, pool):
+    from pyfi.worker import Worker
+
+    workerModel = context.obj['database'].session.query(
+        WorkerModel).filter_by(name=name).first()
+
+    worker = {}
+    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=workerModel.processor_id).first()
+
+    dir = 'work/'+processor.id
+    os.makedirs(dir, exist_ok=True)
+
+    workerproc = Worker(
+        processor, workdir=dir, pool=pool, database=context.obj['dburi'], celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+
+    wprocess = workerproc.start()
+
+    processor.worker.requested_status = 'ready'
+    processor.worker.status = 'running'
+    context.obj['database'].session.add(
+        processor.worker)
+
+    context.obj['database'].session.commit()
+    wprocess.join()
 
 @ls.command()
 @click.pass_context
@@ -1406,7 +1440,7 @@ def start_agent(context, port, backend, broker, config, queues, pool):
 
     agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
                   config=config, backend=backend, broker=broker)
-    agent.start(queues)
+    agent.start()
 
 
 @cli.group()

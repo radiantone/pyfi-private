@@ -392,7 +392,7 @@ class QueueModel(BaseModel):
     """
     __tablename__ = 'queue'
     requested_status = Column(String(20), nullable=False)
-    qtype = Column(String(20), nullable=False)
+    qtype = Column(String(20), nullable=False, default='direct')
     status = Column(String(20), nullable=False)
     durable = Column(Boolean, default=True)
     reliable = Column(Boolean, default=True)

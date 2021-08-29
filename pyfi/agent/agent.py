@@ -45,7 +45,7 @@ class Agent:
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
 
-    def start(self, queues):
+    def start(self):
         from datetime import datetime
         import bjoern
         #from multiprocessing import Process
@@ -119,13 +119,15 @@ class Agent:
                             ProcessorModel).filter_by(
                             hostname=hostname).all()
 
+                        # Loop through existing processor references and refresh from database
+                        # Check for moved processors
                         for processor in processors:
                             self.database.session.refresh(
                                 processor['processor'])
 
                             if processor['processor'].hostname != hostname:
+                                # Processor of mine has been moved, kill it
                                 if processor['worker'] is not None:
-                                    # Processor has been moved, kill it
 
                                     processor['processor'].requested_status = 'move'
                                     self.database.session.add(processor['processor'])
@@ -146,7 +148,7 @@ class Agent:
                                         processor['processor'])
                                     self.database.session.commit()
 
-
+                        # Loop through my database processors
                         for myprocessor in myprocessors:
 
                             self.database.session.refresh(myprocessor) # Might not be needed
@@ -165,13 +167,12 @@ class Agent:
                                 processors += [{'worker': None,
                                                 'processor': myprocessor}]
 
-                                
-
                     refresh += 1
                     if refresh >= 3:
                         refresh = 0
 
-                    # Loop through my processor cache and act on them
+                    # Loop through my processor cache again and operate on them based
+                    # on requested_status
                     for processor in processors:
 
                         if processor['processor'].requested_status == 'removed':
@@ -336,9 +337,15 @@ class Agent:
 
                             logging.info("Updating processor")
 
+                            '''
+                            TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
+                            This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
+                            Once a WorkerModel has been created with all the details, spawn `pyfi worker start` FROM the virtualenv after the gitrepo setup.py has been
+                            installed.
+                            '''
                             if processor['processor'].worker is None:
                                 """ If there is no worker model, create one and link to Processor """
-                                workerModel = WorkerModel(id=str(uuid4()), name=processor['processor'].name+'-worker', concurrency=processor['processor'].concurrency,
+                                workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
                                                           status='ready',
                                                           backend=self.backend,
                                                           broker=self.broker,
@@ -346,8 +353,10 @@ class Agent:
                                                           requested_status='start')
 
                                 self.database.session.add(workerModel)
+
                                 logging.info(
                                     "Worker %s created.", workerModel.id)
+
                                 processor['processor'].worker = workerModel
 
                             if processor['worker'] is None or process_died:
@@ -357,6 +366,12 @@ class Agent:
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
 
+                                # TODO: Replace this with `pyfi worker start` running inside processor virtualenv as a subprocess
+                                # Should work the same inside the agent here as both will return the process
+
+                                """
+                                workerproc = Popen(["venvXYZ/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
+                                """
                                 workerproc = Worker(
                                     processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
@@ -364,6 +379,7 @@ class Agent:
 
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'
+
                                 self.database.session.add(
                                     processor['processor'].worker)
 
@@ -371,15 +387,19 @@ class Agent:
 
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
+
                                 worker['worker'] = processor['processor'].worker
                                 worker['worker'].process = workerproc.process.pid
                                 worker['process'] = workerproc
-                                processor['worker'] = worker
                                 worker['wprocess'] = wprocess
+
+                                processor['worker'] = worker
+
                                 workers += [worker]
 
                             processor['processor'].requested_status = 'ready'
                             processor['processor'].status = 'running'
+
                             self.database.session.add(processor['processor'])
                             self.database.session.commit()
 
