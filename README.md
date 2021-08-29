@@ -264,10 +264,37 @@ The socket is the logical abstraction of an inbound task invocation, a durable q
 
 #### ***Processors & Sockets Using the GUI***
 
+![socket1](./screens/socket1.png)
+![socket2](./screens/socket2.png)
 #### ***Processors & Sockets Using the CLI***
 
+```bash
+pyfi add queue -n pyfi.queue1 -t direct
+pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 
+pyfi add socket -n proc1.socket1 -q pyfi.queue1 -pn proc1 -t do_something
+pyfi add socket -n proc1.socket2 -q pyfi.queue1 -pn proc1 -t do_this
+```
 #### ***Processors & Sockets Using the API***
 
+```python
+from pyfi.client.api import Processor, Socket, Queue
+
+# Create a processor
+processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',
+                      gitrepo='https://github.com/radiantone/pyfi-processors')
+
+# Create a socket for that processor
+do_something = Socket(name='proc1.socket1', processor=processor, queue={
+                'name': 'pyfi.queue1'}, task='do_something')
+
+do_this = Socket(name='proc1.socket2', processor=processor, queue={
+    'name': 'pyfi.queue1'}, task='do_this')
+
+# Send a message to a socket
+do_something("Hello World !")
+
+do_this("Do this!!")
+```
 ## Command Line Interface
 
 One of the design goals for PYFI was to allow both Graphical and Command line User Interfaces. A CLI will open up access to various server-side automations, devops pipelines and human sysops that can interact with the PYFI network through a remote console.
