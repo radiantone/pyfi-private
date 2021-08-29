@@ -59,17 +59,20 @@ Phase 3 Goals
 
 - Password protect processors: lock & unlock. Login dialogs
 
-- Obtain queue message status from Flower for a particular queue or task
+- Obtain queue message status from Flower for a particular queue or task DONE
 
-- Add user CLI commands
-- Delete CLI commands
+- Add user CLI commands DONE
+- Delete CLI commands DONE
 
 
 Phase 4 Goals
 -------------
 
 - User RLS row level security in database DONE
-- Scheduler CLI commands
+- Scheduler CLI commands 80%
 - Scheduler task
     - Monitors nodes associated with scheduler
+
+- Move processor between hosts while running DONE
+- Client API 20%
 

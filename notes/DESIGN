@@ -1,3 +1,19 @@
+Agent spawns sub processes that invoke `pyfi worker start -n workername` inside a virtualenv where the gitrepo code is loaded and installed.
+Thus, the worker runs inside it's own virtualenv. If the gitrepo is updated, the agent can restart the processor which will load a new environment
+
+Processor inbound queues map directly to sockets->task names. Thus, each socket+function have their own queues. 
+A top level queue for the processor is linked to a fanout exchange where all processors connected to the same base queue exchange will receive same message (broadcast).
+
+- Run pyfi worker start brings up celery worker with correct queues. DONE
+- Sending message using API invokes new worker DONE
+- New worker sends event messages to socketio room. NOT WORKER YET
+- Linked processors execute code NOT TESTED WITH NEW DESIGN YET
+- 
+
+
+
+--------------------------
+
 
 SCHEDULER->NODE->AGENT->PROCESSOR->WORKER->TASK
 
