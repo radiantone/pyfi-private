@@ -129,6 +129,7 @@ setup(
         'flask',
         'celery',
         'bjoern',
+        'virtualenv-api',
         'redis',
         'psycopg2',
         'flask-restx',

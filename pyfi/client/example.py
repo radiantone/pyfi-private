@@ -1,4 +1,4 @@
-from pyfi.client.api import Processor, Socket, Queue
+from pyfi.client.api import Processor, Socket
 
 # Create a processor
 processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',

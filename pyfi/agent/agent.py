@@ -365,17 +365,16 @@ class Agent:
 
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
-
-                                # TODO: Replace this with `pyfi worker start` running inside processor virtualenv as a subprocess
-                                # Should work the same inside the agent here as both will return the process
-
-                                """
-                                workerproc = Popen(["venvXYZ/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
-                                """
+                                logging.info("Agent: Creating Worker()")
                                 workerproc = Worker(
                                     processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
-                                wprocess = workerproc.start()
+                                # Setup the virtualenv only
+                                workerproc.start(start=False)
+
+                                # Launch from the virtualenv
+                                wprocess = workerproc.launch(processor['processor'].worker.name)
+                                #wprocess = workerproc.start()
 
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'

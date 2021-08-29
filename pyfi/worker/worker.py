@@ -56,6 +56,7 @@ def shutdown(*args):
                 child.kill()
             process.kill()
             process.terminate()
+            os.killpg(os.getpgid(process.pid), 15)
             os.kill(process.pid, signal.SIGKILL)
         except:
             pass
@@ -87,7 +88,7 @@ class Worker:
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
-
+        logging.info("New Worker init: %s",processor)
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
@@ -109,13 +110,48 @@ class Worker:
         logging.info("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-    def start(self):
+    def launch(self, name):
+        from subprocess import Popen
+        from multiprocessing import Process
+
+        """
+        This method is used by the agent after the Worker() has been created and configured its venv.
+        It is then launched using a subprocess running from that virtualenv
+        The 'pyfi worker start' command will itself, run the start() method below.
+
+        workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
+        """
+
+        """
+        import signal
+        def start_worker():
+            Popen(["venv/bin/pyfi", "worker", "start",
+                   "-n", name], preexec_fn=os.setsid)
+            print("Started worker", "venv/bin/pyfi", "worker", "start",
+                  "-n", name)
+
+        process = Process(target=start_worker)
+        logging.info("Launching worker process...")
+        process.start()
+        self.process = process
+        """
+        logging.info("CWD: %s", os.getcwd())
+        logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -n %s", name)
+        self.process = process = Popen(["venv/bin/pyfi", "worker", "start",
+                         "-n", name], preexec_fn=os.setsid)
+
+        logging.info("Worker launched successfully.")
+        return process
+
+    def start(self, start=True):
         """
         Docstring
         """
         global processes
         from multiprocessing import Process
         import os
+
+        logging.info("PYTHON: %s",sys.executable)
 
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
@@ -207,7 +243,7 @@ class Worker:
                         from kombu.common import Broadcast
                         logging.debug('socket.queue.expires %s',
                                       socket.queue.expires)
-                                      
+
                         task_queues += [
                             KQueue(
                                 socket.queue.name+'.' +
@@ -251,7 +287,6 @@ class Worker:
                             'queue': [socket.queue.name],
                             'exchange': [socket.queue.name+'.topic', socket.queue.name]
                         }
-                        
 
             @worker_process_init.connect()
             def prep_db_pool(**kwargs):
@@ -264,7 +299,6 @@ class Worker:
                 """
                 return
 
-
             app.conf.task_queues = task_queues
             app.conf.task_routes = task_routes
 
@@ -273,7 +307,7 @@ class Worker:
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
-                #queues=queues,
+                # queues=queues,
                 without_mingle=True,
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
@@ -291,7 +325,7 @@ class Worker:
             sys.path.append(os.getcwd())
 
             setattr(builtins, 'worker', worker)
-            print("CWD ",os.getcwd())
+            print("CWD ", os.getcwd())
             module = importlib.import_module(self.processor.module)
             _plugs = {}
             for plug in self.processor.plugs:
@@ -364,6 +398,7 @@ class Worker:
                             data['message'] = json.dumps(data)
                             logging.info(
                                 "EMITTING ROOMSG: %s", data)
+
                             _queue.put(['servermsg', data])
                             _queue.put(['roomsg', data])
 
@@ -429,10 +464,23 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
+            logging.info("Building virtualenv...in %s", os.getcwd())
+            from virtualenvapi.manage import VirtualEnvironment
+            env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
+            env.install('-e git+https://github.com/radiantone/pyfi-private#egg=pyfi')
+            try:
+                env.install('git+'+self.processor.gitrepo.strip())
+            except:
+                logging.error("Could not install %s",
+                              self.processor.gitrepo.strip())
+            
         process = Process(target=worker_proc, args=(self.celery, queue))
         process.app = self.celery
         processes += [process]
-        process.start()
+
+        if start:
+            process.start()
+
         self.process = process
 
         def emit_messages():
@@ -456,6 +504,7 @@ class Worker:
             while True:
                 try:
                     message = queue.get()
+                    print("GOT MESSAGE FROM QUEUE",message)
                     sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
@@ -463,10 +512,11 @@ class Worker:
 
         process2 = Process(target=emit_messages)
         process2.daemon = True
+
         logging.info("Starting emit_messages")
-        #print("PROCESS2 PID", process2.pid)
-        #processes += [process2]
-        process2.start()
+
+        if start:
+            process2.start()
 
         logging.info("Started worker process with pid[%s]", process.pid)
         return process
