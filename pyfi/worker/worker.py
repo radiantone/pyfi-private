@@ -121,19 +121,6 @@ class Worker:
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
 
-        """
-        import signal
-        def start_worker():
-            Popen(["venv/bin/pyfi", "worker", "start",
-                   "-n", name], preexec_fn=os.setsid)
-            print("Started worker", "venv/bin/pyfi", "worker", "start",
-                  "-n", name)
-
-        process = Process(target=start_worker)
-        logging.info("Launching worker process...")
-        process.start()
-        self.process = process
-        """
         logging.info("CWD: %s", os.getcwd())
         logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
         self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
@@ -302,7 +289,7 @@ class Worker:
             app.conf.task_routes = task_routes
 
             worker = app.Worker(
-                hostname=self.processor.name+'@'+self.worker.hostname,
+                hostname=self.processor.name+'@'+hostname,
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
@@ -311,6 +298,9 @@ class Worker:
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
             )
+            self.processor.worker.hostname = hostname
+            self.database.session.add(self.processor.worker)
+            self.database.session.commit()
 
             if self.processor.beat:
                 worker.app.conf.beat_schedule = {
@@ -468,7 +458,6 @@ class Worker:
             env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
             env.install('-e git+https://github.com/radiantone/pyfi-private#egg=pyfi')
             try:
-
                 env.install('-e git+'+self.processor.gitrepo.strip())
             except:
                 logging.error("Could not install %s",
