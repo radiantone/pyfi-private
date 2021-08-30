@@ -353,7 +353,7 @@ class Agent:
                                                           requested_status='start')
 
                                 self.database.session.add(workerModel)
-
+                                self.database.session.commit()
                                 logging.info(
                                     "Worker %s created.", workerModel.id)
 

@@ -299,8 +299,6 @@ class Worker:
                 concurrency=int(self.processor.concurrency)
             )
             self.processor.worker.hostname = hostname
-            self.database.session.add(self.processor.worker)
-            self.database.session.commit()
 
             if self.processor.beat:
                 worker.app.conf.beat_schedule = {
