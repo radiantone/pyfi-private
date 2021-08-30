@@ -18,7 +18,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
-from pyfi.processor import Processor
 
 from celery import Celery
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
@@ -551,7 +550,10 @@ class Worker:
         os.kill(self.process.pid, signal.SIGKILL)
         self.process.terminate()
         logging.info("Finishing.")
-        self.process.join()
+        try:
+            self.process.join()
+        except:
+            pass
         if os.path.exists(self.workdir):
             logging.debug("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
