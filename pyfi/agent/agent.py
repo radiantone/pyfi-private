@@ -345,6 +345,8 @@ class Agent:
                             '''
                             if processor['processor'].worker is None:
                                 """ If there is no worker model, create one and link to Processor """
+
+                                # TODO: Not sure this is needed since worker now puts worker model row in database
                                 workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
                                                           status='ready',
                                                           backend=self.backend,

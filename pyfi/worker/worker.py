@@ -300,15 +300,19 @@ class Worker:
             )
             self.processor.worker.hostname = hostname
 
-            workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
-                                      status='ready',
-                                      backend=self.backend,
-                                      broker=self.broker,
-                                      hostname=hostname,
-                                      requested_status='start')
+            # Find existing model first
+            try:
+                workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
+                                        status='ready',
+                                        backend=self.backend,
+                                        broker=self.broker,
+                                        hostname=hostname,
+                                        requested_status='start')
 
-            self.database.session.add(workerModel)
-            self.database.session.commit()
+                self.database.session.add(workerModel)
+                self.database.session.commit()
+            except:
+                pass
             if self.processor.beat:
                 worker.app.conf.beat_schedule = {
                     "run-me-every-ten-seconds": {
