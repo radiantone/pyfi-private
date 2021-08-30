@@ -668,11 +668,12 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
     processor.requested_status = 'update'
 
     if not hostname:
-        if hostname != processor.hostname:
-            processor.requested_status = 'move'
 
-        processor.hostname = click.prompt('Hostname',
-                            type=str, default=processor.hostname)
+        _hostname = click.prompt('Hostname',
+                                 type=str, default=processor.hostname)
+        if _hostname != processor.hostname:
+            processor.requested_status = 'move'
+            processor.hostname = _hostname
 
     if not module:
         processor.module = click.prompt('Module',
