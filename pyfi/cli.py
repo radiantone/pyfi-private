@@ -1063,10 +1063,11 @@ def agent():
 
 
 @worker.command(name='start', help='Start a pyfi worker')
-@click.option('-n', '--name', required=True)
-@click.option('-p', '--pool', default=4, required=False)
+@click.option('-n', '--name', required=True, help="Name of worker")
+@click.option('-p', '--pool', default=4, required=False, help="Size of worker pool")
+@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
 @click.pass_context
-def start_worker(context, name, pool):
+def start_worker(context, name, pool, skip_venv):
     from pyfi.worker import Worker
 
     workerModel = context.obj['database'].session.query(
@@ -1079,7 +1080,7 @@ def start_worker(context, name, pool):
     os.makedirs(dir, exist_ok=True)
 
     workerproc = Worker(
-        processor, workdir=dir, pool=pool, database=context.obj['dburi'], celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+        processor, workdir=dir, pool=pool, database=context.obj['dburi'], skipvenv=skip_venv, celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
 

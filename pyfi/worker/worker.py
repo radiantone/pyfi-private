@@ -71,7 +71,7 @@ class Worker:
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
 
-    def __init__(self, processor, workdir, pool=4, database=None, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, database=None, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -82,7 +82,7 @@ class Worker:
         self.broker = broker
         self.workdir = workdir
         self.dburi = database
-
+        self.skipvenv = skipvenv
         self.database = create_engine(self.dburi)
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
@@ -135,8 +135,8 @@ class Worker:
         self.process = process
         """
         logging.info("CWD: %s", os.getcwd())
-        logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -n %s", name)
-        self.process = process = Popen(["venv/bin/pyfi", "worker", "start",
+        logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
+        self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
                          "-n", name], preexec_fn=os.setsid)
 
         logging.info("Worker launched successfully.")
@@ -447,7 +447,7 @@ class Worker:
         os.chdir(self.workdir)
         import time
 
-        if self.processor.gitrepo:
+        if self.processor.gitrepo and not self.skipvenv:
             logging.info("git clone -b {} --single-branch {} git".format(
                 self.processor.branch, self.processor.gitrepo))
             shutil.rmtree("git", ignore_errors=True)
