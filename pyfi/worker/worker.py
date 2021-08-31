@@ -449,9 +449,7 @@ class Worker:
                                                         _processor.module+'.'+socket.task.name, msg))
 
                                                     # Target specific worker queue here
-                                                    worker_queue = key+'.' + \
-                                                        _processor.name.replace(
-                                                            ' ', '.')
+                                                    worker_queue = _processor.module+'.'+socket.task.name
                                                     logging.info(
                                                         "%s(%s)", _processor.module+'.'+socket.task.name, msg)
                                                     self.celery.signature(
