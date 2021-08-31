@@ -459,7 +459,8 @@ class Worker:
                                                 logging.info("worker queue %s",worker_queue)
                                                 self.celery.signature(
                                                     _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
-
+                                                logging.info(
+                                                    "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
                                             # We sent the message, so remove it so it doesn't get re-sent on the next cycle
                                             # If there is an exception delivering the message above, this code will get skipped and the 
                                             # cycle will retry this message
