@@ -87,7 +87,7 @@ class Worker:
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
-        logging.info("New Worker init: %s",processor)
+        logging.debug("New Worker init: %s",processor)
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
@@ -106,7 +106,7 @@ class Worker:
                 'pyfi', backend=backend, broker=broker)
 
         self.process = None
-        logging.info("Starting worker with pool[{}] backend:{} broker:{}".format(
+        logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
     def launch(self, name):
@@ -121,12 +121,12 @@ class Worker:
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
 
-        logging.info("CWD: %s", os.getcwd())
-        logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
+        logging.debug("CWD: %s", os.getcwd())
+        logging.debug("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
         self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
                          "-n", name], preexec_fn=os.setsid)
 
-        logging.info("Worker launched successfully: process %s.", self.process.pid)
+        logging.debug("Worker launched successfully: process %s.", self.process.pid)
         return process
 
     def start(self, start=True):
@@ -137,7 +137,7 @@ class Worker:
         from multiprocessing import Process
         import os
 
-        logging.info("PYTHON: %s",sys.executable)
+        logging.debug("PYTHON: %s",sys.executable)
 
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
@@ -149,7 +149,7 @@ class Worker:
 
             from billiard.pool import Pool
 
-            logging.info("Processor beat: %s", self.processor.beat)
+            logging.debug("Processor beat: %s", self.processor.beat)
 
             queues = []
             engine = create_engine(self.dburi)
@@ -166,12 +166,12 @@ class Worker:
 
             @sio.on('queue', namespace='/tasks')
             def message(data):
-                logging.info(
+                logging.debug(
                     '\x1b[33;21m I received a message! %s\x1b[0m', data)
 
             @sio.on('connect', namespace='/tasks')
             def connect():
-                logging.info("I'm connected to namespace /tasks!")
+                logging.debug("I'm connected to namespace /tasks!")
 
                 sio.emit('servermsg', {
                     'module': self.processor.module}, namespace='/tasks')
@@ -179,13 +179,13 @@ class Worker:
                 sio.emit('join', {'room': 'pyfi.queue1.proc1'},
                          namespace='/tasks')
 
-            logging.info(
+            logging.debug(
                 "Attempting connect to events server {}".format(events_server))
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
-                    logging.info(
+                    logging.debug(
                         "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
@@ -196,7 +196,7 @@ class Worker:
 
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
-                    logging.info("Socket %s", socket)
+                    logging.debug("Socket %s", socket)
                     if socket.queue:
 
                         # TODO: Use socket.task.name as the task name and self.processor.module as the module
@@ -212,7 +212,7 @@ class Worker:
                         if processor_path not in queues:
                             queues += [processor_path]
                             room = {'room': processor_path}
-                            logging.info("Joining room %s", room)
+                            logging.debug("Joining room %s", room)
                             sio.emit('join', room, namespace='/tasks')
 
                         processor_task = socket.queue.name + '.' + self.processor.name.replace(
@@ -344,7 +344,7 @@ class Worker:
 
                     @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, **kwargs):
-                        logging.info("Task prerun")
+                        logging.debug("Task prerun")
                         task_kwargs = kwargs.get('kwargs')
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
@@ -363,7 +363,7 @@ class Worker:
 
                     @task_received.connect()
                     def pyfi_task_received(sender=None, **kwargs):
-                        logging.info("Task received")
+                        logging.debug("Task received")
                         pass
 
                     @task_postrun.connect()
@@ -375,7 +375,7 @@ class Worker:
                         plugs = task_kwargs['plugs']
                         try:
                             # while _queue.qsize() > 1000:
-                            #    logging.info("Waiting for queue to shrink")
+                            #    logging.debug("Waiting for queue to shrink")
                             #    time.sleep(0.5)
 
                             # Create MetricDataModel and save to database
@@ -395,12 +395,12 @@ class Worker:
                                     data['message'] = payload
                                     break
 
-                            logging.debug(data)
+                            logging.info(data)
 
                             result = kwargs.get('args')[0]
                             data['message'] = json.dumps(result)
                             data['message'] = json.dumps(data)
-                            logging.info(
+                            logging.debug(
                                 "EMITTING ROOMSG2: %s", data)
 
                             _queue.put(['servermsg', data])
@@ -409,7 +409,7 @@ class Worker:
                             _queue.put(
                                 ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                            logging.info("PLUGS: %s", plugs)
+                            logging.debug("PLUGS: %s", plugs)
                             for key in plugs:
                                 """
                                 Find plugs on this processor whose queue matches key
@@ -429,7 +429,7 @@ class Worker:
 
                                 for msg in plugs[key]:
                                     """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
-                                    logging.info(
+                                    logging.debug(
                                         "Sending {} to queue {}".format(msg, key))
 
                                     if processor_plug.queue.qtype == 'direct':
@@ -452,7 +452,7 @@ class Worker:
                                                     worker_queue = key+'.' + \
                                                         _processor.name.replace(
                                                             ' ', '.')+'.'+socket.task.name
-                                                    logging.info(
+                                                    logging.debug(
                                                         "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
@@ -463,14 +463,14 @@ class Worker:
 
             worker.start()
 
-        logging.info("Preparing worker %s %s %s %s %s", self.worker.name,
+        logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                      self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         os.chdir(self.workdir)
         import time
 
         if self.processor.gitrepo and not self.skipvenv:
-            logging.info("git clone -b {} --single-branch {} git".format(
+            logging.debug("git clone -b {} --single-branch {} git".format(
                 self.processor.branch, self.processor.gitrepo))
             shutil.rmtree("git", ignore_errors=True)
 
@@ -485,7 +485,7 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
-            logging.info("Building virtualenv...in %s", os.getcwd())
+            logging.debug("Building virtualenv...in %s", os.getcwd())
             from virtualenvapi.manage import VirtualEnvironment
             env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
             env.install('-e git+https://github.com/radiantone/pyfi-private#egg=pyfi')
@@ -509,13 +509,13 @@ class Worker:
 
             sio = socketio.Client()
 
-            logging.info(
+            logging.debug(
                 "Attempting connect to events server {}".format(events_server))
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
-                    logging.info(
+                    logging.debug(
                         "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
@@ -534,12 +534,12 @@ class Worker:
         process2 = Process(target=emit_messages)
         process2.daemon = True
 
-        logging.info("Starting emit_messages")
+        logging.debug("Starting emit_messages")
 
         if start:
             process2.start()
 
-        logging.info("Started worker process with pid[%s]", process.pid)
+        logging.debug("Started worker process with pid[%s]", process.pid)
         return process
 
     def busy(self):
@@ -568,7 +568,7 @@ class Worker:
         """
         Docstring
         """
-        logging.info("Terminating process %s", self.process.pid)
+        logging.debug("Terminating process %s", self.process.pid)
 
         process = psutil.Process(self.process.pid)
         for child in process.children(recursive=True):
@@ -578,7 +578,7 @@ class Worker:
         os.killpg(os.getpgid(process.pid), 15)
         os.kill(process.pid, signal.SIGKILL)
 
-        logging.info("Finishing.")
+        logging.debug("Finishing.")
         try:
             self.process.join()
         except:
@@ -588,4 +588,4 @@ class Worker:
             logging.debug("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
 
-        logging.info("Done killing worker.")
+        logging.debug("Done killing worker.")
