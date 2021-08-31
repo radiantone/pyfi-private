@@ -425,11 +425,16 @@ class Worker:
                                 if processor_plug is None:
                                     continue
 
+                                # Get all processors where processor_plug is plugged into a socket
                                 processors = self.database.session.query(
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
+                                processor_map = {}
+                                for p in processors:
+                                    processor_map[str(p.id)] = p
+
                                 msgs = [msg for msg in plugs[key]]
-                                logging.info("msgs %s",msgs)
+                                logging.info("msgs %s", msgs)
 
                                 for msg in msgs:
                                     """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
@@ -438,29 +443,23 @@ class Worker:
 
                                     if processor_plug.queue.qtype == 'direct':
                                         logging.info("Finding processor....")
-                                        _processor = None
-                                        for p in processors:
-                                            if p.id == processor_plug.processor_id:
-                                                _processor = p
-                                                break
-                                        logging.info("Found processor %s",_processor)
-                                        if _processor:
-                                            for socket in processor_plug.sockets:
-                                                logging.info("Checking socket[%s] vs key[%s]",socket.queue.name, key)
-                                                if socket.queue.name == key:
-                                                    """ Find the socket object for the outbound queue"""
-                                                    logging.info("Invoking {}=>{}({})".format(
-                                                        key,
-                                                        _processor.module+'.'+socket.task.name, msg))
+                                        for socket in processor_plug.sockets:
+                                            logging.info("Checking socket[%s] vs key[%s]",socket.queue.name, key)
+                                            _processor = processor_map[socket.processor_id]
+                                            if socket.queue.name == key:
+                                                """ Find the socket object for the outbound queue"""
+                                                logging.info("Invoking {}=>{}({})".format(
+                                                    key,
+                                                    _processor.module+'.'+socket.task.name, msg))
 
-                                                    # Target specific worker queue here
-                                                    worker_queue = key+'.' + \
-                                                        _processor.name.replace(
-                                                            ' ', '.')+'.'+socket.task.name
-                                                    logging.debug(
-                                                        "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
-                                                    self.celery.signature(
-                                                        _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                # Target specific worker queue here
+                                                worker_queue = key+'.' + \
+                                                    _processor.name.replace(
+                                                        ' ', '.')+'.'+socket.task.name
+                                                logging.debug(
+                                                    "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
+                                                self.celery.signature(
+                                                    _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
 
                                             # We sent the message, so remove it so it doesn't get re-sent on the next cycle
                                             # If there is an exception delivering the message above, this code will get skipped and the 

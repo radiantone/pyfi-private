@@ -17,7 +17,7 @@ do_this = Socket(name='proc1.socket2', processor=processor2, queue={
     'name': 'pyfi.queue2'}, task='do_this')
     
 plug = Plug(name='plug1', queue={
-    'name': 'pyfi.queue2'}, processor=processor2, socket=do_this)
+    'name': 'pyfi.queue2'}, processor=processor, socket=do_this)
 
 # Send a message to a socket
 do_something("Hello World !")
