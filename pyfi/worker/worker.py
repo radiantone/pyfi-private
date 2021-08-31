@@ -370,7 +370,7 @@ class Worker:
                     def pyfi_task_postrun(sender=None, **kwargs):
                         from datetime import datetime
 
-                        logging.debug("pyfi_task_postrun")
+                        logging.info("pyfi_task_postrun")
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:
@@ -409,7 +409,7 @@ class Worker:
                             _queue.put(
                                 ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                            logging.debug("PLUGS: %s", plugs)
+                            logging.info("PLUGS: %s", plugs)
                             for key in plugs:
                                 """
                                 Find plugs on this processor whose queue matches key
@@ -421,6 +421,7 @@ class Worker:
                                     if _plug.queue.name == key:
                                         processor_plug = _plug
 
+                                logging.info("processor_plug %s",processor_plug)
                                 if processor_plug is None:
                                     continue
 
@@ -428,6 +429,7 @@ class Worker:
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
                                 msgs = [msg for msg in plugs[key]]
+                                logging.info("msgs %s",msgs)
 
                                 for msg in msgs:
                                     """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
