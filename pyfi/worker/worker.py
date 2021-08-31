@@ -427,7 +427,9 @@ class Worker:
                                 processors = self.database.session.query(
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
-                                for msg in plugs[key]:
+                                msgs = [msg for msg in plugs[key]]
+
+                                for msg in msgs:
                                     """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
                                     logging.debug(
                                         "Sending {} to queue {}".format(msg, key))
@@ -456,6 +458,9 @@ class Worker:
                                                         "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                        
+                                            plugs[key].remove(msg)
+
                         except:
                             import traceback
                             logging.debug(traceback.format_exc())

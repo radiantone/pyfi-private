@@ -20,7 +20,7 @@ plug = Plug(name='plug1', queue={
 # Send a message to a socket
 do_something("Hello World !")
 
-do_this("Do this!!")
+#do_this("Do this!!")
 
 '''
 pyfi add plug -n plug1 -q pyfi.queue2 -pn proc1
