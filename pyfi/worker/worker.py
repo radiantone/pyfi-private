@@ -444,6 +444,9 @@ class Worker:
                                             for socket in processor_plug.sockets:
                                                 if socket.queue.name == key:
                                                     """ Find the socket object for the outbound queue"""
+                                                    logging.debug("Invoking {}=>{}".format(
+                                                        key,
+                                                        _processor.module))
                                                     logging.debug("Invoking {}=>{}({})".format(
                                                         key,
                                                         _processor.module+'.'+socket.task.name, msg))
