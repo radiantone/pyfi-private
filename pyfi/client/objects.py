@@ -59,6 +59,7 @@ class Socket(Base):
 
         task = self.session.query(
             TaskModel).filter_by(name=self.task).first()
+
         if task is None:
             task = TaskModel(name=self.task)
 
@@ -133,6 +134,27 @@ class Socket(Base):
         qname = self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
 
+
+class Plug(Base):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.name = kwargs['name']
+        self.queuename = kwargs['queue']['name']
+        self.processor = kwargs['processor']
+
+        self.queue = Queue(name=self.queuename)
+        self.session.add(self.processor.processor)
+
+        self.plug = self.session.query(
+            PlugModel).filter_by(name=self.name).first()
+
+        if not self.plug:
+            self.plug = PlugModel(name=self.name, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
+
+        self.session.add(self.plug)
+        self.processor.processor.plugs += [self.plug]
+        self.session.commit()
 
 class Sockets(Base):
     """

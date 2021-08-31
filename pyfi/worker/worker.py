@@ -126,7 +126,7 @@ class Worker:
         self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
                          "-n", name], preexec_fn=os.setsid)
 
-        logging.info("Worker launched successfully.")
+        logging.info("Worker launched successfully: process %s.", self.process.pid)
         return process
 
     def start(self, start=True):
@@ -162,7 +162,7 @@ class Worker:
 
             @sio.on('task', namespace='/tasks')
             def tmessage(message):
-                print("message: ", message)
+                print("task message: ", message)
 
             @sio.on('queue', namespace='/tasks')
             def message(data):
@@ -302,15 +302,19 @@ class Worker:
 
             # Find existing model first
             try:
-                workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
+                workerModel = self.database. session.query(
+                    WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
+
+                if workerModel is None:
+                    workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
                                         status='ready',
                                         backend=self.backend,
                                         broker=self.broker,
                                         hostname=hostname,
                                         requested_status='start')
 
-                self.database.session.add(workerModel)
-                self.database.session.commit()
+                    self.database.session.add(workerModel)
+                    self.database.session.commit()
             except:
                 pass
             if self.processor.beat:
@@ -397,7 +401,7 @@ class Worker:
                             data['message'] = json.dumps(result)
                             data['message'] = json.dumps(data)
                             logging.info(
-                                "EMITTING ROOMSG: %s", data)
+                                "EMITTING ROOMSG2: %s", data)
 
                             _queue.put(['servermsg', data])
                             _queue.put(['roomsg', data])
@@ -405,7 +409,7 @@ class Worker:
                             _queue.put(
                                 ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                            logging.debug("PLUGS: %s", plugs)
+                            logging.info("PLUGS: %s", plugs)
                             for key in plugs:
 
                                 processor_plug = None
@@ -547,15 +551,24 @@ class Worker:
         """
         Docstring
         """
-        logging.info("Terminating process")
-        os.kill(self.process.pid, signal.SIGKILL)
-        self.process.terminate()
+        logging.info("Terminating process %s", self.process.pid)
+
+        process = psutil.Process(self.process.pid)
+        for child in process.children(recursive=True):
+            child.kill()
+        process.kill()
+        process.terminate()
+        os.killpg(os.getpgid(process.pid), 15)
+        os.kill(process.pid, signal.SIGKILL)
+
         logging.info("Finishing.")
         try:
             self.process.join()
         except:
             pass
+
         if os.path.exists(self.workdir):
             logging.debug("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
-        logging.info("Done.")
+
+        logging.info("Done killing worker.")
