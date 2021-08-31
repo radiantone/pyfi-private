@@ -270,7 +270,7 @@ class Worker:
                         ]
 
                         task_routes[self.processor.module+'.'+socket.task.name] = {
-                            'queue': [socket.queue.name],
+                            'queue': socket.queue.name,
                             'exchange': [socket.queue.name+'.topic', socket.queue.name]
                         }
 
