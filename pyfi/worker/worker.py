@@ -457,8 +457,12 @@ class Worker:
                                                     _processor.name.replace(
                                                         ' ', '.')+'.'+socket.task.name
                                                 logging.info("worker queue %s",worker_queue)
-                                                self.celery.signature(
-                                                    _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                try:
+                                                    self.celery.signature(
+                                                        _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                except:
+                                                    import traceback
+                                                    print(traceback.format_exc())
                                                 logging.info(
                                                     "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
                                             # We sent the message, so remove it so it doesn't get re-sent on the next cycle
