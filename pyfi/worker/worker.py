@@ -162,7 +162,7 @@ class Worker:
 
             @sio.on('task', namespace='/tasks')
             def tmessage(message):
-                print("task message: ", message)
+                logging.debug("task message: ", message)
 
             @sio.on('queue', namespace='/tasks')
             def message(data):
@@ -329,7 +329,7 @@ class Worker:
             sys.path.append(os.getcwd())
 
             setattr(builtins, 'worker', worker)
-            print("CWD ", os.getcwd())
+            logging.debug("CWD ", os.getcwd())
             module = importlib.import_module(self.processor.module)
             _plugs = {}
             for plug in self.processor.plugs:
@@ -370,7 +370,7 @@ class Worker:
                     def pyfi_task_postrun(sender=None, **kwargs):
                         from datetime import datetime
 
-                        print("pyfi_task_postrun")
+                        logging.debug("pyfi_task_postrun")
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:
@@ -458,7 +458,7 @@ class Worker:
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
                             import traceback
-                            print(traceback.format_exc())
+                            logging.debug(traceback.format_exc())
                             pass
 
             worker.start()
@@ -525,7 +525,6 @@ class Worker:
             while True:
                 try:
                     message = queue.get()
-                    print("GOT MESSAGE FROM QUEUE",message)
                     sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
