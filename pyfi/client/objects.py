@@ -85,7 +85,7 @@ class Socket(Base):
             self.session.refresh(
                 self.socket)
 
-        self.key = self.queuename+self.socket.task.name
+        self.key = self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name
 
         try:
             self.database.session.add(self.queue.queue)
@@ -101,10 +101,8 @@ class Socket(Base):
         self.processor.sockets += self.socket
         self.session.commit()
 
-        self.aqueuename = self.queuename+'.' + \
-            self.processor.processor.name+'.'+self.socket.task.name
         self.queue = KQueue(
-            self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name,
+            self.key,
             Exchange(self.queuename, type='direct'),
             routing_key=self.key,
             expires=30,
@@ -133,7 +131,7 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
         print("called", self.processor.processor.module +
-              '.'+self.socket.task.name, args, self.aqueuename)
+              '.'+self.socket.task.name, args, self.key)
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
 
 

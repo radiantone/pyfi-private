@@ -452,10 +452,22 @@ class Worker:
                                                     key,
                                                     _processor.module+'.'+socket.task.name, msg))
 
+                                                tkey = key+'.' +_processor.name.replace(
+                                                    ' ', '.')+'.'+socket.task.name
                                                 # Target specific worker queue here
-                                                worker_queue = key+'.' + \
-                                                    _processor.name.replace(
-                                                        ' ', '.')+'.'+socket.task.name
+                                                worker_queue = KQueue(
+                                                    tkey,
+                                                    Exchange(
+                                                        key, type='direct'),
+                                                    routing_key=tkey,
+                                                    expires=30,
+                                                    # socket.queue.message_ttl
+                                                    # socket.queue.expires
+                                                    queue_arguments={
+                                                        'x-message-ttl': 30000,
+                                                        'x-expires': 30000}
+                                                )
+
                                                 logging.info("worker queue %s",worker_queue)
                                                 try:
                                                     self.celery.signature(
