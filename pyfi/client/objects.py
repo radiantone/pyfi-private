@@ -126,6 +126,7 @@ class Socket(Base):
         # socket.queue.message_ttl
         # socket.queue.expires
         kwargs['x-expires'] = 30000
+        self.session.add(self.processor.processor)
         self.session.add(self.socket)
         self.session.refresh(
             self.socket)
@@ -224,7 +225,7 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, queue=None, name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, queue=None, hostname=platform.node(), name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
 
         super().__init__()
 
@@ -246,7 +247,7 @@ class Processor(Base):
             # Create it
             print("Creating processor")
             self.processor = ProcessorModel(
-                status='ready', hostname=platform.node(), retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
+                status='ready', hostname=hostname, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
 
         self.sockets = Sockets(self.database, self.processor)
 

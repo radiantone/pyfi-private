@@ -435,15 +435,16 @@ class Worker:
                                         "Sending {} to queue {}".format(msg, key))
 
                                     if processor_plug.queue.qtype == 'direct':
-
+                                        logging.info("Finding processor....")
                                         _processor = None
                                         for p in processors:
                                             if p.id == processor_plug.processor_id:
                                                 _processor = p
                                                 break
-                                        
+                                        logging.info("Found processor %s",_processor)
                                         if _processor:
                                             for socket in processor_plug.sockets:
+                                                logging.info("Checking socket[%s] vs key[%s]",socket.queue.name, key)
                                                 if socket.queue.name == key:
                                                     """ Find the socket object for the outbound queue"""
                                                     logging.info("Invoking {}=>{}({})".format(
@@ -458,7 +459,10 @@ class Worker:
                                                         "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
-                                                        
+
+                                            # We sent the message, so remove it so it doesn't get re-sent on the next cycle
+                                            # If there is an exception delivering the message above, this code will get skipped and the 
+                                            # cycle will retry this message
                                             plugs[key].remove(msg)
 
                         except:

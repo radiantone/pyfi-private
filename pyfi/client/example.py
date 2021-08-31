@@ -2,8 +2,10 @@ from pyfi.client.api import Processor, Socket, Plug
 
 # Create a processor
 processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',
-                      gitrepo='https://github.com/radiantone/pyfi-processors')
+                      gitrepo='https://github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
+processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='radiant', branch='main',
+                      gitrepo='https://github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 
 # Create a socket for that processor
@@ -11,11 +13,11 @@ do_something = Socket(name='proc1.socket1', processor=processor, queue={
                 'name': 'pyfi.queue1'}, task='do_something')
 
 
-do_this = Socket(name='proc1.socket2', processor=processor, queue={
+do_this = Socket(name='proc1.socket2', processor=processor2, queue={
     'name': 'pyfi.queue2'}, task='do_this')
     
 plug = Plug(name='plug1', queue={
-    'name': 'pyfi.queue2'}, processor=processor, socket=do_this)
+    'name': 'pyfi.queue2'}, processor=processor2, socket=do_this)
 
 # Send a message to a socket
 do_something("Hello World !")
