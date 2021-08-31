@@ -141,10 +141,12 @@ class Plug(Base):
         super().__init__()
         self.name = kwargs['name']
         self.queuename = kwargs['queue']['name']
+        self.socket = kwargs['socket']
         self.processor = kwargs['processor']
 
         self.queue = Queue(name=self.queuename)
         self.session.add(self.processor.processor)
+        self.session.add(self.socket.socket)
 
         self.plug = self.session.query(
             PlugModel).filter_by(name=self.name).first()

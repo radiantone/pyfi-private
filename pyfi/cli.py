@@ -271,6 +271,19 @@ def db_drop(context, confirm=False):
     except Exception as ex:
         logging.error(ex)
 
+@db.command(name='json')
+@click.pass_context
+def db_json(context):
+    import json
+
+    """ Returns the entire content of a database as lists of dicts"""
+    engine = context.obj['database']
+    meta = MetaData()
+    meta.reflect(bind=engine)  # http://docs.sqlalchemy.org/en/rel_0_9/core/reflection.html
+    result = {}
+    for table in meta.sorted_tables:
+        result[table.name] = [dict(row) for row in engine.execute(table.select())]
+    print(json.dumps(result, indent=4, default=str))
 
 @db.command(name='init')
 @click.pass_context

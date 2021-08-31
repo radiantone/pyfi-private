@@ -272,6 +272,7 @@ class ProcessorModel(BaseModel):
 
     plugs = relationship('PlugModel', backref='processor',
                          lazy=True, cascade="all, delete-orphan")
+
     sockets = relationship('SocketModel', backref='processor',
                            lazy=True, cascade="all, delete-orphan")
 
@@ -343,6 +344,13 @@ sockets_queues = Table('sockets_queues', Base.metadata,
                        Column('queue_id', ForeignKey('queue.id'))
                        )
 
+plugs_sockets = Table('plugs_sockets', Base.metadata,
+                      Column('plug_id', ForeignKey(
+                          'plug.id'), primary_key=True),
+                      Column('socket_id', ForeignKey(
+                          'socket.id'), primary_key=True)
+                      )
+
 class SocketModel(BaseModel):
     """
     Docstring
@@ -357,6 +365,9 @@ class SocketModel(BaseModel):
     task = relationship("TaskModel", back_populates="sockets", single_parent=True,
                         cascade="delete, delete-orphan")
 
+    plugs = relationship("PlugModel", back_populates="sockets",
+                         secondary=plugs_sockets)
+
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
 
@@ -369,7 +380,6 @@ plugs_queues = Table('plugs_queues', Base.metadata,
                      Column('queue_id', ForeignKey('queue.id'))
                      )
 
-
 class PlugModel(BaseModel):
     """
     Docstring
@@ -377,8 +387,12 @@ class PlugModel(BaseModel):
     __tablename__ = 'plug'
     requested_status = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
+
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
+
+    sockets = relationship("SocketModel", back_populates="plugs",
+                         secondary=plugs_sockets)
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)
 
