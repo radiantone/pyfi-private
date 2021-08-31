@@ -101,6 +101,8 @@ class Socket(Base):
         self.processor.sockets += self.socket
         self.session.commit()
 
+        self.aqueuename = self.queuename+'.' + \
+            self.processor.processor.name+'.'+self.socket.task.name
         self.queue = KQueue(
             self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name,
             Exchange(self.queuename, type='direct'),
@@ -131,8 +133,7 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
         print("called", self.processor.processor.module +
-              '.'+self.socket.task.name, args, self.queuename)
-        qname = self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name
+              '.'+self.socket.task.name, args, self.aqueuename)
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
 
 
