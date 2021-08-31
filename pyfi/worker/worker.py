@@ -411,7 +411,10 @@ class Worker:
 
                             logging.info("PLUGS: %s", plugs)
                             for key in plugs:
-
+                                """
+                                Find plugs on this processor whose queue matches key
+                                and then invoke the task for plug.socket.task
+                                """
                                 processor_plug = None
 
                                 for _plug in self.processor.plugs:
@@ -432,14 +435,15 @@ class Worker:
                                         for processor in processors:
 
                                             logging.debug("Invoking {}=>{}({})".format(
-                                                key, processor.module, msg))
+                                                key,
+                                                processor.module+'.'+processor_plug.socket.task.name, msg))
 
                                             # Target specific worker queue here
                                             worker_queue = key+'.' + \
                                                 processor.name.replace(
                                                     ' ', '.')
                                             self.celery.signature(
-                                                processor.module+'.'+processor.task, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                processor.module+'.'+processor_plug.socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
                             import traceback
                             print(traceback.format_exc())
