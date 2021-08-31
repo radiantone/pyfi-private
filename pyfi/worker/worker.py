@@ -451,7 +451,7 @@ class Worker:
                                                     # Target specific worker queue here
                                                     worker_queue = _processor.module+'.'+socket.task.name
                                                     logging.info(
-                                                        "%s(%s)", _processor.module+'.'+socket.task.name, msg)
+                                                        "%s(%s) on queue %s", _processor.module+'.'+socket.task.name, msg, worker_queue)
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
