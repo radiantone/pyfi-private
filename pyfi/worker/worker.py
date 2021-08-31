@@ -428,22 +428,32 @@ class Worker:
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
                                 for msg in plugs[key]:
+                                    """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
                                     logging.info(
                                         "Sending {} to queue {}".format(msg, key))
 
                                     if processor_plug.queue.qtype == 'direct':
-                                        for processor in processors:
 
-                                            logging.debug("Invoking {}=>{}({})".format(
-                                                key,
-                                                processor.module+'.'+processor_plug.socket.task.name, msg))
+                                        _processor = None
+                                        for p in processors:
+                                            if p.id == processor_plug.processor_id:
+                                                _processor = p
+                                                break
+                                        
+                                        if _processor:
+                                            for socket in processor_plug.sockets:
+                                                if socket.queue.name == key:
+                                                    """ Find the socket object for the outbound queue"""
+                                                    logging.debug("Invoking {}=>{}({})".format(
+                                                        key,
+                                                        _processor.module+'.'+processor_plug.socket.task.name, msg))
 
-                                            # Target specific worker queue here
-                                            worker_queue = key+'.' + \
-                                                processor.name.replace(
-                                                    ' ', '.')
-                                            self.celery.signature(
-                                                processor.module+'.'+processor_plug.socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                    # Target specific worker queue here
+                                                    worker_queue = key+'.' + \
+                                                        _processor.name.replace(
+                                                            ' ', '.')
+                                                    self.celery.signature(
+                                                        _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
                             import traceback
                             print(traceback.format_exc())

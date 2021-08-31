@@ -154,6 +154,8 @@ class Plug(Base):
         if not self.plug:
             self.plug = PlugModel(name=self.name, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
+        self.plug.sockets += [self.socket.socket]
+        self.session.add(self.socket.socket)
         self.session.add(self.plug)
         self.processor.processor.plugs += [self.plug]
         self.session.commit()

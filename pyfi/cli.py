@@ -271,7 +271,7 @@ def db_drop(context, confirm=False):
     except Exception as ex:
         logging.error(ex)
 
-@db.command(name='json')
+@db.command(name='json', help="Dump the database to JSON")
 @click.pass_context
 def db_json(context):
     import json
@@ -754,11 +754,11 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     print(processor)
 
 
-@add.command()
+@add.command(name='privilege')
 @click.option('-u', '--user', prompt=True, default=None, required=True)
 @click.option('-n', '--name', prompt=True, default=None, required=True)
 @click.pass_context
-def privilege(context, user, name):
+def add_privilege(context, user, name):
     """
     Add privilege to the database
     """
@@ -782,12 +782,12 @@ def privilege(context, user, name):
         print("Error: Database constraint violation")
 
 
-@add.command()
+@add.command(name='user')
 @click.option('-n', '--name', prompt=True, default=None, required=True)
 @click.option('-e', '--email', prompt=True, default=None, required=True)
 @click.option('-p', '--password', prompt=True, default=None, required=True)
 @click.pass_context
-def user(context, name, email, password):
+def ls_user(context, name, email, password):
     """
     Add user object to the database
     """
@@ -985,14 +985,23 @@ def update_plug(context, name, queue, procid, procname):
 @add.command(name='plug')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
+@click.option('-si', '--socketid', default=None, required=False, help="Socket id")
+@click.option('-sn', '--socketname', default=None, required=False, help="Socket name")
 @click.option('-pi', '--procid', default=None, required=False, help="Processor id")
 @click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.pass_context
-def add_plug(context, name, queue, procid, procname):
+def add_plug(context, name, queue, socketid, socketname, procid, procname):
     """
     Add plug to a processor
     """
     id = context.obj['id']
+
+    if socketname is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(name=socketname).first()
+    elif socketid is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(id=socketid).first()
 
     if procname is not None:
         processor = context.obj['database'].session.query(
@@ -1005,9 +1014,11 @@ def add_plug(context, name, queue, procid, procname):
         QueueModel).filter_by(name=queue).first()
     plug = PlugModel(name=name, id=id, requested_status='create',
                      status='ready', processor_id=procid)
+    plug.socket = socket
     plug.queue = queue
     plug.updated = datetime.now()
     processor.plugs += [plug]
+
     context.obj['database'].session.add(plug)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
@@ -1106,9 +1117,9 @@ def start_worker(context, name, pool, skip_venv):
     context.obj['database'].session.commit()
     wprocess.join()
 
-@ls.command()
+@ls.command(name='schedulers')
 @click.pass_context
-def schedulers(context):
+def ls_schedulers(context):
     """
     List queues
     """
@@ -1124,9 +1135,9 @@ def schedulers(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='nodes')
 @click.pass_context
-def nodes(context):
+def ls_nodes(context):
     """
     List queues
     """
@@ -1142,9 +1153,9 @@ def nodes(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='queues')
 @click.pass_context
-def queues(context):
+def ls_queues(context):
     """
     List queues
     """
@@ -1161,9 +1172,9 @@ def queues(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='users')
 @click.pass_context
-def users(context):
+def ls_users(context):
     """
     List users
     """
@@ -1205,9 +1216,9 @@ def ls_user(context, name):
     print(x)
 
 
-@ls.command()
+@ls.command(name='workers')
 @click.pass_context
-def workers(context):
+def ls_workers(context):
     """
     List workers
     """
@@ -1226,13 +1237,13 @@ def workers(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='processors')
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
 @click.option('-m', '--module', is_flag=True, default=False)
 @click.option('-t', '--task', is_flag=True, default=False)
 @click.option('-o', '--owner', is_flag=True, default=False)
 @click.pass_context
-def processors(context, gitrepo, module, task, owner):
+def ls_processors(context, gitrepo, module, task, owner):
     """
     List processors
     """
@@ -1272,9 +1283,9 @@ def processors(context, gitrepo, module, task, owner):
     print(x)
 
 
-@ls.command()
+@ls.command(name='tasks')
 @click.pass_context
-def tasks(context):
+def ls_tasks(context):
     """
     List agents
     """
@@ -1290,9 +1301,9 @@ def tasks(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='agents')
 @click.pass_context
-def agents(context):
+def ls_agents(context):
     """
     List agents
     """
@@ -1310,9 +1321,9 @@ def agents(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='sockets')
 @click.pass_context
-def sockets(context):
+def ls_sockets(context):
     """
     List sockets
     """
@@ -1330,9 +1341,31 @@ def sockets(context):
     print(x)
 
 
-@ls.command()
+@ls.command(name='plug')
+@click.option('-n', '--name', default=None, required=True, help="Name of processor")
 @click.pass_context
-def plugs(context):
+def ls_plug(context, name):
+    """
+    List an individual plug
+    """
+    x = PrettyTable()
+
+    plug = context.obj['database'].session.query(
+        PlugModel).filter_by(name=name).first()
+
+    names = ["Name", "ID", "Owner", "Last Updated",
+             "Status", "Task", "Queue"]
+    x.field_names = names
+
+    for node in plug.sockets:
+        x.add_row([node.name, node.id, node.owner, node.lastupdated,
+                  node.status, node.task.name, node.queue.name])
+
+    print(x)
+
+@ls.command(name='plugs')
+@click.pass_context
+def ls_plugs(context):
     """
     List agents
     """
