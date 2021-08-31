@@ -446,7 +446,7 @@ class Worker:
                                                     """ Find the socket object for the outbound queue"""
                                                     logging.debug("Invoking {}=>{}({})".format(
                                                         key,
-                                                        _processor.module+'.'+processor_plug.socket.task.name, msg))
+                                                        _processor.module+'.'+socket.task.name, msg))
 
                                                     # Target specific worker queue here
                                                     worker_queue = key+'.' + \
