@@ -431,10 +431,8 @@ class Worker:
                                     if processor_plug.queue.qtype == 'direct':
                                         for processor in processors:
 
-                                            self.database.session.refresh(
-                                                processor)
                                             logging.debug("Invoking {}=>{}.{}({})".format(
-                                                key, processor.module, processor.task, msg))
+                                                key, processor.module, msg))
 
                                             # Target specific worker queue here
                                             worker_queue = key+'.' + \
