@@ -453,7 +453,7 @@ class Worker:
                                                         _processor.name.replace(
                                                             ' ', '.')+'.'+socket.task.name
                                                     logging.info(
-                                                        "%s(%s) on %s", _processor.module+'.'+socket.task.name, msg, worker_queue)
+                                                        "%s(%s) on %s(%s)", _processor.module+'.'+socket.task.name, msg, worker_queue, type(worker_queue))
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                         except:
