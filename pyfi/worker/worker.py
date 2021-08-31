@@ -431,7 +431,7 @@ class Worker:
                                     if processor_plug.queue.qtype == 'direct':
                                         for processor in processors:
 
-                                            logging.debug("Invoking {}=>{}.{}({})".format(
+                                            logging.debug("Invoking {}=>{}({})".format(
                                                 key, processor.module, msg))
 
                                             # Target specific worker queue here
