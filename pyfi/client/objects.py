@@ -51,29 +51,43 @@ class Socket(Base):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
+        
+        backend = CONFIG.get('backend', 'uri')
+        broker = CONFIG.get('broker', 'uri')
+        self.app = Celery(backend=backend, broker=broker)
+        
+        self.processor = None
 
         self.name = kwargs['name']
-        self.queuename = kwargs['queue']['name']
-        self.processor = kwargs['processor']
-        self.task = kwargs['task']
 
-        task = self.session.query(
-            TaskModel).filter_by(name=self.task).first()
+        if 'queue' in kwargs:
+            self.queuename = ['name']
+            # pass in x-expires, message-ttl
+            self.queue = Queue(**kwargs['queue'])
 
-        if task is None:
-            task = TaskModel(name=self.task)
+        if 'processor' in kwargs:
+            self.processor = kwargs['processor']
+            self.session.add(self.processor.processor)
+
+        if 'task' in kwargs:
+            self.task = kwargs['task']
+
+            task = self.session.query(
+                TaskModel).filter_by(name=self.task).first()
+
+            if task is None:
+                task = TaskModel(name=self.task)
+
+            self.session.add(task)
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
 
-        self.queue = Queue(name=self.queuename)
-
-        self.session.add(self.processor.processor)
-
         if self.socket is not None:
+            print("SOCKET ",self.socket)
             self.session.add(self.socket)
-            self.session.add(task)
-            self.socket.task = task
+            if self.socket.task is None:
+                self.socket.task = task
         else:
             self.socket = SocketModel(name=self.name, processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
@@ -85,7 +99,11 @@ class Socket(Base):
             self.session.refresh(
                 self.socket)
 
-        self.key = self.queuename+'.'+self.processor.processor.name+'.'+self.socket.task.name
+        if self.processor is None:
+            self.processor = Processor(id=self.socket.processor_id)
+
+        print(self.socket.queue.name,self.processor.name, self.socket.task.name)
+        self.key = self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
 
         try:
             self.database.session.add(self.queue.queue)
@@ -98,12 +116,12 @@ class Socket(Base):
             self.session.add(self.queue.queue)
             self.session.add(self.socket)
 
-        self.processor.sockets += self.socket
+        self.processor.sockets += [self.socket]
         self.session.commit()
 
         self.queue = KQueue(
             self.key,
-            Exchange(self.queuename, type='direct'),
+            Exchange(self.socket.queue.name, type='direct'),
             routing_key=self.key,
             message_ttl=self.socket.queue.message_ttl,
             durable=self.socket.queue.durable,
@@ -115,10 +133,10 @@ class Socket(Base):
                 'x-expires': 300}
         )
 
-        self.processor.app.conf.task_routes = {
+        self.app.conf.task_routes = {
             self.key: {
                 'queue': self.queue,
-                'exchange': self.queuename
+                'exchange': self.socket.queue.name
             }
         }
 
@@ -225,7 +243,7 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=platform.node(), name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=platform.node(),id=None, name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
 
         super().__init__()
 
@@ -236,10 +254,16 @@ class Processor(Base):
         the queue object to create the kombu Queue() class so it matches
         '''
 
-        self.name = name
 
-        self.processor = self.session.query(
-            ProcessorModel).filter_by(name=name).first()
+        if id is not None:
+            self.id = id
+            self.processor = self.session.query(
+                ProcessorModel).filter_by(id=id).first()
+            self.name = self.processor.name
+        else:
+            self.name = name
+            self.processor = self.session.query(
+                ProcessorModel).filter_by(name=name).first()
         # Collection for socket relations
 
         if self.processor is None:

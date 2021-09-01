@@ -514,7 +514,7 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
-            logging.debug("Building virtualenv...in %s", os.getcwd())
+            logging.info("Building virtualenv...in %s", os.getcwd())
             from virtualenvapi.manage import VirtualEnvironment
             env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
             env.install('-e git+https://github.com/radiantone/pyfi-private#egg=pyfi')
