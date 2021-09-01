@@ -85,9 +85,8 @@ class Socket(Base):
             SocketModel).filter_by(name=self.name).first()
 
         if self.socket is not None:
-            self.socket.queue = self.queue.queue
-            print(self.socket.queue)
-            print("SOCKET ",self.socket)
+            if self.socket.queue is None and self.queue is not None:
+                self.socket.queue = self.queue.queue
             self.session.add(self.socket)
             if self.socket.task is None:
                 self.socket.task = self.task

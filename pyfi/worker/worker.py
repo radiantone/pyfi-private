@@ -503,34 +503,39 @@ class Worker:
         if self.processor.gitrepo and not self.skipvenv:
             logging.debug("git clone -b {} --single-branch {} git".format(
                 self.processor.branch, self.processor.gitrepo))
-            shutil.rmtree("git", ignore_errors=True)
 
-            while True:
+            if os.path.exists("git"):
+                os.chdir('git')
+                os.system('git pull')
+            else:
+                shutil.rmtree("git", ignore_errors=True)
+
+                while True:
+                    try:
+                        logging.info("git clone -b {} --single-branch {} git".format(
+                            self.processor.branch, self.processor.gitrepo.split('#')[0]))
+                        os.system(
+                            "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
+                        sys.path.append(self.workdir+'/git')
+                        os.chdir('git')
+                        os.system("git config credential.helper store")
+                        break
+                    except Exception as ex:
+                        logging.error(ex)
+                        time.sleep(3)
+
+                logging.info("Building virtualenv...in %s", os.getcwd())
+                from virtualenvapi.manage import VirtualEnvironment
+                env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
+                
+                login = os.environ['GIT_LOGIN']
+                env.install('-e git+'+login+'/radiantone/pyfi-private#egg=pyfi')
+
                 try:
-                    logging.info("git clone -b {} --single-branch {} git".format(
-                        self.processor.branch, self.processor.gitrepo.split('#')[0]))
-                    os.system(
-                        "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
-                    sys.path.append(self.workdir+'/git')
-                    os.chdir('git')
-                    os.system("git config credential.helper store")
-                    break
-                except Exception as ex:
-                    logging.error(ex)
-                    time.sleep(3)
-
-            logging.info("Building virtualenv...in %s", os.getcwd())
-            from virtualenvapi.manage import VirtualEnvironment
-            env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
-            
-            login = os.environ['GIT_LOGIN']
-            env.install('-e git+'+login+'/radiantone/pyfi-private#egg=pyfi')
-
-            try:
-                env.install('-e git+'+self.processor.gitrepo.strip())
-            except:
-                logging.error("Could not install %s",
-                              self.processor.gitrepo.strip())
+                    env.install('-e git+'+self.processor.gitrepo.strip())
+                except:
+                    logging.error("Could not install %s",
+                                self.processor.gitrepo.strip())
             
         process = Process(target=worker_proc, args=(self.celery, queue))
         process.app = self.celery
