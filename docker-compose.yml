@@ -143,16 +143,11 @@ services:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
     environment:
       - RABBITMQ_ERLANG_COOKIE=cluster_cookie
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin 
     ports:
       - 5671:5671
       - 5672:5672
       - 15672:15672
       - 4369:4369
-    networks:
-      - cluster-network
-
 
   rabbitmq2:
     container_name: rabbitmq2
@@ -164,13 +159,9 @@ services:
       - rabbitmq
     environment:
       - RABBITMQ_ERLANG_COOKIE=cluster_cookie
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin 
     ports:
       - "5673:5672"
       - "15673:15672"
-    networks:
-      - cluster-network
 
   postgres:
     container_name: postgres
@@ -212,8 +203,3 @@ services:
 
 volumes:
   pgdata:
-
-
-networks:
- cluster-network:
-  driver: bridge
