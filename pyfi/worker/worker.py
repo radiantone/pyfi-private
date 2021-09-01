@@ -246,7 +246,7 @@ class Worker:
                                 # socket.queue.expires
                                 queue_arguments={
                                     'x-message-ttl': 30000,
-                                    'x-expires': 30}
+                                    'x-expires': 30000}
                             )
                         ]
 
@@ -265,7 +265,7 @@ class Worker:
                                 expires=socket.queue.expires,
                                 queue_arguments={
                                     'x-message-ttl': 30000,
-                                    'x-expires': 30}
+                                    'x-expires': 30000}
                             )
                         ]
 

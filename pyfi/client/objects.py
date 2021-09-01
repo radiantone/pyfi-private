@@ -263,7 +263,7 @@ class Processor(Base):
                 self.app.conf.task_queues = (
                     Broadcast(queue, queue_arguments={
                         'x-message-ttl': 3000,
-                        'x-expires': 30}),)
+                        'x-expires': 30000}),)
 
             else:
                 # Use peristent queue object from database to populate
@@ -275,7 +275,7 @@ class Processor(Base):
                     expires=30000,
                     queue_arguments={
                         'x-message-ttl': 30000,
-                        'x-expires': 30}
+                        'x-expires': 30000}
                 )
 
             self.app.conf.task_routes = {
