@@ -192,7 +192,6 @@ class Worker:
             task_queues = []
             task_routes = {}
 
-            logging.info("Setting up queues...")
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 logging.info("Setting up sockets...")
                 for socket in self.processor.sockets:
