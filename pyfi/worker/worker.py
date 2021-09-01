@@ -507,6 +507,8 @@ class Worker:
 
             while True:
                 try:
+                    logging.info("git clone -b {} --single-branch {} git".format(
+                        self.processor.branch, self.processor.gitrepo.split('#')[0]))
                     os.system(
                         "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
                     sys.path.append(self.workdir+'/git')
