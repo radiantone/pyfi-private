@@ -105,13 +105,13 @@ class Socket(Base):
             self.key,
             Exchange(self.queuename, type='direct'),
             routing_key=self.key,
-            expires=30000,
+            expires=30,
 
             # socket.queue.message_ttl
             # socket.queue.expires
             queue_arguments={
                 'x-message-ttl': 30000,
-                'x-expires': 30000}
+                'x-expires': 300}
         )
 
         self.processor.app.conf.task_routes = {
@@ -125,7 +125,7 @@ class Socket(Base):
 
         # socket.queue.message_ttl
         # socket.queue.expires
-        kwargs['x-expires'] = 30000
+        kwargs['x-expires'] = 300
         self.session.add(self.processor.processor)
         self.session.add(self.socket)
         self.session.refresh(
@@ -263,7 +263,7 @@ class Processor(Base):
                 self.app.conf.task_queues = (
                     Broadcast(queue, queue_arguments={
                         'x-message-ttl': 3000,
-                        'x-expires': 30000}),)
+                        'x-expires': 300}),)
 
             else:
                 # Use peristent queue object from database to populate
@@ -272,10 +272,10 @@ class Processor(Base):
                     queue,
                     Exchange(queue, type='direct'),
                     routing_key=name,
-                    expires=30000,
+                    expires=30,
                     queue_arguments={
                         'x-message-ttl': 30000,
-                        'x-expires': 30000}
+                        'x-expires': 300}
                 )
 
             self.app.conf.task_routes = {

@@ -246,7 +246,7 @@ class Worker:
                                 # socket.queue.expires
                                 queue_arguments={
                                     'x-message-ttl': 30000,
-                                    'x-expires': 30000}
+                                    'x-expires': 300}
                             )
                         ]
 
@@ -265,7 +265,7 @@ class Worker:
                                 expires=socket.queue.expires,
                                 queue_arguments={
                                     'x-message-ttl': 30000,
-                                    'x-expires': 30000}
+                                    'x-expires': 300}
                             )
                         ]
 
@@ -460,12 +460,12 @@ class Worker:
                                                     Exchange(
                                                         key, type='direct'),
                                                     routing_key=tkey,
-                                                    expires=30000,
+                                                    expires=30,
                                                     # socket.queue.message_ttl
                                                     # socket.queue.expires
                                                     queue_arguments={
                                                         'x-message-ttl': 30000,
-                                                        'x-expires': 30000}
+                                                        'x-expires': 300}
                                                 )
 
                                                 logging.info("worker queue %s",worker_queue)
