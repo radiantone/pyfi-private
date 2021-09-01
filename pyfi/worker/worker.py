@@ -506,6 +506,7 @@ class Worker:
 
             if os.path.exists("git"):
                 os.chdir('git')
+                os.system('git config pull.rebase false')
                 os.system('git pull')
             else:
                 shutil.rmtree("git", ignore_errors=True)
