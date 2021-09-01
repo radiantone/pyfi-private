@@ -105,7 +105,7 @@ class Socket(Base):
             self.key,
             Exchange(self.queuename, type='direct'),
             routing_key=self.key,
-            expires=30,
+            expires=30000,
 
             # socket.queue.message_ttl
             # socket.queue.expires
@@ -272,7 +272,7 @@ class Processor(Base):
                     queue,
                     Exchange(queue, type='direct'),
                     routing_key=name,
-                    expires=30,
+                    expires=30000,
                     queue_arguments={
                         'x-message-ttl': 30000,
                         'x-expires': 30}

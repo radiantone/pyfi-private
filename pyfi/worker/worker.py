@@ -460,7 +460,7 @@ class Worker:
                                                     Exchange(
                                                         key, type='direct'),
                                                     routing_key=tkey,
-                                                    expires=30,
+                                                    expires=30000,
                                                     # socket.queue.message_ttl
                                                     # socket.queue.expires
                                                     queue_arguments={
