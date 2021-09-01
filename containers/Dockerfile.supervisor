@@ -17,7 +17,7 @@ ADD scripts/supervisor.sh /opt/pyfi/supervisor.sh
 ADD conf/supervisord-agent.conf /opt/pyfi/supervisord.conf
 ADD conf/pyfi.ini /opt/pyfi/pyfi.ini
 ADD conf/pyfi.ini /root/pyfi.ini
-ADD conf/git-credentials /root/.git-credentials
+#ADD conf/git-credentials /root/.git-credentials
 WORKDIR /opt/pyfi
 RUN pip3 install virtualenv
 

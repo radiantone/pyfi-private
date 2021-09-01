@@ -53,6 +53,8 @@ services:
     container_name: agent1
     hostname: agent1
     image: supervisor:latest
+    volumes: 
+      - ./conf/git-credentials:/root/.git-credentials
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
@@ -139,11 +141,36 @@ services:
     restart: always
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin 
     ports:
       - 5671:5671
       - 5672:5672
       - 15672:15672
       - 4369:4369
+    networks:
+      - cluster-network
+
+
+  rabbitmq2:
+    container_name: rabbitmq2
+    hostname: rabbitmq2
+    image: rabbitmq:3.8-management
+    volumes: 
+      - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    links:
+      - rabbitmq
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin 
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    networks:
+      - cluster-network
 
   postgres:
     container_name: postgres
@@ -185,3 +212,8 @@ services:
 
 volumes:
   pgdata:
+
+
+networks:
+ cluster-network:
+  driver: bridge
