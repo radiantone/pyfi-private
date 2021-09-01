@@ -1,3 +1,20 @@
+Pyfi provides a set of interacting compute layers that control the location and execution of managed code assets.
+With PYFI, code modules and functions can be loaded in multiple locations and invoked from clients without knowledge of where or how those functions are called.
+Redundant code (processors) loaded into a PYFI network will be able to respond to higher volume of data and requests and thus can scale at will.
+
+Functional tasks (processors hosting code) are fronted by durable queues that deliver reliable invocations when those functions are present on the network, regardless of their exact location.
+This allows the system to be resilient to hardware or network changes, as well as influence by schedulers that might change the location of functions (processors) to re-balance the resources across the network.
+
+All of this underlying management, hardware arriving and departing, services starting and stopping, processors moving from one host to another (or failing), is completely invisibile to the applications and clients using the system.
+To them, function calls will always, eventually be executed, if not immediately, in the near future when compute resources allow it.
+
+
+
+
+
+----
+
+
 Agent spawns sub processes that invoke `pyfi worker start -n workername` inside a virtualenv where the gitrepo code is loaded and installed.
 Thus, the worker runs inside it's own virtualenv. If the gitrepo is updated, the agent can restart the processor which will load a new environment
 
