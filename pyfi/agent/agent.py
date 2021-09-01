@@ -348,13 +348,19 @@ class Agent:
                                 """ If there is no worker model, create one and link to Processor """
 
                                 # TODO: Not sure this is needed since worker now puts worker model row in database
-                                workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
+                                workerModel = self.database.session.query(
+                                    WorkerModel).filter_by(name=hostname+".agent."+processor['processor'].name+'.worker').first()
+
+                                if workerModel is None:
+                                    workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
                                                           status='ready',
                                                           backend=self.backend,
                                                           broker=self.broker,
                                                           hostname=hostname,
                                                           requested_status='start')
 
+                                workerModel.lastupdated = datetime.now()
+                                workerModel.status = 'running'
                                 self.database.session.add(workerModel)
                                 self.database.session.commit()
                                 logging.info(
