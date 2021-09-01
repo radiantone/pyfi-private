@@ -522,7 +522,10 @@ class Worker:
             logging.info("Building virtualenv...in %s", os.getcwd())
             from virtualenvapi.manage import VirtualEnvironment
             env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
-            env.install('-e git+https://github.com/radiantone/pyfi-private#egg=pyfi')
+            
+            login = os.environ['GIT_LOGIN']
+            env.install('-e git+'+login+'/radiantone/pyfi-private#egg=pyfi')
+
             try:
                 env.install('-e git+'+self.processor.gitrepo.strip())
             except:
