@@ -288,6 +288,8 @@ class Worker:
             app.conf.task_queues = task_queues
             app.conf.task_routes = task_routes
 
+            logging.info("Starting celery worker %s %s %s",
+                         self.processor.name+'@'+hostname,self.backend,self.broker)
             worker = app.Worker(
                 hostname=self.processor.name+'@'+hostname,
                 backend=self.backend,
