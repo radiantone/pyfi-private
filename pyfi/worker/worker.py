@@ -162,7 +162,7 @@ class Worker:
 
             @sio.on('task', namespace='/tasks')
             def tmessage(message):
-                logging.debug("task message: ", message)
+                logging.debug("task message: %s", message)
 
             @sio.on('queue', namespace='/tasks')
             def message(data):
@@ -176,11 +176,9 @@ class Worker:
                 sio.emit('servermsg', {
                     'module': self.processor.module}, namespace='/tasks')
 
-                sio.emit('join', {'room': 'pyfi.queue1.proc1'},
-                         namespace='/tasks')
-
             logging.debug(
                 "Attempting connect to events server {}".format(events_server))
+
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
@@ -208,6 +206,9 @@ class Worker:
                         # this queue will deliver to this processor only
                         processor_path = socket.queue.name + '.' + \
                             self.processor.name.replace(' ', '.')
+
+                        sio.emit('join', {'room': processor_path},
+                                                namespace='/tasks')
 
                         if processor_path not in queues:
                             queues += [processor_path]
@@ -554,13 +555,13 @@ class Worker:
 
             sio = socketio.Client()
 
-            logging.debug(
+            logging.info(
                 "Attempting connect to events server {}".format(events_server))
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
                                 namespaces=['/tasks'])
-                    logging.debug(
+                    logging.info(
                         "Connected to events server {}".format(events_server))
                     break
                 except Exception as ex:
@@ -570,6 +571,7 @@ class Worker:
             while True:
                 try:
                     message = queue.get()
+                    logging.info("Emitting message %s", message)
                     sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
