@@ -4,7 +4,7 @@ from pyfi.client.api import Processor, Socket, Plug
 processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',
                       gitrepo='https://github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
-processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='radiant', branch='main',
+processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='agent1', branch='main',
                       gitrepo='https://github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 

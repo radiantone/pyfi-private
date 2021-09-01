@@ -40,6 +40,7 @@ class Agent:
         self.config = config
         self.pool = pool
         self.dburi = dburi
+        logging.info("Checking config at %s", home+"/pyfi.ini")
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')

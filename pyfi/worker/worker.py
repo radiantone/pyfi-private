@@ -511,6 +511,7 @@ class Worker:
                         "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
                     sys.path.append(self.workdir+'/git')
                     os.chdir('git')
+                    os.system("git config credential.helper store")
                     break
                 except Exception as ex:
                     logging.error(ex)
