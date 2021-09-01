@@ -192,9 +192,11 @@ class Worker:
             task_queues = []
             task_routes = {}
 
+            logging.info("Setting up queues...")
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
+                logging.info("Setting up sockets...")
                 for socket in self.processor.sockets:
-                    logging.debug("Socket %s", socket)
+                    logging.info("Socket %s", socket)
                     if socket.queue:
 
                         # TODO: Use socket.task.name as the task name and self.processor.module as the module
@@ -210,11 +212,12 @@ class Worker:
                         sio.emit('join', {'room': processor_path},
                                                 namespace='/tasks')
 
+                        logging.info("Joining room %s", processor_path)
                         if processor_path not in queues:
                             queues += [processor_path]
-                            room = {'room': processor_path}
-                            logging.debug("Joining room %s", room)
-                            sio.emit('join', room, namespace='/tasks')
+                            #room = {'room': processor_path}
+                            #logging.debug("Joining room %s", room)
+                            #sio.emit('join', room, namespace='/tasks')
 
                         processor_task = socket.queue.name + '.' + self.processor.name.replace(
                             ' ', '.')+'.'+socket.task.name
@@ -291,6 +294,7 @@ class Worker:
 
             logging.info("Starting celery worker %s %s %s",
                          self.processor.name+'@'+hostname,self.backend,self.broker)
+
             worker = app.Worker(
                 hostname=self.processor.name+'@'+hostname,
                 backend=self.backend,

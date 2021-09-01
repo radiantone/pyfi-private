@@ -407,7 +407,7 @@ def stop_processor(context, name):
     id = context.obj['id']
 
     if name is not None:
-        print("Stopping ", name)
+        print("Stopping", name)
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=name).first()
     elif id is not None:
