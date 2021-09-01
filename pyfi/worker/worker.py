@@ -507,7 +507,7 @@ class Worker:
             if os.path.exists("git"):
                 os.chdir('git')
                 logging.info("Pulling update from git")
-                os.system('git config - -get remote.origin.url')
+                os.system('git config --get remote.origin.url')
                 os.system('git config pull.rebase false')
                 os.system('git pull')
             else:
