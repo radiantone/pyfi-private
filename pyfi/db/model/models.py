@@ -248,7 +248,7 @@ class ProcessorModel(BaseModel):
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
     #task = Column(String(80), nullable=False)
-    gitrepo = Column(String(80))
+    gitrepo = Column(String(180))
     branch = Column(String(30))
     commit = Column(String(30))
     retries = Column(Integer)

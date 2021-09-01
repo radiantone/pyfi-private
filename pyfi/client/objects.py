@@ -61,39 +61,43 @@ class Socket(Base):
         self.name = kwargs['name']
 
         if 'queue' in kwargs:
-            self.queuename = ['name']
+            self.queuename = kwargs['queue']['name']
             # pass in x-expires, message-ttl
             self.queue = Queue(**kwargs['queue'])
+            self.session.add(self.queue.queue)
 
         if 'processor' in kwargs:
             self.processor = kwargs['processor']
             self.session.add(self.processor.processor)
 
         if 'task' in kwargs:
-            self.task = kwargs['task']
+            taskname = kwargs['task']
 
-            task = self.session.query(
-                TaskModel).filter_by(name=self.task).first()
+            self.task = self.session.query(
+                TaskModel).filter_by(name=taskname).first()
 
-            if task is None:
-                task = TaskModel(name=self.task)
+            if self.task is None:
+                self.task = TaskModel(name=taskname)
 
-            self.session.add(task)
+            self.session.add(self.task)
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
 
         if self.socket is not None:
+            self.socket.queue = self.queue.queue
+            print(self.socket.queue)
             print("SOCKET ",self.socket)
             self.session.add(self.socket)
             if self.socket.task is None:
-                self.socket.task = task
+                self.socket.task = self.task
         else:
             self.socket = SocketModel(name=self.name, processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
-            self.session.add(task)
-            self.socket.task = task
+            self.session.add(self.task)
+            self.socket.task = self.task
+            self.socket.queue = self.queue.queue
             self.session.add(self.socket)
             self.session.commit()
             self.session.refresh(
@@ -102,6 +106,7 @@ class Socket(Base):
         if self.processor is None:
             self.processor = Processor(id=self.socket.processor_id)
 
+        print(self.socket.queue, self.processor.name, self.socket.task)
         print(self.socket.queue.name,self.processor.name, self.socket.task.name)
         self.key = self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
 

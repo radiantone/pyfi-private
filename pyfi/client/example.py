@@ -2,10 +2,10 @@ from pyfi.client.api import Processor, Socket, Plug
 
 # Create a processor
 processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',
-                      gitrepo='git+https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
+                      gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='agent1', branch='main',
-                       gitrepo='git+https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
+                       gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 
 # Create a socket for that processor
