@@ -580,9 +580,9 @@ class Worker:
         process2 = Process(target=emit_messages)
         process2.daemon = True
 
-        if listen:
-            logging.info("Starting emit_messages")
-            process2.start()
+        #if listen:
+        logging.info("Starting emit_messages")
+        process2.start()
 
         logging.debug("Started worker process with pid[%s]", process.pid)
         return process
