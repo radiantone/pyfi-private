@@ -124,7 +124,7 @@ class Worker:
         logging.debug("CWD: %s", os.getcwd())
         logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
         self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
-                         "-n", name], preexec_fn=os.setsid)
+                                        "-n", name], stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
         logging.debug("Worker launched successfully: process %s.", self.process.pid)
         return process
