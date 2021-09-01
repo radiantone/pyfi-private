@@ -12,6 +12,7 @@ pyfi scheduler -n sched1  add --node node3
 
 pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 
 pyfi add processor -n agent1proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -h agent1
+#pyfi add processor -n agent1proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -h agent1
 pyfi add queue -n pyfi.queue1 -t direct
 pyfi add queue -n pyfi.queue2 -t direct
 pyfi add queue -n pyfi.queue3 -t direct

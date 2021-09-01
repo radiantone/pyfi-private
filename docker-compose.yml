@@ -9,9 +9,6 @@ services:
     container_name: events
     hostname: events
     image: supervisor:latest
-    profiles: 
-      - events
-      - agent
     environment: 
       - "PORT=5000"
     ports:
@@ -36,6 +33,7 @@ services:
     image: supervisor:latest
     environment: 
       - "EVENTS=events"
+      - "GIT_LOGIN=https://radiantone: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@github.com"
     ports:
       - 8004:8002
     depends_on:
@@ -56,6 +54,7 @@ services:
     image: supervisor:latest
     environment: 
       - "EVENTS=events"
+      - "GIT_LOGIN=https://radiantone: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@github.com"
     ports:
       - 8003:8002
     depends_on:
