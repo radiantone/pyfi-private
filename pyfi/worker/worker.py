@@ -129,7 +129,7 @@ class Worker:
         logging.debug("Worker launched successfully: process %s.", self.process.pid)
         return process
 
-    def start(self, start=True):
+    def start(self, start=True, listen=True):
         """
         Docstring
         """
@@ -582,7 +582,7 @@ class Worker:
 
         logging.debug("Starting emit_messages")
 
-        if start:
+        if listen:
             process2.start()
 
         logging.debug("Started worker process with pid[%s]", process.pid)
