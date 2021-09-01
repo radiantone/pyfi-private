@@ -457,10 +457,13 @@ class Worker:
                                                 # Target specific worker queue here
                                                 worker_queue = KQueue(
                                                     tkey,
-                                                    Exchange(
-                                                        key, type='direct'),
+                                                    Exchange(key, type='direct'),
                                                     routing_key=tkey,
-                                                    expires=30,
+
+                                                    message_ttl=socket.queue.message_ttl,
+                                                    durable=socket.queue.durable,
+                                                    expires=socket.queue.expires,
+                                                    #expires=30,
                                                     # socket.queue.message_ttl
                                                     # socket.queue.expires
                                                     queue_arguments={

@@ -413,8 +413,8 @@ class QueueModel(BaseModel):
     auto_delete = Column(Boolean, default=True)
     max_length = Column(Integer, default=-1)
     max_length_bytes = Column(Integer, default=-1)
-    message_ttl = Column(Integer, default=30)
-    expires = Column(Integer, default=30)
+    message_ttl = Column(Integer, default=3000)
+    expires = Column(Integer, default=3000)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.qtype, self.requested_status,

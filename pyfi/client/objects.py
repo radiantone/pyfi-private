@@ -105,8 +105,9 @@ class Socket(Base):
             self.key,
             Exchange(self.queuename, type='direct'),
             routing_key=self.key,
-            expires=30,
-
+            message_ttl=self.socket.queue.message_ttl,
+            durable=self.socket.queue.durable,
+            expires=self.socket.queue.expires,
             # socket.queue.message_ttl
             # socket.queue.expires
             queue_arguments={
@@ -224,7 +225,7 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, queue=None, hostname=platform.node(), name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=platform.node(), name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
 
         super().__init__()
 
@@ -235,7 +236,6 @@ class Processor(Base):
         the queue object to create the kombu Queue() class so it matches
         '''
 
-        self.queue = queue
         self.name = name
 
         self.processor = self.session.query(
@@ -258,6 +258,7 @@ class Processor(Base):
         # self.app.config_from_object(Config)
 
         # If the queues are on the sockets, is this even needed?
+        '''
         if queue:
             if queue.find('topic') > -1:
                 self.app.conf.task_queues = (
@@ -272,7 +273,9 @@ class Processor(Base):
                     queue,
                     Exchange(queue, type='direct'),
                     routing_key=name,
-                    expires=30,
+                    message_ttl=socket.queue.message_ttl,
+                    durable=socket.queue.durable,
+                    expires=socket.queue.expires,
                     queue_arguments={
                         'x-message-ttl': 30000,
                         'x-expires': 300}
@@ -284,7 +287,7 @@ class Processor(Base):
                     'exchange': queue
                 }
             }
-
+        '''
         self.database.session.add(self.processor)
         self.database.session.commit()
 
