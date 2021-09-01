@@ -403,8 +403,8 @@ class Worker:
                             result = kwargs.get('args')[0]
                             data['message'] = json.dumps(result)
                             data['message'] = json.dumps(data)
-                            logging.debug(
-                                "EMITTING ROOMSG2: %s", data)
+                            logging.info(
+                                "EMITTING ROOMSG: %s", data)
 
                             _queue.put(['servermsg', data])
                             _queue.put(['roomsg', data])
