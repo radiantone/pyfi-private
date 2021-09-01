@@ -14,7 +14,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./conf/supervisord-events.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./conf/supervisord-events.conf:/opt/pyfi/supervisord.conf
 
   portainer:
     image: portainer/portainer-ce:latest
@@ -34,6 +34,7 @@ services:
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
+    command:  "/opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start"
     ports:
       - 8004:8002
     depends_on:
@@ -55,6 +56,7 @@ services:
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
+    command:  "/opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start"
     ports:
       - 8003:8002
     depends_on:
