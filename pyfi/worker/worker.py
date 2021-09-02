@@ -105,7 +105,7 @@ class Worker:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
 
-
+        '''
         @self.celery.on_after_configure.connect
         def setup_periodic_tasks(sender, **kwargs):
             for socket in self.processor.sockets:
@@ -130,6 +130,7 @@ class Worker:
                 logging.info("Add periodic task %s %s %s",socket.schedule, socket, sig)
                 sender.add_periodic_task(
                     socket.schedule, sig, name=socket.task.name)
+        '''
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
@@ -348,14 +349,34 @@ class Worker:
             except:
                 pass
 
+            
             if self.processor.beat:
-                worker.app.conf.beat_schedule = {
-                    "run-me-every-ten-seconds": {
-                        "task": "pyfi.harness",
-                        "args": (self.processor.module, self.processor.task),
-                        "schedule": self.processor.schedule
+                worker.app.conf.beat_schedule = {}
+
+                for socket in self.processor.sockets:
+                    if socket.schedule <= 0:
+                        continue
+                    tkey = socket.queue.name+'.' + self.processor.name.replace(
+                        ' ', '.')+'.'+socket.task.name
+                    worker_queue = KQueue(
+                        tkey,
+                        Exchange(socket.queue.name, type='direct'),
+                        routing_key=tkey,
+
+                        message_ttl=socket.queue.message_ttl,
+                        durable=socket.queue.durable,
+                        expires=socket.queue.expires,
+                        queue_arguments={
+                            'x-message-ttl': 30000,
+                            'x-expires': 300}
+                    )
+
+                    worker.app.conf.beat_schedule[tkey] = {
+                        "task":tkey,
+                        "args": (),
+                        "schedule": socket.schedule
                     }
-                }
+
 
             sys.path.append(os.getcwd())
 
