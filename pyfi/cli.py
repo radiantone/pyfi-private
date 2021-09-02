@@ -1347,7 +1347,7 @@ def ls_agents(context):
 
 @ls.command(name='sockets')
 @click.pass_context
-def ls_sockets(context, beat):
+def ls_sockets(context):
     """
     List sockets
     """
