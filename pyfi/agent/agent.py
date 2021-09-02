@@ -409,7 +409,7 @@ class Agent:
                                 logging.info("Worker model is %s", workerModel)
                                 logging.info("Agent worker is %s",
                                              self.agent.worker)
-                                #self.agent.worker = workerModel
+                                self.agent.worker = workerModel
                                 self.database.session.commit()
                                 logging.info(
                                     "Worker %s created.", workerModel.id)

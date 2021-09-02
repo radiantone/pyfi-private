@@ -1152,7 +1152,7 @@ def ls_nodes(context):
     nodes = context.obj['database'].session.query(NodeModel).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.hostname,
-                  node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True), humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True), node.agent[0].name])
+                  node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True), humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True), node.agent.name])
 
     print(x)
 
@@ -1255,7 +1255,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
-    names = ["Name", "ID", "Module", "Host", "Owner", "Last Updated",
+    names = ["Name", "Worker", "ID", "Module", "Host", "Owner", "Last Updated",
              "Requested Status", "Status", "Concurrency"]
 
     if gitrepo:
@@ -1270,7 +1270,8 @@ def ls_processors(context, gitrepo, module, task, owner):
     x.field_names = names
 
     for processor in processors:
-        row = [processor.name, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
+        workername = processor.worker.name if processor.worker else "None"
+        row = [processor.name, workername, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
                processor.requested_status, processor.status, processor.concurrency]
 
         if gitrepo:
@@ -1326,7 +1327,7 @@ def ls_agents(context):
     agents = context.obj['database'].session.query(AgentModel).all()
 
     for node in agents:
-        worker_name = node.worker[0].name if node.worker else 'None'
+        worker_name = node.worker.name if node.worker else 'None'
         x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
                   node.status, node.node.name, worker_name])
 
@@ -1355,22 +1356,31 @@ def ls_sockets(context):
 
 @ls.command(name='node')
 @click.option('-n', '--name', default=None, required=True, help="Name of node")
+@click.option('-t', '--tree', default=False, is_flag=True, required=False, help="Display object tree")
+@click.option('-h', '--horizontal', default=True, is_flag=True, required=False, help="Vertical tree mode")
 @click.pass_context
-def ls_node(context, name):
+def ls_node(context, name, tree, horizontal):
     from pptree import print_tree, Node
 
+            
     node = context.obj['database'].session.query(
         NodeModel).filter_by(name=name).first()
 
-    root = Node(node.name)
-    agent = Node(node.agent[0].name, root)
-    worker = Node(node.agent[0].worker[0].name,agent)
-    processor = Node(node.agent[0].worker[0].processor.name, worker)
+    if not node:
+        return
 
-    for socket in node.agent[0].worker[0].processor.sockets:
-        Node(socket.task.name,processor)
+    if tree:
+        root = Node("node::"+node.name)
+        agent = Node("agent::"+node.agent.name, root)
+        worker = Node("worker::"+node.agent.worker.name, agent)
+        processor = Node(
+            "processor::"+node.agent.worker.processor.name, worker)
 
-    print_tree(node)
+        for socket in node.agent.worker.processor.sockets:
+            _sock = Node("socket::"+socket.name, processor)
+            Node("task::"+socket.task.name, _sock)
+
+        print_tree(root, horizontal=not horizontal)
     
 @ls.command(name='plug')
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
