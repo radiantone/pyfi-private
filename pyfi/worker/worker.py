@@ -373,7 +373,7 @@ class Worker:
 
                     worker.app.conf.beat_schedule[tkey] = {
                         "task":tkey,
-                        "args": (),
+                        "args": ("Hello World!",),
                         "schedule": socket.schedule
                     }
 
