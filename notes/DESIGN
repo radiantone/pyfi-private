@@ -32,10 +32,7 @@ A top level queue for the processor is linked to a fanout exchange where all pro
 --------------------------
 
 
-SCHEDULER->NODE->AGENT->PROCESSOR->WORKER->TASK
-
-
-
+SCHEDULER->NODE->AGENT->WORKER->PROCESSOR->SOCKET->TASK
 
 
 PYFI - CLI for pyfi admin and monitoring - queries celery/amqp network along with pyfi database

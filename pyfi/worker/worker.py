@@ -323,6 +323,7 @@ class Worker:
                     self.database.session.commit()
             except:
                 pass
+
             if self.processor.beat:
                 worker.app.conf.beat_schedule = {
                     "run-me-every-ten-seconds": {
@@ -531,6 +532,7 @@ class Worker:
                         logging.error(ex)
                         time.sleep(3)
 
+            if not os.path.exists('venv'):
                 logging.info("Building virtualenv...in %s", os.getcwd())
                 from virtualenvapi.manage import VirtualEnvironment
                 env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory

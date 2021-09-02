@@ -41,6 +41,9 @@ class Agent:
         self.config = config
         self.pool = pool
         self.dburi = dburi
+        self.node = None
+        self.agent = None
+
         logging.info("Checking config at %s", home+"/pyfi.ini")
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
@@ -70,12 +73,22 @@ class Agent:
             agent = AgentModel(id=uuid4(), hostname=hostname,
                                name=hostname+".agent")
 
-
+        self.agent = agent
         vmem = psutil.virtual_memory()
 
         node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
         if node is None:
             node = NodeModel(name=hostname+".node", hostname=hostname)
+            self.database.session.add(node)
+            self.database.session.commit()
+            self.database.session.refresh(node)
+        else:
+            self.database.session.add(node)
+
+        if node.agent is None:
+            node.agent = agent
+
+        agent.node_id = node.id
 
         node.cpus = cpus
         node.memsize = vmem.total
@@ -84,7 +97,6 @@ class Agent:
         self.node = node
 
 
-        self.database.session.add(node)
         agent.status = 'running'
         agent.cpus = cpus
         agent.port = self.port
@@ -378,16 +390,25 @@ class Agent:
                                     WorkerModel).filter_by(name=hostname+".agent."+processor['processor'].name+'.worker').first()
 
                                 if workerModel is None:
+                                    logging.info("Creating worker model...")
                                     workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
                                                           status='ready',
                                                           backend=self.backend,
                                                           broker=self.broker,
+                                                          agent_id=self.agent.id,
                                                           hostname=hostname,
                                                           requested_status='start')
 
                                 workerModel.lastupdated = datetime.now()
                                 workerModel.status = 'running'
+                                workerModel.processor = processor['processor']
+                                
+                                self.database.session.add(self.agent)
                                 self.database.session.add(workerModel)
+                                logging.info("Worker model is %s", workerModel)
+                                logging.info("Agent worker is %s",
+                                             self.agent.worker)
+                                #self.agent.worker = workerModel
                                 self.database.session.commit()
                                 logging.info(
                                     "Worker %s created.", workerModel.id)

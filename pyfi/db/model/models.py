@@ -200,6 +200,11 @@ class AgentModel(BaseModel):
     cpus = Column(Integer)
     port = Column(Integer)
 
+    worker = relationship(
+        'WorkerModel', back_populates='agent', cascade="all, delete-orphan")
+
+    node_id = Column(String(40), ForeignKey('node.id'),
+                          nullable=False)
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.cpus, self.status, self.name, self.hostname)
 
@@ -231,8 +236,17 @@ class WorkerModel(BaseModel):
     concurrency = Column(Integer)
     process = Column(Integer)
     hostname = Column(String(60))
+
     processor_id = Column(String(40), ForeignKey(
         'processor.id'), nullable=True)
+
+    processor = relationship("ProcessorModel", back_populates="worker")
+    
+    agent_id = Column(String(40), ForeignKey('agent.id'),
+                     nullable=False)
+
+    agent = relationship("AgentModel", back_populates="worker")
+
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
@@ -268,7 +282,7 @@ class ProcessorModel(BaseModel):
         'flow.id'), nullable=True)
 
     worker = relationship(
-        'WorkerModel', backref='processor', uselist=False, lazy=True, cascade="all, delete-orphan")
+        'WorkerModel', back_populates='processor', uselist=False, lazy=True, cascade="all, delete-orphan")
 
     plugs = relationship('PlugModel', backref='processor',
                          lazy=True, cascade="all, delete-orphan")
@@ -285,7 +299,7 @@ class SchedulerModel(BaseModel):
     Docstring
     """
     __tablename__ = 'scheduler'
-    nodes = relationship('NodeModel', backref='scheduler', lazy=True)
+    nodes = relationship('NodeModel')
 
     def __repr__(self):
         return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
@@ -314,11 +328,14 @@ class NodeModel(BaseModel):
     memsize = Column(String(60))
     freemem = Column(String(60))
     memused = Column(Float)
-    
+
     disksize = Column(String(60))
     diskusage = Column(String(60))
     cpus = Column(Integer)
     cpuload = Column(Float)
+
+    agent = relationship(
+        'AgentModel', backref='node', cascade="all, delete-orphan")
 
     def __repr__(self):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)

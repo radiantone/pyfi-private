@@ -1141,14 +1141,16 @@ def ls_nodes(context):
     """
     List queues
     """
+    import humanize
+
     x = PrettyTable()
 
-    names = ["Name", "ID", "Host", "Owner", "Last Updated"]
+    names = ["Name", "ID", "Host", "Owner", "Last Updated", "CPUs", "Mem Size", "Free Mem", "Used Mem", "Agent"]
     x.field_names = names
     nodes = context.obj['database'].session.query(NodeModel).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.hostname,
-                  node.owner, node.lastupdated])
+                  node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True), humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True), node.agent[0].name])
 
     print(x)
 
@@ -1226,13 +1228,13 @@ def ls_workers(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Requested Status", "Status", "Backend", "Broker", "Hostname"]
+             "Requested Status", "Status", "Backend", "Broker", "Hostname", "Processor"]
     x.field_names = names
     workers = context.obj['database'].session.query(WorkerModel).all()
 
     for node in workers:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.requested_status, node.status, node.backend, node. broker, node.hostname])
+                  node.requested_status, node.status, node.backend, node. broker, node.hostname, node.processor.name])
 
     print(x)
 
@@ -1252,7 +1254,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     x = PrettyTable()
 
     names = ["Name", "ID", "Module", "Host", "Owner", "Last Updated",
-             "Requested Status", "Status", "Workers"]
+             "Requested Status", "Status", "Concurrency"]
 
     if gitrepo:
         names += ["Git"]
@@ -1310,13 +1312,14 @@ def ls_agents(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Host", "Port", "Owner", "Last Updated",
-             "Status", "CPUs"]
+             "Status", "Node", "Worker"]
     x.field_names = names
     agents = context.obj['database'].session.query(AgentModel).all()
 
     for node in agents:
+        worker_name = node.worker[0].name if node.worker else 'None'
         x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
-                  node.status, node.cpus])
+                  node.status, node.node.name, worker_name])
 
     print(x)
 

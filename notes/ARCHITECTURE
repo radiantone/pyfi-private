@@ -5,7 +5,8 @@ NGINX - Reverse proxy
 AMPLIFY - NGINX Monitoring
 
 PYFI Agents
-PYFI UI
+PYFI UI -> Okta Auth
+PYFI API->OSO AUTH
 
 CELERY - Task broker
 FLOWER - Celery UI
