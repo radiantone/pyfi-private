@@ -347,6 +347,9 @@ class TaskModel(BaseModel):
     """
     __tablename__ = 'task'
 
+    module = Column(String(120), nullable=False, primary_key=True)
+    gitrepo = Column(String(180), nullable=False, primary_key=True)
+
     sockets = relationship("SocketModel", back_populates="task")
 
     def __repr__(self):

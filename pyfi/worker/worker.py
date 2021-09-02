@@ -336,9 +336,13 @@ class Worker:
             sys.path.append(os.getcwd())
 
             setattr(builtins, 'worker', worker)
+
             logging.debug("CWD %s", os.getcwd())
+
             module = importlib.import_module(self.processor.module)
+
             _plugs = {}
+
             for plug in self.processor.plugs:
                 _plugs[plug.queue.name] = []
 

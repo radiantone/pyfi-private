@@ -70,13 +70,14 @@ class Agent:
             # agent process will monitor database and manage worker process pool
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
-            agent = AgentModel(id=uuid4(), hostname=hostname,
+            agent = AgentModel(hostname=hostname,
                                name=hostname+".agent")
 
         self.agent = agent
         vmem = psutil.virtual_memory()
 
         node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
+        
         if node is None:
             node = NodeModel(name=hostname+".node", hostname=hostname)
             self.database.session.add(node)

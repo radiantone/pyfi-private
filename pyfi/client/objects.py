@@ -79,7 +79,10 @@ class Socket(Base):
             if self.task is None:
                 self.task = TaskModel(name=taskname)
 
+            self.task.module = self.processor.processor.module
+            self.task.gitrepo = self.processor.processor.gitrepo
             self.session.add(self.task)
+
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()

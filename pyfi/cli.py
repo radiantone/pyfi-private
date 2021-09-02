@@ -128,8 +128,10 @@ def cli(context, debug, db, backend, broker, ini, config):
             literal_column("current_user")).first()[0]
 
     except:
-        import traceback
-        print(traceback.format_exc())
+        #import traceback
+        #print(traceback.format_exc())
+        print("Database unavailable. Please check your configuration or ensure database server is running.")
+        return
 
     if len(sys.argv) == 1:
         click.echo(context.get_help())
@@ -1286,19 +1288,26 @@ def ls_processors(context, gitrepo, module, task, owner):
 
 
 @ls.command(name='tasks')
+@click.option('-g', '--gitrepo', is_flag=True, default=False)
 @click.pass_context
-def ls_tasks(context):
+def ls_tasks(context, gitrepo):
     """
     List agents
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Module"]
+    if gitrepo:
+        names += ["Git Repo"]
     x.field_names = names
     tasks = context.obj['database'].session.query(TaskModel).all()
 
     for node in tasks:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated])
+        values = [node.name, node.id, node.owner, node.lastupdated, node.module]
+        
+        if gitrepo:
+            values += [node.gitrepo]
+        x.add_row(values)
 
     print(x)
 
@@ -1333,17 +1342,36 @@ def ls_sockets(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Task", "Last Updated",
-             "Status", "Processor ID", "Queue"]
+             "Status", "Processor", "Queue"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.name, node.lastupdated,
-                  node.status, node.processor_id, node.queue.name])
+                  node.status, node.processor.name, node.queue.name])
 
     print(x)
 
 
+@ls.command(name='node')
+@click.option('-n', '--name', default=None, required=True, help="Name of node")
+@click.pass_context
+def ls_node(context, name):
+    from pptree import print_tree, Node
+
+    node = context.obj['database'].session.query(
+        NodeModel).filter_by(name=name).first()
+
+    root = Node(node.name)
+    agent = Node(node.agent[0].name, root)
+    worker = Node(node.agent[0].worker[0].name,agent)
+    processor = Node(node.agent[0].worker[0].processor.name, worker)
+
+    for socket in node.agent[0].worker[0].processor.sockets:
+        Node(socket.task.name,processor)
+
+    print_tree(node)
+    
 @ls.command(name='plug')
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
 @click.pass_context
@@ -1375,13 +1403,13 @@ def ls_plugs(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Processor ID", "Queue"]
+             "Status", "Processor", "Queue"]
     x.field_names = names
     plugs = context.obj['database'].session.query(PlugModel).all()
 
     for node in plugs:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.status, node.processor_id, node.queue.name])
+                  node.status, node.processor.name, node.queue.name])
 
     print(x)
 
