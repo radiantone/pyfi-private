@@ -60,6 +60,11 @@ class Socket(Base):
 
         self.name = kwargs['name']
 
+        schedule = -1
+
+        if 'schedule' in kwargs:
+            schedule = kwargs['schedule']
+            
         if 'queue' in kwargs:
             self.queuename = kwargs['queue']['name']
             # pass in x-expires, message-ttl
@@ -94,7 +99,7 @@ class Socket(Base):
             if self.socket.task is None:
                 self.socket.task = self.task
         else:
-            self.socket = SocketModel(name=self.name, processor_id=self.processor.processor.id, requested_status='ready',
+            self.socket = SocketModel(name=self.name, schedule=schedule, processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
             self.session.add(self.task)

@@ -109,6 +109,8 @@ class Worker:
         @self.celery.on_after_configure.connect
         def setup_periodic_tasks(sender, **kwargs):
             for socket in self.processor.sockets:
+                if socket.schedule <= 0:
+                    continue
                 tkey = socket.queue.name+'.' + self.processor.name.replace(
                     ' ', '.')+'.'+socket.task.name
                 worker_queue = KQueue(
