@@ -469,7 +469,7 @@ class Agent:
                 logging.error(ex)
                 logging.info("Shutting down...")
 
-        webserver = Process(target=web_server)
+        webserver = Process(target=web_server, daemon=True)
         webserver.start()
 
         logging.info("Monitoring processors")

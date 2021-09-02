@@ -12,7 +12,7 @@ Phase 1 Goals
 - pyfi architecture slides DONE
 - pyfi architecture containers (running)
 - pyfi-ui repo DONE
-- Data model design
+- Data model design DONE
 
 
 Phase 2 Goals
@@ -41,7 +41,7 @@ Phase 3 Goals
 -------------
 
 - Monitor tasks using flower and rabbitmq admin. See individual task info. DONE
-- Expand processor/task configs e.g. retries, etc. 
+- Expand processor/task configs e.g. retries, etc.  DONE
 - Implement logging inside task signal functions DONE
 - Use flower API to get metadata?
 - Stop a processor after restarting it 5 times in 5 minutes
@@ -59,7 +59,7 @@ Phase 3 Goals
 
 - Password protect processors: lock & unlock. Login dialogs
 
-- Obtain queue message status from Flower for a particular queue or task DONE
+- Obtain queue message status from Flower for a particular queue or task 
 
 - Add user CLI commands DONE
 - Delete CLI commands DONE
@@ -68,11 +68,23 @@ Phase 3 Goals
 Phase 4 Goals
 -------------
 
+- Build flows with CLI or client API DONE
+- Invocations complete regardless of when processors come online
+    - Flows complete even if partially available
+- Queues are reclaimed after expiry when no consumers attached
+- 
+
 - User RLS row level security in database DONE
 - Scheduler CLI commands 80%
 - Scheduler task
     - Monitors nodes associated with scheduler
-
+    - If a processor has no worker, find a node and hostname to the processor. Agent will take over then
+- ls node tree printer DONE
+- More complete relational model 95%
+- isolated virtualenvs for processors using github w/logins DONE
+- Proper room joining DONE
+- Proper queue subscriptions in worker DONE
+- tasks can send output to 'log','task','data' channels
 - Move processor between hosts while running DONE
-- Client API 20%
+- Client API 80%
 
