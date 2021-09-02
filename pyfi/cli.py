@@ -1283,7 +1283,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     for processor in processors:
         workername = processor.worker.name if processor.worker else "None"
         row = [processor.name, workername, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
-               processor.requested_status, processor.status, processor.beat, processor.concurrency]
+               processor.requested_status, processor.status, processor.concurrency, processor.beat]
 
         if gitrepo:
             row += [processor.gitrepo]
