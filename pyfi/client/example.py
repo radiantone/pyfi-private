@@ -9,7 +9,7 @@ processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='
 
 
 # Create a socket for that processor
-do_something = Socket(name='proc1.socket1', processor=processor, queue={
+do_something = Socket(name='proc1.socket1', schedule=10, processor=processor, queue={
                 'name': 'pyfi.queue1'}, task='do_something')
 
 
