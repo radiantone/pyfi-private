@@ -1267,7 +1267,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     x = PrettyTable()
 
     names = ["Name", "Worker", "ID", "Module", "Host", "Owner", "Last Updated",
-             "Requested Status", "Status", "Concurrency"]
+             "Requested Status", "Status", "Concurrency", "Beat"]
 
     if gitrepo:
         names += ["Git"]
@@ -1283,7 +1283,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     for processor in processors:
         workername = processor.worker.name if processor.worker else "None"
         row = [processor.name, workername, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
-               processor.requested_status, processor.status, processor.concurrency]
+               processor.requested_status, processor.status, processor.beat, processor.concurrency]
 
         if gitrepo:
             row += [processor.gitrepo]
