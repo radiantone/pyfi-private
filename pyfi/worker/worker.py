@@ -374,7 +374,8 @@ class Worker:
                     worker.app.conf.beat_schedule[self.processor.module+'.'+socket.task.name] = {
                         "task":self.processor.module+'.'+socket.task.name,
                         "args": ("Hello World!",),
-                        "schedule": socket.schedule
+                        "schedule": socket.schedule,
+                        'options': {'queue' : tkey},
                     }
 
 
