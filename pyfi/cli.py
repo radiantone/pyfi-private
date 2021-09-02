@@ -1346,7 +1346,6 @@ def ls_agents(context):
 
 
 @ls.command(name='sockets')
-@click.option('-b', '--beat', default=None, is_flag=True, required=False)
 @click.pass_context
 def ls_sockets(context, beat):
     """
@@ -1355,13 +1354,13 @@ def ls_sockets(context, beat):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Task", "Last Updated",
-             "Status", "Processor", "Queue"]
+             "Status", "Processor", "Queue", "Schedule"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name])
+                  node.status, node.processor.name, node.queue.name, node.schedule])
 
     print(x)
 
