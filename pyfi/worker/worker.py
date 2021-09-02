@@ -371,7 +371,7 @@ class Worker:
                             'x-expires': 300}
                     )
 
-                    worker.app.conf.beat_schedule[tkey] = {
+                    worker.app.conf.beat_schedule[socket.task.name] = {
                         "task":socket.task.name,
                         "args": ("Hello World!",),
                         "schedule": socket.schedule
