@@ -660,12 +660,11 @@ def update_object(obj, locals):
 @click.option('-w', '--workers', default=None, help='Number of worker tasks')
 @click.option('-g', '--gitrepo', default=None, help='Git repo URI')
 @click.option('-c', '--commit', default=None, help='Git commit id for processor code')
-@click.option('-r', '--requested_status', default=None, required=False)
-@click.option('-s', '--schedule', default=None, required=False)
 @click.option('-b', '--beat', default=None, is_flag=True, required=False)
+@click.option('-r', '--requested_status', default=None, required=False)
 @click.option('-br', '--branch', default=None, required=False)
 @click.pass_context
-def update_processor(context, name, module, hostname, workers, gitrepo, commit, requested_status, schedule, beat, branch):
+def update_processor(context, name, module, hostname, workers, gitrepo, commit, beat, requested_status, branch):
     """
     Update a processor in the database
     """
@@ -706,17 +705,13 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
         processor.commit = click.prompt('Commit',
                                         type=str, default=processor.commit)
 
-    if not schedule:
-        processor.schedule = click.prompt('Schedule',
-                                          type=int, default=processor.schedule)
-
-    if not beat:
-        processor.commit = click.prompt('Beat',
-                                        type=bool, default=processor.beat)
-
     if not branch:
         processor.commit = click.prompt('Branch',
                                         type=str, default=processor.branch)
+
+    if not beat:
+        processor.beat = click.prompt('Beat',
+                                      type=bool, default=processor.beat)
 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
@@ -735,11 +730,10 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
 @click.option('-g', '--gitrepo', prompt=True, default=None, required=True, help='Git repo URI')
 @click.option('-c', '--commit', default=None, help='Git commit id for processor code')
 @click.option('-rs', '--requested_status', default='ready', required=False, help="The requested status for this processor")
-@click.option('-s', '--schedule', default=10, required=False, help="Interval in seconds this processor is triggered")
 @click.option('-b', '--beat', default=False, is_flag=True, required=False, help="Enable the beat scheduler")
 @click.option('-br', '--branch', default='main', required=False, help="Git branch to be used for checkouts")
 @click.pass_context
-def add_processor(context, name, module, hostname, workers, retries, gitrepo, commit, requested_status, schedule, beat, branch):
+def add_processor(context, name, module, hostname, workers, retries, gitrepo, commit, requested_status, beat, branch):
     """
     Add processor to the database
     """
@@ -748,7 +742,7 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     # Create a task object and add to processor
 
     processor = ProcessorModel(
-        id=id, status='ready', hostname=hostname, schedule=schedule, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
+        id=id, status='ready', hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
     processor.updated = datetime.now()
     context.obj['database'].session.add(processor)
@@ -914,14 +908,29 @@ def add_queue(context, name, type):
 @update.command(name='socket')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
+@click.option('-s', '--schedule', default=None, required=False)
 @click.option('-pi', '--procid', default=None, required=False, help="Processor id")
 @click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.option('-t', '--task', default=None, required=False, help="Task name")
 @click.pass_context
-def update_socket(context, name, queue, procid, procname, task):
+def update_socket(context, name, queue, schedule, procid, procname, task):
     """
     Update a socket in the database
     """
+    import inspect
+    id = context.obj['id']
+
+    # Get the named or id of the plug model
+    if name is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(name=name).first()
+    elif id is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(id=id).first()
+
+    if not schedule:
+        socket.schedule = click.prompt('Schedule',
+                                       type=int, default=socket.schedule)
     return
 
 
@@ -1030,10 +1039,11 @@ def add_plug(context, name, queue, socketid, socketname, procid, procname):
 @add.command(name='socket')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
+@click.option('-s', '--schedule', default=10, required=False, help="Interval in seconds this socket is triggered")
 @click.option('-pn', '--procname', default=None, required=True, help="Processor name")
 @click.option('-t', '--task', default=None, required=True, help="Task name")
 @click.pass_context
-def add_socket(context, name, queue, procname, task):
+def add_socket(context, name, queue, schedule, beat, procname, task):
     """
     Add socket to a processor
     """
@@ -1056,6 +1066,7 @@ def add_socket(context, name, queue, procname, task):
         socket.task = _task
 
     socket.queue = queue
+    socket.schedule = schedule
     socket.updated = datetime.now()
     processor.sockets += [socket]
     processor.requested_status = 'update'
@@ -1335,8 +1346,9 @@ def ls_agents(context):
 
 
 @ls.command(name='sockets')
+@click.option('-b', '--beat', default=None, is_flag=True, required=False)
 @click.pass_context
-def ls_sockets(context):
+def ls_sockets(context, beat):
     """
     List sockets
     """

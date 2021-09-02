@@ -261,14 +261,13 @@ class ProcessorModel(BaseModel):
     status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
+    beat = Column(Boolean)
     #task = Column(String(80), nullable=False)
     gitrepo = Column(String(180))
     branch = Column(String(30))
     commit = Column(String(30))
     retries = Column(Integer)
     concurrency = Column(Integer)
-    schedule = Column(Integer)
-    beat = Column(Boolean)
     ratelimit = Column(String(10))
     timelimit = Column(Integer)
     ignoreresult = Column(Boolean)
@@ -390,6 +389,7 @@ class SocketModel(BaseModel):
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
+    schedule = Column(Integer)
     task_id = Column(String(40), ForeignKey('task.id'))
     task = relationship("TaskModel", back_populates="sockets", single_parent=True,
                         cascade="delete, delete-orphan")

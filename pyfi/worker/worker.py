@@ -105,6 +105,30 @@ class Worker:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
 
+
+        @self.celery.on_after_configure.connect
+        def setup_periodic_tasks(sender, **kwargs):
+            for socket in self.processor.sockets:
+                tkey = socket.queue.name+'.' + self.processor.name.replace(
+                    ' ', '.')+'.'+socket.task.name
+                worker_queue = KQueue(
+                    tkey,
+                    Exchange(socket.queue.name, type='direct'),
+                    routing_key=tkey,
+
+                    message_ttl=socket.queue.message_ttl,
+                    durable=socket.queue.durable,
+                    expires=socket.queue.expires,
+                    queue_arguments={
+                        'x-message-ttl': 30000,
+                        'x-expires': 300}
+                )
+                sig = self.celery.signature(
+                    self.processor.module+'.'+socket.task.name, queue=worker_queue, kwargs={}).delay()
+                logging.info("Add periodic task %s %s %s",socket.schedule, socket, sig)
+                sender.add_periodic_task(
+                    socket.schedule, sig, name=socket.task.name)
+
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
@@ -149,7 +173,6 @@ class Worker:
 
             from billiard.pool import Pool
 
-            logging.debug("Processor beat: %s", self.processor.beat)
 
             queues = []
             engine = create_engine(self.dburi)
@@ -299,7 +322,6 @@ class Worker:
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
-                # queues=queues,
                 without_mingle=True,
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
