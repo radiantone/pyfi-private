@@ -371,8 +371,8 @@ class Worker:
                             'x-expires': 300}
                     )
 
-                    worker.app.conf.beat_schedule[socket.task.name] = {
-                        "task":socket.task.name,
+                    worker.app.conf.beat_schedule[self.processor.module+'.'+socket.task.name] = {
+                        "task":self.processor.module+'.'+socket.task.name,
                         "args": ("Hello World!",),
                         "schedule": socket.schedule
                     }
