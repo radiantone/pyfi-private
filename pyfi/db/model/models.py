@@ -311,6 +311,15 @@ class NodeModel(BaseModel):
     scheduler_id = Column(String(40), ForeignKey('scheduler.id'),
                           nullable=True)
 
+    memsize = Column(String(60))
+    freemem = Column(String(60))
+    memused = Column(Float)
+    
+    disksize = Column(String(60))
+    diskusage = Column(String(60))
+    cpus = Column(Integer)
+    cpuload = Column(Float)
+
     def __repr__(self):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 

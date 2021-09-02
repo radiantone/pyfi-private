@@ -6,6 +6,7 @@ import logging
 import multiprocessing
 import configparser
 import os
+import psutil
 
 from pathlib import Path
 
@@ -14,7 +15,7 @@ from sqlalchemy import inspect
 from pyfi.celery.tasks import add
 from pyfi.db.model import ProcessorModel, UserModel
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import UserModel, WorkerModel, AgentModel, QueueModel
+from pyfi.db.model import UserModel, WorkerModel, AgentModel, QueueModel, NodeModel
 from pyfi.worker import Worker
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
@@ -69,6 +70,21 @@ class Agent:
             agent = AgentModel(id=uuid4(), hostname=hostname,
                                name=hostname+".agent")
 
+
+        vmem = psutil.virtual_memory()
+
+        node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
+        if node is None:
+            node = NodeModel(hostname=hostname)
+
+        node.cpus = cpus
+        node.memsize = vmem.total
+        node.freemem = vmem.free
+        node.memused = vmem.percent
+        self.node = node
+
+
+        self.database.session.add(node)
         agent.status = 'running'
         agent.cpus = cpus
         agent.port = self.port
@@ -99,6 +115,14 @@ class Agent:
                 refresh = 0
 
                 while True:
+                    vmem = psutil.virtual_memory()
+
+                    self.node.memsize = vmem.total
+                    self.node.freemem = vmem.free
+                    self.node.memused = vmem.percent
+                    self.database.session.add(self.node)
+                    self.database.session.commit()
+                    
                     time.sleep(3)
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
@@ -113,6 +137,8 @@ class Agent:
                                 processor['processor'].status = 'stopped'
 
                     myprocessors = []
+
+                    # Gather host information and update node
 
                     if refresh == 0:
                         # Time to refresh all the processors from the database
