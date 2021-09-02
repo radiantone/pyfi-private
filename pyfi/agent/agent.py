@@ -75,7 +75,7 @@ class Agent:
 
         node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
         if node is None:
-            node = NodeModel(hostname=hostname)
+            node = NodeModel(name=hostname+".node", hostname=hostname)
 
         node.cpus = cpus
         node.memsize = vmem.total
@@ -122,7 +122,7 @@ class Agent:
                     self.node.memused = vmem.percent
                     self.database.session.add(self.node)
                     self.database.session.commit()
-                    
+
                     time.sleep(3)
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
