@@ -1185,18 +1185,30 @@ def ls_call(context, id, name):
 
 
 @ls.command(name='calls')
+@click.option('-s', '--start', default=1, required=False)
+@click.option('-r', '--rows', default=10, required=False)
+@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
-def ls_calls(context):
+def ls_calls(context, start, rows, ascend):
     """
     List queues
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
+    names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
     x.field_names = names
-    nodes = context.obj['database'].session.query(CallModel).all()
+
+    if not ascend:
+        nodes = context.obj['database'].session.query(
+            CallModel).order_by(CallModel.lastupdated.desc()).slice(start-1, rows)
+    else:
+        nodes = context.obj['database'].session.query(
+            CallModel).order_by(CallModel.lastupdated.asc()).slice(start-1, rows)
+
+    row = 0
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner,
+        row += 1
+        x.add_row([start, row, node.name, node.id, node.owner,
                   node.lastupdated, node.started, node.finished, node.state])
 
     print(x)
@@ -1510,18 +1522,29 @@ def ls_plugs(context):
 @cli.command(help="Listen to a processor output")
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
 @click.option('-c', '--channel', default='task', required=True, help="Listen channel (e.g. task, log, etc)")
-@click.option('-s', '--server', default=None, required=True, help="Events server")
+@click.option('-a', '--adaptor', default=None, help="Adaptor class function (e.g. my.module.class.function")
 @click.pass_context
-def listen(context, name, channel, server):
+def listen(context, name, channel, adaptor):
     import redis
+    import importlib
 
     redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
     p = redisclient.pubsub()
     p.psubscribe([name+'.'+channel])
     print("Listening to",name)
+    func = None
+    if adaptor:
+        module = importlib.import_module('.'.join(adaptor.rsplit('.')[:-1]))
+        _class = getattr(module, adaptor.rsplit('.')[-1:][0])
+        print("Loaded adaptor function",adaptor)
+        func = _class()
+
     while True:
         for item in p.listen():
             print(item)
+            if func:
+                func.put(item)
+
 
 @cli.command(help="Database login user")
 @click.pass_context

@@ -10,6 +10,11 @@ import psutil
 import signal
 import configparser
 import platform
+from pytz import utc
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
 from pathlib import Path
 from multiprocessing import Condition, Queue
@@ -24,7 +29,6 @@ from celery.signals import setup_logging
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
 from kombu import Exchange, Queue as KQueue
 
-hostname = platform.node()
 
 
 @setup_logging.connect
@@ -38,6 +42,8 @@ CONFIG = configparser.ConfigParser()
 events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
 queue = Queue()
+
+hostname = platform.node()
 
 global processes
 processes = []
@@ -107,6 +113,20 @@ class Worker:
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
+            jobstores = {
+            'default': SQLAlchemyJobStore(url=CONFIG.get('database','uri'))
+            }
+            executors = {
+            'default': ThreadPoolExecutor(20),
+            'processpool': ProcessPoolExecutor(5)
+            }
+            job_defaults = {
+            'coalesce': False,
+            'max_instances': 3
+            }
+
+            scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
+
 
         if celeryconfig is not None:
             import importlib
