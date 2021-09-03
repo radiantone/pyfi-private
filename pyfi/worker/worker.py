@@ -127,6 +127,12 @@ class Worker:
 
             scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
 
+            def myfunc():
+                print("my func triggered")
+
+                
+            job = scheduler.add_job(myfunc, 'interval', seconds=5)
+
 
         if celeryconfig is not None:
             import importlib
