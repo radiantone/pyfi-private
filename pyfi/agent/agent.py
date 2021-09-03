@@ -7,6 +7,7 @@ import multiprocessing
 import configparser
 import os
 import psutil
+from contextlib import contextmanager
 
 from pathlib import Path
 
@@ -32,6 +33,18 @@ cpus = multiprocessing.cpu_count()
 
 
 class Agent:
+
+    @contextmanager
+    def get_session(self):
+        session = self.database.session
+
+        try:
+            yield session
+        except:
+            session.rollback()
+            raise
+        else:
+            session.commit()
 
     def __init__(self, database, dburi, port, config=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
         self.port = port
@@ -80,8 +93,9 @@ class Agent:
         
         if node is None:
             node = NodeModel(name=hostname+".node", hostname=hostname)
-            self.database.session.add(node)
-            self.database.session.commit()
+            with self.get_session() as session:
+                session.add(node)
+            #self.database.session.commit()
             self.database.session.refresh(node)
         else:
             self.database.session.add(node)
@@ -133,8 +147,11 @@ class Agent:
                     self.node.memsize = vmem.total
                     self.node.freemem = vmem.free
                     self.node.memused = vmem.percent
-                    self.database.session.add(self.node)
-                    self.database.session.commit()
+
+                    with self.get_session() as session:
+                        session.add(self.node)
+                    #self.database.session.add(self.node)
+                    #self.database.session.commit()
 
                     time.sleep(3)
                     sm = psutil.virtual_memory()
@@ -170,8 +187,11 @@ class Agent:
                                 if processor['worker'] is not None:
 
                                     processor['processor'].requested_status = 'move'
-                                    self.database.session.add(processor['processor'])
-                                    self.database.session.commit()
+
+                                    with self.get_session() as session:
+                                        session.add(processor['processor'])
+                                    #self.database.session.add(processor['processor'])
+                                    #self.database.session.commit()
 
                                     logging.info("Processor {} moved from {} to {}.".format(
                                         processor['processor'].name, hostname, processor['processor'].hostname))
@@ -184,9 +204,12 @@ class Agent:
                                         processor['processor'].name))
 
                                     processor['processor'].requested_status = 'update'
-                                    self.database.session.add(
-                                        processor['processor'])
-                                    self.database.session.commit()
+
+                                    with self.get_session() as session:
+                                        session.add(processor['processor'])
+                                    #self.database.session.add(
+                                    #    processor['processor'])
+                                    #self.database.session.commit()
 
                         # Loop through my database processors
                         for myprocessor in myprocessors:
@@ -228,11 +251,11 @@ class Agent:
                                     print(traceback.format_exc())
 
                             processor['delete'] = True
-                            self.database.session.delete(
-                                processor['processor'].worker)
-                            self.database.session.delete(
-                                processor['processor'])
-                            self.database.session.commit()
+
+                            with self.get_session() as session:
+                                session.delete(processor['processor'].worker)
+                                session.delete(processor['processor'])
+                            #self.database.session.commit()
 
                             if os.path.exists('work/'+processor['processor'].id):
                                 logging.debug(
@@ -262,13 +285,11 @@ class Agent:
 
                             logging.info("Processor is stopped")
 
-                            self.database.session.add(
-                                processor['processor'].worker)
+                            with self.get_session() as session:
+                                session.add(processor['processor'].worker)
+                                session.add(processor['processor'])
 
-                            self.database.session.add(
-                                processor['processor'])
-
-                            self.database.session.commit()
+                            #self.database.session.commit()
 
                         if processor['processor'].requested_status == 'paused':
                             if processor['worker'] is not None:
@@ -288,13 +309,16 @@ class Agent:
 
                             logging.info("Processor is paused")
 
-                            self.database.session.add(
-                                processor['processor'].worker)
+                            with self.get_session() as session:
+                                session.add(processor['processor'].worker)
+                                session.add(processor['processor'])
+                            #self.database.session.add(
+                            #    processor['processor'].worker)
 
-                            self.database.session.add(
-                                processor['processor'])
+                            #self.database.session.add(
+                            #    processor['processor'])
 
-                            self.database.session.commit()
+                            #self.database.session.commit()
                             continue
 
                         if processor['processor'].requested_status == 'resumed':
@@ -315,13 +339,11 @@ class Agent:
 
                             logging.info("Processor is resumed")
 
-                            self.database.session.add(
-                                processor['processor'].worker)
+                            with self.get_session() as session:
+                                session.add(processor['processor'].worker)
+                                session.add(processor['processor'])
 
-                            self.database.session.add(
-                                processor['processor'])
-
-                            self.database.session.commit()
+                            #self.database.session.commit()
                             continue
 
                         if processor['processor'].requested_status == 'stopped':
@@ -343,13 +365,11 @@ class Agent:
 
                             logging.info("Processor is stopped")
 
-                            self.database.session.add(
-                                processor['processor'].worker)
+                            with self.get_session() as session:
+                                session.add(processor['processor'].worker)
+                                session.add(processor['processor'])
 
-                            self.database.session.add(
-                                processor['processor'])
-
-                            self.database.session.commit()
+                            #self.database.session.commit()
 
                         if processor['processor'].requested_status == 'started':
                             if processor['worker'] is None:
@@ -403,14 +423,15 @@ class Agent:
                                 workerModel.lastupdated = datetime.now()
                                 workerModel.status = 'running'
                                 workerModel.processor = processor['processor']
+
+                                with self.get_session() as session:
+                                    session.add(self.agent)
+                                    session.add(workerModel)
+                                    logging.info("Worker model is %s", workerModel)
+                                    logging.info("Agent worker is %s",
+                                                self.agent.worker)
+                                    self.agent.worker = workerModel
                                 
-                                self.database.session.add(self.agent)
-                                self.database.session.add(workerModel)
-                                logging.info("Worker model is %s", workerModel)
-                                logging.info("Agent worker is %s",
-                                             self.agent.worker)
-                                self.agent.worker = workerModel
-                                self.database.session.commit()
                                 logging.info(
                                     "Worker %s created.", workerModel.id)
 
@@ -436,10 +457,10 @@ class Agent:
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'
 
-                                self.database.session.add(
-                                    processor['processor'].worker)
+                                with self.get_session() as session:
+                                    session.add(processor['processor'].worker)
 
-                                self.database.session.commit()
+                                #self.database.session.commit()
 
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
@@ -456,8 +477,9 @@ class Agent:
                             processor['processor'].requested_status = 'ready'
                             processor['processor'].status = 'running'
 
-                            self.database.session.add(processor['processor'])
-                            self.database.session.commit()
+                            with self.get_session() as session:
+                                session.add(processor['processor'])
+                            #self.database.session.commit()
 
             manage_processors(workers, processors)
 

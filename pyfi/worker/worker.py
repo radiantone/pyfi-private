@@ -81,7 +81,6 @@ class Worker:
             session.rollback()
             raise
         else:
-
             session.commit()
 
 
@@ -305,8 +304,10 @@ class Worker:
                                               hostname=hostname,
                                               requested_status='start')
 
-                    self.database.session.add(workerModel)
-                    self.database.session.commit()
+
+                    with self.get_session() as session:
+                        session.add(workerModel)
+                    #self.database.session.commit()
             except:
                 pass
 
@@ -381,7 +382,6 @@ class Worker:
 
                                 with self.get_session() as session:
                                     session.add(call)
-                                #self.database.session.commit()
 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
