@@ -113,6 +113,7 @@ class Worker:
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
+
             jobstores = {
             'default': SQLAlchemyJobStore(url=CONFIG.get('database','uri'))
             }
@@ -130,9 +131,8 @@ class Worker:
             def myfunc():
                 print("my func triggered")
 
-                
             job = scheduler.add_job(myfunc, 'interval', seconds=5)
-
+            print("CONFIGURED APJOB")
 
         if celeryconfig is not None:
             import importlib
