@@ -95,7 +95,7 @@ class Agent:
             node = NodeModel(name=hostname+".node", hostname=hostname)
             with self.get_session() as session:
                 session.add(node)
-            #self.database.session.commit()
+            
             self.database.session.refresh(node)
         else:
             self.database.session.add(node)
@@ -116,8 +116,9 @@ class Agent:
         agent.cpus = cpus
         agent.port = self.port
         agent.updated = datetime.now()
-        self.database.session.add(agent)
-        self.database.session.commit()
+
+        with self.get_session() as session:
+            session.add(agent)
 
         def monitor_processors():
             """
@@ -151,7 +152,7 @@ class Agent:
                     with self.get_session() as session:
                         session.add(self.node)
                     #self.database.session.add(self.node)
-                    #self.database.session.commit()
+                    
 
                     time.sleep(3)
                     sm = psutil.virtual_memory()
@@ -191,7 +192,7 @@ class Agent:
                                     with self.get_session() as session:
                                         session.add(processor['processor'])
                                     #self.database.session.add(processor['processor'])
-                                    #self.database.session.commit()
+                                    
 
                                     logging.info("Processor {} moved from {} to {}.".format(
                                         processor['processor'].name, hostname, processor['processor'].hostname))
@@ -209,7 +210,7 @@ class Agent:
                                         session.add(processor['processor'])
                                     #self.database.session.add(
                                     #    processor['processor'])
-                                    #self.database.session.commit()
+                                    
 
                         # Loop through my database processors
                         for myprocessor in myprocessors:
@@ -255,7 +256,7 @@ class Agent:
                             with self.get_session() as session:
                                 session.delete(processor['processor'].worker)
                                 session.delete(processor['processor'])
-                            #self.database.session.commit()
+                            
 
                             if os.path.exists('work/'+processor['processor'].id):
                                 logging.debug(
@@ -289,7 +290,7 @@ class Agent:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
 
-                            #self.database.session.commit()
+                            
 
                         if processor['processor'].requested_status == 'paused':
                             if processor['worker'] is not None:
@@ -318,7 +319,7 @@ class Agent:
                             #self.database.session.add(
                             #    processor['processor'])
 
-                            #self.database.session.commit()
+                            
                             continue
 
                         if processor['processor'].requested_status == 'resumed':
@@ -343,7 +344,7 @@ class Agent:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
 
-                            #self.database.session.commit()
+                            
                             continue
 
                         if processor['processor'].requested_status == 'stopped':
@@ -369,7 +370,7 @@ class Agent:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
 
-                            #self.database.session.commit()
+                            
 
                         if processor['processor'].requested_status == 'started':
                             if processor['worker'] is None:
@@ -460,7 +461,7 @@ class Agent:
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
 
-                                #self.database.session.commit()
+                                
 
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
@@ -479,7 +480,7 @@ class Agent:
 
                             with self.get_session() as session:
                                 session.add(processor['processor'])
-                            #self.database.session.commit()
+                            
 
             manage_processors(workers, processors)
 

@@ -70,7 +70,6 @@ class Worker:
     """
     from contextlib import contextmanager
 
-
     @contextmanager
     def get_session(self):
         session = self.database.session
@@ -304,10 +303,9 @@ class Worker:
                                               hostname=hostname,
                                               requested_status='start')
 
-
                     with self.get_session() as session:
                         session.add(workerModel)
-                    #self.database.session.commit()
+
             except:
                 pass
 
@@ -379,7 +377,7 @@ class Worker:
                                 _queue.put(data)
                                 call = CallModel(
                                     name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='prerun', started=started)
-
+                                
                                 with self.get_session() as session:
                                     session.add(call)
 
@@ -413,6 +411,15 @@ class Worker:
                         logging.info("Task POSTRUN RESULT %s", retval)
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
+
+                        call = self.database.session.query(
+                            CallModel).filter_by(celeryid=task_id).first()
+                        if call:
+                            with self.get_session() as session:
+                                call.finished = datetime.now()
+                                session.add(call)
+                        else:
+                            logging.error("No pre-existing Call object for task %s", task_id)
                         try:
                             # while _queue.qsize() > 1000:
                             #    logging.debug("Waiting for queue to shrink")
