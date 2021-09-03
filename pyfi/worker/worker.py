@@ -401,33 +401,38 @@ class Worker:
 
                     @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, **kwargs):
-                        logging.debug("Task prerun")
+                        logging.debug("Task PRERUN: %s", sender)
+                        # Store task run data
                         task_kwargs = kwargs.get('kwargs')
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
+                        logging.info("Task SUCCESS: %s", sender)
+                        # Store task run data
                         pass
 
                     @task_failure.connect()
                     def pyfi_task_failure(sender=None, **kwargs):
+                        # Store task run data
                         pass
 
                     @task_internal_error.connect()
                     def pyfi_task_internal_error(sender=None, **kwargs):
+                        # Store task run data
                         pass
 
                     @task_received.connect()
                     def pyfi_task_received(sender=None, **kwargs):
-                        logging.debug("Task received")
+                        logging.info("Task RECEIVED %s", sender)
                         pass
 
                     @task_postrun.connect()
                     def pyfi_task_postrun(sender=None, **kwargs):
                         from datetime import datetime
 
-                        logging.info("pyfi_task_postrun")
+                        logging.info("Task POSTRUN %s", sender)
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:
@@ -457,16 +462,16 @@ class Worker:
                             result = kwargs.get('args')[0]
                             data['message'] = json.dumps(result)
                             data['message'] = json.dumps(data)
-                            logging.info(
+                            logging.debug(
                                 "EMITTING ROOMSG: %s", data)
 
-                            _queue.put(['servermsg', data])
+                            #_queue.put(['servermsg', data])
                             _queue.put(['roomsg', data])
 
                             _queue.put(
                                 ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                            logging.info("PLUGS: %s", plugs)
+                            logging.debug("PLUGS: %s", plugs)
                             for key in plugs:
                                 """
                                 Find plugs on this processor whose queue matches key
