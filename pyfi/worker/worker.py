@@ -2,7 +2,6 @@
 Agent workerclass. Primary task/code execution context for processors
 """
 import redis
-import socketio
 import logging
 import shutil
 import os
@@ -13,27 +12,24 @@ import configparser
 import platform
 
 from pathlib import Path
-
 from multiprocessing import Condition, Queue
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 from celery import Celery
+from celery.signals import setup_logging
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
 from kombu import Exchange, Queue as KQueue
 
-from celery.signals import setup_logging
-
 hostname = platform.node()
-
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
     pass
-
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -88,7 +84,9 @@ class Worker:
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
+
         logging.debug("New Worker init: %s", processor)
+
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
@@ -105,33 +103,6 @@ class Worker:
         else:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
-
-        '''
-        @self.celery.on_after_configure.connect
-        def setup_periodic_tasks(sender, **kwargs):
-            for socket in self.processor.sockets:
-                if socket.schedule <= 0:
-                    continue
-                tkey = socket.queue.name+'.' + self.processor.name.replace(
-                    ' ', '.')+'.'+socket.task.name
-                worker_queue = KQueue(
-                    tkey,
-                    Exchange(socket.queue.name, type='direct'),
-                    routing_key=tkey,
-
-                    message_ttl=socket.queue.message_ttl,
-                    durable=socket.queue.durable,
-                    expires=socket.queue.expires,
-                    queue_arguments={
-                        'x-message-ttl': 30000,
-                        'x-expires': 300}
-                )
-                sig = self.celery.signature(
-                    self.processor.module+'.'+socket.task.name, queue=worker_queue, kwargs={}).delay()
-                logging.info("Add periodic task %s %s %s",socket.schedule, socket, sig)
-                sender.add_periodic_task(
-                    socket.schedule, sig, name=socket.task.name)
-        '''
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
@@ -186,39 +157,9 @@ class Worker:
             self.processor = session.query(
                 ProcessorModel).filter_by(id=self.processor.id).first()
 
-            '''
-            sio = socketio.Client()
-
-            @sio.on('task', namespace='/tasks')
-            def tmessage(message):
-                logging.debug("task message: %s", message)
-
-            @sio.on('queue', namespace='/tasks')
-            def message(data):
-                logging.debug(
-                    '\x1b[33;21m I received a message! %s\x1b[0m', data)
-
-            @sio.on('connect', namespace='/tasks')
-            def connect():
-                logging.debug("I'm connected to namespace /tasks!")
-
-                sio.emit('servermsg', {
-                    'module': self.processor.module}, namespace='/tasks')
-            '''
             logging.debug(
                 "Attempting connect to events server {}".format(events_server))
 
-            '''
-            while True:
-                try:
-                    sio.connect('http://'+events_server+':5000',
-                                namespaces=['/tasks'])
-                    logging.debug(
-                        "Connected to events server {}".format(events_server))
-                    break
-                except Exception as ex:
-                    pass  # Silent error
-            '''
             task_queues = []
             task_routes = {}
 
@@ -238,15 +179,9 @@ class Worker:
                         processor_path = socket.queue.name + '.' + \
                             self.processor.name.replace(' ', '.')
 
-                        #sio.emit('join', {'room': processor_path},
-                        #         namespace='/tasks')
-
                         logging.info("Joining room %s", processor_path)
                         if processor_path not in queues:
                             queues += [processor_path]
-                            #room = {'room': processor_path}
-                            #logging.debug("Joining room %s", room)
-                            #sio.emit('join', room, namespace='/tasks')
 
                         processor_task = socket.queue.name + '.' + self.processor.name.replace(
                             ' ', '.')+'.'+socket.task.name
@@ -361,6 +296,7 @@ class Worker:
                         continue
                     tkey = socket.queue.name+'.' + self.processor.name.replace(
                         ' ', '.')+'.'+socket.task.name
+                    
                     worker_queue = KQueue(
                         tkey,
                         Exchange(socket.queue.name, type='direct'),
@@ -582,6 +518,7 @@ class Worker:
         import time
 
         if self.processor.gitrepo and not self.skipvenv:
+            """ Build our virtualenv and import the gitrepo for the processor """
             logging.debug("git clone -b {} --single-branch {} git".format(
                 self.processor.branch, self.processor.gitrepo))
 
@@ -592,7 +529,6 @@ class Worker:
                 os.system('git config pull.rebase false')
                 os.system('git pull')
             else:
-                #shutil.rmtree("git", ignore_errors=True)
 
                 while True:
                     try:
@@ -609,8 +545,10 @@ class Worker:
                         time.sleep(3)
 
             if not os.path.exists('venv'):
-                logging.info("Building virtualenv...in %s", os.getcwd())
                 from virtualenvapi.manage import VirtualEnvironment
+
+                logging.info("Building virtualenv...in %s", os.getcwd())
+
                 env = VirtualEnvironment(
                     'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
@@ -638,21 +576,8 @@ class Worker:
 
             redisclient = redis.Redis.from_url(self.backend)
 
-            sio = socketio.Client()
-
             logging.info(
                 "Attempting connect to events server {}".format(events_server))
-            '''
-            while True:
-                try:
-                    sio.connect('http://'+events_server+':5000',
-                                namespaces=['/tasks'])
-                    logging.info(
-                        "Connected to events server {}".format(events_server))
-                    break
-                except Exception as ex:
-                    pass  # Silent error
-            '''
 
             last_qsize = 0
             while True:
@@ -704,14 +629,18 @@ class Worker:
         logging.debug("Terminating process %s", self.process.pid)
 
         process = psutil.Process(self.process.pid)
+
         for child in process.children(recursive=True):
             child.kill()
+            
         process.kill()
         process.terminate()
+
         os.killpg(os.getpgid(process.pid), 15)
         os.kill(process.pid, signal.SIGKILL)
 
         logging.debug("Finishing.")
+
         try:
             self.process.join()
         except:

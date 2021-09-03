@@ -1441,7 +1441,6 @@ def ls_plugs(context):
 @click.option('-s', '--server', default=None, required=True, help="Events server")
 @click.pass_context
 def listen(context, name, channel, server):
-    import socketio
     import redis
 
     redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
