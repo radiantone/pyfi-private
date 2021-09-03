@@ -304,6 +304,7 @@ class CallModel(BaseModel):
     """
     __tablename__ = 'call'
 
+    name = Column(String(80), unique=False, nullable=False)
     state = Column(String(10))
     resultid = Column(String(80))
     celeryid = Column(String(80))

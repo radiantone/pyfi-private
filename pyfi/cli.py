@@ -1158,6 +1158,9 @@ def ls_call(context, id, name):
 
     names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
     x.field_names = names
+    
+    calls = None
+    call = None
 
     if name is not None:
         calls = context.obj['database'].session.query(
@@ -1165,18 +1168,19 @@ def ls_call(context, id, name):
     elif id is not None:
         call = context.obj['database'].session.query(
             CallModel).filter_by(id=id).first()
+        nodes = [call]
 
     if calls:
         nodes = calls
-        for node in nodes:
-            x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.started, node.finished, node.state])
     elif call:
 
         redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
         r = redisclient.get(call.resultid)
         print(json.dumps(json.loads(r), indent=4))
 
+    for node in nodes:
+        x.add_row([node.name, node.id, node.owner,
+                    node.lastupdated, node.started, node.finished, node.state])
     print(x)
 
 
