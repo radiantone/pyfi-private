@@ -361,8 +361,8 @@ class Worker:
                                 _queue.put(data)
                                 call = CallModel(
                                     name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='prerun', started=started)
-                                self.session.add(call)
-                                self.session.commit()
+                                self.database.session.add(call)
+                                self.database.session.commit()
                                 logging.info(
                                     "Task PRERUN CALL: %s", call)
 
