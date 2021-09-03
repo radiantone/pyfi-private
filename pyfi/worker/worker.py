@@ -131,10 +131,10 @@ class Worker:
             def myfunc():
                 print("my func triggered")
 
-            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5)
+            job = scheduler.add_job("myfunc", 'interval', jobstore='default', seconds=5)
             scheduler.print_jobs()
             scheduler.start()
-            
+
 
         if celeryconfig is not None:
             import importlib
