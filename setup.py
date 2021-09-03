@@ -144,10 +144,11 @@ setup(
         'uvicorn',
         'psutil',
         'requests',
-        'uvicorn[standard]',
-        'python-socketio',
-        'python-socketio[asyncio_client]',
-        'python-socketio[client]'
+        'schedule',
+        'apscheduler',
+        #'simpy',
+        'pyschedule',
+        'uvicorn[standard]'
     ],
     license=about['__license__'],
     zip_safe=False,
