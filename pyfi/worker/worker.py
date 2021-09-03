@@ -87,7 +87,7 @@ class Worker:
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
-        logging.debug("New Worker init: %s",processor)
+        logging.debug("New Worker init: %s", processor)
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
@@ -149,11 +149,13 @@ class Worker:
         """
 
         logging.debug("CWD: %s", os.getcwd())
-        logging.info("Launching worker %s %s", "venv/bin/pyfi worker start -s -n %s", name)
-        self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s", 
+        logging.info("Launching worker %s %s",
+                     "venv/bin/pyfi worker start -s -n %s", name)
+        self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s",
                                         "-n", name], stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
-        logging.debug("Worker launched successfully: process %s.", self.process.pid)
+        logging.debug("Worker launched successfully: process %s.",
+                      self.process.pid)
         return process
 
     def start(self, start=True, listen=True):
@@ -164,7 +166,7 @@ class Worker:
         from multiprocessing import Process
         import os
 
-        logging.debug("PYTHON: %s",sys.executable)
+        logging.debug("PYTHON: %s", sys.executable)
 
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
@@ -175,7 +177,6 @@ class Worker:
             import time
 
             from billiard.pool import Pool
-
 
             queues = []
             engine = create_engine(self.dburi)
@@ -235,7 +236,7 @@ class Worker:
                             self.processor.name.replace(' ', '.')
 
                         sio.emit('join', {'room': processor_path},
-                                                namespace='/tasks')
+                                 namespace='/tasks')
 
                         logging.info("Joining room %s", processor_path)
                         if processor_path not in queues:
@@ -318,7 +319,7 @@ class Worker:
             app.conf.task_routes = task_routes
 
             logging.info("Starting celery worker %s %s %s",
-                         self.processor.name+'@'+hostname,self.backend,self.broker)
+                         self.processor.name+'@'+hostname, self.backend, self.broker)
 
             worker = app.Worker(
                 hostname=self.processor.name+'@'+hostname,
@@ -338,18 +339,17 @@ class Worker:
 
                 if workerModel is None:
                     workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
-                                        status='ready',
-                                        backend=self.backend,
-                                        broker=self.broker,
-                                        hostname=hostname,
-                                        requested_status='start')
+                                              status='ready',
+                                              backend=self.backend,
+                                              broker=self.broker,
+                                              hostname=hostname,
+                                              requested_status='start')
 
                     self.database.session.add(workerModel)
                     self.database.session.commit()
             except:
                 pass
 
-            
             if self.processor.beat:
                 worker.app.conf.beat_schedule = {}
 
@@ -372,12 +372,11 @@ class Worker:
                     )
 
                     worker.app.conf.beat_schedule[self.processor.module+'.'+socket.task.name] = {
-                        "task":self.processor.module+'.'+socket.task.name,
+                        "task": self.processor.module+'.'+socket.task.name,
                         "args": ("Hello World!",),
                         "schedule": socket.schedule,
-                        'options': {'queue' : tkey},
+                        'options': {'queue': tkey},
                     }
-
 
             sys.path.append(os.getcwd())
 
@@ -401,11 +400,23 @@ class Worker:
 
                     @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, **kwargs):
-                        logging.debug("Task PRERUN: %s", sender)
+                        from datetime import datetime
+
                         # Store task run data
                         task_kwargs = kwargs.get('kwargs')
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
+
+                        for _socket in self.processor.sockets:
+                            if _socket.task.name == sender.__name__:
+                                processor_path = _socket.queue.name + '.' + \
+                                    self.processor.name.replace(' ', '.')
+
+                                data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(
+                                    datetime.now()), 'room': processor_path}]
+                                logging.debug("Task PRERUN: %s %s", sender, data)
+                                _queue.put(data)
+                                break
 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
@@ -462,6 +473,8 @@ class Worker:
                             result = kwargs.get('args')[0]
                             data['message'] = json.dumps(result)
                             data['message'] = json.dumps(data)
+                            data['state'] = 'postrun'
+
                             logging.debug(
                                 "EMITTING ROOMSG: %s", data)
 
@@ -483,7 +496,8 @@ class Worker:
                                     if _plug.queue.name == key:
                                         processor_plug = _plug
 
-                                logging.info("processor_plug %s",processor_plug)
+                                logging.info("processor_plug %s",
+                                             processor_plug)
                                 if processor_plug is None:
                                     continue
 
@@ -506,7 +520,8 @@ class Worker:
                                     if processor_plug.queue.qtype == 'direct':
                                         logging.info("Finding processor....")
                                         for socket in processor_plug.sockets:
-                                            logging.info("Checking socket[%s] vs key[%s]",socket.queue.name, key)
+                                            logging.info(
+                                                "Checking socket[%s] vs key[%s]", socket.queue.name, key)
                                             _processor = processor_map[socket.processor_id]
                                             if socket.queue.name == key:
                                                 """ Find the socket object for the outbound queue"""
@@ -514,18 +529,19 @@ class Worker:
                                                     key,
                                                     _processor.module+'.'+socket.task.name, msg))
 
-                                                tkey = key+'.' +_processor.name.replace(
+                                                tkey = key+'.' + _processor.name.replace(
                                                     ' ', '.')+'.'+socket.task.name
                                                 # Target specific worker queue here
                                                 worker_queue = KQueue(
                                                     tkey,
-                                                    Exchange(key, type='direct'),
+                                                    Exchange(
+                                                        key, type='direct'),
                                                     routing_key=tkey,
 
                                                     message_ttl=socket.queue.message_ttl,
                                                     durable=socket.queue.durable,
                                                     expires=socket.queue.expires,
-                                                    #expires=30,
+                                                    # expires=30,
                                                     # socket.queue.message_ttl
                                                     # socket.queue.expires
                                                     queue_arguments={
@@ -533,17 +549,19 @@ class Worker:
                                                         'x-expires': 300}
                                                 )
 
-                                                logging.info("worker queue %s",worker_queue)
+                                                logging.info(
+                                                    "worker queue %s", worker_queue)
                                                 try:
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                                                 except:
                                                     import traceback
-                                                    print(traceback.format_exc())
+                                                    print(
+                                                        traceback.format_exc())
                                                 logging.info(
                                                     "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
                                             # We sent the message, so remove it so it doesn't get re-sent on the next cycle
-                                            # If there is an exception delivering the message above, this code will get skipped and the 
+                                            # If there is an exception delivering the message above, this code will get skipped and the
                                             # cycle will retry this message
                                             plugs[key].remove(msg)
 
@@ -555,7 +573,7 @@ class Worker:
             worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
-                     self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
+                      self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         os.chdir(self.workdir)
         import time
@@ -571,7 +589,7 @@ class Worker:
                 os.system('git config pull.rebase false')
                 os.system('git pull')
             else:
-                shutil.rmtree("git", ignore_errors=True)
+                #shutil.rmtree("git", ignore_errors=True)
 
                 while True:
                     try:
@@ -590,17 +608,19 @@ class Worker:
             if not os.path.exists('venv'):
                 logging.info("Building virtualenv...in %s", os.getcwd())
                 from virtualenvapi.manage import VirtualEnvironment
-                env = VirtualEnvironment('venv', python=sys.executable, system_site_packages=True)  # inside git directory
-                
+                env = VirtualEnvironment(
+                    'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+
                 login = os.environ['GIT_LOGIN']
-                env.install('-e git+'+login+'/radiantone/pyfi-private#egg=pyfi')
+                env.install('-e git+'+login +
+                            '/radiantone/pyfi-private#egg=pyfi')
 
                 try:
                     env.install('-e git+'+self.processor.gitrepo.strip())
                 except:
                     logging.error("Could not install %s",
-                                self.processor.gitrepo.strip())
-            
+                                  self.processor.gitrepo.strip())
+
         process = Process(target=worker_proc, args=(self.celery, queue))
         process.app = self.celery
         processes += [process]
@@ -640,7 +660,7 @@ class Worker:
         process2 = Process(target=emit_messages)
         process2.daemon = True
 
-        #if listen:
+        # if listen:
         logging.info("Starting emit_messages")
         process2.start()
 
