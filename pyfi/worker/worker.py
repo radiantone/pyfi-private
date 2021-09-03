@@ -414,7 +414,7 @@ class Worker:
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(
                                     datetime.now()), 'room': processor_path}]
-                                logging.debug("Task PRERUN: %s %s", sender, data)
+                                logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
                                 break
 
