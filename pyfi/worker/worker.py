@@ -186,6 +186,7 @@ class Worker:
             self.processor = session.query(
                 ProcessorModel).filter_by(id=self.processor.id).first()
 
+            '''
             sio = socketio.Client()
 
             @sio.on('task', namespace='/tasks')
@@ -203,10 +204,11 @@ class Worker:
 
                 sio.emit('servermsg', {
                     'module': self.processor.module}, namespace='/tasks')
-
+            '''
             logging.debug(
                 "Attempting connect to events server {}".format(events_server))
 
+            '''
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
@@ -216,7 +218,7 @@ class Worker:
                     break
                 except Exception as ex:
                     pass  # Silent error
-
+            '''
             task_queues = []
             task_routes = {}
 
@@ -236,8 +238,8 @@ class Worker:
                         processor_path = socket.queue.name + '.' + \
                             self.processor.name.replace(' ', '.')
 
-                        sio.emit('join', {'room': processor_path},
-                                 namespace='/tasks')
+                        #sio.emit('join', {'room': processor_path},
+                        #         namespace='/tasks')
 
                         logging.info("Joining room %s", processor_path)
                         if processor_path not in queues:
@@ -640,6 +642,7 @@ class Worker:
 
             logging.info(
                 "Attempting connect to events server {}".format(events_server))
+            '''
             while True:
                 try:
                     sio.connect('http://'+events_server+':5000',
@@ -649,6 +652,7 @@ class Worker:
                     break
                 except Exception as ex:
                     pass  # Silent error
+            '''
 
             last_qsize = 0
             while True:
