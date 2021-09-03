@@ -1,6 +1,7 @@
 """
 Agent workerclass. Primary task/code execution context for processors
 """
+import redis
 import socketio
 import logging
 import shutil
@@ -633,6 +634,8 @@ class Worker:
         def emit_messages():
             import json
 
+            redisclient = redis.Redis.from_url(self.backend)
+
             sio = socketio.Client()
 
             logging.info(
@@ -651,8 +654,9 @@ class Worker:
             while True:
                 try:
                     message = queue.get()
-                    logging.info("Emitting message %s", message)
-                    sio.emit(*message, namespace='/tasks')
+                    logging.info("Emitting message %s %s", message[1]['room'], message)
+                    redisclient.publish(message[1]['room'],message[1])
+                    #sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
                     time.sleep(3)

@@ -29,7 +29,8 @@ async def server_message(sid, data):
 async def room_message(sid, data):
     print("ROOM MESSAGE", data)
     #await sio.emit(_data['channel'], _data['message'], skip_sid=sid)
-    await sio.emit(data['channel'], data['message'], room=data['room'],  namespace='/tasks')
+    message = data['message'] if 'message' in data else 'None'
+    await sio.emit(data['channel'], message, room=data['room'],  namespace='/tasks')
 
 @sio.on('connect', namespace='/tasks')
 async def connect(sid, environ):
