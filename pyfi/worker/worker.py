@@ -115,15 +115,15 @@ class Worker:
             self.broker = CONFIG.get('broker', 'uri')
 
             jobstores = {
-            'default': SQLAlchemyJobStore(url=CONFIG.get('database','uri'))
+                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), tablename='jobs')
             }
             executors = {
-            'default': ThreadPoolExecutor(20),
-            'processpool': ProcessPoolExecutor(5)
+                'default': ThreadPoolExecutor(20),
+                'processpool': ProcessPoolExecutor(5)
             }
             job_defaults = {
-            'coalesce': False,
-            'max_instances': 3
+                'coalesce': False,
+                'max_instances': 3
             }
 
             scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
