@@ -131,7 +131,7 @@ class Worker:
             def myfunc():
                 print("my func triggered")
 
-            job = scheduler.add_job(myfunc, 'interval', seconds=5)
+            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5)
             print("CONFIGURED APJOB")
 
         if celeryconfig is not None:
