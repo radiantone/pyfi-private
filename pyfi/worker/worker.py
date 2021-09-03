@@ -491,6 +491,9 @@ class Worker:
                                                 logging.info(
                                                     "worker queue %s", worker_queue)
                                                 try:
+                                                    # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
+                                                    # Define context object that function can use to set outbound data and get inbound data
+                                                    # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
                                                 except:
