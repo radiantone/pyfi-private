@@ -390,7 +390,9 @@ class Worker:
                     def pyfi_task_postrun(sender=None, **kwargs):
                         from datetime import datetime
 
-                        logging.info("Task POSTRUN %s", sender)
+                        logging.info("Task POSTRUN[%s] %s", sender.id, sender)
+
+                        logging.info("Task POSTRUN RESULT %s", sender.get())
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
                         try:

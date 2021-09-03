@@ -309,13 +309,12 @@ class CallModel(BaseModel):
 
     task_id = Column(String(40), ForeignKey('task.id'),
                           nullable=False)
-    started = Column(DateTime, default=datetime.now,
-                         onupdate=datetime.now, nullable=False)
-    finished = Column(DateTime, default=datetime.now,
-                         onupdate=datetime.now, nullable=False)
+    started = Column(DateTime, default=datetime.now,nullable=False)
+    finished = Column(DateTime, nullable=False)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
+
 
 class SchedulerModel(BaseModel):
     """
