@@ -133,7 +133,7 @@ class Worker:
             scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
 
 
-            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5)
+            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5, id='myfunc')
             scheduler.print_jobs()
             scheduler.start()
 
