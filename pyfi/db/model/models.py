@@ -311,7 +311,7 @@ class CallModel(BaseModel):
     task_id = Column(String(40), ForeignKey('task.id'),
                           nullable=False)
     started = Column(DateTime, default=datetime.now,nullable=False)
-    finished = Column(DateTime, nullable=False)
+    finished = Column(DateTime)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
