@@ -359,7 +359,8 @@ class Worker:
                                 data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(started), 'room': processor_path}]
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
-                                call = CallModel(name=processor_path, task_id=_socket.task.id, state='prerun', started=started)
+                                call = CallModel(
+                                    name=self.processor.module+'.'+_socket.task.name, task_id=_socket.task.id, state='prerun', started=started)
                                 self.session.add(call)
                                 self.session.commit()
                                 break
