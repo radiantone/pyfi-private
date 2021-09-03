@@ -1143,6 +1143,43 @@ def start_worker(context, name, pool, skip_venv):
     wprocess.join()
 
 
+@ls.command(name='call')
+@click.option('--id', default=None, help="ID of call")
+@click.option('-n', '--name', default=None, required=False, help='Name of call')
+@click.pass_context
+def ls_call(context, id, name):
+    """
+    List queues
+    """
+    import redis
+    import json
+
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
+    x.field_names = names
+
+    if name is not None:
+        calls = context.obj['database'].session.query(
+            CallModel).filter_by(name=name).all()
+    elif id is not None:
+        call = context.obj['database'].session.query(
+            CallModel).filter_by(id=id).first()
+
+    if calls:
+        nodes = calls
+        for node in nodes:
+            x.add_row([node.name, node.id, node.owner,
+                    node.lastupdated, node.started, node.finished, node.state])
+    elif call:
+
+        redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
+        r = redisclient.get(call.resultid)
+        print(json.dumps(json.loads(r), indent=4))
+
+    print(x)
+
+
 @ls.command(name='calls')
 @click.pass_context
 def ls_calls(context):

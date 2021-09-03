@@ -306,6 +306,7 @@ class CallModel(BaseModel):
 
     state = Column(String(10))
     resultid = Column(String(80))
+    celeryid = Column(String(80))
 
     task_id = Column(String(40), ForeignKey('task.id'),
                           nullable=False)

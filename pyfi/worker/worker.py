@@ -343,7 +343,7 @@ class Worker:
                                             '.'+socket.task.name, retries=self.processor.retries)
 
                     @task_prerun.connect()
-                    def pyfi_task_prerun(sender=None, **kwargs):
+                    def pyfi_task_prerun(sender=None, task_id=None, **kwargs):
                         from datetime import datetime
 
                         # Store task run data
@@ -360,10 +360,11 @@ class Worker:
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
                                 call = CallModel(
-                                    name=self.processor.module+'.'+_socket.task.name, task_id=_socket.task.id, state='prerun', started=started)
+                                    name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='prerun', started=started)
                                 self.session.add(call)
                                 self.session.commit()
-                                break
+                                logging.info(
+                                    "Task PRERUN CALL: %s", call)
 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
@@ -412,7 +413,7 @@ class Worker:
                                     processor_path = socket.queue.name + '.' + \
                                         self.processor.name.replace(' ', '.')
                                     data = {
-                                        'module': self.processor.module, 'date': str(datetime.now()), 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                        'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
                                     payload = json.dumps(data)
                                     data['message'] = payload
                                     break
