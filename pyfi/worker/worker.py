@@ -26,6 +26,7 @@ from kombu import Exchange, Queue as KQueue
 
 hostname = platform.node()
 
+
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
@@ -67,6 +68,22 @@ class Worker:
     """
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
+    from contextlib import contextmanager
+
+
+    @contextmanager
+    def get_session(self):
+        session = self.database.session
+
+        try:
+            yield session
+        except:
+            session.rollback()
+            raise
+        else:
+
+            session.commit()
+
 
     def __init__(self, processor, workdir, pool=4, database=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
@@ -361,8 +378,10 @@ class Worker:
                                 _queue.put(data)
                                 call = CallModel(
                                     name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='prerun', started=started)
-                                self.database.session.add(call)
-                                self.database.session.commit()
+
+                                with self.get_session() as session:
+                                    session.add(call)
+                                #self.database.session.commit()
 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
