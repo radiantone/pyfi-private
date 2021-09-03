@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
 from pyfi.server import app
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 
 import platform
@@ -576,12 +576,14 @@ def update(context, id):
     context.obj['id'] = str(id)
 
 
-@scheduler.command(name='run', help='Run the basic scheduler')
+@scheduler.command(name='start', help='Start the default scheduler')
+@click.option('-n', '--name', default=None, required=True)
+@click.option('-i', '--interval', default=3, required=False)
 @click.pass_context
-def run_scheduler(context):
+def start_scheduler(context, name, interval):
     from pyfi.scheduler import Scheduler
-
-    scheduler = Scheduler(context)
+    print("Starting scheduler {} with interval {} seconds.".format(name, interval))
+    scheduler = Scheduler(context, name, interval)
     scheduler.run()
 
 
@@ -599,14 +601,23 @@ def add_node_to_scheduler(context, node):
     if name is not None:
         scheduler = context.obj['database'].session.query(
             SchedulerModel).filter_by(name=name).first()
+
     elif id is not None:
         scheduler = context.obj['database'].session.query(
             SchedulerModel).filter_by(id=id).first()
 
-    node = context.obj['database'].session.query(
+    if scheduler is None:
+        print(f"Scheduler {name} does not exist.")
+        return
+
+    _node = context.obj['database'].session.query(
         NodeModel).filter_by(name=node).first()
 
-    scheduler.nodes += [node]
+    if _node is None:
+        print(f"Node {node} does not exist.")
+        return
+
+    scheduler.nodes += [_node]
 
     context.obj['database'].session.add(scheduler)
     context.obj['database'].session.commit()
@@ -783,7 +794,7 @@ def add_privilege(context, user, name):
 @click.option('-e', '--email', prompt=True, default=None, required=True)
 @click.option('-p', '--password', prompt=True, default=None, required=True)
 @click.pass_context
-def ls_user(context, name, email, password):
+def add_user(context, name, email, password):
     """
     Add user object to the database
     """
@@ -823,14 +834,15 @@ def ls_user(context, name, email, password):
 
 @add.command(name='scheduler')
 @click.option('-n', '--name', required=True)
+@click.option('-s', '--strategy', default='BALANCED', required=False)
 @click.pass_context
-def add_scheduler(context, name):
+def add_scheduler(context, name, strategy):
     """
     Add scheduler object to the database
     """
     id = context.obj['id']
 
-    scheduler = SchedulerModel(name=name, id=id)
+    scheduler = SchedulerModel(name=name, strategy=strategy, id=id)
     scheduler.updated = datetime.now()
     context.obj['database'].session.add(scheduler)
     context.obj['database'].session.commit()
@@ -1130,6 +1142,25 @@ def start_worker(context, name, pool, skip_venv):
     context.obj['database'].session.commit()
     wprocess.join()
 
+
+@ls.command(name='calls')
+@click.pass_context
+def ls_calls(context):
+    """
+    List queues
+    """
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
+    x.field_names = names
+    nodes = context.obj['database'].session.query(CallModel).all()
+    for node in nodes:
+        x.add_row([node.name, node.id, node.owner,
+                  node.lastupdated, node.started, node.finished, node.state])
+
+    print(x)
+
+
 @ls.command(name='schedulers')
 @click.pass_context
 def ls_schedulers(context):
@@ -1138,12 +1169,12 @@ def ls_schedulers(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Nodes"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Strategy", "Nodes"]
     x.field_names = names
     nodes = context.obj['database'].session.query(SchedulerModel).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                  node.lastupdated, [n.name for n in node.nodes]])
+                  node.lastupdated, node.strategy, [n.name for n in node.nodes]])
 
     print(x)
 

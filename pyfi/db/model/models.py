@@ -35,6 +35,11 @@ class BaseModel(Base):
                          onupdate=datetime.now, nullable=False)
 
 
+strategies = [
+    'BALANCED',
+    'EFFICIENT'
+]
+
 rights = [  'ALL',
             'CREATE',
             'READ',
@@ -293,12 +298,33 @@ class ProcessorModel(BaseModel):
         return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker, self.plugs, self.sockets)
 
 
+class CallModel(BaseModel):
+    """
+    Docstring
+    """
+    __tablename__ = 'call'
+
+    state = Column(String(10))
+    resultid = Column(String(80))
+
+    task_id = Column(String(40), ForeignKey('task.id'),
+                          nullable=False)
+    started = Column(DateTime, default=datetime.now,
+                         onupdate=datetime.now, nullable=False)
+    finished = Column(DateTime, default=datetime.now,
+                         onupdate=datetime.now, nullable=False)
+
+    def __repr__(self):
+        return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
+
 class SchedulerModel(BaseModel):
     """
     Docstring
     """
     __tablename__ = 'scheduler'
-    nodes = relationship('NodeModel')
+
+    nodes = relationship('NodeModel', backref='scheduler', lazy=True)
+    strategy = Column('strategy', Enum(*strategies, name='strategies'))
 
     def __repr__(self):
         return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)

@@ -17,7 +17,7 @@ from multiprocessing import Condition, Queue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 from celery import Celery
 from celery.signals import setup_logging
@@ -68,7 +68,7 @@ class Worker:
     A worker is a celery worker with a processor module loaded and represents a single processor
     """
 
-    def __init__(self, processor, workdir, pool=4, database=None, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, database=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -80,6 +80,7 @@ class Worker:
         self.workdir = workdir
         self.dburi = database
         self.skipvenv = skipvenv
+        self.usecontainer = usecontainer
         self.database = create_engine(self.dburi)
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
@@ -120,14 +121,18 @@ class Worker:
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
 
-        logging.debug("CWD: %s", os.getcwd())
-        logging.info("Launching worker %s %s",
-                     "venv/bin/pyfi worker start -s -n %s", name)
-        self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s",
-                                        "-n", name], stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
+        if not self.usecontainer:
+            logging.info("Launching worker %s %s",
+                        "venv/bin/pyfi worker start -s -n %s", name)
+            self.process = process = Popen(["venv/bin/pyfi", "worker", "start", "-s",
+                                            "-n", name], stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
-        logging.debug("Worker launched successfully: process %s.",
-                      self.process.pid)
+            logging.debug("Worker launched successfully: process %s.",
+                        self.process.pid)
+        else:
+            """ Run agent worker inside previously launched container """
+            pass
+
         return process
 
     def start(self, start=True, listen=True):
@@ -350,11 +355,13 @@ class Worker:
                             if _socket.task.name == sender.__name__:
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
-
-                                data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(
-                                    datetime.now()), 'room': processor_path}]
+                                started = datetime.now()
+                                data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(started), 'room': processor_path}]
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
+                                call = CallModel(name=processor_path, task_id=_socket.task.id, state='prerun', started=started)
+                                self.session.add(call)
+                                self.session.commit()
                                 break
 
                     @task_success.connect()
@@ -521,49 +528,55 @@ class Worker:
         import time
 
         if self.processor.gitrepo and not self.skipvenv:
-            """ Build our virtualenv and import the gitrepo for the processor """
-            logging.debug("git clone -b {} --single-branch {} git".format(
-                self.processor.branch, self.processor.gitrepo))
 
-            if os.path.exists("git"):
-                os.chdir('git')
-                logging.info("Pulling update from git")
-                os.system('git config --get remote.origin.url')
-                os.system('git config pull.rebase false')
-                os.system('git pull')
+
+            if self.usecontainer:
+                """ Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
+
             else:
+                """ Build our virtualenv and import the gitrepo for the processor """
+                logging.debug("git clone -b {} --single-branch {} git".format(
+                    self.processor.branch, self.processor.gitrepo))
 
-                while True:
+                if os.path.exists("git"):
+                    os.chdir('git')
+                    logging.info("Pulling update from git")
+                    os.system('git config --get remote.origin.url')
+                    os.system('git config pull.rebase false')
+                    os.system('git pull')
+                else:
+
+                    while True:
+                        try:
+                            logging.info("git clone -b {} --single-branch {} git".format(
+                                self.processor.branch, self.processor.gitrepo.split('#')[0]))
+                            os.system(
+                                "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
+                            sys.path.append(self.workdir+'/git')
+                            os.chdir('git')
+                            os.system("git config credential.helper store")
+                            break
+                        except Exception as ex:
+                            logging.error(ex)
+                            time.sleep(3)
+
+                if not os.path.exists('venv'):
+                    from virtualenvapi.manage import VirtualEnvironment
+
+                    logging.info("Building virtualenv...in %s", os.getcwd())
+
+                    env = VirtualEnvironment(
+                        'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+
+                    login = os.environ['GIT_LOGIN']
+                    env.install('-e git+'+login +
+                                '/radiantone/pyfi-private#egg=pyfi')
+
                     try:
-                        logging.info("git clone -b {} --single-branch {} git".format(
-                            self.processor.branch, self.processor.gitrepo.split('#')[0]))
-                        os.system(
-                            "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
-                        sys.path.append(self.workdir+'/git')
-                        os.chdir('git')
-                        os.system("git config credential.helper store")
-                        break
-                    except Exception as ex:
-                        logging.error(ex)
-                        time.sleep(3)
-
-            if not os.path.exists('venv'):
-                from virtualenvapi.manage import VirtualEnvironment
-
-                logging.info("Building virtualenv...in %s", os.getcwd())
-
-                env = VirtualEnvironment(
-                    'venv', python=sys.executable, system_site_packages=True)  # inside git directory
-
-                login = os.environ['GIT_LOGIN']
-                env.install('-e git+'+login +
-                            '/radiantone/pyfi-private#egg=pyfi')
-
-                try:
-                    env.install('-e git+'+self.processor.gitrepo.strip())
-                except:
-                    logging.error("Could not install %s",
-                                  self.processor.gitrepo.strip())
+                        env.install('-e git+'+self.processor.gitrepo.strip())
+                    except:
+                        logging.error("Could not install %s",
+                                    self.processor.gitrepo.strip())
 
         process = Process(target=worker_proc, args=(self.celery, queue))
         process.app = self.celery

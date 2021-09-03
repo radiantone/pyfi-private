@@ -44,6 +44,43 @@ class Base:
         pass
 
 
+class Node(Base):
+    pass
+
+
+class Scheduler(Base):
+    """
+    Docstring
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+        self.scheduler = None
+
+        self.name = kwargs['name']
+
+        self.scheduler = self.session.query(
+            SchedulerModel).filter_by(name=self.name).first()
+
+        if self.scheduler is None:
+            self.scheduler = SchedulerModel(name=self.name)
+            self.session.add(self.scheduler)
+            self.session.commit()
+        else:
+            self.session.add(self.scheduler)
+
+    def __iadd__(self, *args, **kwargs):
+        for arg in args:
+            if isinstance(arg, Node) or isinstance(arg, NodeModel):
+                
+                if isinstance(arg, Node):
+                    pass
+                else:
+                    self.session.add(arg)
+                    self.scheduler.nodes += [arg]
+
+
 class Socket(Base):
     """
     Docstring
@@ -64,7 +101,7 @@ class Socket(Base):
 
         if 'schedule' in kwargs:
             schedule = kwargs['schedule']
-            
+
         if 'queue' in kwargs:
             self.queuename = kwargs['queue']['name']
             # pass in x-expires, message-ttl
@@ -206,8 +243,9 @@ class Sockets(Base):
                 print("IADD1 ", type(arg.queue.name))
 
                 if isinstance(arg, Socket):
-                    socket = self.database.session.query(
-                        SocketModel).filter_by(name=arg.name).first()
+                    #socket = self.database.session.query(
+                    #    SocketModel).filter_by(name=arg.name).first()
+                    socket = arg.socket
                 else:
                     socket = arg
 
@@ -288,42 +326,9 @@ class Processor(Base):
 
         backend = CONFIG.get('backend', 'uri')
         broker = CONFIG.get('broker', 'uri')
+
         self.app = Celery(backend=backend, broker=broker)
-        # Get celery values from pyfi.ini
 
-        # self.app.config_from_object(Config)
-
-        # If the queues are on the sockets, is this even needed?
-        '''
-        if queue:
-            if queue.find('topic') > -1:
-                self.app.conf.task_queues = (
-                    Broadcast(queue, queue_arguments={
-                        'x-message-ttl': 3000,
-                        'x-expires': 300}),)
-
-            else:
-                # Use peristent queue object from database to populate
-                # values here to avoid error messages
-                self.queue = queue = KQueue(
-                    queue,
-                    Exchange(queue, type='direct'),
-                    routing_key=name,
-                    message_ttl=socket.queue.message_ttl,
-                    durable=socket.queue.durable,
-                    expires=socket.queue.expires,
-                    queue_arguments={
-                        'x-message-ttl': 30000,
-                        'x-expires': 300}
-                )
-
-            self.app.conf.task_routes = {
-                name: {
-                    'queue': queue,
-                    'exchange': queue
-                }
-            }
-        '''
         self.database.session.add(self.processor)
         self.database.session.commit()
 
