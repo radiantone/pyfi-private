@@ -2,20 +2,6 @@ version: '3.9'
 
 services:
 
-  events:
-    build: 
-      context: .
-      dockerfile: docker/Dockerfile.supervisor
-    container_name: events
-    hostname: events
-    image: supervisor:latest
-    environment: 
-      - "PORT=5000"
-    ports:
-      - 5000:5000
-    volumes:
-      - ./conf/supervisord-events.conf:/opt/pyfi/supervisord.conf
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -38,9 +24,8 @@ services:
     ports:
       - 8004:8002
     depends_on:
-      - events
-    links:
-      - events
+      - redis
+      - postgres
     profiles: 
       - agent
     volumes:
@@ -62,9 +47,8 @@ services:
     ports:
       - 8003:8002
     depends_on:
-      - events
-    links:
-      - events
+      - redis
+      - postgres
     profiles: 
       - agent
     volumes:
