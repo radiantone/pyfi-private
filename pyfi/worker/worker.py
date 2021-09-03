@@ -659,7 +659,7 @@ class Worker:
                 try:
                     message = queue.get()
                     logging.info("Emitting message %s %s", message[1]['room'], message)
-                    redisclient.publish(message[1]['room'],json.dumps(message[1]))
+                    redisclient.publish(message[1]['room']+'.'+message[1]['channel'],json.dumps(message[1]))
                     #sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)

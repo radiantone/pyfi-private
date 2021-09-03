@@ -1446,8 +1446,8 @@ def listen(context, name, channel, server):
 
     redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
     p = redisclient.pubsub()
-    p.psubscribe([name])
-    print("Listening to %s",name)
+    p.psubscribe([name+'.'+channel])
+    print("Listening to",name)
     while True:
         for item in p.listen():
             print(item)
