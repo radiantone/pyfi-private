@@ -1442,49 +1442,15 @@ def ls_plugs(context):
 @click.pass_context
 def listen(context, name, channel, server):
     import socketio
+    import redis
 
-    sio = socketio.Client()
-
-    logging.info(
-        "Attempting connect to events server {}".format(server))
-
-    @sio.on('connect', namespace='/tasks')
-    def connect():
-        logging.info("I'm connected to namespace /tasks!")
-
-    @sio.on('log', namespace='/tasks')
-    def tmessage(message):
-        if channel == 'log':
-            print("log message: ", message)
-
-    @sio.on('task', namespace='/tasks')
-    def tmessage(message):
-        if channel == 'task':
-            print("message: ", message)
-
+    redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
+    p = redisclient.pubsub()
+    p.psubscribe([name])
+    print("Listening to %s",name)
     while True:
-        try:
-            sio.connect('http://'+server+':5000',
-                        namespaces=['/tasks'])
-            logging.info("Connected to events server {}".format(server))
-            sio.emit('join', {'room':name }, namespace='/tasks' )
-            logging.info("Joined room %s", name)
-            logging.info("Listening on channel %s", channel)
-            break
-        except Exception as ex:
-            pass  # Silent error
-
-    def fetch():
-        from multiprocessing import Queue
-
-        q = Queue()
-        
-        q.get()
-
-    from threading import Thread
-
-    thread = Thread(target=fetch)
-    thread.start()
+        for item in p.listen():
+            print(item)
 
 @cli.command(help="Database login user")
 @click.pass_context
