@@ -115,7 +115,7 @@ class Worker:
             self.broker = CONFIG.get('broker', 'uri')
 
             jobstores = {
-                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri')+'xxx', tablename='jobs')
+                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), tablename='jobs')
             }
             executors = {
                 'default': ThreadPoolExecutor(20),
@@ -132,7 +132,9 @@ class Worker:
                 print("my func triggered")
 
             job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5)
-            print("CONFIGURED APJOB")
+            scheduler.print_jobs()
+            scheduler.start()
+            
 
         if celeryconfig is not None:
             import importlib
