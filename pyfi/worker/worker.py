@@ -70,6 +70,10 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
+def myfunc():
+    print("my func triggered")
+
+
 class Worker:
     """
     A worker is a celery worker with a processor module loaded and represents a single processor
@@ -128,10 +132,8 @@ class Worker:
 
             scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
 
-            def myfunc():
-                print("my func triggered")
 
-            job = scheduler.add_job("myfunc", 'interval', jobstore='default', seconds=5)
+            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5)
             scheduler.print_jobs()
             scheduler.start()
 
