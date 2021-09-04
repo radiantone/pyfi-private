@@ -167,7 +167,7 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-    def launch(self, name'):
+    def launch(self, name):
         from subprocess import Popen
         from multiprocessing import Process
 
@@ -183,10 +183,10 @@ class Worker:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name]
             if self.user:
-                cmd = ["runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
+                cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
                     "-n", name]
 
-            logging.info("Launching worker %s %s", cmd, self.name)
+            logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
             logging.debug("Worker launched successfully: process %s.",
