@@ -4,7 +4,7 @@ Class database model definitions
 """
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
-from sqlalchemy import Enum, Table, Column, Integer, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
+from sqlalchemy import Enum, Table, Column, Integer, Double, LargeBinary, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
 import logging
 
 from datetime import datetime
@@ -298,6 +298,14 @@ class ProcessorModel(BaseModel):
         return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker, self.plugs, self.sockets)
 
 
+class JobModel(Base):
+    __tablename__ = 'jobs'
+
+    id = Column(String(200), primary_key=True)
+    next_run_time = Column(Double)
+    job_state = Column(LargeBinary)
+
+    
 class CallModel(BaseModel):
     """
     Docstring

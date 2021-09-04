@@ -22,7 +22,7 @@ from multiprocessing import Condition, Queue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 from celery import Celery
 from celery.signals import setup_logging
@@ -130,12 +130,16 @@ class Worker:
                 'max_instances': 3
             }
 
-            scheduler = BackgroundScheduler(jobstores = jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
+            scheduler = BackgroundScheduler(executors = executors, job_defaults = job_defaults, timezone = utc)
 
+            jobs = self.database.session.query(
+                JobModel).all()
 
-            job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5, id='myfunc')
-            scheduler.print_jobs()
+            print("JOBS", jobs)
+            # read jobs from database
+            #job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5, id='myfunc')
             scheduler.start()
+            scheduler.print_jobs()
 
 
         if celeryconfig is not None:
