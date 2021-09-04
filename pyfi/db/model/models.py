@@ -4,8 +4,9 @@ Class database model definitions
 """
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
-from sqlalchemy import Enum, Table, Column, Integer, Double, LargeBinary, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
+from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
 import logging
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 from datetime import datetime
 
@@ -302,10 +303,10 @@ class JobModel(Base):
     __tablename__ = 'jobs'
 
     id = Column(String(200), primary_key=True)
-    next_run_time = Column(Double)
+    next_run_time = Column(DOUBLE_PRECISION)
     job_state = Column(LargeBinary)
 
-    
+
 class CallModel(BaseModel):
     """
     Docstring
