@@ -390,7 +390,11 @@ class Worker:
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
                     
-                    self.scheduler.add_cron_job(dispatcher(socket.task), second="*/5")
+                    try:
+                        self.scheduler.add_cron_job(dispatcher(socket.task), second="*/5", id=socket.name)
+                        logging.info("Scheduled socket %s",socket.name)
+                    except:
+                        logging.info("Already scheduled this socket %s",socket.name)
                     
                     func = getattr(module, socket.task.name)
 
