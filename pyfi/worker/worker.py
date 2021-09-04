@@ -219,9 +219,6 @@ class Worker:
             self.processor = session.query(
                 ProcessorModel).filter_by(id=self.processor.id).first()
 
-            logging.debug(
-                "Attempting connect to events server {}".format(events_server))
-
             task_queues = []
             task_routes = {}
 
@@ -683,9 +680,6 @@ class Worker:
             import json
 
             redisclient = redis.Redis.from_url(self.backend)
-
-            logging.info(
-                "Attempting connect to events server {}".format(events_server))
 
             last_qsize = 0
             while True:
