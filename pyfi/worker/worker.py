@@ -10,6 +10,7 @@ import psutil
 import signal
 import configparser
 import platform
+from functools import partial
 from pytz import utc
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -391,8 +392,7 @@ class Worker:
                 for socket in self.processor.sockets:
                     
                     try:
-                        self.scheduler.add_job(dispatcher(
-                            socket.task), 'interval', jobstore='default', seconds=3, id=socket.name)
+                        self.scheduler.add_job(partial(dispatcher, args=(socket.task,)), 'interval', jobstore='default', seconds=3, id=socket.name)
                         logging.info("Scheduled socket %s",socket.name)
                     except:
                         import traceback
