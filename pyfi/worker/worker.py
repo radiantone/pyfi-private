@@ -467,7 +467,7 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
-                       
+                        self.database.session.begin()
                         call = self.database.session.query(
                             CallModel).filter_by(celeryid=task_id).first()
                         if call:
