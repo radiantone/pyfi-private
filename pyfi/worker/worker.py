@@ -390,7 +390,7 @@ class Worker:
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
                     
-                    self.scheduler.sched.add_cron_job(dispatcher(socket.task), second="*/5")
+                    self.scheduler.add_cron_job(dispatcher(socket.task), second="*/5")
                     
                     func = getattr(module, socket.task.name)
 
