@@ -392,7 +392,8 @@ class Worker:
                 for socket in self.processor.sockets:
                     
                     try:
-                        self.scheduler.add_job(partial(dispatcher, args=(socket.task,)), 'interval', jobstore='default', seconds=3, id=socket.name)
+                        self.scheduler.add_job(dispatcher, 'interval', args=[
+                                               socket.task], jobstore='default', seconds=3, id=socket.name)
                         logging.info("Scheduled socket %s",socket.name)
                     except:
                         import traceback
