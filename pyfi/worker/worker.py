@@ -464,21 +464,23 @@ class Worker:
                         logging.info("Task POSTRUN [%s] %s", task_id, sender)
 
                         logging.info("Task POSTRUN RESULT %s", retval)
+
+                        database = create_engine(self.dburi)
+                        session = sessionmaker(bind=database)()
+
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
-                        self.database.session.commit()
-                        self.database.session.begin()
-                        call = self.database.session.query(
+                        call = session.query(
                             CallModel).filter_by(celeryid=task_id).first()
                         if call:
                             call.finished = datetime.now()
                             call.state = 'finished'
                             try:
-                                self.database.session.add(call)
-                                self.database.session.commit()
+                                session.add(call)
+                                session.commit()
                             except:
-                                self.database.session.rollback()
+                                session.rollback()
                         else:
                             logging.error("No pre-existing Call object for task %s", task_id)
                         try:
