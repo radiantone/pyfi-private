@@ -350,7 +350,7 @@ class Worker:
                 worker.app.conf.beat_schedule = {}
 
                 for socket in self.processor.sockets:
-                    if socket.schedule <= 0:
+                    if socket.interval <= 0:
                         continue
                     tkey = socket.queue.name+'.' + self.processor.name.replace(
                         ' ', '.')+'.'+socket.task.name
@@ -371,7 +371,7 @@ class Worker:
                     worker.app.conf.beat_schedule[self.processor.module+'.'+socket.task.name] = {
                         "task": self.processor.module+'.'+socket.task.name,
                         "args": ("Hello World!",),
-                        "schedule": socket.schedule,
+                        "schedule": socket.interval,
                         'options': {'queue': tkey},
                     }
 

@@ -920,12 +920,12 @@ def add_queue(context, name, type):
 @update.command(name='socket')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-s', '--schedule', default=None, required=False)
+@click.option('-i', '--interval', default=None, required=False)
 @click.option('-pi', '--procid', default=None, required=False, help="Processor id")
 @click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.option('-t', '--task', default=None, required=False, help="Task name")
 @click.pass_context
-def update_socket(context, name, queue, schedule, procid, procname, task):
+def update_socket(context, name, queue, interval, procid, procname, task):
     """
     Update a socket in the database
     """
@@ -940,9 +940,9 @@ def update_socket(context, name, queue, schedule, procid, procname, task):
         socket = context.obj['database'].session.query(
             SocketModel).filter_by(id=id).first()
 
-    if not schedule:
-        socket.schedule = click.prompt('Schedule',
-                                       type=int, default=socket.schedule)
+    if not interval:
+        socket.interval = click.prompt('Interval',
+                                       type=int, default=socket.interval)
     return
 
 
@@ -1051,11 +1051,11 @@ def add_plug(context, name, queue, socketid, socketname, procid, procname):
 @add.command(name='socket')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-s', '--schedule', default=10, required=False, help="Interval in seconds this socket is triggered")
+@click.option('-i', '--interval', default=10, required=False, help="Interval in seconds this socket is triggered")
 @click.option('-pn', '--procname', default=None, required=True, help="Processor name")
 @click.option('-t', '--task', default=None, required=True, help="Task name")
 @click.pass_context
-def add_socket(context, name, queue, schedule, beat, procname, task):
+def add_socket(context, name, queue, interval, beat, procname, task):
     """
     Add socket to a processor
     """
@@ -1078,7 +1078,7 @@ def add_socket(context, name, queue, schedule, beat, procname, task):
         socket.task = _task
 
     socket.queue = queue
-    socket.schedule = schedule
+    socket.interval = interval
     socket.updated = datetime.now()
     processor.sockets += [socket]
     processor.requested_status = 'update'
@@ -1438,13 +1438,13 @@ def ls_sockets(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Task", "Last Updated",
-             "Status", "Processor", "Queue", "Schedule"]
+             "Status", "Processor", "Queue", "Interval"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.schedule])
+                  node.status, node.processor.name, node.queue.name, node.interval])
 
     print(x)
 

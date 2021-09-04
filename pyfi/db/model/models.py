@@ -37,6 +37,11 @@ class BaseModel(Base):
                          onupdate=datetime.now, nullable=False)
 
 
+schedule_types = [
+    'CRON',
+    'INTERVAL'
+]
+
 strategies = [
     'BALANCED',
     'EFFICIENT'
@@ -426,8 +431,13 @@ class SocketModel(BaseModel):
     status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
+                        
+    schedule_type = Column('schedule_type', Enum(
+        *schedule_types, name='schedule_type'))
+    scheduled = Column(Boolean)
+    cron = Column(String(20))
 
-    schedule = Column(Integer)
+    interval = Column(Integer)
     task_id = Column(String(40), ForeignKey('task.id'))
     task = relationship("TaskModel", back_populates="sockets", single_parent=True,
                         cascade="delete, delete-orphan")
