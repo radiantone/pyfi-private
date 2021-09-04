@@ -326,7 +326,7 @@ class Worker:
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
-                use_identity='darren',
+                uid='darren',
                 without_mingle=True,
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
