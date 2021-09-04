@@ -4,4 +4,6 @@ from pyfi.client.api import Socket as Function
 do_something = Function(name='pyfi.processors.sample.do_something')
 
 # Send a message to the socket function
-do_something("Hello World XXX!")
+result = do_something("Hello World XXX!")
+
+print("Result is: ",result.get())

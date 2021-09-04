@@ -189,6 +189,21 @@ class Socket(Base):
             }
         }
 
+    def delay(self, *args, **kwargs):
+
+        # socket.queue.message_ttl
+        # socket.queue.expires
+        kwargs['x-expires'] = 300
+        self.session.add(self.processor.processor)
+        self.session.add(self.socket)
+        self.session.refresh(
+            self.socket)
+
+        print("called", self.processor.processor.module +
+              '.'+self.socket.task.name, args, self.key)
+
+        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
+
     def __call__(self, *args, **kwargs):
 
         # socket.queue.message_ttl
@@ -198,9 +213,11 @@ class Socket(Base):
         self.session.add(self.socket)
         self.session.refresh(
             self.socket)
+
         print("called", self.processor.processor.module +
-              '.'+self.socket.task.name, args, self.key)
-        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
+              '.'+self.socket.task.name, args, self.key) 
+
+        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
 
 
 class Plug(Base):
