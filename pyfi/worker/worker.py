@@ -473,7 +473,10 @@ class Worker:
                             if call:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
-                                session.add(call)
+                                try:
+                                    session.add(call)
+                                except:
+                                    session.rollback()
                             else:
                                 logging.error("No pre-existing Call object for task %s", task_id)
                         try:
