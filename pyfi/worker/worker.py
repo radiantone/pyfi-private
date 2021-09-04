@@ -132,7 +132,7 @@ class Worker:
                 'max_instances': 3
             }
 
-            scheduler = BackgroundScheduler(jobstores=jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
+            self.scheduler = BackgroundScheduler(jobstores=jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
 
             jobs = self.database.session.query(
                 JobModel).all()
@@ -140,8 +140,8 @@ class Worker:
             print("JOBS", jobs)
             # read jobs from database
             #job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5, id='myfunc')
-            scheduler.start()
-            scheduler.print_jobs()
+            self.scheduler.start()
+            self.scheduler.print_jobs()
 
 
         if celeryconfig is not None:
