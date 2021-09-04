@@ -475,6 +475,7 @@ class Worker:
                             call.state = 'finished'
                             try:
                                 self.database.session.add(call)
+                                self.database.session.commit()
                             except:
                                 self.database.session.rollback()
                         else:
