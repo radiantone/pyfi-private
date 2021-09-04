@@ -403,7 +403,7 @@ class Worker:
                             elif socket.schedule_type == 'INTERVAL':
                                 if socket.name not in self.jobs:
                                     self.scheduler.add_job(dispatcher, 'interval', args=[
-                                                    socket.task], jobstore='default', seconds=socket.intveral, id=socket.name)
+                                        socket.task], jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.intveral, id=socket.name)
                                     logging.info("Scheduled socket %s",socket.name)
                         except:
                             logging.info("Already scheduled this socket %s",socket.name)
@@ -467,15 +467,15 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
-                        call = self.database.session.query(
-                            CallModel).filter_by(celeryid=task_id).first()
-                        if call:
-                            with self.get_session() as session:
+                        with self.get_session() as session:
+                            call = self.database.session.query(
+                                CallModel).filter_by(celeryid=task_id).first()
+                            if call:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 session.add(call)
-                        else:
-                            logging.error("No pre-existing Call object for task %s", task_id)
+                            else:
+                                logging.error("No pre-existing Call object for task %s", task_id)
                         try:
                             # while _queue.qsize() > 1000:
                             #    logging.debug("Waiting for queue to shrink")
