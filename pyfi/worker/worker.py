@@ -395,6 +395,8 @@ class Worker:
                             socket.task), jobstore='default', second="*/5", id=socket.name)
                         logging.info("Scheduled socket %s",socket.name)
                     except:
+                        import traceback
+                        print(traceback.format_exc())
                         logging.info("Already scheduled this socket %s",socket.name)
                     
                     func = getattr(module, socket.task.name)
