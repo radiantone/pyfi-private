@@ -150,8 +150,6 @@ class Socket(Base):
         if self.processor is None:
             self.processor = Processor(id=self.socket.processor_id)
 
-        print(self.socket.queue, self.processor.name, self.socket.task)
-        print(self.socket.queue.name,self.processor.name, self.socket.task.name)
         self.key = self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
 
         try:
@@ -160,7 +158,6 @@ class Socket(Base):
             pass
 
         if self.socket.queue is None:
-            print("Adding queue", self.queue.queue.name)
             self.socket.queue = self.queue.queue
             self.session.add(self.queue.queue)
             self.session.add(self.socket)
@@ -199,9 +196,6 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
-        print("called", self.processor.processor.module +
-              '.'+self.socket.task.name, args, self.key)
-
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
 
     def __call__(self, *args, **kwargs):
@@ -213,9 +207,6 @@ class Socket(Base):
         self.session.add(self.socket)
         self.session.refresh(
             self.socket)
-
-        print("called", self.processor.processor.module +
-              '.'+self.socket.task.name, args, self.key) 
 
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
 
@@ -257,7 +248,6 @@ class Sockets(Base):
     def __iadd__(self, *args, **kwargs):
         for arg in args:
             if isinstance(arg, Socket) or isinstance(arg, SocketModel):
-                print("IADD1 ", type(arg.queue.name))
 
                 if isinstance(arg, Socket):
                     #socket = self.database.session.query(
@@ -266,11 +256,10 @@ class Sockets(Base):
                 else:
                     socket = arg
 
-                print("IADD2 ", type(socket.queue.name))
                 self.session.add(self.processor)
                 socket.processor_id = self.processor.id
                 self.processor.sockets += [socket]
-                print("SELF PROC SOCKETS", self.processor.sockets)
+
         return self
 
 
@@ -335,7 +324,6 @@ class Processor(Base):
 
         if self.processor is None:
             # Create it
-            print("Creating processor")
             self.processor = ProcessorModel(
                 status='ready', hostname=hostname, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
 
