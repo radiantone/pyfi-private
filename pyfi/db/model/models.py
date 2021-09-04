@@ -29,7 +29,8 @@ class BaseModel(Base):
     Docstring
     """
     __abstract__ = True
-    id = Column(String(40), autoincrement=False, default=literal_column('uuid_generate_v4()'), unique=True, primary_key=True)
+    id = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
     lastupdated = Column(DateTime, default=datetime.now,
@@ -41,94 +42,94 @@ strategies = [
     'EFFICIENT'
 ]
 
-rights = [  'ALL',
-            'CREATE',
-            'READ',
-            'UPDATE',
-            'DELETE',
+rights = ['ALL',
+          'CREATE',
+          'READ',
+          'UPDATE',
+          'DELETE',
 
-            'DB_DROP',
-            'DB_INIT',
+          'DB_DROP',
+          'DB_INIT',
 
-            'START_AGENT',
+          'START_AGENT',
 
-            'RUN_TASK',
-            'CANCEL_TASK',
+          'RUN_TASK',
+          'CANCEL_TASK',
 
-            'START_PROCESSOR',
-            'STOP_PROCESSOR',
-            'PAUSE_PROCESSOR',
-            'RESUME_PROCESSOR',
-            'LOCK_PROCESSOR',
-            'UNLOCK_PROCESSOR',
-            'VIEW_PROCESSOR',
-            'VIEW_PROCESSOR_CONFIG',
-            'VIEW_PROCESSOR_CODE',
-            'EDIT_PROCESSOR_CONFIG',
-            'EDIT_PROCESSOR_CODE'
+          'START_PROCESSOR',
+          'STOP_PROCESSOR',
+          'PAUSE_PROCESSOR',
+          'RESUME_PROCESSOR',
+          'LOCK_PROCESSOR',
+          'UNLOCK_PROCESSOR',
+          'VIEW_PROCESSOR',
+          'VIEW_PROCESSOR_CONFIG',
+          'VIEW_PROCESSOR_CODE',
+          'EDIT_PROCESSOR_CONFIG',
+          'EDIT_PROCESSOR_CODE'
 
-            'LS_PROCESSORS',
-            'LS_USERS',
-            'LS_USER',
-            'LS_PLUGS',
-            'LS_SOCKETS',
-            'LS_QUEUES',
-            'LS_AGENTS',
-            'LS_NODES',
-            'LS_SCHEDULERS',
-            'LS_WORKERS',
+          'LS_PROCESSORS',
+          'LS_USERS',
+          'LS_USER',
+          'LS_PLUGS',
+          'LS_SOCKETS',
+          'LS_QUEUES',
+          'LS_AGENTS',
+          'LS_NODES',
+          'LS_SCHEDULERS',
+          'LS_WORKERS',
 
-            'ADD_PROCESSOR',
-            'ADD_AGENT',
-            'ADD_NODE',
-            'ADD_PLUG',
-            'ADD_PRIVILEGE',
-            'ADD_QUEUE',
-            'ADD_ROLE',
-            'ADD_SCHEDULER',
-            'ADD_SOCKET',
-            'ADD_USER',
+          'ADD_PROCESSOR',
+          'ADD_AGENT',
+          'ADD_NODE',
+          'ADD_PLUG',
+          'ADD_PRIVILEGE',
+          'ADD_QUEUE',
+          'ADD_ROLE',
+          'ADD_SCHEDULER',
+          'ADD_SOCKET',
+          'ADD_USER',
 
-            'UPDATE_PROCESSOR',
-            'UPDATE_AGENT',
-            'UPDATE_NODE',
-            'UPDATE_PLUG',
-            'UPDATE_PRIVILEGE',
-            'UPDATE_QUEUE',
-            'UPDATE_ROLE',
-            'UPDATE_SCHEDULER',
-            'UPDATE_SOCKET',
-            'UPDATE_USER',
+          'UPDATE_PROCESSOR',
+          'UPDATE_AGENT',
+          'UPDATE_NODE',
+          'UPDATE_PLUG',
+          'UPDATE_PRIVILEGE',
+          'UPDATE_QUEUE',
+          'UPDATE_ROLE',
+          'UPDATE_SCHEDULER',
+          'UPDATE_SOCKET',
+          'UPDATE_USER',
 
-            'DELETE_PROCESSOR',
-            'DELETE_AGENT',
-            'DELETE_NODE',
-            'DELETE_PLUG',
-            'DELETE_PRIVILEGE',
-            'DELETE_QUEUE',
-            'DELETE_ROLE',
-            'DELETE_SCHEDULER',
-            'DELETE_SOCKET',
-            'DELETE_USER',
+          'DELETE_PROCESSOR',
+          'DELETE_AGENT',
+          'DELETE_NODE',
+          'DELETE_PLUG',
+          'DELETE_PRIVILEGE',
+          'DELETE_QUEUE',
+          'DELETE_ROLE',
+          'DELETE_SCHEDULER',
+          'DELETE_SOCKET',
+          'DELETE_USER',
 
-            'READ_PROCESSOR',
-            'READ_AGENT',
-            'READ_NODE',
-            'READ_PLUG',
-            'READ_PRIVILEGE',
-            'READ_QUEUE',
-            'READ_ROLE',
-            'READ_SCHEDULER',
-            'READ_SOCKET',
-            'READ_USER'
-            ]
+          'READ_PROCESSOR',
+          'READ_AGENT',
+          'READ_NODE',
+          'READ_PLUG',
+          'READ_PRIVILEGE',
+          'READ_QUEUE',
+          'READ_ROLE',
+          'READ_SCHEDULER',
+          'READ_SOCKET',
+          'READ_USER'
+          ]
+
 
 class PrivilegeModel(BaseModel):
     """
     Docstring
     """
     __tablename__ = 'privilege'
-
 
     right = Column('right', Enum(*rights, name='right'))
 
@@ -149,16 +150,16 @@ class RoleModel(BaseModel):
     __tablename__ = 'role'
 
     privileges = relationship("PrivilegeModel",
-                             secondary=role_privileges)
+                              secondary=role_privileges)
 
     def __repr__(self):
         return '{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
 user_privileges = Table('user_privileges', Base.metadata,
-                   Column('user_id', ForeignKey('user.id')),
-                   Column('privilege_id', ForeignKey('privilege.id'))
-                   )
+                        Column('user_id', ForeignKey('user.id')),
+                        Column('privilege_id', ForeignKey('privilege.id'))
+                        )
 
 user_roles = Table('user_roles', Base.metadata,
                    Column('user_id', ForeignKey('user.id')),
@@ -175,7 +176,7 @@ class UserModel(BaseModel):
     password = Column(String(20), unique=False, nullable=False)
 
     privileges = relationship("PrivilegeModel",
-                         secondary=user_privileges)
+                              secondary=user_privileges)
 
     roles = relationship("RoleModel",
                          secondary=user_roles)
@@ -210,7 +211,8 @@ class AgentModel(BaseModel):
         'WorkerModel', back_populates='agent', uselist=False, cascade="all, delete-orphan")
 
     node_id = Column(String(40), ForeignKey('node.id'),
-                          nullable=False)
+                     nullable=False)
+
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.cpus, self.status, self.name, self.hostname)
 
@@ -247,12 +249,11 @@ class WorkerModel(BaseModel):
         'processor.id'), nullable=True)
 
     processor = relationship("ProcessorModel", back_populates="worker")
-    
+
     agent_id = Column(String(40), ForeignKey('agent.id'),
-                     nullable=False)
+                      nullable=False)
 
     agent = relationship("AgentModel", back_populates="worker")
-
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
@@ -319,8 +320,8 @@ class CallModel(BaseModel):
     celeryid = Column(String(80))
 
     task_id = Column(String(40), ForeignKey('task.id'),
-                          nullable=False)
-    started = Column(DateTime, default=datetime.now,nullable=False)
+                     nullable=False)
+    started = Column(DateTime, default=datetime.now, nullable=False)
     finished = Column(DateTime)
 
     def __repr__(self):
@@ -415,6 +416,7 @@ plugs_sockets = Table('plugs_sockets', Base.metadata,
                           'socket.id'), primary_key=True)
                       )
 
+
 class SocketModel(BaseModel):
     """
     Docstring
@@ -445,6 +447,7 @@ plugs_queues = Table('plugs_queues', Base.metadata,
                      Column('queue_id', ForeignKey('queue.id'))
                      )
 
+
 class PlugModel(BaseModel):
     """
     Docstring
@@ -457,7 +460,7 @@ class PlugModel(BaseModel):
                           nullable=False)
 
     sockets = relationship("SocketModel", back_populates="plugs",
-                         secondary=plugs_sockets)
+                           secondary=plugs_sockets)
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)
 
