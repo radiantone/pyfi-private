@@ -181,7 +181,7 @@ class Worker:
         if not self.usecontainer:
             logging.info("Launching worker %s %s",
                         "runuser -u <user> venv/bin/pyfi worker start -s -n %s", name)
-            self.process = process = Popen(["runuser", "-u", user, "venv/bin/pyfi", "worker", "start", "-s",
+            self.process = process = Popen(["runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
                                             "-n", name], stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
             logging.debug("Worker launched successfully: process %s.",
