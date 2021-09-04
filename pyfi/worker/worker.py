@@ -1,6 +1,7 @@
 """
 Agent workerclass. Primary task/code execution context for processors
 """
+from pyfi.db.model.models import use_identity
 import redis
 import logging
 import shutil
@@ -109,7 +110,7 @@ class Worker:
         self.dburi = database
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
-        self.database = create_engine(self.dburi)
+        self.database = create_engine(self.dburi, pool_size=5, max_overflow=0)
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
@@ -325,6 +326,7 @@ class Worker:
                 backend=self.backend,
                 broker=self.broker,
                 beat=self.processor.beat,
+                use_identity='darren',
                 without_mingle=True,
                 without_gossip=True,
                 concurrency=int(self.processor.concurrency)
@@ -465,8 +467,7 @@ class Worker:
 
                         logging.info("Task POSTRUN RESULT %s", retval)
 
-                        database = create_engine(self.dburi)
-                        session = sessionmaker(bind=database)()
+                        session = self.database.session
 
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
