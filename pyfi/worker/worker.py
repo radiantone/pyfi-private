@@ -179,7 +179,7 @@ class Worker:
         """
 
         if not self.usecontainer:
-            cmd = ["sudo", "runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
+            cmd = ["runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name]
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
