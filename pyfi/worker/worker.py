@@ -391,7 +391,8 @@ class Worker:
                 for socket in self.processor.sockets:
                     
                     try:
-                        self.scheduler.add_cron_job(dispatcher(socket.task), second="*/5", id=socket.name)
+                        self.scheduler.add_cron_job(dispatcher(
+                            socket.task), jobstore='default', second="*/5", id=socket.name)
                         logging.info("Scheduled socket %s",socket.name)
                     except:
                         logging.info("Already scheduled this socket %s",socket.name)
