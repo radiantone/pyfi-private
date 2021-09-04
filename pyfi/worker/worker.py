@@ -467,18 +467,18 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
-                        with self.get_session() as session:
-                            call = self.database.session.query(
-                                CallModel).filter_by(celeryid=task_id).first()
-                            if call:
-                                call.finished = datetime.now()
-                                call.state = 'finished'
-                                try:
-                                    session.add(call)
-                                except:
-                                    session.rollback()
-                            else:
-                                logging.error("No pre-existing Call object for task %s", task_id)
+                       
+                        call = self.database.session.query(
+                            CallModel).filter_by(celeryid=task_id).first()
+                        if call:
+                            call.finished = datetime.now()
+                            call.state = 'finished'
+                            try:
+                                self.database.session.add(call)
+                            except:
+                                self.database.session.rollback()
+                        else:
+                            logging.error("No pre-existing Call object for task %s", task_id)
                         try:
                             # while _queue.qsize() > 1000:
                             #    logging.debug("Waiting for queue to shrink")
