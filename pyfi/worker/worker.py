@@ -392,12 +392,14 @@ class Worker:
                 for socket in self.processor.sockets:
                     
                     try:
-                        self.scheduler.add_job(dispatcher, 'interval', args=[
-                                               socket.task], jobstore='default', seconds=3, id=socket.name)
+                        if socket.schedule_type == 'CRON':
+                            print("ADDING CRON JOB TYPE")
+
+                        elif socket.schedule_type == 'INTERVAL':
+                            self.scheduler.add_job(dispatcher, 'interval', args=[
+                                               socket.task], jobstore='default', seconds=socket.intveral, id=socket.name)
                         logging.info("Scheduled socket %s",socket.name)
                     except:
-                        import traceback
-                        print(traceback.format_exc())
                         logging.info("Already scheduled this socket %s",socket.name)
                     
                     func = getattr(module, socket.task.name)
@@ -419,11 +421,11 @@ class Worker:
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
                                 started = datetime.now()
-                                data = ['roomsg', {'channel': 'task', 'state': 'prerun', 'date': str(started), 'room': processor_path}]
+                                data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
                                 call = CallModel(
-                                    name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='prerun', started=started)
+                                    name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
                                 
                                 with self.get_session() as session:
                                     session.add(call)
@@ -464,6 +466,7 @@ class Worker:
                         if call:
                             with self.get_session() as session:
                                 call.finished = datetime.now()
+                                call.state = 'finished'
                                 session.add(call)
                         else:
                             logging.error("No pre-existing Call object for task %s", task_id)
@@ -517,11 +520,11 @@ class Worker:
                                     if _plug.queue.name == key:
                                         processor_plug = _plug
 
-                                logging.info("processor_plug %s",
-                                             processor_plug)
                                 if processor_plug is None:
                                     continue
 
+                                logging.info("processor_plug %s",
+                                             processor_plug)
                                 # Get all processors where processor_plug is plugged into a socket
                                 processors = self.database.session.query(
                                     ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
