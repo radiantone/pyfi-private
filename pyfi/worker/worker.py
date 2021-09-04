@@ -138,9 +138,13 @@ class Worker:
             jobs = self.database.session.query(
                 JobModel).all()
 
-            print("JOBS", jobs)
-            # read jobs from database
-            #job = scheduler.add_job(myfunc, 'interval', jobstore='default', seconds=5, id='myfunc')
+            self.jobs = {}
+
+            for job in jobs:
+                self.jobs[job.id] = job
+
+            logging.debug("JOBS %s",self.jobs)
+
             self.scheduler.start()
             self.scheduler.print_jobs()
 
@@ -390,17 +394,19 @@ class Worker:
 
             if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                 for socket in self.processor.sockets:
-                    
-                    try:
-                        if socket.schedule_type == 'CRON':
-                            print("ADDING CRON JOB TYPE")
+                                        
+                    if socket.scheduled:
+                        try:
+                            if socket.schedule_type == 'CRON':
+                                print("ADDING CRON JOB TYPE")
 
-                        elif socket.schedule_type == 'INTERVAL':
-                            self.scheduler.add_job(dispatcher, 'interval', args=[
-                                               socket.task], jobstore='default', seconds=socket.intveral, id=socket.name)
-                        logging.info("Scheduled socket %s",socket.name)
-                    except:
-                        logging.info("Already scheduled this socket %s",socket.name)
+                            elif socket.schedule_type == 'INTERVAL':
+                                if socket.name not in self.jobs:
+                                    self.scheduler.add_job(dispatcher, 'interval', args=[
+                                                    socket.task], jobstore='default', seconds=socket.intveral, id=socket.name)
+                                    logging.info("Scheduled socket %s",socket.name)
+                        except:
+                            logging.info("Already scheduled this socket %s",socket.name)
                     
                     func = getattr(module, socket.task.name)
 

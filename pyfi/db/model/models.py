@@ -434,7 +434,7 @@ class SocketModel(BaseModel):
                         
     schedule_type = Column('schedule_type', Enum(
         *schedule_types, name='schedule_type'))
-        
+
     scheduled = Column(Boolean)
     cron = Column(String(20))
 
