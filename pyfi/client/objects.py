@@ -186,6 +186,9 @@ class Socket(Base):
             }
         }
 
+    def p(self, *args, **kwargs):
+        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs)
+
     def delay(self, *args, **kwargs):
 
         # socket.queue.message_ttl
@@ -196,7 +199,7 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
-        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay()
+        return self.p(args,kwargs).delay()
 
     def __call__(self, *args, **kwargs):
 
