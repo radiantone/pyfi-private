@@ -1590,16 +1590,17 @@ def api_start(context, ip, port):
 @click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
+@click.option('-u', '--user', default=None, help='Run the worker as user')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
 @click.pass_context
-def start_agent(context, port, backend, broker, config, queues, pool):
+def start_agent(context, port, backend, broker, config, queues, user, pool):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
     agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                  config=config, backend=backend, broker=broker)
+                  config=config, backend=backend, user=user, broker=broker)
     agent.start()
 
 

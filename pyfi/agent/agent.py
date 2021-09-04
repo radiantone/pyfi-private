@@ -46,7 +46,7 @@ class Agent:
         else:
             session.commit()
 
-    def __init__(self, database, dburi, port, config=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
+    def __init__(self, database, dburi, port, config=None, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -56,6 +56,7 @@ class Agent:
         self.dburi = dburi
         self.node = None
         self.agent = None
+        self.user = user
 
         logging.info("Checking config at %s", home+"/pyfi.ini")
         if os.path.exists(home+"/pyfi.ini"):
@@ -110,7 +111,6 @@ class Agent:
         node.freemem = vmem.free
         node.memused = vmem.percent
         self.node = node
-
 
         agent.status = 'running'
         agent.cpus = cpus
@@ -446,7 +446,7 @@ class Agent:
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker()")
                                 workerproc = Worker(
-                                    processor['processor'], workdir=dir, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
+                                    processor['processor'], workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
                                 workerproc.start(start=False)

@@ -97,7 +97,7 @@ class Worker:
             session.commit()
 
 
-    def __init__(self, processor, workdir, pool=4, database=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -114,6 +114,7 @@ class Worker:
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
         self.pool = pool
+        self.user = user
 
         logging.debug("New Worker init: %s", processor)
 
@@ -166,7 +167,7 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-    def launch(self, name, user='pyfi'):
+    def launch(self, name'):
         from subprocess import Popen
         from multiprocessing import Process
 
@@ -179,12 +180,13 @@ class Worker:
         """
 
         if not self.usecontainer:
-
-            cmd1 = ["runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
-                   "-n", name]
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name]
-            logging.info("Launching worker %s %s", cmd, name)
+            if self.user:
+                cmd = ["runuser", "-u", user, "--", "venv/bin/pyfi", "worker", "start", "-s",
+                    "-n", name]
+
+            logging.info("Launching worker %s %s", cmd, self.name)
             self.process = process = Popen(cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
             logging.debug("Worker launched successfully: process %s.",
