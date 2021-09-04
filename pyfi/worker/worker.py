@@ -130,7 +130,7 @@ class Worker:
                 'max_instances': 3
             }
 
-            scheduler = BackgroundScheduler(executors = executors, job_defaults = job_defaults, timezone = utc)
+            scheduler = BackgroundScheduler(jobstores=jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
 
             jobs = self.database.session.query(
                 JobModel).all()
