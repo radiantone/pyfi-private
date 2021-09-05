@@ -446,6 +446,7 @@ class Worker:
                                 with self.get_session() as session:
                                     session.add(call)
 
+                                logging.info("COMMITTED CALL ID %s",task_id)
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
                         logging.info("Task SUCCESS: %s", sender)
@@ -480,17 +481,19 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
-                        call = session.query(
-                            CallModel).filter_by(celeryid=task_id).first()
-                        if call:
-                            call.finished = datetime.now()
-                            call.state = 'finished'
-                            try:
-                                session.add(call)
-                                session.commit()
-                            except:
-                                session.rollback()
-                        else:
+                        try:
+                            call = session.query(
+                                CallModel).filter_by(celeryid=task_id).first()
+
+                            if call:
+                                call.finished = datetime.now()
+                                call.state = 'finished'
+                                try:
+                                    session.add(call)
+                                    session.commit()
+                                except:
+                                    session.rollback()
+                        except:
                             logging.error("No pre-existing Call object for task %s", task_id)
                         try:
                             # while _queue.qsize() > 1000:
