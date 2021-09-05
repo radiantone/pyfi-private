@@ -152,6 +152,7 @@ class Worker:
 
 
         if celeryconfig is not None:
+            logging.info("Applying celeryconfig from %s", celeryconfig)
             import importlib
 
             module = importlib.import_module(celeryconfig.split['.'][:-1])
