@@ -340,7 +340,7 @@ class Processor(Base):
         self.app = Celery(backend=backend, broker=broker)
 
         from pyfi.celery import config
-        self.celery.config_from_object(config)
+        self.app.config_from_object(config)
         self.database.session.add(self.processor)
         self.database.session.commit()
 
