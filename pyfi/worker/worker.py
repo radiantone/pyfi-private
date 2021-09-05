@@ -164,6 +164,10 @@ class Worker:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
 
+            from pyfi.celery import config
+            logging.info("App config is %s", config)
+            self.celery.config_from_object(config)
+
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
