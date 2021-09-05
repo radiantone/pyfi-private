@@ -1173,10 +1173,13 @@ def ls_call(context, id, name):
     if calls:
         nodes = calls
     elif call:
+        import pickle
 
         redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
         r = redisclient.get(call.resultid)
-        print(json.dumps(json.loads(r), indent=4))
+
+        _r = pickle.loads(r)
+        print(json.dumps(_r, indent=4))
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
