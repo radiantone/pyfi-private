@@ -94,7 +94,7 @@ class Socket(Base):
         self.app = Celery(backend=backend, broker=broker)
 
         from pyfi.celery import config
-        self.celery.config_from_object(config)
+        self.app.config_from_object(config)
         self.processor = None
 
         self.name = kwargs['name']
