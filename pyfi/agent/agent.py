@@ -7,6 +7,9 @@ import multiprocessing
 import configparser
 import os
 import psutil
+import shutil
+import glob
+
 from contextlib import contextmanager
 
 from pathlib import Path
@@ -46,7 +49,7 @@ class Agent:
         else:
             session.commit()
 
-    def __init__(self, database, dburi, port, config=None, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
+    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -58,6 +61,15 @@ class Agent:
         self.agent = None
         self.user = user
 
+        if clean:
+            logging.info("Cleaning work directories")
+            if os.path.exists("work"):
+                workdirs = glob.glob("work/*")
+
+                for workdir in workdirs:
+                    logging.info("Removing workdir %s", workdir)
+                    shutil.rmtree(workdir)
+                
         logging.info("Checking config at %s", home+"/pyfi.ini")
         if os.path.exists(home+"/pyfi.ini"):
             CONFIG.read(home+"/pyfi.ini")

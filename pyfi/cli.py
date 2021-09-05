@@ -1586,6 +1586,7 @@ def api_start(context, ip, port):
 
 @agent.command(name='start')
 @click.option('-p', '--port', default=8002, help='Listen port')
+@click.option('--clean', default=False, is_flag=True, help="Remove work directories before launch")
 @click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
@@ -1593,14 +1594,14 @@ def api_start(context, ip, port):
 @click.option('-u', '--user', default=None, help='Run the worker as user')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
 @click.pass_context
-def start_agent(context, port, backend, broker, config, queues, user, pool):
+def start_agent(context, port, clean, backend, broker, config, queues, user, pool):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
     agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                  config=config, backend=backend, user=user, broker=broker)
+                  config=config, backend=backend, user=user, clean=clean, broker=broker)
     agent.start()
 
 
