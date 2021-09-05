@@ -9,7 +9,7 @@ import os
 import configparser
 import platform
 
-from celery import Celery
+from celery import Celery, signature
 from pyfi.config.celery import Config
 from kombu import Exchange, Queue as KQueue, binding
 from pathlib import Path
@@ -187,7 +187,7 @@ class Socket(Base):
         }
 
     def p(self, *args, **kwargs):
-        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, kwargs=kwargs)
+        return signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs)
 
     def delay(self, *args, **kwargs):
 

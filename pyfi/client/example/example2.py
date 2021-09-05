@@ -8,7 +8,7 @@ print("Result is: ",result)
 result = chain([
     do_something.p("One"), 
     do_something.p("Two"), 
-    do_something.p()])()
+    do_something.p("Two")])()
 
 def callback(*args, **kwargs):
     return
