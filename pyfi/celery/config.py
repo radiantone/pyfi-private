@@ -4,3 +4,4 @@ task_serializer = 'pickle'
 result_serializer = 'pickle'
 serialization.register_pickle()
 serialization.enable_insecure_serializers()
+

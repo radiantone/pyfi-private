@@ -165,12 +165,6 @@ class Worker:
             self.celery = Celery(
                 'pyfi', backend=backend, broker=broker)
 
-
-            accept_content = ['pickle', 'application/x-python-serialize']
-            task_serializer = 'pickle'
-            result_serializer = 'pickle'
-            serialization.register_pickle()
-            serialization.enable_insecure_serializers()
             from pyfi.celery import config
             logging.info("App config is %s", config)
             self.celery.config_from_object(config)

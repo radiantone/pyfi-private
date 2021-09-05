@@ -92,7 +92,9 @@ class Socket(Base):
         backend = CONFIG.get('backend', 'uri')
         broker = CONFIG.get('broker', 'uri')
         self.app = Celery(backend=backend, broker=broker)
-        
+
+        from pyfi.celery import config
+        self.celery.config_from_object(config)
         self.processor = None
 
         self.name = kwargs['name']
@@ -337,6 +339,8 @@ class Processor(Base):
 
         self.app = Celery(backend=backend, broker=broker)
 
+        from pyfi.celery import config
+        self.celery.config_from_object(config)
         self.database.session.add(self.processor)
         self.database.session.commit()
 
