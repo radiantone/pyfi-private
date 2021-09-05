@@ -187,7 +187,7 @@ class Socket(Base):
         }
 
     def p(self, *args, **kwargs):
-        return signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs)
+        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs)
 
     def delay(self, *args, **kwargs):
 
