@@ -1,15 +1,16 @@
 from pyfi.client.example.api import do_something
-from celery import chord
+from celery import group,chain
 
 # Send a message to the socket function
 result = do_something("Inner "+" ".join(do_something("Hello World XXX!")))
 
 print("Result is: ",result)
-
-counting = chord([
+result = chain([
     do_something.p("One"), 
     do_something.p("Two"), 
-    do_something.p("Three") ])
+    do_something.p()])()
 
+def callback(*args, **kwargs):
+    return
 
-print("COUNTING: ", counting())
+print("COUNTING: ", result.get())
