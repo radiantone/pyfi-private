@@ -99,7 +99,6 @@ class Worker:
                 session.commit()
             except:
                 session.rollback()
-                raise
 
 
     def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
