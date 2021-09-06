@@ -15,6 +15,8 @@ _pipeline = pipeline([
     ]),
     do_something.p("Three")])
 
+print("PIPELINE:",_pipeline().get())
+
 _parallel = parallel([
     _pipeline,
     do_something.p("Two"),

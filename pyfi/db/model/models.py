@@ -4,7 +4,7 @@ Class database model definitions
 """
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
-from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
+from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
 import logging
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
@@ -390,6 +390,12 @@ class TaskModel(BaseModel):
 
     module = Column(String(120), nullable=False, primary_key=True)
     gitrepo = Column(String(180), nullable=False, primary_key=True)
+    '''
+    Tasks can also be mixed-in to the module loaded by the processor as new functions
+    using the code field, which must contain a function
+    '''
+    mixin = Column(Boolean, default=False)
+    code = Column(Text)  # Source code of function
 
     sockets = relationship("SocketModel", back_populates="task")
 
