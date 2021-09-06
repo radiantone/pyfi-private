@@ -35,7 +35,7 @@ class Scheduler:
                 """ If changes are needed, put read lock on table and make change """
                 logging.info("Node %s", node)
                 agent = node.agent
-                
+
                 logging.info("Agent %s CPUs", agent.cpus)
                 # If there are processors pending relocation, calculate if there
                 # are free CPUs under this agent byt adding all the active processors
@@ -43,7 +43,7 @@ class Scheduler:
 
                 processor = agent.worker.processor
                 logging.info("Processor %s %s CPU",
-                                processor.name, processor.concurrency)
+                             processor.name, processor.concurrency)
 
                 # Look at all the processors for this node, if the total CPUs exceeds the nodes CPUs
                 # Then determine which processor to find a better home
@@ -54,7 +54,6 @@ class Scheduler:
                 # Processors with 6 sockets would optimally want a node with 6 CPUs so each socket task
                 # can run on its own core. This allows the scheduler to determine the compute needs for
                 # each processor and locate it accordingly.
-                
 
     def start(self):
         self.process = Process(target=self.run)
