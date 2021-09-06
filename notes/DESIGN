@@ -1,3 +1,7 @@
+- Use the processor client API to write complex, parallel workflows on top of processors
+
+----
+
 Pyfi provides a set of interacting compute layers that control the location and execution of managed code assets.
 With PYFI, code modules and functions can be loaded in multiple locations and invoked from clients without knowledge of where or how those functions are called.
 Redundant code (processors) loaded into a PYFI network will be able to respond to higher volume of data and requests and thus can scale at will.
@@ -8,12 +12,7 @@ This allows the system to be resilient to hardware or network changes, as well a
 All of this underlying management, hardware arriving and departing, services starting and stopping, processors moving from one host to another (or failing), is completely invisibile to the applications and clients using the system.
 To them, function calls will always, eventually be executed, if not immediately, in the near future when compute resources allow it.
 
-
-
-
-
 ----
-
 
 Agent spawns sub processes that invoke `pyfi worker start -n workername` inside a virtualenv where the gitrepo code is loaded and installed.
 Thus, the worker runs inside it's own virtualenv. If the gitrepo is updated, the agent can restart the processor which will load a new environment
@@ -23,17 +22,12 @@ A top level queue for the processor is linked to a fanout exchange where all pro
 
 - Run pyfi worker start brings up celery worker with correct queues. DONE
 - Sending message using API invokes new worker DONE
-- New worker sends event messages to socketio room. NOT WORKER YET
 - Linked processors execute code NOT TESTED WITH NEW DESIGN YET
 - 
 
-
-
 --------------------------
 
-
-SCHEDULER->NODE->AGENT->WORKER->PROCESSOR->SOCKET->TASK
-
+SCHEDULER->NODE->AGENT->WORKER->PROCESSOR->SOCKET->TASK->CALL
 
 PYFI - CLI for pyfi admin and monitoring - queries celery/amqp network along with pyfi database
 

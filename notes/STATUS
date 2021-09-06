@@ -69,11 +69,15 @@ Phase 4 Goals
 -------------
 
 - Build flows with CLI or client API DONE
-- Invocations complete regardless of when processors come online
-    - Flows complete even if partially available
-- Queues are reclaimed after expiry when no consumers attached
-- 
-
+- Invocations complete regardless of when processors come online DONE
+    - Flows complete even if partially available DONE
+- Queues are reclaimed after expiry when no consumers attached DONE
+- APScheduler 90%
+- ls calls, ls call->shows result DONE
+    - Add result size to CallModel
+- Port pubsub to redis DONE
+- CPU affinity for worker processors, scheduler decides
+- cli listen works with redis now DONE
 - User RLS row level security in database DONE
 - Scheduler CLI commands 80%
 - Scheduler task

@@ -1,0 +1,13 @@
+CONTAINERS 
+
+Run agent workers inside lightweight prebuilt python container
+
+SIMULATION 
+
+What is the role/benefit of simulation on top of pyfi?
+   e.g. simpy?
+
+A simulation harness can model real world processes in an event driven way that 
+can interact with pyfi objects. A simulation is a "type of flow" that specifies environmental classes, properties, etc that interact when the simulation is run.
+To create a simulation, drag a simulation object onto the canvas. This is the entrypoint. Additional simulation type objects can be connected to the root simulation object
+and their properties can be easily configured. You can create your own simulation classes and drop them onto the canvas.

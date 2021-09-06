@@ -26,5 +26,8 @@ RUN virtualenv --python=python3 venv
 RUN venv/bin/pip install --upgrade flask
 RUN venv/bin/python setup.py install
 RUN update-rc.d -f supervisord remove
+RUN useradd pyfi -d /home/pyfi
+ADD conf/pyfi.ini /home/pyfi/pyfi.ini
+RUN chown -R pyfi /opt/pyfi /home/pyfi
 #CMD ["/usr/bin/supervisord","-n"]
 CMD ["bash", "/opt/pyfi/supervisor.sh"]

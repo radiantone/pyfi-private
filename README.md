@@ -2,7 +2,7 @@
 
 A distributed data flow and computation system that runs on transactional messaging infrastructure. PYFI is designed to operate as a NVM Networked-Virtual-Machine by implementing distributed logic over networked hardware CPU/GPU processors and is suitable for all kinds of computational tasks.
 
-The entire PYFI stack, as a whole, provides a complete "Managed Compute Platform" (MCP) with specialized, best-of-breed tooling to support different layers of concern, such as:
+The entire PYFI stack, as a whole, provides a complete "Managed Compute Platform" (MCP) with specialized, best-of-breed tooling to support [different layers](#network-layers) of concern, such as:
 * Hardware Compute Resources
 * Compute Availability & Scheduling
 * Distributed Flows
@@ -60,6 +60,8 @@ The PYFI platform provides numerous benefits:
 * [Tech Stack](#tech-stack)
 * [Design Goals](#design-goals)  
 * [Detailed Architecture](#detailed-architecture)
+  * [Network Layers](#network-layers)
+  * [Execution Stack](#execution-stack)
   * [Why A SQL Database?](#why-a-sql-database)
   * [Data Model](#data-model)
   * [Security Model](#security-model)
@@ -82,6 +84,8 @@ The following diagram shows one cross-section of the current *reference implemen
 
 PYFI is designed to operate "at scale", which means there is a one-to-one correspondence between logic compute units (processors) and physical compute units (CPU cores).
 This provides a number of obvious and inherent benefits such as hardware redundancy, high-availability, fault-tolerance, fail-over, performance and ease of maintenance.
+
+Below is a diagram that compares the scaling architecture of Apache NIFI to PYFI. Whereas, NIFI uses a course grained, flow-level scaling design, PYFI uses a fine grained, processor-level scale design.
 
 ![atscale](./screens/scaling.png)
 
@@ -113,9 +117,35 @@ Some important design goals for this technology are:
 12. **GIT Integration** - All the code used by processors can be pulled from your own git repositories giving you instant integration into existing devops and CM processes. PYFI will let you select which repo and commit version you want a processor to execute code from in your flows.
 
 ## Detailed Architecture
-The center of the PYFI architecture is an enterprise-grade transactional database that maintains the relational models used by the PYFI network.
+PFYI is a scalable, high-performance network architecture that separates concerns across layers. Each layer has best-of-breed components that manage the responsibility of that layer.
+The slides below show the different layers and their responsibilities, starting with the bottom-most layer.
+
+### Managed Compute
+
+PYFI takes a different approach to staging and executing python code on its network. Other frameworks or libraries allow you to define your functions in your execution environment and serialize that code to remote workers for execution. Obviously that has some serious security implications in a *shared, managed compute environment*. So PYFI does not allow this. Rather, you request PYFI to mount your code through a secure git repostiory URL. This becomes *the contract* between you and PYFI and allows PYFI to securely load your code into its network.
+
+This approach also allows administrators to control white and blacklists for what repositories of code it trusts.
+
+#### Code Isolation
+
+Each PYFI worker that mounts a git repository, will create a virtual environment for that code and execute the repositories *setup.py* to install the code in that virtual environment. This is beneficial for a number of reasons, but most importantly it keeps the environment for the mounted code separate from the PYFI agent's python environment.
+### Network Layers
+
+PYFI is a distributed, scalable architecture and as such it is relationship between connected hardware & service layers interacting as a whole.
+
+![layer1](./screens/layer1.png)
+![layer2](./screens/layer2.png)
+![layer3](./screens/layer3.png)
+![layer4](./screens/layer4.png)
+
+### Execution Stack
+The following diagram shows the traversal of PYFI programs through various stages from the top-level compute API to its destination python function (task).
+
+![stack](./screens/execution.png)
 
 ### Why a SQL Database?
+The center of the PYFI architecture is an enterprise-grade transactional database that maintains the relational models used by the PYFI network.
+
 Some of you might be asking why a SQL database is the center abstraction point of PYFI, SQL databases have been around for decades! Let me explain.
 
 There are some important enterprise qualities we want from the logical database that governs the structure and behavior of a PYFI network.
@@ -305,6 +335,51 @@ do_something("Hello World !")
 
 do_this("Do this!!")
 ```
+
+#### Parallel Compute & Workflow API 
+This example builds on top of the previous client API built into PYFI and let's you define a simple and flexible API based on your processor functions, so it looks like *plain-old-python*. A key goal with this API is that the design of the workflow (which is to say its structure) should be *obvious* just by looking at the code.
+
+We also introduce parallel workflow constructs such as *pipeline*, *parallel* and *funnel* here but will talk about them in more detail later on.
+
+
+NOTE: The functions *do_something* and *do_this* are actual (but contrived) python functions connected to a Processor via git repository. Merely used for examples.
+View them [here](https://github.com/radiantone/pyfi-processors/blob/main/pyfi/processors/sample.py).
+```python
+""" Example"""
+from pyfi.client.api import parallel, pipeline, funnel
+
+# Function API over your processor models
+from pyfi.client.example.api import do_something_p as do_something, do_this_p as do_this
+
+# Durable, reliable, parallel, distributed workflows
+_pipeline = pipeline([
+    do_something("One"),
+    do_something("Two"),
+    parallel([
+        do_something("Four"),
+        do_something("Five"),
+    ]),
+    do_something("Three")])
+
+_parallel = parallel([
+    _pipeline,
+    do_something("Two"),
+    do_something("Three")])
+
+_funnel = funnel([
+    do_something("One"),
+    _parallel,
+    do_this("Three")])
+
+print("FUNNEL: ", _funnel(do_this("Four")).get())
+```
+
+What's interesting about the above code is that the function calls are fully durable and reliable, meaning that they are persistent and if a particular worker fails, the task is retried elsewhere.
+In addition, if the compute resources are not available at the time of execution, the workflow will wait until the PYFI environment finishes executing all the code, which can occur at different times.
+
+Even if the backend were to suffer hardware failures or reboots, the above script would eventually finish and produce its result, all transparently.
+You get all these *qualities of service* for free in PYFI.
+
 ## Command Line Interface
 
 One of the design goals for PYFI was to allow both Graphical and Command line User Interfaces. A CLI will open up access to various server-side automations, devops pipelines and human sysops that can interact with the PYFI network through a remote console.

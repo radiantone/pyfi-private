@@ -7,7 +7,7 @@ pyfi add node -n node4 -h agent1
 pyfi add scheduler --name sched1
 
 pyfi scheduler -n sched1  add --node node1
-pyfi scheduler -n sched1  add --node node2
+pyfi scheduler -n sched1  add --node phoenix.node
 pyfi scheduler -n sched1  add --node node3
 
 pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 

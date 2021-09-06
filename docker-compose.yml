@@ -13,7 +13,7 @@ services:
   agent2:
     build: 
       context: .
-      dockerfile: docker/Dockerfile.supervisor
+      dockerfile: docker/Dockerfile.agent
     container_name: agent2
     hostname: agent2
     image: supervisor:latest
@@ -34,7 +34,7 @@ services:
   agent1:
     build: 
       context: .
-      dockerfile: docker/Dockerfile.supervisor
+      dockerfile: docker/Dockerfile.agent
     container_name: agent1
     hostname: agent1
     image: supervisor:latest
@@ -43,7 +43,7 @@ services:
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
-    command:  "/opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start"
+    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start --clean --user pyfi"
     ports:
       - 8003:8002
     depends_on:

@@ -1,0 +1,6 @@
+FROM python:latest
+
+RUN apt update
+RUN apt install -y libev-dev libevdev2
+RUN useradd pyfi
+RUN pip install git+https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi
