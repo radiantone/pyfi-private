@@ -189,8 +189,10 @@ class Worker:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name]
             if self.user:
-                cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
-                    "-n", name]
+                #cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
+                #       "-n", name]
+                cmd = ["venv/bin/pyfi", "worker", "start", "-s",
+                       "-n", name]
 
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
