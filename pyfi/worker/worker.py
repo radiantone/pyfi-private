@@ -531,7 +531,7 @@ class Worker:
                                 try:
                                     session.add(call)
                                     session.commit()
-                                    logging.info("CALL COMPLETE %s", call)
+                                    logging.info("CALL COMPLETE")
                                 except:
                                     logging.error("CALL COMMIT ROLLBACK")
                                     session.rollback()
