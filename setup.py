@@ -120,7 +120,7 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['pyfi', 'pyfi.tests', 'pyfi.scheduler', 'pyfi.config', 'pyfi.client.example','pyfi.client.example.api','pyfi.client', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
+    packages=['pyfi', 'pyfi.tests', 'pyfi.scheduler', 'pyfi.config', 'pyfi.client.example', 'pyfi.client.example.api', 'pyfi.client', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
               'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.web'],
     include_package_data=True,
     python_requires=">=3.8.*",
@@ -147,9 +147,11 @@ setup(
         'humanize',
         'schedule',
         'apscheduler',
-        #'simpy',
+        'sphinx',
+        # 'simpy',
         'pyschedule',
-        'uvicorn[standard]'
+        'uvicorn[standard]',
+        'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
     ],
     license=about['__license__'],
     zip_safe=False,

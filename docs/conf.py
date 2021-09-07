@@ -55,3 +55,13 @@ html_theme = 'sphinx_material'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_logo = 'images/pyfi-white.svg'
+
+html_theme_options = {
+    'repo_url': 'https://github.com/radiantone/sphinx-material',
+    'repo_name': 'Material for Sphinx',
+    'html_minify': True,
+    'css_minify': True,
+    'nav_title': 'Welcome to PYFI',
+    'globaltoc_depth': 2
+}
