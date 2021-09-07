@@ -505,6 +505,7 @@ class Worker:
                             pass_kwargs['tracking'] = kwargs['kwargs']['tracking']
                         if 'parent' in kwargs['kwargs']:
                             pass_kwargs['parent'] = kwargs['kwargs']['parent']
+                            logging.info("SETTING PARENT: %s",pass_kwargs)
 
                         try:
                             call = session.query(
