@@ -445,12 +445,14 @@ class Worker:
                         logging.info("KWARGS: %s",task_kwargs)
                         for _socket in self.processor.sockets:
                             if _socket.task.name == sender.__name__:
-
+                                parent = None
                                 if 'parent' not in task_kwargs:
                                     task_kwargs['parent'] = str(uuid4())
                                     logging.info("NEW PARENT %s",
                                                  task_kwargs['parent'])
                                     task_kwargs[_socket.task.id] = []
+                                else:
+                                    parent = task_kwargs['parent']
 
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
@@ -461,7 +463,7 @@ class Worker:
                                              sender, data, task_kwargs)
                                 _queue.put(data)
                                 call = CallModel(id=task_kwargs['parent'],
-                                    name=self.processor.module+'.'+_socket.task.name, parent=task_kwargs['parent'], resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
+                                    name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
                                 
                                 with self.get_session() as session:
                                     session.add(call)
