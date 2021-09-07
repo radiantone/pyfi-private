@@ -456,6 +456,7 @@ class Worker:
                                     parent = task_kwargs['parent']
                                     myid = str(uuid4())
 
+                                task_kwargs['myid'] = myid
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
 
@@ -518,9 +519,10 @@ class Worker:
                             pass_kwargs['parent'] = kwargs['kwargs']['parent']
                             logging.info("SETTING PARENT: %s",pass_kwargs)
 
+                        myid = kwargs['kwargs']['myid']
                         try:
                             call = session.query(
-                                CallModel).filter_by(celeryid=task_id).first()
+                                CallModel).filter_by(id=myid).first()
 
                             logging.info("CALL QUERY %s", call)
                             if call:
