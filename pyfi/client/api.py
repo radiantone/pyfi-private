@@ -2,7 +2,7 @@
 Python client API for invoking and building flows
 """
 from .objects import Processor, Socket, Queue, Plug
-from celery import group as parallel, chain as pipeline, chord as funnel
+from celery import group as parallel, chain as pipeline, chord as funnel, chunks as segment
 
 def chord(*args, **kwargs):
     from celery import group
@@ -25,4 +25,4 @@ def chord(*args, **kwargs):
 
 
 __all__ = ('Processor', 'Socket', 'Queue', 'Plug',
-           'parallel', 'pipeline', 'funnel')
+           'parallel', 'pipeline', 'funnel', 'segment')
