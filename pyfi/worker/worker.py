@@ -436,7 +436,7 @@ class Worker:
 
                         try:
                             logging.info("PRERUN Acquiring Lock")
-                            PRERUN_CONDITION.acquire()
+                            #PRERUN_CONDITION.acquire()
                             task_kwargs = kwargs.get('kwargs')
                             task_kwargs['plugs'] = _plugs
                             task_kwargs['output'] = {}
@@ -479,25 +479,23 @@ class Worker:
 
                                     logging.info("COMMITTED CALL ID %s",task_id)
                         finally:
-                            PRERUN_CONDITION.release()
+                            pass
+                            #PRERUN_CONDITION.release()
 
                                 
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
                         logging.info("Task SUCCESS: %s", sender)
-                        POSTRUN_CONDITION.release()
                         # Store task run data
                         pass
 
                     @task_failure.connect()
                     def pyfi_task_failure(sender=None, **kwargs):
-                        POSTRUN_CONDITION.release()
                         # Store task run data
                         pass
 
                     @task_internal_error.connect()
                     def pyfi_task_internal_error(sender=None, **kwargs):
-                        POSTRUN_CONDITION.release()
                         # Store task run data
                         pass
 
@@ -514,7 +512,7 @@ class Worker:
                             logging.info(
                                 "Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
                             logging.info("POSTRUN Acquiring lock")
-                            POSTRUN_CONDITION.acquire()
+                            #POSTRUN_CONDITION.acquire()
 
                             logging.info("Task POSTRUN RESULT %s", retval)
 
@@ -682,7 +680,7 @@ class Worker:
                                 pass
                         finally:
                             logging.info("Releasing POSTRUN lock")
-                            POSTRUN_CONDITION.release()
+                            #POSTRUN_CONDITION.release()
 
             worker.start()
 
