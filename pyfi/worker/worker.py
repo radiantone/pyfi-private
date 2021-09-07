@@ -522,13 +522,16 @@ class Worker:
                             call = session.query(
                                 CallModel).filter_by(celeryid=task_id).first()
 
+                            logging.info("CALL QUERY %s", call)
                             if call:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 try:
                                     session.add(call)
                                     session.commit()
+                                    logging.info("CALL COMPLETE %s", call)
                                 except:
+                                    logging.error("CALL COMMIT ROLLBACK")
                                     session.rollback()
                             else:
                                 logging.warning(
