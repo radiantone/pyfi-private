@@ -451,18 +451,23 @@ class Worker:
                                     logging.info("NEW PARENT %s",
                                                  task_kwargs['parent'])
                                     task_kwargs[_socket.task.id] = []
+                                    myid = task_kwargs['parent']
                                 else:
                                     parent = task_kwargs['parent']
+                                    myid = str(uuid4())
 
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
 
                                 started = datetime.now()
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
+
                                 logging.info("Task PRERUN: %s %s %s",
                                              sender, data, task_kwargs)
+
                                 _queue.put(data)
-                                call = CallModel(id=task_kwargs['parent'],
+
+                                call = CallModel(id=myid,
                                     name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
                                 
                                 with self.get_session() as session:
