@@ -493,6 +493,11 @@ class Worker:
                         task_kwargs = kwargs.get('kwargs')
                         plugs = task_kwargs['plugs']
 
+                        pass_kwargs = {}
+
+                        if 'tracking' in kwargs:
+                            pass_kwargs['tracking'] = kwargs['tracking']
+
                         try:
                             call = session.query(
                                 CallModel).filter_by(celeryid=task_id).first()
@@ -617,7 +622,7 @@ class Worker:
                                                     # Define context object that function can use to set outbound data and get inbound data
                                                     # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                                     self.celery.signature(
-                                                        _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs={}).delay()
+                                                        _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
                                                 except:
                                                     import traceback
                                                     print(
