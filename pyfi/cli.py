@@ -1231,7 +1231,7 @@ def ls_call(context, id, name):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "Parent", "State"]
     x.field_names = names
     
     calls = None
@@ -1258,7 +1258,7 @@ def ls_call(context, id, name):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.started, node.finished, node.state])
+                    node.lastupdated, node.started, node.finished, node.parent, node.state])
     print(x)
 
 

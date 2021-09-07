@@ -447,7 +447,7 @@ class Worker:
                             if _socket.task.name == sender.__name__:
 
                                 if 'parent' not in task_kwargs:
-                                    task_kwargs['parent'] = _socket.task.id
+                                    task_kwargs['parent'] = str(uuid4())
                                     task_kwargs[_socket.task.id] = []
 
                                 processor_path = _socket.queue.name + '.' + \
@@ -456,7 +456,7 @@ class Worker:
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
-                                call = CallModel(
+                                call = CallModel(id=task_kwargs['parent'],
                                     name=self.processor.module+'.'+_socket.task.name, parent=task_kwargs['parent'], resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
                                 
                                 with self.get_session() as session:
