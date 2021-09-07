@@ -543,6 +543,8 @@ class Worker:
                                         session.commit()
                                         logging.info("CALL COMPLETE")
                                     except:
+                                        import traceback
+                                        print(traceback.format_exc())
                                         logging.error("CALL COMMIT ROLLBACK")
                                         session.rollback()
                                 else:

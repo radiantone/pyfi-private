@@ -1278,10 +1278,10 @@ def ls_calls(context, start, rows, ascend):
 
     if not ascend:
         nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.lastupdated.desc()).slice(start-1, rows)
+            CallModel).order_by(CallModel.started.desc()).slice(start-1, rows)
     else:
         nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.lastupdated.asc()).slice(start-1, rows)
+            CallModel).order_by(CallModel.started.asc()).slice(start-1, rows)
 
     row = 0
     for node in nodes:
