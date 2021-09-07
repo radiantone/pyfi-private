@@ -431,11 +431,15 @@ class Worker:
                     @task_prerun.connect()
                     def pyfi_task_prerun(sender=None, task_id=None, **kwargs):
                         from datetime import datetime
+                        from uuid import uuid4
 
                         # Store task run data
                         task_kwargs = kwargs.get('kwargs')
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
+
+                        if 'tracking' not in task_kwargs:
+                            task_kwargs['tracking'] = str(uuid4())
 
                         for _socket in self.processor.sockets:
                             if _socket.task.name == sender.__name__:
@@ -452,6 +456,8 @@ class Worker:
                                     session.add(call)
 
                                 logging.info("COMMITTED CALL ID %s",task_id)
+
+                                
                     @task_success.connect()
                     def pyfi_task_success(sender=None, **kwargs):
                         logging.info("Task SUCCESS: %s", sender)
@@ -477,7 +483,7 @@ class Worker:
                     def pyfi_task_postrun(sender=None, task_id=None, retval=None, **kwargs):
                         from datetime import datetime
 
-                        logging.info("Task POSTRUN [%s] %s", task_id, sender)
+                        logging.info("Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
 
                         logging.info("Task POSTRUN RESULT %s", retval)
 
