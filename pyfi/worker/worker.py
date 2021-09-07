@@ -445,6 +445,11 @@ class Worker:
                         logging.info("KWARGS: %s",task_kwargs)
                         for _socket in self.processor.sockets:
                             if _socket.task.name == sender.__name__:
+
+                                if 'parent' not in task_kwargs:
+                                    task_kwargs['parent'] = _socket.task.id
+                                    task_kwargs[_socket.task.id] = []
+
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
                                 started = datetime.now()
@@ -452,7 +457,7 @@ class Worker:
                                 logging.info("Task PRERUN: %s %s", sender, data)
                                 _queue.put(data)
                                 call = CallModel(
-                                    name=self.processor.module+'.'+_socket.task.name, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
+                                    name=self.processor.module+'.'+_socket.task.name, parent=task_kwargs['parent'], resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
                                 
                                 with self.get_session() as session:
                                     session.add(call)
@@ -498,6 +503,8 @@ class Worker:
 
                         if 'tracking' in kwargs['kwargs']:
                             pass_kwargs['tracking'] = kwargs['kwargs']['tracking']
+                        if 'parent' in kwargs['kwargs']:
+                            pass_kwargs['parent'] = kwargs['kwargs']['parent']
 
                         try:
                             call = session.query(
