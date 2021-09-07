@@ -8,6 +8,8 @@ dist
 ./git
 .vscode
 .idea
+venv*
+celery
 migration
 logs
 agent.log
