@@ -448,13 +448,17 @@ class Worker:
 
                                 if 'parent' not in task_kwargs:
                                     task_kwargs['parent'] = str(uuid4())
+                                    logging.info("NEW PARENT %s",
+                                                 task_kwargs['parent'])
                                     task_kwargs[_socket.task.id] = []
 
                                 processor_path = _socket.queue.name + '.' + \
                                     self.processor.name.replace(' ', '.')
+
                                 started = datetime.now()
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
-                                logging.info("Task PRERUN: %s %s", sender, data)
+                                logging.info("Task PRERUN: %s %s %s",
+                                             sender, data, task_kwargs)
                                 _queue.put(data)
                                 call = CallModel(id=task_kwargs['parent'],
                                     name=self.processor.module+'.'+_socket.task.name, parent=task_kwargs['parent'], resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
@@ -519,6 +523,9 @@ class Worker:
                                     session.commit()
                                 except:
                                     session.rollback()
+                            else:
+                                logging.warning(
+                                    "No pre-existing Call object for task %s", task_id)
                         except:
                             logging.error("No pre-existing Call object for task %s", task_id)
                         try:
