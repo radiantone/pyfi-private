@@ -537,9 +537,10 @@ class Worker:
                                     session.rollback()
                             else:
                                 logging.warning(
-                                    "No pre-existing Call object for task %s", task_id)
+                                    "No pre-existing Call object for id %s", myid)
                         except:
-                            logging.error("No pre-existing Call object for task %s", task_id)
+                            logging.error(
+                                "No pre-existing Call object for id %s", myid)
                         try:
                             # while _queue.qsize() > 1000:
                             #    logging.debug("Waiting for queue to shrink")
