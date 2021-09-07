@@ -496,7 +496,7 @@ class Worker:
 
                         pass_kwargs = {}
 
-                        if 'tracking' in kwargs:
+                        if 'tracking' in kwargs['kwargs']:
                             pass_kwargs['tracking'] = kwargs['kwargs']['tracking']
 
                         try:
