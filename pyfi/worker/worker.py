@@ -435,7 +435,7 @@ class Worker:
                         from uuid import uuid4
 
                         try:
-                            # Store task run data
+                            logging.info("PRERUN Acquiring Lock")
                             PRERUN_CONDITION.acquire()
                             task_kwargs = kwargs.get('kwargs')
                             task_kwargs['plugs'] = _plugs
@@ -508,8 +508,10 @@ class Worker:
                         from datetime import datetime
 
                         try:
+                            logging.info(
+                                "Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
+                            logging.info("POSTRUN Acquiring lock")
                             POSTRUN_CONDITION.acquire()
-                            logging.info("Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
 
                             logging.info("Task POSTRUN RESULT %s", retval)
 
@@ -677,7 +679,7 @@ class Worker:
                                 pass
                         finally:
                             POSTRUN_CONDITION.release()
-                            
+
             worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
