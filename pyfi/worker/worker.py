@@ -438,6 +438,7 @@ class Worker:
                         task_kwargs['plugs'] = _plugs
                         task_kwargs['output'] = {}
 
+                        logging.info("KWARGS BEFORE: %s", task_kwargs)
                         if 'tracking' not in task_kwargs:
                             task_kwargs['tracking'] = str(uuid4())
 
@@ -621,6 +622,7 @@ class Worker:
                                                     # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
                                                     # Define context object that function can use to set outbound data and get inbound data
                                                     # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
+                                                    logging.info("PASS_KWARGS: %s",pass_kwargs)
                                                     self.celery.signature(
                                                         _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
                                                 except:
