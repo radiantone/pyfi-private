@@ -633,23 +633,79 @@ def task():
     pass
 
 
-@task.command()
-@click.argument('task', required=True)
-def run(task):
+
+@task.command(name='show', help="Show details for a task")
+@click.option('-n', '--name', required=True, help='Name of task to run')
+@click.option('-g', '--gitrepo', is_flag=True, default=False)
+@click.pass_context
+def show_task(context, name, gitrepo):
+
+    task = context.obj['database'].session.query(
+        TaskModel).filter_by(name=name).first()
+
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Module"]
+    if gitrepo:
+        names += ["Git Repo"]
+
+    x.field_names = names
+    
+    nodes = [task]
+
+    if task.code:
+        print(task.code)
+
+    for node in nodes:
+        values = [node.name, node.id, node.owner,
+                  node.lastupdated, node.module]
+        if gitrepo:
+            values += [node.gitrepo]
+
+        x.add_row(values)
+
+    print(x)
+
+@task.command(name='run')
+@click.option('-n', '--name', required=False, help='Name of task to run')
+@click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
+@click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
+@click.pass_context
+def run_task(context, name, socket, data):
     """
     Run a task
     """
-    import importlib
+    import sys
+    import imp
 
-    taskname = ''.join(task.rsplit('.')[-1])
-    modulename = '.'.join(task.rsplit('.')[:-1])
+    from pyfi.client.api import Socket
 
-    module = importlib.import_module(modulename)
-    task = getattr(module, taskname)
+    if name:
 
-    result = task.delay()
+        mymodule = imp.new_module(name)
 
-    print(result.get())
+        _task = context.obj['database'].session.query(
+            TaskModel).filter_by(name=name).first()
+
+        result = exec(_task.code, mymodule.__dict__)
+
+        if result:
+            print(result)
+        return
+
+    task = Socket(name=socket)
+
+    if data:
+        result = task(data)
+    else:
+        lines = []
+        for line in sys.stdin:
+            stripped = line.strip()
+            if not stripped: break
+            lines.append(stripped)
+        result = task(''.join(lines))
+
+    print(result)
 
 
 def update_object(obj, locals):
@@ -731,10 +787,31 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
     context.obj['database'].session.commit()
 
 
+@add.command(name='task')
+@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
+@click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
+@click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
+@click.pass_context
+def add_task(context, name, module, code):
+    """
+    Add task to the database
+    """
+
+    if code:
+        # get from stdin
+        code = sys.stdin.read()
+
+
+    task = TaskModel(name=name, module=module, code=code, gitrepo="None")
+    task.updated = datetime.now()
+    context.obj['database'].session.add(task)
+    context.obj['database'].session.commit()
+    print(task)
+
+
 @add.command(name='processor')
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
-#click.option('-t', '--task', prompt=True, required=True, default=None, help="Python function name within the model")
 @click.option('-h', '--hostname', prompt=True, default=HOSTNAME, help='Target server hostname')
 @click.option('-w', '--workers', default=1, help='Number of worker tasks')
 @click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
@@ -749,8 +826,6 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     Add processor to the database
     """
     id = context.obj['id']
-
-    # Create a task object and add to processor
 
     processor = ProcessorModel(
         id=id, status='ready', hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
@@ -1417,6 +1492,8 @@ def ls_agents(context):
     """
     List agents
     """
+    import requests
+
     x = PrettyTable()
 
     names = ["Name", "ID", "Host", "Port", "Owner", "Last Updated",
@@ -1426,8 +1503,15 @@ def ls_agents(context):
 
     for node in agents:
         worker_name = node.worker.name if node.worker else 'None'
+        status = 'unreachable'
+        try:
+            res = requests.get('http://'+node.hostname+':'+str(node.port))
+            if res.status_code == 200:
+                status = 'running'
+        except:
+            pass
         x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
-                  node.status, node.node.name, worker_name])
+                  status, node.node.name, worker_name])
 
     print(x)
 
@@ -1440,13 +1524,13 @@ def ls_sockets(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Task", "Last Updated",
+    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
              "Status", "Processor", "Queue", "Interval"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
-        x.add_row([node.name, node.id, node.owner, node.task.name, node.lastupdated,
+        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
                   node.status, node.processor.name, node.queue.name, node.interval])
 
     print(x)
