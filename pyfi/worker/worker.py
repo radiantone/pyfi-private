@@ -497,7 +497,7 @@ class Worker:
                         pass_kwargs = {}
 
                         if 'tracking' in kwargs:
-                            pass_kwargs['tracking'] = kwargs['tracking']
+                            pass_kwargs['tracking'] = kwargs['kwargs']['tracking']
 
                         try:
                             call = session.query(
