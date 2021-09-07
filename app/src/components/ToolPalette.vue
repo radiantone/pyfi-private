@@ -83,8 +83,8 @@
     <q-btn
       flat
       align="left"
-      icon="icon-group-remote"
-      aria-label="Remote Group"
+      icon="format_list_bulleted"
+      aria-label="Parallel Node"
       size="large"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
@@ -93,14 +93,79 @@
         content-style="font-size: 16px"
         content-class="bg-black text-white"
       >
-        Remote Process Group
+        Parallel
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      align="left"
+      icon="fas fa-long-arrow-alt-right"
+      aria-label="Pipeline Node"
+      size="large"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Pipeline
+      </q-tooltip>
+    </q-btn>
+
+    <q-btn
+      flat
+      align="left"
+      icon="low_priority"
+      aria-label="Chord Node"
+      size="large"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Chord
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      align="left"
+      icon="grid_view"
+      aria-label="Segment Node"
+      size="large"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Segment
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      align="left"
+      icon="icon-map"
+      aria-label="Map Node"
+      size="large"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Map
       </q-tooltip>
     </q-btn>
     <q-btn
       flat
       align="left"
       icon="icon-funnel"
-      aria-label="Funnel"
+      aria-label="Reduce Node"
       size="large"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
@@ -109,7 +174,7 @@
         content-style="font-size: 16px"
         content-class="bg-black text-white"
       >
-        Funnel
+        Reduce
       </q-tooltip>
     </q-btn>
     <q-btn

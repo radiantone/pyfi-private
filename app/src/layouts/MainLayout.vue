@@ -246,7 +246,7 @@ import "assets/fonts/fontawesome-webfont.eot";
 import "assets/fonts/fontawesome-webfont.svg";
 import "assets/fonts/fontawesome-webfont.woff2";
 import "assets/fonts/fontawesome-webfont.woff";
-import "assets/fonts/flowfont.woff2";
+import "assets/fonts/flowfont2.woff2";
 
 export default defineComponent({
   name: "MainLayout",
