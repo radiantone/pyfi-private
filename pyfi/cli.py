@@ -668,10 +668,11 @@ def show_task(context, name, gitrepo):
 
 @task.command(name='run')
 @click.option('-n', '--name', required=False, help='Name of task to run')
+@click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
 @click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
 @click.pass_context
-def run_task(context, name, socket, data):
+def run_task(context, name, type, socket, data):
     """
     Run a task
     """
@@ -698,13 +699,22 @@ def run_task(context, name, socket, data):
     if data:
         result = task(data)
     else:
+        #
+        # code = sys.stdin.read()
+        # Determine mime type from code bytes
+        # depickle or load json
+        #
         lines = []
         for line in sys.stdin:
             stripped = line.strip()
             if not stripped: break
             lines.append(stripped)
+
         result = task(''.join(lines))
 
+    # If type is set to pickle, then pickle the result
+    # If type is set to json, then json dumps
+    # otherwise type is 'raw', so print it
     print(result)
 
 
