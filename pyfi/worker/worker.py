@@ -441,6 +441,7 @@ class Worker:
                         if 'tracking' not in task_kwargs:
                             task_kwargs['tracking'] = str(uuid4())
 
+                        logging.info("KWARGS: %s",task_kwargs)
                         for _socket in self.processor.sockets:
                             if _socket.task.name == sender.__name__:
                                 processor_path = _socket.queue.name + '.' + \
