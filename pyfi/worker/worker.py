@@ -287,7 +287,7 @@ class Worker:
                                     myid = str(uuid4())
                                     
                                 started = datetime.now()
-                                _signal['kwargs'] = myid
+                                _signal['kwargs']['myid'] = myid
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
@@ -302,7 +302,6 @@ class Worker:
                                 logging.info("CREATED CALL MODEL %s", call)
                                 session.add(call)
                                 session.commit()
-                                logging.info("SIGNAL %s, PLUGS %s",_signal, _plugs)
                                 _signal['kwargs']['plugs'] = _plugs
                                 prerun_queue.put(_signal['kwargs'])
 
