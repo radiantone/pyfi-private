@@ -1,3 +1,10 @@
+- USE ML to try and learn the equation associated with a data stream
+- Given a data stream and numerical point values at different times, create a regression model that can predict the point value, given the data stream.
+- Data flows feed into web socket channels that are fronted by dashboards and charts
+    - Pyfi Charts is a layer on top of Pyfi that connects securely to the websocket feeds to plot data.
+    - Create persistent dashboards with PYFI that connect to data processors in real time
+
+
 CONTAINERS 
 
 Run agent workers inside lightweight prebuilt python container
