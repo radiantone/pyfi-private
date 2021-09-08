@@ -540,6 +540,7 @@ class Worker:
                             if 'tracking' not in kwargs.get('kwargs'):
                                 kwargs['kwargs']['tracking'] = str(uuid4())
 
+                            logging.info("Waiting on PRERUN REPLY")
                             response = prerun_queue.get()
                             kwargs['kwargs'].update(response)
                             
