@@ -307,7 +307,8 @@ class Worker:
                                     # socket.queue.expires
                                     queue_arguments={
                                         'x-message-ttl': 30000,
-                                        'x-expires': 300}
+                                        'x-expires': 300
+                                    }
                                 )
                             ]
 
@@ -326,7 +327,8 @@ class Worker:
                                     expires=socket.queue.expires,
                                     queue_arguments={
                                         'x-message-ttl': 30000,
-                                        'x-expires': 300}
+                                        'x-expires': 300
+                                    }
                                 )
                             ]
 
@@ -707,7 +709,6 @@ class Worker:
         import time
 
         if self.processor.gitrepo and not self.skipvenv:
-
 
             if self.usecontainer:
                 """ Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
