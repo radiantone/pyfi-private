@@ -549,8 +549,8 @@ class Worker:
                                     logging.info("SETTING PARENT: %s",pass_kwargs)
 
                                 myid = kwargs['kwargs']['myid']
-                                try:
-                                    with self.get_session() as session:
+                                with self.get_session() as session:
+                                    try:
                                         call = session.query(
                                             CallModel).filter_by(id=myid).first()
 
@@ -562,137 +562,137 @@ class Worker:
                                         else:
                                             logging.warning(
                                                 "No pre-existing Call object for id %s", myid)
-                                except:
-                                    logging.error(
-                                        "No pre-existing Call object for id %s", myid)
-                                try:
-                                    # while _queue.qsize() > 1000:
-                                    #    logging.debug("Waiting for queue to shrink")
-                                    #    time.sleep(0.5)
+                                    except:
+                                        logging.error(
+                                            "No pre-existing Call object for id %s", myid)
+                                    try:
+                                        # while _queue.qsize() > 1000:
+                                        #    logging.debug("Waiting for queue to shrink")
+                                        #    time.sleep(0.5)
 
-                                    # Create MetricDataModel and save to database
-                                    # time, size, processor, host, module, task, flow, owner
-                                    # Send this over 'data' channel
+                                        # Create MetricDataModel and save to database
+                                        # time, size, processor, host, module, task, flow, owner
+                                        # Send this over 'data' channel
 
-                                    data = {
-                                        'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
+                                        data = {
+                                            'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
-                                    for socket in self.processor.sockets:
-                                        if socket.task.name == sender.__name__:
-                                            processor_path = socket.queue.name + '.' + \
-                                                self.processor.name.replace(' ', '.')
-                                            data = {
-                                                'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
-                                            payload = json.dumps(data)
-                                            data['message'] = payload
-                                            break
+                                        for socket in self.processor.sockets:
+                                            if socket.task.name == sender.__name__:
+                                                processor_path = socket.queue.name + '.' + \
+                                                    self.processor.name.replace(' ', '.')
+                                                data = {
+                                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                                payload = json.dumps(data)
+                                                data['message'] = payload
+                                                break
 
-                                    logging.info(data)
+                                        logging.info(data)
 
-                                    result = kwargs.get('args')[0]
-                                    data['message'] = json.dumps(result)
-                                    data['message'] = json.dumps(data)
-                                    data['state'] = 'postrun'
+                                        result = kwargs.get('args')[0]
+                                        data['message'] = json.dumps(result)
+                                        data['message'] = json.dumps(data)
+                                        data['state'] = 'postrun'
 
-                                    logging.debug(
-                                        "EMITTING ROOMSG: %s", data)
+                                        logging.debug(
+                                            "EMITTING ROOMSG: %s", data)
 
-                                    #_queue.put(['servermsg', data])
-                                    _queue.put(['roomsg', data])
+                                        #_queue.put(['servermsg', data])
+                                        _queue.put(['roomsg', data])
 
-                                    _queue.put(
-                                        ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
+                                        _queue.put(
+                                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                                    logging.debug("PLUGS: %s", plugs)
-                                    for key in plugs:
-                                        """
-                                        Find plugs on this processor whose queue matches key
-                                        and then invoke the task for plug.socket.task
-                                        """
-                                        processor_plug = None
+                                        logging.debug("PLUGS: %s", plugs)
+                                        for key in plugs:
+                                            """
+                                            Find plugs on this processor whose queue matches key
+                                            and then invoke the task for plug.socket.task
+                                            """
+                                            processor_plug = None
 
-                                        for _plug in self.processor.plugs:
-                                            if _plug.queue.name == key:
-                                                processor_plug = _plug
+                                            for _plug in self.processor.plugs:
+                                                if _plug.queue.name == key:
+                                                    processor_plug = _plug
 
-                                        if processor_plug is None:
-                                            continue
+                                            if processor_plug is None:
+                                                continue
 
-                                        logging.info("processor_plug %s",
-                                                    processor_plug)
-                                        # Get all processors where processor_plug is plugged into a socket
-                                        
-                                        processors = self.database.session.query(
-                                            ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
+                                            logging.info("processor_plug %s",
+                                                        processor_plug)
+                                            # Get all processors where processor_plug is plugged into a socket
+                                            
+                                            processors = self.database.session.query(
+                                                ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
-                                        processor_map = {}
-                                        for p in processors:
-                                            processor_map[str(p.id)] = p
+                                            processor_map = {}
+                                            for p in processors:
+                                                processor_map[str(p.id)] = p
 
-                                        msgs = [msg for msg in plugs[key]]
-                                        logging.info("msgs %s", msgs)
+                                            msgs = [msg for msg in plugs[key]]
+                                            logging.info("msgs %s", msgs)
 
-                                        for msg in msgs:
-                                            """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
-                                            logging.debug(
-                                                "Sending {} to queue {}".format(msg, key))
+                                            for msg in msgs:
+                                                """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
+                                                logging.debug(
+                                                    "Sending {} to queue {}".format(msg, key))
 
-                                            if processor_plug.queue.qtype == 'direct':
-                                                logging.info("Finding processor....")
-                                                for socket in processor_plug.sockets:
-                                                    logging.info(
-                                                        "Checking socket[%s] vs key[%s]", socket.queue.name, key)
-                                                    _processor = processor_map[socket.processor_id]
-                                                    if socket.queue.name == key:
-                                                        """ Find the socket object for the outbound queue"""
-                                                        logging.info("Invoking {}=>{}({})".format(
-                                                            key,
-                                                            _processor.module+'.'+socket.task.name, msg))
-
-                                                        tkey = key+'.' + _processor.name.replace(
-                                                            ' ', '.')+'.'+socket.task.name
-                                                        # Target specific worker queue here
-                                                        worker_queue = KQueue(
-                                                            tkey,
-                                                            Exchange(
-                                                                key, type='direct'),
-                                                            routing_key=tkey,
-
-                                                            message_ttl=socket.queue.message_ttl,
-                                                            durable=socket.queue.durable,
-                                                            expires=socket.queue.expires,
-                                                            # expires=30,
-                                                            # socket.queue.message_ttl
-                                                            # socket.queue.expires
-                                                            queue_arguments={
-                                                                'x-message-ttl': 30000,
-                                                                'x-expires': 300}
-                                                        )
-
+                                                if processor_plug.queue.qtype == 'direct':
+                                                    logging.info("Finding processor....")
+                                                    for socket in processor_plug.sockets:
                                                         logging.info(
-                                                            "worker queue %s", worker_queue)
-                                                        try:
-                                                            # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
-                                                            # Define context object that function can use to set outbound data and get inbound data
-                                                            # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
-                                                            logging.info("PASS_KWARGS: %s",pass_kwargs)
-                                                            self.celery.signature(
-                                                                _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
-                                                        except:
-                                                            import traceback
-                                                            print(
-                                                                traceback.format_exc())
-                                                        logging.info(
-                                                            "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
-                                                    # We sent the message, so remove it so it doesn't get re-sent on the next cycle
-                                                    # If there is an exception delivering the message above, this code will get skipped and the
-                                                    # cycle will retry this message
-                                                    plugs[key].remove(msg)
+                                                            "Checking socket[%s] vs key[%s]", socket.queue.name, key)
+                                                        _processor = processor_map[socket.processor_id]
+                                                        if socket.queue.name == key:
+                                                            """ Find the socket object for the outbound queue"""
+                                                            logging.info("Invoking {}=>{}({})".format(
+                                                                key,
+                                                                _processor.module+'.'+socket.task.name, msg))
 
-                                except:
-                                    import traceback
-                                    logging.debug(traceback.format_exc())
-                                    pass
+                                                            tkey = key+'.' + _processor.name.replace(
+                                                                ' ', '.')+'.'+socket.task.name
+                                                            # Target specific worker queue here
+                                                            worker_queue = KQueue(
+                                                                tkey,
+                                                                Exchange(
+                                                                    key, type='direct'),
+                                                                routing_key=tkey,
+
+                                                                message_ttl=socket.queue.message_ttl,
+                                                                durable=socket.queue.durable,
+                                                                expires=socket.queue.expires,
+                                                                # expires=30,
+                                                                # socket.queue.message_ttl
+                                                                # socket.queue.expires
+                                                                queue_arguments={
+                                                                    'x-message-ttl': 30000,
+                                                                    'x-expires': 300}
+                                                            )
+
+                                                            logging.info(
+                                                                "worker queue %s", worker_queue)
+                                                            try:
+                                                                # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
+                                                                # Define context object that function can use to set outbound data and get inbound data
+                                                                # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
+                                                                logging.info("PASS_KWARGS: %s",pass_kwargs)
+                                                                self.celery.signature(
+                                                                    _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                                            except:
+                                                                import traceback
+                                                                print(
+                                                                    traceback.format_exc())
+                                                            logging.info(
+                                                                "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
+                                                        # We sent the message, so remove it so it doesn't get re-sent on the next cycle
+                                                        # If there is an exception delivering the message above, this code will get skipped and the
+                                                        # cycle will retry this message
+                                                        plugs[key].remove(msg)
+
+                                    except:
+                                        import traceback
+                                        logging.debug(traceback.format_exc())
+                                        pass
                             finally:
                                 logging.info("Releasing POSTRUN lock")
                                 #POSTRUN_CONDITION.release()
