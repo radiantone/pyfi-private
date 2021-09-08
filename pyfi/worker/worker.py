@@ -253,87 +253,87 @@ class Worker:
                 self.processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
 
-            task_queues = []
-            task_routes = {}
+                task_queues = []
+                task_routes = {}
 
-            if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
-                logging.info("Setting up sockets...")
-                for socket in self.processor.sockets:
-                    logging.info("Socket %s", socket)
-                    if socket.queue:
+                if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
+                    logging.info("Setting up sockets...")
+                    for socket in self.processor.sockets:
+                        logging.info("Socket %s", socket)
+                        if socket.queue:
 
-                        # TODO: Use socket.task.name as the task name and self.processor.module as the module
-                        # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
-                        # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
+                            # TODO: Use socket.task.name as the task name and self.processor.module as the module
+                            # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
+                            # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
 
-                        # This queue is bound to a broadcast(fanout) exchange that delivers
-                        # a message to all the connected queues however sending a task to
-                        # this queue will deliver to this processor only
-                        processor_path = socket.queue.name + '.' + \
-                            self.processor.name.replace(' ', '.')
+                            # This queue is bound to a broadcast(fanout) exchange that delivers
+                            # a message to all the connected queues however sending a task to
+                            # this queue will deliver to this processor only
+                            processor_path = socket.queue.name + '.' + \
+                                self.processor.name.replace(' ', '.')
 
-                        logging.info("Joining room %s", processor_path)
-                        if processor_path not in queues:
-                            queues += [processor_path]
+                            logging.info("Joining room %s", processor_path)
+                            if processor_path not in queues:
+                                queues += [processor_path]
 
-                        processor_task = socket.queue.name + '.' + self.processor.name.replace(
-                            ' ', '.')+'.'+socket.task.name
-                        if processor_task not in queues:
+                            processor_task = socket.queue.name + '.' + self.processor.name.replace(
+                                ' ', '.')+'.'+socket.task.name
+                            if processor_task not in queues:
 
-                            room = {'room': processor_task}
-                            queues += [processor_task]
+                                room = {'room': processor_task}
+                                queues += [processor_task]
 
-                        # This topic queue represents the broadcast fanout to all workers connected
-                        # to it. Sending a task to this queue delivers to all connected workers
-                        queues += []
-                        from kombu import Exchange, Queue, binding
-                        from kombu.common import Broadcast
-                        logging.debug('socket.queue.expires %s',
-                                      socket.queue.expires)
+                            # This topic queue represents the broadcast fanout to all workers connected
+                            # to it. Sending a task to this queue delivers to all connected workers
+                            queues += []
+                            from kombu import Exchange, Queue, binding
+                            from kombu.common import Broadcast
+                            logging.debug('socket.queue.expires %s',
+                                        socket.queue.expires)
 
-                        task_queues += [
-                            KQueue(
-                                socket.queue.name+'.' +
-                                self.processor.name.replace(
-                                    ' ', '.')+'.'+socket.task.name,
-                                Exchange(socket.queue.name + '.' + self.processor.name.replace(
-                                    ' ', '.')+'.'+socket.task.name, type='direct'),
-                                routing_key=socket.queue.name + '.' + self.processor.name.replace(
-                                    ' ', '.')+'.'+socket.task.name,
-                                message_ttl=socket.queue.message_ttl,
-                                durable=socket.queue.durable,
-                                expires=socket.queue.expires,
-                                # socket.queue.message_ttl
-                                # socket.queue.expires
-                                queue_arguments={
-                                    'x-message-ttl': 30000,
-                                    'x-expires': 300}
-                            )
-                        ]
+                            task_queues += [
+                                KQueue(
+                                    socket.queue.name+'.' +
+                                    self.processor.name.replace(
+                                        ' ', '.')+'.'+socket.task.name,
+                                    Exchange(socket.queue.name + '.' + self.processor.name.replace(
+                                        ' ', '.')+'.'+socket.task.name, type='direct'),
+                                    routing_key=socket.queue.name + '.' + self.processor.name.replace(
+                                        ' ', '.')+'.'+socket.task.name,
+                                    message_ttl=socket.queue.message_ttl,
+                                    durable=socket.queue.durable,
+                                    expires=socket.queue.expires,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    queue_arguments={
+                                        'x-message-ttl': 30000,
+                                        'x-expires': 300}
+                                )
+                            ]
 
-                        task_queues += [
-                            KQueue(
-                                socket.queue.name+'.' +
-                                self.processor.name.replace(
-                                    ' ', '.'),
-                                Exchange(socket.queue.name +
-                                         '.topic', type='fanout'),
-                                routing_key=socket.queue.name+'.' +
-                                self.processor.name.replace(
-                                    ' ', '.'),
-                                message_ttl=socket.queue.message_ttl,
-                                durable=socket.queue.durable,
-                                expires=socket.queue.expires,
-                                queue_arguments={
-                                    'x-message-ttl': 30000,
-                                    'x-expires': 300}
-                            )
-                        ]
+                            task_queues += [
+                                KQueue(
+                                    socket.queue.name+'.' +
+                                    self.processor.name.replace(
+                                        ' ', '.'),
+                                    Exchange(socket.queue.name +
+                                            '.topic', type='fanout'),
+                                    routing_key=socket.queue.name+'.' +
+                                    self.processor.name.replace(
+                                        ' ', '.'),
+                                    message_ttl=socket.queue.message_ttl,
+                                    durable=socket.queue.durable,
+                                    expires=socket.queue.expires,
+                                    queue_arguments={
+                                        'x-message-ttl': 30000,
+                                        'x-expires': 300}
+                                )
+                            ]
 
-                        task_routes[self.processor.module+'.'+socket.task.name] = {
-                            'queue': socket.queue.name,
-                            'exchange': [socket.queue.name+'.topic', socket.queue.name]
-                        }
+                            task_routes[self.processor.module+'.'+socket.task.name] = {
+                                'queue': socket.queue.name,
+                                'exchange': [socket.queue.name+'.topic', socket.queue.name]
+                            }
 
             @worker_process_init.connect()
             def prep_db_pool(**kwargs):
