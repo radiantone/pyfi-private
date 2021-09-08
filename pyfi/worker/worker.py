@@ -577,15 +577,20 @@ class Worker:
                                             'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
                                         for socket in self.processor.sockets:
+                                            logging.info("SOCKET LOOP 2")
                                             if socket.task.name == sender.__name__:
+                                                logging.info("SOCKET LOOP 3")
                                                 processor_path = socket.queue.name + '.' + \
                                                     self.processor.name.replace(' ', '.')
                                                 data = {
                                                     'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
                                                 payload = json.dumps(data)
                                                 data['message'] = payload
+                                                logging.info("SOCKET LOOP 4")
                                                 break
 
+
+                                        logging.info("SOCKET LOOP 5")
                                         logging.info(data)
 
                                         result = kwargs.get('args')[0]
