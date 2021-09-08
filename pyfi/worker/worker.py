@@ -560,7 +560,10 @@ class Worker:
                                         if call:
                                             call.finished = datetime.now()
                                             call.state = 'finished'
+
+                                            logging.info("ADDING CALL TO SESSION")
                                             session.add(call)
+                                            logging.info("CALL ADDED")
                                         else:
                                             logging.warning(
                                                 "No pre-existing Call object for id %s", myid)
@@ -568,14 +571,8 @@ class Worker:
                                         logging.error(
                                             "No pre-existing Call object for id %s", myid)
                                     try:
-                                        # while _queue.qsize() > 1000:
-                                        #    logging.debug("Waiting for queue to shrink")
-                                        #    time.sleep(0.5)
 
-                                        # Create MetricDataModel and save to database
-                                        # time, size, processor, host, module, task, flow, owner
-                                        # Send this over 'data' channel
-
+                                        logging.info("SOCKET LOOP")
                                         data = {
                                             'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
@@ -605,7 +602,7 @@ class Worker:
                                         _queue.put(
                                             ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
-                                        logging.debug("PLUGS: %s", plugs)
+                                        logging.info("PLUGS: %s", plugs)
                                         for key in plugs:
                                             """
                                             Find plugs on this processor whose queue matches key
@@ -695,6 +692,10 @@ class Worker:
                                         import traceback
                                         logging.debug(traceback.format_exc())
                                         pass
+                            except:
+                                import traceback
+                                logging.debug(traceback.format_exc())
+                                pass
                             finally:
                                 logging.info("Releasing POSTRUN lock")
                                 #POSTRUN_CONDITION.release()
