@@ -235,11 +235,25 @@ class Worker:
         Docstring
         """
         global processes
+        import threading
         from multiprocessing import Process
         import os
 
         logging.debug("PYTHON: %s", sys.executable)
 
+        def database_actions():
+            while True:
+                logging.info("Sleeping 5...")
+                time.sleep(5)
+
+                logging.info("Checking main_queue")
+                _signal = main_queue.get()
+
+                logging.info("SIGNAL: %s", _signal)
+
+        dbactions = threading.Thread(target=database_actions)
+        dbactions.start()
+        
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
             import builtins
@@ -498,15 +512,6 @@ class Worker:
                                 {'signal': 'prerun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                 worker.start()
-
-            while True:
-                logging.info("Sleeping 5...")
-                time.sleep(5)
-
-                logging.info("Checking main_queue")
-                _signal = main_queue.get()
-
-                logging.info("SIGNAL: %s", _signal)
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
