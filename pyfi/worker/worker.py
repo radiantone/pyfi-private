@@ -577,8 +577,14 @@ class Worker:
                                             'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
                                         logging.info("SOCKET LOOP 1")
-                                        logging.info(
-                                            "%s", self.processor.sockets)
+                                        try:
+                                            logging.info(
+                                                "%s", self.processor.sockets)
+
+                                        except:
+                                            import traceback
+                                            logging.debug(traceback.format_exc())
+
                                         for socket in self.processor.sockets:
                                             logging.info("SOCKET LOOP 2")
                                             if socket.task.name == sender.__name__:
@@ -698,11 +704,9 @@ class Worker:
                                     except:
                                         import traceback
                                         logging.debug(traceback.format_exc())
-                                        pass
                             except:
                                 import traceback
                                 logging.debug(traceback.format_exc())
-                                pass
                             finally:
                                 logging.info("Releasing POSTRUN lock")
                                 #POSTRUN_CONDITION.release()
