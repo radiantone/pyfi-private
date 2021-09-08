@@ -577,6 +577,8 @@ class Worker:
                                             'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
                                         logging.info("SOCKET LOOP 1")
+                                        logging.info(
+                                            "%s", self.processor.sockets)
                                         for socket in self.processor.sockets:
                                             logging.info("SOCKET LOOP 2")
                                             if socket.task.name == sender.__name__:
@@ -589,7 +591,6 @@ class Worker:
                                                 data['message'] = payload
                                                 logging.info("SOCKET LOOP 4")
                                                 break
-
 
                                         logging.info("SOCKET LOOP 5")
                                         logging.info(data)
