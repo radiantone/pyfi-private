@@ -97,14 +97,15 @@ class Worker:
         except:
             session.rollback()
             raise
+        '''
         else:
             try:
                 session.commit()
             except:
                 session.rollback()
-        #finally:
-        #    self.session.close()
-
+        finally:
+            self.session.close()
+        '''
 
     def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
