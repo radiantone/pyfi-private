@@ -467,9 +467,10 @@ class Worker:
                                     task_kwargs['tracking'] = str(uuid4())
 
                                 logging.info("KWARGS: %s",task_kwargs)
-                                with self.get_session() as session:
-                                    session.add(self.processor)
-                                    session.refresh(self.processor)
+                                #with self.get_session() as session:
+                                if True:
+                                    self.session.add(self.processor)
+                                    self.session.refresh(self.processor)
                                     for _socket in self.processor.sockets:
                                         if _socket.task.name == sender.__name__:
                                             parent = None
