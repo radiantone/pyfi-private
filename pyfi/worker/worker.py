@@ -287,11 +287,13 @@ class Worker:
                                     myid = str(uuid4())
                                     
                                 started = datetime.now()
+
+                                processor_path = _socket.queue.name + '.' + \
+                                    processor.name.replace(' ', '.')
+                                    
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
 
                                 queue.put(data)
-                                processor_path = _socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
 
                                 call = CallModel(id=myid,
                                                  name=processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
