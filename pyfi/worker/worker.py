@@ -483,8 +483,9 @@ class Worker:
                                 #with self.get_session() as session:
 
                                 if True:
-                                    some_session.add(self.processor)
-                                    some_session.refresh(self.processor)
+                                    current_db_sessions = some_session.object_session(s)
+                                    current_db_sessions.add(self.processor)
+                                    current_db_sessions.refresh(self.processor)
                                     for _socket in self.processor.sockets:
                                         if _socket.task.name == sender.__name__:
                                             parent = None
@@ -514,7 +515,7 @@ class Worker:
                                                 name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
 
                                             logging.info("CREATED CALL MODEL %s", call)
-                                            some_session.add(call)
+                                            current_db_sessions.add(call)
 
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
