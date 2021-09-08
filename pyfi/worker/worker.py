@@ -51,6 +51,8 @@ events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
 queue = Queue()
 main_queue = Queue()
+prerun_queue = Queue()
+postrun_queue = Queue()
 
 hostname = platform.node()
 
@@ -128,7 +130,7 @@ class Worker:
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(
             self.dburi, pool_size=cpus, max_overflow=5)
-            
+
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)
         self.sm = sm
@@ -243,11 +245,21 @@ class Worker:
 
         logging.debug("PYTHON: %s", sys.executable)
 
+
         def database_actions():
+            from uuid import uuid4
+            from datetime import datetime
+
             while True:
                 with self.get_session() as session:
                     processor = session.query(
                         ProcessorModel).filter_by(id=self.processor.id).first()
+
+                    _plugs = {}
+
+                    for plug in processor.plugs:
+                        _plugs[plug.queue.name] = []
+
                     logging.info("DBACTION: Processor %s",processor)
                     logging.info("Sleeping 5...")
                     time.sleep(5)
@@ -257,7 +269,41 @@ class Worker:
 
                     logging.info("SIGNAL: %s", _signal)
 
-                    # Update database objects with signal data
+                    if _signal['signal'] == 'prerun':
+                        logging.info("Task PRERUN: ")
+                        for _socket in processor.sockets:
+                            if _socket.task.name == _signal['sender']:
+                                parent = None
+                                if 'parent' not in _signal['kwargs']:
+                                    _signal['kwargs']['parent'] = str(
+                                        uuid4())
+                                    logging.info("NEW PARENT %s",
+                                                 _signal['kwargs']['parent'])
+                                    _signal['kwargs'][_socket.task.id] = [
+                                        ]
+                                    myid = _signal['kwargs']['parent']
+                                else:
+                                    parent = _signal['kwargs']['parent']
+                                    myid = str(uuid4())
+                                    
+                                started = datetime.now()
+                                data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
+
+                                queue.put(data)
+                                processor_path = _socket.queue.name + '.' + \
+                                    processor.name.replace(' ', '.')
+
+                                call = CallModel(id=myid,
+                                                 name=processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
+
+                                logging.info("CREATED CALL MODEL %s", call)
+                                session.add(call)
+                                session.commit()
+
+                                prerun_queue.put(_signal['kwargs'])
+
+                    if _signal['signal'] == 'postrun':
+                        pass
 
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
@@ -481,13 +527,24 @@ class Worker:
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task_id=None, *args, **kwargs):
+                            from datetime import datetime
+                            from uuid import uuid4
 
                             message = (kwargs)
 
                             print("KWARGS:",
-                                  {'signal': 'prerun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                  {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
-                                {'signal': 'prerun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                {'signal': 'prerun', 'sender':sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+
+                            if 'tracking' not in kwargs.get('kwargs'):
+                                kwargs['kwargs']['tracking'] = str(uuid4())
+
+                            response = prerun_queue.get()
+                            kwargs['kwargs'].update(response)
+                            
+                            logging.info("PRERUN QUEUE: %s", response)
+                            logging.info("PRERUN KWARGS IS NOW: %s", kwargs)
 
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
@@ -515,9 +572,9 @@ class Worker:
 
                             message = (kwargs)
                             print("KWARGS:", {
-                                  'signal': 'prerun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                  'signal': 'postrun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
-                                {'signal': 'prerun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                {'signal': 'postrun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                 worker.start()
 
