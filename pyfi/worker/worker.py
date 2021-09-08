@@ -490,7 +490,7 @@ class Worker:
                                     with self.get_session() as session:
                                         session.add(call)
 
-                                    logging.info("COMMITTED CALL ID %s",task_id)
+                                    logging.info("COMMITTED CALL ID %s",myid)
                         finally:
                             pass
                             #PRERUN_CONDITION.release()
