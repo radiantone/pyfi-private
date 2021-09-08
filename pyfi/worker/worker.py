@@ -90,7 +90,7 @@ class Worker:
 
     @contextmanager
     def get_session(self):
-        session = scoped_session(self.sm)
+        session = scoped_session(self.sm)()
 
         try:
             yield session
