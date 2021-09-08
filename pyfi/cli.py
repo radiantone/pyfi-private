@@ -1231,8 +1231,10 @@ def start_worker(context, name, pool, skip_venv):
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of call')
+@click.option('-r', '--result', default=False, is_flag=True, help="Include result of call")
+@click.option('-t', '--tree', default=False, is_flag=True, help="Include call tree")
 @click.pass_context
-def ls_call(context, id, name):
+def ls_call(context, id, name, result, tree):
     """
     List queues
     """
@@ -1247,6 +1249,7 @@ def ls_call(context, id, name):
     calls = None
     call = None
 
+
     if name is not None:
         calls = context.obj['database'].session.query(
             CallModel).filter_by(name=name).all()
@@ -1259,12 +1262,33 @@ def ls_call(context, id, name):
         nodes = calls
     elif call:
         import pickle
+        
+        if result:
+            redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
+            r = redisclient.get(call.resultid)
 
-        redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
-        r = redisclient.get(call.resultid)
+            _r = pickle.loads(r)
+            print(json.dumps(_r, indent=4))
+            return
+            
+        if tree:
+            from pptree import print_tree, Node
+            
+            root = Node(call.name)
 
-        _r = pickle.loads(r)
-        print(json.dumps(_r, indent=4))
+            def get_call_graph(root, _call):
+                _calls = context.obj['database'].session.query(
+                    CallModel).filter_by(parent=_call.id).all()
+
+                for _child in _calls:
+                    _child_node = Node(_child.name, root)
+                    _child_node = get_call_graph(_child_node, _child)
+
+                return root
+
+            root = get_call_graph(root, call)
+            print_tree(root, horizontal=False)
+            return
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
