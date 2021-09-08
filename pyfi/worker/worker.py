@@ -123,10 +123,10 @@ class Worker:
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(self.dburi, pool_size=cpus, max_overflow=5)
         sm = sessionmaker(bind=self.database)()
-        Session = scoped_session(sm)
+        some_session = scoped_session(sm)
 
         # now all calls to Session() will create a thread-local session
-        some_session = Session()
+        #some_session = Session()
         self.session = some_session
         self.database.session = some_session #self.session
 
