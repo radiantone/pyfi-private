@@ -483,7 +483,8 @@ class Worker:
                                 #with self.get_session() as session:
 
                                 if True:
-                                    current_db_sessions = some_session.object_session(s)
+                                    current_db_sessions = some_session.object_session(
+                                        self.processor)
                                     current_db_sessions.add(self.processor)
                                     current_db_sessions.refresh(self.processor)
                                     for _socket in self.processor.sockets:
