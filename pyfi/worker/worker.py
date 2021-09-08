@@ -464,7 +464,9 @@ class Worker:
                         def pyfi_task_prerun(sender=None, task_id=None, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
-
+                            database = create_engine()
+                            sm = sessionmaker(bind=database)
+                            some_session = scoped_session(sm)
                             try:
                                 logging.info("PRERUN Acquiring Lock")
                                 PRERUN_CONDITION.acquire()
@@ -479,9 +481,7 @@ class Worker:
 
                                 logging.info("KWARGS: %s",task_kwargs)
                                 #with self.get_session() as session:
-                                self.database = create_engine()
-                                sm = sessionmaker(bind=self.database)
-                                some_session = scoped_session(sm)
+
                                 if True:
                                     some_session.add(self.processor)
                                     some_session.refresh(self.processor)
@@ -519,8 +519,8 @@ class Worker:
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
                                 logging.info("PRERUN RELEASE Lock")
+                                some_session.close()
                                 PRERUN_CONDITION.release()
-
                                     
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
