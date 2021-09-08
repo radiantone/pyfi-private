@@ -252,6 +252,7 @@ class Worker:
 
             while True:
                 with self.get_session() as session:
+                    session.add(self.processor)
                     session.refresh(self.processor)
                     #processor = session.query(
                     #    ProcessorModel).filter_by(id=self.processor.id).first()
