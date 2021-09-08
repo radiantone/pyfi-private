@@ -472,6 +472,8 @@ class Worker:
                                     self.session.add(self.processor)
                                     self.session.refresh(self.processor)
                                     for _socket in self.processor.sockets:
+                                        self.session.add(_socket)
+                                        self.session.refresh(_socket)
                                         if _socket.task.name == sender.__name__:
                                             parent = None
                                             if 'parent' not in task_kwargs:
