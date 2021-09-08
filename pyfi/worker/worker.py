@@ -571,8 +571,9 @@ class Worker:
                                         logging.error(
                                             "No pre-existing Call object for id %s", myid)
                                     try:
-
-                                        logging.info("SOCKET LOOP")
+                                        logging.info("SOCKET LOOP A")
+                                        logging.info("%s", self.processor)
+                                        logging.info("SOCKET LOOP A1")
                                         try:
                                             data = {
                                                 'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
