@@ -3,23 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PYFI's documentation!
+Modules
 ================================
-
 .. toctree::
    :maxdepth: 2
 
-Documentation for the Code
-**************************
-.. toctree::
-   :maxdepth: 2
-
-   install
-   modules
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   api
