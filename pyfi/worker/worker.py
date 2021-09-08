@@ -464,7 +464,7 @@ class Worker:
                         def pyfi_task_prerun(sender=None, task_id=None, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
-                            database = create_engine()
+                            database = create_engine(self.dburi)
                             sm = sessionmaker(bind=database)
                             some_session = scoped_session(sm)
                             try:
