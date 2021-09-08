@@ -456,6 +456,7 @@ class Worker:
                             try:
                                 logging.info("PRERUN Acquiring Lock")
                                 PRERUN_CONDITION.acquire()
+                                logging.info("PRERUN Acquired Lock")
                                 task_kwargs = kwargs.get('kwargs')
                                 task_kwargs['plugs'] = _plugs
                                 task_kwargs['output'] = {}
@@ -501,6 +502,7 @@ class Worker:
 
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
+                                logging.info("PRERUN RELEASE Lock")
                                 PRERUN_CONDITION.release()
 
                                     
