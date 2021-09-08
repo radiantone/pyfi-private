@@ -102,6 +102,8 @@ class Worker:
                 session.commit()
             except:
                 session.rollback()
+        finally:
+            session.close()
 
 
     def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
@@ -156,6 +158,7 @@ class Worker:
 
             jobs = self.database.session.query(
                 JobModel).all()
+            self.database.session.close()
 
             self.jobs = {}
 
@@ -242,11 +245,13 @@ class Worker:
             from billiard.pool import Pool
 
             queues = []
-            engine = create_engine(self.dburi)
+            #engine = create_engine(self.dburi)
 
-            session = sessionmaker(bind=engine)()
-            self.processor = session.query(
-                ProcessorModel).filter_by(id=self.processor.id).first()
+            #session = sessionmaker(bind=engine)()
+
+            with self.get_session() as session:
+                self.processor = session.query(
+                    ProcessorModel).filter_by(id=self.processor.id).first()
 
             task_queues = []
             task_routes = {}
@@ -490,6 +495,8 @@ class Worker:
                                     with self.get_session() as session:
                                         session.add(call)
 
+                                    self.get_session().flush()
+
                                     logging.info("COMMITTED CALL ID %s",myid)
                         finally:
                             pass
@@ -529,7 +536,6 @@ class Worker:
 
                             logging.info("Task POSTRUN RESULT %s", retval)
 
-                            session = self.database.session
 
                             task_kwargs = kwargs.get('kwargs')
                             plugs = task_kwargs['plugs']
@@ -544,25 +550,18 @@ class Worker:
 
                             myid = kwargs['kwargs']['myid']
                             try:
-                                call = session.query(
-                                    CallModel).filter_by(id=myid).first()
+                                with self.get_session() as session:
+                                    call = session.query(
+                                        CallModel).filter_by(id=myid).first()
 
-                                logging.info("CALL QUERY %s", call)
-                                if call:
-                                    call.finished = datetime.now()
-                                    call.state = 'finished'
-                                    try:
+                                    logging.info("CALL QUERY %s", call)
+                                    if call:
+                                        call.finished = datetime.now()
+                                        call.state = 'finished'
                                         session.add(call)
-                                        session.commit()
-                                        logging.info("CALL COMPLETE")
-                                    except:
-                                        import traceback
-                                        print(traceback.format_exc())
-                                        logging.error("CALL COMMIT ROLLBACK")
-                                        session.rollback()
-                                else:
-                                    logging.warning(
-                                        "No pre-existing Call object for id %s", myid)
+                                    else:
+                                        logging.warning(
+                                            "No pre-existing Call object for id %s", myid)
                             except:
                                 logging.error(
                                     "No pre-existing Call object for id %s", myid)
@@ -622,6 +621,7 @@ class Worker:
                                     logging.info("processor_plug %s",
                                                 processor_plug)
                                     # Get all processors where processor_plug is plugged into a socket
+                                    
                                     processors = self.database.session.query(
                                         ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
 
@@ -696,6 +696,7 @@ class Worker:
                         finally:
                             logging.info("Releasing POSTRUN lock")
                             #POSTRUN_CONDITION.release()
+                            self.database.session.close()
 
             worker.start()
 
