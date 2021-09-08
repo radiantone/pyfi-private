@@ -457,7 +457,8 @@ class Worker:
                             message = (kwargs)
 
                             print("KWARGS:", kwargs)
-                            main_queue.put({'signal':'prerun', 'args':message})
+                            main_queue.put(
+                                {'signal': 'prerun', 'kwargs': kwargs, 'taskid':task_id, 'args':args})
                                     
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
@@ -486,7 +487,7 @@ class Worker:
                             message = (kwargs)
                             print("KWARGS:",kwargs)
                             main_queue.put(
-                                {'signal': 'postrun', 'args': message})
+                                {'signal': 'prerun', 'kwargs': kwargs, 'taskid': task_id, 'args': args})
 
                 worker.start()
 
