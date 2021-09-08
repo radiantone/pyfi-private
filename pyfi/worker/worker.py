@@ -24,6 +24,8 @@ from multiprocessing import Condition, Queue
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
+
 
 from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
@@ -120,9 +122,14 @@ class Worker:
 
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(self.dburi, pool_size=cpus, max_overflow=5)
-        self.session = sessionmaker(bind=self.database)()
-        self.database.session = self.session
-        
+        sm = sessionmaker(bind=self.database)()
+        Session = scoped_session(sm)
+
+        # now all calls to Session() will create a thread-local session
+        some_session = Session()
+        self.session = some_session
+        self.database.session = some_session #self.session
+
         self.pool = pool
         self.user = user
 
