@@ -436,7 +436,7 @@ class Worker:
                         import threading
 
                         localdata = threading.local()
-                        if not localdata.database:
+                        if not hasattr(localdata, 'database'):
                             database = create_engine(self.dburi, pool_size=5, max_overflow=0)
                             session = sessionmaker(bind=self.database)()
                             localdata.database = database
@@ -522,7 +522,7 @@ class Worker:
                         import threading
 
                         localdata = threading.local()
-                        if not localdata.database:
+                        if not hasattr(localdata,'database'):
                             database = create_engine(
                                 self.dburi, pool_size=5, max_overflow=0)
                             session = sessionmaker(bind=self.database)()
