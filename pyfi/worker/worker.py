@@ -488,6 +488,8 @@ class Worker:
                                     current_db_sessions.add(self.processor)
                                     current_db_sessions.refresh(self.processor)
                                     for _socket in self.processor.sockets:
+                                        current_db_sessions.add(_socket)
+                                        current_db_sessions.refresh(_socket)
                                         if _socket.task.name == sender.__name__:
                                             parent = None
                                             if 'parent' not in task_kwargs:
