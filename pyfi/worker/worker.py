@@ -106,6 +106,7 @@ class Worker:
         """
         """
         from pyfi.db.model import Base
+        import multiprocessing
 
         self.processor = processor
         self.worker = processor.worker
@@ -115,9 +116,13 @@ class Worker:
         self.dburi = database
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
-        self.database = create_engine(self.dburi, pool_size=5, max_overflow=0)
+
+
+        cpus = multiprocessing.cpu_count()
+        self.database = create_engine(self.dburi, pool_size=cpus, max_overflow=5)
         self.session = sessionmaker(bind=self.database)()
         self.database.session = self.session
+        
         self.pool = pool
         self.user = user
 
@@ -433,16 +438,6 @@ class Worker:
                     def pyfi_task_prerun(sender=None, task_id=None, **kwargs):
                         from datetime import datetime
                         from uuid import uuid4
-                        import threading
-
-                        localdata = threading.local()
-                        if not hasattr(localdata, 'database'):
-                            database = create_engine(self.dburi, pool_size=5, max_overflow=0)
-                            session = sessionmaker(bind=self.database)()
-                            localdata.database = database
-                            localdata.session = session
-                        else:
-                            logging.info("DATABASE SESSION ALREADY THREAD LOCAL")
 
                         try:
                             logging.info("PRERUN Acquiring Lock")
@@ -485,7 +480,7 @@ class Worker:
                                         name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
 
                                     logging.info("CREATED CALL MODEL %s", call)
-                                    with localdata.session as session:
+                                    with self.get_session() as session:
                                         session.add(call)
 
                                     logging.info("COMMITTED CALL ID %s",task_id)
@@ -519,19 +514,6 @@ class Worker:
                     def pyfi_task_postrun(sender=None, task_id=None, retval=None, **kwargs):
                         from datetime import datetime
 
-                        import threading
-
-                        localdata = threading.local()
-                        if not hasattr(localdata,'database'):
-                            database = create_engine(
-                                self.dburi, pool_size=5, max_overflow=0)
-                            session = sessionmaker(bind=self.database)()
-                            localdata.database = database
-                            localdata.session = session
-                        else:
-                            logging.info(
-                                "DATABASE SESSION ALREADY THREAD LOCAL")
-
                         try:
                             logging.info(
                                 "Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
@@ -540,7 +522,7 @@ class Worker:
 
                             logging.info("Task POSTRUN RESULT %s", retval)
 
-                            session = localdata.session
+                            session = self.database.session
 
                             task_kwargs = kwargs.get('kwargs')
                             plugs = task_kwargs['plugs']
