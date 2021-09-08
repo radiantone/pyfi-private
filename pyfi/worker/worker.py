@@ -95,7 +95,7 @@ class Worker:
         try:
             yield self.session
         except:
-            session.rollback()
+            self.session.rollback()
             raise
         '''
         else:
