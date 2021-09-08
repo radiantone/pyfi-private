@@ -261,8 +261,8 @@ class Worker:
                         _plugs[plug.queue.name] = []
 
                     logging.info("DBACTION: Processor %s", processor)
-                    logging.info("Sleeping 5...")
-                    time.sleep(5)
+                    #logging.info("Sleeping 5...")
+                    #time.sleep(5)
 
                     logging.info("Checking main_queue")
                     _signal = main_queue.get()
@@ -287,7 +287,8 @@ class Worker:
                                     myid = str(uuid4())
                                     
                                 started = datetime.now()
-
+                                _signal['kwargs'] = myid
+                                
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
