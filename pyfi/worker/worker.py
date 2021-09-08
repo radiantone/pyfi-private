@@ -37,10 +37,12 @@ from kombu import Exchange, Queue as KQueue
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
 
+
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
     pass
+
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -76,8 +78,10 @@ def shutdown(*args):
 
 signal.signal(signal.SIGINT, shutdown)
 
+
 def dispatcher(task):
-    print("DISPATCHER",task)
+    print("DISPATCHER", task)
+
 
 def myfunc():
     print("my func triggered")
@@ -121,9 +125,9 @@ class Worker:
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
 
-
         cpus = multiprocessing.cpu_count()
-        self.database = create_engine(self.dburi, pool_size=cpus, max_overflow=5)
+        self.database = create_engine(
+            self.dburi, pool_size=cpus, max_overflow=5)
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)
         self.sm = sm
@@ -131,7 +135,7 @@ class Worker:
         # now all calls to Session() will create a thread-local session
         #some_session = Session()
         self.session = some_session
-        self.database.session = some_session #self.session
+        self.database.session = some_session  # self.session
 
         self.pool = pool
         self.user = user
@@ -155,7 +159,8 @@ class Worker:
                 'max_instances': 3
             }
 
-            self.scheduler = BackgroundScheduler(jobstores=jobstores, executors = executors, job_defaults = job_defaults, timezone = utc)
+            self.scheduler = BackgroundScheduler(
+                jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc)
 
             jobs = self.database.session.query(
                 JobModel).all()
@@ -166,11 +171,10 @@ class Worker:
             for job in jobs:
                 self.jobs[job.id] = job
 
-            logging.debug("JOBS %s",self.jobs)
+            logging.debug("JOBS %s", self.jobs)
 
             self.scheduler.start()
             self.scheduler.print_jobs()
-
 
         if celeryconfig is not None:
             logging.info("Applying celeryconfig from %s", celeryconfig)
@@ -209,16 +213,17 @@ class Worker:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name]
             if self.user:
-                #cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
+                # cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
                 #       "-n", name]
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                        "-n", name]
 
             logging.info("Launching worker %s %s", cmd, name)
-            self.process = process = Popen(cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
+            self.process = process = Popen(
+                cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
             logging.debug("Worker launched successfully: process %s.",
-                        self.process.pid)
+                          self.process.pid)
         else:
             """ Run agent worker inside previously launched container """
             pass
@@ -234,7 +239,6 @@ class Worker:
         import os
 
         logging.debug("PYTHON: %s", sys.executable)
-
 
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
@@ -292,7 +296,7 @@ class Worker:
                             from kombu import Exchange, Queue, binding
                             from kombu.common import Broadcast
                             logging.debug('socket.queue.expires %s',
-                                        socket.queue.expires)
+                                          socket.queue.expires)
 
                             task_queues += [
                                 KQueue(
@@ -321,7 +325,7 @@ class Worker:
                                     self.processor.name.replace(
                                         ' ', '.'),
                                     Exchange(socket.queue.name +
-                                            '.topic', type='fanout'),
+                                             '.topic', type='fanout'),
                                     routing_key=socket.queue.name+'.' +
                                     self.processor.name.replace(
                                         ' ', '.'),
@@ -355,7 +359,7 @@ class Worker:
                 app.conf.task_routes = task_routes
 
                 logging.info("Starting celery worker %s %s %s",
-                            self.processor.name+'@'+hostname, self.backend, self.broker)
+                             self.processor.name+'@'+hostname, self.backend, self.broker)
 
                 worker = app.Worker(
                     hostname=self.processor.name+'@'+hostname,
@@ -376,13 +380,13 @@ class Worker:
 
                     if workerModel is None:
                         workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
-                                                status='ready',
-                                                backend=self.backend,
-                                                broker=self.broker,
-                                                hostname=hostname,
-                                                requested_status='start')
+                                                  status='ready',
+                                                  backend=self.backend,
+                                                  broker=self.broker,
+                                                  hostname=hostname,
+                                                  requested_status='start')
 
-                        #with self.get_session() as session:
+                        # with self.get_session() as session:
                         session.add(workerModel)
 
                 except:
@@ -396,7 +400,7 @@ class Worker:
                             continue
                         tkey = socket.queue.name+'.' + self.processor.name.replace(
                             ' ', '.')+'.'+socket.task.name
-                        
+
                         worker_queue = KQueue(
                             tkey,
                             Exchange(socket.queue.name, type='direct'),
@@ -432,7 +436,7 @@ class Worker:
 
                 if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                     for socket in self.processor.sockets:
-                                            
+
                         if socket.scheduled:
                             try:
                                 if socket.schedule_type == 'CRON':
@@ -442,10 +446,12 @@ class Worker:
                                     if socket.name not in self.jobs:
                                         self.scheduler.add_job(dispatcher, 'interval', args=[
                                             socket.task], jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.intveral, id=socket.name)
-                                        logging.info("Scheduled socket %s",socket.name)
+                                        logging.info(
+                                            "Scheduled socket %s", socket.name)
                             except:
-                                logging.info("Already scheduled this socket %s",socket.name)
-                        
+                                logging.info(
+                                    "Already scheduled this socket %s", socket.name)
+
                         func = getattr(module, socket.task.name)
 
                         func = self.celery.task(func, name=self.processor.module +
@@ -456,10 +462,11 @@ class Worker:
 
                             message = (kwargs)
 
-                            print("KWARGS:", kwargs)
+                            print("KWARGS:",  {
+                                  'signal': 'prerun', 'kwargs': kwargs, 'taskid': task_id, 'args': args})
                             main_queue.put(
-                                {'signal': 'prerun', 'kwargs': kwargs, 'taskid':task_id, 'args':args})
-                                    
+                                {'signal': 'prerun', 'kwargs': kwargs, 'taskid': task_id, 'args': args})
+
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
                             logging.info("Task SUCCESS: %s", sender)
@@ -485,7 +492,8 @@ class Worker:
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
 
                             message = (kwargs)
-                            print("KWARGS:",kwargs)
+                            print("KWARGS:", {
+                                  'signal': 'prerun', 'kwargs': kwargs, 'taskid': task_id, 'args': args})
                             main_queue.put(
                                 {'signal': 'prerun', 'kwargs': kwargs, 'taskid': task_id, 'args': args})
 
@@ -554,7 +562,7 @@ class Worker:
                         env.install('-e git+'+self.processor.gitrepo.strip())
                     except:
                         logging.error("Could not install %s",
-                                    self.processor.gitrepo.strip())
+                                      self.processor.gitrepo.strip())
 
         process = Process(target=worker_proc, args=(self.celery, queue))
         process.app = self.celery
@@ -574,8 +582,10 @@ class Worker:
             while True:
                 try:
                     message = queue.get()
-                    logging.info("Emitting message %s %s", message[1]['room'], message)
-                    redisclient.publish(message[1]['room']+'.'+message[1]['channel'],json.dumps(message[1]))
+                    logging.info("Emitting message %s %s",
+                                 message[1]['room'], message)
+                    redisclient.publish(
+                        message[1]['room']+'.'+message[1]['channel'], json.dumps(message[1]))
                     #sio.emit(*message, namespace='/tasks')
                 except Exception as ex:
                     logging.error(ex)
@@ -623,7 +633,7 @@ class Worker:
 
         for child in process.children(recursive=True):
             child.kill()
-            
+
         process.kill()
         process.terminate()
 
