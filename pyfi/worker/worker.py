@@ -552,6 +552,7 @@ class Worker:
 
                                 myid = kwargs['kwargs']['myid']
                                 with self.get_session() as session:
+                                    session.add(self.processor)
                                     try:
                                         call = session.query(
                                             CallModel).filter_by(id=myid).first()
