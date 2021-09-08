@@ -454,7 +454,7 @@ class Worker:
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task_id=None, *args, **kwargs):
 
-                           message = (args, kwargs)
+                           message = (kwargs)
 
                            main_queue.put({'signal':'prerun', 'args':message})
                                     
@@ -482,7 +482,7 @@ class Worker:
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
 
-                           message = (args, kwargs)
+                           message = (kwargs)
 
                            main_queue.put(
                                {'signal': 'postrun', 'args': message})
