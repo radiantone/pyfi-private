@@ -490,12 +490,14 @@ class Worker:
                 worker.start()
 
             while True:
+                logging.info("Sleeping 5...")
                 time.sleep(5)
 
-                signal = main_queue.get()
+                logging.info("Checking main_queue")
+                _signal = main_queue.get()
 
-                logging.info("SIGNAL: %s", signal)
-                
+                logging.info("SIGNAL: %s", _signal)
+
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
