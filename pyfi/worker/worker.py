@@ -128,6 +128,7 @@ class Worker:
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(
             self.dburi, pool_size=cpus, max_overflow=5)
+            
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)
         self.sm = sm
@@ -244,13 +245,19 @@ class Worker:
 
         def database_actions():
             while True:
-                logging.info("Sleeping 5...")
-                time.sleep(5)
+                with self.get_session() as session:
+                    processor = session.query(
+                        ProcessorModel).filter_by(id=self.processor.id).first()
+                    logging.info("DBACTION: Processor %s",processor)
+                    logging.info("Sleeping 5...")
+                    time.sleep(5)
 
-                logging.info("Checking main_queue")
-                _signal = main_queue.get()
+                    logging.info("Checking main_queue")
+                    _signal = main_queue.get()
 
-                logging.info("SIGNAL: %s", _signal)
+                    logging.info("SIGNAL: %s", _signal)
+
+                    # Update database objects with signal data
 
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
