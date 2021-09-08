@@ -407,7 +407,7 @@ class Worker:
 
                             for msg in msgs:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
-                                logging.debug(
+                                logging.info(
                                     "Sending {} to queue {}".format(msg, key))
 
         dbactions = threading.Thread(target=database_actions)
