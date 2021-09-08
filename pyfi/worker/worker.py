@@ -307,6 +307,7 @@ class Worker:
 
                     if _signal['signal'] == 'postrun':
                         from datetime import datetime
+                        import json
 
                         task_kwargs = _signal['kwargs']
                         plugs = task_kwargs['plugs']
@@ -339,6 +340,68 @@ class Worker:
                             logging.error(
                                 "No pre-existing Call object for id %s", myid)
 
+                        
+                        '''
+                        Dispatch result to connected sockets
+                        '''
+                        for socket in processor.sockets:
+                            if socket.task.name == _signal['sender']:
+                                processor_path = socket.queue.name + '.' + \
+                                    processor.name.replace(' ', '.')
+                                data = {
+                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                payload = json.dumps(data)
+                                data['message'] = payload
+                                break
+
+                        logging.info(data)
+                        result = task_kwargs.get('args')[0]
+                        data['message'] = json.dumps(result)
+                        data['message'] = json.dumps(data)
+                        data['state'] = 'postrun'
+
+                        logging.debug(
+                            "EMITTING ROOMSG: %s", data)
+                                        
+                        queue.put(['roomsg', data])
+
+                        queue.put(
+                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
+
+                        logging.info("PLUGS: %s", plugs)
+
+                        for key in plugs:
+                            """
+                            Find plugs on this processor whose queue matches key
+                            and then invoke the task for plug.socket.task
+                            """
+                            processor_plug = None
+
+                            for _plug in processor.plugs:
+                                if _plug.queue.name == key:
+                                    processor_plug = _plug
+
+                            if processor_plug is None:
+                                continue
+
+                            logging.info("processor_plug %s",
+                                         processor_plug)
+
+                            processors = self.database.session.query(
+                                                ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
+
+                            processor_map = {}
+                            for p in processors:
+                                processor_map[str(p.id)] = p
+
+                            msgs = [msg for msg in plugs[key]]
+                            logging.info("msgs %s", msgs)
+
+                            for msg in msgs:
+                                """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
+                                logging.debug(
+                                    "Sending {} to queue {}".format(msg, key))
+                                    
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
 
@@ -615,13 +678,13 @@ class Worker:
                             if 'tracking' not in kwargs.get('kwargs'):
                                 kwargs['kwargs']['tracking'] = str(uuid4())
 
-                            logging.info("Waiting on POSTRUN REPLY")
-                            response = postrun_queue.get()
-                            kwargs['kwargs'].update(response)
-                            kwargs['kwargs']['output'] = {}
+                            #logging.info("Waiting on POSTRUN REPLY")
+                            #response = postrun_queue.get()
+                            #kwargs['kwargs'].update(response)
+                            #kwargs['kwargs']['output'] = {}
 
-                            logging.info("POSTRUN QUEUE: %s", response)
-                            logging.info("POSTRUN KWARGS IS NOW: %s", kwargs)
+                            #logging.info("POSTRUN QUEUE: %s", response)
+                            #logging.info("POSTRUN KWARGS IS NOW: %s", kwargs)
 
                 worker.start()
 
