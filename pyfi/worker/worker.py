@@ -576,6 +576,7 @@ class Worker:
                                         data = {
                                             'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
 
+                                        logging.info("SOCKET LOOP 1")
                                         for socket in self.processor.sockets:
                                             logging.info("SOCKET LOOP 2")
                                             if socket.task.name == sender.__name__:
