@@ -379,8 +379,8 @@ class Worker:
                                                 hostname=hostname,
                                                 requested_status='start')
 
-                        with self.get_session() as session:
-                            session.add(workerModel)
+                        #with self.get_session() as session:
+                        session.add(workerModel)
 
                 except:
                     pass
