@@ -573,14 +573,13 @@ class Worker:
                                     try:
 
                                         logging.info("SOCKET LOOP")
-                                        data = {
-                                            'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
-
-                                        logging.info("SOCKET LOOP 1")
                                         try:
+                                            data = {
+                                                'module': self.processor.module, 'message': 'Processor message', 'task': sender.__name__}
+
+                                            logging.info("SOCKET LOOP 1")
                                             logging.info(
                                                 "%s", self.processor.sockets)
-
                                         except:
                                             import traceback
                                             logging.debug(traceback.format_exc())
