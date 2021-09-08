@@ -349,7 +349,7 @@ class Worker:
                                 processor_path = socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
                                 data = {
-                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+task_id, 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': sender.__name__}
+                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+_signal['taskid'], 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': _signal['sender']}
                                 payload = json.dumps(data)
                                 data['message'] = payload
                                 break
@@ -401,7 +401,7 @@ class Worker:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
                                 logging.debug(
                                     "Sending {} to queue {}".format(msg, key))
-                                    
+
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
 
