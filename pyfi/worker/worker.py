@@ -464,6 +464,7 @@ class Worker:
 
                                 logging.info("KWARGS: %s",task_kwargs)
                                 with self.get_session() as session:
+                                    session.add(self.processor)
                                     for _socket in self.processor.sockets:
                                         if _socket.task.name == sender.__name__:
                                             parent = None
