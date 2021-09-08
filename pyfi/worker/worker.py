@@ -90,22 +90,20 @@ class Worker:
 
     @contextmanager
     def get_session(self):
-        session = self.database.session
+        session = scoped_session(self.sm)
 
         try:
-            yield self.session
+            yield session
         except:
-            self.session.rollback()
+            session.rollback()
             raise
-        '''
         else:
             try:
                 session.commit()
             except:
                 session.rollback()
         finally:
-            self.session.close()
-        '''
+            session.close()
 
     def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
@@ -127,6 +125,7 @@ class Worker:
         self.database = create_engine(self.dburi, pool_size=cpus, max_overflow=5)
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)
+        self.sm = sm
 
         # now all calls to Session() will create a thread-local session
         #some_session = Session()
@@ -480,16 +479,8 @@ class Worker:
                                     task_kwargs['tracking'] = str(uuid4())
 
                                 logging.info("KWARGS: %s",task_kwargs)
-                                #with self.get_session() as session:
-
-                                if True:
-                                    current_db_sessions = some_session.object_session(
-                                        self.processor)
-                                    current_db_sessions.add(self.processor)
-                                    current_db_sessions.refresh(self.processor)
+                                with self.get_session() as session:
                                     for _socket in self.processor.sockets:
-                                        current_db_sessions.add(_socket)
-                                        current_db_sessions.refresh(_socket)
                                         if _socket.task.name == sender.__name__:
                                             parent = None
                                             if 'parent' not in task_kwargs:
@@ -518,7 +509,7 @@ class Worker:
                                                 name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
 
                                             logging.info("CREATED CALL MODEL %s", call)
-                                            current_db_sessions.add(call)
+                                            session.add(call)
 
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
