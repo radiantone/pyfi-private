@@ -455,7 +455,7 @@ class Worker:
 
                             try:
                                 logging.info("PRERUN Acquiring Lock")
-                                #PRERUN_CONDITION.acquire()
+                                PRERUN_CONDITION.acquire()
                                 task_kwargs = kwargs.get('kwargs')
                                 task_kwargs['plugs'] = _plugs
                                 task_kwargs['output'] = {}
@@ -501,8 +501,7 @@ class Worker:
 
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
-                                pass
-                                #PRERUN_CONDITION.release()
+                                PRERUN_CONDITION.release()
 
                                     
                         @task_success.connect()
@@ -534,7 +533,7 @@ class Worker:
                                 logging.info(
                                     "Task POSTRUN [%s] %s KWARGS: %s", task_id, sender, kwargs)
                                 logging.info("POSTRUN Acquiring lock")
-                                #POSTRUN_CONDITION.acquire()
+                                POSTRUN_CONDITION.acquire()
 
                                 logging.info("Task POSTRUN RESULT %s", retval)
 
@@ -700,7 +699,7 @@ class Worker:
                                 logging.debug(traceback.format_exc())
                             finally:
                                 logging.info("Releasing POSTRUN lock")
-                                #POSTRUN_CONDITION.release()
+                                POSTRUN_CONDITION.release()
                                 self.database.session.close()
 
                 worker.start()
