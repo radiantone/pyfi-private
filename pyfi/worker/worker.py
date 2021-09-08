@@ -235,6 +235,16 @@ class Worker:
 
         logging.debug("PYTHON: %s", sys.executable)
 
+        def update_models():
+            """ Thread that syncs database models on cycle and stores a local, non-session version of them for local access
+            """
+            # Update processors from database
+            # Write JSON of data to update_models queue
+
+            # Read commit messages from queue and update the database models here
+
+            pass
+
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
             import builtins
@@ -250,6 +260,7 @@ class Worker:
 
             #session = sessionmaker(bind=engine)()
 
+            # Replace with while True, then get from update_models queue. It will have JSON model data there
             with self.get_session() as session:
                 self.processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
@@ -468,12 +479,13 @@ class Worker:
 
                                 logging.info("KWARGS: %s",task_kwargs)
                                 #with self.get_session() as session:
+                                self.database = create_engine()
+                                sm = sessionmaker(bind=self.database)
+                                some_session = scoped_session(sm)
                                 if True:
-                                    self.session.add(self.processor)
-                                    self.session.refresh(self.processor)
+                                    some_session.add(self.processor)
+                                    some_session.refresh(self.processor)
                                     for _socket in self.processor.sockets:
-                                        self.session.add(_socket)
-                                        self.session.refresh(_socket)
                                         if _socket.task.name == sender.__name__:
                                             parent = None
                                             if 'parent' not in task_kwargs:
@@ -502,8 +514,7 @@ class Worker:
                                                 name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
 
                                             logging.info("CREATED CALL MODEL %s", call)
-                                            with self.get_session() as session:
-                                                session.add(call)
+                                            some_session.add(call)
 
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
