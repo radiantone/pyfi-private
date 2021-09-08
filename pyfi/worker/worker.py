@@ -290,7 +290,7 @@ class Worker:
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
-                                    
+
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
 
                                 queue.put(data)
@@ -305,7 +305,38 @@ class Worker:
                                 prerun_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'postrun':
-                        pass
+                        from datetime import datetime
+
+                        task_kwargs = _signal['kwargs']
+                        plugs = task_kwargs['plugs']
+
+                        pass_kwargs = {}
+
+                        if 'tracking' in task_kwargs:
+                            pass_kwargs['tracking'] = task_kwargs['tracking']
+                        if 'parent' in task_kwargs:
+                            pass_kwargs['parent'] = task_kwargs['parent']
+                            logging.info("SETTING PARENT: %s", pass_kwargs)
+
+                        myid = task_kwargs['myid']
+
+                        try:
+                            call = session.query(
+                                CallModel).filter_by(id=myid).first()
+
+                            logging.info("CALL QUERY %s", call)
+                            if call:
+                                call.finished = datetime.now()
+                                call.state = 'finished'
+
+                                session.add(call)
+                                session.commit()
+                            else:
+                                logging.warning(
+                                    "No pre-existing Call object for id %s", myid)
+                        except:
+                            logging.error(
+                                "No pre-existing Call object for id %s", myid)
 
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
@@ -529,10 +560,9 @@ class Worker:
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task_id=None, *args, **kwargs):
+                            """ Update args and kwargs before sending to task. Other bookeeping """
                             from datetime import datetime
                             from uuid import uuid4
-
-                            message = (kwargs)
 
                             print("KWARGS:",
                                   {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
@@ -545,7 +575,8 @@ class Worker:
                             logging.info("Waiting on PRERUN REPLY")
                             response = prerun_queue.get()
                             kwargs['kwargs'].update(response)
-                            
+                            kwargs['kwargs']['output'] = {}
+
                             logging.info("PRERUN QUEUE: %s", response)
                             logging.info("PRERUN KWARGS IS NOW: %s", kwargs)
 
@@ -572,12 +603,24 @@ class Worker:
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
+                            from datetime import datetime
+                            from uuid import uuid4
 
-                            message = (kwargs)
-                            print("KWARGS:", {
-                                  'signal': 'postrun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                            print("KWARGS:",
+                                  {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
-                                {'signal': 'postrun', 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+
+                            if 'tracking' not in kwargs.get('kwargs'):
+                                kwargs['kwargs']['tracking'] = str(uuid4())
+
+                            logging.info("Waiting on POSTRUN REPLY")
+                            response = postrun_queue.get()
+                            kwargs['kwargs'].update(response)
+                            kwargs['kwargs']['output'] = {}
+
+                            logging.info("POSTRUN QUEUE: %s", response)
+                            logging.info("POSTRUN KWARGS IS NOW: %s", kwargs)
 
                 worker.start()
 
