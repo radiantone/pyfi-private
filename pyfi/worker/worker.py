@@ -252,17 +252,15 @@ class Worker:
 
             while True:
                 with self.get_session() as session:
-                    session.add(self.processor)
-                    session.refresh(self.processor)
-                    #processor = session.query(
-                    #    ProcessorModel).filter_by(id=self.processor.id).first()
+                    processor = session.query(
+                        ProcessorModel).filter_by(id=self.processor.id).first()
 
                     _plugs = {}
 
-                    for plug in self.processor.plugs:
+                    for plug in processor.plugs:
                         _plugs[plug.queue.name] = []
 
-                    logging.info("DBACTION: Processor %s", self.processor)
+                    logging.info("DBACTION: Processor %s", processor)
                     logging.info("Sleeping 5...")
                     time.sleep(5)
 
@@ -273,7 +271,7 @@ class Worker:
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: ")
-                        for _socket in self.processor.sockets:
+                        for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
                                 if 'parent' not in _signal['kwargs']:
@@ -291,14 +289,14 @@ class Worker:
                                 started = datetime.now()
 
                                 processor_path = _socket.queue.name + '.' + \
-                                    self.processor.name.replace(' ', '.')
+                                    processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
 
                                 queue.put(data)
 
                                 call = CallModel(id=myid,
-                                                 name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
+                                                 name=processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
 
                                 logging.info("CREATED CALL MODEL %s", call)
                                 session.add(call)
