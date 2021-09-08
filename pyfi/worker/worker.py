@@ -308,6 +308,7 @@ class Worker:
                     if _signal['signal'] == 'postrun':
                         from datetime import datetime
                         import json
+                        import pickle
 
                         logging.info("POSTRUN: KWARGS: %s", _signal['kwargs'])
                         task_kwargs = _signal['kwargs']
@@ -356,7 +357,13 @@ class Worker:
                                 break
 
                         logging.info(data)
-                        result = task_kwargs.get('args')[0]
+
+                        redisclient = redis.Redis.from_url(
+                            CONFIG.get('backend', 'uri'))
+                        r = redisclient.get(data['resultkey'])
+
+                        _r = pickle.loads(r)
+                        result = json.dumps(_r, indent=4)
                         data['message'] = json.dumps(result)
                         data['message'] = json.dumps(data)
                         data['state'] = 'postrun'
