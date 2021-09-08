@@ -463,41 +463,42 @@ class Worker:
                                     task_kwargs['tracking'] = str(uuid4())
 
                                 logging.info("KWARGS: %s",task_kwargs)
-                                for _socket in self.processor.sockets:
-                                    if _socket.task.name == sender.__name__:
-                                        parent = None
-                                        if 'parent' not in task_kwargs:
-                                            task_kwargs['parent'] = str(uuid4())
-                                            logging.info("NEW PARENT %s",
-                                                        task_kwargs['parent'])
-                                            task_kwargs[_socket.task.id] = []
-                                            myid = task_kwargs['parent']
-                                        else:
-                                            parent = task_kwargs['parent']
-                                            myid = str(uuid4())
+                                with self.get_session() as session:
+                                    for _socket in self.processor.sockets:
+                                        if _socket.task.name == sender.__name__:
+                                            parent = None
+                                            if 'parent' not in task_kwargs:
+                                                task_kwargs['parent'] = str(uuid4())
+                                                logging.info("NEW PARENT %s",
+                                                            task_kwargs['parent'])
+                                                task_kwargs[_socket.task.id] = []
+                                                myid = task_kwargs['parent']
+                                            else:
+                                                parent = task_kwargs['parent']
+                                                myid = str(uuid4())
 
-                                        task_kwargs['myid'] = myid
-                                        processor_path = _socket.queue.name + '.' + \
-                                            self.processor.name.replace(' ', '.')
+                                            task_kwargs['myid'] = myid
+                                            processor_path = _socket.queue.name + '.' + \
+                                                self.processor.name.replace(' ', '.')
 
-                                        started = datetime.now()
-                                        data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
+                                            started = datetime.now()
+                                            data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
 
-                                        logging.info("Task PRERUN: %s %s %s",
-                                                    sender, data, task_kwargs)
+                                            logging.info("Task PRERUN: %s %s %s",
+                                                        sender, data, task_kwargs)
 
-                                        _queue.put(data)
-                                        logging.info("CREATING CALL MODEL")
-                                        call = CallModel(id=myid,
-                                            name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
+                                            _queue.put(data)
+                                            logging.info("CREATING CALL MODEL")
+                                            call = CallModel(id=myid,
+                                                name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
 
-                                        logging.info("CREATED CALL MODEL %s", call)
-                                        with self.get_session() as session:
-                                            session.add(call)
+                                            logging.info("CREATED CALL MODEL %s", call)
+                                            with self.get_session() as session:
+                                                session.add(call)
 
-                                        self.get_session().flush()
+                                            self.get_session().flush()
 
-                                        logging.info("COMMITTED CALL ID %s",myid)
+                                            logging.info("COMMITTED CALL ID %s",myid)
                             finally:
                                 pass
                                 #PRERUN_CONDITION.release()
