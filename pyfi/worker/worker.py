@@ -309,6 +309,7 @@ class Worker:
                         from datetime import datetime
                         import json
 
+                        logging.info("POSTRUN: KWARGS: %s", _signal['kwargs'])
                         task_kwargs = _signal['kwargs']
                         plugs = task_kwargs['plugs']
 
