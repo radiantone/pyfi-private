@@ -93,7 +93,7 @@ class Worker:
         session = self.database.session
 
         try:
-            return self.session
+            yield self.session
         except:
             session.rollback()
             raise
