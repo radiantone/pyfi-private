@@ -497,8 +497,6 @@ class Worker:
                                             with self.get_session() as session:
                                                 session.add(call)
 
-                                            self.get_session().flush()
-
                                             logging.info("COMMITTED CALL ID %s",myid)
                             finally:
                                 pass
