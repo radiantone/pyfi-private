@@ -238,6 +238,7 @@ class Worker:
         import threading
         from multiprocessing import Process
         import os
+        import time
 
         logging.debug("PYTHON: %s", sys.executable)
 
@@ -253,7 +254,7 @@ class Worker:
 
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
-        
+
         def worker_proc(app, _queue):
             """ Set up celery queues for self.celery """
             import builtins
