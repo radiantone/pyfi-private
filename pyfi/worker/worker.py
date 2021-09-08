@@ -470,12 +470,14 @@ class Worker:
                                                 sender, data, task_kwargs)
 
                                     _queue.put(data)
-
+                                    logging.info("CREATING CALL MODEL")
                                     call = CallModel(id=myid,
                                         name=self.processor.module+'.'+_socket.task.name, parent=parent, resultid='celery-task-meta-'+task_id, celeryid=task_id, task_id=_socket.task.id, state='running', started=started)
-                                    
+
+                                    logging.info("CREATED CALL MODEL %s", call)
                                     with self.get_session() as session:
                                         session.add(call)
+                                    logging.info("COMMITTED CALL MODEL %s", call)
 
                                     logging.info("COMMITTED CALL ID %s",task_id)
                         finally:
