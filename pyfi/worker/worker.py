@@ -356,11 +356,7 @@ class Worker:
                         logging.info(data)
 
                         # TODO: This probably not needed
-                        redisclient = redis.Redis.from_url(
-                            CONFIG.get('backend', 'uri'))
-                        r = redisclient.get(data['resultkey'])
-
-                        _r = pickle.loads(r)
+                        _r = task_kwargs['result']
                         result = json.dumps(_r, indent=4)
                         data['message'] = json.dumps(result)
                         data['message'] = json.dumps(data)
@@ -727,9 +723,9 @@ class Worker:
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
-                                  {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                  {'signal': 'postrun', 'result':retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
-                                {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                 worker.start()
 
