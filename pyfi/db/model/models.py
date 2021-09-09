@@ -330,6 +330,8 @@ class CallModel(BaseModel):
     started = Column(DateTime, default=datetime.now, nullable=False)
     finished = Column(DateTime)
 
+    plug = relationship('PlugModel', back_populates="call", lazy=True, uselist=False)
+
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
 
@@ -485,14 +487,16 @@ class PlugModel(BaseModel):
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
+    call_id = Column(String(40), ForeignKey('call.id'))
+
     source = relationship("SocketModel", back_populates="sourceplugs",
                         secondary=plugs_source_sockets, uselist=False)
 
     target = relationship("SocketModel", back_populates="targetplugs",
                       secondary=plugs_target_sockets, uselist=False)
-                      
-    #sockets = relationship("SocketModel", back_populates="plugs",
-    #                       secondary=plugs_sockets)
+
+    call = relationship(
+        'CallModel', back_populates='plug', uselist=False)
 
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)

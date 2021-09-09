@@ -1617,12 +1617,12 @@ def ls_plug(context, name):
         PlugModel).filter_by(name=name).first()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Task", "Queue"]
+             "Status", "Queue", "Source Task", "Target Task","Source Socket", "Target Socket"]
     x.field_names = names
 
-    for node in plug.sockets:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.status, node.task.name, node.queue.name])
+    node = plug
+    x.add_row([node.name, node.id, node.owner, node.lastupdated,
+                node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name, node.target.name])
 
     print(x)
 
