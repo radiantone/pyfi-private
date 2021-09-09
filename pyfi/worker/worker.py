@@ -447,7 +447,7 @@ class Worker:
                                     logging.info(
                                         "call complete %s %s %s", processor.module+'.'+socket.task.name, (msg,), worker_queue)
 
-                                    plugs[key].remove(msg)
+                                    plugs[pname].remove(msg)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)
