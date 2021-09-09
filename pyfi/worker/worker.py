@@ -343,7 +343,7 @@ class Worker:
                         for socket in processor.sockets:
                             if socket.task.name == _signal['sender']:
 
-                                for plug in socket.plugs:
+                                for plug in socket.sourceplugs:
                                     _plugs[plug.name] = []
 
                                 processor_path = socket.queue.name + '.' + \
