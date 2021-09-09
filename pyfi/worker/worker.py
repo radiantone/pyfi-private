@@ -383,8 +383,9 @@ class Worker:
                                 if _plug.name == pname:
                                     processor_plug = _plug
 
-                            #processors = self.database.session.query(
-                            #    ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=processor_plug.queue.name)))
+                            target_processor = self.database.session.query(
+                                ProcessorModel).filter(id=processor_plug.processor_id).first()
+
                             if processor_plug is None:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
@@ -398,8 +399,8 @@ class Worker:
                             for msg in msgs:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
 
-                                tkey = key+'.' + processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name
+                                tkey = key+'.' + target_processor.name.replace(
+                                    ' ', '.')+'.'+processor_plug.target.task.name
 
                                 logging.info(
                                     "Sending {} to queue {}".format(msg, tkey))
@@ -411,7 +412,7 @@ class Worker:
 
                                     logging.info("Invoking {}=>{}({})".format(
                                         key,
-                                        processor.module+'.'+socket.task.name, msg))
+                                        target_processor.module+'.'+processor_plug.target.task.name, msg))
 
                                     # Target specific worker queue here
                                     worker_queue = KQueue(
@@ -420,9 +421,9 @@ class Worker:
                                             key, type='direct'),
                                         routing_key=tkey,
 
-                                        message_ttl=socket.queue.message_ttl,
-                                        durable=socket.queue.durable,
-                                        expires=socket.queue.expires,
+                                        message_ttl=processor_plug.queue.message_ttl,
+                                        durable=processor_plug.queue.durable,
+                                        expires=processor_plug.queue.expires,
                                         # expires=30,
                                         # socket.queue.message_ttl
                                         # socket.queue.expires
@@ -440,12 +441,12 @@ class Worker:
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
                                         self.celery.signature(
-                                            processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                            target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
                                     logging.info(
-                                        "call complete %s %s %s", processor.module+'.'+socket.task.name, (msg,), worker_queue)
+                                        "call complete %s %s %s", target_processor.module+'.'+processor_plug.target.task.name, (msg,), worker_queue)
 
                                     plugs[pname].remove(msg)
 
