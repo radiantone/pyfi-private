@@ -1632,13 +1632,13 @@ def ls_plugs(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Processor", "Queue"]
+             "Status", "Processor", "Queue", "Source", "Target"]
     x.field_names = names
     plugs = context.obj['database'].session.query(PlugModel).all()
 
     for node in plugs:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name])
+                  node.status, node.processor.name, node.queue.name, node.source.name, node.target.name])
 
     print(x)
 

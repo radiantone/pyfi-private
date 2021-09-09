@@ -372,31 +372,23 @@ class Worker:
 
                         logging.info("PLUGS: %s", plugs)
 
+                        """
+                        Function should put data onto named plugs, not queues
+                        """
                         for key in plugs:
-                            """
-                            Find plugs on this processor whose queue matches key
-                            and then invoke the task for plug.socket.task
-                            """
-                            processor_plug = None
 
                             for _plug in processor.plugs:
-                                if _plug.queue.name == key:
+                                if _plug.name == key:
                                     processor_plug = _plug
 
+                            #processors = self.database.session.query(
+                            #    ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=processor_plug.queue.name)))
                             if processor_plug is None:
+                                logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
 
-                            logging.info("processor_plug %s",
-                                         processor_plug)
-
-                            processors = self.database.session.query(
-                                                ProcessorModel).filter(ProcessorModel.sockets.any(SocketModel.queue.has(name=key)))
-
-                            processor_map = {}
-                            for p in processors:
-                                processor_map[str(p.id)] = p
-
                             msgs = [msg for msg in plugs[key]]
+                            
                             logging.info("msgs %s", msgs)
 
                             for msg in msgs:
@@ -406,55 +398,51 @@ class Worker:
 
                                 if processor_plug.queue.qtype == 'direct':
                                     logging.info("Finding processor....")
-                                    for socket in processor_plug.sockets:
+
+                                    socket = processor_plug.target
+
+                                    logging.info("Invoking {}=>{}({})".format(
+                                        key,
+                                        processor.module+'.'+socket.task.name, msg))
+
+                                    tkey = key+'.' + processor.name.replace(
+                                            ' ', '.')+'.'+socket.task.name
+                                    # Target specific worker queue here
+                                    worker_queue = KQueue(
+                                        tkey,
+                                        Exchange(
+                                            key, type='direct'),
+                                        routing_key=tkey,
+
+                                        message_ttl=socket.queue.message_ttl,
+                                        durable=socket.queue.durable,
+                                        expires=socket.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        queue_arguments={
+                                            'x-message-ttl': 30000,
+                                            'x-expires': 300}
+                                        )
+
+                                    logging.info(
+                                        "worker queue %s", worker_queue)
+                                    try:
+                                        # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
+                                        # Define context object that function can use to set outbound data and get inbound data
+                                        # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                         logging.info(
-                                            "Checking socket[%s] vs key[%s]", socket.queue.name, key)
-                                        _processor = processor_map[socket.processor_id]
-                                        if socket.queue.name == key:
-                                            logging.info("Invoking {}=>{}({})".format(
-                                                key,
-                                                _processor.module+'.'+socket.task.name, msg))
+                                            "PASS_KWARGS: %s", pass_kwargs)
+                                        self.celery.signature(
+                                            processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                    except:
+                                        import traceback
+                                        print(
+                                            traceback.format_exc())
+                                    logging.info(
+                                        "call complete %s %s %s", processor.module+'.'+socket.task.name, (msg,), worker_queue)
 
-                                            tkey = key+'.' + _processor.name.replace(
-                                                ' ', '.')+'.'+socket.task.name
-                                            # Target specific worker queue here
-                                            worker_queue = KQueue(
-                                                tkey,
-                                                Exchange(
-                                                    key, type='direct'),
-                                                routing_key=tkey,
-
-                                                message_ttl=socket.queue.message_ttl,
-                                                durable=socket.queue.durable,
-                                                expires=socket.queue.expires,
-                                                # expires=30,
-                                                # socket.queue.message_ttl
-                                                # socket.queue.expires
-                                                queue_arguments={
-                                                    'x-message-ttl': 30000,
-                                                    'x-expires': 300}
-                                            )
-
-                                            logging.info(
-                                                "worker queue %s", worker_queue)
-                                            try:
-                                                # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
-                                                # Define context object that function can use to set outbound data and get inbound data
-                                                # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
-                                                logging.info(
-                                                    "PASS_KWARGS: %s", pass_kwargs)
-                                                self.celery.signature(
-                                                    _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
-                                            except:
-                                                import traceback
-                                                print(
-                                                    traceback.format_exc())
-                                            logging.info(
-                                                "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
-                                        # We sent the message, so remove it so it doesn't get re-sent on the next cycle
-                                        # If there is an exception delivering the message above, this code will get skipped and the
-                                        # cycle will retry this message
-                                        plugs[key].remove(msg)
+                                    plugs[key].remove(msg)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)

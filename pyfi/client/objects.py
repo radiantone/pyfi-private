@@ -222,12 +222,12 @@ class Plug(Base):
         super().__init__()
         self.name = kwargs['name']
         self.queuename = kwargs['queue']['name']
-        self.socket = kwargs['socket']
+        self.source = kwargs['source']
+        self.target = kwargs['target']
         self.processor = kwargs['processor']
 
         self.queue = Queue(name=self.queuename)
         self.session.add(self.processor.processor)
-        self.session.add(self.socket.socket)
 
         self.plug = self.session.query(
             PlugModel).filter_by(name=self.name).first()
@@ -235,8 +235,11 @@ class Plug(Base):
         if not self.plug:
             self.plug = PlugModel(name=self.name, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
-        self.plug.sockets += [self.socket.socket]
-        self.session.add(self.socket.socket)
+        self.session.add(self.source.socket)
+        self.session.add(self.target.socket)
+        self.plug.source = self.source.socket
+        self.plug.target = self.target.socket
+        #self.plug.sockets += [self.socket.socket]
         self.session.add(self.plug)
         self.processor.processor.plugs += [self.plug]
         self.session.commit()

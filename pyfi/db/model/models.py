@@ -269,7 +269,7 @@ class ProcessorModel(BaseModel):
     Docstring
     """
     __tablename__ = 'processor'
-    
+
     requested_status = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
     hostname = Column(String(60))
@@ -421,13 +421,18 @@ sockets_queues = Table('sockets_queues', Base.metadata,
                        Column('queue_id', ForeignKey('queue.id'))
                        )
 
-plugs_sockets = Table('plugs_sockets', Base.metadata,
+plugs_source_sockets = Table('plugs_source_sockets', Base.metadata,
                       Column('plug_id', ForeignKey(
                           'plug.id'), primary_key=True),
                       Column('socket_id', ForeignKey(
                           'socket.id'), primary_key=True)
                       )
-
+plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
+                      Column('plug_id', ForeignKey(
+                          'plug.id'), primary_key=True),
+                      Column('socket_id', ForeignKey(
+                          'socket.id'), primary_key=True)
+                      )
 
 class SocketModel(BaseModel):
     """
@@ -450,8 +455,11 @@ class SocketModel(BaseModel):
     task = relationship("TaskModel", back_populates="sockets", single_parent=True,
                         cascade="delete, delete-orphan")
 
-    plugs = relationship("PlugModel", back_populates="sockets",
-                         secondary=plugs_sockets)
+    sourceplugs = relationship(
+        "PlugModel", secondary=plugs_source_sockets)
+
+    targetplugs = relationship(
+        "PlugModel", secondary=plugs_target_sockets)
 
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
@@ -477,8 +485,15 @@ class PlugModel(BaseModel):
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
-    sockets = relationship("SocketModel", back_populates="plugs",
-                           secondary=plugs_sockets)
+    source = relationship("SocketModel", back_populates="sourceplugs",
+                        secondary=plugs_source_sockets, uselist=False)
+
+    target = relationship("SocketModel", back_populates="targetplugs",
+                      secondary=plugs_target_sockets, uselist=False)
+                      
+    #sockets = relationship("SocketModel", back_populates="plugs",
+    #                       secondary=plugs_sockets)
+
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)
 
