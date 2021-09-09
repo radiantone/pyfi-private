@@ -2,4 +2,4 @@
 python setup.py install
 git add pyfi
 git commit -m "Updates"
-git push origin main
+sudo git push origin main
