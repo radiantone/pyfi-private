@@ -813,11 +813,10 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
-        logging.info("Starting emit_messages")
-
         emit_process = Process(target=emit_messages)
         emit_process.daemon = True
         emit_process.start()
+        logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
 
         logging.debug(
             "Started worker process with pid[%s]", worker_process.pid)
