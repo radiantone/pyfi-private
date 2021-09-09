@@ -269,12 +269,12 @@ class ProcessorModel(BaseModel):
     Docstring
     """
     __tablename__ = 'processor'
+    
     requested_status = Column(String(20), nullable=False)
     status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
-    #task = Column(String(80), nullable=False)
     gitrepo = Column(String(180))
     branch = Column(String(30))
     commit = Column(String(30))

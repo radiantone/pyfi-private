@@ -30,6 +30,7 @@ class Scheduler:
             # Put processors in pending list to be assigned below
             # if there are available nodes, otherwise release the read lock
 
+            # These are my nodes to manage
             for node in scheduler.nodes:
                 """ Calculate any changes needed by inspecting the nodes, agents, workers, etc """
                 """ If changes are needed, put read lock on table and make change """
@@ -55,7 +56,19 @@ class Scheduler:
                 # can run on its own core. This allows the scheduler to determine the compute needs for
                 # each processor and locate it accordingly.
 
+            try:
+                # These are processors without an node to run on currently
+                orphaned_processors = self.context.obj['database'].session.query(
+                    ProcessorModel).filter_by(worker=None).with_for_update().all()
+
+                for processor in orphaned_processors:
+                    logging.info("Finding home for orphaned processor %s", processor)
+
+            finally:
+                self.context.obj['database'].session.commit()
+
     def start(self):
         self.process = Process(target=self.run)
         self.process.daemon = True
+
         return self.process
