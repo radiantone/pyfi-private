@@ -256,9 +256,6 @@ class Worker:
 
                     _plugs = {}
 
-                    for plug in processor.plugs:
-                        _plugs[plug.name] = []
-
                     logging.info("DBACTION: Processor %s", processor)
 
                     logging.info("Checking main_queue")
@@ -345,6 +342,10 @@ class Worker:
                         '''
                         for socket in processor.sockets:
                             if socket.task.name == _signal['sender']:
+
+                                for plug in socket.plugs:
+                                    _plugs[plug.name] = []
+
                                 processor_path = socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
                                 data = {
