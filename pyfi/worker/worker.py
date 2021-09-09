@@ -291,6 +291,7 @@ class Worker:
                                 queue.put(data)
 
                                 targetplug = None
+                                logging.info("SOCKET TARGET PLUGS %s", _socket.targetplugs))
                                 for target in _socket.targetplugs:
                                     logging.info("SOCKET QUEUE IS %s, TARGET QUEUE is %s",_socket.queue.name, target.queue.name)
                                     if target.queue.name == _socket.queue.name:
