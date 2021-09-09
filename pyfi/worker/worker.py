@@ -410,6 +410,58 @@ class Worker:
                                 logging.info(
                                     "Sending {} to queue {}".format(msg, key))
 
+                                if processor_plug.queue.qtype == 'direct':
+                                    logging.info("Finding processor....")
+                                    for socket in processor_plug.sockets:
+                                        logging.info(
+                                            "Checking socket[%s] vs key[%s]", socket.queue.name, key)
+                                        _processor = processor_map[socket.processor_id]
+                                        if socket.queue.name == key:
+                                            logging.info("Invoking {}=>{}({})".format(
+                                                key,
+                                                _processor.module+'.'+socket.task.name, msg))
+
+                                            tkey = key+'.' + _processor.name.replace(
+                                                ' ', '.')+'.'+socket.task.name
+                                            # Target specific worker queue here
+                                            worker_queue = KQueue(
+                                                tkey,
+                                                Exchange(
+                                                    key, type='direct'),
+                                                routing_key=tkey,
+
+                                                message_ttl=socket.queue.message_ttl,
+                                                durable=socket.queue.durable,
+                                                expires=socket.queue.expires,
+                                                # expires=30,
+                                                # socket.queue.message_ttl
+                                                # socket.queue.expires
+                                                queue_arguments={
+                                                    'x-message-ttl': 30000,
+                                                    'x-expires': 300}
+                                            )
+
+                                            logging.info(
+                                                "worker queue %s", worker_queue)
+                                            try:
+                                                # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
+                                                # Define context object that function can use to set outbound data and get inbound data
+                                                # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
+                                                logging.info(
+                                                    "PASS_KWARGS: %s", pass_kwargs)
+                                                self.celery.signature(
+                                                    _processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                            except:
+                                                import traceback
+                                                print(
+                                                    traceback.format_exc())
+                                            logging.info(
+                                                "call complete %s %s %s", _processor.module+'.'+socket.task.name, (msg,), worker_queue)
+                                        # We sent the message, so remove it so it doesn't get re-sent on the next cycle
+                                        # If there is an exception delivering the message above, this code will get skipped and the
+                                        # cycle will retry this message
+                                        plugs[key].remove(msg)
+                                        
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
 
