@@ -18,15 +18,6 @@ do_this = Socket(name='pyfi.processors.sample.do_this', processor=processor2, qu
 plug = Plug(name='plug1', queue={
     'name': 'pyfi.queue2'}, processor=processor, socket=do_this)
 
-# Send a message to a socket
+# Send a message to a socket(function)
 result = do_something("Hello World !")
 print("RESULT",result)
-
-#do_this("Do this!!")
-
-'''
-pyfi add plug -n plug1 -q pyfi.queue2 -pn proc1
-pyfi add plug -n plug3 -q pyfi.queue3 -pn proc1
-pyfi add processor -n proc2 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample  -h radiant
-pyfi add socket -n proc2.socket1 -q pyfi.queue2 -pn proc2 -t do_this 
-'''

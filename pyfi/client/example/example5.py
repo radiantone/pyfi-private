@@ -2,6 +2,7 @@
 from pyfi.client.api import parallel, pipeline, funnel
 
 # Function API over your processor models
+# do_something is my python function mounted onto a processor from my github repo
 from pyfi.client.example.api import do_something_p as do_something, do_this_p as do_this
 
 # Durable, reliable, parallel, distributed workflows

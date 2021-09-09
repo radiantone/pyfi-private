@@ -1,4 +1,5 @@
 from pyfi.client.example.api import do_something
+# do_something is my python function mounted onto a processor from my github repo
 from pyfi.client.api import parallel, pipeline, funnel
 
 # Send a message to the socket function
