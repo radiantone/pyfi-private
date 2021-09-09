@@ -27,15 +27,20 @@ from flask import Flask, request, send_from_directory, current_app, send_from_di
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
+
 app.register_blueprint(blueprint)
 
 home = str(Path.home())
+
 CONFIG = configparser.ConfigParser()
+
 hostname = platform.node()
+
 cpus = multiprocessing.cpu_count()
 
 
 class Agent:
+    """ Agent class """
 
     @contextmanager
     def get_session(self):
@@ -79,9 +84,7 @@ class Agent:
     def start(self):
         from datetime import datetime
         import bjoern
-        #from multiprocessing import Process
         from billiard.context import Process
-
         from uuid import uuid4
 
         logging.info("Serving agent on port {} {} {}".format(
@@ -142,8 +145,6 @@ class Agent:
             processors = []
             workers = []
 
-            hostname = platform.node()
-
             def manage_processors(workers, processors):
                 """
                 Agents manage processors assigned to them and connect them to workers
@@ -163,8 +164,6 @@ class Agent:
 
                     with self.get_session() as session:
                         session.add(self.node)
-                    #self.database.session.add(self.node)
-                    
 
                     time.sleep(3)
                     sm = psutil.virtual_memory()
@@ -220,8 +219,6 @@ class Agent:
 
                                     with self.get_session() as session:
                                         session.add(processor['processor'])
-                                    #self.database.session.add(
-                                    #    processor['processor'])
                                     
 
                         # Loop through my database processors
@@ -244,7 +241,7 @@ class Agent:
                                                 'processor': myprocessor}]
 
                     refresh += 1
-                    if refresh >= 3:
+                    if refresh >= 3: # 3 cycle interval
                         refresh = 0
 
                     # Loop through my processor cache again and operate on them based
@@ -301,8 +298,6 @@ class Agent:
                             with self.get_session() as session:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
-
-                            
 
                         if processor['processor'].requested_status == 'paused':
                             if processor['worker'] is not None:
@@ -381,8 +376,6 @@ class Agent:
                             with self.get_session() as session:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
-
-                            
 
                         if processor['processor'].requested_status == 'started':
                             if processor['worker'] is None:
@@ -492,7 +485,6 @@ class Agent:
 
                             with self.get_session() as session:
                                 session.add(processor['processor'])
-                            
 
             manage_processors(workers, processors)
 
@@ -509,7 +501,6 @@ class Agent:
 
         logging.info("Monitoring processors")
         monitor_processors()
-        logging.info("END Monitoring")
 
 
 @app.route('/')

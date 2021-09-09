@@ -89,7 +89,7 @@ def dispatcher(task):
 
 class Worker:
     """
-    A worker is a celery worker with a processor module loaded and represents a single processor
+    Worker wrapper that manages task ingress/egress and celery worker processes
     """
     from contextlib import contextmanager
 

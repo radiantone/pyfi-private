@@ -13,7 +13,7 @@ do_something = Socket(name='pyfi.processors.sample.do_something', interval=10, p
 
 # Create a socket on the processor to receive requests for the do_this python function(task)
 do_this = Socket(name='pyfi.processors.sample.do_this', processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_this')
- 
+
 # Create a plug that connects one processor to a socket of another
 plug = Plug(name='plug1', queue={'name': 'pyfi.queue2'}, processor=processor, source=do_something, target=do_this)
 

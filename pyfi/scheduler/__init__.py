@@ -1,14 +1,15 @@
-from multiprocessing import Process, Condition
 import time
 import logging
+import platform
+from multiprocessing import Process, Condition
+
 from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
-import platform
 HOSTNAME = platform.node()
 
 
 class Scheduler:
-
+    """ Basic Scheduler """
     process = None
 
     def __init__(self, context, name, interval):

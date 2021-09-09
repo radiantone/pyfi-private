@@ -143,7 +143,6 @@ def update(context):
     """
     Update a database object
     """
-    pass
 
 
 @cli.group()
@@ -152,7 +151,6 @@ def node(context):
     """
     Node management operations
     """
-    pass
 
 
 @node.command()
@@ -254,20 +252,23 @@ def dropdb(context):
     context.obj['database'].session.commit()
     print("Database dropped.")
             
+
 @db.command(name='drop')
+@click.option('-y', '--yes', is_flag=True, default=False, help="Yes to rebuild without prompting")
 @click.pass_context
-def db_drop(context, confirm=False):
+def db_drop(context, yes):
     """
     Drop all database tables
     """
     try:
-        if click.confirm('Are you sure you want to drop the database?', default=False):
-            if click.confirm('Are you REALLY sure you want to drop the database?', default=False):
-                dropdb(context)
+        if not yes:
+            if click.confirm('Are you sure you want to drop the database?', default=False):
+                if click.confirm('Are you REALLY sure you want to drop the database?', default=False):
+                    dropdb(context)
+                else:
+                    print("Operation aborted.")
             else:
                 print("Operation aborted.")
-        else:
-            print("Operation aborted.")
 
         # Drop roles
     except Exception as ex:
@@ -276,6 +277,9 @@ def db_drop(context, confirm=False):
 @db.command(name='json', help="Dump the database to JSON")
 @click.pass_context
 def db_json(context):
+    """
+    Dump database to JSON
+    """
     import json
 
     """ Returns the entire content of a database as lists of dicts"""
@@ -594,7 +598,6 @@ def add_node_to_scheduler(context, node):
     """
     Add a node to a scheduler
     """
-
     id = context.obj['id']
     name = context.obj['name']
 
@@ -1436,7 +1439,6 @@ def ls_workers(context):
     """
     List workers
     """
-
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
@@ -1461,7 +1463,6 @@ def ls_processors(context, gitrepo, module, task, owner):
     """
     List processors
     """
-
     processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
@@ -1579,9 +1580,11 @@ def ls_sockets(context):
 @click.option('-h', '--horizontal', default=True, is_flag=True, required=False, help="Vertical tree mode")
 @click.pass_context
 def ls_node(context, name, tree, horizontal):
+    """
+    List a node
+    """
     from pptree import print_tree, Node
 
-            
     node = context.obj['database'].session.query(
         NodeModel).filter_by(name=name).first()
 
@@ -1649,6 +1652,9 @@ def ls_plugs(context):
 @click.option('-a', '--adaptor', default=None, help="Adaptor class function (e.g. my.module.class.function")
 @click.pass_context
 def listen(context, name, channel, adaptor):
+    """
+    Listen on a pub/sub channel
+    """
     import redis
     import importlib
 
@@ -1673,6 +1679,9 @@ def listen(context, name, channel, adaptor):
 @cli.command(help="Database login user")
 @click.pass_context
 def whoami(context):
+    """
+    Print who I am logged in as
+    """
     print("I am", context.obj['owner'])
 
 @cli.group()
