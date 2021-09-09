@@ -356,7 +356,7 @@ class Worker:
                         logging.info(data)
 
                         # TODO: This probably not needed
-                        _r = task_kwargs['result']
+                        _r = _signal['result']
                         result = json.dumps(_r, indent=4)
                         data['message'] = json.dumps(result)
                         data['message'] = json.dumps(data)
