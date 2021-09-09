@@ -85,6 +85,7 @@
       align="left"
       icon="format_list_bulleted"
       aria-label="Parallel Node"
+      id="parallel"
       size="large"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
@@ -102,6 +103,7 @@
       icon="fas fa-long-arrow-alt-right"
       aria-label="Pipeline Node"
       size="large"
+      id="pipeline"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >
@@ -119,6 +121,7 @@
       icon="low_priority"
       aria-label="Chord Node"
       size="large"
+      id="chord"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >
@@ -135,6 +138,7 @@
       icon="grid_view"
       aria-label="Segment Node"
       size="large"
+      id="segment"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >
@@ -151,6 +155,7 @@
       icon="icon-map"
       aria-label="Map Node"
       size="large"
+      id="map"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >
@@ -167,6 +172,7 @@
       icon="icon-funnel"
       aria-label="Reduce Node"
       size="large"
+      id="reduce"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >
@@ -183,6 +189,7 @@
       icon="alt_route"
       aria-label="Router"
       size="large"
+      id="router"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >

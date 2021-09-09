@@ -1,9 +1,11 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-    
-      <ToolPalette v-bind:data-generator="dataGenerator"  surfaceId="flow1"
-                    selector="[data-node-type]"/>
+      <ToolPalette
+        v-bind:data-generator="dataGenerator"
+        surfaceId="flow1"
+        selector="[data-node-type]"
+      />
       <q-toolbar class="bg-accent" style="min-height: 40px; padding: 0px;">
         <q-btn
           color="secondary"
@@ -155,21 +157,21 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow1"
         >
-          <Designer ref="flow1designer" surfaceId="flow1"/>
+          <Designer ref="flow1designer" surfaceId="flow1" />
         </q-tab-panel>
         <q-tab-panel
           name="flow2"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow2"
         >
-          <Designer ref="flow2designer" surfaceId="flow2"/>
+          <Designer ref="flow2designer" surfaceId="flow2" />
         </q-tab-panel>
         <q-tab-panel
           name="flow3"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow3"
         >
-          <Designer ref="flow3designer" surfaceId="flow3"/>
+          <Designer ref="flow3designer" surfaceId="flow3" />
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -231,7 +233,6 @@ icon-processor:before {
 }
 </style>
 <script>
-
 const { v4: uuidv4 } = require("uuid");
 var dd = require("drip-drop");
 
@@ -257,11 +258,10 @@ export default defineComponent({
   created() {},
   computed: {
     getSurfaceId() {
-      return window.toolkit.surfaceId
-    }
+      return window.toolkit.surfaceId;
+    },
   },
   methods: {
-
     dataGenerator: function (el) {
       // This probably needs to be automated
       return {
@@ -296,7 +296,7 @@ export default defineComponent({
       spinnerSize: 154,
       spinnerThickness: 1,
     });
-    console.log("Mounting....")
+    console.log("Mounting....");
     window.toolkit = this.$refs["flow1designer"].toolkit;
     window.toolkit.$q = this.$q;
     window.renderer = window.toolkit.renderer;
@@ -307,7 +307,7 @@ export default defineComponent({
         node: {
           icon: "fab fa-python",
           style: "",
-          type: "script",
+          type: "processor",
           name: "Script Processor",
           label: "Script",
           description: "A script processor description",
@@ -365,8 +365,42 @@ export default defineComponent({
           columns: [],
           properties: [],
         },
-      };      
-      var els = [processor, portin, portout, group];
+      };
+
+      var parallel = document.querySelector("#parallel");
+      parallel.data = {
+        node: {
+          icon: "fas fa-list",
+          style: "size:50px",
+          type: "parallel",
+          name: "Parallel",
+          label: "Parallel",
+          description: "A parallel tool description",
+          package: "my.python.package",
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      var pipeline = document.querySelector("#pipeline");
+      pipeline.data = {
+        node: {
+          icon: "fas fa-long-arrow-alt-right",
+          style: "size:50px",
+          type: "pipeline",
+          name: "Pipeline",
+          label: "Pipeline",
+          description: "A pipeline tool description",
+          package: "my.python.package",
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      //, chord, segment, map, reduce
+      var els = [processor, portin, portout, group, parallel, pipeline];
 
       els.forEach((el) => {
         var data = el.data;
@@ -379,7 +413,6 @@ export default defineComponent({
           setData("object", JSON.stringify(data));
         });
       });
-      
     });
     var me = this;
     setTimeout(function () {

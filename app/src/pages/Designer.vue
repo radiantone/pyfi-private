@@ -1479,7 +1479,7 @@ export default {
       },
       view: {
         nodes: {
-          script: {
+          processor: {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
@@ -1562,6 +1562,68 @@ export default {
               },
             },
           },
+          parallel: {
+            component: ScriptTemplate,
+            events: {
+              tap: function (params) {
+                console.log("PARAMS:", params);
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
+                    var parentId = params.e.srcElement.firstChild.parentNode.id;
+                    var childId = params.e.srcElement.firstChild.id;
+                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll(".jtk-node");
+
+                    elems.forEach((el) => {
+                      el.style["z-index"] = 0;
+                    });
+                    params.el.style["z-index"] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit("node.selected", null);
+                    } else {
+                      window.root.$emit("node.selected", params.node);
+                      window.root.$emit("nodes.selected", nodes);
+                    }
+                  }
+                }
+              },
+            },
+          },
+          pipeline: {
+            component: ScriptTemplate,
+            events: {
+              tap: function (params) {
+                console.log("PARAMS:", params);
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
+                    var parentId = params.e.srcElement.firstChild.parentNode.id;
+                    var childId = params.e.srcElement.firstChild.id;
+                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll(".jtk-node");
+
+                    elems.forEach((el) => {
+                      el.style["z-index"] = 0;
+                    });
+                    params.el.style["z-index"] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit("node.selected", null);
+                    } else {
+                      window.root.$emit("node.selected", params.node);
+                      window.root.$emit("nodes.selected", nodes);
+                    }
+                  }
+                }
+              },
+            },
+          }
         },
         // Three edge types  - '1:1', '1:N' and 'N:M',
         // sharing  a common parent, in which the connector type, anchors

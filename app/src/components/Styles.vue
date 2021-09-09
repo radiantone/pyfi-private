@@ -1,4 +1,4 @@
-<template> </template>
+<template></template>
 <style>
 @import "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css";
 /* ----------------------------------------------------------------------------------------------------- */
@@ -246,8 +246,8 @@
 }
 
 .common-edge path {
-  stroke-width: 3;
-  stroke: #000;
+  stroke-width: 2;
+  //stroke: #000;
 }
 
 .common-edge.jtk-hover path {
