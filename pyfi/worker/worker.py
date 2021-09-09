@@ -292,6 +292,7 @@ class Worker:
 
                                 targetplug = None
                                 for target in _socket.targetplugs:
+                                    logging.info("SOCKET QUEUE IS %s, TARGET QUEUE is %s",_socket.queue.name, target.queue.name)
                                     if target.queue.name == _socket.queue.name:
                                         targetplug = target
                                         break
