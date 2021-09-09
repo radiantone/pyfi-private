@@ -724,8 +724,8 @@ class Worker:
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
-                            print("TASK POSTRUN ARGS:", args)
-                            print("TASK_POSTRUN KWARGS:",
+                            logging.info("TASK POSTRUN ARGS: %s", args)
+                            logging.info("TASK_POSTRUN KWARGS: %s",
                                   {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
                                 {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
