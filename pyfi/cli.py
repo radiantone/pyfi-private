@@ -1270,7 +1270,7 @@ def ls_call(context, id, name, result, tree):
             _r = pickle.loads(r)
             print(json.dumps(_r, indent=4))
             return
-            
+
         if tree:
             from pptree import print_tree, Node
             
@@ -1297,11 +1297,11 @@ def ls_call(context, id, name, result, tree):
 
 
 @ls.command(name='calls')
-@click.option('-s', '--start', default=1, required=False)
+@click.option('-p', '--page', default=1, required=False)
 @click.option('-r', '--rows', default=10, required=False)
 @click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
-def ls_calls(context, start, rows, ascend):
+def ls_calls(context, page, rows, ascend):
     """
     List queues
     """
@@ -1310,20 +1310,23 @@ def ls_calls(context, start, rows, ascend):
     names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
     x.field_names = names
 
+    total = context.obj['database'].session.query(CallModel).count()
+
     if not ascend:
         nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.started.desc()).slice(start-1, rows)
+            CallModel).order_by(CallModel.started.desc()).offset(page*rows).limit(rows)
     else:
         nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.started.asc()).slice(start-1, rows)
+            CallModel).order_by(CallModel.started.asc()).offset(page*rows).limit(rows)
 
     row = 0
     for node in nodes:
         row += 1
-        x.add_row([start, row, node.name, node.id, node.owner,
+        x.add_row([page, row, node.name, node.id, node.owner,
                   node.lastupdated, node.started, node.finished, node.state])
 
     print(x)
+    print("Page {} of {} of {} total records".format(page, round(total/rows), total))
 
 
 @ls.command(name='schedulers')

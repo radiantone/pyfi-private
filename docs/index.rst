@@ -3,19 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PYFI's documentation!
+Documentation Outline
 ================================
 
 .. toctree::
    :maxdepth: 2
 
-Documentation for the Code
-**************************
-.. toctree::
-   :maxdepth: 2
-
-   install
-   modules
+   introduction/introduction
+   install/install
+   modules/modules
 
 Indices and tables
 ==================

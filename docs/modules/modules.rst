@@ -8,4 +8,4 @@ Modules
 .. toctree::
    :maxdepth: 2
 
-   api
+   api/api

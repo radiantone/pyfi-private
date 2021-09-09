@@ -56,7 +56,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 html_logo = 'images/pyfi-mono.svg'
-html_favicon = 'pyfi16.ico'
+#html_favicon = 'pyfi16.ico'
+html_favicon = 'images/favicon2.ico'
 
 html_theme_options = {
 

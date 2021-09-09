@@ -1,3 +1,7 @@
+# To run:
+# $ . examples/pipes.sh
+#
+
 # Create alias' for the run task commands
 alias pyfi.processors.sample.do_something="pyfi task run -s pyfi.processors.sample.do_something"
 alias pyfi.processors.sample.do_this="pyfi task run -s pyfi.processors.sample.do_this"

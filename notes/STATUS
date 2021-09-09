@@ -72,23 +72,39 @@ Phase 4 Goals
 - Invocations complete regardless of when processors come online DONE
     - Flows complete even if partially available DONE
 - Queues are reclaimed after expiry when no consumers attached DONE
-- APScheduler 90%
+- APScheduler 100%
+    - Manage task schedule from cli and client API
 - ls calls, ls call->shows result DONE
     - Add result size to CallModel
 - Port pubsub to redis DONE
-- CPU affinity for worker processors, scheduler decides
+- CPU affinity for worker processors, scheduler decides. UNK
 - cli listen works with redis now DONE
 - User RLS row level security in database DONE
 - Scheduler CLI commands 80%
 - Scheduler task
-    - Monitors nodes associated with scheduler
-    - If a processor has no worker, find a node and hostname to the processor. Agent will take over then
+    - Monitors nodes associated with scheduler 40%
+    - If a processor has no worker, find a node and hostname to the processor. Agent will take over then 20%
 - ls node tree printer DONE
 - More complete relational model 95%
 - isolated virtualenvs for processors using github w/logins DONE
 - Proper room joining DONE
 - Proper queue subscriptions in worker DONE
-- tasks can send output to 'log','task','data' channels
+- tasks can send output to 'log','task','data' channels 80%
 - Move processor between hosts while running DONE
 - Client API 80%
+- Call graph CLI for calls DONE
+- View results with CLI DONE
 
+
+Phase 5 Goals
+----------------------
+
+- Scheduler managing nodes and processors. Attaching orphans, rebalancing etc
+- Pub sub working smoothly on all 3 processor channels: data, log, task
+     - Task lifecycle notifications
+- Finish implementing worker signals
+- UI templates for control flow processors
+- Flask UI backend with login, cors and other harness plugins working
+- Flask API REST server 
+- RTD Docs
+- 
