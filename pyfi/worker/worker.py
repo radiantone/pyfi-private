@@ -376,7 +376,8 @@ class Worker:
                         Function should put data onto named plugs, not queues
                         """
                         for key in plugs:
-
+                            processor_plug = None
+                            
                             for _plug in processor.plugs:
                                 if _plug.name == key:
                                     processor_plug = _plug
@@ -388,7 +389,7 @@ class Worker:
                                 continue
 
                             msgs = [msg for msg in plugs[key]]
-                            
+
                             logging.info("msgs %s", msgs)
 
                             for msg in msgs:
