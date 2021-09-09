@@ -376,11 +376,11 @@ class Worker:
                         """
                         Function should put data onto named plugs, not queues
                         """
-                        for key in plugs:
+                        for pname in plugs:
                             processor_plug = None
 
                             for _plug in processor.plugs:
-                                if _plug.name == key:
+                                if _plug.name == pname:
                                     processor_plug = _plug
 
                             #processors = self.database.session.query(
@@ -389,14 +389,20 @@ class Worker:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
 
-                            msgs = [msg for msg in plugs[key]]
+                            key =processor_plug.queue.name
+
+                            msgs = [msg for msg in plugs[pname]]
 
                             logging.info("msgs %s", msgs)
 
                             for msg in msgs:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
+
+                                tkey = key+'.' + processor.name.replace(
+                                        ' ', '.')+'.'+socket.task.name
+
                                 logging.info(
-                                    "Sending {} to queue {}".format(msg, key))
+                                    "Sending {} to queue {}".format(msg, tkey))
 
                                 if processor_plug.queue.qtype == 'direct':
                                     logging.info("Finding processor....")
@@ -407,8 +413,6 @@ class Worker:
                                         key,
                                         processor.module+'.'+socket.task.name, msg))
 
-                                    tkey = key+'.' + processor.name.replace(
-                                            ' ', '.')+'.'+socket.task.name
                                     # Target specific worker queue here
                                     worker_queue = KQueue(
                                         tkey,
@@ -439,8 +443,7 @@ class Worker:
                                             processor.module+'.'+socket.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
                                     except:
                                         import traceback
-                                        print(
-                                            traceback.format_exc())
+                                        print(traceback.format_exc())
                                     logging.info(
                                         "call complete %s %s %s", processor.module+'.'+socket.task.name, (msg,), worker_queue)
 
