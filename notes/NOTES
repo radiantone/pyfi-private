@@ -3,3 +3,4 @@ Migrations
 
 $ alembic revision --autogenerate -m "Added account table"
 $ pyfi db migrate
+$ 
