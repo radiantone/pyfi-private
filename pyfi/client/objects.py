@@ -235,6 +235,8 @@ class Plug(Base):
         if not self.plug:
             self.plug = PlugModel(name=self.name, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
+        self.session.add(self.source.socket)
+        self.session.add(self.target.socket)
         self.source.socket.sourceplugs += [self.plug.source]
         self.source.socket.targetplugs += [self.plug.target]
 
