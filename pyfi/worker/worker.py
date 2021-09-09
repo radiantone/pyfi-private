@@ -257,7 +257,7 @@ class Worker:
                     _plugs = {}
 
                     for plug in processor.plugs:
-                        _plugs[plug.queue.name] = []
+                        _plugs[plug.name] = []
 
                     logging.info("DBACTION: Processor %s", processor)
 
@@ -377,7 +377,7 @@ class Worker:
                         """
                         for key in plugs:
                             processor_plug = None
-                            
+
                             for _plug in processor.plugs:
                                 if _plug.name == key:
                                     processor_plug = _plug
