@@ -725,6 +725,7 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
                             logging.info("TASK POSTRUN ARGS: %s", args)
+                            logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
                                   {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
