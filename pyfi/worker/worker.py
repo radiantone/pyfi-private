@@ -384,7 +384,7 @@ class Worker:
                                     processor_plug = _plug
 
                             target_processor = self.database.session.query(
-                                ProcessorModel).filter(id=processor_plug.processor_id).first()
+                                ProcessorModel).filter_by(id=processor_plug.processor_id).first()
 
                             if processor_plug is None:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
