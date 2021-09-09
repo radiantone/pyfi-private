@@ -43,7 +43,7 @@ class Scheduler:
                 # If there are, then move the processor to this agent and node.h
 
                 processor = agent.worker.processor
-                logging.info("Processor %s %s CPU",
+                logging.info("Processor %s %s CPU workers",
                              processor.name, processor.concurrency)
 
                 # Look at all the processors for this node, if the total CPUs exceeds the nodes CPUs
@@ -63,6 +63,9 @@ class Scheduler:
 
                 for processor in orphaned_processors:
                     logging.info("Finding home for orphaned processor %s", processor)
+
+                    # Look for existing agent on the host for processor.hostname. If none exists,
+                    # then attempt to find a home for this processor.
 
             finally:
                 self.context.obj['database'].session.commit()

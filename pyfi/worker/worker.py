@@ -355,6 +355,7 @@ class Worker:
 
                         logging.info(data)
 
+                        # TODO: This probably not needed
                         redisclient = redis.Redis.from_url(
                             CONFIG.get('backend', 'uri'))
                         r = redisclient.get(data['resultkey'])
@@ -723,8 +724,8 @@ class Worker:
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
-
-                            print("KWARGS:",
+                            print("TASK POSTRUN ARGS:", args)
+                            print("TASK_POSTRUN KWARGS:",
                                   {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
                                 {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
