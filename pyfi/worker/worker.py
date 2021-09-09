@@ -1,8 +1,6 @@
 """
 Agent workerclass. Primary task/code execution context for processors
 """
-from kombu import serialization
-from pyfi.db.model.models import use_identity
 import redis
 import logging
 import shutil
@@ -15,6 +13,8 @@ import platform
 from functools import partial
 from pytz import utc
 
+from pyfi.db.model.models import use_identity
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
@@ -26,13 +26,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 
-
-from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
-
 from celery import Celery
 from celery.signals import setup_logging
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
+
 from kombu import Exchange, Queue as KQueue
+
+from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+
 
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
@@ -61,6 +62,7 @@ processes = []
 
 
 def shutdown(*args):
+    """ Shutdown worker """
     from psutil import Process
 
     for process in processes:
@@ -83,10 +85,6 @@ signal.signal(signal.SIGINT, shutdown)
 
 def dispatcher(task):
     print("DISPATCHER", task)
-
-
-def myfunc():
-    print("my func triggered")
 
 
 class Worker:
@@ -242,11 +240,12 @@ class Worker:
         from multiprocessing import Process
         import os
         import time
-
-        logging.debug("PYTHON: %s", sys.executable)
+        import json
 
 
         def database_actions():
+            """ Main database interaction thread. Receives signals off a queue
+            and conducts database operations based on the message """
             from uuid import uuid4
             from datetime import datetime
 
@@ -261,8 +260,6 @@ class Worker:
                         _plugs[plug.queue.name] = []
 
                     logging.info("DBACTION: Processor %s", processor)
-                    #logging.info("Sleeping 5...")
-                    #time.sleep(5)
 
                     logging.info("Checking main_queue")
                     _signal = main_queue.get()
@@ -461,12 +458,13 @@ class Worker:
                                         # If there is an exception delivering the message above, this code will get skipped and the
                                         # cycle will retry this message
                                         plugs[key].remove(msg)
-                                        
+
+        # Start database session thread
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
 
         def worker_proc(app, _queue):
-            """ Set up celery queues for self.celery """
+            """ Main celery worker thread. Configure worker, queues and launch celery worker """
             import builtins
             import importlib
             import sys
@@ -476,11 +474,7 @@ class Worker:
             from billiard.pool import Pool
 
             queues = []
-            #engine = create_engine(self.dburi)
 
-            #session = sessionmaker(bind=engine)()
-
-            # Replace with while True, then get from update_models queue. It will have JSON model data there
             with self.get_session() as session:
                 self.processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
@@ -735,25 +729,14 @@ class Worker:
                             main_queue.put(
                                 {'signal': 'postrun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
-                            if 'tracking' not in kwargs.get('kwargs'):
-                                kwargs['kwargs']['tracking'] = str(uuid4())
-
-                            #logging.info("Waiting on POSTRUN REPLY")
-                            #response = postrun_queue.get()
-                            #kwargs['kwargs'].update(response)
-                            #kwargs['kwargs']['output'] = {}
-
-                            #logging.info("POSTRUN QUEUE: %s", response)
-                            #logging.info("POSTRUN KWARGS IS NOW: %s", kwargs)
-
                 worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         os.chdir(self.workdir)
-        import time
 
+        """ Install gitrepo code """
         if self.processor.gitrepo and not self.skipvenv:
 
             if self.usecontainer:
@@ -765,13 +748,13 @@ class Worker:
                     self.processor.branch, self.processor.gitrepo))
 
                 if os.path.exists("git"):
-                    os.chdir('git')
                     logging.info("Pulling update from git")
+                    os.chdir('git')
                     os.system('git config --get remote.origin.url')
                     os.system('git config pull.rebase false')
                     os.system('git pull')
                 else:
-
+                    """ Clone gitrepo. Retry after 3 seconds if failure """
                     while True:
                         try:
                             logging.info("git clone -b {} --single-branch {} git".format(
@@ -786,39 +769,40 @@ class Worker:
                             logging.error(ex)
                             time.sleep(3)
 
-                if not os.path.exists('venv'):
-                    from virtualenvapi.manage import VirtualEnvironment
+                #if not os.path.exists('venv'):
 
-                    logging.info("Building virtualenv...in %s", os.getcwd())
+                # Create or update venv
+                from virtualenvapi.manage import VirtualEnvironment
 
-                    env = VirtualEnvironment(
-                        'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+                logging.info("Building virtualenv...in %s", os.getcwd())
 
-                    login = os.environ['GIT_LOGIN']
-                    env.install('-e git+'+login +
-                                '/radiantone/pyfi-private#egg=pyfi')
+                env = VirtualEnvironment(
+                    'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
-                    try:
-                        env.install('-e git+'+self.processor.gitrepo.strip())
-                    except:
-                        logging.error("Could not install %s",
-                                      self.processor.gitrepo.strip())
+                login = os.environ['GIT_LOGIN']
+                env.install('-e git+'+login +
+                            '/radiantone/pyfi-private#egg=pyfi')
 
-        process = Process(target=worker_proc, args=(self.celery, queue))
-        process.app = self.celery
-        processes += [process]
+                try:
+                    env.install('-e git+'+self.processor.gitrepo.strip())
+                except:
+                    logging.error("Could not install %s",
+                                    self.processor.gitrepo.strip())
+
+        """ Start worker process"""
+        worker_process = Process(target=worker_proc, args=(self.celery, queue))
+        worker_process.app = self.celery
+        processes += [worker_process]
 
         if start:
-            process.start()
+            worker_process.start()
 
-        self.process = process
+        self.process = worker_process
 
         def emit_messages():
-            import json
-
+            """ Get messages off queue and emit to pubsub server """
             redisclient = redis.Redis.from_url(self.backend)
 
-            last_qsize = 0
             while True:
                 try:
                     message = queue.get()
@@ -826,20 +810,21 @@ class Worker:
                                  message[1]['room'], message)
                     redisclient.publish(
                         message[1]['room']+'.'+message[1]['channel'], json.dumps(message[1]))
-                    #sio.emit(*message, namespace='/tasks')
+
                 except Exception as ex:
                     logging.error(ex)
                     time.sleep(3)
 
-        process2 = Process(target=emit_messages)
-        process2.daemon = True
-
-        # if listen:
         logging.info("Starting emit_messages")
-        process2.start()
 
-        logging.debug("Started worker process with pid[%s]", process.pid)
-        return process
+        emit_process = Process(target=emit_messages)
+        emit_process.daemon = True
+        emit_process.start()
+
+        logging.debug(
+            "Started worker process with pid[%s]", worker_process.pid)
+
+        return worker_process
 
     def busy(self):
         """
