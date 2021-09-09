@@ -383,12 +383,13 @@ class Worker:
                                 if _plug.name == pname:
                                     processor_plug = _plug
 
-                            target_processor = self.database.session.query(
-                                ProcessorModel).filter_by(id=processor_plug.processor_id).first()
 
                             if processor_plug is None:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
+
+                            target_processor = self.database.session.query(
+                                ProcessorModel).filter_by(id=processor_plug.target.processor_id).first()
 
                             key =processor_plug.queue.name
 
