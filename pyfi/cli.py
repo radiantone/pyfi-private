@@ -1310,7 +1310,7 @@ def ls_calls(context, page, rows, ascend):
     """
     x = PrettyTable()
 
-    names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Started", "Finished", "State"]
+    names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "State"]
     x.field_names = names
 
     total = context.obj['database'].session.query(CallModel).count()
@@ -1326,10 +1326,14 @@ def ls_calls(context, page, rows, ascend):
     for node in nodes:
         row += 1
         x.add_row([page, row, node.name, node.id, node.owner,
-                  node.lastupdated, node.started, node.finished, node.state])
+                  node.lastupdated, node.started, node.socket.name, node.finished, node.state])
 
     print(x)
-    print("Page {} of {} of {} total records".format(page, round(total/rows), total))
+
+    if total > 0:
+        print("Page {} of {} of {} total records".format(page, round(total/rows), total))
+    else:
+        print("No rows")
 
 
 @ls.command(name='schedulers')

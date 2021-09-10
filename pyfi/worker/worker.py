@@ -304,6 +304,7 @@ class Worker:
 
                                 logging.info("CREATED CALL MODEL %s", call)
                                 logging.info("CALL HAS SOCKET %s", call.socket)
+                                session.add(call.socket)
                                 session.add(call)
                                 session.commit()
                                 _signal['kwargs']['plugs'] = _plugs

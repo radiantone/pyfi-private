@@ -330,6 +330,8 @@ class CallModel(BaseModel):
     started = Column(DateTime, default=datetime.now, nullable=False)
     finished = Column(DateTime)
 
+    socket_id = Column(String(40), ForeignKey('socket.id'),
+                     nullable=False)
     socket = relationship('SocketModel', back_populates="call", lazy=True, uselist=False)
 
     def __repr__(self):
@@ -466,10 +468,7 @@ class SocketModel(BaseModel):
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
 
-    call_id = Column(String(40), ForeignKey('call.id'))
-
-    call = relationship(
-        'CallModel', back_populates='socket', uselist=False)
+    call = relationship("CallModel", back_populates="socket")
 
     def __repr__(self):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
