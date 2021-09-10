@@ -303,7 +303,7 @@ class Worker:
                                                  name=processor.module+'.'+_socket.task.name, socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
 
                                 logging.info("CREATED CALL MODEL %s", call)
-                                logging.info("CALL HAS PLUG %s", call.plug)
+                                logging.info("CALL HAS SOCKET %s", call.socket)
                                 session.add(call)
                                 session.commit()
                                 _signal['kwargs']['plugs'] = _plugs
