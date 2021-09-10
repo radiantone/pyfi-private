@@ -330,7 +330,7 @@ class CallModel(BaseModel):
     started = Column(DateTime, default=datetime.now, nullable=False)
     finished = Column(DateTime)
 
-    plug = relationship('PlugModel', back_populates="call", lazy=True, uselist=False)
+    socket = relationship('SocketModel', back_populates="call", lazy=True, uselist=False)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
@@ -466,6 +466,11 @@ class SocketModel(BaseModel):
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
 
+    call_id = Column(String(40), ForeignKey('call.id'))
+
+    call = relationship(
+        'CallModel', back_populates='plug', uselist=False)
+        
     def __repr__(self):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
 
@@ -487,16 +492,11 @@ class PlugModel(BaseModel):
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
-    call_id = Column(String(40), ForeignKey('call.id'))
-
     source = relationship("SocketModel", back_populates="sourceplugs",
                         secondary=plugs_source_sockets, uselist=False)
 
     target = relationship("SocketModel", back_populates="targetplugs",
                       secondary=plugs_target_sockets, uselist=False)
-
-    call = relationship(
-        'CallModel', back_populates='plug', uselist=False)
 
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)

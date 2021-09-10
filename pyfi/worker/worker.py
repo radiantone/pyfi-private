@@ -291,7 +291,7 @@ class Worker:
                                 queue.put(data)
 
                                 sourceplug = None
-                                logging.info("SOCKET TARGET PLUGS %s", _socket.targetplugs)
+                                logging.info("SOCKET TARGET PLUGS %s", _socket.sourceplugs)
                                 for source in _socket.sourceplugs:
                                     logging.info(
                                         "SOCKET QUEUE IS %s, TARGET QUEUE is %s", _socket.queue.name, source.queue.name)
@@ -300,7 +300,7 @@ class Worker:
                                         break
 
                                 call = CallModel(id=myid,
-                                                 name=processor.module+'.'+_socket.task.name, plug=sourceplug, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
+                                                 name=processor.module+'.'+_socket.task.name, socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
 
                                 logging.info("CREATED CALL MODEL %s", call)
                                 logging.info("CALL HAS PLUG %s", call.plug)
