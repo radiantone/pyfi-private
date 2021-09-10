@@ -469,8 +469,8 @@ class SocketModel(BaseModel):
     call_id = Column(String(40), ForeignKey('call.id'))
 
     call = relationship(
-        'CallModel', back_populates='plug', uselist=False)
-        
+        'CallModel', back_populates='socket', uselist=False)
+
     def __repr__(self):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
 
