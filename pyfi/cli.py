@@ -825,7 +825,7 @@ def add_task(context, name, module, code):
 @add.command(name='processor')
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
-@click.option('-h', '--hostname', prompt=True, default=HOSTNAME, help='Target server hostname')
+@click.option('-h', '--hostname', default=None, help='Target server hostname')
 @click.option('-w', '--workers', default=1, help='Number of worker tasks')
 @click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
 @click.option('-g', '--gitrepo', prompt=True, default=None, required=True, help='Git repo URI')
@@ -1246,7 +1246,7 @@ def ls_call(context, id, name, result, tree):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Started", "Finished", "Parent", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Parent", "State"]
     x.field_names = names
     
     calls = None
@@ -1295,7 +1295,7 @@ def ls_call(context, id, name, result, tree):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.started, node.finished, node.parent, node.state])
+                    node.lastupdated, node.socket.name, node.started, node.finished, node.parent, node.state])
     print(x)
 
 
@@ -1316,17 +1316,25 @@ def ls_calls(context, page, rows, ascend):
     total = context.obj['database'].session.query(CallModel).count()
 
     if not ascend:
-        nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.started.desc()).offset(page*rows).limit(rows)
+        if total < rows:
+            nodes = context.obj['database'].session.query(
+                CallModel).all()
+        else:
+            nodes = context.obj['database'].session.query(
+                CallModel).order_by(CallModel.started.desc()).offset(page*rows).limit(rows)
     else:
-        nodes = context.obj['database'].session.query(
-            CallModel).order_by(CallModel.started.asc()).offset(page*rows).limit(rows)
+        if total < rows:
+            nodes = context.obj['database'].session.query(
+                CallModel).all()
+        else:
+            nodes = context.obj['database'].session.query(
+                CallModel).order_by(CallModel.started.asc()).offset(page*rows).limit(rows)
 
     row = 0
     for node in nodes:
         row += 1
         x.add_row([page, row, node.name, node.id, node.owner,
-                  node.lastupdated, node.started, node.socket.name, node.finished, node.state])
+                  node.lastupdated, node.socket.name,  node.started, node.finished, node.state])
 
     print(x)
 

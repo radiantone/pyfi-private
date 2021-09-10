@@ -60,13 +60,12 @@ class Scheduler:
             try:
                 # These are processors without an node to run on currently
                 orphaned_processors = self.context.obj['database'].session.query(
-                    ProcessorModel).filter_by(worker=None).with_for_update().all()
+                    ProcessorModel).filter_by(hostname=None).with_for_update().all()
 
                 for processor in orphaned_processors:
                     logging.info("Finding home for orphaned processor %s", processor)
 
-                    # Look for existing agent on the host for processor.hostname. If none exists,
-                    # then attempt to find a home for this processor.
+                    # Scan my nodes and agents looking for space or rearranging for space
 
             finally:
                 self.context.obj['database'].session.commit()

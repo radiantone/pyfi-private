@@ -11,7 +11,16 @@ Documentation Outline
 
    introduction/introduction
    install/install
-   modules/modules
+   quickstart/quickstart
+   design/design
+   architecture/architecture
+   database/database
+   servers/servers
+   cli/cli
+   api/api
+   tutorials/tutorials
+   discord/discord
+
 
 Indices and tables
 ==================
