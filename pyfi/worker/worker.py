@@ -369,7 +369,11 @@ class Worker:
 
                         # TODO: This probably not needed
                         _r = _signal['result']
-                        result = json.dumps(_r, indent=4)
+                        try:
+                            result = json.dumps(_r, indent=4)
+                        except:
+                            result = "Not JSON Serializable"
+                            pass
                         data['message'] = json.dumps(result)
                         data['message'] = json.dumps(data)
                         data['state'] = 'postrun'
