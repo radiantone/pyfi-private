@@ -268,8 +268,9 @@ class Worker:
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
+
                                 received = datetime.now()
-                                parent = None
+
                                 if 'parent' not in _signal['kwargs']:
                                     _signal['kwargs']['parent'] = str(
                                         uuid4())
@@ -329,7 +330,7 @@ class Worker:
 
 
                                 _signal['kwargs']['myid'] = call.id
-                                
+
                                 if call is None:
                                     logging.warning(
                                         "No Call found with celeryid=[%s]", _signal['taskid'])
@@ -774,9 +775,9 @@ class Worker:
                             from uuid import uuid4
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': kwargs, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                  {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             main_queue.put(
-                                {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': kwargs, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
 
 
                         @task_postrun.connect()
