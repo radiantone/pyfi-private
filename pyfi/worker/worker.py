@@ -270,7 +270,7 @@ class Worker:
                                 parent = None
 
                                 received = datetime.now()
-                                
+                                logging.info("Found socket: %s",_socket)
                                 if 'parent' not in _signal['kwargs']:
                                     _signal['kwargs']['parent'] = str(
                                         uuid4())
