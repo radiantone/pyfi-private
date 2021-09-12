@@ -269,22 +269,7 @@ class Worker:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
                                 received = datetime.now()
-                                if 'parent' not in _signal['kwargs']:
-
-                                    _signal['kwargs']['parent'] = str(
-                                        uuid4())
-                                    logging.info("RECEIVED NEW PARENT %s",
-                                                 _signal['kwargs']['parent'])
-                                    _signal['kwargs'][_socket.task.id] = [
-                                        ]
-                                    myid = _signal['kwargs']['parent']
-                                else:
-                                    parent = _signal['kwargs']['parent']
-                                    myid = str(uuid4())
                                     
-                                received = datetime.now()
-                                _signal['kwargs']['myid'] = myid
-
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
