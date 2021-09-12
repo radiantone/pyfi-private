@@ -342,7 +342,11 @@ class Worker:
                             if call:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
+                                event = EventModel(
+                                    name='postrun', note='Postrun for task '+processor.module+'.'+_socket.task.name)
 
+                                session.add(event)
+                                call.events += [event]
                                 session.add(call)
                                 session.commit()
                             else:
