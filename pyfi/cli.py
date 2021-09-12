@@ -1235,9 +1235,10 @@ def start_worker(context, name, pool, skip_venv):
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of call')
 @click.option('-r', '--result', default=False, is_flag=True, help="Include result of call")
-@click.option('-t', '--tree', default=False, is_flag=True, help="Include call tree")
+@click.option('-t', '--tree', default=False, is_flag=True, help="Show forward call tree")
+@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
 @click.pass_context
-def ls_call(context, id, name, result, tree):
+def ls_call(context, id, name, result, tree, graph):
     """
     List queues
     """
@@ -1246,7 +1247,7 @@ def ls_call(context, id, name, result, tree):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Parent", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Task Parent", "Flow Parent", "State"]
     x.field_names = names
     
     calls = None
@@ -1274,6 +1275,36 @@ def ls_call(context, id, name, result, tree):
             print(json.dumps(_r, indent=4))
             return
 
+        if graph:
+            calls = context.obj['database'].session.query(
+                CallModel).filter_by(task_id=call.task_id).all()
+
+            calldict = {}
+
+            for call in calls:
+                calldict[call.celeryid] = call
+
+            from pptree import print_tree, Node
+
+            for call in calls:
+                if call.taskparent is None:
+                    root = Node(call.name)
+                    break
+
+            def get_call_graph(parent, node, _calls):
+
+                for _child in _calls:
+                    if _child.taskparent == node.celeryid:
+                        _child_node = Node(_child.name, parent)
+                        _child_node = get_call_graph(_child_node, _child, _calls)
+
+                return parent
+
+            root = get_call_graph(root, call, calls)
+
+            print_tree(root, horizontal=False)
+            if not tree:
+                return
         if tree:
             from pptree import print_tree, Node
             
@@ -1295,7 +1326,7 @@ def ls_call(context, id, name, result, tree):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.socket.name, node.started, node.finished, node.parent, node.state])
+                    node.lastupdated, node.socket.name, node.started, node.finished, node.taskparent, node.parent, node.state])
     print(x)
 
     x = PrettyTable()
