@@ -779,7 +779,7 @@ class Worker:
 
                         @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
-                            logging.info("Task RECEIVED %s %s", request.id, sender)
+                            logging.info("Task RECEIVED %s %s", sender.task, request.id, sender)
                             logging.info("Task Request Parent %s", request.parent_id)
                             from datetime import datetime
                             from uuid import uuid4
