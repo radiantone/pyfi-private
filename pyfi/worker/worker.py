@@ -342,12 +342,17 @@ class Worker:
                                         sourceplug = source
                                         break
 
-
+                                logging.info("Looking up call %s",
+                                             _signal['taskid'])
                                 call = session.query(
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
                                 if call is None:
+                                    logging.info("Sleeping 3...")
                                     time.sleep(3)
+
+                                    logging.info("Looking up call 2 %s ",
+                                             _signal['taskid'])
                                     call = session.query(
                                         CallModel).filter_by(celeryid=_signal['taskid']).first()
 
