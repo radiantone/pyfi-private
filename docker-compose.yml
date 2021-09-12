@@ -39,8 +39,12 @@ services:
     hostname: agent1
     image: supervisor:latest
     volumes: 
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - ./conf/git-credentials:/root/.git-credentials
     environment: 
+      - TZ=America/New_York
+      - DEBIAN_FRONTEND=noninteractive
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start --clean --user pyfi"

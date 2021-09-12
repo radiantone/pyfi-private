@@ -1,7 +1,7 @@
 
-Tutorials
+Flower
 ================================
 .. toctree::
    :maxdepth: 2
 
-   examples/examples
+   

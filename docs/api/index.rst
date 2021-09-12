@@ -1,7 +1,10 @@
 
-Database
+API
 ================================
 .. toctree::
    :maxdepth: 2
-
-   datamodel/datamodel
+ 
+   CLI/index
+   python/index
+   ORM/index
+   REST/index

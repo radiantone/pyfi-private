@@ -5,22 +5,40 @@
 
 Documentation Outline
 ================================
-
 .. toctree::
+   :caption: Introduction
    :maxdepth: 2
 
-   introduction/introduction
-   install/install
-   quickstart/quickstart
-   design/design
-   architecture/architecture
-   database/database
-   servers/servers
-   cli/cli
-   api/api
-   tutorials/tutorials
-   discord/discord
+   overview/index
+   designgoals/index
+   usecases/index
+   install/index
+   quickstart/index
+   
+.. toctree::
+   :caption: Technology
+   :maxdepth: 2
 
+   design/index
+   architecture/index
+   database/index
+   servers/index
+   CLI/index
+   ui/index
+   api/index
+   stack/index.rst
+
+.. toctree::
+   :caption: Learning
+   :maxdepth: 2
+
+   tutorials/index
+
+.. toctree::
+   :caption: Support
+   :maxdepth: 2
+
+   discord/index
 
 Indices and tables
 ==================

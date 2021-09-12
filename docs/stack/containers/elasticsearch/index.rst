@@ -1,4 +1,6 @@
-Design Goals
+
+ElasticSearch
 ================================
 .. toctree::
    :maxdepth: 2
+
