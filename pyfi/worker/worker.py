@@ -270,7 +270,7 @@ class Worker:
                                 parent = None
 
                                 received = datetime.now()
-
+                                '''
                                 if 'parent' not in _signal['kwargs']:
                                     _signal['kwargs']['parent'] = str(
                                         uuid4())
@@ -282,9 +282,9 @@ class Worker:
                                 else:
                                     parent = _signal['kwargs']['parent']
                                     myid = str(uuid4())
-
+                                '''
                                 _signal['kwargs']['myid'] = myid
-                                _signal['kwargs']['parent'] = myid # For next call
+                                #_signal['kwargs']['parent'] = myid # For next call
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
@@ -352,8 +352,8 @@ class Worker:
                                     return
 
                                 # get the myid of the previous call
-                                if 'myid' in _signal['kwargs']:
-                                    call.parent = _signal['kwargs']['myid']
+                                
+                                call.parent = parent
 
                                 _signal['kwargs']['myid'] = call.id
 
