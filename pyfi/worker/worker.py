@@ -300,7 +300,7 @@ class Worker:
                                 session.commit()
 
                     if _signal['signal'] == 'prerun':
-                        logging.info("Task PRERUN: ")
+                        logging.info("Task PRERUN: %s", _signal)
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
