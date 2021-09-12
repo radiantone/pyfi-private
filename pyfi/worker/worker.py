@@ -311,7 +311,19 @@ class Worker:
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
 
+                                parent = None
+
                                 started = datetime.now()
+                                if 'parent' not in _signal['kwargs']:
+                                    _signal['kwargs']['parent'] = str(
+                                        uuid4())
+                                    logging.info("NEW PARENT %s",
+                                                 _signal['kwargs']['parent'])
+                                    _signal['kwargs'][_socket.task.id] = [
+                                        ]
+                                    myid = _signal['kwargs']['parent']
+                                else:
+                                    parent = _signal['kwargs']['parent']
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
@@ -332,7 +344,7 @@ class Worker:
 
                                 call = session.query(
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
-
+                                call.parent = parent
 
                                 _signal['kwargs']['myid'] = call.id
 
