@@ -351,8 +351,9 @@ class Worker:
                                         "No Call found with celeryid=[%s]", _signal['taskid'])
 
                                     # log error event
+                                    session.rollback()
                                     prerun_queue.put({'error': "No Call found with celeryid=[{}]".format(_signal['taskid'])})
-                                    return
+                                    break
 
                                 # get the myid of the previous call
                                 
@@ -769,6 +770,7 @@ class Worker:
 
                             logging.info("Waiting on PRERUN REPLY")
                             response = prerun_queue.get()
+                            logging.info("GOT PRERUN QUEUE MESSAGE %s", response)
                             if 'error' in response:
                                 logging.error(response['error'])
                             else:
