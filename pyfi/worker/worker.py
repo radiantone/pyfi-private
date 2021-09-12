@@ -698,8 +698,7 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
 
-                            print("TASK: ", task)
-                            print("TASK PARENT: ", task.parent)
+                            print("TASK: ", type(task), task)
                             print("KWARGS:",
                                   {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
