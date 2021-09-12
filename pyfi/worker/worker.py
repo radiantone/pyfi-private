@@ -269,7 +269,21 @@ class Worker:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
                                 received = datetime.now()
-                                    
+                                parent = None
+                                if 'parent' not in _signal['kwargs']:
+                                    _signal['kwargs']['parent'] = str(
+                                        uuid4())
+                                    logging.info("NEW PARENT %s",
+                                                 _signal['kwargs']['parent'])
+                                    _signal['kwargs'][_socket.task.id] = [
+                                        ]
+                                    myid = _signal['kwargs']['parent']
+                                else:
+                                    parent = _signal['kwargs']['parent']
+                                    myid = str(uuid4())
+
+                                _signal['kwargs']['myid'] = myid
+
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
@@ -290,21 +304,8 @@ class Worker:
                         logging.info("Task PRERUN: %s", _signal)
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
-                                parent = None
-                                if 'parent' not in _signal['kwargs']:
-                                    _signal['kwargs']['parent'] = str(
-                                        uuid4())
-                                    logging.info("NEW PARENT %s",
-                                                 _signal['kwargs']['parent'])
-                                    _signal['kwargs'][_socket.task.id] = [
-                                        ]
-                                    myid = _signal['kwargs']['parent']
-                                else:
-                                    parent = _signal['kwargs']['parent']
-                                    myid = str(uuid4())
-                                    
+
                                 started = datetime.now()
-                                _signal['kwargs']['myid'] = myid
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
@@ -326,6 +327,9 @@ class Worker:
                                 call = session.query(
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
+
+                                _signal['kwargs']['myid'] = call.id
+                                
                                 if call is None:
                                     logging.warning(
                                         "No Call found with celeryid=[%s]", _signal['taskid'])
@@ -770,9 +774,9 @@ class Worker:
                             from uuid import uuid4
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                  {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': kwargs, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             main_queue.put(
-                                {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': kwargs, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
 
 
                         @task_postrun.connect()
