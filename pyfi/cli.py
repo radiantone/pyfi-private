@@ -670,9 +670,9 @@ def show_task(context, name, gitrepo):
     print(x)
 
 @task.command(name='run')
-@click.option('-n', '--name', required=False, help='Name of task to run')
+@click.option('-n', '--name', required=True, help='Name of task to run')
 @click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
-@click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
+@click.option('-s', '--socket', required=True, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
 @click.pass_context
 def run_task(context, name, type, socket, data):

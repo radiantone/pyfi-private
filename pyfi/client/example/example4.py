@@ -13,12 +13,12 @@ _pipeline = pipeline([
 
 _parallel = parallel([
     _pipeline,
-    do_something("Two"),
-    do_something("Three")])
+    do_something("Six"),
+    do_something("Seven")])
 
 _funnel = funnel([
-    do_something("One"),
+    do_something("Eight"),
     _parallel,
-    do_something("Three")])
+    do_something("Nine")])
 
 print("FUNNEL: ", _funnel(do_something("Four")).get())
