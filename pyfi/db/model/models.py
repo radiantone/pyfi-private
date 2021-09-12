@@ -447,9 +447,6 @@ class EventModel(BaseModel):
     __tablename__ = 'event'
     note = Column(String(80), nullable=False)
 
-    call_id = Column(String(40), ForeignKey('call.id'),
-                       nullable=False)
-
     def __repr__(self):
         return '<id %r>' % self.id
 
