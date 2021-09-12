@@ -776,9 +776,9 @@ class Worker:
                             from uuid import uuid4
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'prerun', 'request': request.id, 'kwargs': kwargs['kwargs'], 'taskparent': request.parent_id, 'taskid': request.id})
+                                  {'signal': 'prerun', 'request': request.id, 'kwargs': kwargs, 'taskparent': request.parent_id, 'taskid': request.id})
                             main_queue.put(
-                                {'signal': 'prerun', 'request': request.id, 'kwargs': kwargs['kwargs'], 'taskparent': request.parent_id, 'taskid': request.id})
+                                {'signal': 'prerun', 'request': request.id, 'kwargs': kwargs, 'taskparent': request.parent_id, 'taskid': request.id})
 
 
                         @task_postrun.connect()
