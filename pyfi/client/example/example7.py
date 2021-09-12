@@ -7,7 +7,13 @@ _pipeline = pipeline([
     do_something("Two"),
     do_something("Three")])
 
-_funnel = funnel([
-    do_something("A")])
+_funnel = funnel(
+    do_something("A"))
 
-print("FUNNEL: ", _funnel(_pipeline).get())
+pip = _pipeline()
+pip.get()
+#fr = _funnel(_pipeline)
+#print("FUNNEL: ", fr.get())
+for result, value in pip.collect(intermediate=True):
+    print(result, value)
+print("GRAPH:", pip.parent.parent.graph)

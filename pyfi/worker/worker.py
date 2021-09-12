@@ -693,11 +693,13 @@ class Worker:
                                                 '.'+socket.task.name, retries=self.processor.retries)
 
                         @task_prerun.connect()
-                        def pyfi_task_prerun(sender=None, task_id=None, *args, **kwargs):
+                        def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
                             """ Update args and kwargs before sending to task. Other bookeeping """
                             from datetime import datetime
                             from uuid import uuid4
 
+                            print("TASK: ", task)
+                            print("TASK PARENT: ", task.parent)
                             print("KWARGS:",
                                   {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             main_queue.put(
