@@ -445,6 +445,7 @@ class EventModel(BaseModel):
     Docstring
     """
     __tablename__ = 'event'
+    name = Column(String(80), nullable=False)
     note = Column(String(80), nullable=False)
 
     def __repr__(self):
