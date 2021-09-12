@@ -337,7 +337,7 @@ class Worker:
 
 
                                 call = session.query(
-                                    CallModel).filter_by(celeryid=_signal['taskid']).first()
+                                    CallModel).filter_by(celeryid=_signal['kwargs']['taskid']).first()
 
                                 event = EventModel(
                                     name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
