@@ -263,6 +263,42 @@ class Worker:
 
                     logging.info("SIGNAL: %s", _signal)
 
+                    if _signal['signal'] == 'received':
+                        logging.info("RECEIVED SIGNAL %s", _signal)
+                        for _socket in processor.sockets:
+                            if _socket.task.name == _signal['sender']:
+                                parent = None
+                                received = datetime.now()
+                                if 'parent' not in _signal['kwargs']:
+
+                                    _signal['kwargs']['parent'] = str(
+                                        uuid4())
+                                    logging.info("RECEIVED NEW PARENT %s",
+                                                 _signal['kwargs']['parent'])
+                                    _signal['kwargs'][_socket.task.id] = [
+                                        ]
+                                    myid = _signal['kwargs']['parent']
+                                else:
+                                    parent = _signal['kwargs']['parent']
+                                    myid = str(uuid4())
+                                    
+                                received = datetime.now()
+                                _signal['kwargs']['myid'] = myid
+
+                                processor_path = _socket.queue.name + '.' + \
+                                    processor.name.replace(' ', '.')
+
+                                data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
+                                    received), 'room': processor_path}]
+
+                                queue.put(data)
+
+                                call = CallModel(id=myid,
+                                                    name=processor.module+'.'+_socket.task.name, taskparent=_signal['taskparent'], socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
+
+                                session.add(call)
+                                session.commit()
+
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: ")
                         for _socket in processor.sockets:
@@ -299,8 +335,9 @@ class Worker:
                                         sourceplug = source
                                         break
 
-                                call = CallModel(id=myid,
-                                                 name=processor.module+'.'+_socket.task.name, socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
+
+                                call = session.query(
+                                    CallModel).filter_by(celeryid=_signal['taskid']).first()
 
                                 event = EventModel(
                                     name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
@@ -735,7 +772,14 @@ class Worker:
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info("Task RECEIVED %s %s", request.id, sender)
                             logging.info("Task Request Parent %s", request.parent_id)
-                            pass
+                            from datetime import datetime
+                            from uuid import uuid4
+
+                            print("RECEIVED KWARGS:",
+                                  {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskparent': request.parent_id, 'taskid': request.id})
+                            main_queue.put(
+                                {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskparent':request.parent_id, 'taskid': request.id})
+
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):

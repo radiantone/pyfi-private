@@ -352,6 +352,7 @@ class CallModel(BaseModel):
     name = Column(String(80), unique=False, nullable=False)
     state = Column(String(10))
     parent = Column(String(80), nullable=True)
+    taskparent = Column(String(80), nullable=True)
     resultid = Column(String(80))
     celeryid = Column(String(80))
 
