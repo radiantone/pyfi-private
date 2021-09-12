@@ -343,7 +343,7 @@ class Worker:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 event = EventModel(
-                                    name='postrun', note='Postrun for task '+processor.module+'.'+_socket.task.name)
+                                    name='postrun', note='Postrun for task ')
 
                                 session.add(event)
                                 call.events += [event]
