@@ -345,7 +345,10 @@ class Worker:
 
                                 call = session.query(
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
-                                call.parent = parent
+
+                                # get the myid of the previous call
+                                if 'myid' in _signal['kwargs']:
+                                    call.parent = _signal['kwargs']['myid']
 
                                 _signal['kwargs']['myid'] = call.id
 
