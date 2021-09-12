@@ -346,16 +346,16 @@ class Worker:
                                 call = session.query(
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
+                                if call is None:
+                                    logging.warning(
+                                        "No Call found with celeryid=[%s]", _signal['taskid'])
+                                    return
+
                                 # get the myid of the previous call
                                 if 'myid' in _signal['kwargs']:
                                     call.parent = _signal['kwargs']['myid']
 
                                 _signal['kwargs']['myid'] = call.id
-
-                                if call is None:
-                                    logging.warning(
-                                        "No Call found with celeryid=[%s]", _signal['taskid'])
-                                    return
 
                                 logging.info("RETRIEVED CALL %s", call)
 
