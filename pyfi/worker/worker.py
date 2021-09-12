@@ -32,7 +32,7 @@ from celery.signals import worker_process_init, after_task_publish, task_success
 
 from kombu import Exchange, Queue as KQueue
 
-from pyfi.db.model import UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 
 PRERUN_CONDITION = Condition()
@@ -302,6 +302,11 @@ class Worker:
                                 call = CallModel(id=myid,
                                                  name=processor.module+'.'+_socket.task.name, socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='running', started=started)
 
+                                event = EventModel(
+                                    name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
+                                    
+                                session.add(event)
+                                call.events += [event]
                                 logging.info("CREATED CALL MODEL %s", call)
                                 logging.info("CALL HAS SOCKET %s", call.socket)
                                 session.add(call.socket)

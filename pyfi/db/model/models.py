@@ -335,6 +335,14 @@ class JobModel(Base):
     job_state = Column(LargeBinary)
 
 
+calls_events = Table('calls_events', Base.metadata,
+                     Column('call_id', ForeignKey(
+                         'call.id'), primary_key=True),
+                     Column('event_id', ForeignKey(
+                         'event.id'), primary_key=True)
+                     )
+
+
 class CallModel(BaseModel):
     """
     Docstring
@@ -355,6 +363,9 @@ class CallModel(BaseModel):
     socket_id = Column(String(40), ForeignKey('socket.id'),
                      nullable=False)
     socket = relationship('SocketModel', back_populates="call", lazy=True, uselist=False)
+
+    events = relationship(
+        "EventModel", secondary=calls_events)
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
@@ -428,6 +439,19 @@ class TaskModel(BaseModel):
 
     def __repr__(self):
         return '<Name %r>' % self.name
+
+class EventModel(BaseModel):
+    """
+    Docstring
+    """
+    __tablename__ = 'event'
+    note = Column(String(80), nullable=False)
+
+    call_id = Column(String(40), ForeignKey('call.id'),
+                       nullable=False)
+
+    def __repr__(self):
+        return '<id %r>' % self.id
 
 
 class LogModel(Base):

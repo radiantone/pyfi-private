@@ -1,5 +1,5 @@
 """ Example"""
-from pyfi.client.api import parallel, pipeline, fork, funnel
+from pyfi.client.api import parallel, pipeline, funnel
 
 # Function API over your processor models
 # do_something is my python function mounted onto a processor from my github repo
@@ -9,20 +9,24 @@ from pyfi.client.example.api import do_something_p as do_something, do_this_p as
 _pipeline = pipeline(
     do_something("One"),
     do_something("Two"),
-    do_something("Three"),
-    fork([
+    parallel([
         do_something("Four"),
         do_something("Five"),
-    ]))
+    ]),
+    do_something("Three")
+)
 
 _parallel = parallel([
-    _pipeline,
-    do_something("Two"),
-    do_something("Three")])
+    do_something("Six"),
+    do_something("Seven"),
+    _pipeline]
+    )
 
 _funnel = funnel([
-    do_something("One"),
     _parallel,
-    do_this("Three")])
+    do_something("Eight"),
+    do_this("Nine")])
 
-print("FUNNEL: ", _funnel(do_this("Four")).get())
+print("FUNNEL: ", _funnel(do_this("Ten")).get())
+#print("_pipeline: ", _parallel().get())
+#print("_pipeline: ", _parallel().get())
