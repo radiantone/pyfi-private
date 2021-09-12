@@ -5,6 +5,10 @@ from pyfi.client.example.api import do_something_p as do_something
 _pipeline = pipeline([
     do_something("One"),
     do_something("Two"),
+    parallel([
+        do_something("Four"),
+        do_something("Five"),
+    ]),
     do_something("Three")])
 
 _funnel = funnel(

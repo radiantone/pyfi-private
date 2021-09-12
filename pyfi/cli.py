@@ -1237,8 +1237,9 @@ def start_worker(context, name, pool, skip_venv):
 @click.option('-r', '--result', default=False, is_flag=True, help="Include result of call")
 @click.option('-t', '--tree', default=False, is_flag=True, help="Show forward call tree")
 @click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
+@click.option('-f', '--flow', default=False, is_flag=True, help="Show all calls in a workflow")
 @click.pass_context
-def ls_call(context, id, name, result, tree, graph):
+def ls_call(context, id, name, result, tree, graph, flow):
     """
     List queues
     """
@@ -1247,7 +1248,7 @@ def ls_call(context, id, name, result, tree, graph):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Task Parent", "Flow Parent", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Task", "Task Parent", "Flow Parent", "State"]
     x.field_names = names
     
     calls = None
@@ -1260,7 +1261,12 @@ def ls_call(context, id, name, result, tree, graph):
     elif id is not None:
         call = context.obj['database'].session.query(
             CallModel).filter_by(id=id).first()
-        nodes = [call]
+
+        if flow:
+            nodes = context.obj['database'].session.query(
+                CallModel).filter_by(task_id=call.task_id).all()
+        else:
+            nodes = [call]
 
     if calls:
         nodes = calls
@@ -1326,21 +1332,22 @@ def ls_call(context, id, name, result, tree, graph):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.socket.name, node.started, node.finished, node.taskparent, node.parent, node.state])
+                    node.lastupdated, node.socket.name, node.started, node.finished, node.celeryid, node.taskparent, node.parent, node.state])
     print(x)
 
     x = PrettyTable()
     print('Events')
     names = ["Name", "ID", "Owner", "Last Updated", "Note"]
     x.field_names = names
-    for event in node.events:
-        x.add_row([event.name, event.id, event.owner,
-                   event.lastupdated, event.note])
+    if call:
+        for event in call.events:
+            x.add_row([event.name, event.id, event.owner,
+                    event.lastupdated, event.note])
     print(x)
 
 
 @ls.command(name='calls')
-@click.option('-p', '--page', default=1, required=False)
+@click.option('-p', '--page', default=0, required=False)
 @click.option('-r', '--rows', default=10, required=False)
 @click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
@@ -1361,14 +1368,14 @@ def ls_calls(context, page, rows, ascend):
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.started.desc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.finished.desc()).offset(page*rows).limit(rows)
     else:
         if total < rows:
             nodes = context.obj['database'].session.query(
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.started.asc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.finished.asc()).offset(page*rows).limit(rows)
 
     row = 0
     for node in nodes:

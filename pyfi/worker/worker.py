@@ -349,6 +349,9 @@ class Worker:
                                 if call is None:
                                     logging.warning(
                                         "No Call found with celeryid=[%s]", _signal['taskid'])
+
+                                    # log error event
+                                    prerun_queue.put({'error': "No Call found with celeryid=[{}]".format(signal['taskid'])})
                                     return
 
                                 # get the myid of the previous call
@@ -766,7 +769,10 @@ class Worker:
 
                             logging.info("Waiting on PRERUN REPLY")
                             response = prerun_queue.get()
-                            kwargs['kwargs'].update(response)
+                            if 'error' in response:
+                                logging.error(response['error'])
+                            else:
+                                kwargs['kwargs'].update(response)
                             kwargs['kwargs']['output'] = {}
 
                             logging.info("PRERUN QUEUE: %s", response)
@@ -799,7 +805,7 @@ class Worker:
                                   {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             main_queue.put(
                                 {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
-
+                            print("PUT RECEIVED KWARGS on queue")
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
