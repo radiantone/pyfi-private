@@ -1298,6 +1298,15 @@ def ls_call(context, id, name, result, tree):
                     node.lastupdated, node.socket.name, node.started, node.finished, node.parent, node.state])
     print(x)
 
+    x = PrettyTable()
+    print('Events')
+    names = ["Name", "ID", "Owner", "Last Updated", "Note"]
+    x.field_names = names
+    for event in node.events:
+        x.add_row([event.name, event.id, event.owner,
+                   event.lastupdated, event.note])
+    print(x)
+
 
 @ls.command(name='calls')
 @click.option('-p', '--page', default=1, required=False)
