@@ -732,8 +732,9 @@ class Worker:
                             pass
 
                         @task_received.connect()
-                        def pyfi_task_received(sender=None, **kwargs):
+                        def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info("Task RECEIVED %s", sender)
+                            logging.info("Task Request Parent %s", request.parent_id)
                             pass
 
                         @task_postrun.connect()
