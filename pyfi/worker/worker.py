@@ -371,12 +371,11 @@ class Worker:
                                     session.add(call.socket)
                                     session.add(call)
                                     session.commit()
-                                    # log error event
-                                    session.rollback()
-                                    prerun_queue.put({'error': "No Call found with celeryid=[{}]".format(_signal['taskid'])})
                                 else:
                                     logging.warning(
                                         "No Call found with celeryid=[%s]", _signal['taskid'])
+                                    # log error event
+                                    session.rollback()
 
                                 _signal['kwargs']['plugs'] = _plugs
                                 prerun_queue.put(_signal['kwargs'])
