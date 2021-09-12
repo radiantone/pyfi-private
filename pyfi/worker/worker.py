@@ -298,6 +298,8 @@ class Worker:
 
                                 session.add(call)
                                 session.commit()
+                                logging.info("CREATED CALL ",
+                                             _signal['taskid'])
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
@@ -340,8 +342,11 @@ class Worker:
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
                                 if call is None:
-                                    logging.warning("No Call found with celeryid=[%s]",_signal['kwargs']['taskid'])
+                                    logging.warning(
+                                        "No Call found with celeryid=[%s]", _signal['taskid'])
                                     return
+
+                                logging.info("RETRIEVED CALL %s", call)
 
                                 event = EventModel(
                                     name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
