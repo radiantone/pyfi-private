@@ -347,32 +347,32 @@ class Worker:
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
                                 if call is None:
-                                    logging.warning(
-                                        "No Call found with celeryid=[%s]", _signal['taskid'])
+                                    time.sleep(3)
+                                    call = session.query(
+                                        CallModel).filter_by(celeryid=_signal['taskid']).first()
 
+                                if call is not None:
+
+                                    call.parent = parent
+                                    _signal['kwargs']['myid'] = call.id
+
+                                    logging.info("RETRIEVED CALL %s", call)
+
+                                    event = EventModel(
+                                        name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
+                                        
+                                    session.add(event)
+                                    call.events += [event]
+                                    session.add(call.socket)
+                                    session.add(call)
+                                    session.commit()
                                     # log error event
                                     session.rollback()
                                     prerun_queue.put({'error': "No Call found with celeryid=[{}]".format(_signal['taskid'])})
-                                    break
+                                else:
+                                    logging.warning(
+                                        "No Call found with celeryid=[%s]", _signal['taskid'])
 
-                                # get the myid of the previous call
-                                
-                                call.parent = parent
-
-                                _signal['kwargs']['myid'] = call.id
-
-                                logging.info("RETRIEVED CALL %s", call)
-
-                                event = EventModel(
-                                    name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
-                                    
-                                session.add(event)
-                                call.events += [event]
-                                logging.info("CREATED CALL MODEL %s", call)
-                                logging.info("CALL HAS SOCKET %s", call.socket)
-                                session.add(call.socket)
-                                session.add(call)
-                                session.commit()
                                 _signal['kwargs']['plugs'] = _plugs
                                 prerun_queue.put(_signal['kwargs'])
 
