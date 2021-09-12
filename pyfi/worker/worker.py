@@ -303,7 +303,7 @@ class Worker:
                                 session.add(event)
                                 call.events += [event]
                                 session.commit()
-                                logging.info("CREATED CALL ",
+                                logging.info("CREATED CALL %s",
                                              _signal['taskid'])
 
                     if _signal['signal'] == 'prerun':
