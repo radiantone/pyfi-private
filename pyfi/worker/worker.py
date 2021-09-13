@@ -305,7 +305,7 @@ class Worker:
                                 session.add(event)
                                 call.events += [event]
                                 session.commit()
-                                logging.info("CREATED CALL %s",
+                                logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 
                                 received_queue.put(data)

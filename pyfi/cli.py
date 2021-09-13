@@ -1368,14 +1368,14 @@ def ls_calls(context, page, rows, ascend):
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.finished.desc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.lastupdated.desc()).offset(page*rows).limit(rows)
     else:
         if total < rows:
             nodes = context.obj['database'].session.query(
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.finished.asc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.lastupdated.asc()).offset(page*rows).limit(rows)
 
     row = 0
     for node in nodes:
