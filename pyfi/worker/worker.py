@@ -52,6 +52,7 @@ events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
 queue = Queue()
 main_queue = Queue()
+received_queue = Queue()
 prerun_queue = Queue()
 postrun_queue = Queue()
 
@@ -306,6 +307,8 @@ class Worker:
                                 session.commit()
                                 logging.info("CREATED CALL %s",
                                              _signal['taskid'])
+
+                                received_queue.put(data)
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
@@ -812,6 +815,9 @@ class Worker:
                             main_queue.put(
                                 {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
+
+                            # Wait for reply
+                            received_queue.get()
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
