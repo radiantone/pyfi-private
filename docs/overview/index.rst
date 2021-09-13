@@ -6,7 +6,7 @@ Overview
 
 PYFI is a distributed data flow and computation system that runs on transactional messaging infrastructure. It implements the concept of a NVM Networked-Virtual-Machine by distributing logic over networked hardware CPU/GPU processors.
 
-The entire PYFI stack, as a whole, provides a complete "Managed Compute Platform" (MCP) with specialized, best-of-breed tooling to support different layers of concern, such as:
+The entire PYFI stack, as a whole, provides a complete "Managed Compute Platform" (MCP) with specialized tooling to support different layers of concern, such as:
 
 - Hardware Compute Resources
 - Compute Availability & Scheduling
@@ -16,8 +16,10 @@ The entire PYFI stack, as a whole, provides a complete "Managed Compute Platform
 - Data Logging and Streaming
   - Real-time & Historical Metrics
   
-PYFI is designed as a single, extensible platform for building reliable & persistent computational workflows on top. It relieves developers from having to know where and when tasks get executed and instead focus on writing simple, obvious workflows.
-In addition, PYFI's multiple API's are designed for application developers to build complex, fully-distributed HPC apps on top. The platform nature of PYFI sets it apart from other libraries and frameworks that only tackle part of the bigger picture.
+PYFI is designed as a single, extensible platform for building reliable & persistent computational workflows. It relieves developers from having to know where and when tasks get executed or forced to configure complex client-side services, and instead focus' on simplicity and ease-of-user without having to know *how everything works*.
+In addition, PYFI's multiple API's are designed for users (of all kinds) to build complex, fully-distributed HPC apps and sharable workflows. The platform nature of PYFI sets it apart from other libraries and frameworks that only tackle part of the bigger picture.
+
+*Many problems and usability concerns in this domain can only be addressed by a singular, purpose-built platform from the ground up.*
 
 Simple, Parallel Workflows
 --------------------------
@@ -49,15 +51,20 @@ PYFI exposes simple APIs that make writing powerful, distributed workflows fast 
          _parallel,
          do_something("Nine")])
 
-      print("FUNNEL: ", _funnel(do_something("Four")).get())
+      print("FUNNEL: ", _funnel(do_something("Ten")).get())
 
 .. code-block:: bash
-      :caption: PYFI CLI: Build a small, distributed flow and execute a task, regardless of where the process runs
+      :caption: PYFI CLI: Build a distributed, reliable PYFI network using simple commands, and then execute a task.
 
+      # Build out the infrastructure
       pyfi add queue -n pyfi.queue1 -t direct
       pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 
-      pyfi add socket -n pyfi.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something
-      pyfi add socket -n pyfi.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this
+
+      # Add sockets (not POSIX sockets!) that receive incoming task requests with -c concurrency factors (i.e. # of CPUs occupied)
+      pyfi add socket -n pyfi.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something -c 5
+      pyfi add socket -n pyfi.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this -c 8
+
+      # Execute a task (can re-run only this after network is built)
       pyfi task run --socket pyfi.processors.sample.do_something --data "['some data']"
 
 .. code-block:: bash
@@ -76,6 +83,23 @@ PYFI exposes simple APIs that make writing powerful, distributed workflows fast 
       # Echo a string as input to two different processors and they run in parallel
       echo "HI THERE!" | tee -a >(pyfi.processors.sample.do_something) tee -a >(pyfi.processors.sample.do_this)
 
+.. code-block:: bash
+      :caption: Easily list out the call graph for any task in your workflow to see where the parallelism occurred
+
+      $ pyfi ls call --id 033cf3d3-a0fa-492d-af0a-f51cf5f58d49 -g
+      pyfi.processors.sample.do_something                                                                                                          
+                  └─────────────────────────────────────────────┐                                                                                     
+                                             pyfi.processors.sample.do_something                                                                    
+                                       ┌──────────────────────┴───────────────────┬───────────────────────────────────────┐                         
+                        pyfi.processors.sample.do_something        pyfi.processors.sample.do_something     pyfi.processors.sample.do_something  
+
+Persistent, Reliable Tasks
+--------------------------
+
+Task calls in your workflows are completely persisent, meaning they are stored in the PYFI network (database) and delivered to the task at the soonest possible time.
+This depends when the processor hosting the task is available and free to do the compute, but the task call will remain active until it has completed. If the task worker fails for any reason, the task can be retried on another node.
+These qualities of service are completely invisible to the application or user script.
+
 High Level Architecture
 -----------------------
 PYFI's high level architecture can be seen in the diagram below. Central to the architecture is the **PYFI Model Database** which stores the relational meta-model for the PYFI compute network. This database provides the *single source of truth* for the runtime operation of the distributed architecture.
@@ -88,7 +112,7 @@ Virtual Processors
 
 PYFI introduces the notion of **virtual processors** that network together to form a reliable and distributed mesh topology for executing compute tasks.
 
-PYFI Processors are object abstractions that that capture the location, version and definition of python modules and functions via your own git repository. This trusted code model is important as it establishes the contract between your code, PYFI and virtual processors where the code is to be executed.
+PYFI Processors are object abstractions that capture the location, version and definition of python modules and functions via your own git repository. This trusted code model is important as it establishes the contract between your code, PYFI and virtual processors where the code is to be executed.
 This relationship must be strong and well-defined.
 
 Via the various PYFI interfaces (CLI, API, Python etc) you define PYFI virtual processors. Agents (a kind of PYFI service) running across your network will deploy them and receive tasks to execute their code.
@@ -120,14 +144,23 @@ Execution Stack
 ---------------
 
 There are various layers within PYFI that allow it to scale seamless and expose simple APIs that do powerful things behind the scenes. A quick glance at the lifecycle of a PYFI python task is below.
-Various qualities of service are offered by each layer, some which are more visible than others.
+Various qualities of service are offered by each layer, most of which are implied during a task invocation.
 
 .. image:: images/architecture4.png
+
+Micro-Scheduling
+----------------
+
+PYFI uses a scheduling design that will allow tasks to fully utilize the available CPUs in the PYFI network, if processors are created in the PYFI database. PYFI will never consume more resources than what is requested in its database.
+Although traditional batch scheduling design allows for blocks of compute resources to be dedicated to one task or flow, it comes at the expense of resource utilization and wait time for other requests. Micro-scheduling seeks to remedy this situation and provide better compute efficiency which means higher task throughput and more satisfied users.
+
+.. image:: images/scheduler1.png
+.. image:: images/scheduler2.png
 
 A True Elastic Compute Platform
 -------------------------------
 PYFI provides a set of interacting compute layers that control the location and execution of managed code assets.
-With PYFI, code modules and functions can be loaded at multiple locations and invoked from clients without knowledge of where those functions are or how those functions are called.
+With PYFI, code modules and functions can be loaded at multiple locations and invoked from clients without knowledge of where those functions are or how those functions are executed.
 
 Redundant code (processors) loaded into a PYFI network will be able to respond to higher volume of data and requests and thus can scale at will, individually.
 
@@ -164,3 +197,13 @@ Some of the roles that might participate in a PYFI network, directly or indirect
 - Data Admins
 - Code Repository Owners
 - End Users
+
+Powerful, Next-Gen UI
+---------------------
+
+PYFI's user interface is a powerful, next-gen no-code application that enpowers anyone to create fast, parallel workflows across PYFI's distributed task mesh.
+
+
+.. image:: ../../screens/pyfi1.png
+.. image:: ../../screens/pyfi5.png
+.. image:: ../../screens/pyfi7.png

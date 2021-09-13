@@ -1179,7 +1179,7 @@ def add_socket(context, name, queue, interval, beat, procname, task):
 @cli.group()
 def ls():
     """
-    List database objects
+    List database objects and their relations
     """
     pass
 
@@ -1241,19 +1241,18 @@ def start_worker(context, name, pool, skip_venv):
 @click.pass_context
 def ls_call(context, id, name, result, tree, graph, flow):
     """
-    List queues
+    List details about a call record
     """
     import redis
     import json
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "Task", "Task Parent", "Flow Parent", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "State"]
     x.field_names = names
     
     calls = None
     call = None
-
 
     if name is not None:
         calls = context.obj['database'].session.query(
@@ -1332,9 +1331,14 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.socket.name, node.started, node.finished, node.celeryid, node.taskparent, node.parent, node.state])
+                    node.lastupdated, node.socket.name, node.started, node.finished, node.state])
     print(x)
-
+    x = PrettyTable()
+    print("Provenance")
+    names = ["Task", "Task Parent", "Flow Parent"]
+    x.field_names = names
+    x.add_row([ node.celeryid, node.taskparent, node.parent])
+    print(x)
     x = PrettyTable()
     print('Events')
     names = ["Name", "ID", "Owner", "Last Updated", "Note"]
@@ -1347,7 +1351,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
 
 @ls.command(name='calls')
-@click.option('-p', '--page', default=0, required=False)
+@click.option('-p', '--page', default=1, required=False)
 @click.option('-r', '--rows', default=10, required=False)
 @click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
@@ -1361,6 +1365,9 @@ def ls_calls(context, page, rows, ascend):
     x.field_names = names
 
     total = context.obj['database'].session.query(CallModel).count()
+    if page > round(total/rows):
+        print("Only {} pages exist.".format(round(total/rows)))
+        return
 
     if not ascend:
         if total < rows:
@@ -1368,14 +1375,14 @@ def ls_calls(context, page, rows, ascend):
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.lastupdated.desc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
     else:
         if total < rows:
             nodes = context.obj['database'].session.query(
                 CallModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.lastupdated.asc()).offset(page*rows).limit(rows)
+                CallModel).order_by(CallModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
 
     row = 0
     for node in nodes:
@@ -1386,7 +1393,8 @@ def ls_calls(context, page, rows, ascend):
     print(x)
 
     if total > 0:
-        print("Page {} of {} of {} total records".format(page, round(total/rows), total))
+        print("Page {} of {} of {} total records".format(
+            page, round(total/rows), total))
     else:
         print("No rows")
 
@@ -1583,6 +1591,16 @@ def ls_tasks(context, gitrepo):
     print(x)
 
 
+@ls.command(name='agent')
+@click.pass_context
+def ls_agent(context):
+    """
+    List an agent
+    """
+    pass
+
+
+
 @ls.command(name='agents')
 @click.pass_context
 def ls_agents(context):
@@ -1668,7 +1686,7 @@ def ls_node(context, name, tree, horizontal):
 @click.pass_context
 def ls_plug(context, name):
     """
-    List an individual plug
+    List a plug
     """
     x = PrettyTable()
 
@@ -1708,7 +1726,7 @@ def ls_plugs(context):
 @cli.command(help="Listen to a processor output")
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
 @click.option('-c', '--channel', default='task', required=True, help="Listen channel (e.g. task, log, etc)")
-@click.option('-a', '--adaptor', default=None, help="Adaptor class function (e.g. my.module.class.function")
+@click.option('-a', '--adaptor', default=None, help="Adaptor class function (e.g. my.module.class.function)")
 @click.pass_context
 def listen(context, name, channel, adaptor):
     """
