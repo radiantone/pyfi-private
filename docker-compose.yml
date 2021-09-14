@@ -16,7 +16,7 @@ services:
       dockerfile: docker/Dockerfile.agent
     container_name: agent2
     hostname: agent2
-    image: supervisor:latest
+    image: agent:latest
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
@@ -37,10 +37,8 @@ services:
       dockerfile: docker/Dockerfile.agent
     container_name: agent1
     hostname: agent1
-    image: supervisor:latest
+    image: agent:latest
     volumes: 
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
       - ./conf/git-credentials:/root/.git-credentials
     environment: 
       - TZ=America/New_York

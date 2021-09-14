@@ -29,5 +29,8 @@ RUN update-rc.d -f supervisord remove
 RUN useradd pyfi -d /home/pyfi
 ADD conf/pyfi.ini /home/pyfi/pyfi.ini
 RUN chown -R pyfi /opt/pyfi /home/pyfi
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt install -y tzdata
 #CMD ["/usr/bin/supervisord","-n"]
 CMD ["bash", "/opt/pyfi/supervisor.sh"]
