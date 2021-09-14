@@ -67,7 +67,7 @@ class CustomFormatter(logging.Formatter):
 @click.pass_context
 def cli(context, debug, db, backend, broker, ini, config):
     """
-    Pyfi CLI for managing the pyfi network
+    PYFI CLI for creating & managing PYFI networks
     """
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -670,7 +670,7 @@ def show_task(context, name, gitrepo):
     print(x)
 
 @task.command(name='run')
-@click.option('-n', '--name', required=True, help='Name of task to run')
+@click.option('-n', '--name', required=False, help='(package+function) Name of task to run')
 @click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
 @click.option('-s', '--socket', required=True, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
@@ -697,10 +697,10 @@ def run_task(context, name, type, socket, data):
             print(result)
         return
 
-    task = Socket(name=socket)
+    socket = Socket(name=socket)
 
     if data:
-        result = task(data)
+        result = socket(data)
     else:
         #
         # code = sys.stdin.read()
@@ -713,7 +713,7 @@ def run_task(context, name, type, socket, data):
             if not stripped: break
             lines.append(stripped)
 
-        result = task(''.join(lines))
+        result = socket(''.join(lines))
 
     # If type is set to pickle, then pickle the result
     # If type is set to json, then json dumps
@@ -1143,7 +1143,7 @@ def add_plug(context, name, queue, socketid, socketname, procid, procname):
 @click.option('-pn', '--procname', default=None, required=True, help="Processor name")
 @click.option('-t', '--task', default=None, required=True, help="Task name")
 @click.pass_context
-def add_socket(context, name, queue, interval, beat, procname, task):
+def add_socket(context, name, queue, interval, procname, task):
     """
     Add socket to a processor
     """
@@ -1154,16 +1154,16 @@ def add_socket(context, name, queue, interval, beat, procname, task):
 
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
-    socket = SocketModel(name=name, id=id, requested_status='create',
+    socket = SocketModel(name=name, id=id, requested_status='create', interval=interval,
                          status='ready', processor_id=processor.id)
 
     if task is not None:
         _task = context.obj['database'].session.query(
             TaskModel).filter_by(name=task).first()
         if _task is None:
-            _task = TaskModel(name=task)
-            context.obj['database'].session.add(_task)
+            _task = TaskModel(name=task, module=processor.module, gitrepo=processor.gitrepo)
         socket.task = _task
+        context.obj['database'].session.add(_task)
 
     socket.queue = queue
     socket.interval = interval

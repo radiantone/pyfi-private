@@ -887,6 +887,8 @@ class Worker:
                 try:
                     env.install('-e git+'+self.processor.gitrepo.strip())
                 except:
+                    import traceback
+                    print(traceback.format_exc())
                     logging.error("Could not install %s",
                                     self.processor.gitrepo.strip())
 
