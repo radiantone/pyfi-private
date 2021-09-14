@@ -1509,13 +1509,13 @@ def ls_workers(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Requested Status", "Status", "Backend", "Broker", "Hostname", "Processor"]
+             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor"]
     x.field_names = names
     workers = context.obj['database'].session.query(WorkerModel).all()
 
     for node in workers:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.requested_status, node.status, node.backend, node. broker, node.hostname, node.processor.name])
+                  node.requested_status, node.status, node.agent.name, node.backend, node. broker, node.hostname, node.processor.name])
 
     print(x)
 
@@ -1533,7 +1533,7 @@ def ls_processors(context, gitrepo, module, task, owner):
     processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
-    names = ["Name", "Worker", "ID", "Module", "Host", "Owner", "Last Updated",
+    names = ["Name", "ID", "Module", "Worker", "Host", "Owner", "Last Updated",
              "Requested Status", "Status", "Concurrency", "Beat"]
 
     if gitrepo:
@@ -1549,7 +1549,7 @@ def ls_processors(context, gitrepo, module, task, owner):
 
     for processor in processors:
         workername = processor.worker.name if processor.worker else "None"
-        row = [processor.name, workername, processor.id, processor.module, processor.hostname, processor.owner, processor.lastupdated,
+        row = [processor.name, processor.id, processor.module, workername, processor.hostname, processor.owner, processor.lastupdated,
                processor.requested_status, processor.status, processor.concurrency, processor.beat]
 
         if gitrepo:
