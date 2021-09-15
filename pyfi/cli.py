@@ -694,7 +694,7 @@ def run_task(context, name, type, socket, data):
         if not _task.code:
             print("Task must have code or specify socket.")
             return
-            
+
         result = exec(_task.code, mymodule.__dict__)
 
         if result:
@@ -1807,15 +1807,16 @@ def api_start(context, ip, port):
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-u', '--user', default=None, help='Run the worker as user')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
+@click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, config, queues, user, pool):
+def start_agent(context, port, clean, backend, broker, config, queues, user, pool, size):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
     agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                  config=config, backend=backend, user=user, clean=clean, broker=broker)
+                  config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
     agent.start()
 
 

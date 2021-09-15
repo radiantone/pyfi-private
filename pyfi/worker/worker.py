@@ -51,11 +51,7 @@ CONFIG = configparser.ConfigParser()
 events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
 
-queue = Queue()
-main_queue = Queue(10)
-received_queue = Queue()
-prerun_queue = Queue()
-postrun_queue = Queue()
+QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ else 10
 
 hostname = platform.node()
 
@@ -112,7 +108,7 @@ class Worker:
         finally:
             session.close()
 
-    def __init__(self, processor, workdir, pool=4, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -126,6 +122,23 @@ class Worker:
         self.dburi = database
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
+        self.size = size
+
+
+        # Publish queue
+        self.queue = Queue()
+
+        # Main message database queue
+        self.main_queue = Queue(self.size)
+
+        # Received events
+        self.received_queue = Queue()
+
+        # Prerun events
+        self.prerun_queue = Queue()
+
+        # Postrun events
+        self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(
@@ -262,7 +275,7 @@ class Worker:
 
                     logging.info("Checking main_queue with %s items", main_queue.qsize())
 
-                    _signal = main_queue.get()
+                    _signal = self.main_queue.get()
 
                     logging.info("SIGNAL: %s", _signal)
 
@@ -296,7 +309,7 @@ class Worker:
                                 data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
                                     received), 'room': processor_path}]
 
-                                queue.put(data)
+                                self.queue.put(data)
 
                                 call = CallModel(id=myid,
                                                     name=processor.module+'.'+_socket.task.name, taskparent=_signal['taskparent'], socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='received')
@@ -311,7 +324,7 @@ class Worker:
                                 logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 
-                                received_queue.put(data)
+                                self.received_queue.put(data)
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
@@ -337,7 +350,7 @@ class Worker:
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
 
-                                queue.put(data)
+                                self.queue.put(data)
 
                                 sourceplug = None
                                 logging.info("SOCKET TARGET PLUGS %s", _socket.sourceplugs)
@@ -384,7 +397,7 @@ class Worker:
                                     session.rollback()
 
                                 _signal['kwargs']['plugs'] = _plugs
-                                prerun_queue.put(_signal['kwargs'])
+                                self.prerun_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'postrun':
                         from datetime import datetime
@@ -461,9 +474,9 @@ class Worker:
                         logging.debug(
                             "EMITTING ROOMSG: %s", data)
                                         
-                        queue.put(['roomsg', data])
+                        self.queue.put(['roomsg', data])
 
-                        queue.put(
+                        self.queue.put(
                             ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
                         logging.info("PLUGS: %s", plugs)
@@ -772,14 +785,14 @@ class Worker:
                             print("TASK: ", type(task), task)
                             print("KWARGS:",
                                   {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
-                            main_queue.put(
+                            self.main_queue.put(
                                 {'signal': 'prerun', 'sender':sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                             if 'tracking' not in kwargs.get('kwargs'):
                                 kwargs['kwargs']['tracking'] = str(uuid4())
 
                             logging.info("Waiting on PRERUN REPLY")
-                            response = prerun_queue.get()
+                            response = self.prerun_queue.get()
                             logging.info("GOT PRERUN QUEUE MESSAGE %s", response)
                             if 'error' in response:
                                 logging.error(response['error'])
@@ -815,12 +828,12 @@ class Worker:
 
                             print("RECEIVED KWARGS:",
                                   {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
-                            main_queue.put(
+                            self.main_queue.put(
                                 {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
-                            received_queue.get()
+                            self.received_queue.get()
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
@@ -830,7 +843,7 @@ class Worker:
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
                                   {'signal': 'postrun', 'result':retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
-                            main_queue.put(
+                            self.main_queue.put(
                                 {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                 worker.start()
@@ -911,7 +924,7 @@ class Worker:
 
             while True:
                 try:
-                    message = queue.get()
+                    message = self.queue.get()
                     logging.info("Emitting message %s %s",
                                  message[1]['room'], message)
                     redisclient.publish(

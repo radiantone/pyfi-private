@@ -54,7 +54,7 @@ class Agent:
         else:
             session.commit()
 
-    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost'):
+    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost', size=10):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -65,6 +65,7 @@ class Agent:
         self.node = None
         self.agent = None
         self.user = user
+        self.size = size
 
         if clean:
             logging.info("Cleaning work directories")
@@ -406,7 +407,7 @@ class Agent:
                             if processor['worker'] is not None:
                                 processor['worker']['process'].kill()
                                 processor['worker'] = None
-                                
+
                             '''
                             TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
                             This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
@@ -455,7 +456,7 @@ class Agent:
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker()")
                                 workerproc = Worker(
-                                    processor['processor'], workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
+                                    processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
                                 workerproc.start(start=False)
