@@ -259,7 +259,7 @@ class Worker:
 
                     logging.info("DBACTION: Processor %s", processor)
 
-                    logging.info("Checking main_queue")
+                    logging.info("Checking main_queue with %s items", main_queue.qsize())
                     _signal = main_queue.get()
 
                     logging.info("SIGNAL: %s", _signal)
@@ -272,6 +272,7 @@ class Worker:
 
                                 received = datetime.now()
                                 logging.info("Found socket: %s",_socket)
+
                                 if 'parent' not in _signal['kwargs']:
                                     _signal['kwargs']['parent'] = str(
                                         uuid4())
