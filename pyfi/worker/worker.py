@@ -397,7 +397,7 @@ class Worker:
                         if 'tracking' in task_kwargs:
                             pass_kwargs['tracking'] = task_kwargs['tracking']
                         if 'parent' in task_kwargs:
-                            pass_kwargs['parent'] = _signal['kwargs']['myid']
+                            pass_kwargs['parent'] = task_kwargs['parent'] #_signal['kwargs']['myid']
                             logging.info("SETTING PARENT: %s", pass_kwargs)
 
                         myid = task_kwargs['myid']

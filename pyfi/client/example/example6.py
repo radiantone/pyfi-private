@@ -9,5 +9,5 @@ print("RESULT", result)
 do_this = Socket(name='pyfi.processors.sample.do_this')
 
 while True:
-    result = do_this("Another result!")
+    result = do_something("Another result!")
     print("RESULT", result)
