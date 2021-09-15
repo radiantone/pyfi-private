@@ -50,8 +50,9 @@ CONFIG = configparser.ConfigParser()
 
 events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
+
 queue = Queue()
-main_queue = Queue()
+main_queue = Queue(10)
 received_queue = Queue()
 prerun_queue = Queue()
 postrun_queue = Queue()
@@ -260,6 +261,7 @@ class Worker:
                     logging.info("DBACTION: Processor %s", processor)
 
                     logging.info("Checking main_queue with %s items", main_queue.qsize())
+
                     _signal = main_queue.get()
 
                     logging.info("SIGNAL: %s", _signal)
