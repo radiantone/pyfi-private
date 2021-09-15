@@ -670,9 +670,9 @@ def show_task(context, name, gitrepo):
     print(x)
 
 @task.command(name='run')
-@click.option('-n', '--name', required=False, help='(package+function) Name of task to run')
+@click.option('-n', '--name', required=False, help='Name of task to run')
 @click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
-@click.option('-s', '--socket', required=True, help='Name of socket associated with the task to run')
+@click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
 @click.pass_context
 def run_task(context, name, type, socket, data):
@@ -691,6 +691,10 @@ def run_task(context, name, type, socket, data):
         _task = context.obj['database'].session.query(
             TaskModel).filter_by(name=name).first()
 
+        if not _task.code:
+            print("Task must have code or specify socket.")
+            return
+            
         result = exec(_task.code, mymodule.__dict__)
 
         if result:
@@ -801,7 +805,7 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
 
 
 @add.command(name='task')
-@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
+@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this task")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
 @click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
 @click.pass_context
