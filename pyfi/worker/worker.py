@@ -351,8 +351,8 @@ class Worker:
                                     CallModel).filter_by(celeryid=_signal['taskid']).first()
 
                                 if call is None:
-                                    logging.info("Sleeping 3...")
-                                    time.sleep(3)
+                                    logging.info("Sleeping 1...")
+                                    time.sleep(1)
 
                                     logging.info("Looking up call 2 %s ",
                                              _signal['taskid'])
