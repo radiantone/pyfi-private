@@ -909,7 +909,7 @@ class Worker:
                                     self.processor.gitrepo.strip())
 
         """ Start worker process"""
-        worker_process = Process(target=worker_proc, args=(self.celery, queue))
+        worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
         worker_process.app = self.celery
         processes += [worker_process]
 
