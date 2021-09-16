@@ -180,7 +180,7 @@ class RoleModel(BaseModel):
                               secondary=role_privileges)
 
     def __repr__(self):
-        return '{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated)
+        return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
 user_privileges = Table('user_privileges', Base.metadata,

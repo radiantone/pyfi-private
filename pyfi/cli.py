@@ -854,14 +854,19 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
 
 
 @add.command(name='privilege')
-@click.option('-u', '--user', prompt=True, default=None, required=True)
+@click.option('-u', '--user', prompt=True, default=None, required=False)
 @click.option('-n', '--name', prompt=True, default=None, required=True)
+@click.option('-r', '--role', prompt=True, default=None, required=False)
 @click.pass_context
-def add_privilege(context, user, name):
+def add_privilege(context, user, name, role):
     """
     Add privilege to the database
     """
     from sqlalchemy.exc import IntegrityError
+
+    if user is None and role is None:
+        print("User and Role cannot both be None.")
+        return
 
     id = context.obj['id']
     try:
@@ -873,7 +878,7 @@ def add_privilege(context, user, name):
         context.obj['database'].session.add(privilege)
         context.obj['database'].session.add(user)
         context.obj['database'].session.commit()
-        print("User added")
+        print("Privilege added")
     except IntegrityError:
         import traceback
         print(traceback.format_exc())
@@ -1245,7 +1250,7 @@ def start_worker(context, name, pool, skip_venv):
 @click.pass_context
 def ls_call(context, id, name, result, tree, graph, flow):
     """
-    List details about a call record
+    List a call
     """
     import redis
     import json
@@ -1357,9 +1362,10 @@ def ls_call(context, id, name, result, tree, graph, flow):
 @ls.command(name='calls')
 @click.option('-p', '--page', default=1, required=False)
 @click.option('-r', '--rows', default=10, required=False)
+@click.option('-u', '--unfinished', is_flag=True, default=False, required=False)
 @click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
-def ls_calls(context, page, rows, ascend):
+def ls_calls(context, page, rows, unfinished, ascend):
     """
     List queues
     """
@@ -1368,25 +1374,45 @@ def ls_calls(context, page, rows, ascend):
     names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "State"]
     x.field_names = names
 
-    total = context.obj['database'].session.query(CallModel).count()
+    if unfinished:
+        total = context.obj['database'].session.query(CallModel).filter_by(finished=None).count()
+    else:
+        total = context.obj['database'].session.query(CallModel).count()
+
     if page > round(total/rows):
         print("Only {} pages exist.".format(round(total/rows)))
         return
 
     if not ascend:
         if total < rows:
-            nodes = context.obj['database'].session.query(
-                CallModel).all()
+            if unfinished:
+                nodes = context.obj['database'].session.query(
+                    CallModel).filter_by(finished=None).all()
+            else:
+                nodes = context.obj['database'].session.query(
+                    CallModel).all()
         else:
-            nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
+            if unfinished:
+                nodes = context.obj['database'].session.query(
+                    CallModel).order_by(CallModel.lastupdated.desc()).filter_by(finished=None).offset((page-1)*rows).limit(rows)
+            else:
+                nodes = context.obj['database'].session.query(
+                    CallModel).order_by(CallModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
     else:
         if total < rows:
-            nodes = context.obj['database'].session.query(
-                CallModel).all()
+            if unfinished:
+                nodes = context.obj['database'].session.query(
+                    CallModel).filter_by(finished=None).all()
+            else:
+                nodes = context.obj['database'].session.query(
+                    CallModel).all()
         else:
-            nodes = context.obj['database'].session.query(
-                CallModel).order_by(CallModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
+            if unfinished:
+                nodes = context.obj['database'].session.query(
+                    CallModel).order_by(CallModel.lastupdated.asc()).filter_by(finished=None).offset((page-1)*rows).limit(rows)
+            else:
+                nodes = context.obj['database'].session.query(
+                    CallModel).order_by(CallModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
 
     row = 0
     for node in nodes:
@@ -1401,6 +1427,59 @@ def ls_calls(context, page, rows, ascend):
             page, round(total/rows), total))
     else:
         print("No rows")
+
+
+@ls.command(name='worker')
+@click.pass_context
+def ls_worker(context):
+    """
+    List a worker
+    """
+    pass
+
+@ls.command(name='socket')
+@click.pass_context
+def ls_socket(context):
+    """
+    List a socket
+    """
+    pass
+
+
+@ls.command(name='scheduler')
+@click.pass_context
+def ls_scheduler(context):
+    """
+    List a scheduler
+    """
+    pass
+
+
+@ls.command(name='processor')
+@click.pass_context
+def ls_processor(context):
+    """
+    List a processor
+    """
+    pass
+
+
+@ls.command(name='task')
+@click.pass_context
+def ls_task(context):
+    """
+    List a task
+    """
+    pass
+
+
+@ls.command(name='stats')
+@click.pass_context
+def ls_stats(context):
+    """
+    List object stats
+    """
+    pass
 
 
 @ls.command(name='schedulers')
