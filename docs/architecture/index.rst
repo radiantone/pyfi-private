@@ -25,6 +25,10 @@ Layered Design
 PYFI is a distributed, scalable architecture and as such it is relationship between connected hardware & service layers interacting as a whole.
 
 .. image:: ../../screens/layer1.png
+   :align: center
 .. image:: ../../screens/layer2.png
+   :align: center
 .. image:: ../../screens/layer3.png
+   :align: center
 .. image:: ../../screens/layer4.png
+   :align: center
