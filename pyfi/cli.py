@@ -1437,13 +1437,46 @@ def ls_worker(context):
     """
     pass
 
+
 @ls.command(name='socket')
+@click.option('--id', default=None, help="ID of call")
+@click.option('-n', '--name', default=None, required=False, help='Name of call')
+@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
 @click.pass_context
-def ls_socket(context):
+def ls_socket(context, id, name, graph):
     """
     List a socket
     """
-    pass
+    if name is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(name=name).first()
+    elif id is not None:
+        socket = context.obj['database'].session.query(
+            SocketModel).filter_by(id=id).first()
+
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
+             "Status", "Processor", "Queue", "Interval"]
+
+    x.field_names = names
+
+    sockets = [socket]
+
+    for node in sockets:
+        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
+                  node.status, node.processor.name, node.queue.name, node.interval])
+
+    from pptree import print_tree, Node
+
+    root = Node(socket.name)
+    module = Node(socket.task.module, root)
+    task = Node(socket.task.name, module)
+
+    if graph:
+        print_tree(root, horizontal=False)
+    else:
+        print(x)
 
 
 @ls.command(name='scheduler')
@@ -1456,12 +1489,59 @@ def ls_scheduler(context):
 
 
 @ls.command(name='processor')
+@click.option('--id', default=None, help="ID of call")
+@click.option('-n', '--name', default=None, required=False, help='Name of call')
+@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
 @click.pass_context
-def ls_processor(context):
+def ls_processor(context, id, name, graph):
     """
     List a processor
     """
-    pass
+    from pptree import print_tree, Node
+
+    if name is not None:
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(name=name).first()
+    elif id is not None:
+        processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=id).first()
+
+
+    workername = processor.worker.name if processor.worker else "None"
+
+    sockets = processor.sockets
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
+             "Status", "Processor", "Queue", "Interval"]
+
+    x.field_names = names
+
+    root = Node(processor.name)
+    for node in sockets:
+        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
+                  node.status, node.processor.name, node.queue.name, node.interval])
+
+        sock = Node(node.name, root)
+        module = Node(node.task.module, sock)
+        task = Node(node.task.name, module)
+
+    if graph:
+        print_tree(root, horizontal=False)
+    else:
+        print("Name:", processor.name)
+        print("ID:", processor.id)
+        print("Module:", processor.module)
+        print("Workername:", workername)
+        print("Hostname:", processor.hostname)
+        print("Owner:", processor.owner)
+        print("Last Updated:", processor.lastupdated)
+        print("Requested Status:", processor.requested_status)
+        print("Status:", processor.name)
+        print("Concurrency:", processor.concurrency)
+        print("Beat:", processor.beat)
+        print("Git Repo:", processor.gitrepo)
+        print("Name:", processor.name)
 
 
 @ls.command(name='task')
@@ -1606,10 +1686,9 @@ def ls_workers(context):
 @ls.command(name='processors')
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
 @click.option('-m', '--module', is_flag=True, default=False)
-@click.option('-t', '--task', is_flag=True, default=False)
 @click.option('-o', '--owner', is_flag=True, default=False)
 @click.pass_context
-def ls_processors(context, gitrepo, module, task, owner):
+def ls_processors(context, gitrepo, module, owner):
     """
     List processors
     """
@@ -1623,8 +1702,6 @@ def ls_processors(context, gitrepo, module, task, owner):
         names += ["Git"]
     if module:
         names += ["Module"]
-    if task:
-        names += ["Task"]
     if owner:
         names += ["Owner"]
 
@@ -1639,8 +1716,6 @@ def ls_processors(context, gitrepo, module, task, owner):
             row += [processor.gitrepo]
         if module:
             row += [processor.module]
-        if task:
-            row += [processor.task]
         if owner:
             row += [processor.owner]
 
