@@ -273,7 +273,7 @@ class Worker:
 
                     logging.info("DBACTION: Processor %s", processor)
 
-                    logging.info("Checking main_queue with %s items", self.main_queue.qsize())
+                    logging.info("Checking main_queue[%s] with %s items", self.size, self.main_queue.qsize())
 
                     _signal = self.main_queue.get()
 

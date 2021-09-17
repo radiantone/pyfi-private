@@ -19,6 +19,15 @@ _parallel = parallel([
 _funnel = funnel([
     do_something("Eight"),
     _parallel,
-    do_something("Nine")])
+    do_something("Nine")], do_something("A"))
 
-print("FUNNEL: ", _funnel(do_something("Four")).get())
+_funnel2 = funnel([
+    _parallel,
+    do_something("Ten")],do_something("B"))
+
+_funnel3 = funnel([
+    _funnel,
+    _funnel2])
+
+result = _funnel3(do_something("Eleven"))
+print("FUNNEL: ", result.get())
