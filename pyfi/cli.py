@@ -1037,9 +1037,13 @@ def update_socket(context, name, queue, interval, procid, procname, task):
         socket = context.obj['database'].session.query(
             SocketModel).filter_by(id=id).first()
 
-    if not interval:
+    processor = context.obj['database'].session.query(
+            ProcessorModel).filter_by(id=socket.processor_id).first()
+    if not interval and interval > 0:
         socket.interval = click.prompt('Interval',
                                        type=int, default=socket.interval)
+        processor.requested_status = 'update'
+
     return
 
 
