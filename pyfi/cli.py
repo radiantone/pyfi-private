@@ -62,13 +62,18 @@ class CustomFormatter(logging.Formatter):
 @click.option('-d', '--db', help='Database URI')
 @click.option('--backend', help='Task queue backend')
 @click.option('--broker', help='Message broker URI')
+@click.option('-a', '--api', help='Message broker API URI')
+@click.option('-u', '--user', help='Message broker API user')
+@click.option('-p', '--password', help='Message broker API password')
 @click.option('-i', '--ini', default=home+"/pyfi.ini", help='PYFI .ini configuration file')
 @click.option('-c', '--config', default=False, is_flag=True, help='Configure pyfi')
 @click.pass_context
-def cli(context, debug, db, backend, broker, ini, config):
+def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     """
     PYFI CLI for creating & managing PYFI networks
     """
+    from urllib.parse import urlparse
+
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
     if debug:
@@ -89,6 +94,15 @@ def cli(context, debug, db, backend, broker, ini, config):
         if not broker:
             broker = click.prompt('Message broker URI',
                                   type=str, default='pyamqp://localhost')
+        if not api:
+            api = click.prompt('Message broker API',
+                               type=str, default='http://localhost:15672/api')
+        if not user:
+            user = click.prompt('Message broker API username',
+                               type=str, default='guest')
+        if not password:
+            password = click.prompt('Message broker API password',
+                               type=str, default='guest')
 
         _config = configparser.ConfigParser()
         _config.add_section('database')
@@ -99,6 +113,10 @@ def cli(context, debug, db, backend, broker, ini, config):
 
         _config.add_section('broker')
         _config.set('broker', 'uri', broker)
+        _config.set('broker', 'api', api)
+        _config.set('broker', 'user', user)
+        _config.set('broker', 'password', password)
+
         with open(home+"/pyfi.ini", "w") as configfile:
             _config.write(configfile)
 
@@ -1244,6 +1262,52 @@ def start_worker(context, name, pool, skip_venv, queue):
     context.obj['database'].session.commit()
     wprocess.join()
 
+
+
+@ls.command(name='queue')
+@click.option('--id', default=None, help="ID of call")
+@click.option('-n', '--name', default=None, required=False, help='Name of queue')
+@click.option('-t', '--task', default=None, required=False, help='Name of task')
+@click.pass_context
+def ls_queue(context, id, name):
+    """
+    List a queue
+    """
+    from urllib.parse import urlparse
+
+    # Combine info from database and rabbitmq about this queue
+    import requests
+
+    if id is not None:
+        queue = context.obj['database'].session.query(
+            QueueModel).filter_by(id=id).first()
+    elif name is not None:
+            queue = context.obj['database'].session.query(
+                QueueModel).filter_by(name=name).first()
+
+    if task:
+        # Query for task, get task name, processor name and queue name
+        # to combine into queuname.procname.taskname
+        # Then return info about queuename and queuname.procname.taskname from broker
+        pass
+    if queue is None:
+        queuename = name
+    else:
+        queuename = queue.name
+
+    user = CONFIG.get('broker', 'user')
+    password = CONFIG.get('broker', 'password')
+    api = CONFIG.get('broker', 'api')
+
+    session = requests.Session()
+    session.auth = (user, password)
+
+    apiurl = urlparse(api)
+
+    auth = session.post(apiurl.scheme+"://"+apiurl.netloc)
+    response = session.get(
+        api+"/queues/#/"+queuename)
+    print(response.content)
 
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
