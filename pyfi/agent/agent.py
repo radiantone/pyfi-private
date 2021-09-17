@@ -454,7 +454,7 @@ class Agent:
 
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
-                                logging.info("Agent: Creating Worker()")
+                                logging.info("Agent: Creating Worker() queue size %s", self.size)
                                 workerproc = Worker(
                                     processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
