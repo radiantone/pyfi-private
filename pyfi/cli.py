@@ -1217,8 +1217,9 @@ def agent():
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.option('-p', '--pool', default=4, required=False, help="Size of worker pool")
 @click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
+@click.option('-q', '--queue', default=10, help='Maximum number of messages on worker internal queue')
 @click.pass_context
-def start_worker(context, name, pool, skip_venv):
+def start_worker(context, name, pool, skip_venv, queue):
     from pyfi.worker import Worker
 
     workerModel = context.obj['database'].session.query(
@@ -1231,7 +1232,7 @@ def start_worker(context, name, pool, skip_venv):
     os.makedirs(dir, exist_ok=True)
 
     workerproc = Worker(
-        processor, workdir=dir, pool=pool, database=context.obj['dburi'], skipvenv=skip_venv, celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+        processor, workdir=dir, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv, celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
 
