@@ -227,12 +227,12 @@ class Worker:
 
         if not self.usecontainer:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                   "-n", name, "-q",size]
+                   "-n", name, "-q", str(size)]
             if self.user:
                 # cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
                 #       "-n", name]
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                       "-n", name, "-q", size]
+                       "-n", name, "-q", str(size)]
 
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(
