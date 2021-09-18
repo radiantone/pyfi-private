@@ -752,6 +752,7 @@ def update_object(obj, locals):
             setattr(obj, var, locals[var])
 
     obj.updated = datetime.now()
+    
     return obj
 
 
@@ -841,6 +842,7 @@ def add_task(context, name, module, code):
     task.updated = datetime.now()
     context.obj['database'].session.add(task)
     context.obj['database'].session.commit()
+
     print(task)
 
 
@@ -868,6 +870,7 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     processor.updated = datetime.now()
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
+
     print(processor)
 
 
@@ -961,6 +964,7 @@ def add_scheduler(context, name, strategy):
     scheduler.updated = datetime.now()
     context.obj['database'].session.add(scheduler)
     context.obj['database'].session.commit()
+
     print(scheduler)
 
 
@@ -978,6 +982,7 @@ def add_node(context, name, hostname):
     node.updated = datetime.now()
     context.obj['database'].session.add(node)
     context.obj['database'].session.commit()
+
     print(node)
 
 
@@ -994,6 +999,7 @@ def add_agent(context, name):
     agent.updated = datetime.now()
     context.obj['database'].session.add(agent)
     context.obj['database'].session.commit()
+
     print(agent)
 
 
@@ -1010,6 +1016,7 @@ def add_role(context, name):
     role.updated = datetime.now()
     context.obj['database'].session.add(role)
     context.obj['database'].session.commit()
+
     print(role)
 
 
@@ -1029,6 +1036,7 @@ def add_queue(context, name, type):
     queue.updated = datetime.now()
     context.obj['database'].session.add(queue)
     context.obj['database'].session.commit()
+
     print(queue)
 
 
@@ -1127,43 +1135,49 @@ def update_plug(context, name, queue, procid, procname):
 @add.command(name='plug')
 @click.option('-n', '--name', required=True)
 @click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-si', '--socketid', default=None, required=False, help="Socket id")
-@click.option('-sn', '--socketname', default=None, required=False, help="Socket name")
+@click.option('-s', '--source', default=None, required=True, help="Source socket name")
+@click.option('-t', '--target', default=None, required=True, help="Target socket name")
 @click.option('-pi', '--procid', default=None, required=False, help="Processor id")
 @click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.pass_context
-def add_plug(context, name, queue, socketid, socketname, procid, procname):
+def add_plug(context, name, queue, source, target, procid, procname):
     """
     Add plug to a processor
     """
     id = context.obj['id']
 
-    if socketname is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(name=socketname).first()
-    elif socketid is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(id=socketid).first()
+    source_socket = context.obj['database'].session.query(
+        SocketModel).filter_by(name=source).first()
+
+    target_socket = context.obj['database'].session.query(
+        SocketModel).filter_by(name=target).first()
 
     if procname is not None:
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(name=procname).first()
+
     elif procid is not None:
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=procid).first()
 
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
+
     plug = PlugModel(name=name, id=id, requested_status='create',
                      status='ready', processor_id=procid)
-    plug.socket = socket
+
+    plug.source = source_socket
+    plug.target = target_socket
     plug.queue = queue
     plug.updated = datetime.now()
     processor.plugs += [plug]
 
+    context.obj['database'].session.add(source_socket)
+    context.obj['database'].session.add(target_socket)
     context.obj['database'].session.add(plug)
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
+
     print(plug)
 
 
@@ -1263,7 +1277,6 @@ def start_worker(context, name, pool, skip_venv, queue):
     wprocess.join()
 
 
-
 @ls.command(name='queue')
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of queue')
@@ -1308,6 +1321,7 @@ def ls_queue(context, id, name):
     response = session.get(
         api+"/queues/#/"+queuename)
     print(response.content)
+
 
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
