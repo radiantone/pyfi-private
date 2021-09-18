@@ -752,7 +752,7 @@ def update_object(obj, locals):
             setattr(obj, var, locals[var])
 
     obj.updated = datetime.now()
-    
+
     return obj
 
 
@@ -1134,13 +1134,13 @@ def update_plug(context, name, queue, procid, procname):
 
 @add.command(name='plug')
 @click.option('-n', '--name', required=True)
-@click.option('-q', '--queue', required=True, help="Queue name")
+#@click.option('-q', '--queue', required=True, help="Queue name")
 @click.option('-s', '--source', default=None, required=True, help="Source socket name")
 @click.option('-t', '--target', default=None, required=True, help="Target socket name")
 @click.option('-pi', '--procid', default=None, required=False, help="Processor id")
 @click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.pass_context
-def add_plug(context, name, queue, source, target, procid, procname):
+def add_plug(context, name, source, target, procid, procname):
     """
     Add plug to a processor
     """
@@ -1168,7 +1168,7 @@ def add_plug(context, name, queue, source, target, procid, procname):
 
     plug.source = source_socket
     plug.target = target_socket
-    plug.queue = queue
+    #plug.queue = queue
     plug.updated = datetime.now()
     processor.plugs += [plug]
 

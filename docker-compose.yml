@@ -20,7 +20,7 @@ services:
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
-    command:  "/opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start"
+    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start --clean --size 20 --user pyfi"
     ports:
       - 8004:8002
     depends_on:
@@ -45,7 +45,7 @@ services:
       - DEBIAN_FRONTEND=noninteractive
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start --clean --user pyfi"
+    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/pyfi -i /opt/pyfi/pyfi.ini agent start --clean --size 20 --user pyfi"
     ports:
       - 8003:8002
     depends_on:

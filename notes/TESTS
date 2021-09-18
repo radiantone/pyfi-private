@@ -1,3 +1,7 @@
+
+- Add a processor without a hostname. Scheduler finds a host and assigns the processor
+
+
 THROUGHPUT TESTING
 - 2 processors, 2 hosts, 2 threads running tasks, 3 periodic beat tasks DONE
 
