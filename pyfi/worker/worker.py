@@ -499,7 +499,8 @@ class Worker:
                             target_processor = self.database.session.query(
                                 ProcessorModel).filter_by(id=processor_plug.target.processor_id).first()
 
-                            key =processor_plug.queue.name
+
+                            key = processor_plug.target.queue.name
 
                             msgs = [msg for msg in plugs[pname]]
 
@@ -514,7 +515,7 @@ class Worker:
                                 logging.info(
                                     "Sending {} to queue {}".format(msg, tkey))
 
-                                if processor_plug.queue.qtype == 'direct':
+                                if processor_plug.target.queue.qtype == 'direct':
                                     logging.info("Finding processor....")
 
                                     socket = processor_plug.target
@@ -530,9 +531,9 @@ class Worker:
                                             key, type='direct'),
                                         routing_key=tkey,
 
-                                        message_ttl=processor_plug.queue.message_ttl,
-                                        durable=processor_plug.queue.durable,
-                                        expires=processor_plug.queue.expires,
+                                        message_ttl=processor_plug.target.queue.message_ttl,
+                                        durable=processor_plug.target.queue.durable,
+                                        expires=processor_plug.target.queue.expires,
                                         # expires=30,
                                         # socket.queue.message_ttl
                                         # socket.queue.expires
