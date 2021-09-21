@@ -10,6 +10,7 @@ import psutil
 import signal
 import configparser
 import platform
+
 from functools import partial
 from pytz import utc
 
@@ -248,7 +249,7 @@ class Worker:
 
     def start(self, start=True, listen=True):
         """
-        Docstring
+        Worker start method
         """
         global processes
         import threading
@@ -400,6 +401,9 @@ class Worker:
                                 self.prerun_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'postrun':
+                        """
+                        Task has completed, now we need to determine how to send the results to downstream plugs
+                        """
                         from datetime import datetime
                         import json
                         import pickle
@@ -419,10 +423,13 @@ class Worker:
                         myid = task_kwargs['myid']
 
                         try:
+                            # Is there a call already associated with this task? There should be!
                             call = session.query(
                                 CallModel).filter_by(id=myid).first()
 
                             logging.info("CALL QUERY %s", call)
+
+                            # Add postrun event to the call
                             if call:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
@@ -440,27 +447,32 @@ class Worker:
                             logging.error(
                                 "No pre-existing Call object for id %s", myid)
 
-                        
-                        '''
-                        Dispatch result to connected sockets
-                        '''
+                        sourceplugs = {}
+                        # Dispatch result to connected plugs
                         for socket in processor.sockets:
+
+                            # Find the socket associated with this task
                             if socket.task.name == _signal['sender']:
 
                                 for plug in socket.sourceplugs:
                                     _plugs[plug.name] = []
+                                    sourceplugs[plug.name] = plug
 
+                                # Build path to the task
                                 processor_path = socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
+
+                                # Create data record for this event
                                 data = {
                                     'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+_signal['taskid'], 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': _signal['sender']}
+
                                 payload = json.dumps(data)
                                 data['message'] = payload
                                 break
 
                         logging.info(data)
 
-                        # TODO: This probably not needed
+                        # Add task result to data record
                         _r = _signal['result']
                         try:
                             result = json.dumps(_r, indent=4)
@@ -474,23 +486,20 @@ class Worker:
                         logging.debug(
                             "EMITTING ROOMSG: %s", data)
                                         
+                        # Put data record into queue for emission
                         self.queue.put(['roomsg', data])
 
+                        # Put log event into queue for emission
                         self.queue.put(
                             ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
 
                         logging.info("PLUGS: %s", plugs)
 
-                        """
-                        Function should put data onto named plugs, not queues
-                        """
+                        # Look for any data placed on socket plugs
                         for pname in plugs:
                             processor_plug = None
 
-                            for _plug in processor.plugs:
-                                if _plug.name == pname:
-                                    processor_plug = _plug
-
+                            processor_plug = sourceplugs[pname]
 
                             if processor_plug is None:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
@@ -499,15 +508,26 @@ class Worker:
                             target_processor = self.database.session.query(
                                 ProcessorModel).filter_by(id=processor_plug.target.processor_id).first()
 
-
                             key = processor_plug.target.queue.name
 
                             msgs = [msg for msg in plugs[pname]]
 
                             logging.info("msgs %s", msgs)
 
+                            """
+                            NOTE: Maybe the logic here is for the plug to have its own queue and to invoke an internal
+                            task on that queue. The task accepts the metadata to invoke the actual socket function.
+                            This would result in the plug queue having its own statistics separate from the socket queue
+                            """
+
+                            """
+                            TODO: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
+                            this signature for the socket after that. BINGO! Now we can track individual queues for each plug
+                            that have their own properties and they will stack up before the actual socket task is called.
+                            """
                             for msg in msgs:
-                                """ We have data in an outbound queue and need to find the associated plug and socket to construct the call"""
+                                """ We have data in an outbound queue and need to find the associated plug and socket to construct the call
+                                and pass the data along """
 
                                 tkey = key+'.' + target_processor.name.replace(
                                     ' ', '.')+'.'+processor_plug.target.task.name
@@ -524,7 +544,7 @@ class Worker:
                                         key,
                                         target_processor.module+'.'+processor_plug.target.task.name, msg))
 
-                                    # Target specific worker queue here
+                                    # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
                                         tkey,
                                         Exchange(
@@ -544,6 +564,8 @@ class Worker:
 
                                     logging.info(
                                         "worker queue %s", worker_queue)
+
+                                    # Create task signature
                                     try:
                                         # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
                                         # Define context object that function can use to set outbound data and get inbound data
@@ -555,9 +577,11 @@ class Worker:
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
+
                                     logging.info(
                                         "call complete %s %s %s", target_processor.module+'.'+processor_plug.target.task.name, (msg,), worker_queue)
 
+                                    # Remove the message off the plug
                                     plugs[pname].remove(msg)
 
         # Start database session thread
@@ -607,12 +631,13 @@ class Worker:
                                 ' ', '.')+'.'+socket.task.name
                             if processor_task not in queues:
 
-                                room = {'room': processor_task}
+                                #room = {'room': processor_task}
                                 queues += [processor_task]
 
                             # This topic queue represents the broadcast fanout to all workers connected
                             # to it. Sending a task to this queue delivers to all connected workers
                             queues += []
+
                             from kombu import Exchange, Queue, binding
                             from kombu.common import Broadcast
                             logging.debug('socket.queue.expires %s',
@@ -854,7 +879,7 @@ class Worker:
 
         os.chdir(self.workdir)
 
-        """ Install gitrepo code """
+        """ Install gitrepo and build virtualenv """
         if self.processor.gitrepo and not self.skipvenv:
 
             if self.usecontainer:
@@ -865,6 +890,7 @@ class Worker:
                 logging.debug("git clone -b {} --single-branch {} git".format(
                     self.processor.branch, self.processor.gitrepo))
 
+                # Create git directory and pull the remote repo
                 if os.path.exists("git"):
                     logging.info("Pulling update from git")
                     os.chdir('git')
@@ -887,8 +913,6 @@ class Worker:
                             logging.error(ex)
                             time.sleep(3)
 
-                #if not os.path.exists('venv'):
-
                 # Create or update venv
                 from virtualenvapi.manage import VirtualEnvironment
 
@@ -898,6 +922,9 @@ class Worker:
                     'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
                 login = os.environ['GIT_LOGIN']
+
+                # Install pyfi
+                # TODO: Make this URL a setting so it can be overridden
                 env.install('-e git+'+login +
                             '/radiantone/pyfi-private#egg=pyfi')
 
@@ -909,13 +936,16 @@ class Worker:
                     logging.error("Could not install %s",
                                     self.processor.gitrepo.strip())
 
+        # Sometimes we just want to recreate the setup
+        if not start:
+            return
+
         """ Start worker process"""
         worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
         worker_process.app = self.celery
         processes += [worker_process]
 
-        if start:
-            worker_process.start()
+        worker_process.start()
 
         self.process = worker_process
 
