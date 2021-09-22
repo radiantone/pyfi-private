@@ -49,20 +49,6 @@ class AlchemyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class BaseModel(Base):
-    """
-    Docstring
-    """
-    __abstract__ = True
-
-    id = Column(String(40), autoincrement=False, default=literal_column(
-        'uuid_generate_v4()'), unique=True, primary_key=True)
-    name = Column(String(80), unique=True, nullable=False, primary_key=True)
-    owner = Column(String(40), default=literal_column('current_user'))
-    lastupdated = Column(DateTime, default=datetime.now,
-                         onupdate=datetime.now, nullable=False)
-
-
 class LogModel(Base):
     """
     Docstring
@@ -77,6 +63,38 @@ class LogModel(Base):
 
     def __repr__(self):
         return "{}:{}:{}".format(self.id, self.source, self.text)
+        
+class HasLogs(object):
+
+    @declared_attr
+    def logs(cls):
+        log_association = Table(
+            "%s_logs" % cls.__tablename__,
+            cls.metadata,
+            Column("log_id", ForeignKey("log.id"), primary_key=True),
+            Column(
+                "%s_id" % cls.__tablename__,
+                ForeignKey("%s.id" % cls.__tablename__),
+                primary_key=True,
+            ),
+        )
+        return relationship(LogModel, secondary=log_association)
+
+
+class BaseModel(Base):
+    """
+    Docstring
+    """
+    __abstract__ = True
+
+    id = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
+    name = Column(String(80), unique=True, nullable=False, primary_key=True)
+    owner = Column(String(40), default=literal_column('current_user'))
+    lastupdated = Column(DateTime, default=datetime.now,
+                         onupdate=datetime.now, nullable=False)
+
+
 
 rights = ['ALL',
           'CREATE',
@@ -159,7 +177,7 @@ rights = ['ALL',
           ]
 
 
-class PrivilegeModel(BaseModel):
+class PrivilegeModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -177,7 +195,7 @@ role_privileges = Table('role_privileges', Base.metadata,
                         )
 
 
-class RoleModel(BaseModel):
+class RoleModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -201,7 +219,7 @@ user_roles = Table('user_roles', Base.metadata,
                    )
 
 
-class UserModel(BaseModel):
+class UserModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -229,8 +247,7 @@ strategies = [
 ]
 
 
-
-class FlowModel(BaseModel):
+class FlowModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -242,7 +259,7 @@ class FlowModel(BaseModel):
         return '<Name %r>' % self.name
 
 
-class AgentModel(BaseModel):
+class AgentModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -262,7 +279,7 @@ class AgentModel(BaseModel):
         return '{}:{}:{}:{}:{}'.format(self.id, self.cpus, self.status, self.name, self.hostname)
 
 
-class ActionModel(BaseModel):
+class ActionModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -277,7 +294,7 @@ class ActionModel(BaseModel):
         return '<Name %r>' % self.name
 
 
-class WorkerModel(BaseModel):
+class WorkerModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -304,7 +321,7 @@ class WorkerModel(BaseModel):
         return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
 
 
-class ProcessorModel(BaseModel):
+class ProcessorModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -361,7 +378,7 @@ calls_events = Table('calls_events', Base.metadata,
                      )
 
 
-class CallModel(BaseModel):
+class CallModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -390,7 +407,7 @@ class CallModel(BaseModel):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
 
 
-class SchedulerModel(BaseModel):
+class SchedulerModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -403,7 +420,7 @@ class SchedulerModel(BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
-class SettingsModel(BaseModel):
+class SettingsModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -414,7 +431,7 @@ class SettingsModel(BaseModel):
         return '<Name %r>' % self.name
 
 
-class NodeModel(BaseModel):
+class NodeModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -439,7 +456,7 @@ class NodeModel(BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 
 
-class TaskModel(BaseModel):
+class TaskModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -459,7 +476,8 @@ class TaskModel(BaseModel):
     def __repr__(self):
         return '<Name %r>' % self.name
 
-class EventModel(BaseModel):
+
+class EventModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -488,7 +506,8 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                           'socket.id'), primary_key=True)
                       )
 
-class SocketModel(BaseModel):
+
+class SocketModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -530,7 +549,7 @@ plugs_queues = Table('plugs_queues', Base.metadata,
                      )
 
 
-class PlugModel(BaseModel):
+class PlugModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -554,7 +573,7 @@ class PlugModel(BaseModel):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
 
 
-class QueueModel(BaseModel):
+class QueueModel(HasLogs, BaseModel):
     """
     Docstring
     """
@@ -580,25 +599,3 @@ class QueueModel(BaseModel):
                                                                self.max_length_bytes,
                                                                self.message_ttl,
                                                                self.expires)
-
-
-class QueueLogModel(Base):
-    """
-    Docstring
-    """
-    __tablename__ = 'queuelog'
-    id = Column(String(40), primary_key=True)
-    name = Column(String(80), unique=True, nullable=False)
-    date = Column(DateTime, default=datetime.now,
-                  onupdate=datetime.now, nullable=False)
-    text = Column(String(80), nullable=False)
-
-    # processor
-    # queue
-
-    task = Column(String(80), nullable=False)
-    type = Column(String(20), nullable=False)
-    quantity = Column(Float)
-
-    def __repr__(self):
-        return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.date, self.text)

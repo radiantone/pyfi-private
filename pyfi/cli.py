@@ -867,6 +867,13 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     processor = ProcessorModel(
         id=id, status='ready', hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
+    log1 = LogModel(oid=id, text='This is a log', source='pyfi')
+    log2 = LogModel(oid=id, text='This is a log too', source='pyfi')
+
+    context.obj['database'].session.add(log1)
+    context.obj['database'].session.add(log2)
+    processor.logs += [log1]
+    processor.logs += [log2]
     processor.updated = datetime.now()
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
