@@ -16,7 +16,6 @@ from pathlib import Path
 
 from sqlalchemy import inspect
 
-from pyfi.celery.tasks import add
 from pyfi.db.model import ProcessorModel, UserModel
 from pyfi.blueprints.show import blueprint
 from pyfi.db.model import UserModel, WorkerModel, AgentModel, QueueModel, NodeModel
