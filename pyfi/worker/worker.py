@@ -211,7 +211,7 @@ class Worker:
             self.celery.config_from_object(config)
 
         @self.celery.task(name='pyfi.celery.tasks.enqueue')
-        def enqueue(data):
+        def enqueue(data, *args, **kwargs):
             print("ENQUEUE: ",data)
             return data
 
