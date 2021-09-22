@@ -628,10 +628,11 @@ class Worker:
                                             target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
                                         
                                         delayed = pipeline(
-                                            plug_sig,
                                             task_sig
                                         ).delay()
 
+                                        logging.info(
+                                            "PIPELINE invoke %s", delayed)
                                         result = delayed.get()
                                         logging.info("PIPELINE executed %s", result)
                                     except:
