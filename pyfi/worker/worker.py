@@ -710,7 +710,7 @@ class Worker:
                                         processor_plug.queue.name,
                                         Exchange(
                                             processor_plug.queue.name, type='direct'),
-                                        routing_key=processor.name+'.pyfi.celery.tasks.enqueue',
+                                        routing_key=self.processor.name+'.pyfi.celery.tasks.enqueue',
 
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -723,7 +723,7 @@ class Worker:
                                             'x-expires': 300}
                                     )
                                     task_queues += [plug_queue]
-                                    
+
                             task_queues += [
                                 KQueue(
                                     socket.queue.name+'.' +
