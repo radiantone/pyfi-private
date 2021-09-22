@@ -580,7 +580,7 @@ class Worker:
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
-                                            key, type='direct'),
+                                            processor_plug.queue.name, type='direct'),
                                         routing_key=processor.name+'.pyfi.celery.tasks.enqueue',
 
                                         message_ttl=processor_plug.queue.message_ttl,
@@ -930,7 +930,7 @@ class Worker:
 
                             if sender.__name__ == 'enqueue':
                                 return
-                                
+
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
