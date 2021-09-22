@@ -649,7 +649,7 @@ class Worker:
                                     plugs[pname].remove(msg)
 
                         # Execute parallel( pipeline(plug,task), ...)
-                        delayed = parallel(*pipelines)
+                        delayed = parallel(*pipelines).delayed()
                         logging.info("PARALLEL invoke %s",delayed)
                         result = delayed.get()
                         logging.info("PARALLEL result %s",result)
