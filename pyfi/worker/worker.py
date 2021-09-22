@@ -288,7 +288,9 @@ class Worker:
                     if _signal['signal'] == 'received':
                         logging.info("RECEIVED SIGNAL %s", _signal)
                         if _signal['sender'] == 'enqueue':
+                            print("RECEIVED RETURNING: ENQUEUE detected")
                             return
+
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
@@ -944,17 +946,21 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
 
-                            if request.task_name.rsplit('.')[-1] == 'enqueue':
+                            sender = request.task_name.rsplit('.')[-1]
+                            print("RECEIVED SENDER: ",sender)
+
+                            if sender == 'enqueue':
                                 return
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                  {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
-                                {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
                             self.received_queue.get()
+                            print("GOT RECEIVED REPLY")
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
