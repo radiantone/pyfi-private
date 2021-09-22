@@ -631,7 +631,7 @@ class Worker:
                                         delayed = pipeline(
                                             plug_sig,
                                             task_sig
-                                        ).delay()
+                                        )
                                         pipelines += [delayed]
 
                                         #logging.info(
