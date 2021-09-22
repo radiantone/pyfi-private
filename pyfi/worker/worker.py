@@ -894,28 +894,34 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
 
-                            print("TASK: ", type(task), task)
-                            if sender.__name__ == 'enqueue':
-                                return
-                            print("KWARGS:",
-                                  {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
-                            self.main_queue.put(
-                                {'signal': 'prerun', 'sender':sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                            PRERUN_CONDITION.acquire()
+                            try:
+                                print("prerun TASK: ", type(task), task)
 
-                            if 'tracking' not in kwargs.get('kwargs'):
-                                kwargs['kwargs']['tracking'] = str(uuid4())
+                                if sender.__name__ == 'enqueue':
+                                    return
 
-                            logging.info("Waiting on PRERUN REPLY")
-                            response = self.prerun_queue.get()
-                            logging.info("GOT PRERUN QUEUE MESSAGE %s", response)
-                            if 'error' in response:
-                                logging.error(response['error'])
-                            else:
-                                kwargs['kwargs'].update(response)
-                            kwargs['kwargs']['output'] = {}
+                                print("KWARGS:",
+                                    {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                self.main_queue.put(
+                                    {'signal': 'prerun', 'sender':sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
-                            logging.info("PRERUN QUEUE: %s", response)
-                            logging.info("PRERUN KWARGS IS NOW: %s", kwargs)
+                                if 'tracking' not in kwargs.get('kwargs'):
+                                    kwargs['kwargs']['tracking'] = str(uuid4())
+
+                                logging.info("Waiting on PRERUN REPLY")
+                                response = self.prerun_queue.get()
+                                logging.info("GOT PRERUN QUEUE MESSAGE %s", response)
+                                if 'error' in response:
+                                    logging.error(response['error'])
+                                else:
+                                    kwargs['kwargs'].update(response)
+                                kwargs['kwargs']['output'] = {}
+
+                                logging.info("PRERUN QUEUE: %s", response)
+                                logging.info("PRERUN KWARGS IS NOW: %s", kwargs)
+                            finally:
+                                PRERUN_CONDITION.release()
 
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
