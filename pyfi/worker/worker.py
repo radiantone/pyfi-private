@@ -586,7 +586,7 @@ class Worker:
                                     )
 
                                     plug_sig = self.celery.signature('pyfi.celery.tasks.enqueue', args=(
-                                        msg,), queue=plug_queue, kwargs=pass_kwargs).delay()
+                                        msg,), queue=plug_queue, kwargs=pass_kwargs)
                                     # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
                                         tkey,
@@ -615,8 +615,12 @@ class Worker:
                                         # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
-                                        self.celery.signature(
-                                            target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                        task_sig = self.celery.signature(
+                                            target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
+                                        pipeline(
+                                            plug_sig,
+                                            task_sig
+                                        ).delay()
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
