@@ -287,9 +287,6 @@ class Worker:
 
                     if _signal['signal'] == 'received':
                         logging.info("RECEIVED SIGNAL %s", _signal)
-                        if _signal['sender'] == 'enqueue':
-                            print("RECEIVED RETURNING: ENQUEUE detected")
-                            return
 
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
@@ -338,9 +335,6 @@ class Worker:
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
-
-                        if _signal['sender'] == 'enqueue':
-                            return
 
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
@@ -411,7 +405,10 @@ class Worker:
                                     session.rollback()
 
                                 _signal['kwargs']['plugs'] = _plugs
+                                logging.info("Putting %s on PRERUN_QUEUE", _signal['kwargs'])
                                 self.prerun_queue.put(_signal['kwargs'])
+                                logging.info(
+                                    "Done Putting %s on PRERUN_QUEUE", _signal['kwargs'])
 
                     if _signal['signal'] == 'postrun':
                         """
@@ -424,9 +421,6 @@ class Worker:
                         logging.info("POSTRUN: KWARGS: %s", _signal['kwargs'])
                         task_kwargs = _signal['kwargs']
                         plugs = task_kwargs['plugs']
-
-                        if _signal['sender'] == 'enqueue':
-                            return
 
                         pass_kwargs = {}
 
@@ -947,7 +941,7 @@ class Worker:
                             from uuid import uuid4
 
                             sender = request.task_name.rsplit('.')[-1]
-                            print("RECEIVED SENDER: ",sender)
+                            print("RECEIVED SENDER:",sender)
 
                             if sender == 'enqueue':
                                 return
