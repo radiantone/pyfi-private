@@ -866,6 +866,8 @@ class Worker:
                             from uuid import uuid4
 
                             print("TASK: ", type(task), task)
+                            if sender.__name__ == 'enqueue':
+                                return
                             print("KWARGS:",
                                   {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             self.main_queue.put(
@@ -909,6 +911,9 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
 
+                            if request.task_name.rsplit('.')[-1] == 'enqueue':
+                                return
+
                             print("RECEIVED KWARGS:",
                                   {'signal': 'received', 'sender': request.task_name.rsplit('.')[-1], 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
@@ -922,6 +927,10 @@ class Worker:
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
+
+                            if sender.__name__ == 'enqueue':
+                                return
+                                
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
