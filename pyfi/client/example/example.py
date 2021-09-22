@@ -2,10 +2,10 @@ from pyfi.client.api import Processor, Socket, Plug
 import json
 from pyfi.db.model import AlchemyEncoder
 # Create a processor
-processor = Processor(name='proc1', beat=True, module='pyfi.processors.sample', branch='main',
+processor = Processor(name='proc1', beat=True, module='pyfi.processors.sample', branch='main', concurrency=6,
                       gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
-processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='agent1', branch='main',
+processor2 = Processor(name='proc2', module='pyfi.processors.sample', hostname='agent1', concurrency=6, branch='main',
                        gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 

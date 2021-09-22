@@ -899,7 +899,7 @@ class Worker:
                             from datetime import datetime
                             from uuid import uuid4
 
-                            PRERUN_CONDITION.acquire()
+                            #PRERUN_CONDITION.acquire()
                             try:
                                 print("prerun TASK: ", type(task), task)
 
@@ -926,7 +926,8 @@ class Worker:
                                 logging.info("PRERUN QUEUE: %s", response)
                                 logging.info("PRERUN KWARGS IS NOW: %s", kwargs)
                             finally:
-                                PRERUN_CONDITION.release()
+                                #PRERUN_CONDITION.release()
+                                pass
 
                         @task_success.connect()
                         def pyfi_task_success(sender=None, **kwargs):
