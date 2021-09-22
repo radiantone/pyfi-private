@@ -629,7 +629,10 @@ class Worker:
                                             task_sig
                                         )
                                         pipelines += [delayed]
-                                        logging.info("   ADDED PLUG SIG: %s",plug_sig)
+                                        logging.info(
+                                            "   ADDED PLUG SIG: %s", plug_sig)
+                                        logging.info(
+                                            "   ADDED TASK SIG: %s", task_sig)
                                         #logging.info(
                                         #    "PIPELINE invoke %s", delayed)
                                         #result = delayed.get()
