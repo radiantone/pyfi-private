@@ -210,7 +210,7 @@ class Worker:
             logging.info("App config is %s", config)
             self.celery.config_from_object(config)
 
-        @self.celery.task(name='pyfi.celery.tasks.enqueue')
+        @self.celery.task(name=self.processor.name+'.pyfi.celery.tasks.enqueue')
         def enqueue(data, *args, **kwargs):
             logging.info("ENQUEUE: %s",data)
             return data
