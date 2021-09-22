@@ -5,7 +5,7 @@ import platform
 import logging
 import socket
 
-from pyfi.celery.tasks import add
+#from pyfi.celery.tasks import add
 from pyfi.blueprints.show import blueprint
 
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
@@ -22,5 +22,3 @@ app.register_blueprint(blueprint)
 @app.route('/')
 def hello():
     logging.debug('Invoking hello')
-    result = add.delay(4,5)
-    return "Hello World!! {}".format(result.get())
