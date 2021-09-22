@@ -287,6 +287,8 @@ class Worker:
 
                     if _signal['signal'] == 'received':
                         logging.info("RECEIVED SIGNAL %s", _signal)
+                        if _signal['sender'] == 'enqueue':
+                            return
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
                                 parent = None
@@ -334,6 +336,10 @@ class Worker:
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
+
+                        if _signal['sender'] == 'enqueue':
+                            return
+
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal['sender']:
 
@@ -416,6 +422,9 @@ class Worker:
                         logging.info("POSTRUN: KWARGS: %s", _signal['kwargs'])
                         task_kwargs = _signal['kwargs']
                         plugs = task_kwargs['plugs']
+
+                        if _signal['sender'] == 'enqueue':
+                            return
 
                         pass_kwargs = {}
 
@@ -572,7 +581,7 @@ class Worker:
                                         processor_plug.queue.name,
                                         Exchange(
                                             key, type='direct'),
-                                        routing_key='pyfi.celery.tasks.enqueue',
+                                        routing_key=processor.name+'.pyfi.celery.tasks.enqueue',
 
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -585,7 +594,7 @@ class Worker:
                                             'x-expires': 300}
                                     )
 
-                                    plug_sig = self.celery.signature('pyfi.celery.tasks.enqueue', args=(
+                                    plug_sig = self.celery.signature(processor.name+'.pyfi.celery.tasks.enqueue', args=(
                                         msg,), queue=plug_queue, kwargs=pass_kwargs)
                                     # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
