@@ -270,10 +270,11 @@ class Worker:
             from uuid import uuid4
             from datetime import datetime
 
-            while True:
-                with self.get_session() as session:
-                    processor = session.query(
-                        ProcessorModel).filter_by(id=self.processor.id).first()
+            with self.get_session() as session:
+                processor = session.query(
+                    ProcessorModel).filter_by(id=self.processor.id).first()
+                    
+                while True:
 
                     _plugs = {}
 
