@@ -2,6 +2,8 @@
 """
 Class database model definitions
 """
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import declarative_mixin
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
@@ -46,11 +48,13 @@ class AlchemyEncoder(json.JSONEncoder):
 
         return json.JSONEncoder.default(self, obj)
 
+
 class BaseModel(Base):
     """
     Docstring
     """
     __abstract__ = True
+
     id = Column(String(40), autoincrement=False, default=literal_column(
         'uuid_generate_v4()'), unique=True, primary_key=True)
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
@@ -59,15 +63,20 @@ class BaseModel(Base):
                          onupdate=datetime.now, nullable=False)
 
 
-schedule_types = [
-    'CRON',
-    'INTERVAL'
-]
+class LogModel(Base):
+    """
+    Docstring
+    """
+    __tablename__ = 'log'
 
-strategies = [
-    'BALANCED',
-    'EFFICIENT'
-]
+    id = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
+    oid = Column(String(40), primary_key=True)
+    text = Column(String(80), nullable=False)
+    source = Column(String(40), nullable=False)
+
+    def __repr__(self):
+        return "{}:{}:{}".format(self.id, self.source, self.text)
 
 rights = ['ALL',
           'CREATE',
@@ -121,8 +130,6 @@ rights = ['ALL',
           'UPDATE_AGENT',
           'UPDATE_NODE',
           'UPDATE_PLUG',
-          'UPDATE_PRIVILEGE',
-          'UPDATE_QUEUE',
           'UPDATE_ROLE',
           'UPDATE_SCHEDULER',
           'UPDATE_SOCKET',
@@ -161,7 +168,7 @@ class PrivilegeModel(BaseModel):
     right = Column('right', Enum(*rights, name='right'))
 
     def __repr__(self):
-        return '{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated)
+        return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
 role_privileges = Table('role_privileges', Base.metadata,
@@ -210,6 +217,17 @@ class UserModel(BaseModel):
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.email, self.roles, self.lastupdated)
+
+schedule_types = [
+    'CRON',
+    'INTERVAL'
+]
+
+strategies = [
+    'BALANCED',
+    'EFFICIENT'
+]
+
 
 
 class FlowModel(BaseModel):
@@ -451,19 +469,6 @@ class EventModel(BaseModel):
 
     def __repr__(self):
         return '<id %r>' % self.id
-
-
-class LogModel(Base):
-    """
-    Docstring
-    """
-    __tablename__ = 'log'
-    id = Column(String(40), primary_key=True)
-    text = Column(String(80), nullable=False)
-
-    def __repr__(self):
-        return '<id %r>' % self.id
-
 
 sockets_queues = Table('sockets_queues', Base.metadata,
                        Column('socket_id', ForeignKey('socket.id')),

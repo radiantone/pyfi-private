@@ -11,8 +11,6 @@ celery = Celery('pyfi', backend='redis://localhost',
 
 
 @celery.task
-def add(x, y):
-    """
-    Docstring
-    """
-    return x + y
+def enqueue(data):
+    return data
+

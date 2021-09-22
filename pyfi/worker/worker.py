@@ -27,7 +27,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 
-from celery import Celery
+from celery import Celery, group as parallel, chain as pipeline
 from celery.signals import setup_logging
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
 
@@ -209,6 +209,11 @@ class Worker:
             from pyfi.celery import config
             logging.info("App config is %s", config)
             self.celery.config_from_object(config)
+
+        @self.celery.task(name='pyfi.celery.tasks.enqueue')
+        def enqueue(data):
+            print("ENQUEUE: ",data)
+            return data
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
@@ -501,6 +506,8 @@ class Worker:
 
                             processor_plug = sourceplugs[pname]
 
+                            logging.info("Using PLUG: %s", processor_plug)
+
                             if processor_plug is None:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
@@ -524,6 +531,22 @@ class Worker:
                             TODO: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
                             this signature for the socket after that. BINGO! Now we can track individual queues for each plug
                             that have their own properties and they will stack up before the actual socket task is called.
+
+                            # For each plug add to a parallel then run as a single task
+
+                            plugqueue = KQueue(,....,...,processor_plug.queue.name,....)     # e.g. pyfi.queue2
+                            parallel(
+                                pipeline(
+                                    signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
+                                    self.celery.signature(
+                                        target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                ),
+                                pipeline(
+                                    signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
+                                    self.celery.signature(
+                                        target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                                )
+                            )
                             """
                             for msg in msgs:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call
@@ -544,6 +567,26 @@ class Worker:
                                         key,
                                         target_processor.module+'.'+processor_plug.target.task.name, msg))
 
+
+                                    plug_queue = KQueue(
+                                        tkey,
+                                        Exchange(
+                                            key, type='direct'),
+                                        routing_key='pyfi.celery.tasks.enqueue',
+
+                                        message_ttl=processor_plug.queue.message_ttl,
+                                        durable=processor_plug.queue.durable,
+                                        expires=processor_plug.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        queue_arguments={
+                                            'x-message-ttl': 30000,
+                                            'x-expires': 300}
+                                    )
+
+                                    plug_sig = self.celery.signature('pyfi.celery.tasks.enqueue', args=(
+                                        msg,), queue=plug_queue, kwargs=pass_kwargs).delay()
                                     # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
                                         tkey,
