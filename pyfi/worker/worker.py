@@ -509,6 +509,7 @@ class Worker:
 
                         logging.info("PLUGS: %s", plugs)
 
+                        pipelines = []
                         # Look for any data placed on socket plugs
                         for pname in plugs:
                             processor_plug = None
@@ -630,12 +631,13 @@ class Worker:
                                         delayed = pipeline(
                                             plug_sig,
                                             task_sig
-                                        ).delay()
+                                        )
+                                        pipelines += [delayed]
 
-                                        logging.info(
-                                            "PIPELINE invoke %s", delayed)
-                                        result = delayed.get()
-                                        logging.info("PIPELINE executed %s", result)
+                                        #logging.info(
+                                        #    "PIPELINE invoke %s", delayed)
+                                        #result = delayed.get()
+                                        #logging.info("PIPELINE executed %s", result)
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
@@ -645,6 +647,12 @@ class Worker:
 
                                     # Remove the message off the plug
                                     plugs[pname].remove(msg)
+
+                        # Execute parallel( pipeline(plug,task), ...)
+                        delayed = parallel(*pipelines)
+                        logging.info("PARALLEL invoke %s",delayed)
+                        result = delayed.get()
+                        logging.info("PARALLEL result %s",result)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)
