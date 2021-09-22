@@ -280,9 +280,11 @@ class Worker:
                     logging.info("DBACTION: Processor %s", processor)
 
                     logging.info("Checking main_queue[%s] with %s items", self.size, self.main_queue.qsize())
-
+                    logging.info("---")
+                    logging.info("---")
                     _signal = self.main_queue.get()
-
+                    logging.info("---")
+                    logging.info("---")
                     logging.info("SIGNAL: %s", _signal)
 
                     if _signal['signal'] == 'received':
@@ -625,12 +627,12 @@ class Worker:
                                             target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
                                         
                                         delayed = pipeline(
-                                            plug_sig,
+                                            #plug_sig,
                                             task_sig
                                         )
                                         pipelines += [delayed]
-                                        logging.info(
-                                            "   ADDED PLUG SIG: %s", plug_sig)
+                                        #logging.info(
+                                        #    "   ADDED PLUG SIG: %s", plug_sig)
                                         logging.info(
                                             "   ADDED TASK SIG: %s", task_sig)
                                         #logging.info(

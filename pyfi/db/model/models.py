@@ -177,7 +177,7 @@ rights = ['ALL',
           ]
 
 
-class PrivilegeModel(HasLogs, BaseModel):
+class PrivilegeModel(BaseModel):
     """
     Docstring
     """
@@ -195,7 +195,7 @@ role_privileges = Table('role_privileges', Base.metadata,
                         )
 
 
-class RoleModel(HasLogs, BaseModel):
+class RoleModel(BaseModel):
     """
     Docstring
     """
@@ -219,7 +219,7 @@ user_roles = Table('user_roles', Base.metadata,
                    )
 
 
-class UserModel(HasLogs, BaseModel):
+class UserModel(BaseModel):
     """
     Docstring
     """
@@ -247,7 +247,7 @@ strategies = [
 ]
 
 
-class FlowModel(HasLogs, BaseModel):
+class FlowModel(BaseModel):
     """
     Docstring
     """
@@ -259,7 +259,7 @@ class FlowModel(HasLogs, BaseModel):
         return '<Name %r>' % self.name
 
 
-class AgentModel(HasLogs, BaseModel):
+class AgentModel(BaseModel):
     """
     Docstring
     """
@@ -279,7 +279,7 @@ class AgentModel(HasLogs, BaseModel):
         return '{}:{}:{}:{}:{}'.format(self.id, self.cpus, self.status, self.name, self.hostname)
 
 
-class ActionModel(HasLogs, BaseModel):
+class ActionModel(BaseModel):
     """
     Docstring
     """
@@ -294,7 +294,7 @@ class ActionModel(HasLogs, BaseModel):
         return '<Name %r>' % self.name
 
 
-class WorkerModel(HasLogs, BaseModel):
+class WorkerModel(BaseModel):
     """
     Docstring
     """
@@ -321,7 +321,7 @@ class WorkerModel(HasLogs, BaseModel):
         return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
 
 
-class ProcessorModel(HasLogs, BaseModel):
+class ProcessorModel(BaseModel):
     """
     Docstring
     """
@@ -378,7 +378,7 @@ calls_events = Table('calls_events', Base.metadata,
                      )
 
 
-class CallModel(HasLogs, BaseModel):
+class CallModel(BaseModel):
     """
     Docstring
     """
@@ -407,7 +407,7 @@ class CallModel(HasLogs, BaseModel):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
 
 
-class SchedulerModel(HasLogs, BaseModel):
+class SchedulerModel(BaseModel):
     """
     Docstring
     """
@@ -420,7 +420,7 @@ class SchedulerModel(HasLogs, BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
-class SettingsModel(HasLogs, BaseModel):
+class SettingsModel(BaseModel):
     """
     Docstring
     """
@@ -431,7 +431,7 @@ class SettingsModel(HasLogs, BaseModel):
         return '<Name %r>' % self.name
 
 
-class NodeModel(HasLogs, BaseModel):
+class NodeModel(BaseModel):
     """
     Docstring
     """
@@ -456,7 +456,7 @@ class NodeModel(HasLogs, BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 
 
-class TaskModel(HasLogs, BaseModel):
+class TaskModel(BaseModel):
     """
     Docstring
     """
@@ -477,7 +477,7 @@ class TaskModel(HasLogs, BaseModel):
         return '<Name %r>' % self.name
 
 
-class EventModel(HasLogs, BaseModel):
+class EventModel(BaseModel):
     """
     Docstring
     """
@@ -507,7 +507,7 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                       )
 
 
-class SocketModel(HasLogs, BaseModel):
+class SocketModel(BaseModel):
     """
     Docstring
     """
@@ -549,7 +549,7 @@ plugs_queues = Table('plugs_queues', Base.metadata,
                      )
 
 
-class PlugModel(HasLogs, BaseModel):
+class PlugModel(BaseModel):
     """
     Docstring
     """
@@ -573,7 +573,7 @@ class PlugModel(HasLogs, BaseModel):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
 
 
-class QueueModel(HasLogs, BaseModel):
+class QueueModel(BaseModel):
     """
     Docstring
     """
