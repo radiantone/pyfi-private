@@ -569,7 +569,7 @@ class Worker:
 
 
                                     plug_queue = KQueue(
-                                        tkey,
+                                        processor_plug.queue.name,
                                         Exchange(
                                             key, type='direct'),
                                         routing_key='pyfi.celery.tasks.enqueue',
