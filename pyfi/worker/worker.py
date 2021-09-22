@@ -617,10 +617,11 @@ class Worker:
                                             "PASS_KWARGS: %s", pass_kwargs)
                                         task_sig = self.celery.signature(
                                             target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
-                                        pipeline(
+                                        result = pipeline(
                                             plug_sig,
                                             task_sig
                                         ).delay()
+                                        logging.info("PIPELINE executed %s", result)
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
