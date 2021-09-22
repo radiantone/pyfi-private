@@ -631,7 +631,7 @@ class Worker:
                                         delayed = pipeline(
                                             plug_sig,
                                             task_sig
-                                        )
+                                        ).delay()
                                         pipelines += [delayed]
 
                                         #logging.info(
@@ -649,7 +649,7 @@ class Worker:
                                     plugs[pname].remove(msg)
 
                         # Execute parallel( pipeline(plug,task), ...)
-                        delayed = parallel(*pipelines).delayed()
+                        delayed = parallel(*pipelines).delay()
                         logging.info("PARALLEL invoke %s",delayed)
                         result = delayed.get()
                         logging.info("PARALLEL result %s",result)
