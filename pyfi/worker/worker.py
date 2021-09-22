@@ -704,6 +704,26 @@ class Worker:
                             logging.debug('socket.queue.expires %s',
                                           socket.queue.expires)
 
+                            for processor_plug in socket.sourceplugs:
+
+                                    plug_queue = KQueue(
+                                        processor_plug.queue.name,
+                                        Exchange(
+                                            processor_plug.queue.name, type='direct'),
+                                        routing_key=processor.name+'.pyfi.celery.tasks.enqueue',
+
+                                        message_ttl=processor_plug.queue.message_ttl,
+                                        durable=processor_plug.queue.durable,
+                                        expires=processor_plug.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        queue_arguments={
+                                            'x-message-ttl': 30000,
+                                            'x-expires': 300}
+                                    )
+                                    task_queues += [plug_queue]
+                                    
                             task_queues += [
                                 KQueue(
                                     socket.queue.name+'.' +
@@ -772,7 +792,7 @@ class Worker:
                     backend=self.backend,
                     broker=self.broker,
                     beat=self.processor.beat,
-                    uid='darren',
+                    uid='pyfi',
                     without_mingle=True,
                     without_gossip=True,
                     concurrency=int(self.processor.concurrency)
