@@ -212,7 +212,7 @@ class Worker:
 
         @self.celery.task(name='pyfi.celery.tasks.enqueue')
         def enqueue(data, *args, **kwargs):
-            logging.info("ENQUEUE: ",data)
+            logging.info("ENQUEUE: %s",data)
             return data
 
         self.process = None
