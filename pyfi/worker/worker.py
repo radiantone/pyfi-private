@@ -894,7 +894,7 @@ class Worker:
                         func = self.celery.task(func, name=self.processor.module +
                                                 '.'+socket.task.name, retries=self.processor.retries)
 
-                        #@task_prerun.connect()
+                        @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
                             """ Update args and kwargs before sending to task. Other bookeeping """
                             from datetime import datetime
