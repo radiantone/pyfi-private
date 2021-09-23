@@ -966,6 +966,7 @@ class Worker:
                             print("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
+                            print("WAITING ON received_queue")
                             self.received_queue.get()
                             print("GOT RECEIVED REPLY")
 
@@ -981,8 +982,8 @@ class Worker:
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
                                   {'signal': 'postrun', 'result':retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
-                            self.main_queue.put(
-                                {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                            #self.main_queue.put(
+                            #    {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                 worker.start()
 
