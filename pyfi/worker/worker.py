@@ -982,8 +982,11 @@ class Worker:
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
                                   {'signal': 'postrun', 'result':retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
-                            #self.main_queue.put(
-                            #    {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+
+                            logging.info("POSTRUN PUTTING ON main_queue")
+                            self.main_queue.put(
+                                {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                            logging.info("POSTRUN DONE PUTTING ON main_queue")
 
                 worker.start()
 
