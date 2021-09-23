@@ -273,7 +273,7 @@ class Worker:
             with self.get_session() as session:
                 processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
-                    
+
                 while True:
 
                     _plugs = {}
@@ -894,7 +894,7 @@ class Worker:
                         func = self.celery.task(func, name=self.processor.module +
                                                 '.'+socket.task.name, retries=self.processor.retries)
 
-                        @task_prerun.connect()
+                        #@task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
                             """ Update args and kwargs before sending to task. Other bookeeping """
                             from datetime import datetime
@@ -946,7 +946,7 @@ class Worker:
                             # Store task run data
                             pass
 
-                        @task_received.connect()
+                        #@task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info("Task RECEIVED %s %s", request.id, sender)
                             logging.info("Task Request Parent %s", request.parent_id)
@@ -969,7 +969,7 @@ class Worker:
                             self.received_queue.get()
                             print("GOT RECEIVED REPLY")
 
-                        @task_postrun.connect()
+                        #@task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
