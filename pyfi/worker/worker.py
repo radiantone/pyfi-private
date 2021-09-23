@@ -946,7 +946,7 @@ class Worker:
                             # Store task run data
                             pass
 
-                        #@task_received.connect()
+                        @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info("Task RECEIVED %s %s", request.id, sender)
                             logging.info("Task Request Parent %s", request.parent_id)
