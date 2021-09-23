@@ -969,7 +969,7 @@ class Worker:
                             self.received_queue.get()
                             print("GOT RECEIVED REPLY")
 
-                        #@task_postrun.connect()
+                        @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
