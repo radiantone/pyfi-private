@@ -872,6 +872,7 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
 
     context.obj['database'].session.add(log1)
     context.obj['database'].session.add(log2)
+    
     processor.logs += [log1]
     processor.logs += [log2]
     processor.updated = datetime.now()
@@ -1633,6 +1634,17 @@ def ls_processor(context, id, name, graph):
         print("Git Repo:", processor.gitrepo)
         print("Name:", processor.name)
 
+    x = PrettyTable()
+
+    names = ["Created", "Text", "Source"]
+
+    x.field_names = names
+
+    for log in processor.logs[:10]:
+        x.add_row([log.created, log.text, log.source])
+    print()
+    print("Logs")
+    print(x)
 
 @ls.command(name='task')
 @click.pass_context

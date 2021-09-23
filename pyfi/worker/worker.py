@@ -652,9 +652,9 @@ class Worker:
 
                         # Execute parallel( pipeline(plug,task), ...)
                         delayed = parallel(*pipelines).delay()
-                        logging.info("PARALLEL invoke %s",delayed)
+                        #logging.info("PARALLEL invoke %s",delayed)
                         #result = delayed.get()
-                        logging.info("PARALLEL result %s",result)
+                        #logging.info("PARALLEL result %s",result)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)

@@ -3,7 +3,7 @@
 Class database model definitions
 """
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import declarative_mixin
+from sqlalchemy.orm import declarative_mixin, foreign, remote
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
@@ -49,36 +49,16 @@ class AlchemyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class LogModel(Base):
-    """
-    Docstring
-    """
-    __tablename__ = 'log'
-
-    id = Column(String(40), autoincrement=False, default=literal_column(
-        'uuid_generate_v4()'), unique=True, primary_key=True)
-    oid = Column(String(40), primary_key=True)
-    text = Column(String(80), nullable=False)
-    source = Column(String(40), nullable=False)
-
-    def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.source, self.text)
-        
 class HasLogs(object):
 
     @declared_attr
     def logs(cls):
-        log_association = Table(
-            "%s_logs" % cls.__tablename__,
-            cls.metadata,
-            Column("log_id", ForeignKey("log.id"), primary_key=True),
-            Column(
-                "%s_id" % cls.__tablename__,
-                ForeignKey("%s.id" % cls.__tablename__),
-                primary_key=True,
-            ),
+        return relationship(
+            "LogModel",
+            order_by="desc(LogModel.created)",
+            primaryjoin="foreign(LogModel.oid) == remote(%s.id)" % cls.__name__,
+            lazy='select'
         )
-        return relationship(LogModel, secondary=log_association)
 
 
 class BaseModel(Base):
@@ -91,9 +71,27 @@ class BaseModel(Base):
         'uuid_generate_v4()'), unique=True, primary_key=True)
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
+    created = Column(DateTime, default=datetime.now,nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
 
+
+class LogModel(Base):
+    """
+    Docstring
+    """
+    __tablename__ = 'log'
+
+    id = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
+
+    created = Column(DateTime, default=datetime.now, nullable=False)
+    oid = Column(String(40), primary_key=True)
+    text = Column(String(80), nullable=False)
+    source = Column(String(40), nullable=False)
+
+    def __repr__(self):
+        return "{}:{}:{}".format(self.id, self.source, self.text)
 
 
 rights = ['ALL',
@@ -321,7 +319,7 @@ class WorkerModel(BaseModel):
         return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
 
 
-class ProcessorModel(BaseModel):
+class ProcessorModel(HasLogs, BaseModel):
     """
     Docstring
     """
