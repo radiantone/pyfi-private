@@ -334,7 +334,7 @@ class Worker:
                                 logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 
-                                self.received_queue.put(data)
+                                self.received_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'prerun':
                         logging.info("Task PRERUN: %s", _signal)
@@ -390,6 +390,7 @@ class Worker:
 
                                     call.parent = parent
                                     _signal['kwargs']['myid'] = call.id
+                                    _signal['kwargs']['parent'] = call.id
 
                                     logging.info("RETRIEVED CALL %s", call)
 
@@ -967,8 +968,10 @@ class Worker:
 
                             # Wait for reply
                             print("WAITING ON received_queue")
-                            self.received_queue.get()
-                            print("GOT RECEIVED REPLY")
+                            _kwargs = self.received_queue.get()
+                            kwargs.update(_kwargs)
+                            print("GOT RECEIVED REPLY ", _kwargs)
+                            print("New KWARGS ARE:",kwargs)
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
