@@ -1,3 +1,13 @@
+Plugs vs Sockets
+-----------------
+
+Sockets have queues associated with them so you can invoke them directly.
+
+However, connecting two sockets together requires a plug, which has its own queue?
+It's intuitive that the plug would be its own queue so multiple plugs can have their own QoS etc
+but then it requires some kind of queue->queue connection
+
+
 Migrations
 --------------------
 

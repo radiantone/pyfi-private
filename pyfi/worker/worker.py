@@ -311,7 +311,7 @@ class Worker:
                                     myid = str(uuid4())
                                 
                                 _signal['kwargs']['myid'] = myid
-                                #_signal['kwargs']['parent'] = myid # For next call
+                                _signal['kwargs']['parent'] = myid # For next call
 
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')

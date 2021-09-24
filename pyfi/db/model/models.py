@@ -56,8 +56,8 @@ class HasLogs(object):
         return relationship(
             "LogModel",
             order_by="desc(LogModel.created)",
-            primaryjoin="foreign(LogModel.oid) == remote(%s.id)" % cls.__name__,
-            lazy='select'
+            primaryjoin=lambda: foreign(LogModel.oid) == remote(cls.id),
+            lazy="select"
         )
 
 

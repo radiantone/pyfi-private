@@ -1290,7 +1290,7 @@ def start_worker(context, name, pool, skip_venv, queue):
 @click.option('-n', '--name', default=None, required=False, help='Name of queue')
 @click.option('-t', '--task', default=None, required=False, help='Name of task')
 @click.pass_context
-def ls_queue(context, id, name):
+def ls_queue(context, id, name, task):
     """
     List a queue
     """
@@ -1360,12 +1360,15 @@ def ls_call(context, id, name, result, tree, graph, flow):
     elif id is not None:
         call = context.obj['database'].session.query(
             CallModel).filter_by(id=id).first()
-
+        if call is None:
+            print("No call with that id.")
+            return
         if flow:
             nodes = context.obj['database'].session.query(
                 CallModel).filter_by(task_id=call.task_id).all()
         else:
             nodes = [call]
+
 
     if calls:
         nodes = calls
