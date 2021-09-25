@@ -388,6 +388,7 @@ class CallModel(BaseModel):
     taskparent = Column(String(80), nullable=True)
     resultid = Column(String(80))
     celeryid = Column(String(80))
+    tracking = Column(String(80))
 
     task_id = Column(String(40), ForeignKey('task.id'),
                      nullable=False)
@@ -399,7 +400,7 @@ class CallModel(BaseModel):
     socket = relationship('SocketModel', back_populates="call", lazy=True, uselist=False)
 
     events = relationship(
-        "EventModel", secondary=calls_events)
+        "EventModel", secondary=calls_events, cascade="all, delete")
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.lastupdated, self.started, self.finished)
@@ -480,9 +481,12 @@ class EventModel(BaseModel):
     Docstring
     """
     __tablename__ = 'event'
-    name = Column(String(80), nullable=False)
     note = Column(String(80), nullable=False)
+    name = Column(String(80), nullable=False)
 
+    call_id = Column(String(40), ForeignKey('call.id'))
+    call = relationship("CallModel", back_populates="events", single_parent=True,
+                        cascade="all, delete-orphan")
     def __repr__(self):
         return '<id %r>' % self.id
 
@@ -535,7 +539,8 @@ class SocketModel(BaseModel):
     queue = relationship(
         'QueueModel', secondary=sockets_queues, uselist=False)
 
-    call = relationship("CallModel", back_populates="socket")
+    call = relationship("CallModel", back_populates="socket",
+                        cascade="all, delete-orphan")
 
     def __repr__(self):
         return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)

@@ -523,6 +523,13 @@ def delete():
     """
     pass
 
+@delete.command(name='calls', help="Delete all the call records")
+@click.pass_context
+def delete_calls(context):
+    rows = context.obj['database'].session.query(
+        CallModel).delete()
+    print(rows, "deleted.")
+
 
 @delete.command(name='socket', help="Delete a socket from the database")
 @click.option('-n','--name', default=None, required=True, help="Name of socket being deleted")
@@ -1363,7 +1370,8 @@ def ls_call(context, id, name, result, tree, graph, flow):
         if call is None:
             print("No call with that id.")
             return
-        if flow:
+        if flow: # task_id is NOT unique to each workflow invocation
+            # Should use tracking
             nodes = context.obj['database'].session.query(
                 CallModel).filter_by(task_id=call.task_id).all()
         else:
@@ -1472,6 +1480,10 @@ def ls_calls(context, page, rows, unfinished, ascend):
         total = context.obj['database'].session.query(CallModel).filter_by(finished=None).count()
     else:
         total = context.obj['database'].session.query(CallModel).count()
+
+    if total == 0:
+        print("No data yet.")
+        return
 
     if page > round(total/rows):
         print("Only {} pages exist.".format(round(total/rows)))
