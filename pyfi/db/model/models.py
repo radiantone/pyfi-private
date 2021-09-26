@@ -2,13 +2,14 @@
 """
 Class database model definitions
 """
+import json
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import declarative_mixin, foreign, remote
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import CreateColumn
 from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
-import logging
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 from datetime import datetime
@@ -16,11 +17,13 @@ from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy import and_
 
-import json
+from oso import Oso
 
-Base = declarative_base()
+Base = declarative_base(name="Base")
 
+oso = Oso()
 
 @compiles(CreateColumn, 'postgresql')
 def use_identity(element, compiler, **kw):
@@ -56,7 +59,7 @@ class HasLogs(object):
         return relationship(
             "LogModel",
             order_by="desc(LogModel.created)",
-            primaryjoin=lambda: foreign(LogModel.oid) == remote(cls.id),
+            primaryjoin=lambda: and_(foreign(LogModel.oid) == remote(cls.id),   LogModel.discriminator == cls.__name__),
             lazy="select"
         )
 
@@ -86,7 +89,8 @@ class LogModel(Base):
         'uuid_generate_v4()'), unique=True, primary_key=True)
 
     created = Column(DateTime, default=datetime.now, nullable=False)
-    oid = Column(String(40), primary_key=True)
+    oid=Column(String(40), primary_key=True)
+    discriminator=Column(String(40))
     text = Column(String(80), nullable=False)
     source = Column(String(40), nullable=False)
 
@@ -602,3 +606,23 @@ class QueueModel(BaseModel):
                                                                self.max_length_bytes,
                                                                self.message_ttl,
                                                                self.expires)
+
+
+oso.register_class(BaseModel)
+oso.register_class(UserModel)
+oso.register_class(LogModel)
+oso.register_class(ProcessorModel)
+oso.register_class(QueueModel)
+oso.register_class(SocketModel)
+oso.register_class(PlugModel)
+oso.register_class(AgentModel)
+oso.register_class(WorkerModel)
+oso.register_class(NodeModel)
+oso.register_class(FlowModel)
+oso.register_class(RoleModel)
+oso.register_class(PrivilegeModel)
+oso.register_class(ActionModel)
+oso.register_class(EventModel)
+oso.register_class(SchedulerModel)
+oso.register_class(CallModel)
+oso.register_class(TaskModel)

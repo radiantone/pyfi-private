@@ -1,29 +1,32 @@
 """
 cli.py - pyfi CLI command tool for managing database
 """
-import getpass
-import configparser
-from pathlib import Path
-import logging
 import os
-from pyfi.db.model.models import PrivilegeModel
 import sys
-from datetime import datetime
+import logging
+import getpass
+import platform
+import configparser
 
 import click
+
+from pathlib import Path
+from pyfi.db.model.models import PrivilegeModel
+from datetime import datetime
 
 from flask import Flask
 
 import pyfi.db.postgres
+
 from sqlalchemy import create_engine, MetaData, literal_column
 from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
 from pyfi.server import app
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import oso, SchedulerModel, UserModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
+from sqlalchemy_oso import authorized_sessionmaker, register_models
 
-import platform
 HOSTNAME = platform.node()
 
 current_user = getpass.getuser()
@@ -33,7 +36,9 @@ POSTGRES = 'postgresql://postgres:pyfi101@'+HOSTNAME+':5432/pyfi'
 
 home = str(Path.home())
 
+
 CONFIG = configparser.ConfigParser()
+
 
 class CustomFormatter(logging.Formatter):
 
@@ -56,6 +61,7 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
 
 @click.group(invoke_without_command=True)
 @click.option('--debug', is_flag=True, default=False, help='Debug switch')
@@ -84,6 +90,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
     context.obj = {}
+    # If login section, then query for User and see if token matches and still valid
+
     if config:
         if not db:
             db = click.prompt('Database connection URI',
@@ -99,10 +107,10 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                                type=str, default='http://localhost:15672/api')
         if not user:
             user = click.prompt('Message broker API username',
-                               type=str, default='guest')
+                                type=str, default='guest')
         if not password:
             password = click.prompt('Message broker API password',
-                               type=str, default='guest')
+                                    type=str, default='guest')
 
         _config = configparser.ConfigParser()
         _config.add_section('database')
@@ -121,11 +129,13 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             _config.write(configfile)
 
         print("Configuration file created at {}".format(home+"/pyfi.ini"))
-        
 
     if not os.path.exists(ini) and db is None:
         print("No database uri configured. Please run \033[1m $ pyfi --config")
         exit(1)
+
+    # If there is a user login in pyfi.ini then construct the DB URI
+    # using their login info
 
     if os.path.exists(ini) and db is None:
         CONFIG.read(ini)
@@ -147,12 +157,83 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
     except:
         #import traceback
-        #print(traceback.format_exc())
+        # print(traceback.format_exc())
         print("Database unavailable. Please check your configuration or ensure database server is running.")
         return
 
+    if CONFIG.has_section('login'):
+        user = CONFIG.get('login', 'user')
+        password = CONFIG.get('login', 'password')
+        user_m = context.obj['database'].session.query(
+            UserModel).filter_by(name=user, password=password).first()
+        context.obj['user'] = user_m
+
+        oso.load_files([home+"/pyfi.polar"])
+        
+        def get_checked_permissions(*args, **kwargs):
+            print("get_checked_permissions")
+            return None
+
+        context.obj['session'] = authorized_sessionmaker(bind=engine,
+                                                         get_oso=lambda: oso,
+                                                         get_user=lambda: user,
+                                                         get_checked_permissions=get_checked_permissions,
+                                                         get_action=lambda: "read")
+        
+        # Load the base policy file into OSO
+
+        # Generate OSO user policy file based on roles and privileges in the database
+        # Then load the policy file into oso
+
+        # Update database URI based on logged in user
+    else:
+        context.obj['user'] = None
+
     if len(sys.argv) == 1:
         click.echo(context.get_help())
+
+
+@cli.command()
+@click.pass_context
+def login(context):
+    """
+    Log into PYFI CLI
+    """
+    import hashlib
+
+    ini = home+"/pyfi.ini"
+
+    user = None
+    if CONFIG.has_option('login', 'user'):
+        _user = CONFIG.get('login', 'user')
+    else:
+        CONFIG.add_section('login')
+
+    password = None
+    if CONFIG.has_option('login', 'password'):
+        _password = CONFIG.get('login', 'password')
+
+    user = click.prompt('User',
+                        type=str, default=_user)
+    password = click.prompt('Password',
+                            type=str, default=_password)
+    password = hashlib.md5(password.encode()).hexdigest()
+
+    CONFIG.set('login', 'user', user)
+
+    if password != _password:
+        print("Invalid login.")
+        return
+    else:
+        # Create timed token, add to user object and ini file
+        print("Logged in.")
+        user_m = context.obj['database'].session.query(
+            UserModel).filter_by(name=user, password=password).first()
+        print(user_m)
+
+    CONFIG.set('login', 'password', password)
+    with open(ini, 'w') as inifile:
+        CONFIG.write(inifile)
 
 
 @cli.group()
@@ -243,6 +324,7 @@ def rebuild(context, yes):
         dropdb(context)
         context.invoke(db_init)
 
+
 def dropdb(context):
     from pyfi.db.model import Base
 
@@ -258,7 +340,6 @@ def dropdb(context):
         except:
             pass
 
-
     context.obj['database'].session.commit()
     for user in _users:
         context.obj['database'].session.execute(
@@ -269,7 +350,7 @@ def dropdb(context):
 
     context.obj['database'].session.commit()
     print("Database dropped.")
-            
+
 
 @db.command(name='drop')
 @click.option('-y', '--yes', is_flag=True, default=False, help="Yes to rebuild without prompting")
@@ -292,6 +373,7 @@ def db_drop(context, yes):
     except Exception as ex:
         logging.error(ex)
 
+
 @db.command(name='json', help="Dump the database to JSON")
 @click.pass_context
 def db_json(context):
@@ -303,11 +385,14 @@ def db_json(context):
     """ Returns the entire content of a database as lists of dicts"""
     engine = context.obj['database']
     meta = MetaData()
-    meta.reflect(bind=engine)  # http://docs.sqlalchemy.org/en/rel_0_9/core/reflection.html
+    # http://docs.sqlalchemy.org/en/rel_0_9/core/reflection.html
+    meta.reflect(bind=engine)
     result = {}
     for table in meta.sorted_tables:
-        result[table.name] = [dict(row) for row in engine.execute(table.select())]
+        result[table.name] = [dict(row)
+                              for row in engine.execute(table.select())]
     print(json.dumps(result, indent=4, default=str))
+
 
 @db.command(name='init')
 @click.pass_context
@@ -523,6 +608,7 @@ def delete():
     """
     pass
 
+
 @delete.command(name='calls', help="Delete all the call records")
 @click.pass_context
 def delete_calls(context):
@@ -532,7 +618,7 @@ def delete_calls(context):
 
 
 @delete.command(name='socket', help="Delete a socket from the database")
-@click.option('-n','--name', default=None, required=True, help="Name of socket being deleted")
+@click.option('-n', '--name', default=None, required=True, help="Name of socket being deleted")
 @click.pass_context
 def delete_socket(context, name):
     model = context.obj['database'].session.query(
@@ -543,7 +629,7 @@ def delete_socket(context, name):
 
 
 @delete.command(name='task', help="Delete a task from the database")
-@click.option('-n','--name', default=None, required=True, help="Name of task being deleted")
+@click.option('-n', '--name', default=None, required=True, help="Name of task being deleted")
 @click.pass_context
 def delete_task(context, name):
     model = context.obj['database'].session.query(
@@ -554,7 +640,7 @@ def delete_task(context, name):
 
 
 @delete.command(name='processor', help="Delete a processor from the database")
-@click.option('-n','--name', default=None, required=True, help="Name of processor being deleted")
+@click.option('-n', '--name', default=None, required=True, help="Name of processor being deleted")
 @click.pass_context
 def delete_processor(context, name):
     model = context.obj['database'].session.query(
@@ -661,7 +747,6 @@ def task():
     pass
 
 
-
 @task.command(name='show', help="Show details for a task")
 @click.option('-n', '--name', required=True, help='Name of task to run')
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
@@ -678,7 +763,7 @@ def show_task(context, name, gitrepo):
         names += ["Git Repo"]
 
     x.field_names = names
-    
+
     nodes = [task]
 
     if task.code:
@@ -693,6 +778,7 @@ def show_task(context, name, gitrepo):
         x.add_row(values)
 
     print(x)
+
 
 @task.command(name='run')
 @click.option('-n', '--name', required=False, help='Name of task to run')
@@ -739,7 +825,8 @@ def run_task(context, name, type, socket, data):
         lines = []
         for line in sys.stdin:
             stripped = line.strip()
-            if not stripped: break
+            if not stripped:
+                break
             lines.append(stripped)
 
         result = socket(''.join(lines))
@@ -801,7 +888,7 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
 
     if not module:
         processor.module = click.prompt('Module',
-                                          type=str, default=processor.module)
+                                        type=str, default=processor.module)
 
     if not workers:
         processor.concurrency = click.prompt('Workers',
@@ -844,7 +931,6 @@ def add_task(context, name, module, code):
         # get from stdin
         code = sys.stdin.read()
 
-
     task = TaskModel(name=name, module=module, code=code, gitrepo="None")
     task.updated = datetime.now()
     context.obj['database'].session.add(task)
@@ -874,12 +960,14 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     processor = ProcessorModel(
         id=id, status='ready', hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
-    log1 = LogModel(oid=id, text='This is a log', source='pyfi')
-    log2 = LogModel(oid=id, text='This is a log too', source='pyfi')
+    log1 = LogModel(oid=id, text='This is a log',
+                    discriminator='ProcessorModel', source='pyfi')
+    log2 = LogModel(oid=id, text='This is a log too',
+                    discriminator='ProcessorModel', source='pyfi')
 
     context.obj['database'].session.add(log1)
     context.obj['database'].session.add(log2)
-    
+
     processor.logs += [log1]
     processor.logs += [log2]
     processor.updated = datetime.now()
@@ -933,6 +1021,7 @@ def add_user(context, name, email, password):
     """
     from sqlalchemy.exc import IntegrityError
     from pyfi.db.model import Base
+    import hashlib
 
     id = context.obj['id']
 
@@ -940,12 +1029,14 @@ def add_user(context, name, email, password):
         raise click.UsageError("Name and Email are required")
 
     try:
+        password = hashlib.md5(password.encode()).hexdigest()
+        # This user will be used in OSO authorizations
         user = UserModel(name=name, password=password, email=email)
         user.lastupdated = datetime.now()
 
         context.obj['database'].session.add(user)
         context.obj['database'].session.commit()
-        
+
         sql = f"CREATE USER {name} WITH PASSWORD '{password}'"
         print(sql)
         context.obj['database'].session.execute(sql)
@@ -1079,7 +1170,7 @@ def update_socket(context, name, queue, interval, procid, procname, task):
             SocketModel).filter_by(id=id).first()
 
     processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=socket.processor_id).first()
+        ProcessorModel).filter_by(id=socket.processor_id).first()
     if not interval and interval > 0:
         socket.interval = click.prompt('Interval',
                                        type=int, default=socket.interval)
@@ -1221,7 +1312,8 @@ def add_socket(context, name, queue, interval, procname, task):
         _task = context.obj['database'].session.query(
             TaskModel).filter_by(name=task).first()
         if _task is None:
-            _task = TaskModel(name=task, module=processor.module, gitrepo=processor.gitrepo)
+            _task = TaskModel(name=task, module=processor.module,
+                              gitrepo=processor.gitrepo)
         socket.task = _task
         context.obj['database'].session.add(_task)
 
@@ -1273,7 +1365,8 @@ def start_worker(context, name, pool, skip_venv, queue):
         WorkerModel).filter_by(name=name).first()
 
     worker = {}
-    processor = context.obj['database'].session.query(ProcessorModel).filter_by(id=workerModel.processor_id).first()
+    processor = context.obj['database'].session.query(
+        ProcessorModel).filter_by(id=workerModel.processor_id).first()
 
     dir = 'work/'+processor.id
     os.makedirs(dir, exist_ok=True)
@@ -1310,8 +1403,8 @@ def ls_queue(context, id, name, task):
         queue = context.obj['database'].session.query(
             QueueModel).filter_by(id=id).first()
     elif name is not None:
-            queue = context.obj['database'].session.query(
-                QueueModel).filter_by(name=name).first()
+        queue = context.obj['database'].session.query(
+            QueueModel).filter_by(name=name).first()
 
     if task:
         # Query for task, get task name, processor name and queue name
@@ -1355,9 +1448,10 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "State"]
+    names = ["Name", "ID", "Owner", "Last Updated",
+             "Socket", "Started", "Finished", "State"]
     x.field_names = names
-    
+
     calls = None
     call = None
 
@@ -1370,19 +1464,18 @@ def ls_call(context, id, name, result, tree, graph, flow):
         if call is None:
             print("No call with that id.")
             return
-        if flow: # task_id is NOT unique to each workflow invocation
+        if flow:  # task_id is NOT unique to each workflow invocation
             # Should use tracking
             nodes = context.obj['database'].session.query(
                 CallModel).filter_by(task_id=call.task_id).all()
         else:
             nodes = [call]
 
-
     if calls:
         nodes = calls
     elif call:
         import pickle
-        
+
         if result:
             redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
             r = redisclient.get(call.resultid)
@@ -1412,7 +1505,8 @@ def ls_call(context, id, name, result, tree, graph, flow):
                 for _child in _calls:
                     if _child.taskparent == node.celeryid:
                         _child_node = Node(_child.name, parent)
-                        _child_node = get_call_graph(_child_node, _child, _calls)
+                        _child_node = get_call_graph(
+                            _child_node, _child, _calls)
 
                 return parent
 
@@ -1423,7 +1517,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
                 return
         if tree:
             from pptree import print_tree, Node
-            
+
             root = Node(call.name)
 
             def get_call_graph(root, _call):
@@ -1442,13 +1536,13 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                    node.lastupdated, node.socket.name, node.started, node.finished, node.state])
+                   node.lastupdated, node.socket.name, node.started, node.finished, node.state])
     print(x)
     x = PrettyTable()
     print("Provenance")
     names = ["Task", "Task Parent", "Flow Parent"]
     x.field_names = names
-    x.add_row([ node.celeryid, node.taskparent, node.parent])
+    x.add_row([node.celeryid, node.taskparent, node.parent])
     print(x)
     x = PrettyTable()
     print('Events')
@@ -1457,7 +1551,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
     if call:
         for event in call.events:
             x.add_row([event.name, event.id, event.owner,
-                    event.lastupdated, event.note])
+                       event.lastupdated, event.note])
     print(x)
 
 
@@ -1473,11 +1567,13 @@ def ls_calls(context, page, rows, unfinished, ascend):
     """
     x = PrettyTable()
 
-    names = ["Page","Row", "Name", "ID", "Owner", "Last Updated", "Socket", "Started", "Finished", "State"]
+    names = ["Page", "Row", "Name", "ID", "Owner",
+             "Last Updated", "Socket", "Started", "Finished", "State"]
     x.field_names = names
 
     if unfinished:
-        total = context.obj['database'].session.query(CallModel).filter_by(finished=None).count()
+        total = context.obj['database'].session.query(
+            CallModel).filter_by(finished=None).count()
     else:
         total = context.obj['database'].session.query(CallModel).count()
 
@@ -1612,6 +1708,9 @@ def ls_processor(context, id, name, graph):
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
+    if processor is None:
+        print("No processor found.")
+        return
 
     workername = processor.worker.name if processor.worker else "None"
 
@@ -1661,6 +1760,7 @@ def ls_processor(context, id, name, graph):
     print("Logs")
     print(x)
 
+
 @ls.command(name='task')
 @click.pass_context
 def ls_task(context):
@@ -1707,7 +1807,8 @@ def ls_nodes(context):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Host", "Owner", "Last Updated", "CPUs", "Mem Size", "Free Mem", "Used Mem", "Agent"]
+    names = ["Name", "ID", "Host", "Owner", "Last Updated",
+             "CPUs", "Mem Size", "Free Mem", "Used Mem", "Agent"]
     x.field_names = names
     nodes = context.obj['database'].session.query(NodeModel).all()
     for node in nodes:
@@ -1764,7 +1865,8 @@ def ls_user(context, name):
 
     names = ["Name", "ID", "Owner", "Email"]
     x.field_names = names
-    user = context.obj['database'].session.query(UserModel).filter_by(name=name).first()
+    user = context.obj['database'].session.query(
+        UserModel).filter_by(name=name).first()
     x.add_row([user.name, user.id, user.owner, user.email])
 
     print(x)
@@ -1857,8 +1959,9 @@ def ls_tasks(context, gitrepo):
     tasks = context.obj['database'].session.query(TaskModel).all()
 
     for node in tasks:
-        values = [node.name, node.id, node.owner, node.lastupdated, node.module]
-        
+        values = [node.name, node.id, node.owner,
+                  node.lastupdated, node.module]
+
         if gitrepo:
             values += [node.gitrepo]
         x.add_row(values)
@@ -1873,7 +1976,6 @@ def ls_agent(context):
     List an agent
     """
     pass
-
 
 
 @ls.command(name='agents')
@@ -1955,7 +2057,8 @@ def ls_node(context, name, tree, horizontal):
             Node("task::"+socket.task.name, _sock)
 
         print_tree(root, horizontal=not horizontal)
-    
+
+
 @ls.command(name='plug')
 @click.option('-n', '--name', default=None, required=True, help="Name of processor")
 @click.pass_context
@@ -1969,14 +2072,15 @@ def ls_plug(context, name):
         PlugModel).filter_by(name=name).first()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Queue", "Source Task", "Target Task","Source Socket", "Target Socket"]
+             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket"]
     x.field_names = names
 
     node = plug
     x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name, node.target.name])
+               node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name, node.target.name])
 
     print(x)
+
 
 @ls.command(name='plugs')
 @click.pass_context
@@ -2013,12 +2117,12 @@ def listen(context, name, channel, adaptor):
     redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
     p = redisclient.pubsub()
     p.psubscribe([name+'.'+channel])
-    print("Listening to",name)
+    print("Listening to", name)
     func = None
     if adaptor:
         module = importlib.import_module('.'.join(adaptor.rsplit('.')[:-1]))
         _class = getattr(module, adaptor.rsplit('.')[-1:][0])
-        print("Loaded adaptor function",adaptor)
+        print("Loaded adaptor function", adaptor)
         func = _class()
 
     while True:
@@ -2035,6 +2139,7 @@ def whoami(context):
     Print who I am logged in as
     """
     print("I am", context.obj['owner'])
+
 
 @cli.group()
 def api():
