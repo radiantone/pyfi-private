@@ -98,13 +98,30 @@ Phase 4 Goals
 
 Phase 5 Goals
 ----------------------
++ Refactor data model to make more logical sense
++ Update worker behavior
++ Control flow mechanisms
 
-- Scheduler managing nodes and processors. Attaching orphans, rebalancing etc
-- Pub sub working smoothly on all 3 processor channels: data, log, task
+- Scheduler managing nodes and processors. Attaching orphans, rebalancing etc 50%
+- Pub sub working smoothly on all 3 processor channels: data, log, task DONE
      - Task lifecycle notifications
-- Finish implementing worker signals
+- Finish implementing worker signals 75%
+- All control flow structures working DONE
+- Performance bugs fixed DONE
+- Remapped plugs, queues and sockets DONE
+    - Plugs no longer point to processors. Only sockets. DONE
+    - Sockets have a source and target plug DONE
+    - Outbound data flow goes through plug queue then arrives on task queue DONE
+    - Task results flow onto sourceplugs attached to socket. DONE
+    - Add queue binding to plugs DONE
+- Worker updates
+    - Add all outbound data flows to sourceplugs and target sockets into a single parallel operation DONE
+- RTD Docs. 80%
+
+
+Phase 6 Goals
+-----------------------
 - UI templates for control flow processors
 - Flask UI backend with login, cors and other harness plugins working
 - Flask API REST server 
-- RTD Docs
 - 

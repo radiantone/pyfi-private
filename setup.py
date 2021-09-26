@@ -149,6 +149,8 @@ setup(
         'apscheduler',
         'sphinx',
         # 'simpy',
+        'oso==0.20.1',
+        'sqlalchemy-oso==0.20.1',
         'pyschedule',
         'uvicorn[standard]',
         'sphinx-material @ git+https://github.com/radiantone/sphinx-material'

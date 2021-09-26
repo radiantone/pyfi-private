@@ -1,9 +1,30 @@
+
+RESIDENT CODE/TASKS
+
+- From python, pass a workflow to a Task() constructor for it to be injected into the network.
+The Task() object will take the source code and store it with the task. The un scheduled task object
+will be picked up by the scheduler and assigned to a worker based on the load of that worker.
+
+
+
+MISC
+
+- Addressable namespace for pyfi topology. e.g.
+    - flow.processor.socket.task.call.event
+    - flow.processor.socket.plug.socket.task.call.event
+
+
 - USE ML to try and learn the equation associated with a data stream
 - Given a data stream and numerical point values at different times, create a regression model that can predict the point value, given the data stream.
 - Data flows feed into web socket channels that are fronted by dashboards and charts
     - Pyfi Charts is a layer on top of Pyfi that connects securely to the websocket feeds to plot data.
     - Create persistent dashboards with PYFI that connect to data processors in real time
 
+SECURITY
+
+Use OSO to implement access control logic based on privilege model.
+For example,if one does not have access to a processor, then they don't have access to its sockets and tasks.
+That kind of inference.
 
 CONTAINERS 
 
