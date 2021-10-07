@@ -1,6 +1,7 @@
 """
 cli.py - pyfi CLI command tool for managing database
 """
+from sqlalchemy import exc as sa_exc
 import os
 import sys
 import logging
@@ -9,9 +10,9 @@ import platform
 import configparser
 
 import click
+from pyfi.server import app
 
 from pathlib import Path
-from pyfi.db.model.models import PrivilegeModel
 from datetime import datetime
 
 from flask import Flask
@@ -22,10 +23,10 @@ from sqlalchemy import create_engine, MetaData, literal_column
 from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
-from pyfi.server import app
+from pyfi.db.model.models import PrivilegeModel
 from pyfi.db.model import oso, SchedulerModel, UserModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
-from sqlalchemy_oso import authorized_sessionmaker, register_models
+from sqlalchemy_oso import authorized_sessionmaker
 
 HOSTNAME = platform.node()
 
@@ -164,22 +165,37 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     if CONFIG.has_section('login'):
         user = CONFIG.get('login', 'user')
         password = CONFIG.get('login', 'password')
-        user_m = context.obj['database'].session.query(
-            UserModel).filter_by(name=user, password=password).first()
-        context.obj['user'] = user_m
+        try:
+            user_m = context.obj['database'].session.query(
+                UserModel).filter_by(name=user, password=password).first()
+            #context.obj['user'] = user_m
+            #context.obj['database'].session.add(user_m)
+            logging.debug(f"{user_m.name} logged in.")
+        except:
+            context.obj['user'] = None
+            print(f"Unable to log in {user}.")
+            return
 
         oso.load_files([home+"/pyfi.polar"])
-        
-        def get_checked_permissions(*args, **kwargs):
-            print("get_checked_permissions")
-            return None
+        context.obj['database'].session.expunge(user_m)
+        context.obj['database'].session.close()
 
-        context.obj['session'] = authorized_sessionmaker(bind=engine,
-                                                         get_oso=lambda: oso,
-                                                         get_user=lambda: user,
-                                                         get_checked_permissions=get_checked_permissions,
-                                                         get_action=lambda: "read")
+        def get_checked_permissions(*args, **kwargs):
+            logging.debug("cli: get_checked_permissions")
+            # Return based on users roles, privileges to specific models
+            return { ProcessorModel: "read", UserModel: "read", LogModel: "read", RoleModel: "read" }
         
+        context.obj['session'] = session = authorized_sessionmaker(get_oso=lambda: oso,
+                                                         get_user=lambda: user_m,
+                                                         get_checked_permissions=get_checked_permissions,
+                                                         bind=engine)()
+        user_m2 = session.query(
+            UserModel).filter_by(name=user, password=password).first()
+        # Add the logged in user to the authorized_session
+        #context.obj['database'].session.merge(user_m)
+        session.add(user_m2)
+        context.obj['user'] = user_m2
+        context.obj['database'].session = session #context.obj['session']
         # Load the base policy file into OSO
 
         # Generate OSO user policy file based on roles and privileges in the database
@@ -193,17 +209,55 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         click.echo(context.get_help())
 
 
+@cli.group()
+def user():
+    """
+    User commands
+    """
+    pass
+
+
+@user.command(name="add")
+@click.option('-u', '--user', default=None, required=True)
+@click.option('-r', '--role', default=None, required=False)
+@click.option('-p', '--privilege', default=None, required=False)
+@click.pass_context
+def user_add(context, user, role, privilege):
+    """
+    Add roles and privileges to a user
+    """
+    user_m = context.obj['database'].session.query(
+        UserModel).filter_by(name=user).first()
+    if role:
+        role_m = context.obj['database'].session.query(
+            RoleModel).filter_by(name=role).first()
+        print("ROLE:",role_m)
+        user_m.roles += [role_m]
+        database = context.obj['database']
+        database.session.add(user_m)
+        database.session.add(role_m)
+        database.session.commit()
+        print("Role {} added to {}.".format(role_m.name, user_m.name))
+    elif privilege:
+        pass
+    else:
+        print("Nothing to do.")
+
+
 @cli.command()
 @click.pass_context
-def login(context):
+@click.option('-d','--database', is_flag=True, default=False, help="Database login only")
+def login(context, database):
     """
     Log into PYFI CLI
     """
     import hashlib
+    from urllib.parse import urlparse
 
     ini = home+"/pyfi.ini"
 
     user = None
+
     if CONFIG.has_option('login', 'user'):
         _user = CONFIG.get('login', 'user')
     else:
@@ -214,24 +268,29 @@ def login(context):
         _password = CONFIG.get('login', 'password')
 
     user = click.prompt('User',
-                        type=str, default=_user)
-    password = click.prompt('Password',
-                            type=str, default=_password)
-    password = hashlib.md5(password.encode()).hexdigest()
+                        type=str)
+    __password = click.prompt('Password',
+                            type=str)
+    password = hashlib.md5(__password.encode()).hexdigest()
 
     CONFIG.set('login', 'user', user)
 
-    if password != _password:
-        print("Invalid login.")
-        return
-    else:
-        # Create timed token, add to user object and ini file
-        print("Logged in.")
+    if not database:
         user_m = context.obj['database'].session.query(
             UserModel).filter_by(name=user, password=password).first()
-        print(user_m)
 
+        if user_m is not None:
+            print("Logged in.")
+        else:
+            print("Invalid login.")
+
+    dburi = CONFIG.get('database','uri')
+    uri = urlparse(dburi)
+    newuri = uri.scheme+'://'+user+':'+__password+'@'+uri.hostname+':'+str(uri.port)+uri.path
+    print("Setting new database uri {}".format(newuri))
+    CONFIG.set('database','uri',newuri)
     CONFIG.set('login', 'password', password)
+
     with open(ini, 'w') as inifile:
         CONFIG.write(inifile)
 
@@ -324,31 +383,33 @@ def rebuild(context, yes):
         dropdb(context)
         context.invoke(db_init)
 
-
 def dropdb(context):
     from pyfi.db.model import Base
 
     # For every user in "user" table, DROP USER name
-
+    
     _users = [u.name for u in context.obj['database'].session.query(
         UserModel).all()]
+
+    for user in _users:
+        if user != 'postgres':
+            context.obj['database'].session.execute(
+                f"DROP OWNED BY {user}")
+            context.obj['database'].session.execute(
+                f"DROP USER {user}")
+            print("Dropped user {}".format(user))
+    
     context.obj['database'].session.commit()
+    
     for t in Base.metadata.sorted_tables:
         try:
+            print("Dropping {}".format(t.name))
             t.drop(context.obj['database'])
             print("Dropped {}".format(t.name))
         except:
-            pass
+            import traceback
+            print(traceback.format_exc())
 
-    context.obj['database'].session.commit()
-    for user in _users:
-        context.obj['database'].session.execute(
-            f"DROP OWNED BY {user}")
-        context.obj['database'].session.execute(
-            f"DROP USER {user}")
-        print("Dropped user {}".format(user))
-
-    context.obj['database'].session.commit()
     print("Database dropped.")
 
 
@@ -395,11 +456,14 @@ def db_json(context):
 
 
 @db.command(name='init')
+@click.option('-r', '--rls', is_flag=True, default=False, help="Row level security")
 @click.pass_context
-def db_init(context):
+def db_init(context, rls):
     """
     Initialize database tables
     """
+    import hashlib
+
     try:
         try:
             from sqlalchemy import create_engine
@@ -422,18 +486,33 @@ def db_init(context):
         from pyfi.db.model import Base
 
         Base.metadata.create_all(context.obj['database'])
-        for t in Base.metadata.sorted_tables:
-            try:
-                sql = f"ALTER TABLE \"{t.name}\" ENABLE ROW LEVEL SECURITY"
-                print("Enabling security on table {}".format(t.name))
-                context.obj['database'].session.execute(sql)
-                sql = f"CREATE POLICY {t.name}_security ON \"{t.name}\" USING ({t.name}.owner::text = current_user)"
-                context.obj['database'].session.execute(sql)
-            except:
-                pass
+
+        if rls:
+            for t in Base.metadata.sorted_tables:
+                try:
+                    sql = f"ALTER TABLE \"{t.name}\" ENABLE ROW LEVEL SECURITY"
+                    print("Enabling security on table {}".format(t.name))
+                    context.obj['database'].session.execute(sql)
+                    sql = f"CREATE POLICY {t.name}_security ON \"{t.name}\" USING ({t.name}.owner::text = current_user)"
+                    context.obj['database'].session.execute(sql)
+                except:
+                    pass
 
             context.obj['session'].commit()
         print("Database create all schemas done.")
+
+        email = click.prompt('Postgres user email', type=str)
+        password = click.prompt('Postgres user password', type=str)
+
+        _password = hashlib.md5(password.encode()).hexdigest()
+        user = UserModel(name='postgres', email=email, password=_password)
+        role = RoleModel(name='admin')
+        user.roles += [role]
+        context.obj['database'].session.add(role)
+        context.obj['database'].session.add(user)
+        context.obj['database'].session.commit()
+        print("Updated postgres user.")
+
     except Exception as ex:
         logging.error(ex)
 
@@ -955,14 +1034,17 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     """
     Add processor to the database
     """
+    from sqlalchemy.orm import Session
+
     id = context.obj['id']
+    user = context.obj['user']
 
     processor = ProcessorModel(
-        id=id, status='ready', hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
+        id=id, status='ready', user_id=user.id, user=user, hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
 
-    log1 = LogModel(oid=id, text='This is a log',
+    log1 = LogModel(oid=id, text='This is a log for '+name, user_id=user.id, public=True, user=user,
                     discriminator='ProcessorModel', source='pyfi')
-    log2 = LogModel(oid=id, text='This is a log too',
+    log2 = LogModel(oid=id, text='This is a log for '+name+' too', public=False, user_id=user.id, user=user,
                     discriminator='ProcessorModel', source='pyfi')
 
     context.obj['database'].session.add(log1)
@@ -971,6 +1053,7 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     processor.logs += [log1]
     processor.logs += [log2]
     processor.updated = datetime.now()
+
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
@@ -1555,6 +1638,61 @@ def ls_call(context, id, name, result, tree, graph, flow):
     print(x)
 
 
+@ls.command(name="roles")
+@click.option('-p', '--page', default=1, required=False)
+@click.option('-r', '--rows', default=10, required=False)
+@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
+@click.pass_context
+def ls_roles(context, page, rows, ascend):
+    """
+    List roles
+    """
+    x = PrettyTable()
+
+    names = ["Page", "Row", "Name", "ID", "Owner",
+             "Last Updated", "Created"]
+    x.field_names = names
+
+    total = context.obj['database'].session.query(RoleModel).count()
+
+    if total == 0:
+        print("No data yet.")
+        return
+
+    if total > rows and page > round(total/rows):
+        print("Only {} pages exist.".format(round(total/rows)))
+        return
+
+    if not ascend:
+        if total < rows:
+            nodes = context.obj['database'].session.query(
+                    RoleModel).all()
+        else:
+            nodes = context.obj['database'].session.query(
+                RoleModel).order_by(RoleModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
+    else:
+        if total < rows:
+            nodes = context.obj['database'].session.query(
+                    RoleModel).all()
+        else:
+            nodes = context.obj['database'].session.query(
+                RoleModel).order_by(RoleModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
+
+    row = 0
+    for node in nodes:
+        row += 1
+        x.add_row([page, row, node.name, node.id, node.owner,
+                  node.lastupdated, node.created])
+
+    print(x)
+
+    if total > 0:
+        print("Page {} of {} of {} total records".format(
+            page, round(total/rows), total))
+    else:
+        print("No rows")
+
+
 @ls.command(name='calls')
 @click.option('-p', '--page', default=1, required=False)
 @click.option('-r', '--rows', default=10, required=False)
@@ -1581,7 +1719,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
         print("No data yet.")
         return
 
-    if page > round(total/rows):
+    if total > rows and page > round(total/rows):
         print("Only {} pages exist.".format(round(total/rows)))
         return
 
@@ -1708,6 +1846,8 @@ def ls_processor(context, id, name, graph):
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
+    print(processor.user)
+
     if processor is None:
         print("No processor found.")
         return
@@ -1731,6 +1871,8 @@ def ls_processor(context, id, name, graph):
         module = Node(node.task.module, sock)
         task = Node(node.task.name, module)
 
+    print(x)
+    
     if graph:
         print_tree(root, horizontal=False)
     else:
@@ -1753,13 +1895,14 @@ def ls_processor(context, id, name, graph):
     names = ["Created", "Text", "Source"]
 
     x.field_names = names
-
-    for log in processor.logs[:10]:
+    
+    for log in processor.logs:
         x.add_row([log.created, log.text, log.source])
+
     print()
     print("Logs")
     print(x)
-
+    
 
 @ls.command(name='task')
 @click.pass_context
@@ -1845,11 +1988,11 @@ def ls_users(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Email"]
+    names = ["Name", "ID", "Owner", "Email", "Password"]
     x.field_names = names
     users = context.obj['database'].session.query(UserModel).all()
     for user in users:
-        x.add_row([user.name, user.id, user.owner, user.email])
+        x.add_row([user.name, user.id, user.owner, user.email, user.password])
 
     print(x)
 
@@ -1871,15 +2014,30 @@ def ls_user(context, name):
 
     print(x)
 
-    x = PrettyTable()
-    print("Privileges")
-    names = ["Name", "Right", "Last Updated", "By"]
-    x.field_names = names
+    import warnings
 
-    for priv in user.privileges:
-        x.add_row([user.name, priv.right, priv.lastupdated, priv.owner])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+        
+        x = PrettyTable()
+        print("Roles")
+        names = ["Name", "Role", "Last Updated", "By"]
+        x.field_names = names
 
-    print(x)
+        for role in user.roles:
+            x.add_row([user.name, role.name, role.lastupdated, role.owner])
+
+        print(x)
+
+        x = PrettyTable()
+        print("Privileges")
+        names = ["Name", "Right", "Last Updated", "By"]
+        x.field_names = names
+
+        for priv in user.privileges:
+            x.add_row([user.name, priv.right, priv.lastupdated, priv.owner])
+
+        print(x)
 
 
 @ls.command(name='workers')
@@ -2138,7 +2296,12 @@ def whoami(context):
     """
     Print who I am logged in as
     """
-    print("I am", context.obj['owner'])
+    name = context.obj['user'].name if context.obj['user'] is not None else None
+
+    loginstr = "Not logged in"
+    if name is not None:
+        loginstr = "Logged into PYFI as "+name
+    print("Database user {}.\n{}.".format(context.obj['owner'],loginstr))
 
 
 @cli.group()

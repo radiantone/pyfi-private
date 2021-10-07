@@ -59,10 +59,12 @@ class HasLogs(object):
         return relationship(
             "LogModel",
             order_by="desc(LogModel.created)",
-            primaryjoin=lambda: and_(foreign(LogModel.oid) == remote(cls.id),   LogModel.discriminator == cls.__name__),
+            primaryjoin=lambda: and_(
+                foreign(LogModel.oid) == cls.id,
+                LogModel.discriminator == cls.__name__,
+            ),
             lazy="select"
         )
-
 
 class BaseModel(Base):
     """
@@ -74,6 +76,7 @@ class BaseModel(Base):
         'uuid_generate_v4()'), unique=True, primary_key=True)
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
+
     created = Column(DateTime, default=datetime.now,nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
@@ -88,6 +91,10 @@ class LogModel(Base):
     id = Column(String(40), autoincrement=False, default=literal_column(
         'uuid_generate_v4()'), unique=True, primary_key=True)
 
+    user_id = Column(String, ForeignKey("user.id"), nullable=False)
+    user = relationship("UserModel", lazy=True)
+
+    public = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.now, nullable=False)
     oid=Column(String(40), primary_key=True)
     discriminator=Column(String(40))
@@ -227,13 +234,13 @@ class UserModel(BaseModel):
     """
     __tablename__ = 'user'
     email = Column(String(120), unique=True, nullable=False)
-    password = Column(String(20), unique=False, nullable=False)
+    password = Column(String(60), unique=False, nullable=False)
 
     privileges = relationship("PrivilegeModel",
                               secondary=user_privileges)
 
     roles = relationship("RoleModel",
-                         secondary=user_roles)
+                         secondary=user_roles, lazy='subquery')
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.email, self.roles, self.lastupdated)
@@ -347,6 +354,9 @@ class ProcessorModel(HasLogs, BaseModel):
     ackslate = Column(Boolean)
     trackstarted = Column(Boolean)
     retrydelay = Column(Integer)
+
+    user_id = Column(String, ForeignKey("user.id"), nullable=False)
+    user = relationship("UserModel", backref="processor", lazy=True)
 
     flow_id = Column(String(40), ForeignKey(
         'flow.id'), nullable=True)

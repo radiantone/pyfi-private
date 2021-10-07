@@ -234,14 +234,15 @@ class Plug(Base):
 
         self.session.add(self.source.socket)
         self.session.add(self.target.socket)
+        
         if not self.plug:
             self.plug = PlugModel(name=self.name, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
         self.source.socket.sourceplugs += [self.plug]
         self.target.socket.targetplugs += [self.plug]
 
-        self.session.add(self.source.socket)
-        self.session.add(self.target.socket)
+        #self.session.add(self.source.socket)
+        #self.session.add(self.target.socket)
         self.plug.source = self.source.socket
         self.plug.target = self.target.socket
         #self.plug.sockets += [self.socket.socket]
@@ -312,7 +313,7 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=platform.node(),id=None, name=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=platform.node(),id=None, name=None, user=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
 
         super().__init__()
 
@@ -326,19 +327,21 @@ class Processor(Base):
 
         if id is not None:
             self.id = id
-            self.processor = self.session.query(
+            self.processor = self.database.session.query(
                 ProcessorModel).filter_by(id=id).first()
             self.name = self.processor.name
         else:
             self.name = name
-            self.processor = self.session.query(
+            self.processor = self.database.session.query(
                 ProcessorModel).filter_by(name=name).first()
         # Collection for socket relations
 
         if self.processor is None:
             # Create it
             self.processor = ProcessorModel(
-                status='ready', hostname=hostname, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
+                status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
+
+            #self.database.session.add(self.processor)
 
         self.sockets = Sockets(self.database, self.processor)
 
@@ -349,7 +352,6 @@ class Processor(Base):
 
         from pyfi.celery import config
         self.app.config_from_object(config)
-        self.database.session.add(self.processor)
         self.database.session.commit()
 
     def start(self):
