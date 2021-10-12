@@ -25,6 +25,7 @@ Base = declarative_base(name="Base")
 
 oso = Oso()
 
+
 @compiles(CreateColumn, 'postgresql')
 def use_identity(element, compiler, **kw):
     text = compiler.visit_create_column(element, **kw)
@@ -52,6 +53,20 @@ class AlchemyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+class HasLogins(object):
+
+    @declared_attr
+    def logins(cls):
+        return relationship(
+            "LoginModel",
+            order_by="desc(LoginModel.created)",
+            primaryjoin=lambda: and_(
+                foreign(LoginModel.user_id) == cls.id
+            ),
+            lazy="select"
+        )
+
+
 class HasLogs(object):
 
     @declared_attr
@@ -66,6 +81,7 @@ class HasLogs(object):
             lazy="select"
         )
 
+
 class BaseModel(Base):
     """
     Docstring
@@ -77,7 +93,7 @@ class BaseModel(Base):
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
 
-    created = Column(DateTime, default=datetime.now,nullable=False)
+    created = Column(DateTime, default=datetime.now, nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
 
@@ -91,13 +107,13 @@ class LogModel(Base):
     id = Column(String(40), autoincrement=False, default=literal_column(
         'uuid_generate_v4()'), unique=True, primary_key=True)
 
-    user_id = Column(String, ForeignKey("user.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)
 
     public = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.now, nullable=False)
-    oid=Column(String(40), primary_key=True)
-    discriminator=Column(String(40))
+    oid = Column(String(40), primary_key=True)
+    discriminator = Column(String(40))
     text = Column(String(80), nullable=False)
     source = Column(String(40), nullable=False)
 
@@ -176,6 +192,7 @@ rights = ['ALL',
           'READ_PROCESSOR',
           'READ_AGENT',
           'READ_NODE',
+          'READ_LOG',
           'READ_PLUG',
           'READ_PRIVILEGE',
           'READ_QUEUE',
@@ -211,39 +228,50 @@ class RoleModel(BaseModel):
     __tablename__ = 'role'
 
     privileges = relationship("PrivilegeModel",
-                              secondary=role_privileges)
+                              secondary=role_privileges, lazy='subquery')
 
     def __repr__(self):
         return '{}:{}:{}'.format(self.id, self.name, self.lastupdated)
 
 
+user_privileges_revoked = Table('user_privileges_revoked', Base.metadata,
+                                Column('user_id', ForeignKey('users.id')),
+                                Column('privilege_id',
+                                       ForeignKey('privilege.id'))
+                                )
+
 user_privileges = Table('user_privileges', Base.metadata,
-                        Column('user_id', ForeignKey('user.id')),
+                        Column('user_id', ForeignKey('users.id')),
                         Column('privilege_id', ForeignKey('privilege.id'))
                         )
 
 user_roles = Table('user_roles', Base.metadata,
-                   Column('user_id', ForeignKey('user.id')),
+                   Column('user_id', ForeignKey('users.id')),
                    Column('role_id', ForeignKey('role.id'))
                    )
 
 
-class UserModel(BaseModel):
+class UserModel(HasLogins, BaseModel):
     """
     Docstring
     """
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(60), unique=False, nullable=False)
+    clear = Column(String(60), unique=False, nullable=False)
 
     privileges = relationship("PrivilegeModel",
-                              secondary=user_privileges)
+                              secondary=user_privileges, lazy='subquery')
+
+    revoked = relationship("PrivilegeModel",
+                           secondary=user_privileges_revoked, lazy='subquery')
 
     roles = relationship("RoleModel",
                          secondary=user_roles, lazy='subquery')
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.email, self.roles, self.lastupdated)
+
 
 schedule_types = [
     'CRON',
@@ -355,7 +383,7 @@ class ProcessorModel(HasLogs, BaseModel):
     trackstarted = Column(Boolean)
     retrydelay = Column(Integer)
 
-    user_id = Column(String, ForeignKey("user.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", backref="processor", lazy=True)
 
     flow_id = Column(String(40), ForeignKey(
@@ -410,8 +438,9 @@ class CallModel(BaseModel):
     finished = Column(DateTime)
 
     socket_id = Column(String(40), ForeignKey('socket.id'),
-                     nullable=False)
-    socket = relationship('SocketModel', back_populates="call", lazy=True, uselist=False)
+                       nullable=False)
+    socket = relationship(
+        'SocketModel', back_populates="call", lazy=True, uselist=False)
 
     events = relationship(
         "EventModel", secondary=calls_events, cascade="all, delete")
@@ -501,8 +530,10 @@ class EventModel(BaseModel):
     call_id = Column(String(40), ForeignKey('call.id'))
     call = relationship("CallModel", back_populates="events", single_parent=True,
                         cascade="all, delete-orphan")
+
     def __repr__(self):
         return '<id %r>' % self.id
+
 
 sockets_queues = Table('sockets_queues', Base.metadata,
                        Column('socket_id', ForeignKey('socket.id')),
@@ -510,17 +541,17 @@ sockets_queues = Table('sockets_queues', Base.metadata,
                        )
 
 plugs_source_sockets = Table('plugs_source_sockets', Base.metadata,
-                      Column('plug_id', ForeignKey(
-                          'plug.id'), primary_key=True),
-                      Column('socket_id', ForeignKey(
-                          'socket.id'), primary_key=True)
-                      )
+                             Column('plug_id', ForeignKey(
+                                 'plug.id'), primary_key=True),
+                             Column('socket_id', ForeignKey(
+                                 'socket.id'), primary_key=True)
+                             )
 plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
-                      Column('plug_id', ForeignKey(
-                          'plug.id'), primary_key=True),
-                      Column('socket_id', ForeignKey(
-                          'socket.id'), primary_key=True)
-                      )
+                             Column('plug_id', ForeignKey(
+                                 'plug.id'), primary_key=True),
+                             Column('socket_id', ForeignKey(
+                                 'socket.id'), primary_key=True)
+                             )
 
 
 class SocketModel(BaseModel):
@@ -532,7 +563,7 @@ class SocketModel(BaseModel):
     status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
-                        
+
     schedule_type = Column('schedule_type', Enum(
         *schedule_types, name='schedule_type'))
 
@@ -578,10 +609,10 @@ class PlugModel(BaseModel):
                           nullable=False)
 
     source = relationship("SocketModel", back_populates="sourceplugs",
-                        secondary=plugs_source_sockets, uselist=False)
+                          secondary=plugs_source_sockets, uselist=False)
 
     target = relationship("SocketModel", back_populates="targetplugs",
-                      secondary=plugs_target_sockets, uselist=False)
+                          secondary=plugs_target_sockets, uselist=False)
 
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)
@@ -616,6 +647,24 @@ class QueueModel(BaseModel):
                                                                self.max_length_bytes,
                                                                self.message_ttl,
                                                                self.expires)
+
+
+class LoginModel(Base):
+    __tablename__ = 'login'
+
+    id = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
+    owner = Column(String(40), default=literal_column('current_user'))
+
+    created = Column(DateTime, default=datetime.now, nullable=False)
+    lastupdated = Column(DateTime, default=datetime.now,
+                         onupdate=datetime.now, nullable=False)
+    login = Column(DateTime, default=datetime.now, nullable=False)
+    token = Column(String(40), autoincrement=False, default=literal_column(
+        'uuid_generate_v4()'), unique=True, primary_key=True)
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True, overlaps="logins")
 
 
 oso.register_class(BaseModel)

@@ -102,13 +102,14 @@ class Agent:
             agent = AgentModel(hostname=hostname,
                                name=hostname+".agent")
 
+        agent.status = "starting"
         self.agent = agent
         vmem = psutil.virtual_memory()
 
         node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
         
         if node is None:
-            node = NodeModel(name=hostname+".node", hostname=hostname)
+            node = NodeModel(name=hostname+".node", agent=self.agent, hostname=hostname)
             with self.get_session() as session:
                 session.add(node)
             

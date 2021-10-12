@@ -1,3 +1,16 @@
+SECURITY
+------------
+
+- Client API and classes pull login from pyfi.ini file. 
+- User has to "pyfi login" successfully to get a valid token
+- Token is compared to user object "token" field.
+
+- pyfi.polar defines the object model security policies
+- get_checked_permissions is generated from queries on privileges applied to model objects
+- 
+
+
+
 - Use the processor client API to write complex, parallel workflows on top of processors
 
 ----
