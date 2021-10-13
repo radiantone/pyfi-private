@@ -926,6 +926,8 @@ class Worker:
                                             logging.error("Job plug is NONE")
                                         else:
                                             found = False
+                                            print("scheduler jobs:",
+                                                  self.scheduler.get_jobs())
                                             for job in self.scheduler.get_jobs():
                                                 print("JOB:",job)
                                                 if job.id == self.processor.name+plug.name:
