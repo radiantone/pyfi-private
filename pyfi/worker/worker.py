@@ -886,6 +886,7 @@ class Worker:
                                 elif socket.schedule_type == 'INTERVAL':
                                     logging.info("Found INTERVAL schedule for socket: %s", socket)
                                     if socket.name not in self.jobs:
+                                        logging.info("Adding job: %s",socket.name)
                                         self.scheduler.add_job(dispatcher, 'interval', args=[
                                             socket.task], jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.intveral, id=socket.name)
                                         logging.info(
