@@ -927,8 +927,8 @@ class Worker:
                                         else:
                                             found = False
                                             print("scheduler jobs:",
-                                                  self.scheduler.get_jobs())
-                                            for job in self.scheduler.get_jobs():
+                                                  self.scheduler.get_jobs(jobstore='default'))
+                                            for job in self.scheduler.get_jobs(jobstore='default'):
                                                 print("JOB:",job)
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
