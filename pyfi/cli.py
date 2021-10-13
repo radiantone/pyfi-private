@@ -24,7 +24,7 @@ from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
 from pyfi.db.model.models import PrivilegeModel
-from pyfi.db.model import oso, SchedulerModel, UserModel, LoginModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, LoginModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 from sqlalchemy_oso import authorized_sessionmaker
 
@@ -211,7 +211,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             _user = session.query(
                 UserModel).filter_by(name=username, password=password).first()
             permissions = {PrivilegeModel: "read", AgentModel: "read",
-                           NodeModel: "read", TaskModel: "read", QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
+                           NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read", QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
@@ -1658,7 +1658,7 @@ def ls_queue(context, id, name, task):
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of call')
-@click.option('-r', '--result', default=False, is_flag=True, help="Include result of call")
+@click.option('-r', '--result', default=False, is_flag=True, help="Show result of call")
 @click.option('-t', '--tree', default=False, is_flag=True, help="Show forward call tree")
 @click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
 @click.option('-f', '--flow', default=False, is_flag=True, help="Show all calls in a workflow")
@@ -1678,6 +1678,10 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
     calls = None
     call = None
+
+    if name is None and id is None:
+        print("Must provide name or id. See $ pyfi ls call --help")
+        return
 
     if name is not None:
         calls = context.obj['database'].session.query(
@@ -1763,19 +1767,27 @@ def ls_call(context, id, name, result, tree, graph, flow):
                    node.lastupdated, node.socket.name, node.started, node.finished, node.state])
     print(x)
     x = PrettyTable()
+    print()
+
     print("Provenance")
     names = ["Task", "Task Parent", "Flow Parent"]
     x.field_names = names
     x.add_row([node.celeryid, node.taskparent, node.parent])
     print(x)
     x = PrettyTable()
-    print('Events')
-    names = ["Name", "ID", "Owner", "Last Updated", "Note"]
-    x.field_names = names
-    if call:
-        for event in call.events:
-            x.add_row([event.name, event.id, event.owner,
-                       event.lastupdated, event.note])
+
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+        print()
+        print('Events')
+        names = ["Name", "ID", "Owner", "Last Updated", "Note"]
+        x.field_names = names
+        if call:
+            for event in call.events:
+                x.add_row([event.name, event.id, event.owner,
+                        event.lastupdated, event.note])
     print(x)
 
 

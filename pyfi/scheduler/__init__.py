@@ -3,7 +3,7 @@ import logging
 import platform
 from multiprocessing import Process, Condition
 
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import SchedulerModel, WorkModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 HOSTNAME = platform.node()
 
@@ -27,6 +27,12 @@ class Scheduler:
             scheduler = self.context.obj['database'].session.query(
                 SchedulerModel).filter_by(name=self.name).first()
 
+            all_work = self.context.obj['database'].session.query(
+                WorkModel).all()
+
+            for work in all_work:
+                # Determine the work request and schedule or run it
+                pass
             # Perform read lock of processors without hostnames
             # Put processors in pending list to be assigned below
             # if there are available nodes, otherwise release the read lock
