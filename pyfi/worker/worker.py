@@ -223,6 +223,7 @@ class Worker:
             logging.debug("JOBS %s", self.jobs)
 
             self.scheduler.print_jobs()
+            self.scheduler.start()
 
         if celeryconfig is not None:
             logging.info("Applying celeryconfig from %s", celeryconfig)
@@ -1047,7 +1048,6 @@ class Worker:
                                 {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
-                self.scheduler.start()
                 worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
