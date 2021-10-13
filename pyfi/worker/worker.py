@@ -917,7 +917,7 @@ class Worker:
                                 elif socket.schedule_type == 'INTERVAL':
                                     logging.info("Found INTERVAL schedule for socket: %s", socket)
                                     if socket.name not in self.jobs:
-                                        logging.info("Adding job: %s",socket.name)
+                                        logging.info("Adding job-> %s",socket.name)
                                         for plug in self.processor.plugs:
                                             if plug.target.name == socket.name:
                                                 break
@@ -926,11 +926,11 @@ class Worker:
                                             logging.error("Job plug is NONE")
                                         else:
                                             found = False
-                                            
-                                            print("scheduler jobs:",
+
+                                            logging.info("scheduler jobs: %s",
                                                   self.scheduler.get_jobs(jobstore='default'))
                                             for job in self.scheduler.get_jobs(jobstore='default'):
-                                                print("JOB:",job)
+                                                logging.info("JOB: %s",job)
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
 
