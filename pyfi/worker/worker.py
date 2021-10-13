@@ -944,6 +944,8 @@ class Worker:
                                                     "Scheduled socket %s", socket.name)
 
                                                 self.scheduler.resume()
+                                                self.scheduler.reschedule_job(
+                                                    self.processor.name+plug.name, jobstore='default')
                             except:
                                 import traceback
                                 print(traceback.format_exc())
