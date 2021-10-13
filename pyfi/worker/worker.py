@@ -223,7 +223,6 @@ class Worker:
             logging.debug("JOBS %s", self.jobs)
 
             self.scheduler.print_jobs()
-            self.scheduler.start()
 
         if celeryconfig is not None:
             logging.info("Applying celeryconfig from %s", celeryconfig)
@@ -926,6 +925,7 @@ class Worker:
                                         if plug is None:
                                             logging.error("Job plug is NONE")
                                         else:
+                                            '''
                                             found = False
 
                                             logging.info("scheduler jobs: %s",
@@ -936,16 +936,17 @@ class Worker:
                                                     found = True
 
                                             if not found:
-                                                self.scheduler.pause()
-                                                # Ensure job id matches socket so it can be related
+                                            '''
+                                            # Ensure job id matches socket so it can be related
+                                            try:
                                                 self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
-                                                                       misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
+                                                                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                 logging.info(
                                                     "Scheduled socket %s", socket.name)
+                                            except:
+                                                logging.info(
+                                                    "Job %s already scheduled.", socket.name)
 
-                                                self.scheduler.resume()
-                                                self.scheduler.reschedule_job(
-                                                    self.processor.name+plug.name, jobstore='default')
                             except:
                                 import traceback
                                 print(traceback.format_exc())
@@ -1053,6 +1054,7 @@ class Worker:
                                 {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
+                self.scheduler.start()
                 worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
