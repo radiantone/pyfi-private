@@ -1,4 +1,5 @@
 FROM ubuntu:latest
+
 RUN mkdir -p /var/log/supervisor
 RUN apt-get update && \
     apt-get install -y supervisor 
@@ -31,6 +32,6 @@ ADD conf/pyfi.ini /home/pyfi/pyfi.ini
 RUN chown -R pyfi /opt/pyfi /home/pyfi
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt install -y tzdata
+RUN apt update && apt install -y tzdata
 #CMD ["/usr/bin/supervisord","-n"]
 CMD ["bash", "/opt/pyfi/supervisor.sh"]
