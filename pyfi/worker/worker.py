@@ -82,8 +82,9 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
-def dispatcher(celery, processor, socket, **kwargs):
+def dispatcher(args, **kwargs):
     """ Execute a task based on a schedule """
+    (celery, processor, socket) = args
     logging.info("Dispatching %s", socket)
     for plug in processor.plugs:
         if plug.target.name == socket.name:
