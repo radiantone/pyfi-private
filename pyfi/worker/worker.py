@@ -88,6 +88,7 @@ def dispatcher(celery, processor, socket, **kwargs):
     for plug in processor.plugs:
         if plug.target.name == socket.name:
             break
+        
     task_sig = celery.signature(
         processor.module+'.'+socket.task.name, queue=plug.queue, kwargs=kwargs)
     delayed = task_sig.delay()
