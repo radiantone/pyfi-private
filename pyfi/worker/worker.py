@@ -933,7 +933,8 @@ class Worker:
 
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
-                                                self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), id=self.processor.name+plug.name, jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                                self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
+                                                                       misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                 logging.info(
                                                     "Scheduled socket %s", socket.name)
                             except:
