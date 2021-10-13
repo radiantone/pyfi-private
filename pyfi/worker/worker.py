@@ -926,31 +926,29 @@ class Worker:
                                             logging.error("Job plug is NONE")
                                         else:
 
-                                            results = session.execute(
-                                                "select * from {}_jobs".format(self.processor.name))
-                                            logging.info("JOB RESULTS %s", results)
+
+
                                             # execute sql to get jobs
-                                            '''
                                             found = False
 
-                                            logging.info("scheduler jobs: %s",
-                                                  self.scheduler.get_jobs(jobstore='default'))
-                                            for job in self.scheduler.get_jobs(jobstore='default'):
-                                                logging.info("JOB: %s",job)
+                                            results = session.execute(
+                                                "select * from {}_jobs".format(self.processor.name))
+                                            logging.info(
+                                                "JOB RESULTS %s", results)
+                                            for job in results:
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
 
                                             if not found:
-                                            '''
-                                            # Ensure job id matches socket so it can be related
-                                            try:
-                                                self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
-                                                                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
-                                                logging.info(
-                                                    "Scheduled socket %s", socket.name)
-                                            except:
-                                                logging.info(
-                                                    "Job %s already scheduled.", socket.name)
+                                                # Ensure job id matches socket so it can be related
+                                                try:
+                                                    self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
+                                                                        misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
+                                                    logging.info(
+                                                        "Scheduled socket %s", socket.name)
+                                                except:
+                                                    logging.info(
+                                                        "Job %s already scheduled.", socket.name)
 
                             except:
                                 import traceback
