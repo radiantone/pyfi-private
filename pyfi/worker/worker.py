@@ -928,10 +928,14 @@ class Worker:
                                             found = False
                                             for job in self.scheduler.get_jobs():
                                                 print("JOB:",job)
-                                            # Ensure job id matches socket so it can be related
-                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
-                                            logging.info(
-                                                "Scheduled socket %s", socket.name)
+                                                if job.id == self.processor.name+plug.name:
+                                                    found = True
+
+                                            if not found:
+                                                # Ensure job id matches socket so it can be related
+                                                self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), id=self.processor.name+plug.name, jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                                logging.info(
+                                                    "Scheduled socket %s", socket.name)
                             except:
                                 import traceback
                                 print(traceback.format_exc())
