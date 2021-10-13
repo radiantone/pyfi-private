@@ -861,7 +861,7 @@ class Worker:
                             'options': {'queue': tkey},
                         }
                         '''
-                        
+
                 sys.path.append(os.getcwd())
 
                 setattr(builtins, 'worker', worker)
@@ -884,6 +884,7 @@ class Worker:
                                     print("ADDING CRON JOB TYPE")
 
                                 elif socket.schedule_type == 'INTERVAL':
+                                    logging.info("Found INTERVAL schedule for socket: %s", socket)
                                     if socket.name not in self.jobs:
                                         self.scheduler.add_job(dispatcher, 'interval', args=[
                                             socket.task], jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.intveral, id=socket.name)
