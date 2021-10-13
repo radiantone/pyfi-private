@@ -925,6 +925,11 @@ class Worker:
                                         if plug is None:
                                             logging.error("Job plug is NONE")
                                         else:
+
+                                            results = session.execute(
+                                                "select * from {}_jobs".format(self.processor.name))
+                                            logging.info("JOB RESULTS %s", results)
+                                            # execute sql to get jobs
                                             '''
                                             found = False
 
