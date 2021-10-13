@@ -926,6 +926,7 @@ class Worker:
                                             logging.error("Job plug is NONE")
                                         else:
                                             found = False
+                                            
                                             print("scheduler jobs:",
                                                   self.scheduler.get_jobs(jobstore='default'))
                                             for job in self.scheduler.get_jobs(jobstore='default'):
