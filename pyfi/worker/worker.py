@@ -82,9 +82,10 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
-def dispatcher(celery, processor, socket, **kwargs):
+def dispatcher(processor, socket, **kwargs):
     """ Execute a task based on a schedule """
     logging.info("Dispatching %s", socket)
+    celery = Celery(include=processor.module)
     for plug in processor.plugs:
         if plug.target.name == socket.name:
             break
@@ -895,8 +896,7 @@ class Worker:
                                     logging.info("Found INTERVAL schedule for socket: %s", socket)
                                     if socket.name not in self.jobs:
                                         logging.info("Adding job: %s",socket.name)
-                                        self.scheduler.add_job(dispatcher, 'interval', (self.celery,
-                                            self.processor, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                        self.scheduler.add_job(dispatcher, 'interval', (self.processor, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
                                         logging.info(
                                             "Scheduled socket %s", socket.name)
                             except:
