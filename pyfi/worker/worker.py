@@ -926,7 +926,7 @@ class Worker:
                                             logging.error("Job plug is NONE")
                                         else:
                                             # Ensure job id matches socket so it can be related
-                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", worker_queue, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", worker_queue, self.dburi, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
                                             logging.info(
                                                 "Scheduled socket %s", socket.name)
                             except:
