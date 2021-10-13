@@ -89,8 +89,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
     database = create_engine(dburi, pool_size=1, max_overflow=5)
 
-    sm = sessionmaker(bind=database)
-    session = scoped_session(sm)
+    session = sessionmaker(bind=database)()
     session.add(processor)
     session.add(plug)
     session.add(socket)
