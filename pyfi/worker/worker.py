@@ -936,6 +936,7 @@ class Worker:
                                             logging.info(
                                                 "JOB RESULTS %s", results)
                                             for job in results:
+                                                logging.info("JOB %s",job)
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
 
