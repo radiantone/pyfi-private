@@ -1,4 +1,5 @@
 """
+API objects
 
 proc1 = Processor(queue='pyfi.queue1.proc1', module='pyfi.processors.sample', name='proc1')
 socket = Socket(queue='pyfi.queue1', task='do_something')
@@ -23,6 +24,7 @@ from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, Pl
 
 CONFIG = configparser.ConfigParser()
 HOME = str(Path.home())
+
 ini = HOME+"/pyfi.ini"
 
 CONFIG.read(ini)
@@ -42,6 +44,14 @@ class Base:
 
     def __init__(self):
         pass
+
+
+class Work(Base):
+    """ A descripion of a task or scheduled task submitted for execution"""
+
+    # Some users may only have permission to create Work objects and not
+    # reference Sockets/Plugs directly
+    pass
 
 
 class Node(Base):
@@ -130,17 +140,22 @@ class Socket(Base):
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
+
         user = kwargs['user']
         self.session.add(user)
+
         if self.socket is not None:
             if self.socket.queue is None and self.queue is not None:
                 self.socket.queue = self.queue.queue
+
             self.session.add(self.socket)
+
             if self.socket.task is None:
                 self.socket.task = self.task
         else:
             scheduled = False
             schedule_type = 'INTERVAL'
+
             if interval > 0:
                 scheduled = True
 
@@ -195,10 +210,11 @@ class Socket(Base):
         }
 
     def p(self, *args, **kwargs):
+        """ Partial method signature (not executed) """
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, app=self.processor.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs)
 
     def delay(self, *args, **kwargs):
-
+        """ Execute this socket's task on the network """
         # socket.queue.message_ttl
         # socket.queue.expires
         kwargs['x-expires'] = 300
@@ -210,7 +226,7 @@ class Socket(Base):
         return self.p(args,kwargs).delay()
 
     def __call__(self, *args, **kwargs):
-
+        """"""
         # socket.queue.message_ttl
         # socket.queue.expires
         kwargs['x-expires'] = 300
@@ -223,9 +239,10 @@ class Socket(Base):
 
 
 class Plug(Base):
-
+    """"""
     def __init__(self, *args, **kwargs):
         super().__init__()
+
         self.name = kwargs['name']
         self.queuename = kwargs['queue']['name']
         self.source = kwargs['source']
@@ -326,6 +343,7 @@ class Processor(Base):
         super().__init__()
 
         from kombu.common import Broadcast
+        from pyfi.celery import config
 
         '''
         Load the processor by name and match the queue by name, then use
@@ -358,7 +376,6 @@ class Processor(Base):
 
         self.app = Celery(backend=backend, broker=broker)
 
-        from pyfi.celery import config
         self.app.config_from_object(config)
         self.database.session.commit()
 

@@ -1847,9 +1847,10 @@ def ls_roles(context, page, rows, ascend):
 
 
 @ls.command(name='jobs')
+@click.option('-n', '--name', default=None, required=False, help='Name of processor')
 @click.pass_context
-def ls_jobs(context, page, rows, ascend):
-    """ List jobs"""
+def ls_jobs(context, name, page, rows, ascend):
+    """ List scheduled jobs """
     pass
 
 
@@ -1935,6 +1936,27 @@ def ls_calls(context, page, rows, unfinished, ascend):
     else:
         print("No rows")
 
+@ls.command(name='work')
+@click.pass_context
+def ls_work(context):
+    """
+    List work submissions
+    """
+
+    # Work is defined as the submission of a task along with scheduling requirements for a 
+    # scheduler to place into the network for processing.
+    # Work can also define a "job schedule" which means specific times or intervals a task is to be
+    # executed.
+    # A work object refers to things by name. e.g. I want to run "task A" or invoke "Socket B->Plug B"
+    # It's the schedulers job to convert the names to objects and assign the work to a processor
+    # A work object can refer to a task with code - or, a task that is not linked to by a plug and socket (i.e. part of a flow)
+
+    # Worker objects will pull from the work table when their own queues are empty.
+
+    # Work objects should not be confused with Job objects. Job objects are specific to APScheduler
+    # and represent scheduled jobs that invoke specific tasks.
+    # However, a work object can result in a scheduled job being created.
+    pass
 
 @ls.command(name='worker')
 @click.pass_context

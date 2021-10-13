@@ -6,9 +6,9 @@ from celery.utils.functional import (is_list, lookahead, maybe_list, regen,
 from celery.utils.functional import _regen
 from celery.utils import abstract
 from celery.utils.objects import getitem_property
-from .objects import Processor, Socket, Queue, Plug
+from .objects import Processor, Socket, Queue, Plug, Work
 from celery import group as parallel, chain as pipeline, chord as funnel, chunks as segment
 from celery.canvas import Signature
 
-__all__ = ('Processor', 'Socket', 'Queue', 'Plug',
+__all__ = ('Processor', 'Socket', 'Queue', 'Plug', 'Work',
            'parallel', 'pipeline', 'funnel', 'segment')
