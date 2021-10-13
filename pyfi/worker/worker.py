@@ -82,11 +82,17 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
-def dispatcher(processor, plug, message, socket, **kwargs):
+def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     """ Execute a task based on a schedule """
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
+    database = create_engine(dburi, pool_size=1, max_overflow=5)
+
+    session = sessionmaker(bind=database)
+    session.add(processor)
+    session.add(plug)
+    session.add(socket)
 
     tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
     queue = KQueue(
@@ -107,6 +113,7 @@ def dispatcher(processor, plug, message, socket, **kwargs):
     )
     task_sig = celery.signature(
         processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
+    session.close()
     delayed = task_sig.delay(message)
 
     logging.info("Dispatched %s", delayed)
