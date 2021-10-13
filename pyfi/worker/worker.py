@@ -86,9 +86,27 @@ def dispatcher(processor, plug, message, socket, **kwargs):
     """ Execute a task based on a schedule """
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
-        
+
+
+    tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
+    queue = KQueue(
+        tkey,
+        Exchange(
+            socket.queue.name, type='direct'),
+        routing_key=tkey,
+
+        message_ttl=plug.target.queue.message_ttl,
+        durable=plug.target.queue.durable,
+        expires=plug.target.queue.expires,
+        # expires=30,
+        # socket.queue.message_ttl
+        # socket.queue.expires
+        queue_arguments={
+            'x-message-ttl': 30000,
+            'x-expires': 300}
+    )
     task_sig = celery.signature(
-        processor.module+'.'+socket.task.name, queue=plug.queue, kwargs=kwargs)
+        processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
     delayed = task_sig.delay(message)
 
     logging.info("Dispatched %s", delayed)
@@ -900,7 +918,8 @@ class Worker:
                                         if plug is None:
                                             logging.error("Job plug is NONE")
                                         else:
-                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                            # Ensure job id matches socket so it can be related
+                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", worker_queue, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
                                             logging.info(
                                                 "Scheduled socket %s", socket.name)
                             except:
