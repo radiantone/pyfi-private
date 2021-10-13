@@ -197,7 +197,7 @@ class Worker:
             self.broker = CONFIG.get('broker', 'uri')
 
             jobstores = {
-                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename='jobs')
+                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
             }
             executors = {
                 'default': ThreadPoolExecutor(20),
