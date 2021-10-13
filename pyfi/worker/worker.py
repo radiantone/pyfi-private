@@ -853,14 +853,15 @@ class Worker:
                                 'x-message-ttl': 30000,
                                 'x-expires': 300}
                         )
-
+                        '''
                         worker.app.conf.beat_schedule[self.processor.module+'.'+socket.task.name] = {
                             "task": self.processor.module+'.'+socket.task.name,
                             "args": ("Hello World!",),
                             "schedule": socket.interval,
                             'options': {'queue': tkey},
                         }
-
+                        '''
+                        
                 sys.path.append(os.getcwd())
 
                 setattr(builtins, 'worker', worker)

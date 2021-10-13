@@ -139,7 +139,12 @@ class Socket(Base):
             if self.socket.task is None:
                 self.socket.task = self.task
         else:
-            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
+            scheduled = False
+            schedule_type = 'INTERVAL'
+            if interval > 0:
+                scheduled = True
+
+            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
             self.session.add(self.task)
