@@ -211,7 +211,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             _user = session.query(
                 UserModel).filter_by(name=username, password=password).first()
             permissions = {PrivilegeModel: "read", AgentModel: "read",
-                           NodeModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
+                           NodeModel: "read", TaskModel: "read", QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
@@ -256,6 +256,16 @@ def user():
     """
     pass
 
+@user.command(name="remove")
+@click.option('-u', '--user', default=None, required=True)
+@click.option('-r', '--role', default=None, required=False)
+@click.option('-p', '--privilege', default=None, required=False)
+@click.pass_context
+def user_remove(context, user, role, privilege):
+    """
+    Remove roles and privileges from a user
+    """
+    return 
 
 @user.command(name="add")
 @click.option('-u', '--user', default=None, required=True)
@@ -286,7 +296,7 @@ def user_add(context, user, role, privilege):
 
 @cli.command()
 def logout():
-
+    """ Logout current user """
     ini = home+"/pyfi.ini"
 
     if CONFIG.has_option('login', 'user'):
@@ -1516,7 +1526,10 @@ def add_socket(context, name, queue, interval, procname, task):
 
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
-    socket = SocketModel(name=name, id=id, requested_status='create', interval=interval,
+
+    user = context.obj['user']
+
+    socket = SocketModel(name=name, id=id, user=user, user_id=user.id, requested_status='create', interval=interval,
                          status='ready', processor_id=processor.id)
 
     if task is not None:
@@ -1819,6 +1832,20 @@ def ls_roles(context, page, rows, ascend):
             page, round(total/rows), total))
     else:
         print("No rows")
+
+
+@ls.command(name='jobs')
+@click.pass_context
+def ls_jobs(context, page, rows, ascend):
+    """ List jobs"""
+    pass
+
+
+@ls.command(name='job')
+@click.pass_context
+def ls_job(context, name, id):
+    """ List a job """
+    pass
 
 
 @ls.command(name='calls')
@@ -2132,6 +2159,7 @@ def ls_users(context):
 @click.option('-n', '--name', default=None, required=True)
 @click.pass_context
 def ls_role(context, name):
+    """ List a role"""
     import warnings
 
     x = PrettyTable()

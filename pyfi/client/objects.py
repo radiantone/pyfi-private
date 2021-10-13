@@ -130,7 +130,8 @@ class Socket(Base):
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
-
+        user = kwargs['user']
+        self.session.add(user)
         if self.socket is not None:
             if self.socket.queue is None and self.queue is not None:
                 self.socket.queue = self.queue.queue
@@ -138,7 +139,7 @@ class Socket(Base):
             if self.socket.task is None:
                 self.socket.task = self.task
         else:
-            self.socket = SocketModel(name=self.name, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
+            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
             self.session.add(self.task)
@@ -234,9 +235,11 @@ class Plug(Base):
 
         self.session.add(self.source.socket)
         self.session.add(self.target.socket)
-        
+
+        user = kwargs['user']
+        self.session.add(user)
         if not self.plug:
-            self.plug = PlugModel(name=self.name, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
+            self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
         self.source.socket.sourceplugs += [self.plug]
         self.target.socket.targetplugs += [self.plug]
@@ -313,7 +316,7 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=platform.node(),id=None, name=None, user=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=platform.node(), id=None, name=None, user=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
 
         super().__init__()
 

@@ -322,7 +322,9 @@ class Worker:
                                 self.queue.put(data)
 
                                 call = CallModel(id=myid,
-                                                    name=processor.module+'.'+_socket.task.name, taskparent=_signal['taskparent'], socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], celeryid=_signal['taskid'], task_id=_socket.task.id, state='received')
+                                                 name=processor.module+'.'+_socket.task.name, taskparent=_signal['taskparent'], 
+                                                 socket=_socket, parent=parent, resultid='celery-task-meta-'+_signal['taskid'], 
+                                                 celeryid=_signal['taskid'], task_id=_socket.task.id, state='received')
 
                                 session.add(call)
                                 event = EventModel(

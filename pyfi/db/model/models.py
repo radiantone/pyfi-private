@@ -410,6 +410,16 @@ class JobModel(Base):
     job_state = Column(LargeBinary)
 
 
+class WorkModel(BaseModel):
+    __tablename__ = 'work'
+
+    next_run_time = Column(DOUBLE_PRECISION)
+    job_state = Column(LargeBinary)
+
+    task_id = Column(String(40), ForeignKey('task.id'))
+    task = relationship("TaskModel", single_parent=True)
+
+
 calls_events = Table('calls_events', Base.metadata,
                      Column('call_id', ForeignKey(
                          'call.id'), primary_key=True),
@@ -575,6 +585,9 @@ class SocketModel(BaseModel):
     task = relationship("TaskModel", back_populates="sockets", single_parent=True,
                         cascade="delete, delete-orphan")
 
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel",lazy=True)
+
     sourceplugs = relationship(
         "PlugModel", secondary=plugs_source_sockets)
 
@@ -613,6 +626,9 @@ class PlugModel(BaseModel):
 
     target = relationship("SocketModel", back_populates="targetplugs",
                           secondary=plugs_target_sockets, uselist=False)
+
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True)
 
     queue = relationship(
         'QueueModel', secondary=plugs_queues, uselist=False)
