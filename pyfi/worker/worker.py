@@ -896,13 +896,13 @@ class Worker:
                                         for plug in self.processor.plugs:
                                             if plug.target.name == socket.name:
                                                 break
-                                            
+
                                         if plug is None:
                                             logging.error("Job plug is NONE")
-
-                                        self.scheduler.add_job(dispatcher, 'interval', (self.processor, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
-                                        logging.info(
-                                            "Scheduled socket %s", socket.name)
+                                        else:
+                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                            logging.info(
+                                                "Scheduled socket %s", socket.name)
                             except:
                                 import traceback
                                 print(traceback.format_exc())
