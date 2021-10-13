@@ -892,6 +892,8 @@ class Worker:
                                         logging.info(
                                             "Scheduled socket %s", socket.name)
                             except:
+                                import traceback
+                                print(traceback.format_exc())
                                 logging.info(
                                     "Already scheduled this socket %s", socket.name)
 
