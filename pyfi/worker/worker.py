@@ -936,11 +936,14 @@ class Worker:
                                                     found = True
 
                                             if not found:
+                                                self.scheduler.pause()
                                                 # Ensure job id matches socket so it can be related
                                                 self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                                        misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                 logging.info(
                                                     "Scheduled socket %s", socket.name)
+
+                                                self.scheduler.resume()
                             except:
                                 import traceback
                                 print(traceback.format_exc())
