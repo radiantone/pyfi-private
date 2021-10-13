@@ -82,14 +82,14 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
-def dispatcher(processor, plug, socket, **kwargs):
+def dispatcher(processor, plug, message, socket, **kwargs):
     """ Execute a task based on a schedule """
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
         
     task_sig = celery.signature(
         processor.module+'.'+socket.task.name, queue=plug.queue, kwargs=kwargs)
-    delayed = task_sig.delay()
+    delayed = task_sig.delay(message)
 
     logging.info("Dispatched %s", delayed)
 
@@ -900,7 +900,7 @@ class Worker:
                                         if plug is None:
                                             logging.error("Job plug is NONE")
                                         else:
-                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
+                                            self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", socket), jobstore='default', misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=socket.name)
                                             logging.info(
                                                 "Scheduled socket %s", socket.name)
                             except:
