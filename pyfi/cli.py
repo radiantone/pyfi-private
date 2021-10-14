@@ -1938,10 +1938,34 @@ def ls_calls(context, page, rows, unfinished, ascend):
 
 
 @ls.command(name='network')
+@click.option('-h', '--horizontal', default=True, is_flag=True, required=False, help="Vertical tree mode")
+@click.option('-a', '--agent', required=False, help="List network for agent")
 @click.pass_context
-def ls_network(context):
-    """ Display the PYFI network """
-    pass
+def ls_network(context, horizontal, agent):
+    """ List the PYFI network """
+
+    from pptree import print_tree, Node
+
+    if agent is not None:
+        agent = context.obj['database'].session.query(AgentModel).filter_by(name=agent).first()
+        agents = [agent]
+    else:
+        agents = context.obj['database'].session.query(AgentModel).all()
+
+    root = Node("PYFI")
+
+    for agent in agents:
+        agent_node = Node("agent::"+agent.name, root)
+        worker_node = Node("worker::"+agent.worker.name, agent_node)
+        processor_node = Node("processor::"+agent.worker.processor.name, worker_node)
+
+        for socket in agent.worker.processor.sockets:
+            socket_node = Node("socket::"+socket.name, processor_node)
+            task_node = Node("task::"+socket.task.name, socket_node)
+            module_node = Node("module::"+socket.task.module, task_node)
+            function_node = Node("function::"+socket.task.name, task_node)
+
+    print_tree(root, horizontal=horizontal)
 
 @ls.command(name='work')
 @click.pass_context
