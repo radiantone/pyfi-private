@@ -1936,6 +1936,13 @@ def ls_calls(context, page, rows, unfinished, ascend):
     else:
         print("No rows")
 
+
+@ls.command(name='network')
+@click.pass_context
+def ls_network(context):
+    """ Display the PYFI network """
+    pass
+
 @ls.command(name='work')
 @click.pass_context
 def ls_work(context):
