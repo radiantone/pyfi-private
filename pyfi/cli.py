@@ -159,7 +159,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
     except:
         #import traceback
-        #print(traceback.format_exc())
+        # print(traceback.format_exc())
         print("Database unavailable. Please check your configuration or ensure database server is running.")
         return
 
@@ -179,14 +179,14 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 user_m = session.query(
                     UserModel).filter_by(name=username, password=password).first()
                 #context.obj['user'] = user_m
-                #context.obj['database'].session.add(user_m)
+                # context.obj['database'].session.add(user_m)
                 if username is None:
                     return
 
                 if user_m is None:
                     print(f"Unable to log in {username}.")
                     return
-                    
+
                 logging.debug(f"{user_m.name} logged in.")
 
                 session.expunge(user_m)
@@ -216,15 +216,15 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
                     permissions[LogModel] = "read"
-            
+
             session.close()
-            
+
             return permissions
 
         from functools import partial
 
         user_object = None
-        
+
         context.obj['session'] = session = authorized_sessionmaker(get_oso=lambda: oso,
                                                                    get_user=lambda: user_m,
                                                                    get_checked_permissions=get_checked_permissions,
@@ -232,10 +232,10 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         user_m2 = user_object = session.query(
             UserModel).filter_by(name=username, password=password).first()
         # Add the logged in user to the authorized_session
-        #context.obj['database'].session.merge(user_m)
+        # context.obj['database'].session.merge(user_m)
         session.add(user_m2)
         context.obj['user'] = user_m2
-        context.obj['database'].session = session #context.obj['session']
+        context.obj['database'].session = session  # context.obj['session']
         # Load the base policy file into OSO
 
         # Generate OSO user policy file based on roles and privileges in the database
@@ -256,6 +256,7 @@ def user():
     """
     pass
 
+
 @user.command(name="remove")
 @click.option('-u', '--user', default=None, required=True)
 @click.option('-r', '--role', default=None, required=False)
@@ -265,7 +266,8 @@ def user_remove(context, user, role, privilege):
     """
     Remove roles and privileges from a user
     """
-    return 
+    return
+
 
 @user.command(name="add")
 @click.option('-u', '--user', default=None, required=True)
@@ -281,7 +283,7 @@ def user_add(context, user, role, privilege):
     if role:
         role_m = context.obj['database'].session.query(
             RoleModel).filter_by(name=role).first()
-        print("ROLE:",role_m)
+        print("ROLE:", role_m)
         user_m.roles += [role_m]
         database = context.obj['database']
         database.session.add(user_m)
@@ -306,9 +308,10 @@ def logout():
     with open(ini, 'w') as inifile:
         CONFIG.write(inifile)
 
+
 @cli.command()
 @click.pass_context
-@click.option('-d','--database', is_flag=True, default=False, help="Database login only")
+@click.option('-d', '--database', is_flag=True, default=False, help="Database login only")
 def login(context, database):
     """
     Log into PYFI CLI
@@ -319,7 +322,6 @@ def login(context, database):
     ini = home+"/pyfi.ini"
 
     user = None
-
 
     if context.obj['user'] is not None:
         print("Please logout first.")
@@ -337,7 +339,7 @@ def login(context, database):
     user = click.prompt('User',
                         type=str)
     __password = click.prompt('Password',
-                            type=str)
+                              type=str)
     password = hashlib.md5(__password.encode()).hexdigest()
 
     CONFIG.set('login', 'user', user)
@@ -354,10 +356,11 @@ def login(context, database):
         else:
             print("Invalid login.")
 
-    dburi = CONFIG.get('database','uri')
+    dburi = CONFIG.get('database', 'uri')
     uri = urlparse(dburi)
-    newuri = uri.scheme+'://'+user+':'+__password+'@'+uri.hostname+':'+str(uri.port)+uri.path
-    CONFIG.set('database','uri',newuri)
+    newuri = uri.scheme+'://'+user+':'+__password + \
+        '@'+uri.hostname+':'+str(uri.port)+uri.path
+    CONFIG.set('database', 'uri', newuri)
     CONFIG.set('login', 'password', password)
 
     with open(ini, 'w') as inifile:
@@ -456,11 +459,12 @@ def rebuild(context, yes):
         dropdb(context)
         context.invoke(db_init)
 
+
 def dropdb(context):
     from pyfi.db.model import Base
 
     # For every user in "user" table, DROP USER name
-    
+
     _users = [u.name for u in context.obj['database'].session.query(
         UserModel).all()]
 
@@ -471,9 +475,9 @@ def dropdb(context):
             context.obj['database'].session.execute(
                 f"DROP USER {user}")
             print("Dropped user {}".format(user))
-    
+
     context.obj['database'].session.commit()
-    
+
     for t in Base.metadata.sorted_tables:
         try:
             print("Dropping {}".format(t.name))
@@ -541,7 +545,7 @@ def db_init(rls):
     try:
         from sqlalchemy import create_engine
         try:
-            _engine = create_engine(CONFIG.get('database','uri'))
+            _engine = create_engine(CONFIG.get('database', 'uri'))
             _session = sessionmaker(bind=_engine)()
             users = _session.query(UserModel).all()
             print("Database already created. Please run \"pyfi db drop\".")
@@ -575,7 +579,6 @@ def db_init(rls):
 
         Base.metadata.create_all(engine)
         session.commit()
-        
 
         try:
             sql = "ALTER TABLE \"user\" ENABLE ROW LEVEL SECURITY"
@@ -587,7 +590,6 @@ def db_init(rls):
             session.commit()
         except:
             pass
-        
 
         try:
             sql = "ALTER TABLE \"login\" ENABLE ROW LEVEL SECURITY"
@@ -638,7 +640,8 @@ def db_init(rls):
         with open(ini, 'w') as inifile:
             CONFIG.write(inifile)
 
-        user = UserModel(name='postgres', email=email, password=_password, clear=password)
+        user = UserModel(name='postgres', email=email,
+                         password=_password, clear=password)
         role = RoleModel(name='admin')
         user.roles += [role]
         session.add(role)
@@ -1252,7 +1255,8 @@ def add_user(context, name, email, password):
     try:
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
-        user = UserModel(name=name, owner=name, password=_password, clear=password, email=email)
+        user = UserModel(name=name, owner=name,
+                         password=_password, clear=password, email=email)
         user.lastupdated = datetime.now()
 
         context.obj['database'].session.add(user)
@@ -1787,7 +1791,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
         if call:
             for event in call.events:
                 x.add_row([event.name, event.id, event.owner,
-                        event.lastupdated, event.note])
+                           event.lastupdated, event.note])
     print(x)
 
 
@@ -1819,14 +1823,14 @@ def ls_roles(context, page, rows, ascend):
     if not ascend:
         if total < rows:
             nodes = context.obj['database'].session.query(
-                    RoleModel).all()
+                RoleModel).all()
         else:
             nodes = context.obj['database'].session.query(
                 RoleModel).order_by(RoleModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
     else:
         if total < rows:
             nodes = context.obj['database'].session.query(
-                    RoleModel).all()
+                RoleModel).all()
         else:
             nodes = context.obj['database'].session.query(
                 RoleModel).order_by(RoleModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
@@ -1938,16 +1942,18 @@ def ls_calls(context, page, rows, unfinished, ascend):
 
 
 @ls.command(name='network')
-@click.option('-h', '--horizontal', default=True, is_flag=True, required=False, help="Vertical tree mode")
+@click.option('-h', '--horizontal', default=False, is_flag=True, required=False, help="Vertical tree mode")
 @click.option('-a', '--agent', required=False, help="List network for agent")
+@click.option('-c', '--condensed', default=False, is_flag=True, help="Condensed representation")
 @click.pass_context
-def ls_network(context, horizontal, agent):
+def ls_network(context, horizontal, agent, condensed):
     """ List the PYFI network """
 
     from pptree import print_tree, Node
-
+    
     if agent is not None:
-        agent = context.obj['database'].session.query(AgentModel).filter_by(name=agent).first()
+        agent = context.obj['database'].session.query(
+            AgentModel).filter_by(name=agent).first()
         agents = [agent]
     else:
         agents = context.obj['database'].session.query(AgentModel).all()
@@ -1956,16 +1962,31 @@ def ls_network(context, horizontal, agent):
 
     for agent in agents:
         agent_node = Node("agent::"+agent.name, root)
+        if condensed:
+            print("agent::"+agent.name)
         worker_node = Node("worker::"+agent.worker.name, agent_node)
-        processor_node = Node("processor::"+agent.worker.processor.name, worker_node)
+        if condensed:
+            print("  worker::"+agent.worker.name)
+        processor_node = Node(
+            "processor::"+agent.worker.processor.name, worker_node)
 
         for socket in agent.worker.processor.sockets:
             socket_node = Node("socket::"+socket.name, processor_node)
+            if condensed:
+                print("    socket::"+socket.name)
             task_node = Node("task::"+socket.task.name, socket_node)
+            if condensed:
+                print("      task::"+socket.task.name)
             module_node = Node("module::"+socket.task.module, task_node)
+            if condensed:
+                print("        module::"+socket.task.module)
             function_node = Node("function::"+socket.task.name, task_node)
+            if condensed:
+                print("        function::"+socket.task.name)
 
-    print_tree(root, horizontal=horizontal)
+    if not condensed:
+        print_tree(root, horizontal=horizontal)
+
 
 @ls.command(name='work')
 @click.pass_context
@@ -1974,7 +1995,7 @@ def ls_work(context):
     List work submissions
     """
 
-    # Work is defined as the submission of a task along with scheduling requirements for a 
+    # Work is defined as the submission of a task along with scheduling requirements for a
     # scheduler to place into the network for processing.
     # Work can also define a "job schedule" which means specific times or intervals a task is to be
     # executed.
@@ -1988,6 +2009,7 @@ def ls_work(context):
     # and represent scheduled jobs that invoke specific tasks.
     # However, a work object can result in a scheduled job being created.
     pass
+
 
 @ls.command(name='worker')
 @click.pass_context
@@ -2088,7 +2110,7 @@ def ls_processor(context, id, name, graph):
         sock = Node(node.name, root)
         module = Node(node.task.module, sock)
         task = Node(node.task.name, module)
-    
+
     if graph:
         print_tree(root, horizontal=False)
     else:
@@ -2110,20 +2132,19 @@ def ls_processor(context, id, name, graph):
     print("Sockets")
     print(x)
 
-
     x = PrettyTable()
 
     names = ["Created", "Text", "Source"]
 
     x.field_names = names
-    
+
     for log in processor.logs:
         x.add_row([log.created, log.text, log.source])
 
     print()
     print("Logs")
     print(x)
-    
+
 
 @ls.command(name='task')
 @click.pass_context
@@ -2230,7 +2251,7 @@ def ls_role(context, name):
     x = PrettyTable()
     names = ["Name", "Last Updated", "By"]
     x.field_names = names
-    
+
     roles = []
 
     role = context.obj['database'].session.query(
@@ -2249,7 +2270,6 @@ def ls_role(context, name):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
-        
 
         x = PrettyTable()
         print()
@@ -2284,7 +2304,7 @@ def ls_user(context, name):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
-        
+
         x = PrettyTable()
         print()
         print("Roles")
@@ -2317,6 +2337,7 @@ def ls_user(context, name):
             x.add_row([user.name, priv.right, priv.lastupdated, priv.owner])
 
         print(x)
+
 
 @ls.command(name='workers')
 @click.pass_context
@@ -2579,7 +2600,7 @@ def whoami(context):
     loginstr = "Not logged in"
     if name is not None:
         loginstr = "Logged into PYFI as "+name
-    print("Database user {}.\n{}.".format(context.obj['owner'],loginstr))
+    print("Database user {}.\n{}.".format(context.obj['owner'], loginstr))
 
 
 @cli.group()
@@ -2625,16 +2646,29 @@ def api_start(context, ip, port):
 @click.option('-u', '--user', default=None, help='Run the worker as user')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
 @click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
+@click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
+@click.option('-p', '--path', help='Remote PATH to use')
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, config, queues, user, pool, size):
+def start_agent(context, port, clean, backend, broker, config, queues, user, pool, size, host, path):
     """
     Run pyfi agent server
     """
     from pyfi.agent import Agent
 
-    agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                  config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
-    agent.start()
+    if host is not None:
+        """
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(hostname=hostname, username=username,
+                        key_filename=sshkey)
+        command = "python3.8 -m venv {}; export LLVM_CONFIG=/usr/bin/llvm-config-10; {}/bin/pip install --upgrade py-entangle".format(
+            env, env)
+        _, stdout, _ = _ssh.exec_command(command)
+        """
+    else:
+        agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
+                    config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
+        agent.start()
 
 
 @cli.group()
