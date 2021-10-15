@@ -348,7 +348,7 @@ class Worker:
                                     processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
-                                    received), 'room': processor_path}]
+                                    received), 'room': processor.name}]
 
                                 self.queue.put(data)
 
@@ -392,7 +392,8 @@ class Worker:
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
-                                data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(started), 'room': processor_path}]
+                                data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
+                                    started), 'room': processor.name}]
 
                                 self.queue.put(data)
 
@@ -511,7 +512,7 @@ class Worker:
 
                                 # Create data record for this event
                                 data = {
-                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+_signal['taskid'], 'message': 'Processor message', 'channel': 'task', 'room': processor_path, 'task': _signal['sender']}
+                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+_signal['taskid'], 'message': 'Processor message', 'channel': 'task', 'room': processor.name, 'task': _signal['sender']}
 
                                 payload = json.dumps(data)
                                 data['message'] = payload
@@ -538,7 +539,7 @@ class Worker:
 
                         # Put log event into queue for emission
                         self.queue.put(
-                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor_path, 'message': 'A log message!'}])
+                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor.name, 'message': 'A log message!'}])
 
                         logging.info("PLUGS: %s", plugs)
 
