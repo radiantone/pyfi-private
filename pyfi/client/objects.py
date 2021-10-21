@@ -87,7 +87,7 @@ class Task(Base):
             routing_key=module+'.'+name)
         )
 
-    def __call__(self, queue, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs).delay()
 
 

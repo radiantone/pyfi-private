@@ -16,4 +16,4 @@ do_something = Task(name='do_something', module='pyfi.processors.sample', queue=
 # Send a message to a socket(function).
 result = do_something("Hello World !")
 
-print("RESULT",result.get())
+print("RESULT",result)
