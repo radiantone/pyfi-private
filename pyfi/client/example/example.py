@@ -20,11 +20,11 @@ processor2 = Processor(name='proc2', user=USER, module='pyfi.processors.sample',
 
 # Create a socket on the processor to receive requests for the do_something python function(task)
 do_something = Socket(name='proc1.do_something', user=USER, interval=30,
-                      processor=processor, queue={'name': 'pyfi.queue1', 'expires':300, 'durable':True, 'message_ttl':30000}, task='do_something')
+                      processor=processor, queue={'name': 'pyfi.queue1'}, task='do_something')
 print(json.dumps(do_something.socket, indent=4, cls=AlchemyEncoder))
 # Create a socket on the processor to receive requests for the do_this python function(task)
 do_this = Socket(name='proc2.do_this', user=USER,
-                 processor=processor2, queue={'name': 'pyfi.queue2', 'expires': 300, 'durable': True, 'message_ttl': 30000}, task='do_this')
+                 processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_this')
 
 do_something2 = Socket(name='proc2.do_something', user=USER, processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_something')
 # Create a plug that connects one processor to a socket of another
