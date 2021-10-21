@@ -626,8 +626,8 @@ def db_init(rls):
 
         print("Database create all schemas done.")
 
-        email = click.prompt('Postgres user email', type=str)
-        password = click.prompt('Postgres user password', type=str)
+        email = click.prompt('Postgres user email', type=str, default='p@e')
+        password = click.prompt('Postgres user password', type=str, default='pyfi101')
 
         _password = hashlib.md5(password.encode()).hexdigest()
 

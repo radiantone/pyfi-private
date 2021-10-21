@@ -152,6 +152,7 @@ class Socket(Base):
             # pass in x-expires, message-ttl
             self.queue = Queue(**kwargs['queue'])
             self.session.add(self.queue.queue)
+            print("QUEUE:", self.queue.queue)
 
         if 'processor' in kwargs:
             self.processor = kwargs['processor']
@@ -238,7 +239,7 @@ class Socket(Base):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
-
+        print("TTL ",self.queue.message_ttl)
         self.app.conf.task_routes = {
             self.key: {
                 'queue': self.queue,
