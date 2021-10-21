@@ -807,9 +807,8 @@ class Worker:
                                         ' ', '.')+'.'+socket.task.name,
                                     Exchange(socket.queue.name +
                                              '.topic', type='fanout'),
-                                    routing_key=socket.queue.name+'.' +
-                                    self.processor.name.replace(
-                                        ' ', '.'),
+                                    routing_key=socket.queue.name +
+                                    '.topic'),
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
