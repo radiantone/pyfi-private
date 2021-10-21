@@ -92,13 +92,14 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     session = sessionmaker(bind=database)()
     session.add(processor)
     name = plug.name
-    print("PLUG ",plug.name)
+    #print("PLUG ",plug.name)
     plug = session.query(
-        PlugModel).filter_by(id=plug.name).first()
-    #session.add(plug)
+        PlugModel).filter_by(id=name).first()
+    print("PLUG RESULT ", plug is not None)
+    session.add(plug)
     session.add(socket)
 
-    print("PLUG NAME:",name)
+    #print("PLUG NAME:",name)
     tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
     queue = KQueue(
         tkey,
