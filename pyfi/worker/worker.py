@@ -91,7 +91,9 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
     session = sessionmaker(bind=database)()
     session.add(processor)
-    session.add(plug)
+    plug = session.query(
+        PlugModel).filter_by(id=plug.name).first()
+    #session.add(plug)
     session.add(socket)
 
     print("PLUG TARGET:",plug.target.name)
