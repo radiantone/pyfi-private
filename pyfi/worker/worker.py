@@ -93,10 +93,9 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     session.add(processor)
     name = plug.name
     #print("PLUG ",plug.name)
-    plug = session.query(
-        PlugModel).filter_by(id=name).first()
+    plug = session.query(PlugModel).filter_by(name=name).first()
     print("PLUG RESULT ", plug is not None)
-    session.add(plug)
+    #session.add(plug)
     session.add(socket)
 
     #print("PLUG NAME:",name)
