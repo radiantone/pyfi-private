@@ -47,8 +47,6 @@ class Base:
     session = sessionmaker(bind=database)()
     database.session = session
 
-    app = Celery(backend=backend, broker=broker)
-
     def __init__(self):
         pass
 
@@ -73,6 +71,7 @@ class Task(Base):
     def __init__(self, name=None, module=None, queue=None):
         super().__init__()
 
+        self.app = Celery(backend=self.backend, broker=self.broker)
         self.task = self.session.query(
             TaskModel).filter_by(name=name).first()
 
@@ -282,7 +281,6 @@ class Plug(Base):
             PlugModel).filter_by(name=self.name).first()
 
         user = kwargs['user']
-        self.session.add(user)
 
         if self.plug is None:
 
@@ -296,6 +294,7 @@ class Plug(Base):
             self.queue = Queue(name=self.queuename)
             self.session.add(self.processor.processor)
 
+            self.session.add(user)
             self.session.add(self.source.socket)
             self.session.add(self.target.socket)
             self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
@@ -392,7 +391,6 @@ class Processor(Base):
         the queue object to create the kombu Queue() class so it matches
         '''
 
-
         if id is not None:
             self.id = id
             self.processor = self.database.session.query(
@@ -409,7 +407,7 @@ class Processor(Base):
             self.processor = ProcessorModel(
                 status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
 
-            #self.database.session.add(self.processor)
+        self.database.session.add(self.processor)
 
         self.sockets = Sockets(self.database, self.processor)
 
@@ -420,6 +418,10 @@ class Processor(Base):
 
         self.app.config_from_object(config)
         self.database.session.commit()
+
+    def get(self):
+        self.database.session.add(self.processor)
+        return self
 
     def start(self):
         self.processor.requested_status = 'start'

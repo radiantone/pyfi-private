@@ -31,7 +31,8 @@ do_this = Socket(name='pyfi.processors.sample.do_this', user=USER,
 plug = Plug(name='plug1', processor=processor, user=USER,
             source=do_something, queue={'name': 'pyfi.queue2'}, target=do_this)
 
-print(plug.target.queue)
+for p in processor.get().processor.plugs:
+    print(p.target.queue)
 # Send a message to a socket(function). 
 #result = do_something("Hello World !")
 
