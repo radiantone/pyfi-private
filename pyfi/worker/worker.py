@@ -34,9 +34,6 @@ from celery.signals import worker_process_init, after_task_publish, task_success
 from kombu import Exchange, Queue as KQueue
 
 from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
-from kombu import serialization
-serialization.register_pickle()
-serialization.enable_insecure_serializers()
 
 
 PRERUN_CONDITION = Condition()
@@ -98,9 +95,6 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     session.add(socket)
 
     tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
-    logging.info("PLUG: %s",plug)
-    logging.info("TARGET: %s",plug.target)
-    logging.info("QUEUE: %s", plug.target.queue)
     queue = KQueue(
         tkey,
         Exchange(
@@ -957,7 +951,6 @@ class Worker:
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 try:
-                                                    print("PRE DISPATCH: %s", plug.target.queue)
                                                     self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                                         misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(

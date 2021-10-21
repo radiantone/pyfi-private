@@ -29,8 +29,8 @@ HOME = str(Path.home())
 ini = HOME+"/pyfi.ini"
 
 CONFIG.read(ini)
-serialization.register_pickle()
-serialization.enable_insecure_serializers()
+#serialization.register_pickle()
+#serialization.enable_insecure_serializers()
 
 
 class Base:
@@ -152,7 +152,6 @@ class Socket(Base):
             # pass in x-expires, message-ttl
             self.queue = Queue(**kwargs['queue'])
             self.session.add(self.queue.queue)
-            print("QUEUE:", self.queue.queue)
 
         if 'processor' in kwargs:
             self.processor = kwargs['processor']
@@ -193,12 +192,8 @@ class Socket(Base):
             if interval > 0:
                 scheduled = True
 
-            if self.processor is not None:
-                self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
-                                        status='ready')
-            else:
-                self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, requested_status='ready',
-                                          status='ready')
+            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
+                                      status='ready')
 
             self.session.add(self.task)
             self.socket.task = self.task
@@ -239,7 +234,7 @@ class Socket(Base):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
-        print("TTL ",self.queue.message_ttl)
+
         self.app.conf.task_routes = {
             self.key: {
                 'queue': self.queue,
