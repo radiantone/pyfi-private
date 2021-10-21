@@ -957,6 +957,7 @@ class Worker:
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 try:
+                                                    print("PRE DISPATCH: %s", plug.target.queue)
                                                     self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                                         misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(
