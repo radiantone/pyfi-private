@@ -356,7 +356,8 @@ class Queue(Base):
             QueueModel).filter_by(name=name).first()
 
         if self.queue is None:
-            self.queue = QueueModel(name=name, message_ttl=message_ttl, durable=durable, expires=expires, requested_status='ready',
+            # message_ttl=message_ttl, durable=durable, expires=expires,
+            self.queue = QueueModel(name=name, requested_status='ready',
                                     status='ready')
             self.database.session.add(self.queue)
             self.database.session.commit()
