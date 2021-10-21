@@ -34,6 +34,9 @@ from celery.signals import worker_process_init, after_task_publish, task_success
 from kombu import Exchange, Queue as KQueue
 
 from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from kombu import serialization
+serialization.register_pickle()
+serialization.enable_insecure_serializers()
 
 
 PRERUN_CONDITION = Condition()

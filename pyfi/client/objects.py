@@ -6,6 +6,7 @@ socket = Socket(queue='pyfi.queue1', task='do_something')
 proc1.sockets += [socket]
 
 """
+from kombu import serialization
 import os
 import configparser
 import platform
@@ -28,6 +29,8 @@ HOME = str(Path.home())
 ini = HOME+"/pyfi.ini"
 
 CONFIG.read(ini)
+serialization.register_pickle()
+serialization.enable_insecure_serializers()
 
 
 class Base:
@@ -67,18 +70,25 @@ class Task(Base):
     Docstring
     """
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, module=None, queue=None):
         super().__init__()
 
         self.task = self.session.query(
             TaskModel).filter_by(name=name).first()
+
         if self.task is None:
             raise Exception(f"Task {name} does not exist.")
 
-        self.name = name
+        self.name = module+'.'+name
+
+        self.queue = KQueue(
+            queue['name'],
+            Exchange(queue['name'], type=queue['type'],
+            routing_key=module+'.'+name)
+        )
 
     def __call__(self, queue, *args, **kwargs):
-        self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=queue, kwargs=kwargs).delay()
+        return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs).delay()
 
 
 class Scheduler(Base):
