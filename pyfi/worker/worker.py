@@ -94,7 +94,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     session.add(plug)
     session.add(socket)
 
-    print("PLUG TARGET:",plug.target)
+    print("PLUG TARGET:",plug.target.name)
     tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
     queue = KQueue(
         tkey,
