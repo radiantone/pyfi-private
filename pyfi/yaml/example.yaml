@@ -1,0 +1,38 @@
+version: '1.0'
+
+# This creates database records and a running scheduler will do the deployments
+nodes:
+  radiant:
+    hostname: radiant
+    ssh_key: 'xx.pub'
+    ssh_user: 'darren'
+    agents:
+      agent1:
+        parameters:
+          pool: 5
+          size: 10
+        processors:
+          proc1:
+            xxx: 1
+            sockets:
+              socket1:
+                xxx: 1
+                task:
+                  module: pyfi.tasks
+                  function: task1
+          proc2: 
+            xxx: 2
+            sockets:
+              socket1:
+                xxx: 1
+                task:
+                  module: pyfi.tasks
+                  function: task2
+    
+# This will create work records which the scheduler will deploy
+work:
+  
+
+
+# This will create immediate executions using the API models
+executions:

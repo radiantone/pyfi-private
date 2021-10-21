@@ -32,6 +32,7 @@ class Scheduler:
 
             for work in all_work:
                 # Determine the work request and schedule or run it
+                # Assign the workmodel to a worker
                 pass
             # Perform read lock of processors without hostnames
             # Put processors in pending list to be assigned below
@@ -39,6 +40,11 @@ class Scheduler:
 
             # These are my nodes to manage
             for node in scheduler.nodes:
+
+                # For each node->agent determine if it is running and if not ssh into host and
+                # run the agent. The agent worker will then notice any processors assigned to it
+                # and launch those processors on its own
+
                 """ Calculate any changes needed by inspecting the nodes, agents, workers, etc """
                 """ If changes are needed, put read lock on table and make change """
                 logging.info("Node %s", node)

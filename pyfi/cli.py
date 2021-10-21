@@ -1132,6 +1132,15 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
     context.obj['database'].session.commit()
 
 
+@add.command(name='log')
+@click.option('-i', '--id', default=None, help="id of object")
+@click.option('-s', '--source', default=None, required=False, help='Source name')
+@click.option('-t', '--text', default=None, required=False, help='Text of log')
+def add_log(context, id, source, text):
+
+    pass
+
+
 @add.command(name='task')
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this task")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
@@ -1969,20 +1978,22 @@ def ls_network(context, horizontal, agent, condensed):
             print("  worker::"+agent.worker.name)
         processor_node = Node(
             "processor::"+agent.worker.processor.name, worker_node)
+        if condensed:
+            print("    processor::"+agent.worker.processor.name)
 
         for socket in agent.worker.processor.sockets:
             socket_node = Node("socket::"+socket.name, processor_node)
             if condensed:
-                print("    socket::"+socket.name)
+                print("      socket::"+socket.name)
             task_node = Node("task::"+socket.task.name, socket_node)
             if condensed:
-                print("      task::"+socket.task.name)
+                print("        task::"+socket.task.name)
             module_node = Node("module::"+socket.task.module, task_node)
             if condensed:
-                print("        module::"+socket.task.module)
+                print("          module::"+socket.task.module)
             function_node = Node("function::"+socket.task.name, task_node)
             if condensed:
-                print("        function::"+socket.task.name)
+                print("          function::"+socket.task.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)

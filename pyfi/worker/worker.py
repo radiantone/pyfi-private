@@ -295,6 +295,10 @@ class Worker:
         import json
 
 
+        def do_work():
+            # Retrieve workmodels where worker=me and execute them
+            pass
+
         def database_actions():
             """ Main database interaction thread. Receives signals off a queue
             and conducts database operations based on the message """
@@ -306,6 +310,11 @@ class Worker:
                     ProcessorModel).filter_by(id=self.processor.id).first()
 
                 while True:
+
+                    # Check if any work has been assigned to me and then do it
+                    # This will pause the task execution for this worker until the
+                    # work is complete
+                    do_work()
 
                     _plugs = {}
 
@@ -795,7 +804,7 @@ class Worker:
                                 KQueue(
                                     socket.queue.name+'.' +
                                     self.processor.name.replace(
-                                        ' ', '.'),
+                                        ' ', '.')+'.'+socket.task.name,
                                     Exchange(socket.queue.name +
                                              '.topic', type='fanout'),
                                     routing_key=socket.queue.name+'.' +
@@ -1177,6 +1186,7 @@ class Worker:
         """
         p = psutil.Process(self.process.pid)
         p.suspend()
+        self.scheduler.pause()
 
     def resume(self):
         """
@@ -1184,6 +1194,7 @@ class Worker:
         """
         p = psutil.Process(self.process.pid)
         p.resume()
+        self.scheduler.resume()
 
     def kill(self):
         """
