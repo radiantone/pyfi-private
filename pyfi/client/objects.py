@@ -344,10 +344,13 @@ class Queue(Base):
     Docstring
     """
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, message_ttl=30000, durable=True, expires=300):
         super().__init__()
 
         self.name = name
+        self.message_ttl = message_ttl
+        self.durable = durable
+        self.expires = expires
 
         self.queue = self.session.query(
             QueueModel).filter_by(name=name).first()
