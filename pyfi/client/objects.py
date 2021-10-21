@@ -277,36 +277,41 @@ class Plug(Base):
         super().__init__()
 
         self.name = kwargs['name']
-        self.queuename = kwargs['queue']['name']
-        self.source = kwargs['source']
-        self.target = kwargs['target']
-        self.processor = kwargs['processor']
-
-        self.queue = Queue(name=self.queuename)
-        self.session.add(self.processor.processor)
 
         self.plug = self.session.query(
             PlugModel).filter_by(name=self.name).first()
 
-        self.session.add(self.source.socket)
-        self.session.add(self.target.socket)
-
         user = kwargs['user']
         self.session.add(user)
-        if not self.plug:
+
+        if self.plug is None:
+
+            if 'queue' in kwargs:
+                self.queuename = kwargs['queue']['name']
+
+            self.source = kwargs['source']
+            self.target = kwargs['target']
+            self.processor = kwargs['processor']
+
+            self.queue = Queue(name=self.queuename)
+            self.session.add(self.processor.processor)
+
+            self.session.add(self.source.socket)
+            self.session.add(self.target.socket)
             self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
-        self.source.socket.sourceplugs += [self.plug]
-        self.target.socket.targetplugs += [self.plug]
+            self.source.socket.sourceplugs += [self.plug]
+            self.target.socket.targetplugs += [self.plug]
 
-        #self.session.add(self.source.socket)
-        #self.session.add(self.target.socket)
-        self.plug.source = self.source.socket
-        self.plug.target = self.target.socket
+            #self.session.add(self.source.socket)
+            #self.session.add(self.target.socket)
+            self.plug.source = self.source.socket
+            self.plug.target = self.target.socket
+
+            self.processor.processor.plugs += [self.plug]
         #self.plug.sockets += [self.socket.socket]
-        self.session.add(self.plug)
-        self.processor.processor.plugs += [self.plug]
-        self.session.commit()
+            self.session.add(self.plug)
+            self.session.commit()
 
 class Sockets(Base):
     """

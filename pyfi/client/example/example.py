@@ -26,11 +26,12 @@ print(json.dumps(do_something.socket, indent=4, cls=AlchemyEncoder))
 do_this = Socket(name='pyfi.processors.sample.do_this', user=USER,
                  processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_this')
 
-do_something2 = Socket(name='proc2.do_something', user=USER, processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_something')
+#do_something2 = Socket(name='proc2.do_something', user=USER, processor=processor2, queue={'name': 'pyfi.queue2'}, task='do_something')
 # Create a plug that connects one processor to a socket of another
 plug = Plug(name='plug1', processor=processor, user=USER,
             source=do_something, queue={'name': 'pyfi.queue2'}, target=do_this)
 
+print(plug.target.queue)
 # Send a message to a socket(function). 
 #result = do_something("Hello World !")
 

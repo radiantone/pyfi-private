@@ -933,9 +933,6 @@ class Worker:
                                         if plug is None:
                                             logging.error("Job plug is NONE")
                                         else:
-
-
-
                                             # execute sql to get jobs
                                             found = False
 
