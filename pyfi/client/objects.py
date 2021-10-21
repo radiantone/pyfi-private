@@ -38,9 +38,13 @@ class Base:
     session = None
 
     db = CONFIG.get('database', 'uri')
+    backend = CONFIG.get('backend', 'uri')
+    broker = CONFIG.get('broker', 'uri')
     database = create_engine(db)
     session = sessionmaker(bind=database)()
     database.session = session
+
+    app = Celery(backend=backend, broker=broker)
 
     def __init__(self):
         pass
@@ -56,6 +60,25 @@ class Work(Base):
 
 class Node(Base):
     pass
+
+
+class Task(Base):
+    """
+    Docstring
+    """
+
+    def __init__(self, name=None):
+        super().__init__()
+
+        self.task = self.session.query(
+            TaskModel).filter_by(name=name).first()
+        if self.task is None:
+            raise Exception(f"Task {name} does not exist.")
+
+        self.name = name
+
+    def __call__(self, queue, *args, **kwargs):
+        self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=queue, kwargs=kwargs).delay()
 
 
 class Scheduler(Base):
@@ -159,8 +182,12 @@ class Socket(Base):
             if interval > 0:
                 scheduled = True
 
-            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
-                                      status='ready')
+            if self.processor is not None:
+                self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
+                                        status='ready')
+            else:
+                self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, requested_status='ready',
+                                          status='ready')
 
             self.session.add(self.task)
             self.socket.task = self.task
