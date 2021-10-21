@@ -94,11 +94,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     session.add(plug)
     session.add(socket)
 
-    _plug = None
-    for p in processor.plugs:
-        if p.name == plug.name:
-            _plug = p
-
+    print("PLUG TARGET:",plug.target)
     tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
     queue = KQueue(
         tkey,
@@ -106,9 +102,9 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             socket.queue.name, type='direct'),
         routing_key=tkey,
 
-        message_ttl=_plug.target.queue.message_ttl,
-        durable=_plug.target.queue.durable,
-        expires=_plug.target.queue.expires,
+        message_ttl=plug.target.queue.message_ttl,
+        durable=plug.target.queue.durable,
+        expires=plug.target.queue.expires,
         # expires=30,
         # socket.queue.message_ttl
         # socket.queue.expires
