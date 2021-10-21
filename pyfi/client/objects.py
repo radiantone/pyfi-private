@@ -344,7 +344,7 @@ class Queue(Base):
     Docstring
     """
 
-    def __init__(self, name=None, message_ttl=30000, durable=True, expires=300):
+    def __init__(self, name=None, message_ttl=300000, durable=True, expires=300):
         super().__init__()
 
         self.name = name
