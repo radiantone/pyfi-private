@@ -274,6 +274,7 @@ class Plug(Base):
     """"""
     def __init__(self, *args, **kwargs):
         super().__init__()
+        from sqlalchemy.orm import Session
 
         self.name = kwargs['name']
 
@@ -295,8 +296,12 @@ class Plug(Base):
             self.session.add(self.processor.processor)
 
             self.session.add(user)
+            self.session.add(self.queue.queue)
             self.session.add(self.source.socket)
             self.session.add(self.target.socket)
+            print("Queue SESSION ",  Session.object_session(self.queue.queue))
+            print("Plug SESSION ",  self.session)
+
             self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
             self.source.socket.sourceplugs += [self.plug]
@@ -308,7 +313,7 @@ class Plug(Base):
             self.plug.target = self.target.socket
 
             self.processor.processor.plugs += [self.plug]
-        #self.plug.sockets += [self.socket.socket]
+            #self.plug.sockets += [self.socket.socket]
             self.session.add(self.plug)
             self.session.commit()
 
@@ -359,10 +364,11 @@ class Queue(Base):
             # message_ttl=message_ttl, durable=durable, expires=expires,
             self.queue = QueueModel(name=name, requested_status='ready',
                                     status='ready')
-            self.database.session.add(self.queue)
-            self.database.session.commit()
+            self.session.add(self.queue)
+            self.session.commit()
+            self.session.expunge(self.queue)
 
-        self.database.session.close()
+        self.session.close()
 
 
 class Processor(Base):
