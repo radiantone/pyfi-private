@@ -562,6 +562,9 @@ class Worker:
                         for pname in plugs:
                             processor_plug = None
 
+                            if pname not in sourceplugs:
+                                continue
+
                             processor_plug = sourceplugs[pname]
 
                             logging.info("Using PLUG: %s", processor_plug)
