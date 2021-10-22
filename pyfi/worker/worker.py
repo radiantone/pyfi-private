@@ -563,7 +563,7 @@ class Worker:
                             processor_plug = None
 
                             if pname not in sourceplugs:
-                                logging.info("%s plug not in %s", pname, sourceplugs)
+                                logging.warning("%s plug not in %s", pname, sourceplugs)
                                 continue
 
                             processor_plug = sourceplugs[pname]
