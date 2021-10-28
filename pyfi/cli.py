@@ -2223,12 +2223,12 @@ def ls_queues(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated", "Message TTL", "Expires",
-             "Requested Status", "Status", "Type"]
+             "Requested Status", "Broadcast Queue", "Status", "Type"]
     x.field_names = names
     queues = context.obj['database'].session.query(QueueModel).all()
     for node in queues:
         x.add_row([node.name, node.id, node.owner, node.lastupdated, node.message_ttl, node.expires,
-                  node.requested_status, node.status, node.qtype])
+                  node.requested_status, node.name+".topic", node.status, node.qtype])
 
     print(x)
 
