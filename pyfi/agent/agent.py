@@ -168,6 +168,7 @@ class Agent:
 
                     time.sleep(3)
                     sm = psutil.virtual_memory()
+                    print(sm.percent)
                     if sm.percent > 90.0:
                         # Send health alert log
                         for processor in processors:
