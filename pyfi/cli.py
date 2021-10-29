@@ -1951,49 +1951,57 @@ def ls_calls(context, page, rows, unfinished, ascend):
 
 
 @ls.command(name='network')
-@click.option('-h', '--horizontal', default=False, is_flag=True, required=False, help="Vertical tree mode")
-@click.option('-a', '--agent', required=False, help="List network for agent")
-@click.option('-c', '--condensed', default=False, is_flag=True, help="Condensed representation")
+@click.option('-h', '--horizontal', default=False, is_flag=True, required=False, help="Horizontal tree mode")
+@click.option('-v', '--vertical', default=False, is_flag=True, required=False, help="Vertical tree mode")
+@click.option('-n', '--node', required=False, help="List network for node")
 @click.pass_context
-def ls_network(context, horizontal, agent, condensed):
+def ls_network(context, horizontal, vertical, node, condensed=True):
     """ List the PYFI network """
 
     from pptree import print_tree, Node
     
-    if agent is not None:
-        agent = context.obj['database'].session.query(
-            AgentModel).filter_by(name=agent).first()
-        agents = [agent]
+    print(horizontal, vertical, condensed)
+    if horizontal or vertical:
+        condensed = False
+
+    if node is not None:
+        node = context.obj['database'].session.query(
+            NodeModel).filter_by(name=node).first()
+        nodes = [node]
     else:
-        agents = context.obj['database'].session.query(AgentModel).all()
+        nodes = context.obj['database'].session.query(NodeModel).all()
 
     root = Node("PYFI")
 
-    for agent in agents:
-        agent_node = Node("agent::"+agent.name, root)
+    for node in nodes:
+        node_node = Node("node::"+node.name, root)
         if condensed:
-            print("agent::"+agent.name)
+            print("node::"+node.name)
+        agent = node.agent
+        agent_node = Node("agent::"+agent.name, node_node)
+        if condensed:
+            print("  agent::"+agent.name)
         worker_node = Node("worker::"+agent.worker.name, agent_node)
         if condensed:
-            print("  worker::"+agent.worker.name)
+            print("    worker::"+agent.worker.name)
         processor_node = Node(
             "processor::"+agent.worker.processor.name, worker_node)
         if condensed:
-            print("    processor::"+agent.worker.processor.name)
+            print("      processor::"+agent.worker.processor.name)
 
         for socket in agent.worker.processor.sockets:
             socket_node = Node("socket::"+socket.name, processor_node)
             if condensed:
-                print("      socket::"+socket.name)
+                print("        socket::"+socket.name)
             task_node = Node("task::"+socket.task.name, socket_node)
             if condensed:
-                print("        task::"+socket.task.name)
+                print("          task::"+socket.task.name)
             module_node = Node("module::"+socket.task.module, task_node)
             if condensed:
-                print("          module::"+socket.task.module)
+                print("            module::"+socket.task.module)
             function_node = Node("function::"+socket.task.name, task_node)
             if condensed:
-                print("          function::"+socket.task.name)
+                print("            function::"+socket.task.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)
