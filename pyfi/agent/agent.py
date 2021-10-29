@@ -246,6 +246,7 @@ class Agent:
                     if refresh >= 3: # 3 cycle interval
                         refresh = 0
 
+                    print(processors)
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     for processor in processors:
