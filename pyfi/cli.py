@@ -1598,7 +1598,7 @@ def agent():
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
 @click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
-@click.option('-q', '--queue', default=10, help='Maximum number of messages on worker internal queue')
+@click.option('-q', '--queue', default=1, help='Maximum number of messages on worker internal queue')
 @click.pass_context
 def start_worker(context, name, pool, skip_venv, queue):
     from pyfi.worker import Worker
