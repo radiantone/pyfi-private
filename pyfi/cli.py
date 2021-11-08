@@ -2668,7 +2668,7 @@ def api_start(context, ip, port):
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-u', '--user', default=None, help='Run the worker as user')
 @click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
-@click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
+@click.option('-s', '--size', default=1, help='Maximum number of messages on worker internal queue')
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
 @click.option('-p', '--path', help='Remote PATH to use')
 @click.pass_context
