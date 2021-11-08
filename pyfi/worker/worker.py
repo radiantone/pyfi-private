@@ -192,8 +192,8 @@ class Worker:
         self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
-        self.database = create_engine(
-            self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
+        self.database = database #create_engine(
+            #self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)

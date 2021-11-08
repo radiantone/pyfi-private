@@ -26,6 +26,7 @@ try:
             import traceback
             print(traceback.format_exc())
             print(f"Unable to log in {user}.")
+            
 except Exception as ex:
     print("Database unavailable. Please check your configuration or ensure database server is running.")
 finally:

@@ -172,8 +172,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=sa_exc.SAWarning)
             try:
-                engine = create_engine(db)
-                engine.uri = db
+                #engine = create_engine(db)
+                #engine.uri = db
                 session = sessionmaker(bind=engine)()
 
                 user_m = session.query(
@@ -205,8 +205,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         def get_checked_permissions(*args, **kwargs):
             logging.debug("cli: get_checked_permissions")
 
-            engine = create_engine(db)
-            engine.uri = db
+            #engine = create_engine(db)
+            #engine.uri = db
             session = sessionmaker(bind=engine)()
             _user = session.query(
                 UserModel).filter_by(name=username, password=password).first()
@@ -544,14 +544,17 @@ def db_init(rls):
 
     try:
         from sqlalchemy import create_engine
+
         try:
             _engine = create_engine(CONFIG.get('database', 'uri'))
             _session = sessionmaker(bind=_engine)()
             users = _session.query(UserModel).all()
             print("Database already created. Please run \"pyfi db drop\".")
+            _session.close()
             return
         except:
             pass
+
         try:
             engine = create_engine(POSTGRES_ROOT+'postgres')
             session = sessionmaker(bind=engine)()
@@ -560,6 +563,7 @@ def db_init(rls):
             session.execute('CREATE DATABASE pyfi')
             session.connection().connection.set_isolation_level(1)
             print("Database created")
+            session.close()
         except:
             pass
 
@@ -647,6 +651,7 @@ def db_init(rls):
         session.add(role)
         session.add(user)
         session.commit()
+        session.close()
         print("Updated postgres user.")
 
     except Exception as ex:
