@@ -50,6 +50,8 @@ def setup_celery_logging(**kwargs):
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
+if os.path.exists(home+"/pyfi.ini"):
+    CONFIG.read(home+"/pyfi.ini")
 dburi = CONFIG.get('database', 'uri')
 
 database = create_engine(
