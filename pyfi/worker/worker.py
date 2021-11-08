@@ -869,8 +869,7 @@ class Worker:
                     beat=self.processor.beat,
                     uid='pyfi',
                     without_mingle=True,
-                    without_gossip=True,
-                    concurrency=1 #int(self.processor.concurrency)
+                    without_gossip=True
                 )
                 self.processor.worker.hostname = hostname
 
