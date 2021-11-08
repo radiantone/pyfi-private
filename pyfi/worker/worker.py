@@ -54,7 +54,7 @@ if os.path.exists(home+"/pyfi.ini"):
     CONFIG.read(home+"/pyfi.ini")
 dburi = CONFIG.get('database', 'uri')
 
-database = create_engine(
+DATABASE = create_engine(
     dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
 events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
@@ -95,7 +95,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
-    session = sessionmaker(bind=database)()
+    session = sessionmaker(bind=DATABASE)()
     try:
         session.add(processor)
         name = plug.name
@@ -192,7 +192,7 @@ class Worker:
         self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
-        self.database = database #create_engine(
+        self.database = DATABASE #create_engine(
             #self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
         sm = sessionmaker(bind=self.database)
