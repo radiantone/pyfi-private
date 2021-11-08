@@ -26,6 +26,8 @@ from multiprocessing import Condition, Queue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
+from sqlalchemy.pool import QueuePool
+
 
 from celery import Celery, group as parallel, chain as pipeline
 from celery.signals import setup_logging
@@ -48,6 +50,10 @@ def setup_celery_logging(**kwargs):
 
 home = str(Path.home())
 CONFIG = configparser.ConfigParser()
+dburi = CONFIG.get('database', 'uri')
+
+database = create_engine(
+    dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
 events_server = os.environ['EVENTS'] if 'EVENTS' in os.environ else 'localhost'
 lock = Condition()
@@ -87,45 +93,46 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
-    database = create_engine(dburi, pool_size=1, max_overflow=5)
-
     session = sessionmaker(bind=database)()
-    session.add(processor)
-    name = plug.name
-    #print("PLUG ",plug.name)
-    plug = session.query(PlugModel).filter_by(name=name).first()
-    if plug is None:
-        logging.warning("Plug %s does not exist",name)
-        return
+    try:
+        session.add(processor)
+        name = plug.name
+        #print("PLUG ",plug.name)
+        plug = session.query(PlugModel).filter_by(name=name).first()
+        if plug is None:
+            logging.warning("Plug %s does not exist",name)
+            return
 
-    print("PLUG RESULT ", plug is not None)
-    #session.add(plug)
-    session.add(socket)
+        print("PLUG RESULT ", plug is not None)
+        #session.add(plug)
+        session.add(socket)
 
-    #print("PLUG NAME:",name)
-    tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
-    queue = KQueue(
-        tkey,
-        Exchange(
-            socket.queue.name, type='direct'),
-        routing_key=tkey,
+        #print("PLUG NAME:",name)
+        tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
+        queue = KQueue(
+            tkey,
+            Exchange(
+                socket.queue.name, type='direct'),
+            routing_key=tkey,
 
-        message_ttl=plug.target.queue.message_ttl,
-        durable=plug.target.queue.durable,
-        expires=plug.target.queue.expires,
-        # expires=30,
-        # socket.queue.message_ttl
-        # socket.queue.expires
-        queue_arguments={
-            'x-message-ttl': 30000,
-            'x-expires': 300}
-    )
-    task_sig = celery.signature(
-        processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
-    session.close()
-    delayed = task_sig.delay(message)
+            message_ttl=plug.target.queue.message_ttl,
+            durable=plug.target.queue.durable,
+            expires=plug.target.queue.expires,
+            # expires=30,
+            # socket.queue.message_ttl
+            # socket.queue.expires
+            queue_arguments={
+                'x-message-ttl': 30000,
+                'x-expires': 300}
+        )
+        task_sig = celery.signature(
+            processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
+        delayed = task_sig.delay(message)
 
-    logging.info("Dispatched %s", delayed)
+        logging.info("Dispatched %s", delayed)
+    finally:
+        session.close()
+
 
 class Worker:
     """
@@ -184,7 +191,7 @@ class Worker:
 
         cpus = multiprocessing.cpu_count()
         self.database = create_engine(
-            self.dburi, pool_size=cpus, max_overflow=5)
+            self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
         sm = sessionmaker(bind=self.database)
         some_session = scoped_session(sm)

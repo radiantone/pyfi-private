@@ -1960,7 +1960,6 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
 
     from pptree import print_tree, Node
     
-    print(horizontal, vertical, condensed)
     if horizontal or vertical:
         condensed = False
 

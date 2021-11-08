@@ -19,8 +19,9 @@ processor2 = Processor(name='proc2', user=USER, module='pyfi.processors.sample',
 
 
 # Create a socket on the processor to receive requests for the do_something python function(task)
-do_something = Socket(name='pyfi.processors.sample.do_something', user=USER, 
+do_something = Socket(name='pyfi.processors.sample.do_something', user=USER, interval=5,
                       processor=processor, queue={'name': 'pyfi.queue1'}, task='do_something')
+
 print(json.dumps(do_something.socket, indent=4, cls=AlchemyEncoder))
 # Create a socket on the processor to receive requests for the do_this python function(task)
 do_this = Socket(name='pyfi.processors.sample.do_this', user=USER,
