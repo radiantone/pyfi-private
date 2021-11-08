@@ -462,7 +462,7 @@ class Agent:
                                 workerproc.start(start=False)
 
                                 # Launch from the virtualenv
-                                wprocess = workerproc.launch(processor['processor'].worker.name, self.size)
+                                wprocess = workerproc.launch(processor['processor'].worker.name, self.pool)
                                 #wprocess = workerproc.start()
 
                                 processor['processor'].worker.requested_status = 'ready'

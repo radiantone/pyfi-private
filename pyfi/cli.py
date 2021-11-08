@@ -1596,7 +1596,7 @@ def agent():
 
 @worker.command(name='start', help='Start a pyfi worker')
 @click.option('-n', '--name', required=True, help="Name of worker")
-@click.option('-p', '--pool', default=4, required=False, help="Size of worker pool")
+@click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
 @click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
 @click.option('-q', '--queue', default=10, help='Maximum number of messages on worker internal queue')
 @click.pass_context
@@ -2667,7 +2667,7 @@ def api_start(context, ip, port):
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-u', '--user', default=None, help='Run the worker as user')
-@click.option('-p', '--pool', default=4, help='Process pool for message dispatches')
+@click.option('-p', '--pool', default=1, help='Process pool for message dispatches')
 @click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
 @click.option('-p', '--path', help='Remote PATH to use')

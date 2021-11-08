@@ -870,7 +870,7 @@ class Worker:
                     uid='pyfi',
                     without_mingle=True,
                     without_gossip=True,
-                    concurrency=1 #int(self.processor.concurrency)
+                    concurrency=int(self.processor.concurrency)
                 )
                 self.processor.worker.hostname = hostname
 
