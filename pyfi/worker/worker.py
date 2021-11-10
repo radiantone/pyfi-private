@@ -229,12 +229,12 @@ class Worker:
             self.scheduler = BackgroundScheduler(
                 executors=executors, job_defaults=job_defaults, timezone=utc)
 
+            self.jobs = {}
             '''
             jobs = self.database.session.query(
                 JobModel).all()
             self.database.session.close()
 
-            self.jobs = {}
 
             for job in jobs:
                 self.jobs[job.id] = job
