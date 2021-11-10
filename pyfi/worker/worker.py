@@ -72,6 +72,7 @@ def shutdown(*args):
     """ Shutdown worker """
     from psutil import Process
 
+    logging.info("Processes {}".format(processes))
     for process in processes:
         try:
             logging.info("SHUTDOWN: Process pid {}".format(process.pid))
