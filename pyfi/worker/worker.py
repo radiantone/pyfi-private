@@ -71,6 +71,7 @@ processes = []
 def shutdown(*args):
     """ Shutdown worker """
     from psutil import Process
+    global processes
 
     logging.info("Processes {}".format(processes))
     for process in processes:
@@ -1177,6 +1178,7 @@ class Worker:
         """ Start worker process"""
         worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
         worker_process.app = self.celery
+        logging.info("+++++ Adding worker process to global processes")
         processes += [worker_process]
 
         worker_process.start()
