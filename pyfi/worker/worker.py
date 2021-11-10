@@ -98,7 +98,8 @@ def shutdown(*args):
         logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
             process.pid, child.pid))
         child.kill()
-        
+    process.kill()
+    process.terminate()
     exit(0)
 
 
