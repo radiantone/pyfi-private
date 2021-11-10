@@ -1101,6 +1101,10 @@ class Worker:
         os.chdir(self.workdir)
 
         """ Install gitrepo and build virtualenv """
+        if self.processor.commit and self.skipvenv:
+            if self.processor.commit:
+                os.system("git checkout {}".format(self.processor.commit))
+                
         if self.processor.gitrepo and not self.skipvenv:
 
             if self.usecontainer:
