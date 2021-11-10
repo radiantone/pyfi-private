@@ -1123,7 +1123,7 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
                                         type=str, default=processor.commit)
 
     if not branch:
-        processor.commit = click.prompt('Branch',
+        processor.branch = click.prompt('Branch',
                                         type=str, default=processor.branch)
 
     if not beat:
