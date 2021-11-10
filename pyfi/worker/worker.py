@@ -97,7 +97,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
     session = sessionmaker(bind=DATABASE)()
     try:
-        session.add(processor)
+        #session.add(processor)
         name = plug.name
         #print("PLUG ",plug.name)
         plug = session.query(PlugModel).filter_by(name=name).first()
@@ -971,7 +971,7 @@ class Worker:
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
                                             '''
-                                            
+
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug
