@@ -67,6 +67,7 @@ hostname = platform.node()
 global processes
 processes = []
 
+logging.info("OS PID is {}".format(os.getpid()))
 
 def shutdown(*args):
     """ Shutdown worker """
@@ -74,6 +75,7 @@ def shutdown(*args):
     global processes
 
     logging.info("Processes {}".format(processes))
+
     for process in processes:
         try:
             logging.info("SHUTDOWN: Process pid {}".format(process.pid))
@@ -91,6 +93,12 @@ def shutdown(*args):
             logging.error(ex)
             pass
 
+    process = Process(os.getpid())
+    for child in process.children(recursive=True):
+        logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
+            process.pid, child.pid))
+        child.kill()
+        
     exit(0)
 
 
@@ -1178,8 +1186,8 @@ class Worker:
         """ Start worker process"""
         worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
         worker_process.app = self.celery
-        logging.info("+++++ Adding worker process to global processes")
         processes += [worker_process]
+        logging.info("+++++ Adding worker process to global processes {}".format(processes))
 
         worker_process.start()
 
