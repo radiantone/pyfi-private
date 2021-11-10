@@ -2384,10 +2384,11 @@ def ls_workers(context):
 
 @ls.command(name='processors')
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
+@click.option('-c', '--commit', is_flag=True, default=False)
 @click.option('-m', '--module', is_flag=True, default=False)
 @click.option('-o', '--owner', is_flag=True, default=False)
 @click.pass_context
-def ls_processors(context, gitrepo, module, owner):
+def ls_processors(context, gitrepo, commit, module, owner):
     """
     List processors
     """
@@ -2403,6 +2404,8 @@ def ls_processors(context, gitrepo, module, owner):
         names += ["Module"]
     if owner:
         names += ["Owner"]
+    if commit:
+        names += ["Commit"]
 
     x.field_names = names
 
@@ -2417,6 +2420,8 @@ def ls_processors(context, gitrepo, module, owner):
             row += [processor.module]
         if owner:
             row += [processor.owner]
+        if commit:
+            row += [processor.commit]
 
         x.add_row(row)
 
