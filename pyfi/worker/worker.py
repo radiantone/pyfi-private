@@ -95,7 +95,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
-    session = sessionmaker(bind=DATABASE)()
+    #session = sessionmaker(bind=DATABASE)()
     try:
         #session.add(processor)
         name = plug.name
@@ -107,7 +107,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
         print("PLUG RESULT ", plug is not None)
         #session.add(plug)
-        session.add(socket)
+        #session.add(socket)
 
         #print("PLUG NAME:",name)
         tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
@@ -133,7 +133,8 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
         logging.info("Dispatched %s", delayed)
     finally:
-        session.close()
+        #session.close()
+        pass
 
 
 class Worker:
