@@ -961,6 +961,7 @@ class Worker:
                                             # execute sql to get jobs
                                             found = False
 
+                                            '''
                                             results = session.execute(
                                                 "select * from {}_jobs".format(self.processor.name))
                                             logging.info(
@@ -969,7 +970,8 @@ class Worker:
                                                 logging.info("JOB %s",job)
                                                 if job.id == self.processor.name+plug.name:
                                                     found = True
-
+                                            '''
+                                            
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug

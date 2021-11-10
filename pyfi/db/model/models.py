@@ -370,7 +370,7 @@ class ProcessorModel(HasLogs, BaseModel):
     beat = Column(Boolean)
     gitrepo = Column(String(180))
     branch = Column(String(30))
-    commit = Column(String(30))
+    commit = Column(String(50))
     retries = Column(Integer)
     concurrency = Column(Integer)
     ratelimit = Column(String(10))
