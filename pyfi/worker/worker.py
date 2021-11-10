@@ -74,14 +74,19 @@ def shutdown(*args):
 
     for process in processes:
         try:
+            logging.info("SHUTDOWN: Process pid {}".format(process.pid))
             process = Process(process.pid)
             for child in process.children(recursive=True):
+                logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(process.pid, child.pid))
                 child.kill()
+
+            logging.info("SHUTDOWN: Killing Process pid {}".format(process.pid))
             process.kill()
             process.terminate()
             os.killpg(os.getpgid(process.pid), 15)
             os.kill(process.pid, signal.SIGKILL)
-        except:
+        except Exception as ex:
+            logging.error(ex)
             pass
 
     exit(0)
@@ -1104,7 +1109,7 @@ class Worker:
         if self.processor.commit and self.skipvenv:
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
-                
+
         if self.processor.gitrepo and not self.skipvenv:
 
             if self.usecontainer:
