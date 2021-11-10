@@ -100,7 +100,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
         #session.add(processor)
         name = plug.name
         #print("PLUG ",plug.name)
-        plug = session.query(PlugModel).filter_by(name=name).first()
+        #plug = session.query(PlugModel).filter_by(name=name).first()
         if plug is None:
             logging.warning("Plug %s does not exist",name)
             return
