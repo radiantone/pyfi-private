@@ -215,7 +215,7 @@ class Worker:
             self.broker = CONFIG.get('broker', 'uri')
 
             jobstores = {
-                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), extend_existing=True, metadata=Base.metadata, tablename=processor.name+'_jobs')
+                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
             }
             executors = {
                 'default': ThreadPoolExecutor(20),
@@ -239,7 +239,7 @@ class Worker:
             for job in jobs:
                 self.jobs[job.id] = job
             '''
-            
+
             logging.debug("JOBS %s", self.jobs)
 
             self.scheduler.print_jobs()
