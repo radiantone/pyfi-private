@@ -1139,7 +1139,7 @@ class Worker:
 
                 # Install pyfi
                 # TODO: Make this URL a setting so it can be overridden
-                env.install('-e git+'+login +
+                env.install('-e git+' + login +
                             '/radiantone/pyfi-private#egg=pyfi')
 
                 try:
@@ -1150,6 +1150,9 @@ class Worker:
                     logging.error("Could not install %s",
                                     self.processor.gitrepo.strip())
 
+            if self.processor.commit:
+                os.system("git checkout {}".format(self.processor.commit))
+                
         # Sometimes we just want to recreate the setup
         if not start:
             return
