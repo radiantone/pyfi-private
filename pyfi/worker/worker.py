@@ -71,6 +71,7 @@ def shutdown(*args):
     """ Shutdown worker """
     from psutil import Process
 
+    logging.info("Shutting down...")
     process = Process(os.getpid())
     for child in process.children(recursive=True):
         logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
