@@ -64,38 +64,16 @@ QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ el
 
 hostname = platform.node()
 
-global processes
-processes = []
 
 logging.info("OS PID is {}".format(os.getpid()))
 
 def shutdown(*args):
     """ Shutdown worker """
     from psutil import Process
-    global processes
-
-    logging.info("Processes {}".format(processes))
-
-    for process in processes:
-        try:
-            logging.info("SHUTDOWN: Process pid {}".format(process.pid))
-            process = Process(process.pid)
-            for child in process.children(recursive=True):
-                logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(process.pid, child.pid))
-                child.kill()
-
-            logging.info("SHUTDOWN: Killing Process pid {}".format(process.pid))
-            process.kill()
-            process.terminate()
-            os.killpg(os.getpgid(process.pid), 15)
-            os.kill(process.pid, signal.SIGKILL)
-        except Exception as ex:
-            logging.error(ex)
-            pass
 
     process = Process(os.getpid())
     for child in process.children(recursive=True):
-        logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
+        logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
             process.pid, child.pid))
         child.kill()
     process.kill()
@@ -326,7 +304,6 @@ class Worker:
         """
         Worker start method
         """
-        global processes
         import threading
         from multiprocessing import Process
         import os
@@ -1187,8 +1164,6 @@ class Worker:
         """ Start worker process"""
         worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
         worker_process.app = self.celery
-        processes += [worker_process]
-        logging.info("+++++ Adding worker process to global processes {}".format(processes))
 
         worker_process.start()
 
