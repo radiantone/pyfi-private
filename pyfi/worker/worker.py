@@ -215,7 +215,7 @@ class Worker:
             self.broker = CONFIG.get('broker', 'uri')
 
             jobstores = {
-                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
+                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), extend_existing=True, metadata=Base.metadata, tablename=processor.name+'_jobs')
             }
             executors = {
                 'default': ThreadPoolExecutor(20),
@@ -1152,7 +1152,7 @@ class Worker:
 
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
-                
+
         # Sometimes we just want to recreate the setup
         if not start:
             return
