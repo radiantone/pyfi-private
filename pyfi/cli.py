@@ -8,6 +8,7 @@ import logging
 import getpass
 import platform
 import configparser
+import hashlib
 
 import click
 from pyfi.server import app
@@ -113,7 +114,19 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             password = click.prompt('Message broker API password',
                                     type=str, default='guest')
 
+        email = click.prompt('Postgres user email', type=str, default='p@e')
+        password = click.prompt('Postgres user password',
+                                type=str, default='pyfi101')
+
+        _password = hashlib.md5(password.encode()).hexdigest()
+
         _config = configparser.ConfigParser()
+
+        _config.add_section('login')
+
+        _config.set('login', 'password', _password)
+        _config.set('login', 'user', 'postgres')
+
         _config.add_section('database')
         _config.set('database', 'uri', db)
 
