@@ -125,6 +125,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
+        'click==7.1.2',
         'celery==5.1.2',
         'flask',
         'bjoern',
