@@ -737,7 +737,9 @@ class Worker:
 
             queues = []
 
+            logging.info("Working getting session....")
             with self.get_session() as session:
+                logging.info("Worker got session....")
                 self.processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
 
@@ -746,7 +748,7 @@ class Worker:
 
                 logging.info("My processor is: {}".format(self.processor))
                 logging.info("Processor sockets: {}".format(self.processor.sockets))
-                
+
                 if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                     logging.info("Setting up sockets...")
                     for socket in self.processor.sockets:
