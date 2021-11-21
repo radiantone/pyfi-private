@@ -125,7 +125,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
-        'celery==5.2.1',
+        'celery==5.1.2',
         'flask',
         'bjoern',
         'virtualenv-api',
