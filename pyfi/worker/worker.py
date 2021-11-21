@@ -740,8 +740,13 @@ class Worker:
             logging.info("Working getting session....")
             with self.get_session() as session:
                 logging.info("Worker got session....")
-                self.processor = session.query(
-                    ProcessorModel).filter_by(id=self.processor.id).first()
+
+                logging.info("Getting processor {}".format(self.processor.id))
+                try:
+                    self.processor = session.query(
+                        ProcessorModel).filter_by(id=self.processor.id).first()
+                except Exception as ex:
+                    logging.error(ex)
 
                 task_queues = []
                 task_routes = {}
