@@ -146,7 +146,7 @@ class Worker:
         #engine = create_engine(db_url, convert_unicode=True)
         connection = engine.connect()
         db_session = scoped_session(sessionmaker(
-            autocommit=True, autoflush=True, bind=engine))
+            autocommit=False, autoflush=True, bind=engine))
         yield db_session
         db_session.close()
         connection.close()
