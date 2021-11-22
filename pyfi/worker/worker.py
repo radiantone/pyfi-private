@@ -144,11 +144,16 @@ class Worker:
         """ Creates a context with an open SQLAlchemy session.
         """
         #engine = create_engine(db_url, convert_unicode=True)
+        logging.info("Connecting DB")
         connection = engine.connect()
+        logging.info("Creating scoped session")
         db_session = scoped_session(sessionmaker(
             autocommit=False, autoflush=True, bind=engine))
+        logging.info("Yielding session")
         yield db_session
+        logging.info("Closing session")
         db_session.close()
+        logging.info("Closing connection")
         connection.close()
 
 
