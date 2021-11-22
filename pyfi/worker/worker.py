@@ -782,7 +782,12 @@ class Worker:
 
 
             logging.info("Working getting session....")
-            with get_db_session(self.database) as session:
+            engine = self.database
+            connection = engine.connect()
+            session = scoped_session(sessionmaker(
+                autocommit=False, autoflush=True, bind=engine))
+            #with get_db_session(self.database) as session:
+            try:
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
@@ -1161,6 +1166,10 @@ class Worker:
                 self.scheduler.start()
                 logging.info("Starting worker...")
                 worker.start()
+
+            finally:
+                session.close()
+                connection.close()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
