@@ -1099,7 +1099,9 @@ class Worker:
                                 {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
+                logging.info("Starting scheduler...")
                 self.scheduler.start()
+                logging.info("Starting worker...")
                 worker.start()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
