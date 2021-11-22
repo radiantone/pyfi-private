@@ -140,7 +140,7 @@ class Worker:
 
 
     @contextmanager
-    def db_session(engine):
+    def db_session(self, engine):
         """ Creates a context with an open SQLAlchemy session.
         """
         #engine = create_engine(db_url, convert_unicode=True)
