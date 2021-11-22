@@ -745,7 +745,9 @@ class Worker:
                 try:
                     self.processor = session.query(
                         ProcessorModel).filter_by(id=self.processor.id).first()
+                    logging.info("Got processor {}".format(self.processor))
                 except Exception as ex:
+                    logging.error("Error occurred")
                     logging.error(ex)
 
                 task_queues = []
