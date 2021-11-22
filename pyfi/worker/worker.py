@@ -894,7 +894,7 @@ class Worker:
                 # Find existing model first
                 try:
                     logging.info("Creating workerModel")
-                    workerModel = self.database.session.query(
+                    workerModel = session.query(
                         WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
 
                     logging.info("Created workerModel")
