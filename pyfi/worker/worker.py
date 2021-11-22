@@ -909,8 +909,8 @@ class Worker:
                         # with self.get_session() as session:
                         session.add(workerModel)
 
-                except:
-                    pass
+                except Exception as ex:
+                    logging.error(ex)
 
                 logging.info("Checking beat")
                 if self.processor.beat:
