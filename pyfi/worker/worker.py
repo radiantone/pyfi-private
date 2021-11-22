@@ -759,7 +759,7 @@ class Worker:
             queues = []
 
             logging.info("Working getting session....")
-            with self.get_session() as session:
+            with self.db_session(self.database) as session:
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
