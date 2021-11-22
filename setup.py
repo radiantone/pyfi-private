@@ -134,7 +134,7 @@ setup(
         'psycopg2',
         'flask-restx',
         'prettytable',
-        'sqlalchemy',
+        'sqlalchemy==1.4.23',
         'alembic',
         'eventlet',
         'pptree',
