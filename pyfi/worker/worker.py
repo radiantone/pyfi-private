@@ -738,7 +738,10 @@ class Worker:
             queues = []
 
             logging.info("Working getting session....")
-            with self.get_session() as session:
+            #with self.get_session() as session:
+
+            try:
+                session = self.sm()
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
@@ -1100,7 +1103,9 @@ class Worker:
 
                 self.scheduler.start()
                 worker.start()
-
+            finally:
+                session.close()
+                
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
