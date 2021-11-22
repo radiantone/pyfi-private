@@ -138,6 +138,20 @@ class Worker:
     """
     from contextlib import contextmanager
 
+
+    @contextmanager
+    def db_session(engine):
+        """ Creates a context with an open SQLAlchemy session.
+        """
+        #engine = create_engine(db_url, convert_unicode=True)
+        connection = engine.connect()
+        db_session = scoped_session(sessionmaker(
+            autocommit=True, autoflush=True, bind=engine))
+        yield db_session
+        db_session.close()
+        connection.close()
+
+
     @contextmanager
     def get_session(self):
         session = scoped_session(self.sm)()
@@ -198,13 +212,13 @@ class Worker:
             #self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
         sm = sessionmaker(bind=self.database)
-        some_session = scoped_session(sm)
+        #some_session = scoped_session(sm)
         self.sm = sm
 
         # now all calls to Session() will create a thread-local session
         #some_session = Session()
-        self.session = some_session
-        self.database.session = some_session  # self.session
+        #self.session = some_session
+        #self.database.session = some_session  # self.session
 
         self.pool = pool
         self.user = user
@@ -328,7 +342,7 @@ class Worker:
             from uuid import uuid4
             from datetime import datetime
 
-            with self.get_session() as session:
+            with self.db_session(self.database) as session:
                 processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
 
@@ -592,7 +606,8 @@ class Worker:
                                 logging.warning("No plug named [%s] found for processor[%s]",key,processor.name)
                                 continue
 
-                            target_processor = self.database.session.query(
+                            #target_processor = self.database.session.query(
+                            target_processor = session.query(
                                 ProcessorModel).filter_by(id=processor_plug.target.processor_id).first()
 
                             key = processor_plug.target.queue.name
