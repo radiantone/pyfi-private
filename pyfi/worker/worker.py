@@ -742,6 +742,7 @@ class Worker:
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
+                '''
                 try:
                     self.processor = session.query(
                         ProcessorModel).filter_by(id=self.processor.id).first()
@@ -749,7 +750,7 @@ class Worker:
                 except Exception as ex:
                     logging.error("Error occurred")
                     logging.error(ex)
-
+                '''
                 task_queues = []
                 task_routes = {}
 
