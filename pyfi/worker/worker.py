@@ -143,16 +143,22 @@ class Worker:
         session = scoped_session(self.sm)()
 
         try:
+            logging.info("Yielding session")
             yield session
         except:
+            import traceback
+            print(traceback.format_exc())
             session.rollback()
             raise
         else:
             try:
                 session.commit()
-            except:
+            except Exception as ex:
+                import traceback
+                print(traceback.format_exc())
                 session.rollback()
         finally:
+            logging.info("Closing session")
             session.close()
 
     def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
