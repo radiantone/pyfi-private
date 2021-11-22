@@ -871,25 +871,33 @@ class Worker:
                 app.conf.task_queues = task_queues
                 app.conf.task_routes = task_routes
 
-                logging.info("Starting celery worker %s %s %s %s",
+                logging.info("Creating celery worker %s %s %s %s",
                              self.processor.name+'@'+hostname, self.backend, self.broker, self.processor.concurrency)
 
-                worker = app.Worker(
-                    hostname=self.processor.name+'@'+hostname,
-                    backend=self.backend,
-                    broker=self.broker,
-                    beat=self.processor.beat,
-                    uid='pyfi',
-                    without_mingle=True,
-                    without_gossip=True
-                )
+                worker = None
+                try:
+                    worker = app.Worker(
+                        hostname=self.processor.name+'@'+hostname,
+                        backend=self.backend,
+                        broker=self.broker,
+                        beat=self.processor.beat,
+                        uid='pyfi',
+                        without_mingle=True,
+                        without_gossip=True
+                    )
+                except Exception as ex:
+                    logging.error(ex)
+
+                logging.info("Created celery worker")
                 self.processor.worker.hostname = hostname
 
                 # Find existing model first
                 try:
+                    logging.info("Creating workerModel")
                     workerModel = self.database.session.query(
                         WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
 
+                    logging.info("Created workerModel")
                     if workerModel is None:
                         workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
                                                   status='ready',
@@ -904,7 +912,9 @@ class Worker:
                 except:
                     pass
 
+                logging.info("Checking beat")
                 if self.processor.beat:
+                    logging.info("Has beat")
                     worker.app.conf.beat_schedule = {}
 
                     for socket in self.processor.sockets:
@@ -936,17 +946,21 @@ class Worker:
 
                 sys.path.append(os.getcwd())
 
+                logging.info("Setting worker")
                 setattr(builtins, 'worker', worker)
 
                 logging.debug("CWD %s", os.getcwd())
 
+                logging.info("Importing processor module")
                 module = importlib.import_module(self.processor.module)
 
                 _plugs = {}
 
+                logging.info("Initializing plugs")
                 for plug in self.processor.plugs:
                     _plugs[plug.queue.name] = []
 
+                logging.info("Configuring sockets")
                 if self.processor and self.processor.sockets and len(self.processor.sockets) > 0:
                     for socket in self.processor.sockets:
 
