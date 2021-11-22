@@ -12,6 +12,7 @@ RUN apt install -y git
 RUN apt clean
 
 ADD pyfi /opt/pyfi/pyfi
+ADD requirements.txt /opt/pyfi/requirements.txt
 ADD setup.py /opt/pyfi/setup.py
 ADD README.md /opt/pyfi/README.md
 ADD scripts/supervisor.sh /opt/pyfi/supervisor.sh
@@ -25,6 +26,7 @@ RUN pip3 install virtualenv
 RUN virtualenv --python=python3 venv
 
 RUN venv/bin/pip install --upgrade flask
+RUN venv/bin/pip install -r requirements.txt
 RUN venv/bin/python setup.py install
 RUN update-rc.d -f supervisord remove
 RUN useradd pyfi -d /home/pyfi
