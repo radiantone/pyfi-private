@@ -887,7 +887,7 @@ class Worker:
 
                 # Find existing model first
                 try:
-                    workerModel = self.database. session.query(
+                    workerModel = self.database.session.query(
                         WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
 
                     if workerModel is None:
