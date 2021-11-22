@@ -751,7 +751,7 @@ class Worker:
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
 
-        def worker_proc(app, _queue):
+        def worker_proc(app, _queue, dburi):
             """ Main celery worker thread. Configure worker, queues and launch celery worker """
             import builtins
             import importlib
@@ -762,6 +762,7 @@ class Worker:
             from billiard.pool import Pool
 
             queues = []
+            engine = create_engine(dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
             def get_db_session(engine):
                     """ Creates a context with an open SQLAlchemy session.
@@ -1235,7 +1236,8 @@ class Worker:
             return
 
         """ Start worker process"""
-        worker_process = Process(target=worker_proc, args=(self.celery, self.queue))
+        worker_process = Process(target=worker_proc, args=(
+            self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
 
         worker_process.start()
