@@ -13,7 +13,7 @@ beautifulsoup4==4.9.3
 billiard==3.6.4.0
 bjoern==3.1.0
 bs4==0.0.1
-celery==5.1.2
+celery==5.2.1
 certifi==2021.5.30
 cffi==1.14.6
 charset-normalizer==2.0.4
