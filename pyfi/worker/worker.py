@@ -140,7 +140,7 @@ class Worker:
 
 
     @contextmanager
-    def db_session(self, engine):
+    def get_session(self, engine):
         """ Creates a context with an open SQLAlchemy session.
         """
         #engine = create_engine(db_url, convert_unicode=True)
@@ -158,7 +158,7 @@ class Worker:
 
 
     @contextmanager
-    def get_session(self):
+    def get_session_old(self):
         session = scoped_session(self.sm)()
 
         try:
@@ -347,7 +347,7 @@ class Worker:
             from uuid import uuid4
             from datetime import datetime
 
-            with self.db_session(self.database) as session:
+            with self.get_session(self.database) as session:
                 processor = session.query(
                     ProcessorModel).filter_by(id=self.processor.id).first()
 
@@ -764,42 +764,12 @@ class Worker:
             queues = []
             engine = create_engine(dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
-            def get_db_session(engine):
-                    """ Creates a context with an open SQLAlchemy session.
-                    """
-                    #engine = create_engine(db_url, convert_unicode=True)
-                    logging.info("Connecting DB")
-                    connection = engine.connect()
-                    logging.info("Creating scoped session")
-                    db_session = scoped_session(sessionmaker(
-                        autocommit=False, autoflush=True, bind=engine))
-                    logging.info("Yielding session")
-                    yield db_session
-                    logging.info("Closing session")
-                    db_session.close()
-                    logging.info("Closing connection")
-                    connection.close()
+            logging.info("Worker getting session....")
 
-
-            logging.info("Working getting session....")
-            engine = self.database
-            connection = engine.connect()
-            session = scoped_session(sessionmaker(
-                autocommit=False, autoflush=True, bind=engine))
-            #with get_db_session(self.database) as session:
-            try:
+            with self.get_ession() as session:
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
-                '''
-                try:
-                    self.processor = session.query(
-                        ProcessorModel).filter_by(id=self.processor.id).first()
-                    logging.info("Got processor {}".format(self.processor))
-                except Exception as ex:
-                    logging.error("Error occurred")
-                    logging.error(ex)
-                '''
                 task_queues = []
                 task_routes = {}
 
@@ -955,7 +925,6 @@ class Worker:
                                                   hostname=hostname,
                                                   requested_status='start')
 
-                        # with self.get_session() as session:
                         session.add(workerModel)
 
                 except Exception as ex:
@@ -1167,9 +1136,6 @@ class Worker:
                 logging.info("Starting worker...")
                 worker.start()
 
-            finally:
-                session.close()
-                connection.close()
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)

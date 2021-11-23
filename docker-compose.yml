@@ -151,7 +151,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres
+    image: postgres:latest
     hostname: postgres
     restart: always
     ports:

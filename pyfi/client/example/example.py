@@ -14,7 +14,7 @@ print("USER",USER)
 processor = Processor(name='proc1', beat=True, user=USER, module='pyfi.processors.sample', branch='main', concurrency=6,
                       gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
-processor2 = Processor(name='proc2', user=USER, module='pyfi.processors.sample', hostname='agent1', concurrency=6, branch='main',
+processor2 = Processor(name='proc2', user=USER, module='pyfi.processors.sample', hostname='radiant', concurrency=6, branch='main',
                        gitrepo='https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor')
 
 
