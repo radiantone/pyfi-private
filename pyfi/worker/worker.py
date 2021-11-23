@@ -766,7 +766,7 @@ class Worker:
 
             logging.info("Worker getting session....")
 
-            with self.get_ession() as session:
+            with self.get_session() as session:
                 logging.info("Worker got session....")
 
                 logging.info("Getting processor {}".format(self.processor.id))
