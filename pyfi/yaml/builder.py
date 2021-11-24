@@ -31,7 +31,7 @@ def install_repo(path, hostname, username, sshkey, branch, repo, commit=None):
     for line in stdout.read().splitlines():
         logging.info("python setup.py install: stdout: %s", line)
 
-    command = "cd {}/git; venv/bin/pyfi agent start --clean -p 1".format(
+    command = "cd {}/git; venv/bin/pyfi agent start --clean -p 1 > /dev/null 2>&1 &".format(
         path)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
