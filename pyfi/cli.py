@@ -310,6 +310,22 @@ def user_add(context, user, role, privilege):
 
 
 @cli.command()
+@click.argument('filename')
+@click.pass_context
+def build(context, filename):
+    """ Build infrastructure from a yaml file"""
+    import yaml
+    from pyfi.yaml.builder import build_network
+
+    with open(filename, "r") as stream:
+        try:
+            detail = yaml.safe_load(stream)
+            build_network(detail)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+
+@cli.command()
 def logout():
     """ Logout current user """
     ini = home+"/pyfi.ini"

@@ -1166,7 +1166,10 @@ class Worker:
                     os.system('git pull')
                 else:
                     """ Clone gitrepo. Retry after 3 seconds if failure """
+                    count = 1
                     while True:
+                        if count >= 5:
+                            break
                         try:
                             logging.info("git clone -b {} --single-branch {} git".format(
                                 self.processor.branch, self.processor.gitrepo.split('#')[0]))
@@ -1179,6 +1182,7 @@ class Worker:
                         except Exception as ex:
                             logging.error(ex)
                             time.sleep(3)
+                            count += 1
 
                 # Create or update venv
                 from virtualenvapi.manage import VirtualEnvironment

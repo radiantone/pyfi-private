@@ -1,33 +1,36 @@
 version: '1.0'
 
 # This creates database records and a running scheduler will do the deployments
-nodes:
-  radiant:
-    hostname: radiant
-    ssh_key: 'xx.pub'
-    ssh_user: 'darren'
-    agents:
-      agent1:
-        parameters:
-          pool: 5
-          size: 10
-        processors:
-          proc1:
-            xxx: 1
-            sockets:
-              socket1:
-                xxx: 1
-                task:
-                  module: pyfi.tasks
-                  function: task1
-          proc2: 
-            xxx: 2
-            sockets:
-              socket1:
-                xxx: 1
-                task:
-                  module: pyfi.tasks
-                  function: task2
+network:
+  name: network-1
+  queues:
+    pyfi.queue1:
+    pyfi.queue2:
+    pyfi.queue3:
+  nodes:
+    radiant:
+      hostname: radiant
+      ssh:
+        key: '/home/darren/.ssh/id_rsa.pub'
+        user: 'darren'
+      path: /home/darren/node1
+      agents:
+        agent1:
+          parameters:
+            pool: 5
+            size: 10
+          processors:
+            proc2: 
+              branch: main
+              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
+              commit:
+              sockets:
+                socket1:
+                  queue: 
+                    name: pyfi.queue2
+                  task:
+                    module: pyfi.tasks
+                    function: task2
     
 # This will create work records which the scheduler will deploy
 work:
