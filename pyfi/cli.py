@@ -1618,9 +1618,17 @@ def worker():
 @cli.group()
 def agent():
     """
-    Run pyfi agent
+    Commands for remote agent management
     """
     pass
+
+
+@agent.command(name='stop')
+@click.pass_context
+def stop_agent(context):
+    """ Stop an agent """
+    pass
+
 
 
 @worker.command(name='start', help='Start a pyfi worker')
@@ -2340,7 +2348,7 @@ def ls_role(context, name):
 @click.pass_context
 def ls_user(context, name):
     """
-    List users
+    List a user
     """
     x = PrettyTable()
 
