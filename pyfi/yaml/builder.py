@@ -64,7 +64,7 @@ def build_network(detail):
                 # for each processor, add to database
                 logging.info("Creating processor {}".format(processorname))
                 processor = agent['processors'][processorname]
-                _processor = Processor(name=processorname, beat=processor['beat'], user=USER, module=processor['module'], branch=processor['branch'], concurrency=processor['workers'],
+                _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER, module=processor['module'], branch=processor['branch'], concurrency=processor['workers'],
                                       gitrepo=processor['gitrepo'])
 
                 for socketname in processor['sockets']:
