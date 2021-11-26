@@ -18,7 +18,7 @@ def install_repo(path, hostname, username, sshkey, branch, repo, commit=None):
     for line in stdout.read().splitlines():
         logging.info("SSH: git clone: stdout: %s", line)
 
-    command = "cd {}/git; python -m venv venv".format(path)
+    command = "cd {}/git; python3 -m venv venv".format(path)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("python3 -m venv venv: stdout: %s", line)
