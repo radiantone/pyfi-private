@@ -16,6 +16,7 @@ network:
         user: 'darren'
       path: /home/darren/node1
       ini: /home/darren/pyfi.ini
+      polar: /home/darren/pyfi.polar
       agents:
         agent1:
           parameters:
@@ -43,6 +44,7 @@ network:
         user: 'darren'
       path: /home/darren/node1
       ini: /home/darren/pyfi.ini
+      polar: /home/darren/pyfi.polar
       agents:
         agent1:
           parameters:
@@ -65,6 +67,7 @@ network:
     agent1:
       hostname: agent1
       ini: /home/darren/pyfi.ini
+      polar: /home/darren/pyfi.polar
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'

@@ -5,14 +5,15 @@ from pyfi.client.api import Processor, Socket, Plug
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
 
-def install_repo(path, ini, hostname, username, sshkey, branch, repo, commit=None):
+def install_repo(path, ini, polar, hostname, username, sshkey, branch, repo, commit=None):
     _ssh = paramiko.SSHClient()
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(hostname=hostname, username=username,
                     key_filename=sshkey)
 
     sftp = _ssh.open_sftp()
-    sftp.put(ini, ini)
+    sftp.put(ini, '/home/'+username+'/pyfi.ini')
+    sftp.put(polar, '/home/'+username+'/pyfi.polar')
 
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
@@ -82,7 +83,7 @@ def build_network(detail):
 
                 logging.info("Installing repository {}".format(
                     processor['gitrepo']))
-                install_repo(node['path']+'/'+processorname, node['ini'], node['hostname'],
+                install_repo(node['path']+'/'+processorname, node['ini'], node['polar'], node['hostname'],
                              node['ssh']['user'], node['ssh']['key'], "main", processor['gitrepo'])
 
             logging.info("Starting agent {}".format(agentname))
