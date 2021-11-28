@@ -52,9 +52,9 @@ def build_network(detail):
     for nodename in detail['network']['nodes']:
         # For each node, check out repo, build venv
         node = detail['network']['nodes'][nodename]
-        if 'enabled' in node['enabled'] and not node['enabled']:
+        if 'enabled' in node and not node['enabled']:
             continue
-        
+
         logging.info("Deploying node: {}".format(nodename))
         logging.info("Host: {}".format(node['hostname']))
         logging.info("ssh key: {}".format(node['ssh']['key']))
