@@ -9,6 +9,7 @@ network:
     pyfi.queue3:
   nodes:
     phoenix:
+      enabled: false
       hostname: phoenix
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
