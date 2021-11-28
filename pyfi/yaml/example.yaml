@@ -15,6 +15,7 @@ network:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'
       path: /home/darren/node1
+      ini: /home/darren/pyfi.ini
       agents:
         agent1:
           parameters:
@@ -41,6 +42,7 @@ network:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'
       path: /home/darren/node1
+      ini: /home/darren/pyfi.ini
       agents:
         agent1:
           parameters:
@@ -61,8 +63,8 @@ network:
                   task:
                     function: do_this
     agent1:
-      enabled: false
       hostname: agent1
+      ini: /home/darren/pyfi.ini
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'

@@ -5,11 +5,14 @@ from pyfi.client.api import Processor, Socket, Plug
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
 
-def install_repo(path, hostname, username, sshkey, branch, repo, commit=None):
+def install_repo(path, ini, hostname, username, sshkey, branch, repo, commit=None):
     _ssh = paramiko.SSHClient()
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(hostname=hostname, username=username,
                     key_filename=sshkey)
+
+    sftp = _ssh.open_sftp()
+    sftp.put(ini, ini)
 
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
@@ -21,7 +24,7 @@ def install_repo(path, hostname, username, sshkey, branch, repo, commit=None):
     command = "cd {}/git; python3.9 -m venv venv".format(path)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("python3 -m venv venv: stdout: %s", line)
+        logging.info("python3.9 -m venv venv: stdout: %s", line)
 
     command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
     _, stdout, _ = _ssh.exec_command(command)
@@ -79,7 +82,7 @@ def build_network(detail):
 
                 logging.info("Installing repository {}".format(
                     processor['gitrepo']))
-                install_repo(node['path']+'/'+processorname, node['hostname'],
+                install_repo(node['path']+'/'+processorname, node['ini'], node['hostname'],
                              node['ssh']['user'], node['ssh']['key'], "main", processor['gitrepo'])
 
             logging.info("Starting agent {}".format(agentname))
