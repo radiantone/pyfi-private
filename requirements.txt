@@ -20,6 +20,7 @@ charset-normalizer==2.0.4
 click
 click-didyoumean==0.0.3
 click-plugins==1.1.1
+setproctitle
 click-repl==0.2.0
 coloredlogs==15.0.1
 cryptography==3.4.8

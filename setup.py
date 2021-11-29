@@ -144,6 +144,7 @@ setup(
         'uvicorn',
         'pyyaml',
         'psutil',
+        'setproctitle',
         'requests',
         'humanize',
         'schedule',
