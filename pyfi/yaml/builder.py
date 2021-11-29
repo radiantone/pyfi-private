@@ -18,12 +18,16 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
 
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
-    _, stdout, _ = _ssh.exec_command('ps -ef|grep pyfi|awk '{print "kill "$2}'|sh')
+    _, stdout, _ = _ssh.exec_command("ps -ef|grep pyfi|awk '{print \"kill \"$2}'|sh")
     for line in stdout.read().splitlines():
         logging.info("SSH: git clone: stdout: %s", line)
 
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
+    logging.info("Removing existing install....{}".format(path))
+    _ssh.exec_command("rm -rf {}".format(path))
+    logging.info("Done")
+     
     command = "mkdir -p {};cd {};git clone -b {} --single-branch {} git".format(path, path, branch, repo.split('#')[0])
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
