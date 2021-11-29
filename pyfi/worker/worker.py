@@ -761,6 +761,10 @@ class Worker:
 
             from billiard.pool import Pool
 
+            from setproctitle import setproctitle
+
+            setproctitle('worker_proc')
+            
             queues = []
             engine = create_engine(dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
@@ -1228,7 +1232,9 @@ class Worker:
         def emit_messages():
             """ Get messages off queue and emit to pubsub server """
             redisclient = redis.Redis.from_url(self.backend)
+            from setproctitle import setproctitle
 
+            setproctitle('emit_messages')
             while True:
                 try:
                     message = self.queue.get()
