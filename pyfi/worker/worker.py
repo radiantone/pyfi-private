@@ -1217,7 +1217,7 @@ class Worker:
             return
         from threading import Thread
         """ Start worker process"""
-        worker_process = Thread(target=worker_proc, args=(
+        worker_process = Process(target=worker_proc, name="worker_proc", args=(
             self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
 
@@ -1242,7 +1242,7 @@ class Worker:
                     time.sleep(3)
 
         
-        emit_process = Thread(target=emit_messages)
+        emit_process = Process(target=emit_messages, name="emit_messages")
         emit_process.daemon = True
         emit_process.start()
         logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
