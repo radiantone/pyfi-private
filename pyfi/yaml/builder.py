@@ -19,10 +19,10 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
     command = "ps -ef|grep pyfi|awk '{print \"kill \"$2}'|sh"
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     command = "ps -ef|grep celery|awk '{print \"kill \"$2}'|sh"
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("SSH: git clone: stdout: %s", line)
@@ -35,37 +35,37 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     logging.info("Done")
      
     command = "mkdir -p {};cd {};git clone -b {} --single-branch {} git".format(path, path, branch, repo.split('#')[0])
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("SSH: git clone: stdout: %s", line)
 
     command = "cd {}/git; python3.9 -m venv venv".format(path)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("python3.9 -m venv venv: stdout: %s", line)
 
     command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("pip install --upgrade pip: stdout: %s", line)
 
     command = "cd {}/git; venv/bin/pip install -e .".format(path)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("python setup.py install: stdout: %s", line)
 
     command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("pip install -e git: stdout: %s", line)
         
     command = "cd {}/git; venv/bin/python setup.py install".format(path)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("python setup.py install: stdout: %s", line)
@@ -73,9 +73,10 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
         path, login)
     _, stdout, _ = _ssh.exec_command(command)
-    logging.info(command)
+    logging.info(hostname+":"+command)
     for line in stdout.read().splitlines():
         logging.info("agent: stdout: %s", line)
+
 
 def build_network(detail):
     """ Given a parsed yaml detail, build out the pyfi network"""
