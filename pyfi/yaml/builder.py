@@ -33,9 +33,12 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     login = _login[0]+"//"+_login[2]
     logging.info("Removing existing install....{}".format(path))
     logging.info("rm -rf {}".format(path))
-    _ssh.exec_command("rm -rf {}".format(path))
+    _, stdout, stderr = _ssh.exec_command("rm -rf {}".format(path))
+    for line in stdout.read().splitlines():
+        logging.info(hostname+":rm -rf %s: git clone: stdout: % s", path, line)
+
     logging.info("Done")
-     
+    
     command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
         path, path, branch, repo.split('#')[0])
     logging.info(hostname+":"+command)
