@@ -87,7 +87,7 @@ network:
               commit:
               module: pyfi.processors.sample
               beat: true
-              workers: 3
+              workers: 1
               sockets:
                 socket1:
                   queue: 
@@ -115,7 +115,7 @@ network:
               commit:
               module: pyfi.processors.sample
               beat: true
-              workers: 3
+              workers: 5
               sockets:
                 socket1:
                   queue: 

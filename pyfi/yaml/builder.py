@@ -56,19 +56,20 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("python setup.py install: stdout: %s", line)
+        logging.info(hostname+":"+command+": stdout: %s", line)
 
     command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
     logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("pip install -e git: stdout: %s", line)
+        logging.info(hostname+":"+command+": stdout: %s", line)
         
     command = "cd {}/git; venv/bin/python setup.py install".format(path)
     logging.info(hostname+":"+command)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("python setup.py install: stdout: %s", line)
+        logging.info(hostname+":"+command +
+                     ": stdout: %s", line)
 
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
         path, login)
