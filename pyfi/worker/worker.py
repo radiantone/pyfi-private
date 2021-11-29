@@ -902,7 +902,8 @@ class Worker:
                         beat=self.processor.beat,
                         uid='pyfi',
                         without_mingle=True,
-                        without_gossip=True
+                        without_gossip=True,
+                        concurrency=int(self.processor.concurrency)
                     )
                 except Exception as ex:
                     logging.error(ex)
