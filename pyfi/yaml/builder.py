@@ -18,7 +18,12 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
 
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
-    _, stdout, _ = _ssh.exec_command("ps -ef|grep pyfi|awk '{print \"kill \"$2}'|sh")
+    command = "ps -ef|grep pyfi|awk '{print \"kill \"$2}'|sh"
+    logging.info(command)
+    _, stdout, _ = _ssh.exec_command(command)
+    command = "ps -ef|grep celery|awk '{print \"kill \"$2}'|sh"
+    logging.info(command)
+    _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("SSH: git clone: stdout: %s", line)
 
