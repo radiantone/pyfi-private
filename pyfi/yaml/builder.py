@@ -25,7 +25,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
     logging.info("Removing existing install....{}".format(path))
-    logging.info(command)
+    logging.info("rm -rf {}".format(path))
     _ssh.exec_command("rm -rf {}".format(path))
     logging.info("Done")
      
