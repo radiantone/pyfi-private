@@ -38,7 +38,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stdout.read().splitlines():
         logging.info("python3.9 -m venv venv: stdout: %s", line)
 
-    command = "cd {}/git; venv/bin/pip install -e git+{}".format(pyfi)
+    command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
     _, stdout, _ = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info("pip install -e git: stdout: %s", line)
