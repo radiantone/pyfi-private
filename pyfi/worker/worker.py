@@ -905,6 +905,7 @@ class Worker:
                         without_gossip=True,
                         concurrency=int(self.processor.concurrency)
                     )
+                    worker.concurrency = int(self.processor.concurrency)
                 except Exception as ex:
                     logging.error(ex)
 

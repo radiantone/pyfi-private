@@ -502,7 +502,7 @@ class Agent:
                 logging.info("Shutting down...")
 
         webserver = Process(target=web_server, daemon=True)
-        webserver.start()
+        #webserver.start()
 
         logging.info("Monitoring processors")
         monitor_processors()
