@@ -20,12 +20,14 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
     command = "ps -ef|grep pyfi|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     command = "ps -ef|grep celery|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("SSH: git clone: stdout: %s", line)
+        logging.info(hostname+":SSH: git clone: stdout: % s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
@@ -36,48 +38,64 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
      
     command = "mkdir -p {};cd {};git clone -b {} --single-branch {} git".format(path, path, branch, repo.split('#')[0])
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("SSH: git clone: stdout: %s", line)
+        logging.info(hostname+":"+"SSH: git clone: stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
     command = "cd {}/git; python3.9 -m venv venv".format(path)
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("python3.9 -m venv venv: stdout: %s", line)
+        logging.info(hostname+":"+"python3.9 -m venv venv: stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
     command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info("pip install --upgrade pip: stdout: %s", line)
+        logging.info(
+            hostname+":"+"pip install --upgrade pip: stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
     command = "cd {}/git; venv/bin/pip install -e .".format(path)
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info(hostname+":"+command+": stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
     command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info(hostname+":"+command+": stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
         
     command = "cd {}/git; venv/bin/python setup.py install".format(path)
     logging.info(hostname+":"+command)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info(hostname+":"+command +
                      ": stdout: %s", line)
 
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
+
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
         path, login)
-    _, stdout, _ = _ssh.exec_command(command)
+    _, stdout, stderr = _ssh.exec_command(command)
     logging.info(hostname+":"+command)
     for line in stdout.read().splitlines():
-        logging.info("agent: stdout: %s", line)
+        logging.info(hostname+":agent: stdout: %s", line)
 
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)
 
 def build_network(detail):
     """ Given a parsed yaml detail, build out the pyfi network"""
