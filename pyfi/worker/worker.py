@@ -763,8 +763,8 @@ class Worker:
 
             from setproctitle import setproctitle
 
-            setproctitle('worker_proc')
-            
+            setproctitle('pyfi worker::worker_proc')
+
             queues = []
             engine = create_engine(dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
@@ -1234,7 +1234,7 @@ class Worker:
             redisclient = redis.Redis.from_url(self.backend)
             from setproctitle import setproctitle
 
-            setproctitle('emit_messages')
+            setproctitle('pyfi worker::emit_messages')
             while True:
                 try:
                     message = self.queue.get()
