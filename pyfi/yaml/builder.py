@@ -36,7 +36,8 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     _ssh.exec_command("rm -rf {}".format(path))
     logging.info("Done")
      
-    command = "mkdir -p {};cd {};git clone -b {} --single-branch {} git".format(path, path, branch, repo.split('#')[0])
+    command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
+        path, path, branch, repo.split('#')[0])
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
