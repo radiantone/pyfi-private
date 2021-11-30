@@ -9,7 +9,6 @@ network:
     pyfi.queue3:
   nodes:
     phoenix:
-      enabled: false
       hostname: phoenix
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
@@ -67,6 +66,7 @@ network:
                   task:
                     function: do_this
     agent2:
+      enabled: false
       hostname: agent2
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
@@ -95,6 +95,7 @@ network:
                   task:
                     function: do_this                        
     agent1:
+      enabled: false
       hostname: agent1
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar

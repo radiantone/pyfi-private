@@ -1,9 +1,12 @@
 import logging
 import paramiko
+import platform
 
 from pyfi.client.api import Processor, Socket, Plug
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
+
+HOSTNAME = platform.node()
 
 def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
     _ssh = paramiko.SSHClient()
@@ -11,9 +14,10 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     _ssh.connect(hostname=hostname, username=username,
                     key_filename=sshkey)
 
-    sftp = _ssh.open_sftp()
-    sftp.put(ini, '/home/'+username+'/pyfi.ini')
-    sftp.put(polar, '/home/'+username+'/pyfi.polar')
+    if hostname != HOSTNAME:
+        sftp = _ssh.open_sftp()
+        sftp.put(ini, '/home/'+username+'/pyfi.ini')
+        sftp.put(polar, '/home/'+username+'/pyfi.polar')
 
 
     # Kill existing processors and remove existing directories
