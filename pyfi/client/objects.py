@@ -413,6 +413,14 @@ class Processor(Base):
             self.processor = ProcessorModel(
                 status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
 
+        if hostname != self.processor.hostname or self.processor.concurrency != concurrency or self.processor.commit != commit or self.processor.beat != beat:
+            self.procesor.requested_status = 'update'
+
+        self.processor.hostname = hostname
+        self.processor.concurrency = concurrency
+        self.processor.commit = commit
+        self.processor.beat = beat
+
         self.database.session.add(self.processor)
 
         self.sockets = Sockets(self.database, self.processor)

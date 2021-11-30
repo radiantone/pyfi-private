@@ -338,7 +338,7 @@ class WorkerModel(BaseModel):
     status = Column(String(20), nullable=False)
     backend = Column(String(40), nullable=False)
     broker = Column(String(40), nullable=False)
-    requested_status = Column(String(40))
+    requested_status = Column(String(40), onupdate='update')
     concurrency = Column(Integer)
     process = Column(Integer)
     hostname = Column(String(60))
@@ -363,7 +363,7 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
-    requested_status = Column(String(20), nullable=False)
+    requested_status = Column(String(20), onupdate='update')
     status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
@@ -568,7 +568,7 @@ class SocketModel(BaseModel):
     Docstring
     """
     __tablename__ = 'socket'
-    requested_status = Column(String(20), nullable=False)
+    requested_status = Column(String(20), onupdate='update')
     status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
@@ -614,7 +614,7 @@ class PlugModel(BaseModel):
     Docstring
     """
     __tablename__ = 'plug'
-    requested_status = Column(String(20), nullable=False)
+    requested_status = Column(String(20), onupdate='update')
     status = Column(String(20), nullable=False)
 
     processor_id = Column(String(40), ForeignKey('processor.id'),
@@ -641,7 +641,7 @@ class QueueModel(BaseModel):
     Docstring
     """
     __tablename__ = 'queue'
-    requested_status = Column(String(20), nullable=False)
+    requested_status = Column(String(20), onupdate='update')
     qtype = Column(String(20), nullable=False, default='direct')
     status = Column(String(20), nullable=False)
     durable = Column(Boolean, default=True)
