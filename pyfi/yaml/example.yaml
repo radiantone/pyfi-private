@@ -22,7 +22,7 @@ network:
             pool: 5
             size: 10
           processors:
-            proc2: 
+            proc1: 
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
