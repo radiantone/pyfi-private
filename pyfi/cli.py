@@ -2539,13 +2539,13 @@ def ls_sockets(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
-             "Status", "Processor", "Queue", "Interval"]
+             "Status", "Processor", "Queue", "Type", "Interval"]
     x.field_names = names
     sockets = context.obj['database'].session.query(SocketModel).all()
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.interval])
+                  node.status, node.processor.name, node.queue.name, node.schedule_type, node.interval])
 
     print(x)
 
