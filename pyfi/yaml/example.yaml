@@ -32,6 +32,7 @@ network:
               workers: 6
               sockets:
                 socket1:
+                  interval: 5
                   queue: 
                     name: pyfi.queue1
                   task:

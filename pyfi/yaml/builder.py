@@ -134,8 +134,8 @@ def build_network(detail):
                 for socketname in processor['sockets']:
                     logging.info("Creating socket {}".format(socketname))
                     socket = processor['sockets'][socketname]
-
-                    _socket = Socket(name=socketname, user=USER, processor=_processor, queue={
+                    interval = socket['interval'] if 'interval' in socket else -1
+                    _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
                            'name': socket['queue']['name']}, task=socket['task']['function'])
 
                 logging.info("Installing repository {}".format(
