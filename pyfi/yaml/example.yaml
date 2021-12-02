@@ -37,6 +37,13 @@ network:
                     name: pyfi.queue1
                   task:
                     function: do_something
+              plugs:
+                plug1:
+                  source: socket1
+                  target: socket4
+                  queue:
+                    name: pyfi.queue3
+                    
     radiant:
       enabled: false
       hostname: radiant
@@ -90,7 +97,7 @@ network:
               beat: true
               workers: 1
               sockets:
-                socket1:
+                socket4:
                   queue: 
                     name: pyfi.queue2
                   task:
@@ -119,7 +126,7 @@ network:
               beat: true
               workers: 5
               sockets:
-                socket1:
+                socket3:
                   queue: 
                     name: pyfi.queue2
                   task:

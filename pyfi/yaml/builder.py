@@ -131,15 +131,32 @@ def build_network(detail):
                 _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER, module=processor['module'], branch=processor['branch'], concurrency=processor['workers'],
                                       gitrepo=processor['gitrepo'])
 
-                for socketname in processor['sockets']:
-                    logging.info("Creating socket {}".format(socketname))
-                    socket = processor['sockets'][socketname]
-                    interval = socket['interval'] if 'interval' in socket else -1
-                    _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
-                           'name': socket['queue']['name']}, task=socket['task']['function'])
+                sockets = {}
+                if 'sockets' in processor:
+                    for socketname in processor['sockets']:
+                        logging.info("Creating socket {}".format(socketname))
+                        socket = processor['sockets'][socketname]
+                        interval = socket['interval'] if 'interval' in socket else -1
+                        _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
+                            'name': socket['queue']['name']}, task=socket['task']['function'])
+
+                        sockets[socketname] = _socket
+
+                if 'plugs' in processor:
+                    for plugname in processor['plugs']:
+                        plug = processor['plugs'][plugname]
+                        plug_queue = plug['queue']
+                        source = plug['source']
+                        target = plug['target']
+                        source_socket = sockets[source]
+                        target_socket = sockets[target]
+
+                        plug = Plug(name=plugname, processor=_processor, user=USER,
+                                    source=source_socket, queue=plug_queue, target=target_socket)
 
                 logging.info("Installing repository {}".format(
                     processor['gitrepo']))
+
                 install_repo(node['path']+'/'+processorname, node['ini'], node['polar'], node['hostname'],
                              node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'])
 
