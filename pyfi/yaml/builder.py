@@ -151,15 +151,15 @@ def build_network(detail):
                              node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo']]
 
     if 'plugs' in processor:
-        for plugname in processor['plugs']:
-            plug = processor['plugs'][plugname]
+        for plugname in detail['network']['plugs']:
+            plug = detail['network']['plugs'][plugname]
             plug_queue = plug['queue']
             source = plug['source']
             target = plug['target']
             source_socket = sockets[source]
             target_socket = sockets[target]
 
-            plug = Plug(name=plugname, processor=_processor, user=USER,
+            plug = Plug(name=plugname, processor=source_socket.processor, user=USER,
                         source=source_socket, queue=plug_queue, target=target_socket)
 
             logging.info("Starting agent {}".format(agentname))
