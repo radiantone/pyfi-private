@@ -131,7 +131,6 @@ setup(
         'bjoern',
         'virtualenv-api',
         'redis',
-        'psycopg2',
         'flask-restx',
         'prettytable',
         'sqlalchemy==1.4.23',
@@ -155,6 +154,7 @@ setup(
         'sqlalchemy-oso==0.20.1',
         'pyschedule',
         'uvicorn[standard]',
+        'psycopg2',
         'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
     ],
     license=about['__license__'],
