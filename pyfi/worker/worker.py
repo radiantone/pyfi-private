@@ -1203,6 +1203,7 @@ class Worker:
 
                 # Install pyfi
                 # TODO: Make this URL a setting so it can be overridden
+                env.install('psycopg2')
                 env.install('-e git+' + login +
                             '/radiantone/pyfi-private#egg=pyfi')
 
