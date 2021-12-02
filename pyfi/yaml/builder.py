@@ -154,15 +154,16 @@ def build_network(detail):
         for plugname in detail['network']['plugs']:
             plug = detail['network']['plugs'][plugname]
             plug_queue = plug['queue']
+            
             source = plug['source']
             target = plug['target']
+
             source_socket = sockets[source]
             target_socket = sockets[target]
 
-            plug = Plug(name=plugname, processor=source_socket.processor, user=USER,
+            _plug = Plug(name=plugname, processor=source_socket.processor, user=USER,
                         source=source_socket, queue=plug_queue, target=target_socket)
-
-            logging.info("Starting agent {}".format(agentname))
+            logging.info("Created plug: %s", _plug)
 
     for repo in repos:
         logging.info("Installing repo %s", repo)
