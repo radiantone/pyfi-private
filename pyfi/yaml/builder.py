@@ -150,7 +150,7 @@ def build_network(detail):
                 repos += [(node['path']+'/'+processorname, node['ini'], node['polar'], node['hostname'],
                              node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'])]
 
-    if 'plugs' in processor:
+    if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:
             plug = detail['network']['plugs'][plugname]
             plug_queue = plug['queue']
