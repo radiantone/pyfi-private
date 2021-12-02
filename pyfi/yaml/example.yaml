@@ -37,13 +37,7 @@ network:
                     name: pyfi.queue1
                   task:
                     function: do_something
-              plugs:
-                plug1:
-                  source: socket1
-                  target: socket4
-                  queue:
-                    name: pyfi.queue3
-                    
+
     radiant:
       enabled: false
       hostname: radiant
@@ -132,6 +126,14 @@ network:
                   task:
                     function: do_this    
 # This will create work records which the scheduler will deploy
+
+  plugs:
+    plug1:
+      source: socket1
+      target: socket4
+      queue:
+        name: pyfi.queue3
+
 work:
   
 
