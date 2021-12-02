@@ -68,7 +68,6 @@ network:
                   task:
                     function: do_this
     agent2:
-      enabled: false
       hostname: agent2
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
