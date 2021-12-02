@@ -997,6 +997,7 @@ class Worker:
                                     logging.info("Found INTERVAL schedule for socket: %s", socket)
                                     if socket.name not in self.jobs:
                                         logging.info("Adding job-> %s",socket.name)
+                                        plug = None
                                         for plug in self.processor.plugs:
                                             if plug.target.name == socket.name:
                                                 break
