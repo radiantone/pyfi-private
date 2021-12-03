@@ -29,7 +29,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
-        logging.info(hostname+":SSH: git clone: stdout: % s", line)
+        logging.info(hostname+command+": stdout: % s", line)
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
@@ -77,20 +77,20 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
-    command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+command+": stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
-        
     command = "cd {}/git; venv/bin/python setup.py install".format(path)
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info(hostname+":"+command +
                      ": stdout: %s", line)
+                     
+    command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
+    logging.info(hostname+":"+command)
+    _, stdout, stderr = _ssh.exec_command(command)
+    for line in stdout.read().splitlines():
+        logging.info(hostname+":"+command+": stdout: %s", line)
+    for line in stderr.read().splitlines():
+        logging.info(hostname+":ERROR: % s", line)        
 
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
