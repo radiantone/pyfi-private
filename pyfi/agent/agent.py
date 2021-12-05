@@ -489,7 +489,7 @@ class Agent:
 
                                 WORKER_PROC_PID = workerproc.process.pid
                                 logging.info(
-                                    "Worker process %s started.", workerproc.process.pid)
+                                    "Worker process %s started.", WORKER_PROC_PID)
 
                                 worker['worker'] = processor['processor'].worker
                                 worker['worker'].process = workerproc.process.pid
