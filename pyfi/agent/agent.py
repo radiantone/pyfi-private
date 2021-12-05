@@ -38,7 +38,8 @@ hostname = platform.node()
 
 cpus = multiprocessing.cpu_count()
 
-WORKER_PROC = None
+global
+WORKER_PROC_PID = None
 
 @app.route("/kill")
 def kill():
@@ -46,7 +47,7 @@ def kill():
 
     logging.info("Shutting down...")
 
-    os.kill(WORKER_PROC.pid, signal.SIGKILL)
+    os.kill(WORKER_PROC_PID, signal.SIGKILL)
 
     return "Shutdown complete"
 
@@ -467,10 +468,13 @@ class Agent:
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
-                                workerproc = WORKER_PROC = Worker(
+                                workerproc = Worker(
                                     processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
+                                global WORKER_PROC_PID
+                                WORKER_PROC_PID = workerproc.process.pid
+
                                 workerproc.start(start=False)
 
                                 # Launch from the virtualenv
