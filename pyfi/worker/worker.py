@@ -321,7 +321,7 @@ class Worker:
             self.process = process = Popen(
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
-            with open('../../../worker.pid', 'w') as pidfile:
+            with open('worker.pid', 'w') as pidfile:
                 pidfile.write(str(self.process.pid))
                 
             logging.debug("Worker launched successfully: process %s.",
