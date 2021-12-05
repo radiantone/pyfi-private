@@ -43,10 +43,10 @@ cpus = multiprocessing.cpu_count()
 def kill():
     from psutil import Process
 
-    logging.info("Shutting down...%s", self.workerproc.process.pid)
 
     with open('worker.pid','r') as procfile:
         pid = int(str(procfile.read()).strip())
+        logging.info("Shutting down...%s", pid)
         os.kill(pid, signal.SIGKILL)
 
     return "Shutdown complete"
