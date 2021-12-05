@@ -38,7 +38,7 @@ hostname = platform.node()
 
 cpus = multiprocessing.cpu_count()
 
-global
+global WORKER_PROC_PID
 WORKER_PROC_PID = None
 
 @app.route("/kill")
