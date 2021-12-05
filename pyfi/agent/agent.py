@@ -109,7 +109,7 @@ class Agent:
 
 
         with open('agent.pid','w') as procfile:
-            procfile.write(os.getpid())
+            procfile.write(str(os.getpid()))
 
         logging.info("Serving agent on port {} {} {}".format(
             self.port, self.backend, self.broker))
