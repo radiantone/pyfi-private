@@ -487,7 +487,9 @@ class Agent:
                                     session.add(processor['processor'].worker)
 
                                 with open('worker.pid','w') as procfile:
-                                    procfile.write(str(workerproc.process.pid))
+                                    logging.info("Wrote worker.pid %s", str(
+                                        wprocess.pid))
+                                    procfile.write(str(wprocess.pid))
 
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
