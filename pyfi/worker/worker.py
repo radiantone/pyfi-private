@@ -293,9 +293,6 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-        with open('worker.pid','w') as pidfile:
-            pidfile.write(str(self.process.pid))
-
     def launch(self, name, size):
         from subprocess import Popen
         from multiprocessing import Process
@@ -1232,6 +1229,9 @@ class Worker:
         worker_process = Process(target=worker_proc, name="worker_proc", args=(
             self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
+
+        with open('worker.pid', 'w') as pidfile:
+            pidfile.write(str(worker_process.pid))
 
         worker_process.start()
 
