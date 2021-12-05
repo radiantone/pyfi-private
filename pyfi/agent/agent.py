@@ -44,8 +44,16 @@ def kill():
     from psutil import Process
 
     logging.info("Shutting down...")
-    os.kill(os.getpid(), signal.SIGINT)
 
+    process = Process(os.getpid())
+    for child in process.children(recursive=True):
+        logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
+            process.pid, child.pid))
+        child.kill()
+        process.kill()
+        process.terminate()
+
+    return "Shutdown complete"
 
 class Agent:
     """ Agent class """
