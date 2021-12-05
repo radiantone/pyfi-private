@@ -38,6 +38,7 @@ hostname = platform.node()
 
 cpus = multiprocessing.cpu_count()
 
+WORKER_PROC = None
 
 @app.route("/kill")
 def kill():
@@ -45,13 +46,7 @@ def kill():
 
     logging.info("Shutting down...")
 
-    process = Process(os.getpid())
-    for child in process.children(recursive=True):
-        logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
-            process.pid, child.pid))
-        child.kill()
-        process.kill()
-        process.terminate()
+    os.kill(WORKER_PROC.pid, signal.SIGKILL)
 
     return "Shutdown complete"
 
@@ -472,7 +467,7 @@ class Agent:
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
-                                workerproc = Worker(
+                                workerproc = WORKER_PROC = Worker(
                                     processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
@@ -487,9 +482,7 @@ class Agent:
 
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
-
-                                
-
+                            
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
 
