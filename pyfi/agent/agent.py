@@ -44,7 +44,7 @@ def kill():
     from psutil import Process
 
     logging.info("Shutting down...")
-    os.kill(os.getpid())
+    os.kill(os.getpid(), signal.SIGINT)
 
 
 class Agent:
