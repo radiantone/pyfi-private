@@ -46,7 +46,7 @@ def kill():
     global WORKER_PROC_PID
     from psutil import Process
 
-    logging.info("Shutting down...")
+    logging.info("Shutting down...%s", WORKER_PROC_PID)
 
     os.kill(WORKER_PROC_PID, signal.SIGKILL)
 
