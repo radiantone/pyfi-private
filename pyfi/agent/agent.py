@@ -473,7 +473,6 @@ class Agent:
 
                                 # Setup the virtualenv only
                                 global WORKER_PROC_PID
-                                WORKER_PROC_PID = workerproc.process.pid
 
                                 workerproc.start(start=False)
 
@@ -486,7 +485,8 @@ class Agent:
 
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
-                            
+
+                                WORKER_PROC_PID = workerproc.process.pid
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
 
