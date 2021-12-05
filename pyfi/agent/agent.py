@@ -43,6 +43,7 @@ WORKER_PROC_PID = None
 
 @app.route("/kill")
 def kill():
+    global WORKER_PROC_PID
     from psutil import Process
 
     logging.info("Shutting down...")
