@@ -293,7 +293,7 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-        with open('../../../worker.pid','w') as pidfile:
+        with open('worker.pid','w') as pidfile:
             pidfile.write(str(self.process.pid))
 
     def launch(self, name, size):
