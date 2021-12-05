@@ -48,7 +48,14 @@ def kill():
         pid = int(str(procfile.read()).strip())
         logging.info("Shutting down...%s", pid)
         os.kill(pid, signal.SIGKILL)
+        process = psutil.Process(os.getpid())
 
+        for child in process.children(recursive=True):
+            child.kill()
+
+        process.kill()
+        process.terminate()
+        
     return "Shutdown complete"
 
 
