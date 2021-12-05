@@ -39,6 +39,19 @@ hostname = platform.node()
 cpus = multiprocessing.cpu_count()
 
 
+@app.route("/kill")
+def kill():
+    from psutil import Process
+
+    logging.info("Shutting down...%s", self.workerproc.process.pid)
+
+    with open('worker.pid','r') as procfile:
+        pid = int(str(procfile.read()).strip())
+        os.kill(pid, signal.SIGKILL)
+
+    return "Shutdown complete"
+
+
 class Agent:
     """ Agent class """
 
@@ -66,17 +79,6 @@ class Agent:
         self.agent = None
         self.user = user
         self.size = size
-
-        @app.route("/kill")
-        def kill():
-            from psutil import Process
-
-            logging.info("Shutting down...%s", self.workerproc.process.pid)
-
-            os.kill(self.workerproc.process.pid, signal.SIGKILL)
-
-            return "Shutdown complete"
-
 
         if clean:
             logging.info("Cleaning work directories")
@@ -484,7 +486,8 @@ class Agent:
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
 
-                                self.workerproc = workerproc 
+                                with open('worker.pid','w') as procfile:
+                                    procfile.write(str(workerproc.process.pid))
 
                                 logging.info(
                                     "Worker process %s started.", workerproc.process.pid)
