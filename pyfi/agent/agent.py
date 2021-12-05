@@ -47,7 +47,7 @@ def kill():
     with open('agent.pid','r') as procfile:
         pid = int(str(procfile.read()).strip())
         logging.info("Shutting down...%s", pid)
-        process = psutil.Process(os.getpid())
+        process = psutil.Process(pid)
 
         for child in process.children(recursive=True):
             child.kill()
