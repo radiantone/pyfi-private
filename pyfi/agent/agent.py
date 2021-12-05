@@ -38,19 +38,6 @@ hostname = platform.node()
 
 cpus = multiprocessing.cpu_count()
 
-global WORKER_PROC_PID
-WORKER_PROC_PID = None
-
-@app.route("/kill")
-def kill():
-    global WORKER_PROC_PID
-    from psutil import Process
-
-    logging.info("Shutting down...%s", WORKER_PROC_PID)
-
-    os.kill(WORKER_PROC_PID, signal.SIGKILL)
-
-    return "Shutdown complete"
 
 class Agent:
     """ Agent class """
@@ -79,6 +66,17 @@ class Agent:
         self.agent = None
         self.user = user
         self.size = size
+
+        @app.route("/kill")
+        def kill():
+            from psutil import Process
+
+            logging.info("Shutting down...%s", self.workerproc.process.pid)
+
+            os.kill(self.workerproc.process.pid, signal.SIGKILL)
+
+            return "Shutdown complete"
+
 
         if clean:
             logging.info("Cleaning work directories")
@@ -473,7 +471,6 @@ class Agent:
                                     processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
-                                global WORKER_PROC_PID
 
                                 workerproc.start(start=False)
 
@@ -487,9 +484,10 @@ class Agent:
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
 
-                                WORKER_PROC_PID = workerproc.process.pid
+                                self.workerproc = workerproc 
+
                                 logging.info(
-                                    "Worker process %s started.", WORKER_PROC_PID)
+                                    "Worker process %s started.", workerproc.process.pid)
 
                                 worker['worker'] = processor['processor'].worker
                                 worker['worker'].process = workerproc.process.pid
