@@ -1230,12 +1230,12 @@ class Worker:
             self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
 
-        with open('worker.pid', 'w') as pidfile:
+        with open('../../../worker.pid', 'w') as pidfile:
             pidfile.write(str(worker_process.pid))
 
         worker_process.start()
 
-        self.process = worker_process
+        self.process = worker_processcat 
 
         def emit_messages():
             """ Get messages off queue and emit to pubsub server """
