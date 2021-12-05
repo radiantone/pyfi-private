@@ -49,12 +49,14 @@ def kill():
         logging.info("Shutting down...%s", pid)
         process = psutil.Process(pid)
 
-
+        '''
         logging.info("Killing sub processes....")
         for child in process.children(recursive=True):
             logging.info("Killing child....")
             child.kill()
-
+            logging.info("Killed child....")
+        '''
+        
         logging.info("Killing agent....")
         process.kill()
         logging.info("Terminating agent....")
