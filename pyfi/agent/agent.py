@@ -43,6 +43,10 @@ cpus = multiprocessing.cpu_count()
 def kill():
     from psutil import Process
 
+    with open('worker.pid', 'r') as procfile:
+        pid = int(str(procfile.read()).strip())
+        logging.info("Shutting down...%s", pid)
+        os.kill(pid, signal.SIGKILL)
 
     with open('agent.pid','r') as procfile:
         pid = int(str(procfile.read()).strip())
@@ -56,7 +60,7 @@ def kill():
             child.kill()
             logging.info("Killed child....")
         '''
-        
+
         logging.info("Killing agent....")
         process.kill()
         logging.info("Terminating agent....")
