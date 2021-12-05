@@ -492,7 +492,7 @@ class Agent:
                                     procfile.write(str(wprocess.pid))
 
                                 logging.info(
-                                    "Worker process %s started.", workerproc.process.pid)
+                                    "Worker process %s started.", wprocess.pid)
 
                                 worker['worker'] = processor['processor'].worker
                                 worker['worker'].process = workerproc.process.pid
