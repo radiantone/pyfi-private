@@ -52,6 +52,7 @@ def kill():
 
         logging.info("Killing sub processes....")
         for child in process.children(recursive=True):
+            logging.info("Killing child....")
             child.kill()
 
         logging.info("Killing agent....")
