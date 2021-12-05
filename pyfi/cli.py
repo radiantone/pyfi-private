@@ -309,10 +309,31 @@ def user_add(context, user, role, privilege):
         print("Nothing to do.")
 
 
-@cli.command()
+@cli.group()
+def compose():
+    """ Manage declarative infrastructure files """
+
+
+@compose.command(name='kill')
 @click.argument('filename')
 @click.pass_context
-def build(context, filename):
+def compose_kill(context, filename):
+    """ Kill a running infrastructure """
+    import yaml
+    from pyfi.yaml.builder import stop_network
+
+    with open(filename, "r") as stream:
+        try:
+            detail = yaml.safe_load(stream)
+            stop_network(detail)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+
+@compose.command(name='build')
+@click.argument('filename')
+@click.pass_context
+def compose_build(context, filename):
     """ Build infrastructure from a yaml file"""
     import yaml
     from pyfi.yaml.builder import build_network

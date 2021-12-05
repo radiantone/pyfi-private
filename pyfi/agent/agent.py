@@ -9,6 +9,7 @@ import os
 import psutil
 import shutil
 import glob
+import signal
 
 from contextlib import contextmanager
 
@@ -36,6 +37,14 @@ CONFIG = configparser.ConfigParser()
 hostname = platform.node()
 
 cpus = multiprocessing.cpu_count()
+
+
+@app.route("/kill")
+def kill():
+    from psutil import Process
+
+    logging.info("Shutting down...")
+    os.kill(os.getpid())
 
 
 class Agent:
@@ -494,7 +503,10 @@ class Agent:
             manage_processors(workers, processors)
 
         def web_server():
+            from setproctitle import setproctitle
+
             try:
+                setproctitle('pyfi agent::web_server')
                 logging.info("Starting web server on %s",self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
@@ -502,7 +514,7 @@ class Agent:
                 logging.info("Shutting down...")
 
         webserver = Process(target=web_server, daemon=True)
-        #webserver.start()
+        webserver.start()
 
         logging.info("Monitoring processors")
         monitor_processors()

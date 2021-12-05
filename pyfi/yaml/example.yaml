@@ -124,7 +124,6 @@ network:
                     name: pyfi.queue2
                   task:
                     function: do_this    
-# This will create work records which the scheduler will deploy
 
   plugs:
     plug1:
@@ -133,6 +132,7 @@ network:
       queue:
         name: pyfi.queue3
 
+# This will create work records which the scheduler will deploy
 work:
   
 

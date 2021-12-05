@@ -105,6 +105,19 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
+
+def stop_network(detail):
+
+    for nodename in detail['network']['nodes']:
+        # For each node, check out repo, build venv
+        node = detail['network']['nodes'][nodename]
+        if 'enabled' in node and not node['enabled']:
+            continue
+
+        
+    pass
+
+
 def build_network(detail):
     """ Given a parsed yaml detail, build out the pyfi network"""
 
