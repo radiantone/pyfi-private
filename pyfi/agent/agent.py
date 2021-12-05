@@ -44,10 +44,9 @@ def kill():
     from psutil import Process
 
 
-    with open('worker.pid','r') as procfile:
+    with open('agent.pid','r') as procfile:
         pid = int(str(procfile.read()).strip())
         logging.info("Shutting down...%s", pid)
-        os.kill(pid, signal.SIGKILL)
         process = psutil.Process(os.getpid())
 
         for child in process.children(recursive=True):
@@ -55,7 +54,7 @@ def kill():
 
         process.kill()
         process.terminate()
-        
+
     return "Shutdown complete"
 
 
@@ -107,6 +106,10 @@ class Agent:
         import bjoern
         from billiard.context import Process
         from uuid import uuid4
+
+
+        with open('agent.pid','w') as procfile:
+            procfile.write(os.getpid())
 
         logging.info("Serving agent on port {} {} {}".format(
             self.port, self.backend, self.broker))
@@ -492,11 +495,6 @@ class Agent:
 
                                 with self.get_session() as session:
                                     session.add(processor['processor'].worker)
-
-                                with open('../../../worker.pid','w') as procfile:
-                                    logging.info("Wrote worker.pid %s", str(
-                                        wprocess.pid))
-                                    procfile.write(str(wprocess.pid))
 
                                 logging.info(
                                     "Worker process %s started.", wprocess.pid)
