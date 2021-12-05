@@ -55,6 +55,10 @@ def kill():
         process.kill()
         process.terminate()
 
+        process = psutil.Process(os.getpid())
+        process.kill()
+        process.terminate()
+
     return "Shutdown complete"
 
 
