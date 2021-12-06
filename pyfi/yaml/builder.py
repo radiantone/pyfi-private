@@ -19,9 +19,14 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         sftp.put(ini, '/home/'+username+'/pyfi.ini')
         sftp.put(polar, '/home/'+username+'/pyfi.polar')
 
+    agent = Agent(name=hostname+'.agent')
+    command = 'kill -s SIGINT '+agent.pid
 
+    _, stdout, stderr = _ssh.exec_command(command)
+    
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
+    '''
     command = "ps -ef|grep pyfi|grep -v 'pyfi build'|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
@@ -32,6 +37,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         logging.info(hostname+command+": stdout: % s", line)
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
+    '''
 
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
