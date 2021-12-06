@@ -2,7 +2,7 @@ import logging
 import paramiko
 import platform
 
-from pyfi.client.api import Processor, Socket, Plug
+from pyfi.client.api import Processor, Socket, Plug, Agent
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
 

@@ -90,6 +90,25 @@ class Task(Base):
         return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs).delay()
 
 
+class Agent(Base):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+        self.agent = None
+
+        self.name = kwargs['name']
+
+        self.agent = self.session.query(
+            SchedulerModel).filter_by(name=self.name).first()
+
+        if self.agent is None:
+            self.agent = AgentModel(name=self.name)
+            self.session.add(self.agent)
+            self.session.commit()
+        else:
+            self.session.add(self.agent)
+
+
 class Scheduler(Base):
     """
     Docstring
