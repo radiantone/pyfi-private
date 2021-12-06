@@ -1651,6 +1651,17 @@ def stop_agent(context):
     pass
 
 
+@worker.command(name='kill', help='Kill a pyfi worker')
+@click.option('-n', '--name', required=True, help="Name of worker")
+@click.pass_context
+def kill_worker(context, name):
+    from pyfi.worker import Worker
+
+    workerModel = context.obj['database'].session.query(
+        WorkerModel).filter_by(name=name).first()
+    workerModel.requested_status = 'shutdown'
+
+    context.obj['database'].session.commit()
 
 @worker.command(name='start', help='Start a pyfi worker')
 @click.option('-n', '--name', required=True, help="Name of worker")

@@ -73,12 +73,15 @@ def shutdown(*args):
 
     logging.info("Shutting down...")
     process = Process(os.getpid())
+    
     for child in process.children(recursive=True):
         logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
             process.pid, child.pid))
         child.kill()
+
     process.kill()
     process.terminate()
+
     exit(0)
 
 
@@ -317,9 +320,6 @@ class Worker:
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
-
-            with open('worker.pid', 'w') as pidfile:
-                pidfile.write(str(self.process.pid))
                 
             logging.debug("Worker launched successfully: process %s.",
                           self.process.pid)
@@ -1230,7 +1230,7 @@ class Worker:
             self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
 
-        with open('../../../worker.pid', 'w') as pidfile:
+        with open('../../../../../worker.pid', 'w') as pidfile:
             pidfile.write(str(worker_process.pid))
 
         worker_process.start()
@@ -1244,6 +1244,12 @@ class Worker:
 
             setproctitle('pyfi worker::emit_messages')
             while True:
+
+                with self.get_session(self.database) as session:
+                    workerModel = session.query(
+                        WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
+                    if workerModel.requested_status == 'shutdown':
+                        shutdown()
                 try:
                     message = self.queue.get()
                     logging.info("Emitting message %s %s",
