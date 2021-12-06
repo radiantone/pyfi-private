@@ -133,6 +133,10 @@ class Agent:
         # Retrieve any existing Agent for this hose
         agent = self.database.session.query(
             AgentModel).filter_by(hostname=hostname).first()
+        agent.pid = os.getpid()
+        
+        self.database.session.add(agent)
+        self.database.session.commit()
 
         if agent is None:
             # Create database ping process to notify pyfi that I'm here and active
@@ -140,7 +144,7 @@ class Agent:
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
             agent = AgentModel(hostname=hostname,
-                               name=hostname+".agent")
+                               name=hostname+".agent", pid=os.getpid())
 
         agent.status = "starting"
         self.agent = agent

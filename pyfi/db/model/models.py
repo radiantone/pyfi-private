@@ -304,7 +304,8 @@ class AgentModel(BaseModel):
     status = Column(String(20), nullable=False)
     cpus = Column(Integer)
     port = Column(Integer)
-
+    pid = Column(Integer)
+    
     worker = relationship(
         'WorkerModel', back_populates='agent', uselist=False, cascade="all, delete-orphan")
 
