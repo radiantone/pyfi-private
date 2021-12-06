@@ -230,6 +230,7 @@ class Worker:
 
         self.pool = pool
         self.user = user
+        self.pwd = os.getcwd()
 
         logging.debug("New Worker init: %s", processor)
 
@@ -320,6 +321,9 @@ class Worker:
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
+                
+            with open(self.pwd+"/worker.pid","w") as pidfile:
+                pidfile.write(process.pid)
                 
             logging.debug("Worker launched successfully: process %s.",
                           self.process.pid)
@@ -1230,12 +1234,9 @@ class Worker:
             self.celery, self.queue, self.dburi))
         worker_process.app = self.celery
 
-        with open('../../../../../worker.pid', 'w') as pidfile:
-            pidfile.write(str(worker_process.pid))
-
         worker_process.start()
 
-        self.process = worker_processcat 
+        self.process = worker_process
 
         def emit_messages():
             """ Get messages off queue and emit to pubsub server """
