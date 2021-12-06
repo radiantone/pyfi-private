@@ -143,9 +143,9 @@ class Agent:
                                name=hostname+".agent", pid=os.getpid())
 
         agent.pid = os.getpid()
-        self.database.session.add(agent)
-        self.database.session.commit()
-        
+        #self.database.session.add(agent)
+        #self.database.session.commit()
+
         agent.status = "starting"
         self.agent = agent
         vmem = psutil.virtual_memory()
