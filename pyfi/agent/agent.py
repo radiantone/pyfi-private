@@ -197,7 +197,6 @@ class Agent:
 
 
         signal.signal(signal.SIGINT, shutdown)
-        signal.signal(signal.SIGKILL, shutdown)
 
         def monitor_processors():
             """
