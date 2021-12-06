@@ -25,10 +25,10 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         sftp.put(polar, '/home/'+username+'/pyfi.polar')
 
     agent = Agent.find(name=hostname+'.agent')
-    command = 'kill -s SIGINT '+agent.pid
 
     # Kill any existing agent
     if agent and agent.pid:
+        command = 'kill -s SIGINT '+agent.pid
         _, stdout, stderr = _ssh.exec_command(command)
 
     # Kill existing processors and remove existing directories
