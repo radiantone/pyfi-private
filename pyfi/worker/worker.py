@@ -73,7 +73,7 @@ def shutdown(*args):
 
     logging.info("Shutting down...")
     process = Process(os.getpid())
-    
+
     for child in process.children(recursive=True):
         logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
             process.pid, child.pid))
@@ -1245,11 +1245,6 @@ class Worker:
             setproctitle('pyfi worker::emit_messages')
             while True:
 
-                with self.get_session(self.database) as session:
-                    workerModel = session.query(
-                        WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
-                    if workerModel.requested_status == 'shutdown':
-                        shutdown()
                 try:
                     message = self.queue.get()
                     logging.info("Emitting message %s %s",

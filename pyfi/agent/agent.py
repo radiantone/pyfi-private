@@ -176,6 +176,29 @@ class Agent:
         with self.get_session() as session:
             session.add(agent)
 
+
+        def shutdown(*args):
+            """ Shutdown worker """
+            from psutil import Process
+
+            logging.info("Shutting down...")
+            process = Process(os.getpid())
+            self.workerproc.kill()
+
+            for child in process.children(recursive=True):
+                logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
+                    process.pid, child.pid))
+                child.kill()
+
+            process.kill()
+            process.terminate()
+
+            exit(0)
+
+
+        signal.signal(signal.SIGINT, shutdown)
+        signal.signal(signal.SIGKILL, shutdown)
+
         def monitor_processors():
             """
             Retrieve any processors that need compute resources, determine if you have free CPU's or idle workers,
@@ -495,7 +518,7 @@ class Agent:
                                 dir = 'work/'+processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
-                                workerproc = Worker(
+                                workerproc = self.workerproc = Worker(
                                     processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
 
                                 # Setup the virtualenv only
