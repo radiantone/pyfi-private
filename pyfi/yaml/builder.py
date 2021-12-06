@@ -9,6 +9,11 @@ from pyfi.client.user import USER
 HOSTNAME = platform.node()
 
 def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
+    """ Remote host only needs to have ssh key trust to be managed by pyfi 
+        PYFI will remote install itself and manage the running agent processes on it.
+        It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
+        both use their own virtual environments and do not pollute the host environment.
+    """
     _ssh = paramiko.SSHClient()
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(hostname=hostname, username=username,
@@ -22,8 +27,10 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     agent = Agent(name=hostname+'.agent')
     command = 'kill -s SIGINT '+agent.pid
 
-    _, stdout, stderr = _ssh.exec_command(command)
-    
+    # Kill any existing agent
+    if agent.pid:
+        _, stdout, stderr = _ssh.exec_command(command)
+
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
     '''
@@ -39,6 +46,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         logging.info(hostname+":ERROR: % s", line)
     '''
 
+    # Remove existing git repos
     _login = repo.split("/", 3)[:3]
     login = _login[0]+"//"+_login[2]
     logging.info("Removing existing install....{}".format(path))
@@ -49,6 +57,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
 
     logging.info("Done")
     
+    # Install new git repos
     command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
         path, path, branch, repo.split('#')[0])
     logging.info(hostname+":"+command)
@@ -58,6 +67,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
+    # Create virutal environment
     command = "cd {}/git; python3.9 -m venv venv".format(path)
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
@@ -66,6 +76,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
+    # Upgrade pip
     command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
@@ -75,6 +86,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
+    # Install the processor git repo
     command = "cd {}/git; venv/bin/pip install -e .".format(path)
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
@@ -90,6 +102,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         logging.info(hostname+":"+command +
                      ": stdout: %s", line)
                      
+    # Install pyfi
     command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
@@ -101,6 +114,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
 
+    # Start the agent
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
         path, login)
     _, stdout, stderr = _ssh.exec_command(command)
