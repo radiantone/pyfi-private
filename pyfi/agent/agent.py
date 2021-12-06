@@ -190,6 +190,9 @@ class Agent:
                     process.pid, child.pid))
                 child.kill()
 
+            os.killpg(os.getpgid(os.getpid()), 15)
+            os.kill(os.getpid(), signal.SIGKILL)
+
             process.kill()
             process.terminate()
 
