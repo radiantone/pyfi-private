@@ -91,6 +91,13 @@ class Task(Base):
 
 
 class Agent(Base):
+
+    @classmethod
+    def find(cls, name):
+
+        return cls.session.query(
+            AgentModel).filter_by(name=name).first()
+
     def __init__(self, *args, **kwargs):
         super().__init__()
 
@@ -99,7 +106,7 @@ class Agent(Base):
         self.name = kwargs['name']
 
         self.agent = self.session.query(
-            SchedulerModel).filter_by(name=self.name).first()
+            AgentModel).filter_by(name=self.name).first()
 
         if self.agent is None:
             self.agent = AgentModel(name=self.name)
