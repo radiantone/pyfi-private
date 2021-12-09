@@ -1301,7 +1301,10 @@ class Worker:
         process = psutil.Process(self.process.pid)
 
         for child in process.children(recursive=True):
-            child.kill()
+            try:
+                child.kill()
+            except:
+                pass
 
         process.kill()
         process.terminate()

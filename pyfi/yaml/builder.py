@@ -33,18 +33,25 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
 
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
-    '''
-    command = "ps -ef|grep pyfi|grep -v 'pyfi build'|awk '{print \"kill \"$2}'|sh"
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    command = "ps -ef|grep celery|awk '{print \"kill \"$2}'|sh"
+    command = "ps -ef|grep \"pyfi worker\"|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
         logging.info(hostname+command+": stdout: % s", line)
+
+    command = "ps -ef|grep pyfi|grep -v 'pyfi build'|awk '{print \"kill \"$2}'|sh"
+    logging.info(hostname+":"+command)
+    _, stdout, stderr = _ssh.exec_command(command)
+    for line in stdout.read().splitlines():
+        logging.info(hostname+command+": stdout: % s", line)
+
+
+    command = "ps -ef|grep celery|awk '{print \"kill -9 \"$2}'|sh"
+    logging.info(hostname+":"+command)
+    _, stdout, stderr = _ssh.exec_command(command)
     for line in stderr.read().splitlines():
         logging.info(hostname+":ERROR: % s", line)
-    '''
+    
 
     # Remove existing git repos
     _login = repo.split("/", 3)[:3]

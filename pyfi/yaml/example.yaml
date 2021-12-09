@@ -23,6 +23,8 @@ network:
             size: 10
           processors:
             proc1: 
+              status: ready
+              requested_status: update
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
@@ -37,6 +39,13 @@ network:
                     name: pyfi.queue1
                   task:
                     function: do_something
+      services:
+        docker:
+          websockets:
+            daemon: true
+            environment:
+              - LISTEN_PROCESSOR=proc1
+              - LISTEN_CHANNEL=task
 
     radiant:
       enabled: false

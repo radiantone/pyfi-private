@@ -331,14 +331,14 @@ def compose_kill(context, filename):
 
 
 @compose.command(name='build')
-@click.argument('filename')
+@click.option('-f', '--file', default='pyfi.yaml', required=False)
 @click.pass_context
-def compose_build(context, filename):
+def compose_build(context, file):
     """ Build infrastructure from a yaml file"""
     import yaml
     from pyfi.yaml.builder import build_network
 
-    with open(filename, "r") as stream:
+    with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
             build_network(detail)
