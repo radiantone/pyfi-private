@@ -33,7 +33,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
 
     # Kill existing processors and remove existing directories
     # ps -ef|grep pyfi|awk '{ print "kill "$2 }'|sh
-    command = "ps -ef|grep \"pyfi worker\"|awk '{print \"kill \"$2}'|sh"
+    command = "ps -ef|grep 'pyfi worker'|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
