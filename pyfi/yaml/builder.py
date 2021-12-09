@@ -39,7 +39,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stdout.read().splitlines():
         logging.info(hostname+command+": stdout: % s", line)
 
-    command = "ps -ef|grep pyfi|grep -v 'pyfi build'|awk '{print \"kill \"$2}'|sh"
+    command = "ps -ef|grep pyfi|grep -v 'pyfi compose'|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
