@@ -253,8 +253,7 @@ class Worker:
                 'max_instances': 3
             }
 
-            self.scheduler = BackgroundScheduler(
-                executors=executors, job_defaults=job_defaults, timezone=utc)
+            self.scheduler = BackgroundScheduler(job_defaults=job_defaults, timezone=utc)
 
             self.jobs = {}
             '''
