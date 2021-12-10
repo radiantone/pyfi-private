@@ -8,6 +8,10 @@ from pyfi.db.model import AlchemyEncoder
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
 
+'''
+Create some infrastructure
+'''
+
 # Log in a user first
 print("USER",USER)
 # Create a processor

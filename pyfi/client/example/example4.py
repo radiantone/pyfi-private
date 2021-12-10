@@ -2,6 +2,9 @@
 from pyfi.client.api import parallel, pipeline, funnel
 from pyfi.client.example.api import do_something_p as do_something
 
+'''
+An example app on top of pyfi. References existing infrastructure and then runs complex workflows and parallel operations on it
+'''
 _pipeline = pipeline([
     do_something("One"),
     do_something("Two"),
