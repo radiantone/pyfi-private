@@ -1040,18 +1040,18 @@ class Worker:
                                                     logging.info(
                                                         "Adding job %s with interval %s", dispatcher, socket.interval)
 
-                                                    def schedule_function(func, interval):
+                                                    def schedule_function(func, interval, args):
                                                         import time
 
 
                                                         while True:
                                                             logging.info("Calling function %s",func)
-                                                            func()
+                                                            func(*args)
                                                             logging.info("Sleeping %s", interval)
                                                             time.sleep(interval)
 
                                                     job = Process(target=schedule_function, args=(
-                                                        dispatcher, socket.interval,))
+                                                        dispatcher, socket.interval, (self.processor, plug, "message", self.dburi, socket)))
                                                     job.start()
                                                     #scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                     #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
