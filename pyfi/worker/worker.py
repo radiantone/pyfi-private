@@ -771,6 +771,14 @@ class Worker:
 
             setproctitle('pyfi worker::worker_proc')
 
+            job_defaults = {
+                'coalesce': False,
+                'max_instances': 3
+            }
+
+            scheduler = BackgroundScheduler(
+                job_defaults=job_defaults, timezone=utc)
+
             queues = []
             engine = create_engine(dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
@@ -1031,7 +1039,7 @@ class Worker:
                                                 try:
                                                     logging.info(
                                                         "Adding job %s", dispatcher)
-                                                    self.scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
+                                                    scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                                         misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(
                                                         "Scheduled socket %s", socket.name)
