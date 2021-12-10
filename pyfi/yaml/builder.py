@@ -8,7 +8,8 @@ from pyfi.client.user import USER
 
 HOSTNAME = platform.node()
 
-def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
+
+def remove_network(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
     """ Remote host only needs to have ssh key trust to be managed by pyfi 
         PYFI will remote install itself and manage the running agent processes on it.
         It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
@@ -39,7 +40,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
     for line in stdout.read().splitlines():
         logging.info(hostname+command+": stdout: % s", line)
 
-    command = "ps -ef|grep pyfi|grep -v 'pyfi compose'|awk '{print \"kill \"$2}'|sh"
+    command = "ps -ef|grep pyfi|grep -v 'pyfi compose'|grep -v postgres|awk '{print \"kill \"$2}'|sh"
     logging.info(hostname+":"+command)
     _, stdout, stderr = _ssh.exec_command(command)
     for line in stdout.read().splitlines():
@@ -63,6 +64,17 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         logging.info(hostname+":rm -rf %s: git clone: stdout: % s", path, line)
 
     logging.info("Done")
+
+    return _ssh
+
+def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
+    """ Remote host only needs to have ssh key trust to be managed by pyfi 
+        PYFI will remote install itself and manage the running agent processes on it.
+        It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
+        both use their own virtual environments and do not pollute the host environment.
+    """
+    _ssh = remove_agent(path, ini, polar, hostname, username,
+                 sshkey, branch, pyfi, repo, commit=None)
     
     # Install new git repos
     command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(

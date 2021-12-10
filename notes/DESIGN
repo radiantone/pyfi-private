@@ -1,3 +1,19 @@
+WEBSOCKETS
+------------
+
+- Individual web socket containers (streamers) listen to redis pubsub channels (e.g. proc1.task) and
+forward messages to a websocket it hosts. any websocket client can connect and receive messages
+- This keeps the execution network de-coupled from the notification/subscribe network
+- A grafana datasource can connect directly to the websocket and render incoming data
+
+
+- one docker service per redis<->websocket bridge
+   - creates websocket server and subscribes to redis channel
+- websocket client<->influxdb,elastic, etc
+   - create client adaptors for anything
+   - data is ephemeral
+- grafana/kibana real time charts
+
 SECURITY
 ------------
 

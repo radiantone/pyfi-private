@@ -330,6 +330,22 @@ def compose_kill(context, filename):
             print(exc)
 
 
+@compose.command(name='remove')
+@click.option('-f', '--file', default='pyfi.yaml', required=False)
+@click.pass_context
+def compose_remove(context, file):
+    """ Build infrastructure from a yaml file"""
+    import yaml
+    from pyfi.yaml.builder import remove_network
+
+    with open(file, "r") as stream:
+        try:
+            detail = yaml.safe_load(stream)
+            remove_network(detail)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+
 @compose.command(name='build')
 @click.option('-f', '--file', default='pyfi.yaml', required=False)
 @click.pass_context

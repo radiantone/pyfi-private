@@ -2,6 +2,28 @@ version: '3.9'
 
 services:
 
+  websockets2:
+    build: 
+      context: docker/websockets
+      dockerfile: Dockerfile
+    image: pyfi/websockets:latest
+    container_name: websockets2
+    environment:
+      - PYFI_CHANNEL=proc4.task
+    ports:
+      - 3002:3000
+
+  websockets:
+    build: 
+      context: docker/websockets
+      dockerfile: Dockerfile
+    image: pyfi/websockets:latest
+    container_name: websockets
+    environment:
+      - PYFI_CHANNEL=proc1.task
+    ports:
+      - 3000:3000
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -9,6 +31,35 @@ services:
       - 9000:9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  grafana:
+      image: grafana/grafana:latest
+      container_name: grafana
+      volumes:
+        - grafana_data:/var/lib/grafana
+        - ./grafana/provisioning:/etc/grafana/provisioning
+      environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+        - GF_USERS_ALLOW_SIGN_UP=false
+      restart: unless-stopped
+      ports:
+        - 3001:3000
+
+  influxdb:
+    image: influxdb:2.0
+    container_name: influxdb
+    ports:
+      - 8083:8083
+      - 8086:8086
+      - 8088:8088
+    environment:
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=pyfi
+      - DOCKER_INFLUXDB_INIT_BUCKET=pyfi
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
 
   agent2:
     build: 
@@ -38,8 +89,6 @@ services:
     container_name: agent1
     hostname: agent1
     image: agent:latest
-    volumes: 
-      - ./conf/git-credentials:/root/.git-credentials
     environment: 
       - TZ=America/New_York
       - DEBIAN_FRONTEND=noninteractive
@@ -189,3 +238,6 @@ services:
 
 volumes:
   pgdata:
+  influxdb_data:
+    driver: local
+  grafana_data: {}
