@@ -1039,8 +1039,22 @@ class Worker:
                                                 try:
                                                     logging.info(
                                                         "Adding job %s with interval %s", dispatcher, socket.interval)
-                                                    scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
-                                                                        misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
+
+                                                    def schedule_function(func, interval):
+                                                        import time
+
+
+                                                        while True:
+                                                            logging.info("Calling function %s",func)
+                                                            func()
+                                                            logging.info("Sleeping %s", interval)
+                                                            time.sleep(interval)
+
+                                                    job = Process(target=schedule_function, args=(
+                                                        dispatcher, socket.interval,))
+                                                    job.start()
+                                                    #scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
+                                                    #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(
                                                         "Scheduled socket %s", socket.name)
                                                 except:
