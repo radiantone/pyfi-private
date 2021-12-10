@@ -336,12 +336,12 @@ def compose_kill(context, filename):
 def compose_remove(context, file):
     """ Build infrastructure from a yaml file"""
     import yaml
-    from pyfi.yaml.builder import remove_network
+    from pyfi.yaml.builder import compose_network
 
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
-            remove_network(detail)
+            compose_network(detail, command="remove")
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -352,12 +352,12 @@ def compose_remove(context, file):
 def compose_build(context, file):
     """ Build infrastructure from a yaml file"""
     import yaml
-    from pyfi.yaml.builder import build_network
+    from pyfi.yaml.builder import compose_network
 
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
-            build_network(detail)
+            compose_network(detail, command="build")
         except yaml.YAMLError as exc:
             print(exc)
 

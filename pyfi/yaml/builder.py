@@ -157,7 +157,7 @@ def stop_network(detail):
     pass
 
 
-def build_network(detail):
+def compose_network(detail, command="build"):
     """ Given a parsed yaml detail, build out the pyfi network"""
 
     import paramiko
@@ -219,7 +219,11 @@ def build_network(detail):
 
     for repo in repos:
         logging.info("Installing repo %s", repo)
-        install_repo(*repo)
+
+        if command == "build":
+            install_repo(*repo)
+        elif command == "remove":
+            remove_network(*repo)
 
     # start agent
     logging.info("Built network: {}".format(detail['network']['name']))
