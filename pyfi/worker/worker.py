@@ -1038,7 +1038,7 @@ class Worker:
                                                 # Maybe this shouldn't use a plug
                                                 try:
                                                     logging.info(
-                                                        "Adding job %s", dispatcher)
+                                                        "Adding job %s with interval %s", dispatcher, socket.interval)
                                                     scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                                         misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(
@@ -1155,7 +1155,7 @@ class Worker:
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
                 logging.info("Starting scheduler...")
-                self.scheduler.start()
+                scheduler.start()
                 logging.info("Starting worker...")
                 worker.start()
 
