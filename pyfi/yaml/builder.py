@@ -73,7 +73,7 @@ def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, rep
         It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
         both use their own virtual environments and do not pollute the host environment.
     """
-    _ssh = remove_agent(path, ini, polar, hostname, username,
+    _ssh = remove_network(path, ini, polar, hostname, username,
                  sshkey, branch, pyfi, repo, commit=None)
     
     # Install new git repos
