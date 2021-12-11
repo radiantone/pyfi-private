@@ -205,6 +205,10 @@ def compose_network(detail, command="build"):
     if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:
             plug = detail['network']['plugs'][plugname]
+
+            if plug.enabled and plug.enabled == False:
+                continue
+            
             plug_queue = plug['queue']
 
             source = plug['source']

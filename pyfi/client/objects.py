@@ -293,6 +293,8 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
+        logging.info("Calling "+self.processor.processor.module +
+                     '.'+self.socket.task.name+" %s", self.queue)
         return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
 
 
