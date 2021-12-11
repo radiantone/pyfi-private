@@ -1319,8 +1319,8 @@ class Worker:
         emit_process.start()
         #logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
 
-        logging.debug(
-            "Started worker process with pid[%s]", worker_process.pid)
+        #logging.debug(
+        #    "Started worker process with pid[%s]", worker_process.pid)
 
         return worker_process
 
