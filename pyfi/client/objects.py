@@ -284,6 +284,8 @@ class Socket(Base):
         return self.p(args,kwargs).delay()
 
     def __call__(self, *args, **kwargs):
+        import logging
+        
         """"""
         # socket.queue.message_ttl
         # socket.queue.expires
