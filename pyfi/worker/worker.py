@@ -661,6 +661,8 @@ class Worker:
                                 tkey = key+'.' + target_processor.name.replace(
                                     ' ', '.')+'.'+processor_plug.target.task.name
 
+                                tkey2 = key+'.' + '.'+ processor_plug.target.task.name
+
                                 logging.info(
                                     "Sending {} to queue {}".format(msg, tkey))
 
@@ -711,8 +713,27 @@ class Worker:
                                             'x-expires': 300}
                                         )
 
+                                    task_queue = KQueue(
+                                        tkey2,
+                                        Exchange(
+                                            key, type='direct'),
+                                        routing_key=tkey2,
+
+                                        message_ttl=processor_plug.target.queue.message_ttl,
+                                        durable=processor_plug.target.queue.durable,
+                                        expires=processor_plug.target.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        queue_arguments={
+                                            'x-message-ttl': 30000,
+                                            'x-expires': 300}
+                                        )
+
                                     logging.info(
                                         "worker queue %s", worker_queue)
+                                    logging.info(
+                                        "task queue %s", worker_queue)
 
                                     # Create task signature
                                     try:
@@ -1296,7 +1317,7 @@ class Worker:
         emit_process = Thread(target=emit_messages, name="emit_messages")
         emit_process.daemon = True
         emit_process.start()
-        logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
+        #logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
 
         logging.debug(
             "Started worker process with pid[%s]", worker_process.pid)
