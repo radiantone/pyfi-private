@@ -1067,6 +1067,18 @@ class Worker:
                                 logging.info(
                                     "Already scheduled this socket %s", socket.name)
 
+                        if socket.task.code:
+                            # We have custom code for this task
+                            # Add the task.code to the loaded module
+                            # The task.code must have the named function
+                            # contained in socket.task.name
+
+                            # Inject the code into the module.
+                            # The module originates in the mounted git repo
+                            # So the task code is like a "mixin"
+                            exec(socket.task.code, module.__dict__)
+
+                        # Get the function from the loaded module
                         func = getattr(module, socket.task.name)
 
                         func = self.celery.task(func, name=self.processor.module +
