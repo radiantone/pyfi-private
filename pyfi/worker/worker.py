@@ -837,10 +837,13 @@ class Worker:
 
                             processor_task = socket.queue.name + '.' + self.processor.name.replace(
                                 ' ', '.')+'.'+socket.task.name
+                            processor_task2 = socket.queue.name + '.' + socket.task.name
+
                             if processor_task not in queues:
 
                                 #room = {'room': processor_task}
                                 queues += [processor_task]
+                                queues += [processor_task2]
 
                             # This topic queue represents the broadcast fanout to all workers connected
                             # to it. Sending a task to this queue delivers to all connected workers
