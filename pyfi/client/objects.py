@@ -261,7 +261,7 @@ class Socket(Base):
         )
 
         # For load balanced queue
-        self.key = self.processor.module+'.'+self.socket.task.name
+        self.key = self.processor.processor.module+'.'+self.socket.task.name
         self.queue = KQueue(
             self.key,
             # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
