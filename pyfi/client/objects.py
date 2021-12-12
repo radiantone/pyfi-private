@@ -260,6 +260,23 @@ class Socket(Base):
                 'x-expires': 300}
         )
 
+        # For load balanced queue
+        self.key = self.processor.module+'.'+self.socket.task.name
+        self.queue = KQueue(
+            self.key,
+            # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
+            Exchange(self.socket.queue.name, type='direct'),
+            routing_key=self.key,
+            message_ttl=self.socket.queue.message_ttl,
+            durable=self.socket.queue.durable,
+            expires=self.socket.queue.expires,
+            # socket.queue.message_ttl
+            # socket.queue.expires
+            queue_arguments={
+                'x-message-ttl': 30000,
+                'x-expires': 300}
+        )
+
         self.app.conf.task_routes = {
             self.key: {
                 'queue': self.queue,
@@ -285,7 +302,7 @@ class Socket(Base):
 
     def __call__(self, *args, **kwargs):
         import logging
-        
+
         """"""
         # socket.queue.message_ttl
         # socket.queue.expires
