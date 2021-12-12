@@ -837,17 +837,19 @@ class Worker:
 
                             processor_task = socket.queue.name + '.' + self.processor.name.replace(
                                 ' ', '.')+'.'+socket.task.name
-                            processor_task2 = socket.queue.name + '.' + socket.task.name
+                            processor_task2 = self.processor.module + '.' + socket.task.name
 
                             if processor_task not in queues:
 
                                 #room = {'room': processor_task}
                                 queues += [processor_task]
+
+                            if processor_task2 not in queues:
                                 queues += [processor_task2]
 
                             # This topic queue represents the broadcast fanout to all workers connected
                             # to it. Sending a task to this queue delivers to all connected workers
-                            queues += []
+                            #queues += []
 
                             from kombu import Exchange, Queue, binding
                             from kombu.common import Broadcast
@@ -883,6 +885,24 @@ class Worker:
                                         ' ', '.')+'.'+socket.task.name, type='direct'),
                                     routing_key=socket.queue.name + '.' + self.processor.name.replace(
                                         ' ', '.')+'.'+socket.task.name,
+                                    message_ttl=socket.queue.message_ttl,
+                                    durable=socket.queue.durable,
+                                    expires=socket.queue.expires,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    queue_arguments={
+                                        'x-message-ttl': 30000,
+                                        'x-expires': 300
+                                    }
+                                )
+                            ]
+
+                            task_queues += [
+                                KQueue(
+                                    self.processor.module+'.'+socket.task.name,
+                                    Exchange(socket.queue.name + '.' + self.processor.name.replace(
+                                        ' ', '.')+'.'+socket.task.name, type='direct'),
+                                    routing_key=self.processor.module+'.'+socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
