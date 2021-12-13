@@ -471,6 +471,9 @@ class Agent:
                         if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
                                 (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
 
+                            if processor['worker'] is None:
+                                logging.info("Worker is none")
+                                
                             logging.info("Updating processor")
 
                             if processor['worker'] is not None:

@@ -182,6 +182,10 @@ class Socket(Base):
             self.processor = kwargs['processor']
             self.session.add(self.processor.processor)
 
+        self.loadbalanced = False
+        if 'loadbalanced' in kwargs:
+            self.loadbalanced = kwargs['loadbalanced']
+
         if 'task' in kwargs:
             taskname = kwargs['task']
 
@@ -261,21 +265,23 @@ class Socket(Base):
         )
 
         # For load balanced queue
-        self.key = self.processor.processor.module+'.'+self.socket.task.name
-        self.queue = KQueue(
-            self.key,
-            # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
-            Exchange(self.socket.queue.name, type='direct'),
-            routing_key=self.key,
-            message_ttl=self.socket.queue.message_ttl,
-            durable=self.socket.queue.durable,
-            expires=self.socket.queue.expires,
-            # socket.queue.message_ttl
-            # socket.queue.expires
-            queue_arguments={
-                'x-message-ttl': 30000,
-                'x-expires': 300}
-        )
+
+        if self.loadbalanced:
+            self.key = self.processor.processor.module+'.'+self.socket.task.name
+            self.queue = KQueue(
+                self.key,
+                # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
+                Exchange(self.socket.queue.name, type='direct'),
+                routing_key=self.key,
+                message_ttl=self.socket.queue.message_ttl,
+                durable=self.socket.queue.durable,
+                expires=self.socket.queue.expires,
+                # socket.queue.message_ttl
+                # socket.queue.expires
+                queue_arguments={
+                    'x-message-ttl': 30000,
+                    'x-expires': 300}
+            )
 
         self.app.conf.task_routes = {
             self.key: {
