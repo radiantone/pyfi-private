@@ -317,7 +317,6 @@ class Agent:
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     for processor in processors:
-
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
                                 logging.info("Killing worker")
@@ -362,7 +361,8 @@ class Agent:
                             processor['processor'].status = 'stopped'
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
-
+                            processor['status'] = 'stopped'
+                            
                             logging.info("Processor is stopped")
 
                             with self.get_session() as session:
@@ -473,7 +473,7 @@ class Agent:
 
                             if processor['worker'] is None:
                                 logging.info("Worker is none")
-                                
+
                             logging.info("Updating processor")
 
                             if processor['worker'] is not None:
