@@ -19,6 +19,7 @@ class Scheduler:
         self.interval = interval
 
     def run(self):
+        import requests
 
         while True:
             time.sleep(self.interval)
@@ -51,6 +52,14 @@ class Scheduler:
                 agent = node.agent
 
                 logging.info("Agent %s CPUs", agent.cpus)
+                try:
+                    result = requests.get('http://'+agent.hostname+':8002')
+                    if result.status_code == 200:
+                        logging.info("Agent is alive.")
+                    else:
+                        raise
+                except:
+                    logging.info("Agent is down.")
                 # If there are processors pending relocation, calculate if there
                 # are free CPUs under this agent byt adding all the active processors
                 # If there are, then move the processor to this agent and node.h

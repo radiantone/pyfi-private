@@ -223,7 +223,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             session = sessionmaker(bind=engine)()
             _user = session.query(
                 UserModel).filter_by(name=username, password=password).first()
-            permissions = {PrivilegeModel: "read", AgentModel: "read",
+            permissions = {SchedulerModel: "read", PrivilegeModel: "read", AgentModel: "read",
                            NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read", QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
@@ -871,7 +871,7 @@ def restart_processor(context, name):
 
 
 @cli.group()
-@click.option('--id', default=None, help="ID of processor")
+@click.option('--id', default=None, help="ID of scheduler")
 @click.option('-n', '--name', default=None, required=False, help='Name of scheduler')
 @click.pass_context
 def scheduler(context, id, name):
