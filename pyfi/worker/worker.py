@@ -980,12 +980,15 @@ class Worker:
                     workerModel = session.query(
                         WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
 
+                    workerModel.workerdir = self.workerdir
+                    
                     logging.info("Created workerModel")
                     if workerModel is None:
                         workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
+                                                  workerdir=self.workerdir,
                                                   hostname=hostname,
                                                   requested_status='start')
 

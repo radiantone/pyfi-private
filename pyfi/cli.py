@@ -2456,13 +2456,13 @@ def ls_workers(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor"]
+             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor", "Workdir"]
     x.field_names = names
     workers = context.obj['database'].session.query(WorkerModel).all()
 
     for node in workers:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.requested_status, node.status, node.agent.name, node.backend, node. broker, node.hostname, node.processor.name])
+                  node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.hostname, node.processor.name, node.workerdir])
 
     print(x)
 

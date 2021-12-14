@@ -305,7 +305,7 @@ class AgentModel(BaseModel):
     cpus = Column(Integer)
     port = Column(Integer)
     pid = Column(Integer)
-    
+
     worker = relationship(
         'WorkerModel', back_populates='agent', uselist=False, cascade="all, delete-orphan")
 
@@ -344,6 +344,8 @@ class WorkerModel(BaseModel):
     process = Column(Integer)
     hostname = Column(String(60))
 
+    workerdir = Column(String(256))
+    
     processor_id = Column(String(40), ForeignKey(
         'processor.id'), nullable=True)
 
