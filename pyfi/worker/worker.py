@@ -976,12 +976,12 @@ class Worker:
 
                 # Find existing model first
                 try:
-                    logging.info("Creating workerModel")
+                    logging.info("Creating workerModel with worker dir %s", self.workdir)
                     workerModel = session.query(
                         WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
 
-                    workerModel.workerdir = self.workerdir
-                    
+                    workerModel.workerdir = self.workdir
+
                     logging.info("Created workerModel")
                     if workerModel is None:
                         workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
@@ -993,6 +993,8 @@ class Worker:
                                                   requested_status='start')
 
                         session.add(workerModel)
+
+                    session.commit()
 
                 except Exception as ex:
                     logging.error(ex)
