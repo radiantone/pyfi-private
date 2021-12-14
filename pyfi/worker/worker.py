@@ -912,6 +912,7 @@ class Worker:
                                         'x-message-ttl': 30000,
                                         'x-expires': 300
                                     }
+                                )
                             ]
 
                             task_queues += [
