@@ -30,48 +30,16 @@ app = Flask(__name__)
 
 app.register_blueprint(blueprint)
 
-home = str(Path.home())
+HOME = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
-hostname = platform.node()
+HOSTNAME = platform.node()
 
-cpus = multiprocessing.cpu_count()
+if 'PYFI_HOSTNAME' in os.environ:
+    HOSTNAME = os.environ['PYFI_HOSTNAME']
 
-
-@app.route("/kill")
-def kill():
-    from psutil import Process
-
-    with open('worker.pid', 'r') as procfile:
-        pid = int(str(procfile.read()).strip())
-        logging.info("Shutting down...%s", pid)
-        os.kill(pid, signal.SIGKILL)
-
-    with open('agent.pid','r') as procfile:
-        pid = int(str(procfile.read()).strip())
-        logging.info("Shutting down...%s", pid)
-        process = psutil.Process(pid)
-
-        '''
-        logging.info("Killing sub processes....")
-        for child in process.children(recursive=True):
-            logging.info("Killing child....")
-            child.kill()
-            logging.info("Killed child....")
-        '''
-
-        logging.info("Killing agent....")
-        process.kill()
-        logging.info("Terminating agent....")
-        process.terminate()
-
-        logging.info("Killing web process....")
-        process = psutil.Process(os.getpid())
-        process.kill()
-        process.terminate()
-
-    return "Shutdown complete"
+CPUS = multiprocessing.cpu_count()
 
 
 class Agent:
@@ -111,9 +79,9 @@ class Agent:
                     logging.info("Removing workdir %s", workdir)
                     shutil.rmtree(workdir)
                 
-        logging.info("Checking config at %s", home+"/pyfi.ini")
-        if os.path.exists(home+"/pyfi.ini"):
-            CONFIG.read(home+"/pyfi.ini")
+        logging.info("Checking config at %s", HOME+"/pyfi.ini")
+        if os.path.exists(HOME+"/pyfi.ini"):
+            CONFIG.read(HOME+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
 
@@ -132,15 +100,15 @@ class Agent:
 
         # Retrieve any existing Agent for this hose
         agent = self.database.session.query(
-            AgentModel).filter_by(hostname=hostname).first()
+            AgentModel).filter_by(hostname=HOSTNAME).first()
 
         if agent is None:
             # Create database ping process to notify pyfi that I'm here and active
             # agent process will monitor database and manage worker process pool
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
-            agent = AgentModel(hostname=hostname,
-                               name=hostname+".agent", pid=os.getpid())
+            agent = AgentModel(hostname=HOSTNAME,
+                               name=HOSTNAME+".agent", pid=os.getpid())
 
         agent.pid = os.getpid()
         #self.database.session.add(agent)
@@ -150,10 +118,10 @@ class Agent:
         self.agent = agent
         vmem = psutil.virtual_memory()
 
-        node = self.database.session.query(NodeModel).filter_by(hostname=hostname).first()
+        node = self.database.session.query(NodeModel).filter_by(hostname=HOSTNAME).first()
         
         if node is None:
-            node = NodeModel(name=hostname+".node", agent=self.agent, hostname=hostname)
+            node = NodeModel(name=HOSTNAME+".node", agent=self.agent, hostname=HOSTNAME)
             with self.get_session() as session:
                 session.add(node)
             
@@ -166,14 +134,14 @@ class Agent:
 
         agent.node_id = node.id
 
-        node.cpus = cpus
+        node.cpus = CPUS
         node.memsize = vmem.total
         node.freemem = vmem.free
         node.memused = vmem.percent
         self.node = node
 
         agent.status = 'running'
-        agent.cpus = cpus
+        agent.cpus = CPUS
         agent.port = self.port
         agent.updated = datetime.now()
 
@@ -256,7 +224,7 @@ class Agent:
                         # Time to refresh all the processors from the database
                         myprocessors = self.database.session.query(
                             ProcessorModel).filter_by(
-                            hostname=hostname).all()
+                            hostname=HOSTNAME).all()
 
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
@@ -264,7 +232,7 @@ class Agent:
                             self.database.session.refresh(
                                 processor['processor'])
 
-                            if processor['processor'].hostname != hostname:
+                            if processor['processor'].hostname != HOSTNAME:
                                 # Processor of mine has been moved, kill it
                                 if processor['worker'] is not None:
 
@@ -276,7 +244,7 @@ class Agent:
                                     
 
                                     logging.info("Processor {} moved from {} to {}.".format(
-                                        processor['processor'].name, hostname, processor['processor'].hostname))
+                                        processor['processor'].name, HOSTNAME, processor['processor'].hostname))
                                     logging.info("Killing processor {}.".format(
                                         processor['processor'].name))
                                     processor['worker']['process'].kill()
@@ -491,16 +459,16 @@ class Agent:
 
                                 # TODO: Not sure this is needed since worker now puts worker model row in database
                                 workerModel = self.database.session.query(
-                                    WorkerModel).filter_by(name=hostname+".agent."+processor['processor'].name+'.worker').first()
+                                    WorkerModel).filter_by(name=HOSTNAME+".agent."+processor['processor'].name+'.worker').first()
 
                                 if workerModel is None:
                                     logging.info("Creating worker model...")
-                                    workerModel = WorkerModel(id=str(uuid4()), name=hostname+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
+                                    workerModel = WorkerModel(id=str(uuid4()), name=HOSTNAME+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
                                                           status='ready',
                                                           backend=self.backend,
                                                           broker=self.broker,
                                                           agent_id=self.agent.id,
-                                                          hostname=hostname,
+                                                          hostname=HOSTNAME,
                                                           requested_status='start')
 
                                 workerModel.lastupdated = datetime.now()

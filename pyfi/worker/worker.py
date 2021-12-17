@@ -48,10 +48,10 @@ def setup_celery_logging(**kwargs):
     pass
 
 
-home = str(Path.home())
+HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
-if os.path.exists(home+"/pyfi.ini"):
-    CONFIG.read(home+"/pyfi.ini")
+if os.path.exists(HOME+"/pyfi.ini"):
+    CONFIG.read(HOME+"/pyfi.ini")
 dburi = CONFIG.get('database', 'uri')
 
 DATABASE = create_engine(
@@ -62,8 +62,10 @@ lock = Condition()
 
 QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ else 10
 
-hostname = platform.node()
+HOSTNAME = platform.node()
 
+if 'PYFI_HOSTNAME' in os.environ:
+    HOSTNAME = os.environ['PYFI_HOSTNAME']
 
 logging.info("OS PID is {}".format(os.getpid()))
 
@@ -234,8 +236,8 @@ class Worker:
 
         logging.debug("New Worker init: %s", processor)
 
-        if os.path.exists(home+"/pyfi.ini"):
-            CONFIG.read(home+"/pyfi.ini")
+        if os.path.exists(HOME+"/pyfi.ini"):
+            CONFIG.read(HOME+"/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
 
@@ -953,12 +955,12 @@ class Worker:
                 app.conf.task_routes = task_routes
 
                 logging.info("Creating celery worker %s %s %s %s",
-                             self.processor.name+'@'+hostname, self.backend, self.broker, self.processor.concurrency)
+                             self.processor.name+'@'+HOSTNAME, self.backend, self.broker, self.processor.concurrency)
 
                 worker = None
                 try:
                     worker = app.Worker(
-                        hostname=self.processor.name+'@'+hostname,
+                        hostname=self.processor.name+'@'+HOSTNAME,
                         backend=self.backend,
                         broker=self.broker,
                         beat=self.processor.beat,
@@ -972,24 +974,24 @@ class Worker:
                     logging.error(ex)
 
                 logging.info("Created celery worker")
-                self.processor.worker.hostname = hostname
+                self.processor.worker.hostname = HOSTNAME
 
                 # Find existing model first
                 try:
                     logging.info("Creating workerModel with worker dir %s", self.workdir)
                     workerModel = session.query(
-                        WorkerModel).filter_by(name=hostname+".agent."+self.processor.name+'.worker').first()
+                        WorkerModel).filter_by(name=HOSTNAME+".agent."+self.processor.name+'.worker').first()
 
                     workerModel.workerdir = self.workdir
 
                     logging.info("Created workerModel")
                     if workerModel is None:
-                        workerModel = WorkerModel(name=hostname+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
+                        workerModel = WorkerModel(name=HOSTNAME+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
                                                   workerdir=self.workerdir,
-                                                  hostname=hostname,
+                                                  hostname=HOSTNAME,
                                                   requested_status='start')
 
                         session.add(workerModel)

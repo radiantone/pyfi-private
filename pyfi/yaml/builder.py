@@ -2,6 +2,8 @@ import logging
 import paramiko
 import platform
 
+from sqlalchemy.sql.expression import true
+
 from pyfi.client.api import Processor, Socket, Plug, Agent
 from pyfi.config import CONFIG
 from pyfi.client.user import USER
@@ -9,15 +11,19 @@ from pyfi.client.user import USER
 HOSTNAME = platform.node()
 
 
-def remove_network(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
+def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
     """ Remote host only needs to have ssh key trust to be managed by pyfi 
         PYFI will remote install itself and manage the running agent processes on it.
         It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
         both use their own virtual environments and do not pollute the host environment.
     """
-    _ssh = paramiko.SSHClient()
-    _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    _ssh.connect(hostname=hostname, username=username,
+    if not clean:
+        raise
+
+    if _ssh is None:
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(hostname=hostname, username=username,
                     key_filename=sshkey)
 
     if hostname != HOSTNAME:
@@ -67,71 +73,89 @@ def remove_network(path, ini, polar, hostname, username, sshkey, branch, pyfi, r
 
     return login, _ssh
 
-def install_repo(path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, commit=None):
+def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
     """ Remote host only needs to have ssh key trust to be managed by pyfi 
         PYFI will remote install itself and manage the running agent processes on it.
         It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
         both use their own virtual environments and do not pollute the host environment.
     """
-    login, _ssh = remove_network(path, ini, polar, hostname, username,
-                 sshkey, branch, pyfi, repo, commit=None)
-    
-    # Install new git repos
-    command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
-        path, path, branch, repo.split('#')[0])
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+"SSH: git clone: stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
 
-    # Create virutal environment
-    command = "cd {}/git; python3.9 -m venv venv".format(path)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+"python3.9 -m venv venv: stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
+    _login = repo.split("/", 3)[:3]
+    login = _login[0]+"//"+_login[2]
 
-    # Upgrade pip
-    command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(
-            hostname+":"+"pip install --upgrade pip: stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
+    if _ssh is None:
+        try:
+            _ssh = paramiko.SSHClient()
+            _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            _ssh.connect(hostname=hostname, username=username,
+                        key_filename=sshkey)
+        except:
+            logging.error("Unable to establish ssh to %s", hostname)
+            return
 
-    # Install the processor git repo
-    command = "cd {}/git; venv/bin/pip install -e .".format(path)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+command+": stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
+    try:
 
-    command = "cd {}/git; venv/bin/python setup.py install".format(path)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+command +
-                     ": stdout: %s", line)
-                     
-    # Install pyfi
-    command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
-    logging.info(hostname+":"+command)
-    _, stdout, stderr = _ssh.exec_command(command)
-    for line in stdout.read().splitlines():
-        logging.info(hostname+":"+command+": stdout: %s", line)
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)        
+        #login, _ssh = remove_network(_ssh, path, ini, polar, hostname, username,
+        #            sshkey, branch, pyfi, repo, False, commit=None)
 
-    for line in stderr.read().splitlines():
-        logging.info(hostname+":ERROR: % s", line)
+        # Install new git repos
+        command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
+            path, path, branch, repo.split('#')[0])
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(hostname+":"+"SSH: git clone: stdout: %s", line)
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)
+
+        # Create virutal environment
+        command = "cd {}/git; python3.9 -m venv venv".format(path)
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(hostname+":"+"python3.9 -m venv venv: stdout: %s", line)
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)
+
+        # Upgrade pip
+        command = "cd {}/git; venv/bin/pip install --upgrade pip".format(path)
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(
+                hostname+":"+"pip install --upgrade pip: stdout: %s", line)
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)
+
+        # Install the processor git repo
+        command = "cd {}/git; venv/bin/pip install -e .".format(path)
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(hostname+":"+command+": stdout: %s", line)
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)
+
+        command = "cd {}/git; venv/bin/python setup.py install".format(path)
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(hostname+":"+command +
+                        ": stdout: %s", line)
+                        
+        # Install pyfi
+        command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
+        logging.info(hostname+":"+command)
+        _, stdout, stderr = _ssh.exec_command(command)
+        for line in stdout.read().splitlines():
+            logging.info(hostname+":"+command+": stdout: %s", line)
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)        
+
+        for line in stderr.read().splitlines():
+            logging.info(hostname+":ERROR: % s", line)
+    except:
+        logging.info("Skipping uninstall...")
 
     # Start the agent
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
@@ -199,8 +223,13 @@ def compose_network(detail, command="build"):
                 logging.info("Installing repository {}".format(
                     processor['gitrepo']))
 
-                repos += [(node['path']+'/'+processorname, node['ini'], node['polar'], node['hostname'],
-                             node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'])]
+                if 'build' in agent and agent['build'] == False:
+                    continue
+
+                clean = node['clean'] if 'clean' in node else True
+
+                repos += [(None, node['path']+'/'+processorname, node['ini'], node['polar'], node['hostname'],
+                            node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'], clean)]
 
     if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:
@@ -227,7 +256,10 @@ def compose_network(detail, command="build"):
         if command == "build":
             install_repo(*repo)
         elif command == "remove":
-            remove_network(*repo)
+            try:
+                remove_network(*repo)
+            except:
+                pass
 
     # start agent
     logging.info("Built network: {}".format(detail['network']['name']))

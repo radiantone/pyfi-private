@@ -2563,17 +2563,22 @@ def ls_agents(context):
     x.field_names = names
     agents = context.obj['database'].session.query(AgentModel).all()
 
-    for node in agents:
-        worker_name = node.worker.name if node.worker else 'None'
-        status = 'unreachable'
-        try:
-            res = requests.get('http://'+node.hostname+':'+str(node.port))
-            if res.status_code == 200:
-                status = 'running'
-        except:
-            pass
-        x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
-                  status, node.node.name, node.pid, worker_name])
+
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+        for node in agents:
+            worker_name = node.worker.name if node.worker else 'None'
+            status = 'unreachable'
+            try:
+                res = requests.get('http://'+node.hostname+':'+str(node.port))
+                if res.status_code == 200:
+                    status = 'running'
+            except:
+                pass
+            x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
+                    status, node.node.name, node.pid, worker_name])
 
     print(x)
 
