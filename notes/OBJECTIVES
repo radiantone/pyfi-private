@@ -1,0 +1,46 @@
+
+Overall Objectives
+
+- Declarative infrastructure: CHECK
+- Isolated code: CHECK
+- Git integration: CHECK
+- Dynamic tasks: CHECK
+- Distributed data flows: CHECK
+- Re-wire data flow on the fly: CHECK
+- Fault-tolerant: CHECK
+- Failover: CHECK
+- Reliable: CHECK
+- Scale out/in: CHECK
+- Monitor: CHECK
+- Transactional: CHECK
+- Streaming: CHECK
+- Redis pub/sub<->websocket bridge: CHECK
+- Custom websocket adaptors: CHECK
+- Websocket client for influxdb: CHECK
+- Visualize in influxdb: CHECK
+- Visualize in grafana: CHECK
+- Policy driven security: CHECK
+- Declarative security: CHECK
+- RBAC security: CHECK
+- Fine-grained security: CHECK
+- Feature rich CLI: CHECK
+- Docker hosted agents: CHECK
+- Persistent results: CHECK
+- Time-based ephemeral results: CHECK
+- Command line processor listeners: CHECK
+- Bash pipe based workflows: CHECK
+- Python pipe based workflows: CHECK
+- Python dataflow/parallel compute primitives: CHECK
+- Python data manipulation primitives: CHECK
+- Single primitive API for building PYFI apps: CHECK
+- Complex nested workflows: CHECK
+- Distributed scheduler: CHECK
+- Intelligent resource scheduling and balancing: CHECK(TBD)
+- Movable code: CHECK
+- Intuitive data mode: CHECK
+- Visual tooling for devops: CHECK
+- Robust OSS stack: CHECK
+- Pluggable layers & implementations: CHECK
+- Visualize network topology from CLI: CHECK
+- Start/Stop/Move processors anytime: CHECK
+- 

@@ -5,7 +5,7 @@ RESIDENT CODE/TASKS
 The Task() object will take the source code and store it with the task. The un scheduled task object
 will be picked up by the scheduler and assigned to a worker based on the load of that worker.
 
-
+- A task with a given module can only be assigned to a processor with the same module.
 
 MISC
 

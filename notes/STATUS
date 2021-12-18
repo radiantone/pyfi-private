@@ -98,8 +98,8 @@ Phase 4 Goals
 
 Phase 5 Goals
 ----------------------
-+ Refactor data model to make more logical sense
-+ Update worker behavior
++ Refactor data model to make more logical sense DONE
++ Update worker behavior DONE
 + Control flow mechanisms
 
 - Scheduler managing nodes and processors. Attaching orphans, rebalancing etc 50%

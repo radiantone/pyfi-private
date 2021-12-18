@@ -9,7 +9,7 @@ services:
     image: pyfi/websockets:latest
     container_name: websockets2
     environment:
-      - PYFI_CHANNEL=proc4.task
+      - PYFI_CHANNEL=proc3.task
     ports:
       - 3002:3000
 
@@ -152,6 +152,9 @@ services:
     hostname: flower
     environment:
       - CELERY_BROKER_URL=pyamqp://rabbitmq
+      - CELERY_ACCEPT_CONTENT=['json']
+      - CELERY_TASK_SERIALIZER='json'
+      - CELERY_RESULT_SERIALIZER='json'
       - FLOWER_PORT=8888
     ports:  
       - 8888:8888  

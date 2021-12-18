@@ -1,0 +1,8 @@
+
+- Deploy multiple processors for same module.task and have them load balance invokes DONE
+- Processor sees code on a task object and injects that code into module and invokes it  TBD
+    - Update processor and incoming calls invoke the updated code
+- Re-wire plugs between processors on the fly, notice calls change
+    - ls call tree to see difference
+- Compose remove/build entire remote pyfi network from YAML 90%
+- Run PYFI nodes inside containers DONE

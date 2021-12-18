@@ -9,6 +9,7 @@ network:
     pyfi.queue3:
   nodes:
     phoenix:
+      clean: true
       hostname: phoenix
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
@@ -33,7 +34,7 @@ network:
               beat: true
               workers: 6
               sockets:
-                socket1:
+                pyfi.processors.sample.do_something:
                   interval: 5
                   queue: 
                     name: pyfi.queue1
@@ -76,6 +77,8 @@ network:
                   task:
                     function: do_this
     agent2:
+      clean: false
+      build: false
       hostname: agent2
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
@@ -95,16 +98,17 @@ network:
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
               module: pyfi.processors.sample
-              beat: true
+              beat: false
               workers: 1
               sockets:
-                socket4:
+                pyfi.processors.sample.do_this:
                   queue: 
-                    name: pyfi.queue2
+                    name: pyfi.queue1
                   task:
-                    function: do_this                        
+                    function: do_something                        
     agent1:
-      enabled: false
+      clean: false
+      build: false
       hostname: agent1
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
@@ -135,8 +139,9 @@ network:
 
   plugs:
     plug1:
-      source: socket1
-      target: socket4
+      enabled: false
+      source: pyfi.processors.sample.do_something
+      target: pyfi.processors.sample.do_this
       queue:
         name: pyfi.queue3
 
