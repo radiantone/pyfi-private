@@ -1,6 +1,7 @@
 import logging
 import paramiko
 import platform
+import os
 
 from sqlalchemy.sql.expression import true
 
@@ -10,6 +11,8 @@ from pyfi.client.user import USER
 
 HOSTNAME = platform.node()
 
+if 'PYFI_HOSTNAME' in os.environ:
+    HOSTNAME = os.environ['PYFI_HOSTNAME']
 
 def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
     """ Remote host only needs to have ssh key trust to be managed by pyfi 
@@ -72,6 +75,7 @@ def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, p
     logging.info("Done")
 
     return login, _ssh
+
 
 def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
     """ Remote host only needs to have ssh key trust to be managed by pyfi 

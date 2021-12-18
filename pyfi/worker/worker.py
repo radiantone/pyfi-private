@@ -37,16 +37,13 @@ from kombu import Exchange, Queue as KQueue
 
 from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
-
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
-
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
     pass
-
 
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -1261,12 +1258,15 @@ class Worker:
                 logging.debug("git clone -b {} --single-branch {} git".format(
                     self.processor.branch, self.processor.gitrepo))
 
+                # if not 'clean' and path for self.worker.workdir exists
+                # then move to that directory
                 # Create git directory and pull the remote repo
-                if os.path.exists("git"):
-                    logging.info("Pulling update from git")
-                    os.chdir('git')
+                if self.worker.workdir and os.path.exists(self.worker.workdir):
+                    logging.info("Changing to existing work directory %s", self.worker.workdir)
+                    os.chdir(self.worker.workdir+"/git")
                     os.system('git config --get remote.origin.url')
                     os.system('git config pull.rebase false')
+                    logging.info("Pulling update from git")
                     os.system('git pull')
                 else:
                     """ Clone gitrepo. Retry after 3 seconds if failure """

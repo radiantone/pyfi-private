@@ -1,12 +1,15 @@
 import time
 import logging
 import platform
+import os
 from multiprocessing import Process, Condition
 
 from pyfi.db.model import SchedulerModel, WorkModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 HOSTNAME = platform.node()
 
+if 'PYFI_HOSTNAME' in os.environ:
+    HOSTNAME = os.environ['PYFI_HOSTNAME']
 
 class Scheduler:
     """ Basic Scheduler """

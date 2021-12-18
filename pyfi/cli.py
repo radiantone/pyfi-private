@@ -1487,11 +1487,12 @@ def update_task(context, name, module, code):
         socket = context.obj['database'].session.query(
             SocketModel).join(TaskModel).filter(SocketModel.task_id == TaskModel.id).first()
         socket.processor.requested_status = 'update'
-        
+
         print(socket)
 
     context.obj['database'].session.add(_task)
     context.obj['database'].session.commit()
+
 
 @update.command(name='socket')
 @click.option('-n', '--name', required=True)

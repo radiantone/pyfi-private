@@ -36,10 +36,10 @@ CONFIG = configparser.ConfigParser()
 
 HOSTNAME = platform.node()
 
+CPUS = multiprocessing.cpu_count()
+
 if 'PYFI_HOSTNAME' in os.environ:
     HOSTNAME = os.environ['PYFI_HOSTNAME']
-
-CPUS = multiprocessing.cpu_count()
 
 
 class Agent:
@@ -302,7 +302,7 @@ class Agent:
                             with self.get_session() as session:
                                 session.delete(processor['processor'].worker)
                                 session.delete(processor['processor'])
-                            
+
 
                             if os.path.exists('work/'+processor['processor'].id):
                                 logging.debug(
@@ -330,7 +330,7 @@ class Agent:
                             processor['processor'].worker.status = 'stopped'
                             processor['processor'].worker.requested_status = 'ready'
                             processor['status'] = 'stopped'
-                            
+
                             logging.info("Processor is stopped")
 
                             with self.get_session() as session:
@@ -358,13 +358,7 @@ class Agent:
                             with self.get_session() as session:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
-                            #self.database.session.add(
-                            #    processor['processor'].worker)
 
-                            #self.database.session.add(
-                            #    processor['processor'])
-
-                            
                             continue
 
                         if processor['processor'].requested_status == 'resumed':
