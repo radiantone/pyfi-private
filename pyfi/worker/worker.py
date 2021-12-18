@@ -1118,6 +1118,7 @@ class Worker:
                                 logging.info(
                                     "Already scheduled this socket %s", socket.name)
 
+                        logging.info("Socket task %s",socket.task)
                         if socket.task.code:
                             # We have custom code for this task
                             # Add the task.code to the loaded module
@@ -1127,7 +1128,10 @@ class Worker:
                             # Inject the code into the module.
                             # The module originates in the mounted git repo
                             # So the task code is like a "mixin"
+                            logging.info("TASK CODE: %s",socket.task.code)
                             exec(socket.task.code, module.__dict__)
+                        else:
+                            logging.info("NO TASK CODE")
 
                         # Get the function from the loaded module
                         func = getattr(module, socket.task.name)

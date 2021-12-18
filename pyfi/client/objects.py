@@ -189,11 +189,14 @@ class Socket(Base):
         if 'task' in kwargs:
             taskname = kwargs['task']
 
-            self.task = self.session.query(
-                TaskModel).filter_by(name=taskname).first()
+            if type(taskname) is str:
+                self.task = self.session.query(
+                    TaskModel).filter_by(name=taskname).first()
+                if self.task is None:
+                    self.task = TaskModel(name=taskname)
 
-            if self.task is None:
-                self.task = TaskModel(name=taskname)
+            if type(taskname) is TaskModel:
+                self.task = taskname
 
             self.task.module = self.processor.processor.module
             self.task.gitrepo = self.processor.processor.gitrepo

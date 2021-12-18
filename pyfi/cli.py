@@ -1033,6 +1033,19 @@ def task():
     pass
 
 
+@task.command(name='cat', help="Cat the task")
+@click.option('-n', '--name', default=None, required=True, help="Name of task being deleted")
+@click.pass_context
+def cat_task(context, name):
+
+    model = context.obj['database'].session.query(
+        TaskModel).filter_by(name=name).first()
+
+    _code = model.code
+
+    print(_code)
+
+
 @task.command(name='show', help="Show details for a task")
 @click.option('-n', '--name', required=True, help='Name of task to run')
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
@@ -1450,6 +1463,35 @@ def add_queue(context, name, type):
 
     print(queue)
 
+
+@update.command(name='task')
+@click.option('-n', '--name', required=True)
+@click.option('-m', '--module', is_flag=True, default=False)
+@click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
+@click.pass_context
+def update_task(context, name, module, code):
+    """
+    Update task in the database
+    """
+
+    if code:
+        # get from stdin
+        code = sys.stdin.read()
+
+    _task = context.obj['database'].session.query(
+        TaskModel).filter_by(name=name).first()
+
+    if _task and code:
+        _task.code = code
+        _task.requested_status = 'update'
+        socket = context.obj['database'].session.query(
+            SocketModel).join(TaskModel).filter(SocketModel.task_id == TaskModel.id).first()
+        socket.processor.requested_status = 'update'
+        
+        print(socket)
+
+    context.obj['database'].session.add(_task)
+    context.obj['database'].session.commit()
 
 @update.command(name='socket')
 @click.option('-n', '--name', required=True)
