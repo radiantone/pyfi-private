@@ -1,4 +1,11 @@
 
+- For a given socket, it can be configured to wait on all inputs or not
+    - If it waits on all inputs, then the worker will store the incoming request parameters
+    until all the attached plugs deliver their requests and then pass all the parameters to
+    the task function as *args which will trigger the task callbacks and propagate the data flow.
+
+
+
 RESIDENT CODE/TASKS
 
 - From python, pass a workflow to a Task() constructor for it to be injected into the network.

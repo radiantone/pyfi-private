@@ -1,9 +1,9 @@
 #!/bin/bash -x
 
 pyfi add node -n node1 -h phoenix
-pyfi add node -n node2 -h radiant 
-pyfi add node -n node3 -h miko
-pyfi add node -n node4 -h agent1
+pyfi add node -n node2 -h agent1 
+pyfi add node -n node3 -h agent2
+
 pyfi add scheduler --name sched1
 
 pyfi scheduler -n sched1  add --node node1

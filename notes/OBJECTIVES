@@ -43,4 +43,4 @@ Overall Objectives
 - Pluggable layers & implementations: CHECK
 - Visualize network topology from CLI: CHECK
 - Start/Stop/Move processors anytime: CHECK
-- 
+- Self-healing: TBD
