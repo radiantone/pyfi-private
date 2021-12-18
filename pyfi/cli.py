@@ -1022,7 +1022,7 @@ def add_node_to_scheduler(context, node):
     context.obj['database'].session.add(scheduler)
     context.obj['database'].session.commit()
 
-    print('Node added.')
+    print(_node)
 
 
 @cli.group()
@@ -1412,14 +1412,17 @@ def add_node(context, name, hostname):
 
 @add.command(name='agent')
 @click.option('-n', '--name', required=True)
+@click.option('-nd', '--node', required=True)
 @click.pass_context
-def add_agent(context, name):
+def add_agent(context, name, node):
     """
     Add agent object to the database
     """
     id = context.obj['id']
-
-    agent = AgentModel(name=name, id=id)
+    node = context.obj['database'].session.query(
+            NodeModel).filter_by(name=node).first()
+    
+    agent = AgentModel(name=name, id=id, hostname=node.hostname, node_id=node.id)
     agent.updated = datetime.now()
     context.obj['database'].session.add(agent)
     context.obj['database'].session.commit()
@@ -1591,10 +1594,8 @@ def update_plug(context, name, queue, procid, procname):
 @click.option('-q', '--queue', required=True, help="Queue name")
 @click.option('-s', '--source', default=None, required=True, help="Source socket name")
 @click.option('-t', '--target', default=None, required=True, help="Target socket name")
-@click.option('-pi', '--procid', default=None, required=False, help="Processor id")
-@click.option('-pn', '--procname', default=None, required=False, help="Processor name")
 @click.pass_context
-def add_plug(context, name, queue, source, target, procid, procname):
+def add_plug(context, name, queue, source, target):
     """
     Add plug to a processor
     """
@@ -1606,30 +1607,21 @@ def add_plug(context, name, queue, source, target, procid, procname):
     target_socket = context.obj['database'].session.query(
         SocketModel).filter_by(name=target).first()
 
-    if procname is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=procname).first()
-
-    elif procid is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=procid).first()
-
     queue = context.obj['database'].session.query(
         QueueModel).filter_by(name=queue).first()
 
+    user = context.obj['user']
     plug = PlugModel(name=name, id=id, requested_status='create',
-                     status='ready', processor_id=procid)
+                     status='ready', processor=source_socket.processor, user=user, processor_id=source_socket.processor.id)
 
     plug.source = source_socket
     plug.target = target_socket
     plug.queue = queue
     plug.updated = datetime.now()
-    processor.plugs += [plug]
 
     context.obj['database'].session.add(source_socket)
     context.obj['database'].session.add(target_socket)
     context.obj['database'].session.add(plug)
-    context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
     print(plug)
@@ -1994,6 +1986,9 @@ def ls_roles(context, page, rows, ascend):
 
 @ls.command(name='jobs')
 @click.option('-n', '--name', default=None, required=False, help='Name of processor')
+@click.option('-p', '--page', default=1, required=False)
+@click.option('-r', '--rows', default=10, required=False)
+@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
 @click.pass_context
 def ls_jobs(context, name, page, rows, ascend):
     """ List scheduled jobs """

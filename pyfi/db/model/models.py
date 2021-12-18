@@ -92,6 +92,9 @@ class BaseModel(Base):
     name = Column(String(80), unique=True, nullable=False, primary_key=True)
     owner = Column(String(40), default=literal_column('current_user'))
 
+    status = Column(String(20), nullable=False, default='ready')
+    requested_status = Column(String(40), onupdate='update', default='update')
+
     created = Column(DateTime, default=datetime.now, nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
@@ -301,7 +304,7 @@ class AgentModel(BaseModel):
     """
     __tablename__ = 'agent'
     hostname = Column(String(60))
-    status = Column(String(20), nullable=False)
+    #status = Column(String(20), nullable=False)
     cpus = Column(Integer)
     port = Column(Integer)
     pid = Column(Integer)
@@ -321,7 +324,7 @@ class ActionModel(BaseModel):
     Docstring
     """
     __tablename__ = 'action'
-    status = Column(String(20), nullable=False)
+    #status = Column(String(20), nullable=False)
     params = Column(String(80))
 
     # host, worker, processor, queue, or all
@@ -336,10 +339,10 @@ class WorkerModel(BaseModel):
     Docstring
     """
     __tablename__ = 'worker'
-    status = Column(String(20), nullable=False)
+    #status = Column(String(20), nullable=False)
     backend = Column(String(40), nullable=False)
     broker = Column(String(40), nullable=False)
-    requested_status = Column(String(40), onupdate='update')
+    #requested_status = Column(String(40), onupdate='update')
     concurrency = Column(Integer)
     process = Column(Integer)
     hostname = Column(String(60))
@@ -366,8 +369,8 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
-    requested_status = Column(String(20), onupdate='update')
-    status = Column(String(20), nullable=False)
+    #requested_status = Column(String(20), onupdate='update')
+    #status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
@@ -494,14 +497,14 @@ class NodeModel(BaseModel):
     scheduler_id = Column(String(40), ForeignKey('scheduler.id'),
                           nullable=True)
 
-    memsize = Column(String(60))
-    freemem = Column(String(60))
-    memused = Column(Float)
+    memsize = Column(String(60), default="NaN")
+    freemem = Column(String(60), default="NaN")
+    memused = Column(Float, default=0)
 
-    disksize = Column(String(60))
-    diskusage = Column(String(60))
-    cpus = Column(Integer)
-    cpuload = Column(Float)
+    disksize = Column(String(60), default="NaN")
+    diskusage = Column(String(60), default="NaN")
+    cpus = Column(Integer, default=0)
+    cpuload = Column(Float, default=0)
 
     agent = relationship(
         'AgentModel', backref='node', uselist=False, cascade="all, delete-orphan")
@@ -571,8 +574,8 @@ class SocketModel(BaseModel):
     Docstring
     """
     __tablename__ = 'socket'
-    requested_status = Column(String(20), onupdate='update')
-    status = Column(String(20), nullable=False)
+    #requested_status = Column(String(20), onupdate='update')
+    #status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
@@ -589,6 +592,9 @@ class SocketModel(BaseModel):
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel",lazy=True)
+    
+    # Wait for all sourceplugs to deliver their data before invoking the task
+    wait = Column(Boolean, default=False)
 
     sourceplugs = relationship(
         "PlugModel", secondary=plugs_source_sockets)
@@ -617,8 +623,8 @@ class PlugModel(BaseModel):
     Docstring
     """
     __tablename__ = 'plug'
-    requested_status = Column(String(20), onupdate='update')
-    status = Column(String(20), nullable=False)
+    #requested_status = Column(String(20), onupdate='update')
+    #status = Column(String(20), nullable=False)
 
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
@@ -644,9 +650,9 @@ class QueueModel(BaseModel):
     Docstring
     """
     __tablename__ = 'queue'
-    requested_status = Column(String(20), onupdate='update')
+    #requested_status = Column(String(20), onupdate='update')
     qtype = Column(String(20), nullable=False, default='direct')
-    status = Column(String(20), nullable=False)
+    #status = Column(String(20), nullable=False)
     durable = Column(Boolean, default=True)
     reliable = Column(Boolean, default=True)
     auto_delete = Column(Boolean, default=True)
