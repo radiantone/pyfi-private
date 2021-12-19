@@ -1300,7 +1300,7 @@ class Worker:
 
                 logging.info("Worker directory: %s", self.worker.workerdir)
                 logging.info("Current directory: %s", os.getcwd())
-                if self.worker.workerdir and os.path.exists(self.worker.workerdir):
+                if self.worker.workerdir and os.path.exists(self.worker.workerdir) and os.path.exists(self.worker.workerdir+"/git"):
                     logging.info(
                         "Changing to existing work directory %s", self.worker.workerdir)
                     os.chdir(self.worker.workerdir+"/git")
