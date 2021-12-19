@@ -1300,6 +1300,7 @@ class Worker:
                 # Create git directory and pull the remote repo
 
                 logging.info("Worker directory: %s", self.worker.workerdir)
+                logging.info("Current directory: %s", os.getcwd())
                 logging.info("Workerdir exists: %s", self.worker.workerdir and os.path.exists(
                     self.worker.workerdir))
                 if self.worker.workerdir and os.path.exists(self.worker.workerdir):
