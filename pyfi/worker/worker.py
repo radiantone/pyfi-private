@@ -1279,7 +1279,7 @@ class Worker:
                 # if not 'clean' and path for self.worker.workdir exists
                 # then move to that directory
                 # Create git directory and pull the remote repo
-                if self.worker.workdir and os.path.exists(self.worker.workerdir):
+                if self.worker.workerdir and os.path.exists(self.worker.workerdir):
                     logging.info("Changing to existing work directory %s", self.worker.workdir)
                     os.chdir(self.worker.workdir+"/git")
                     os.system('git config --get remote.origin.url')
