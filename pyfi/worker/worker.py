@@ -1236,7 +1236,7 @@ class Worker:
                 logging.info("Starting scheduler...")
                 scheduler.start()
                 logging.info("Starting worker...")
-                #worker.start()
+                worker.start()
 
 
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
