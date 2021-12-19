@@ -1315,6 +1315,8 @@ class Worker:
                 else:
                     """ Clone gitrepo. Retry after 3 seconds if failure """
                     count = 1
+
+                    os.chdir(self.workdir)
                     while True:
                         if count >= 5:
                             break
