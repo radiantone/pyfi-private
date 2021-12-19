@@ -1278,7 +1278,6 @@ class Worker:
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
-        os.chdir(self.workdir)
 
         """ Install gitrepo and build virtualenv """
         if self.processor.commit and self.skipvenv:
@@ -1304,6 +1303,8 @@ class Worker:
                 logging.info("Workerdir exists: %s", self.worker.workerdir and os.path.exists(
                     self.worker.workerdir))
                 if self.worker.workerdir and os.path.exists(self.worker.workerdir):
+
+                    os.chdir(self.workdir)
                     logging.info(
                         "Changing to existing work directory %s", self.worker.workdir)
                     os.chdir(self.worker.workdir+"/git")
@@ -1336,23 +1337,24 @@ class Worker:
 
                 logging.info("Building virtualenv...in %s", os.getcwd())
 
-                env = VirtualEnvironment(
-                    'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+                if not os.path.exists("venv"):
+                    env = VirtualEnvironment(
+                        'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
-                login = os.environ['GIT_LOGIN']
+                    login = os.environ['GIT_LOGIN']
 
-                # Install pyfi
-                # TODO: Make this URL a setting so it can be overridden
-                env.install('psycopg2')
-                env.install('-e git+' + login +
-                            '/radiantone/pyfi-private#egg=pyfi')
+                    # Install pyfi
+                    # TODO: Make this URL a setting so it can be overridden
+                    env.install('psycopg2')
+                    env.install('-e git+' + login +
+                                '/radiantone/pyfi-private#egg=pyfi')
 
-                try:
-                    env.install('-e git+'+self.processor.gitrepo.strip())
-                except:
-                    import traceback
-                    print(traceback.format_exc())
-                    logging.error("Could not install %s",
+                    try:
+                        env.install('-e git+'+self.processor.gitrepo.strip())
+                    except:
+                        import traceback
+                        print(traceback.format_exc())
+                        logging.error("Could not install %s",
                                   self.processor.gitrepo.strip())
 
             if self.processor.commit:
