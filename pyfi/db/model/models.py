@@ -360,7 +360,7 @@ class WorkerModel(BaseModel):
     agent = relationship("AgentModel", back_populates="worker")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname)
+        return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname, self.workerdir)
 
 
 class ProcessorModel(HasLogs, BaseModel):
