@@ -13,4 +13,3 @@ celery = Celery('pyfi', backend='redis://localhost',
 @celery.task
 def enqueue(data):
     return data
-

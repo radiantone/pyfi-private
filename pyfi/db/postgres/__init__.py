@@ -1,8 +1,8 @@
 """
 Patch for drop_all function in SQLAlchemy for postgres
 """
-from sqlalchemy.schema import DropTable
 from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.schema import DropTable
 
 
 @compiles(DropTable, "postgresql")

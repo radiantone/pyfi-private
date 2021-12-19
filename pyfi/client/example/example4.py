@@ -26,7 +26,7 @@ _funnel = funnel([
 
 _funnel2 = funnel([
     _parallel,
-    do_something("Ten")],do_something("B"))
+    do_something("Ten")], do_something("B"))
 
 _funnel3 = funnel([
     _funnel,

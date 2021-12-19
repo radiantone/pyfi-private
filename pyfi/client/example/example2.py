@@ -1,9 +1,9 @@
-from pyfi.client.example.api import do_something
 # do_something is my python function mounted onto a processor from my github repo
 from pyfi.client.api import parallel, pipeline, funnel
+from pyfi.client.example.api import do_something
 
 # Send a message to the socket function
-result = do_something("Inner "+do_something("Hello World XXX!"))
+result = do_something("Inner " + do_something("Hello World XXX!"))
 
 print("Result is: ", result)
 
@@ -16,7 +16,7 @@ _pipeline = pipeline([
     ]),
     do_something.p("Three")])
 
-print("PIPELINE:",_pipeline().get())
+print("PIPELINE:", _pipeline().get())
 
 _parallel = parallel([
     _pipeline,

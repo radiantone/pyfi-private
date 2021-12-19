@@ -6,31 +6,32 @@ socket = Socket(queue='pyfi.queue1', task='do_something')
 proc1.sockets += [socket]
 
 """
-from kombu import serialization
-import os
 import configparser
+import os
 import platform
+from kombu import Exchange, Queue as KQueue, binding
+from kombu import serialization
+from pathlib import Path
+from prettytable import PrettyTable
+from sqlalchemy import create_engine, MetaData, literal_column
+from sqlalchemy.orm import sessionmaker
 
 from celery import Celery, signature
 from pyfi.config.celery import Config
-from kombu import Exchange, Queue as KQueue, binding
-from pathlib import Path
-from sqlalchemy import create_engine, MetaData, literal_column
-from sqlalchemy.orm import sessionmaker
-from prettytable import PrettyTable
-
+from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, \
+    FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.server import app
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
-
 
 CONFIG = configparser.ConfigParser()
 HOME = str(Path.home())
 
-ini = HOME+"/pyfi.ini"
+ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
-#serialization.register_pickle()
-#serialization.enable_insecure_serializers()
+
+
+# serialization.register_pickle()
+# serialization.enable_insecure_serializers()
 
 
 class Base:
@@ -83,18 +84,19 @@ class Task(Base):
 
             self.session.add(self.task)
             self.session.commit()
-            #raise Exception(f"Task {name} does not exist.")
+            # raise Exception(f"Task {name} does not exist.")
 
-        self.name = module+'.'+name
+        self.name = module + '.' + name
 
         self.queue = KQueue(
             queue['name'],
             Exchange(queue['name'], type=queue['type'],
-            routing_key=module+'.'+name)
+                     routing_key=module + '.' + name)
         )
 
     def __call__(self, *args, **kwargs):
-        return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs).delay()
+        return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue,
+                                  kwargs=kwargs).delay()
 
 
 class Agent(Base):
@@ -148,7 +150,7 @@ class Scheduler(Base):
     def __iadd__(self, *args, **kwargs):
         for arg in args:
             if isinstance(arg, Node) or isinstance(arg, NodeModel):
-                
+
                 if isinstance(arg, Node):
                     pass
                 else:
@@ -163,7 +165,7 @@ class Socket(Base):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        
+
         backend = CONFIG.get('backend', 'uri')
         broker = CONFIG.get('broker', 'uri')
         self.app = Celery(backend=backend, broker=broker)
@@ -209,7 +211,6 @@ class Socket(Base):
             self.task.gitrepo = self.processor.processor.gitrepo
             self.session.add(self.task)
 
-
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
 
@@ -231,7 +232,9 @@ class Socket(Base):
             if interval > 0:
                 scheduled = True
 
-            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled, schedule_type=schedule_type, interval=interval, processor_id=self.processor.processor.id, requested_status='ready',
+            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled,
+                                      schedule_type=schedule_type, interval=interval,
+                                      processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
             self.session.add(self.task)
@@ -245,7 +248,7 @@ class Socket(Base):
         if self.processor is None:
             self.processor = Processor(id=self.socket.processor_id)
 
-        self.key = self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
+        self.key = self.socket.queue.name + '.' + self.processor.name + '.' + self.socket.task.name
 
         try:
             self.database.session.add(self.queue.queue)
@@ -277,7 +280,7 @@ class Socket(Base):
         # For load balanced queue
 
         if self.loadbalanced:
-            self.key = self.processor.processor.module+'.'+self.socket.task.name
+            self.key = self.processor.processor.module + '.' + self.socket.task.name
             self.queue = KQueue(
                 self.key,
                 # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
@@ -302,7 +305,9 @@ class Socket(Base):
 
     def p(self, *args, **kwargs):
         """ Partial method signature (not executed) """
-        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, app=self.processor.app, args=args, serializer='pickle', queue=self.queue, kwargs=kwargs)
+        return self.processor.app.signature(self.processor.processor.module + '.' + self.socket.task.name,
+                                            app=self.processor.app, args=args, serializer='pickle', queue=self.queue,
+                                            kwargs=kwargs)
 
     def delay(self, *args, **kwargs):
         """ Execute this socket's task on the network """
@@ -314,7 +319,7 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
-        return self.p(args,kwargs).delay()
+        return self.p(args, kwargs).delay()
 
     def __call__(self, *args, **kwargs):
         import logging
@@ -328,20 +333,22 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
-        logging.info("Calling "+self.processor.processor.module +
-                     '.'+self.socket.task.name+" %s", self.queue)
-        task_sig = self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
+        logging.info("Calling " + self.processor.processor.module +
+                     '.' + self.socket.task.name + " %s", self.queue)
+        task_sig = self.processor.app.signature(self.processor.processor.module + '.' + self.socket.task.name,
+                                                args=args, queue=self.queue, kwargs=kwargs).delay().get()
 
-        #argument = {'name':'message','kind':3,'position':0}
-        #task_sig_wait = self.processor.app.signature(
+        # argument = {'name':'message','kind':3,'position':0}
+        # task_sig_wait = self.processor.app.signature(
         #    self.processor.processor.module+'.'+self.socket.task.name+'.wait', args=(argument, args), queue=self.queue, kwargs=kwargs).delay().get()
-        
+
         _task_sig = task_sig
         return _task_sig
 
 
 class Plug(Base):
     """"""
+
     def __init__(self, *args, **kwargs):
         super().__init__()
         from sqlalchemy.orm import Session
@@ -369,23 +376,26 @@ class Plug(Base):
             self.session.add(self.queue.queue)
             self.session.add(self.source.socket)
             self.session.add(self.target.socket)
-            print("Queue SESSION ",  Session.object_session(self.queue.queue))
-            print("Plug SESSION ",  self.session)
+            print("Queue SESSION ", Session.object_session(self.queue.queue))
+            print("Plug SESSION ", self.session)
 
-            self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket, target=self.target.socket, queue=self.queue.queue, processor_id=self.processor.processor.id, requested_status='ready', status='ready')
+            self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket,
+                                  target=self.target.socket, queue=self.queue.queue,
+                                  processor_id=self.processor.processor.id, requested_status='ready', status='ready')
 
             self.source.socket.sourceplugs += [self.plug]
             self.target.socket.targetplugs += [self.plug]
 
-            #self.session.add(self.source.socket)
-            #self.session.add(self.target.socket)
+            # self.session.add(self.source.socket)
+            # self.session.add(self.target.socket)
             self.plug.source = self.source.socket
             self.plug.target = self.target.socket
 
             self.processor.processor.plugs += [self.plug]
-            #self.plug.sockets += [self.socket.socket]
+            # self.plug.sockets += [self.socket.socket]
             self.session.add(self.plug)
             self.session.commit()
+
 
 class Sockets(Base):
     """
@@ -401,7 +411,7 @@ class Sockets(Base):
             if isinstance(arg, Socket) or isinstance(arg, SocketModel):
 
                 if isinstance(arg, Socket):
-                    #socket = self.database.session.query(
+                    # socket = self.database.session.query(
                     #    SocketModel).filter_by(name=arg.name).first()
                     socket = arg.socket
                 else:
@@ -455,7 +465,8 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=platform.node(), id=None, name=None, user=None, gitrepo=None, branch=None, module=None, concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=platform.node(), id=None, name=None, user=None, gitrepo=None, branch=None, module=None,
+                 concurrency=3, commit=None, beat=False):
 
         super().__init__()
 
@@ -481,7 +492,9 @@ class Processor(Base):
         if self.processor is None:
             # Create it
             self.processor = ProcessorModel(
-                status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo, branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name, module=module)
+                status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
+                branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,
+                module=module)
 
         if hostname != self.processor.hostname or self.processor.concurrency != concurrency or self.processor.commit != commit or self.processor.beat != beat:
             self.processor.requested_status = 'update'

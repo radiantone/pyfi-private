@@ -20,7 +20,7 @@ _parallel = parallel([
     do_something("Six"),
     do_something("Seven"),
     _pipeline]
-    )
+)
 
 _funnel = funnel([
     _parallel,
@@ -28,5 +28,5 @@ _funnel = funnel([
     do_this("Nine")])
 
 print("FUNNEL: ", _funnel(do_this("Ten")).get())
-#print("_pipeline: ", _parallel().get())
-#print("_pipeline: ", _parallel().get())
+# print("_pipeline: ", _parallel().get())
+# print("_pipeline: ", _parallel().get())

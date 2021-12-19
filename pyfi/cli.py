@@ -1,49 +1,44 @@
 """
 cli.py - pyfi CLI command tool for managing database
 """
-from sqlalchemy import exc as sa_exc
-import os
-import sys
-import logging
-import getpass
-import platform
-import configparser
-import hashlib
-
 import click
-from pyfi.server import app
-
-from pathlib import Path
+import configparser
+import getpass
+import hashlib
+import logging
+import os
+import platform
+import sys
 from datetime import datetime
-
 from flask import Flask
+from pathlib import Path
+from prettytable import PrettyTable
+from sqlalchemy import create_engine, MetaData, literal_column
+from sqlalchemy import exc as sa_exc
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy_oso import authorized_sessionmaker
 
 import pyfi.db.postgres
-
-from sqlalchemy import create_engine, MetaData, literal_column
-from sqlalchemy.orm import sessionmaker
-from prettytable import PrettyTable
-
+from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, \
+    WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, \
+    QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.db.model.models import PrivilegeModel
-from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.server import app
 from pyfi.web import run_http
-from sqlalchemy_oso import authorized_sessionmaker
 
 HOSTNAME = platform.node()
 
 current_user = getpass.getuser()
 
-POSTGRES_ROOT = 'postgresql://postgres:pyfi101@'+HOSTNAME+':5432/'
-POSTGRES = 'postgresql://postgres:pyfi101@'+HOSTNAME+':5432/pyfi'
+POSTGRES_ROOT = 'postgresql://postgres:pyfi101@' + HOSTNAME + ':5432/'
+POSTGRES = 'postgresql://postgres:pyfi101@' + HOSTNAME + ':5432/pyfi'
 
 home = str(Path.home())
-
 
 CONFIG = configparser.ConfigParser()
 
 
 class CustomFormatter(logging.Formatter):
-
     grey = "\x1b[38;21m"
     yellow = "\x1b[33;21m"
     red = "\x1b[31;21m"
@@ -73,7 +68,7 @@ class CustomFormatter(logging.Formatter):
 @click.option('-a', '--api', help='Message broker API URI')
 @click.option('-u', '--user', help='Message broker API user')
 @click.option('-p', '--password', help='Message broker API password')
-@click.option('-i', '--ini', default=home+"/pyfi.ini", help='PYFI .ini configuration file')
+@click.option('-i', '--ini', default=home + "/pyfi.ini", help='PYFI .ini configuration file')
 @click.option('-c', '--config', default=False, is_flag=True, help='Configure pyfi')
 @click.pass_context
 def cli(context, debug, db, backend, broker, api, user, password, ini, config):
@@ -139,10 +134,10 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         _config.set('broker', 'user', user)
         _config.set('broker', 'password', password)
 
-        with open(home+"/pyfi.ini", "w") as configfile:
+        with open(home + "/pyfi.ini", "w") as configfile:
             _config.write(configfile)
 
-        print("Configuration file created at {}".format(home+"/pyfi.ini"))
+        print("Configuration file created at {}".format(home + "/pyfi.ini"))
 
     if not os.path.exists(ini) and db is None:
         print("No database uri configured. Please run \033[1m $ pyfi --config")
@@ -171,7 +166,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             literal_column("current_user")).first()[0]
 
     except:
-        #import traceback
+        # import traceback
         # print(traceback.format_exc())
         print("Database unavailable. Please check your configuration or ensure database server is running.")
         return
@@ -185,13 +180,13 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=sa_exc.SAWarning)
             try:
-                #engine = create_engine(db)
-                #engine.uri = db
+                # engine = create_engine(db)
+                # engine.uri = db
                 session = sessionmaker(bind=engine)()
 
                 user_m = session.query(
                     UserModel).filter_by(name=username, password=password).first()
-                #context.obj['user'] = user_m
+                # context.obj['user'] = user_m
                 # context.obj['database'].session.add(user_m)
                 if username is None:
                     return
@@ -211,20 +206,22 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             finally:
                 session.close()
 
-        oso.load_files([home+"/pyfi.polar"])
+        oso.load_files([home + "/pyfi.polar"])
 
         context.obj['database'].session.close()
 
         def get_checked_permissions(*args, **kwargs):
             logging.debug("cli: get_checked_permissions")
 
-            #engine = create_engine(db)
-            #engine.uri = db
+            # engine = create_engine(db)
+            # engine.uri = db
             session = sessionmaker(bind=engine)()
             _user = session.query(
                 UserModel).filter_by(name=username, password=password).first()
             permissions = {SchedulerModel: "read", PrivilegeModel: "read", AgentModel: "read",
-                           NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read", QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read", UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
+                           NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read",
+                           QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read",
+                           UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
@@ -365,7 +362,7 @@ def compose_build(context, file):
 @cli.command()
 def logout():
     """ Logout current user """
-    ini = home+"/pyfi.ini"
+    ini = home + "/pyfi.ini"
 
     if CONFIG.has_option('login', 'user'):
         CONFIG.remove_section('login')
@@ -385,7 +382,7 @@ def login(context, database):
     import hashlib
     from urllib.parse import urlparse
 
-    ini = home+"/pyfi.ini"
+    ini = home + "/pyfi.ini"
 
     user = None
 
@@ -424,8 +421,8 @@ def login(context, database):
 
     dburi = CONFIG.get('database', 'uri')
     uri = urlparse(dburi)
-    newuri = uri.scheme+'://'+user+':'+__password + \
-        '@'+uri.hostname+':'+str(uri.port)+uri.path
+    newuri = uri.scheme + '://' + user + ':' + __password + \
+             '@' + uri.hostname + ':' + str(uri.port) + uri.path
     CONFIG.set('database', 'uri', newuri)
     CONFIG.set('login', 'password', password)
 
@@ -516,7 +513,6 @@ def migrate(context, directory):
 @click.option('-y', '--yes', is_flag=True, prompt=True, help="Yes to rebuild now")
 @click.pass_context
 def rebuild(context, yes):
-
     if yes:
 
         if CONFIG.has_section('login'):
@@ -606,7 +602,7 @@ def db_init(rls):
     """
     import hashlib
 
-    ini = home+"/pyfi.ini"
+    ini = home + "/pyfi.ini"
 
     try:
         from sqlalchemy import create_engine
@@ -622,7 +618,7 @@ def db_init(rls):
             pass
 
         try:
-            engine = create_engine(POSTGRES_ROOT+'postgres')
+            engine = create_engine(POSTGRES_ROOT + 'postgres')
             session = sessionmaker(bind=engine)()
 
             session.connection().connection.set_isolation_level(0)
@@ -639,8 +635,8 @@ def db_init(rls):
             session = sessionmaker(bind=engine)()
             session.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
             session.commit()
-            #context.obj['database'] = engine
-            #context.obj['session'] = session
+            # context.obj['database'] = engine
+            # context.obj['session'] = session
             engine.session = session
         except:
             pass
@@ -1037,7 +1033,6 @@ def task():
 @click.option('-n', '--name', default=None, required=True, help="Name of task being deleted")
 @click.pass_context
 def cat_task(context, name):
-
     model = context.obj['database'].session.query(
         TaskModel).filter_by(name=name).first()
 
@@ -1051,7 +1046,6 @@ def cat_task(context, name):
 @click.option('-g', '--gitrepo', is_flag=True, default=False)
 @click.pass_context
 def show_task(context, name, gitrepo):
-
     task = context.obj['database'].session.query(
         TaskModel).filter_by(name=name).first()
 
@@ -1221,7 +1215,6 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
 @click.option('-s', '--source', default=None, required=False, help='Source name')
 @click.option('-t', '--text', default=None, required=False, help='Text of log')
 def add_log(context, id, source, text):
-
     pass
 
 
@@ -1242,7 +1235,7 @@ def add_task(context, name, module, code, repo):
     if code:
         # get from stdin
         code = sys.stdin.read()
-        #exec(socket.task.code, module.__dict__)
+        # exec(socket.task.code, module.__dict__)
 
     task = TaskModel(name=name, module=module, code=code, gitrepo=repo)
 
@@ -1251,14 +1244,14 @@ def add_task(context, name, module, code, repo):
     _function = getattr(_module, name)
 
     signature = inspect.signature(_function)
-    print("Sig:",signature.parameters)
+    print("Sig:", signature.parameters)
 
     position = 0
     for pname in signature.parameters:
         param = signature.parameters[pname]
-        print("Name",param.name)
-        print("Kind",param.kind)
-        print("Default",param.default)
+        print("Name", param.name)
+        print("Kind", param.kind)
+        print("Default", param.default)
         argument = ArgumentModel(name=param.name, position=position, kind=param.kind)
         task.arguments += [argument]
         context.obj['database'].session.add(argument)
@@ -1280,7 +1273,8 @@ def add_task(context, name, module, code, repo):
 @click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
 @click.option('-g', '--gitrepo', prompt=True, default=None, required=True, help='Git repo URI')
 @click.option('-c', '--commit', default=None, help='Git commit id for processor code')
-@click.option('-rs', '--requested_status', default='ready', required=False, help="The requested status for this processor")
+@click.option('-rs', '--requested_status', default='ready', required=False,
+              help="The requested status for this processor")
 @click.option('-b', '--beat', default=False, is_flag=True, required=False, help="Enable the beat scheduler")
 @click.option('-br', '--branch', default='main', required=False, help="Git branch to be used for checkouts")
 @click.pass_context
@@ -1294,11 +1288,13 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     user = context.obj['user']
 
     processor = ProcessorModel(
-        id=id, status='ready', user_id=user.id, user=user, hostname=hostname, branch=branch, retries=retries, gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name, module=module)
+        id=id, status='ready', user_id=user.id, user=user, hostname=hostname, branch=branch, retries=retries,
+        gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name,
+        module=module)
 
-    log1 = LogModel(oid=id, text='This is a log for '+name, user_id=user.id, public=True, user=user,
+    log1 = LogModel(oid=id, text='This is a log for ' + name, user_id=user.id, public=True, user=user,
                     discriminator='ProcessorModel', source='pyfi')
-    log2 = LogModel(oid=id, text='This is a log for '+name+' too', public=False, user_id=user.id, user=user,
+    log2 = LogModel(oid=id, text='This is a log for ' + name + ' too', public=False, user_id=user.id, user=user,
                     discriminator='ProcessorModel', source='pyfi')
 
     context.obj['database'].session.add(log1)
@@ -1445,8 +1441,8 @@ def add_agent(context, name, node):
     """
     id = context.obj['id']
     node = context.obj['database'].session.query(
-            NodeModel).filter_by(name=node).first()
-    
+        NodeModel).filter_by(name=node).first()
+
     agent = AgentModel(name=name, id=id, hostname=node.hostname, node_id=node.id)
     agent.updated = datetime.now()
     context.obj['database'].session.add(agent)
@@ -1474,7 +1470,8 @@ def add_role(context, name):
 
 @add.command(name='queue')
 @click.option('-n', '--name', required=True)
-@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True, default='direct', required=True)
+@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True,
+              default='direct', required=True)
 @click.pass_context
 def add_queue(context, name, type):
     """
@@ -1637,7 +1634,8 @@ def add_plug(context, name, queue, source, target):
 
     user = context.obj['user']
     plug = PlugModel(name=name, id=id, requested_status='create',
-                     status='ready', processor=source_socket.processor, user=user, processor_id=source_socket.processor.id)
+                     status='ready', processor=source_socket.processor, user=user,
+                     processor_id=source_socket.processor.id)
 
     plug.source = source_socket
     plug.target = target_socket
@@ -1682,7 +1680,7 @@ def add_socket(context, name, queue, interval, procname, task):
         if _task is None:
             _task = TaskModel(name=task, module=processor.module,
                               gitrepo=processor.gitrepo)
-        
+
             # Create Arguments and add to task
 
         socket.task = _task
@@ -1742,10 +1740,12 @@ def kill_worker(context, name):
 
     context.obj['database'].session.commit()
 
+
 @worker.command(name='start', help='Start a pyfi worker')
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
-@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
+@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False,
+              help="Skip building the virtual environment")
 @click.option('-q', '--queue', default=1, help='Maximum number of messages on worker internal queue')
 @click.pass_context
 def start_worker(context, name, pool, skip_venv, queue):
@@ -1758,11 +1758,12 @@ def start_worker(context, name, pool, skip_venv, queue):
     processor = context.obj['database'].session.query(
         ProcessorModel).filter_by(id=workerModel.processor_id).first()
 
-    dir = 'work/'+processor.id
+    dir = 'work/' + processor.id
     os.makedirs(dir, exist_ok=True)
 
     workerproc = Worker(
-        processor, workdir=dir, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv, celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+        processor, workdir=dir, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
+        celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
 
@@ -1815,9 +1816,9 @@ def ls_queue(context, id, name, task):
 
     apiurl = urlparse(api)
 
-    auth = session.post(apiurl.scheme+"://"+apiurl.netloc)
+    auth = session.post(apiurl.scheme + "://" + apiurl.netloc)
     response = session.get(
-        api+"/queues/#/"+queuename)
+        api + "/queues/#/" + queuename)
     print(response.content)
 
 
@@ -1978,8 +1979,8 @@ def ls_roles(context, page, rows, ascend):
         print("No data yet.")
         return
 
-    if total > rows and page > round(total/rows):
-        print("Only {} pages exist.".format(round(total/rows)))
+    if total > rows and page > round(total / rows):
+        print("Only {} pages exist.".format(round(total / rows)))
         return
 
     if not ascend:
@@ -1988,26 +1989,26 @@ def ls_roles(context, page, rows, ascend):
                 RoleModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                RoleModel).order_by(RoleModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
+                RoleModel).order_by(RoleModel.lastupdated.desc()).offset((page - 1) * rows).limit(rows)
     else:
         if total < rows:
             nodes = context.obj['database'].session.query(
                 RoleModel).all()
         else:
             nodes = context.obj['database'].session.query(
-                RoleModel).order_by(RoleModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
+                RoleModel).order_by(RoleModel.lastupdated.asc()).offset((page - 1) * rows).limit(rows)
 
     row = 0
     for node in nodes:
         row += 1
         x.add_row([page, row, node.name, node.id, node.owner,
-                  node.lastupdated, node.created])
+                   node.lastupdated, node.created])
 
     print(x)
 
     if total > 0:
         print("Page {} of {} of {} total records".format(
-            page, round(total/rows), total))
+            page, round(total / rows), total))
     else:
         print("No rows")
 
@@ -2056,8 +2057,8 @@ def ls_calls(context, page, rows, unfinished, ascend):
         print("No data yet.")
         return
 
-    if total > rows and page > round(total/rows):
-        print("Only {} pages exist.".format(round(total/rows)))
+    if total > rows and page > round(total / rows):
+        print("Only {} pages exist.".format(round(total / rows)))
         return
 
     if not ascend:
@@ -2071,10 +2072,11 @@ def ls_calls(context, page, rows, unfinished, ascend):
         else:
             if unfinished:
                 nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.desc()).filter_by(finished=None).offset((page-1)*rows).limit(rows)
+                    CallModel).order_by(CallModel.lastupdated.desc()).filter_by(finished=None).offset(
+                    (page - 1) * rows).limit(rows)
             else:
                 nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.desc()).offset((page-1)*rows).limit(rows)
+                    CallModel).order_by(CallModel.lastupdated.desc()).offset((page - 1) * rows).limit(rows)
     else:
         if total < rows:
             if unfinished:
@@ -2086,22 +2088,23 @@ def ls_calls(context, page, rows, unfinished, ascend):
         else:
             if unfinished:
                 nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.asc()).filter_by(finished=None).offset((page-1)*rows).limit(rows)
+                    CallModel).order_by(CallModel.lastupdated.asc()).filter_by(finished=None).offset(
+                    (page - 1) * rows).limit(rows)
             else:
                 nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.asc()).offset((page-1)*rows).limit(rows)
+                    CallModel).order_by(CallModel.lastupdated.asc()).offset((page - 1) * rows).limit(rows)
 
     row = 0
     for node in nodes:
         row += 1
         x.add_row([page, row, node.name, node.id, node.owner,
-                  node.lastupdated, node.socket.name,  node.started, node.finished, node.state])
+                   node.lastupdated, node.socket.name, node.started, node.finished, node.state])
 
     print(x)
 
     if total > 0:
         print("Page {} of {} of {} total records".format(
-            page, round(total/rows), total))
+            page, round(total / rows), total))
     else:
         print("No rows")
 
@@ -2115,7 +2118,7 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
     """ List the PYFI network """
 
     from pptree import print_tree, Node
-    
+
     if horizontal or vertical:
         condensed = False
 
@@ -2129,34 +2132,34 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
     root = Node("PYFI")
 
     for node in nodes:
-        node_node = Node("node::"+node.name, root)
+        node_node = Node("node::" + node.name, root)
         if condensed:
-            print("node::"+node.name)
+            print("node::" + node.name)
         agent = node.agent
-        agent_node = Node("agent::"+agent.name, node_node)
+        agent_node = Node("agent::" + agent.name, node_node)
         if condensed:
-            print("  agent::"+agent.name)
-        worker_node = Node("worker::"+agent.worker.name, agent_node)
+            print("  agent::" + agent.name)
+        worker_node = Node("worker::" + agent.worker.name, agent_node)
         if condensed:
-            print("    worker::"+agent.worker.name)
+            print("    worker::" + agent.worker.name)
         processor_node = Node(
-            "processor::"+agent.worker.processor.name, worker_node)
+            "processor::" + agent.worker.processor.name, worker_node)
         if condensed:
-            print("      processor::"+agent.worker.processor.name)
+            print("      processor::" + agent.worker.processor.name)
 
         for socket in agent.worker.processor.sockets:
-            socket_node = Node("socket::"+socket.name, processor_node)
+            socket_node = Node("socket::" + socket.name, processor_node)
             if condensed:
-                print("        socket::"+socket.name)
-            task_node = Node("task::"+socket.task.name, socket_node)
+                print("        socket::" + socket.name)
+            task_node = Node("task::" + socket.task.name, socket_node)
             if condensed:
-                print("          task::"+socket.task.name)
-            module_node = Node("module::"+socket.task.module, task_node)
+                print("          task::" + socket.task.name)
+            module_node = Node("module::" + socket.task.module, task_node)
             if condensed:
-                print("            module::"+socket.task.module)
-            function_node = Node("function::"+socket.task.name, task_node)
+                print("            module::" + socket.task.module)
+            function_node = Node("function::" + socket.task.name, task_node)
             if condensed:
-                print("            function::"+socket.task.name)
+                print("            function::" + socket.task.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)
@@ -2221,7 +2224,7 @@ def ls_socket(context, id, name, graph):
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.interval])
+                   node.status, node.processor.name, node.queue.name, node.interval])
 
     from pptree import print_tree, Node
 
@@ -2279,7 +2282,7 @@ def ls_processor(context, id, name, graph):
     root = Node(processor.name)
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.interval])
+                   node.status, node.processor.name, node.queue.name, node.interval])
 
         sock = Node(node.name, root)
         module = Node(node.task.module, sock)
@@ -2351,7 +2354,7 @@ def ls_schedulers(context):
     nodes = context.obj['database'].session.query(SchedulerModel).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
-                  node.lastupdated, node.strategy, [n.name for n in node.nodes]])
+                   node.lastupdated, node.strategy, [n.name for n in node.nodes]])
 
     print(x)
 
@@ -2372,7 +2375,9 @@ def ls_nodes(context):
     nodes = context.obj['database'].session.query(NodeModel).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.hostname,
-                  node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True), humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True), node.agent.name])
+                   node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True),
+                   humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True),
+                   node.agent.name])
 
     print(x)
 
@@ -2391,7 +2396,7 @@ def ls_queues(context):
     queues = context.obj['database'].session.query(QueueModel).all()
     for node in queues:
         x.add_row([node.name, node.id, node.owner, node.lastupdated, node.message_ttl, node.expires,
-                  node.requested_status, node.name+".topic", node.status, node.qtype])
+                   node.requested_status, node.name + ".topic", node.status, node.qtype])
 
     print(x)
 
@@ -2528,7 +2533,8 @@ def ls_workers(context):
 
     for node in workers:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.hostname, node.processor.name, node.workerdir])
+                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.hostname,
+                   node.processor.name, node.workerdir])
 
     print(x)
 
@@ -2562,7 +2568,8 @@ def ls_processors(context, gitrepo, commit, module, owner):
 
     for processor in processors:
         workername = processor.worker.name if processor.worker else "None"
-        row = [processor.name, processor.id, processor.module, workername, processor.hostname, processor.owner, processor.lastupdated,
+        row = [processor.name, processor.id, processor.module, workername, processor.hostname, processor.owner,
+               processor.lastupdated,
                processor.requested_status, processor.status, processor.concurrency, processor.beat]
 
         if gitrepo:
@@ -2629,7 +2636,6 @@ def ls_agents(context):
     x.field_names = names
     agents = context.obj['database'].session.query(AgentModel).all()
 
-
     import warnings
 
     with warnings.catch_warnings():
@@ -2638,13 +2644,13 @@ def ls_agents(context):
             worker_name = node.worker.name if node.worker else 'None'
             status = 'unreachable'
             try:
-                res = requests.get('http://'+node.hostname+':'+str(node.port))
+                res = requests.get('http://' + node.hostname + ':' + str(node.port))
                 if res.status_code == 200:
                     status = 'running'
             except:
                 pass
             x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
-                    status, node.node.name, node.pid, worker_name])
+                       status, node.node.name, node.pid, worker_name])
 
     print(x)
 
@@ -2664,7 +2670,7 @@ def ls_sockets(context):
 
     for node in sockets:
         x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.schedule_type, node.interval])
+                   node.status, node.processor.name, node.queue.name, node.schedule_type, node.interval])
 
     print(x)
 
@@ -2687,15 +2693,15 @@ def ls_node(context, name, tree, horizontal):
         return
 
     if tree:
-        root = Node("node::"+node.name)
-        agent = Node("agent::"+node.agent.name, root)
-        worker = Node("worker::"+node.agent.worker.name, agent)
+        root = Node("node::" + node.name)
+        agent = Node("agent::" + node.agent.name, root)
+        worker = Node("worker::" + node.agent.worker.name, agent)
         processor = Node(
-            "processor::"+node.agent.worker.processor.name, worker)
+            "processor::" + node.agent.worker.processor.name, worker)
 
         for socket in node.agent.worker.processor.sockets:
-            _sock = Node("socket::"+socket.name, processor)
-            Node("task::"+socket.task.name, _sock)
+            _sock = Node("socket::" + socket.name, processor)
+            Node("task::" + socket.task.name, _sock)
 
         print_tree(root, horizontal=not horizontal)
 
@@ -2718,7 +2724,8 @@ def ls_plug(context, name):
 
     node = plug
     x.add_row([node.name, node.id, node.owner, node.lastupdated,
-               node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name, node.target.name])
+               node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name,
+               node.target.name])
 
     print(x)
 
@@ -2738,7 +2745,7 @@ def ls_plugs(context):
 
     for node in plugs:
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                  node.status, node.processor.name, node.queue.name, node.source.name, node.target.name])
+                   node.status, node.processor.name, node.queue.name, node.source.name, node.target.name])
 
     print(x)
 
@@ -2757,7 +2764,7 @@ def listen(context, name, channel, adaptor):
 
     redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
     p = redisclient.pubsub()
-    p.psubscribe([name+'.'+channel])
+    p.psubscribe([name + '.' + channel])
     print("Listening to", name)
     func = None
     if adaptor:
@@ -2783,7 +2790,7 @@ def whoami(context):
 
     loginstr = "Not logged in"
     if name is not None:
-        loginstr = "Logged into PYFI as "+name
+        loginstr = "Logged into PYFI as " + name
     print("Database user {}.\n{}.".format(context.obj['owner'], loginstr))
 
 
@@ -2851,7 +2858,7 @@ def start_agent(context, port, clean, backend, broker, config, queues, user, poo
         """
     else:
         agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                    config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
+                      config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
         agent.start()
 
 

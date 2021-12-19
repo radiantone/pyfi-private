@@ -1,23 +1,23 @@
 """
 pyfi API server Flask app
 """
-import platform
 import logging
+import platform
 import socket
-
-#from pyfi.celery.tasks import add
-from pyfi.blueprints.show import blueprint
-
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
+
+# from pyfi.celery.tasks import add
+from pyfi.blueprints.show import blueprint
 
 logging.basicConfig(level=logging.INFO)
 
 hostname = platform.node()
 
-POSTGRES = 'postgresql://postgres:pyfi101@'+hostname+':5432/pyfi'
+POSTGRES = 'postgresql://postgres:pyfi101@' + hostname + ':5432/pyfi'
 
 app = Flask(__name__)
 app.register_blueprint(blueprint)
+
 
 @app.route('/')
 def hello():

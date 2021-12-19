@@ -6,7 +6,6 @@ from pyfi.client.api import parallel, pipeline, funnel, select, where
 # Import socket functions
 from pyfi.client.example.api import do_something_p as do_something
 
-
 # Define a parallel workflow
 _pipeline = parallel([
     do_something("One"),
@@ -21,6 +20,7 @@ workflow = _pipeline()
 result = workflow.get()
 
 import json
+
 print(json.dumps(result, indent=4))
 
 # Filter the results where value > 5

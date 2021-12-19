@@ -1,11 +1,11 @@
 """
 Basic HTTP web server to test the UI from
 """
-import socketserver
-import http
 import functools
+import http
 import logging
 import signal
+import socketserver
 
 DIRECTORY = "app/dist/spa"
 

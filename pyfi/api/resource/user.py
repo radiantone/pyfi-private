@@ -30,11 +30,13 @@ def save_new_user(data={}):
     """
     return
 
+
 @api.route('/')
 class UserList(Resource):
     """
     Docstring
     """
+
     @api.doc('list_of_registered_users')
     @api.marshal_list_with(_user, envelope='data')
     def get(self):
@@ -57,6 +59,7 @@ class User(Resource):
     """
     Docstring
     """
+
     @api.doc('get a user')
     @api.marshal_with(_user)
     def get(self, public_id):

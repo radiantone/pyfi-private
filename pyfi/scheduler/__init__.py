@@ -1,15 +1,17 @@
-import time
 import logging
-import platform
 import os
+import platform
+import time
 from multiprocessing import Process, Condition
 
-from pyfi.db.model import SchedulerModel, WorkModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import SchedulerModel, WorkModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, \
+    ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 
 HOSTNAME = platform.node()
 
 if 'PYFI_HOSTNAME' in os.environ:
     HOSTNAME = os.environ['PYFI_HOSTNAME']
+
 
 class Scheduler:
     """ Basic Scheduler """
@@ -56,7 +58,7 @@ class Scheduler:
 
                 logging.info("Agent %s CPUs", agent.cpus)
                 try:
-                    result = requests.get('http://'+agent.hostname+':8002')
+                    result = requests.get('http://' + agent.hostname + ':8002')
                     if result.status_code == 200:
                         logging.info("Agent is alive.")
                     else:

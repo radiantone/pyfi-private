@@ -1,24 +1,20 @@
-
 """
 Class database model definitions
 """
 import json
-
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import declarative_mixin, foreign, remote
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.schema import CreateColumn
-from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, Sequence, INTEGER, literal_column, select, column
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
-
 from datetime import datetime
-
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import and_
-
 from oso import Oso
+from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, \
+    Sequence, INTEGER, literal_column, select, column
+from sqlalchemy import and_
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_mixin, foreign, remote
+from sqlalchemy.orm import relationship
+from sqlalchemy.schema import CreateColumn
 
 Base = declarative_base(name="Base")
 
@@ -304,7 +300,7 @@ class AgentModel(BaseModel):
     """
     __tablename__ = 'agent'
     hostname = Column(String(60))
-    #status = Column(String(20), nullable=False)
+    # status = Column(String(20), nullable=False)
     cpus = Column(Integer)
     port = Column(Integer)
     pid = Column(Integer)
@@ -324,7 +320,7 @@ class ActionModel(BaseModel):
     Docstring
     """
     __tablename__ = 'action'
-    #status = Column(String(20), nullable=False)
+    # status = Column(String(20), nullable=False)
     params = Column(String(80))
 
     # host, worker, processor, queue, or all
@@ -339,16 +335,16 @@ class WorkerModel(BaseModel):
     Docstring
     """
     __tablename__ = 'worker'
-    #status = Column(String(20), nullable=False)
+    # status = Column(String(20), nullable=False)
     backend = Column(String(40), nullable=False)
     broker = Column(String(40), nullable=False)
-    #requested_status = Column(String(40), onupdate='update')
+    # requested_status = Column(String(40), onupdate='update')
     concurrency = Column(Integer)
     process = Column(Integer)
     hostname = Column(String(60))
 
     workerdir = Column(String(256))
-    
+
     processor_id = Column(String(40), ForeignKey(
         'processor.id'), nullable=True)
 
@@ -360,7 +356,8 @@ class WorkerModel(BaseModel):
     agent = relationship("AgentModel", back_populates="worker")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status, self.concurrency, self.process, self.hostname, self.workerdir)
+        return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status,
+                                                self.concurrency, self.process, self.hostname, self.workerdir)
 
 
 class ProcessorModel(HasLogs, BaseModel):
@@ -369,8 +366,8 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
-    #requested_status = Column(String(20), onupdate='update')
-    #status = Column(String(20), nullable=False)
+    # requested_status = Column(String(20), onupdate='update')
+    # status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
@@ -404,7 +401,10 @@ class ProcessorModel(HasLogs, BaseModel):
                            lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated, self.hostname, self.concurrency, self.requested_status, self.status, self.worker, self.plugs, self.sockets)
+        return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated,
+                                                                       self.hostname, self.concurrency,
+                                                                       self.requested_status, self.status, self.worker,
+                                                                       self.plugs, self.sockets)
 
 
 class JobModel(Base):
@@ -514,7 +514,6 @@ class NodeModel(BaseModel):
 
 
 class ArgumentModel(BaseModel):
-
     __tablename__ = 'argument'
 
     name = Column(String(60))
@@ -581,19 +580,20 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                                  'socket.id'), primary_key=True)
                              )
 plugs_target_arguments = Table('plugs_target_arguments', Base.metadata,
-                             Column('plug_id', ForeignKey(
-                                 'plug.id'), primary_key=True),
-                             Column('argument_id', ForeignKey(
-                                 'argument.id'), primary_key=True)
-                             )
+                               Column('plug_id', ForeignKey(
+                                   'plug.id'), primary_key=True),
+                               Column('argument_id', ForeignKey(
+                                   'argument.id'), primary_key=True)
+                               )
+
 
 class SocketModel(BaseModel):
     """
     Docstring
     """
     __tablename__ = 'socket'
-    #requested_status = Column(String(20), onupdate='update')
-    #status = Column(String(20), nullable=False)
+    # requested_status = Column(String(20), onupdate='update')
+    # status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
@@ -609,8 +609,8 @@ class SocketModel(BaseModel):
                         cascade="delete, delete-orphan")
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel",lazy=True)
-    
+    user = relationship("UserModel", lazy=True)
+
     # Wait for all sourceplugs to deliver their data before invoking the task
     wait = Column(Boolean, default=False)
 
@@ -627,7 +627,8 @@ class SocketModel(BaseModel):
                         cascade="all, delete-orphan")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
+        return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name,
+                                                            self.queue.name, self.processor_id)
 
 
 plugs_queues = Table('plugs_queues', Base.metadata,
@@ -641,8 +642,8 @@ class PlugModel(BaseModel):
     Docstring
     """
     __tablename__ = 'plug'
-    #requested_status = Column(String(20), onupdate='update')
-    #status = Column(String(20), nullable=False)
+    # requested_status = Column(String(20), onupdate='update')
+    # status = Column(String(20), nullable=False)
 
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
@@ -663,7 +664,8 @@ class PlugModel(BaseModel):
         'QueueModel', secondary=plugs_queues, uselist=False)
 
     def __repr__(self):
-        return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name, self.queue.name, self.processor_id)
+        return '{}:{}:{}:{}:Queue:{} - Processor:{}'.format(self.id, self.requested_status, self.status, self.name,
+                                                            self.queue.name, self.processor_id)
 
 
 class QueueModel(BaseModel):
@@ -671,9 +673,9 @@ class QueueModel(BaseModel):
     Docstring
     """
     __tablename__ = 'queue'
-    #requested_status = Column(String(20), onupdate='update')
+    # requested_status = Column(String(20), onupdate='update')
     qtype = Column(String(20), nullable=False, default='direct')
-    #status = Column(String(20), nullable=False)
+    # status = Column(String(20), nullable=False)
     durable = Column(Boolean, default=True)
     reliable = Column(Boolean, default=True)
     auto_delete = Column(Boolean, default=True)

@@ -22,7 +22,7 @@ network:
             pool: 5
             size: 10
           processors:
-            proc1: 
+            proc1:
               status: ready
               requested_status: update
               branch: main
@@ -35,7 +35,7 @@ network:
               sockets:
                 socket1:
                   interval: 5
-                  queue: 
+                  queue:
                     name: pyfi.queue1
                   task:
                     function: do_something
@@ -62,7 +62,7 @@ network:
             pool: 5
             size: 10
           processors:
-            proc2: 
+            proc2:
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
@@ -72,7 +72,7 @@ network:
               workers: 2
               sockets:
                 socket1:
-                  queue: 
+                  queue:
                     name: pyfi.queue2
                   task:
                     function: do_this
@@ -90,7 +90,7 @@ network:
             pool: 5
             size: 10
           processors:
-            proc4: 
+            proc4:
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
@@ -100,10 +100,10 @@ network:
               workers: 1
               sockets:
                 socket4:
-                  queue: 
+                  queue:
                     name: pyfi.queue2
                   task:
-                    function: do_this                        
+                    function: do_this
     agent1:
       enabled: false
       hostname: agent1
@@ -119,7 +119,7 @@ network:
             pool: 5
             size: 10
           processors:
-            proc3: 
+            proc3:
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
@@ -129,10 +129,10 @@ network:
               workers: 5
               sockets:
                 socket3:
-                  queue: 
+                  queue:
                     name: pyfi.queue2
                   task:
-                    function: do_this    
+                    function: do_this
 
   plugs:
     plug1:
@@ -143,7 +143,7 @@ network:
 
 # This will create work records which the scheduler will deploy
 work:
-  
+
 
 
 # This will create immediate executions using the API models

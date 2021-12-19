@@ -1,4 +1,5 @@
 from kombu import serialization
+
 accept_content = ['json', 'pickle',
                   'application/json', 'application/x-python-serialize']
 task_serializer = 'pickle'

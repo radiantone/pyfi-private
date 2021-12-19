@@ -1,12 +1,11 @@
-import os
 import configparser
-
+import os
 from pathlib import Path
 
 # Log in a user first
 
 home = str(Path.home())
-ini = home+"/pyfi.ini"
+ini = home + "/pyfi.ini"
 
 CONFIG = configparser.ConfigParser()
 if CONFIG.has_section('login'):

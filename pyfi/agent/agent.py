@@ -1,28 +1,24 @@
 """
 agent.py - pyfi agent server responsible for managing worker/processor lifecycle on a host
 """
-import platform
+import configparser
+import glob
 import logging
 import multiprocessing
-import configparser
 import os
+import platform
 import psutil
 import shutil
-import glob
 import signal
-
 from contextlib import contextmanager
-
+from flask import Flask, request, send_from_directory, current_app, send_from_directory
 from pathlib import Path
-
 from sqlalchemy import inspect
 
-from pyfi.db.model import ProcessorModel, UserModel
 from pyfi.blueprints.show import blueprint
+from pyfi.db.model import ProcessorModel, UserModel
 from pyfi.db.model import UserModel, WorkerModel, AgentModel, QueueModel, NodeModel
 from pyfi.worker import Worker
-
-from flask import Flask, request, send_from_directory, current_app, send_from_directory
 
 logging.basicConfig(level=logging.INFO)
 
@@ -57,7 +53,8 @@ class Agent:
         else:
             session.commit()
 
-    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost', broker='pyamqp://localhost', size=10):
+    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost',
+                 broker='pyamqp://localhost', size=10):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -78,10 +75,10 @@ class Agent:
                 for workdir in workdirs:
                     logging.info("Removing workdir %s", workdir)
                     shutil.rmtree(workdir)
-                
-        logging.info("Checking config at %s", HOME+"/pyfi.ini")
-        if os.path.exists(HOME+"/pyfi.ini"):
-            CONFIG.read(HOME+"/pyfi.ini")
+
+        logging.info("Checking config at %s", HOME + "/pyfi.ini")
+        if os.path.exists(HOME + "/pyfi.ini"):
+            CONFIG.read(HOME + "/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
 
@@ -91,8 +88,7 @@ class Agent:
         from billiard.context import Process
         from uuid import uuid4
 
-
-        with open('agent.pid','w') as procfile:
+        with open('agent.pid', 'w') as procfile:
             procfile.write(str(os.getpid()))
 
         logging.info("Serving agent on port {} {} {}".format(
@@ -108,23 +104,23 @@ class Agent:
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
             agent = AgentModel(hostname=HOSTNAME,
-                               name=HOSTNAME+".agent", pid=os.getpid())
+                               name=HOSTNAME + ".agent", pid=os.getpid())
 
         agent.pid = os.getpid()
-        #self.database.session.add(agent)
-        #self.database.session.commit()
+        # self.database.session.add(agent)
+        # self.database.session.commit()
 
         agent.status = "starting"
         self.agent = agent
         vmem = psutil.virtual_memory()
 
         node = self.database.session.query(NodeModel).filter_by(hostname=HOSTNAME).first()
-        
+
         if node is None:
-            node = NodeModel(name=HOSTNAME+".node", agent=self.agent, hostname=HOSTNAME)
+            node = NodeModel(name=HOSTNAME + ".node", agent=self.agent, hostname=HOSTNAME)
             with self.get_session() as session:
                 session.add(node)
-            
+
             self.database.session.refresh(node)
         else:
             self.database.session.add(node)
@@ -148,7 +144,6 @@ class Agent:
         with self.get_session() as session:
             session.add(agent)
 
-
         def shutdown(*args):
             """ Shutdown worker """
             from psutil import Process
@@ -169,7 +164,6 @@ class Agent:
             process.terminate()
 
             exit(0)
-
 
         signal.signal(signal.SIGINT, shutdown)
 
@@ -235,13 +229,11 @@ class Agent:
                             if processor['processor'].hostname != HOSTNAME:
                                 # Processor of mine has been moved, kill it
                                 if processor['worker'] is not None:
-
                                     processor['processor'].requested_status = 'move'
 
                                     with self.get_session() as session:
                                         session.add(processor['processor'])
-                                    #self.database.session.add(processor['processor'])
-                                    
+                                    # self.database.session.add(processor['processor'])
 
                                     logging.info("Processor {} moved from {} to {}.".format(
                                         processor['processor'].name, HOSTNAME, processor['processor'].hostname))
@@ -257,12 +249,11 @@ class Agent:
 
                                     with self.get_session() as session:
                                         session.add(processor['processor'])
-                                    
 
                         # Loop through my database processors
                         for myprocessor in myprocessors:
 
-                            self.database.session.refresh(myprocessor) # Might not be needed
+                            self.database.session.refresh(myprocessor)  # Might not be needed
                             if myprocessor.requested_status == 'move':
                                 continue
 
@@ -279,7 +270,7 @@ class Agent:
                                                 'processor': myprocessor}]
 
                     refresh += 1
-                    if refresh >= 3: # 3 cycle interval
+                    if refresh >= 3:  # 3 cycle interval
                         refresh = 0
 
                     # Loop through my processor cache again and operate on them based
@@ -303,11 +294,10 @@ class Agent:
                                 session.delete(processor['processor'].worker)
                                 session.delete(processor['processor'])
 
-
-                            if os.path.exists('work/'+processor['processor'].id):
+                            if os.path.exists('work/' + processor['processor'].id):
                                 logging.debug(
-                                    "Removing work directory %s", 'work/'+processor['processor'])
-                                shutil.rmtree('work/'+processor['processor'])
+                                    "Removing work directory %s", 'work/' + processor['processor'])
+                                shutil.rmtree('work/' + processor['processor'])
 
                             logging.info("Processor is removed")
 
@@ -383,7 +373,6 @@ class Agent:
                                 session.add(processor['processor'].worker)
                                 session.add(processor['processor'])
 
-                            
                             continue
 
                         if processor['processor'].requested_status == 'stopped':
@@ -430,8 +419,10 @@ class Agent:
                             except:
                                 pass
 
-                        if (processor['processor'].requested_status == 'start' or (process_died or (processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
-                                (processor['processor'].status != 'stopped' and processor['processor'].requested_status != 'stopped')):
+                        if (processor['processor'].requested_status == 'start' or (process_died or (
+                                processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
+                                (processor['processor'].status != 'stopped' and processor[
+                                    'processor'].requested_status != 'stopped')):
 
                             if processor['worker'] is None:
                                 logging.info("Worker is none")
@@ -453,17 +444,19 @@ class Agent:
 
                                 # TODO: Not sure this is needed since worker now puts worker model row in database
                                 workerModel = self.database.session.query(
-                                    WorkerModel).filter_by(name=HOSTNAME+".agent."+processor['processor'].name+'.worker').first()
+                                    WorkerModel).filter_by(
+                                    name=HOSTNAME + ".agent." + processor['processor'].name + '.worker').first()
 
                                 if workerModel is None:
                                     logging.info("Creating worker model...")
-                                    workerModel = WorkerModel(id=str(uuid4()), name=HOSTNAME+".agent."+processor['processor'].name+'.worker', concurrency=processor['processor'].concurrency,
-                                                          status='ready',
-                                                          backend=self.backend,
-                                                          broker=self.broker,
-                                                          agent_id=self.agent.id,
-                                                          hostname=HOSTNAME,
-                                                          requested_status='start')
+                                    workerModel = WorkerModel(id=str(uuid4()), name=HOSTNAME + ".agent." + processor[
+                                        'processor'].name + '.worker', concurrency=processor['processor'].concurrency,
+                                                              status='ready',
+                                                              backend=self.backend,
+                                                              broker=self.broker,
+                                                              agent_id=self.agent.id,
+                                                              hostname=HOSTNAME,
+                                                              requested_status='start')
 
                                 workerModel.lastupdated = datetime.now()
                                 workerModel.status = 'running'
@@ -474,9 +467,9 @@ class Agent:
                                     session.add(workerModel)
                                     logging.info("Worker model is %s", workerModel)
                                     logging.info("Agent worker is %s",
-                                                self.agent.worker)
+                                                 self.agent.worker)
                                     self.agent.worker = workerModel
-                                
+
                                 logging.info(
                                     "Worker %s created.", workerModel.id)
 
@@ -486,11 +479,13 @@ class Agent:
                                 # If there is no worker Process create it
                                 worker = {}
 
-                                dir = 'work/'+processor['processor'].id
+                                dir = 'work/' + processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
                                 workerproc = self.workerproc = Worker(
-                                    processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool, database=self.dburi, celeryconfig=self.config, backend=self.backend, broker=self.broker)
+                                    processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
+                                    database=self.dburi, celeryconfig=self.config, backend=self.backend,
+                                    broker=self.broker)
 
                                 # Setup the virtualenv only
 
@@ -498,7 +493,7 @@ class Agent:
 
                                 # Launch from the virtualenv
                                 wprocess = workerproc.launch(processor['processor'].worker.name, self.pool)
-                                #wprocess = workerproc.start()
+                                # wprocess = workerproc.start()
 
                                 processor['processor'].worker.requested_status = 'ready'
                                 processor['processor'].worker.status = 'running'
@@ -531,7 +526,7 @@ class Agent:
 
             try:
                 setproctitle('pyfi agent::web_server')
-                logging.info("Starting web server on %s",self.port)
+                logging.info("Starting web server on %s", self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)

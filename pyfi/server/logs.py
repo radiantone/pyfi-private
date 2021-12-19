@@ -1,8 +1,9 @@
-from redis import Redis
-import uvicorn
 import os
+import uvicorn
+from redis import Redis
 
 r = Redis(host=os.environ['REDIS_SERVER'], port=6379, db=0)
+
 
 class App:
     def __init__(self, scope):
@@ -24,8 +25,9 @@ def event_handler(msg):
     # parse to JSON
     # Push to elastic search
 
+
 if __name__ == '__main__':
-    #eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
+    # eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
     pubsub = r.pubsub()
 
     pubsub.psubscribe(**{'celery-task*': event_handler})
