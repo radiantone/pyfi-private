@@ -1095,7 +1095,7 @@ class Worker:
 
                                                         while True:
                                                             logging.info("Calling function %s",func)
-                                                            func(*args)
+                                                            #func(*args)
                                                             logging.info("Sleeping %s", interval)
                                                             time.sleep(interval)
 
