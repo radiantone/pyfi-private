@@ -128,7 +128,8 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
         delayed = task_sig.delay(message)
 
-        logging.info("Dispatched %s", delayed)
+        logging.info("Dispatched %s %s", 
+            processor.module+'.'+socket.task.name, delayed)
     finally:
         #session.close()
         pass
@@ -1081,7 +1082,7 @@ class Worker:
                                                     found = True
                                             '''
 
-                                            if not found:
+                                            if not found and socket.interval and socket.interval > 0:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug
                                                 try:
