@@ -1261,9 +1261,14 @@ class Worker:
                 # if not 'clean' and path for self.worker.workdir exists
                 # then move to that directory
                 # Create git directory and pull the remote repo
-                if self.worker.workdir and os.path.exists(self.worker.workdir):
-                    logging.info("Changing to existing work directory %s", self.worker.workdir)
-                    os.chdir(self.worker.workdir+"/git")
+
+                logging.info("Worker directory: %s", self.worker.workerdir)
+                logging.info("Current directory: %s", os.getcwd())
+                if self.worker.workerdir and os.path.exists(self.worker.workerdir) and os.path.exists(
+                        self.worker.workerdir + "/git"):
+                    logging.info(
+                        "Changing to existing work directory %s", self.worker.workerdir)
+                    os.chdir(self.worker.workerdir + "/git")
                     os.system('git config --get remote.origin.url')
                     os.system('git config pull.rebase false')
                     logging.info("Pulling update from git")
@@ -1271,6 +1276,8 @@ class Worker:
                 else:
                     """ Clone gitrepo. Retry after 3 seconds if failure """
                     count = 1
+
+                    os.chdir(self.workdir)
                     while True:
                         if count >= 5:
                             break
@@ -1278,8 +1285,9 @@ class Worker:
                             logging.info("git clone -b {} --single-branch {} git".format(
                                 self.processor.branch, self.processor.gitrepo.split('#')[0]))
                             os.system(
-                                "git clone -b {} --single-branch {} git".format(self.processor.branch, self.processor.gitrepo.split('#')[0]))
-                            sys.path.append(self.workdir+'/git')
+                                "git clone -b {} --single-branch {} git".format(self.processor.branch,
+                                                                                self.processor.gitrepo.split('#')[0]))
+                            sys.path.append(self.workdir + '/git')
                             os.chdir('git')
                             os.system("git config credential.helper store")
                             break
@@ -1293,24 +1301,25 @@ class Worker:
 
                 logging.info("Building virtualenv...in %s", os.getcwd())
 
-                env = VirtualEnvironment(
-                    'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+                if not os.path.exists("venv"):
+                    env = VirtualEnvironment(
+                        'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
-                login = os.environ['GIT_LOGIN']
+                    login = os.environ['GIT_LOGIN']
 
-                # Install pyfi
-                # TODO: Make this URL a setting so it can be overridden
-                env.install('psycopg2')
-                env.install('-e git+' + login +
-                            '/radiantone/pyfi-private#egg=pyfi')
+                    # Install pyfi
+                    # TODO: Make this URL a setting so it can be overridden
+                    env.install('psycopg2')
+                    env.install('-e git+' + login +
+                                '/radiantone/pyfi-private#egg=pyfi')
 
-                try:
-                    env.install('-e git+'+self.processor.gitrepo.strip())
-                except:
-                    import traceback
-                    print(traceback.format_exc())
-                    logging.error("Could not install %s",
-                                    self.processor.gitrepo.strip())
+                    try:
+                        env.install('-e git+' + self.processor.gitrepo.strip())
+                    except:
+                        import traceback
+                        print(traceback.format_exc())
+                        logging.error("Could not install %s",
+                                      self.processor.gitrepo.strip())
 
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
