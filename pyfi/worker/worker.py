@@ -92,21 +92,15 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
-    #session = sessionmaker(bind=DATABASE)()
     try:
-        #session.add(processor)
         name = plug.name
-        #print("PLUG ",plug.name)
-        #plug = session.query(PlugModel).filter_by(name=name).first()
+
         if plug is None:
             logging.warning("Plug %s does not exist",name)
             return
 
-        print("PLUG RESULT ", plug is not None)
-        #session.add(plug)
-        #session.add(socket)
+        logging.debug("PLUG RESULT %s", plug is not None)
 
-        #print("PLUG NAME:",name)
         tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
         queue = KQueue(
             tkey,
@@ -130,7 +124,6 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
 
         logging.info("Dispatched %s", delayed)
     finally:
-        #session.close()
         pass
 
 
@@ -741,9 +734,17 @@ class Worker:
                                         # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
+                                        
                                         task_sig = self.celery.signature(
                                             target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
-                                        
+
+
+                                        if processor_plug.argument:
+                                            logging.info("Processor plug is connected to argument: %s",processor_plug.argument)
+                                            argument = {'name':processor_plug.argument.name,'kind':processor_plug.argument.kind,'position':processor_plug.argument.position}
+                                            task_sig = self.processor.app.signature(
+                                                self.processor.processor.module+'.'+self.socket.task.name+'.wait', args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
+            
                                         delayed = pipeline(
                                             #plug_sig,
                                             task_sig
@@ -1131,10 +1132,27 @@ class Worker:
                             logging.info("NO TASK CODE")
 
                         # Get the function from the loaded module
-                        func = getattr(module, socket.task.name)
+                        _func = getattr(module, socket.task.name)
 
-                        func = self.celery.task(func, name=self.processor.module +
+                        # Invoke the function directly, with direct connected plug
+                        func = self.celery.task(_func, name=self.processor.module +
                                                 '.'+socket.task.name, retries=self.processor.retries)
+
+                        def wait_on_params(argument, *args, **kwargs):
+                            logging.info("Argument for %s: %s",_func, argument)
+                            # Get incoming Argument, if you have them all then
+                            # invoke the _func otherwise, wait until you get all the Arguments
+
+                            return True #_func(*args, **kwargs)
+
+                        # Invoke the param wrapper func endpoint. Used by Plugs that specify they
+                        # fill specific parameters of the task
+                        func_wait = self.celery.task(wait_on_params, name=self.processor.module +
+                                                '.'+socket.task.name+'.wait', retries=self.processor.retries)
+
+                        # TODO: Create a variation of the func with a wrapped function that
+                        # will wait for async incoming parameters before triggering the function
+                        # and pass all the ordered parameters to it
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
@@ -1261,7 +1279,7 @@ class Worker:
                 # if not 'clean' and path for self.worker.workdir exists
                 # then move to that directory
                 # Create git directory and pull the remote repo
-                if self.worker.workdir and os.path.exists(self.worker.workdir):
+                if self.worker.workdir and os.path.exists(self.worker.workerdir):
                     logging.info("Changing to existing work directory %s", self.worker.workdir)
                     os.chdir(self.worker.workdir+"/git")
                     os.system('git config --get remote.origin.url')

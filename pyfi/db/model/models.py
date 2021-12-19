@@ -580,7 +580,12 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                              Column('socket_id', ForeignKey(
                                  'socket.id'), primary_key=True)
                              )
-
+plugs_target_arguments = Table('plugs_target_arguments', Base.metadata,
+                             Column('plug_id', ForeignKey(
+                                 'plug.id'), primary_key=True),
+                             Column('argument_id', ForeignKey(
+                                 'argument.id'), primary_key=True)
+                             )
 
 class SocketModel(BaseModel):
     """
@@ -647,6 +652,9 @@ class PlugModel(BaseModel):
 
     target = relationship("SocketModel", back_populates="targetplugs",
                           secondary=plugs_target_sockets, uselist=False)
+
+    argument_id = Column(String, ForeignKey("argument.id"), nullable=True)
+    argument = relationship("ArgumentModel", lazy=True)
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)

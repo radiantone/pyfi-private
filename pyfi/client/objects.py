@@ -80,7 +80,7 @@ class Task(Base):
                                           gitrepo=repo)
 
             # Add Argument objects ehre
-            
+
             self.session.add(self.task)
             self.session.commit()
             #raise Exception(f"Task {name} does not exist.")
@@ -330,7 +330,14 @@ class Socket(Base):
 
         logging.info("Calling "+self.processor.processor.module +
                      '.'+self.socket.task.name+" %s", self.queue)
-        return self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
+        task_sig = self.processor.app.signature(self.processor.processor.module+'.'+self.socket.task.name, args=args, queue=self.queue, kwargs=kwargs).delay().get()
+
+        #argument = {'name':'message','kind':3,'position':0}
+        #task_sig_wait = self.processor.app.signature(
+        #    self.processor.processor.module+'.'+self.socket.task.name+'.wait', args=(argument, args), queue=self.queue, kwargs=kwargs).delay().get()
+        
+        _task_sig = task_sig
+        return _task_sig
 
 
 class Plug(Base):
