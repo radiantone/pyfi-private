@@ -1241,7 +1241,6 @@ class Worker:
         logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
                       self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
-        os.chdir(self.workdir)
 
         """ Install gitrepo and build virtualenv """
         if self.processor.commit and self.skipvenv:
