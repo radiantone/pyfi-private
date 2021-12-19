@@ -519,7 +519,7 @@ class ArgumentModel(BaseModel):
 
     name = Column(String(60))
     position = Column(Integer, default=0)
-    keyword = Column(Boolean, default=False)
+    kind = Column(Integer)
 
     task_id = Column(String(40), ForeignKey('task.id'))
 

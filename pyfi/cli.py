@@ -25,7 +25,7 @@ from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
 
 from pyfi.db.model.models import PrivilegeModel
-from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, LoginModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.web import run_http
 from sqlalchemy_oso import authorized_sessionmaker
 
@@ -1229,8 +1229,12 @@ def add_log(context, id, source, text):
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this task")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
 @click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
+@click.option('-r', '--repo', default="None", help='Git repo containing packages')
 @click.pass_context
-def add_task(context, name, module, code):
+def add_task(context, name, module, code, repo):
+    import importlib
+    import inspect
+
     """
     Add task to the database
     """
@@ -1238,14 +1242,31 @@ def add_task(context, name, module, code):
     if code:
         # get from stdin
         code = sys.stdin.read()
+        #exec(socket.task.code, module.__dict__)
 
-    task = TaskModel(name=name, module=module, code=code, gitrepo="None")
+    task = TaskModel(name=name, module=module, code=code, gitrepo=repo)
 
+    context.obj['database'].session.add(task)
+    _module = importlib.import_module(module)
+    _function = getattr(_module, name)
+
+    signature = inspect.signature(_function)
+    print("Sig:",signature.parameters)
+
+    position = 0
+    for pname in signature.parameters:
+        param = signature.parameters[pname]
+        print("Name",param.name)
+        print("Kind",param.kind)
+        print("Default",param.default)
+        argument = ArgumentModel(name=param.name, position=position, kind=param.kind)
+        task.arguments += [argument]
+        context.obj['database'].session.add(argument)
+        position += 1
     # Create argument models from code and associate with task
     # task.arguments += [argument]
 
     task.updated = datetime.now()
-    context.obj['database'].session.add(task)
     context.obj['database'].session.commit()
 
     print(task)
@@ -1663,7 +1684,7 @@ def add_socket(context, name, queue, interval, procname, task):
                               gitrepo=processor.gitrepo)
         
             # Create Arguments and add to task
-            
+
         socket.task = _task
         context.obj['database'].session.add(_task)
 

@@ -1,3 +1,9 @@
+ARGUMENTS
+------------
+
+Task objects have 1..* relation to Arguments which hold information about the type and name of arguments to the task. If a Plug is attached directly to an Argument then the receiving Socket will wait on all Argument values before invoking the task. However, if a Plug is attached directly to a Socket, then the Socket will dispatch the request and parameters as-is to the function.
+
+
 WEBSOCKETS
 ------------
 
