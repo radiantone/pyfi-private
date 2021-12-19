@@ -1134,8 +1134,8 @@ class Worker:
                         # Get the function from the loaded module
                         func = getattr(module, socket.task.name)
 
-                        func = self.celery.task(func, name=self.processor.module +
-                                                '.'+socket.task.name, retries=self.processor.retries)
+                        #func = self.celery.task(func, name=self.processor.module +
+                        #                        '.'+socket.task.name, retries=self.processor.retries)
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
