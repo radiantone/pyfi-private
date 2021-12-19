@@ -1240,6 +1240,10 @@ def add_task(context, name, module, code):
         code = sys.stdin.read()
 
     task = TaskModel(name=name, module=module, code=code, gitrepo="None")
+
+    # Create argument models from code and associate with task
+    # task.arguments += [argument]
+
     task.updated = datetime.now()
     context.obj['database'].session.add(task)
     context.obj['database'].session.commit()
@@ -1657,6 +1661,9 @@ def add_socket(context, name, queue, interval, procname, task):
         if _task is None:
             _task = TaskModel(name=task, module=processor.module,
                               gitrepo=processor.gitrepo)
+        
+            # Create Arguments and add to task
+            
         socket.task = _task
         context.obj['database'].session.add(_task)
 

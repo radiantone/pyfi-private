@@ -513,6 +513,17 @@ class NodeModel(BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 
 
+class ArgumentModel(BaseModel):
+
+    __tablename__ = 'argument'
+
+    name = Column(String(60))
+    position = Column(Integer, default=0)
+    keyword = Column(Boolean, default=False)
+
+    task_id = Column(String(40), ForeignKey('task.id'))
+
+
 class TaskModel(BaseModel):
     """
     Docstring
@@ -529,6 +540,8 @@ class TaskModel(BaseModel):
     code = Column(Text)  # Source code of function
 
     sockets = relationship("SocketModel", back_populates="task")
+
+    arguments = relationship('ArgumentModel', backref='task')
 
     def __repr__(self):
         return '<Name %r>' % self.name
@@ -709,3 +722,4 @@ oso.register_class(EventModel)
 oso.register_class(SchedulerModel)
 oso.register_class(CallModel)
 oso.register_class(TaskModel)
+oso.register_class(ArgumentModel)

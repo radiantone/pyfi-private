@@ -68,7 +68,7 @@ class Task(Base):
     Docstring
     """
 
-    def __init__(self, name=None, module=None, queue=None):
+    def __init__(self, name=None, module=None, repo=None, queue=None):
         super().__init__()
 
         self.app = Celery(backend=self.backend, broker=self.broker)
@@ -76,7 +76,14 @@ class Task(Base):
             TaskModel).filter_by(name=name).first()
 
         if self.task is None:
-            raise Exception(f"Task {name} does not exist.")
+            self.task = _task = TaskModel(name=name, module=module,
+                                          gitrepo=repo)
+
+            # Add Argument objects ehre
+            
+            self.session.add(self.task)
+            self.session.commit()
+            #raise Exception(f"Task {name} does not exist.")
 
         self.name = module+'.'+name
 
