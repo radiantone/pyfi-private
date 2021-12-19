@@ -1306,8 +1306,8 @@ class Worker:
 
                     os.chdir(self.workdir)
                     logging.info(
-                        "Changing to existing work directory %s", self.worker.workdir)
-                    os.chdir(self.worker.workdir+"/git")
+                        "Changing to existing work directory %s", self.worker.workerkdir)
+                    os.chdir(self.worker.workerdir+"/git")
                     os.system('git config --get remote.origin.url')
                     os.system('git config pull.rebase false')
                     logging.info("Pulling update from git")
