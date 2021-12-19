@@ -1299,7 +1299,9 @@ class Worker:
                 # then move to that directory
                 # Create git directory and pull the remote repo
 
-                logging.info("Worker directory: %s", self.worker.workerdir)                
+                logging.info("Worker directory: %s", self.worker.workerdir)
+                logging.info("Workerdir exists: %s", self.worker.workerdir and os.path.exists(
+                    self.worker.workerdir))
                 if self.worker.workerdir and os.path.exists(self.worker.workerdir):
                     logging.info(
                         "Changing to existing work directory %s", self.worker.workdir)
