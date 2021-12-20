@@ -1204,13 +1204,13 @@ class Worker:
 
                             return _func(*args, **kwargs)
 
-
+                        locals()[socket.task.name] = wrapped_function
                         # Wrap the _func in another function that introspects the kwargs and if there is an argument
                         # incoming then store that argument and if all the arguments are stored, then invoke the function,
                         # Otherwise, just invoke the function
 
                         # Invoke the function directly, with direct connected plug
-                        func = self.celery.task(wrapped_function, name=self.processor.module +
+                        func = self.celery.task(locals()[socket.task.name], name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
 
                         '''
