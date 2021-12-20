@@ -1307,6 +1307,7 @@ class Worker:
                             if sender == 'enqueue':
                                 return
 
+                            print("KWARGS", kwargs)
                             print("RECEIVED KWARGS:",
                                   {'signal': 'received', 'sender': kwargs['kwargs']['function'], 'kwargs': {}, 'request': request.id,
                                    'taskparent': request.parent_id, 'taskid': request.id})
