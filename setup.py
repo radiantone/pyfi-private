@@ -125,6 +125,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
+        'amqp==5.0.7',
         'celery==5.2.1',
         'click',
         'flask',
