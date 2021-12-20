@@ -115,18 +115,18 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
-        if plug.target.task.argument:
+        if plug.argument:
             logging.info(
-                "Processor plug is connected to argument: %s", plug.target.task.argument)
+                "Processor plug is connected to argument: %s", plug.argument)
             argument = {
-                'name': plug.target.task.argument.name,
-                'kind': plug.target.task.argument.kind,
-                'position': plug.target.task.argument.position}
+                'name': plug.argument.name,
+                'kind': plug.argument.kind,
+                'position': plug.argument.position}
             task_sig = celery.signature(
                 processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
             delayed = task_sig.delay(argument, message)
         else:
-            logging.info("Plug argument %s", plug.target.task.argument)
+            logging.info("Plug argument %s", plug.argument)
             task_sig = celery.signature(
                 processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
 
@@ -404,7 +404,7 @@ class Worker:
                                 _signal['kwargs']['parent'] = myid
 
                                 processor_path = _socket.queue.name + '.' + \
-                                                 processor.name.replace(' ', '.')
+                                    processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
                                     received), 'room': processor.name}]
@@ -451,7 +451,7 @@ class Worker:
                                     parent = _signal['kwargs']['parent']
 
                                 processor_path = _socket.queue.name + '.' + \
-                                                 processor.name.replace(' ', '.')
+                                    processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
                                     started), 'room': processor.name}]
@@ -573,7 +573,7 @@ class Worker:
 
                                 # Build path to the task
                                 processor_path = socket.queue.name + '.' + \
-                                                 processor.name.replace(' ', '.')
+                                    processor.name.replace(' ', '.')
 
                                 # Create data record for this event
                                 data = {
@@ -761,13 +761,13 @@ class Worker:
                                             target_processor.module + '.' + processor_plug.target.task.name,
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
-                                        if processor_plug.target.task.argument:
+                                        if processor_plug.argument:
                                             logging.info(
-                                                "Processor plug is connected to argument: %s", processor_plug.target.task.argument)
+                                                "Processor plug is connected to argument: %s", processor_plug.argument)
                                             argument = {
-                                                'name': processor_plug.target.task.argument.name,
-                                                'kind': processor_plug.target.task.argument.kind,
-                                                'position': processor_plug.target.task.argument.position}
+                                                'name': processor_plug.argument.name,
+                                                'kind': processor_plug.argument.kind,
+                                                'position': processor_plug.argument.position}
                                             task_sig = self.processor.app.signature(
                                                 self.processor.processor.module + '.' + self.socket.task.name + '.wait',
                                                 args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
@@ -791,7 +791,9 @@ class Worker:
 
                                     logging.info(
                                         "call complete %s %s %s",
-                                        target_processor.module + '.' + processor_plug.target.task.name, (msg,),
+                                        target_processor.module + '.' +
+                                        processor_plug.target.task.name, (
+                                            msg,),
                                         worker_queue)
 
                                     # Remove the message off the plug
@@ -860,7 +862,7 @@ class Worker:
                             # a message to all the connected queues however sending a task to
                             # this queue will deliver to this processor only
                             processor_path = socket.queue.name + '.' + \
-                                             self.processor.name.replace(' ', '.')
+                                self.processor.name.replace(' ', '.')
 
                             logging.info("Joining room %s", processor_path)
                             if processor_path not in queues:
@@ -1016,7 +1018,8 @@ class Worker:
                     logging.info("Created workerModel")
                     if workerModel is None:
                         workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
-                                                  concurrency=int(self.processor.concurrency),
+                                                  concurrency=int(
+                                                      self.processor.concurrency),
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
@@ -1173,7 +1176,7 @@ class Worker:
 
                         # Invoke the function directly, with direct connected plug
                         func = self.celery.task(_func, name=self.processor.module +
-                                                            '.' + socket.task.name, retries=self.processor.retries)
+                                                '.' + socket.task.name, retries=self.processor.retries)
 
                         def wait_on_params(argument, *args, **kwargs):
                             logging.info("Argument for %s: %s",
@@ -1186,7 +1189,7 @@ class Worker:
                         # Invoke the param wrapper func endpoint. Used by Plugs that specify they
                         # fill specific parameters of the task
                         func_wait = self.celery.task(wait_on_params, name=self.processor.module +
-                                                                          '.' + socket.task.name + '.wait',
+                                                     '.' + socket.task.name + '.wait',
                                                      retries=self.processor.retries)
 
                         # TODO: Create a variation of the func with a wrapped function that
@@ -1384,7 +1387,6 @@ class Worker:
                         print(traceback.format_exc())
                         logging.error("Could not install %s",
                                       self.processor.gitrepo.strip())
-                    
 
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))

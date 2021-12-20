@@ -1215,7 +1215,61 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
 @click.option('-s', '--source', default=None, required=False, help='Source name')
 @click.option('-t', '--text', default=None, required=False, help='Text of log')
 def add_log(context, id, source, text):
+    """ Add a log to the database """
     pass
+
+
+@add.command(name='argument')
+@click.option('-p', '--plug', prompt=True, required=True, default=None, help="Name of plug")
+@click.option('-t', '--task', prompt=True, required=True, default=None, help="Name of task")
+@click.option('-a', '--argument', prompt=True, required=True, default=None, help="Name of argument")
+@click.pass_context
+def add_argument(context, plug, task, argument):
+    """ Add argument to plug """
+    import importlib
+    import inspect
+
+    _task = context.obj['database'].session.query(
+        TaskModel).filter_by(name=task).first()
+
+    _plug = context.obj['database'].session.query(
+        PlugModel).filter_by(name=plug).first()
+
+    if not _plug:
+        print("No plug by that name.")
+        return
+
+    if not _task:
+        print("No task by that name.")
+        return
+        
+    _module = importlib.import_module(_task.module)
+    _function = getattr(_module, _task.name)
+
+    signature = inspect.signature(_function)
+    print("Sig:", signature.parameters)
+
+    position = 0
+    _task.arguments = []
+    for pname in signature.parameters:
+        param = signature.parameters[pname]
+        print("Name", param.name)
+        print("Kind", param.kind)
+        print("Default", param.default)
+        _argument = ArgumentModel(
+            name=param.name, position=position, kind=param.kind)
+        _task.arguments += [_argument]
+        context.obj['database'].session.add(_argument)
+        position += 1
+
+        if param.name == argument:
+            _plug.argument = _argument
+            context.obj['database'].session.add(_plug)
+            logging.info("Added argument %s to plug %s",param.name, _plug.name)
+
+    _task.updated = datetime.now()
+    context.obj['database'].session.commit()
+
 
 
 @add.command(name='task')
@@ -1225,6 +1279,7 @@ def add_log(context, id, source, text):
 @click.option('-r', '--repo', default="None", help='Git repo containing packages')
 @click.pass_context
 def add_task(context, name, module, code, repo):
+    """ Add task to the database """
     import importlib
     import inspect
 

@@ -348,6 +348,7 @@ class Socket(Base):
 
 class Plug(Base):
     """"""
+    import inspect
 
     def __init__(self, *args, **kwargs):
         super().__init__()

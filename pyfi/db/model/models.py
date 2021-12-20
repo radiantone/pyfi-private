@@ -579,13 +579,6 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                              Column('socket_id', ForeignKey(
                                  'socket.id'), primary_key=True)
                              )
-plugs_target_arguments = Table('plugs_target_arguments', Base.metadata,
-                               Column('plug_id', ForeignKey(
-                                   'plug.id'), primary_key=True),
-                               Column('argument_id', ForeignKey(
-                                   'argument.id'), primary_key=True)
-                               )
-
 
 class SocketModel(BaseModel):
     """
