@@ -1244,16 +1244,17 @@ class Worker:
 
                             # PRERUN_CONDITION.acquire()
                             try:
-                                print("prerun TASK: ", type(task), task)
+                                print("prerun TASK: ", type(task), task, kwargs)
 
                                 if sender.__name__ == 'enqueue':
                                     return
 
+                                _function_name = task.name.rsplit('.')[-1:]
                                 print("KWARGS:",
-                                      {'signal': 'prerun', 'sender': kwargs['kwargs']['function'], 'kwargs': kwargs['kwargs'],
+                                      {'signal': 'prerun', 'sender': _function_name, 'kwargs': kwargs['kwargs'],
                                        'taskid': task_id, 'args': args})
                                 self.main_queue.put(
-                                    {'signal': 'prerun', 'sender': kwargs['kwargs']['function'], 'kwargs': kwargs['kwargs'],
+                                    {'signal': 'prerun', 'sender': _function_name, 'kwargs': kwargs['kwargs'],
                                      'taskid': task_id, 'args': args})
 
                                 if 'tracking' not in kwargs.get('kwargs'):
