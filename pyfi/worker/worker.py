@@ -122,15 +122,16 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
                 'position': plug.argument.position}
-            task_sig = celery.signature(
-                processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
-            delayed = task_sig.delay(argument, message)
-        else:
+            #task_sig = celery.signature(
+            #    processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
+            #delayed = task_sig.delay(argument, message)
             logging.info("Plug argument %s", plug.argument)
-            task_sig = celery.signature(
-                processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
+            kwargs['argument'] = argument
 
-            delayed = task_sig.delay(message)
+        task_sig = celery.signature(
+            processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
+
+        delayed = task_sig.delay(message)
 
         logging.info("Dispatched %s", delayed)
     finally:
@@ -770,7 +771,7 @@ class Worker:
                                         task_sig = self.celery.signature(
                                             target_processor.module + '.' + processor_plug.target.task.name,
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
-                                            
+
                                         delayed = pipeline(
                                             # plug_sig,
                                             task_sig
@@ -984,12 +985,13 @@ class Worker:
                                 'queue': socket.queue.name,
                                 'exchange': [socket.queue.name + '.topic', socket.queue.name]
                             }
-
+                            '''
                             task_routes[self.processor.module + '.' + socket.task.name + '.wait'] = {
                                 'queue': socket.queue.name,
                                 'exchange': [socket.queue.name + '.' + self.processor.name.replace(
                                     ' ', '.') + '.' + socket.task.name, socket.queue.name]
                             }
+                            '''
 
                 @worker_process_init.connect()
                 def prep_db_pool(**kwargs):
@@ -1200,6 +1202,7 @@ class Worker:
                         func = self.celery.task(_func, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
 
+                        '''
                         def wait_on_params(argument, *args, **kwargs):
                             logging.info("Argument for %s: %s",
                                          _func, argument)
@@ -1213,6 +1216,7 @@ class Worker:
                         func_wait = self.celery.task(wait_on_params, name=self.processor.module +
                                                      '.' + socket.task.name + '.wait',
                                                      retries=self.processor.retries)
+                        '''
 
                         # TODO: Create a variation of the func with a wrapped function that
                         # will wait for async incoming parameters before triggering the function
