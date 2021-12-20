@@ -115,9 +115,21 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
-        task_sig = celery.signature(
-            processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
-        delayed = task_sig.delay(message)
+        if plug.argument:
+            logging.info(
+                "Processor plug is connected to argument: %s", plug.argument)
+            argument = {
+                'name': plug.argument.name,
+                'kind': plug.argument.kind,
+                'position': plug.argument.position}
+            task_sig = celery.signature(
+                processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
+            delayed = task_sig.delay(argument, message)
+        else:
+            task_sig = celery.signature(
+                processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
+
+            delayed = task_sig.delay(message)
 
         logging.info("Dispatched %s", delayed)
     finally:
