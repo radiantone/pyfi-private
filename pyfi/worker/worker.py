@@ -115,18 +115,18 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
-        if plug.target.argument:
+        if plug.target.task.argument:
             logging.info(
-                "Processor plug is connected to argument: %s", plug.target.argument)
+                "Processor plug is connected to argument: %s", plug.target.task.argument)
             argument = {
-                'name': plug.target.argument.name,
-                'kind': plug.target.argument.kind,
-                'position': plug.target.argument.position}
+                'name': plug.target.task.argument.name,
+                'kind': plug.target.task.argument.kind,
+                'position': plug.target.task.argument.position}
             task_sig = celery.signature(
                 processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
             delayed = task_sig.delay(argument, message)
         else:
-            logging.info("Plug argument %s", plug.target.argument)
+            logging.info("Plug argument %s", plug.target.task.argument)
             task_sig = celery.signature(
                 processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
 
@@ -761,13 +761,13 @@ class Worker:
                                             target_processor.module + '.' + processor_plug.target.task.name,
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
-                                        if processor_plug.target.argument:
+                                        if processor_plug.target.task.argument:
                                             logging.info(
-                                                "Processor plug is connected to argument: %s", processor_plug.target.argument)
+                                                "Processor plug is connected to argument: %s", processor_plug.target.task.argument)
                                             argument = {
-                                                'name': processor_plug.target.argument.name,
-                                                'kind': processor_plug.target.argument.kind,
-                                                'position': processor_plug.target.argument.position}
+                                                'name': processor_plug.target.task.argument.name,
+                                                'kind': processor_plug.target.task.argument.kind,
+                                                'position': processor_plug.target.task.argument.position}
                                             task_sig = self.processor.app.signature(
                                                 self.processor.processor.module + '.' + self.socket.task.name + '.wait',
                                                 args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
