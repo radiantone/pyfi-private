@@ -409,7 +409,7 @@ class Worker:
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
-                                _data ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
+                                _data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
                                     received), 'room': processor.name}]
 
                                 self.queue.put(_data)
