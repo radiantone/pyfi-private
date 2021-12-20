@@ -1,41 +1,35 @@
 """
 Agent workerclass. Primary task/code execution context for processors
 """
-import redis
-import logging
-import shutil
-import os
-import sys
-import psutil
-import signal
 import configparser
+import logging
+import os
 import platform
-
-from functools import partial
-from pytz import utc
-
-from pyfi.db.model.models import use_identity
-
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+import psutil
+import redis
+import shutil
+import signal
+import sys
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-
-from pathlib import Path
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.schedulers.background import BackgroundScheduler
+from celery.signals import setup_logging
+from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, \
+    task_failure, task_internal_error, task_received
+from functools import partial
+from kombu import Exchange, Queue as KQueue
 from multiprocessing import Condition, Queue
-
+from pathlib import Path
+from pytz import utc
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 
-
 from celery import Celery, group as parallel, chain as pipeline
-from celery.signals import setup_logging
-from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, task_failure, task_internal_error, task_received
-
-from kombu import Exchange, Queue as KQueue
-
-from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, \
+    ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model.models import use_identity
 
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
@@ -49,8 +43,8 @@ def setup_celery_logging(**kwargs):
 
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
-if os.path.exists(HOME+"/pyfi.ini"):
-    CONFIG.read(HOME+"/pyfi.ini")
+if os.path.exists(HOME + "/pyfi.ini"):
+    CONFIG.read(HOME + "/pyfi.ini")
 dburi = CONFIG.get('database', 'uri')
 
 DATABASE = create_engine(
@@ -95,22 +89,16 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
 
-    #session = sessionmaker(bind=DATABASE)()
     try:
-        # session.add(processor)
         name = plug.name
-        #print("PLUG ",plug.name)
-        #plug = session.query(PlugModel).filter_by(name=name).first()
+
         if plug is None:
             logging.warning("Plug %s does not exist", name)
             return
 
-        print("PLUG RESULT ", plug is not None)
-        # session.add(plug)
-        # session.add(socket)
+        logging.debug("PLUG RESULT %s", plug is not None)
 
-        #print("PLUG NAME:",name)
-        tkey = socket.queue.name+'.'+processor.name+'.'+socket.task.name
+        tkey = socket.queue.name + '.' + processor.name + '.' + socket.task.name
         queue = KQueue(
             tkey,
             Exchange(
@@ -128,13 +116,11 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'x-expires': 300}
         )
         task_sig = celery.signature(
-            processor.module+'.'+socket.task.name, queue=queue, kwargs=kwargs)
+            processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
         delayed = task_sig.delay(message)
 
-        logging.info("Dispatched %s %s",
-                     processor.module+'.'+socket.task.name, delayed)
+        logging.info("Dispatched %s", delayed)
     finally:
-        # session.close()
         pass
 
 
@@ -148,7 +134,7 @@ class Worker:
     def get_session(self, engine):
         """ Creates a context with an open SQLAlchemy session.
         """
-        #engine = create_engine(db_url, convert_unicode=True)
+        # engine = create_engine(db_url, convert_unicode=True)
         logging.info("Connecting DB")
         connection = engine.connect()
         logging.info("Creating scoped session")
@@ -184,7 +170,8 @@ class Worker:
             logging.info("Closing session")
             session.close()
 
-    def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False, skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False,
+                 skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -220,12 +207,12 @@ class Worker:
         # self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
         sm = sessionmaker(bind=self.database)
-        #some_session = scoped_session(sm)
+        # some_session = scoped_session(sm)
         self.sm = sm
 
         # now all calls to Session() will create a thread-local session
-        #some_session = Session()
-        #self.session = some_session
+        # some_session = Session()
+        # self.session = some_session
         # self.database.session = some_session  # self.session
 
         self.pool = pool
@@ -234,8 +221,8 @@ class Worker:
 
         logging.debug("New Worker init: %s", processor)
 
-        if os.path.exists(HOME+"/pyfi.ini"):
-            CONFIG.read(HOME+"/pyfi.ini")
+        if os.path.exists(HOME + "/pyfi.ini"):
+            CONFIG.read(HOME + "/pyfi.ini")
             self.backend = CONFIG.get('backend', 'uri')
             self.broker = CONFIG.get('broker', 'uri')
 
@@ -288,7 +275,7 @@ class Worker:
             logging.info("App config is %s", config)
             self.celery.config_from_object(config)
 
-        @self.celery.task(name=self.processor.name+'.pyfi.celery.tasks.enqueue')
+        @self.celery.task(name=self.processor.name + '.pyfi.celery.tasks.enqueue')
         def enqueue(data, *args, **kwargs):
             logging.info("ENQUEUE: %s", data)
             return data
@@ -322,18 +309,16 @@ class Worker:
             self.process = process = Popen(
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid)
 
-            with open(self.pwd+"/worker.pid", "w") as pidfile:
+            with open(self.pwd + "/worker.pid", "w") as pidfile:
                 pidfile.write(str(process.pid))
 
             logging.debug("Worker launched successfully: process %s.",
                           self.process.pid)
-
-            return process
         else:
             """ Run agent worker inside previously launched container """
             pass
 
-
+        return process
 
     def start(self, start=True, listen=True):
         """
@@ -406,7 +391,7 @@ class Worker:
                                 _signal['kwargs']['parent'] = myid
 
                                 processor_path = _socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
                                     received), 'room': processor.name}]
@@ -414,14 +399,15 @@ class Worker:
                                 self.queue.put(data)
 
                                 call = CallModel(id=myid,
-                                                 name=processor.module+'.'+_socket.task.name, taskparent=_signal['taskparent'],
+                                                 name=processor.module + '.' + _socket.task.name,
+                                                 taskparent=_signal['taskparent'],
                                                  socket=_socket, parent=parent, resultid='celery-task-meta-' +
-                                                 _signal['taskid'],
+                                                                                         _signal['taskid'],
                                                  celeryid=_signal['taskid'], task_id=_socket.task.id, state='received')
 
                                 session.add(call)
                                 event = EventModel(
-                                    name='received', note='Received task '+processor.module+'.'+_socket.task.name)
+                                    name='received', note='Received task ' + processor.module + '.' + _socket.task.name)
 
                                 session.add(event)
                                 call.events += [event]
@@ -452,7 +438,7 @@ class Worker:
                                     parent = _signal['kwargs']['parent']
 
                                 processor_path = _socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
                                     started), 'room': processor.name}]
@@ -492,7 +478,8 @@ class Worker:
                                     logging.info("RETRIEVED CALL %s", call)
 
                                     event = EventModel(
-                                        name='prerun', note='Prerun for task '+processor.module+'.'+_socket.task.name)
+                                        name='prerun',
+                                        note='Prerun for task ' + processor.module + '.' + _socket.task.name)
 
                                     session.add(event)
                                     call.events += [event]
@@ -573,11 +560,14 @@ class Worker:
 
                                 # Build path to the task
                                 processor_path = socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 # Create data record for this event
                                 data = {
-                                    'module': self.processor.module, 'date': str(datetime.now()), 'resultkey': 'celery-task-meta-'+_signal['taskid'], 'message': 'Processor message', 'channel': 'task', 'room': processor.name, 'task': _signal['sender']}
+                                    'module': self.processor.module, 'date': str(datetime.now()),
+                                    'resultkey': 'celery-task-meta-' + _signal['taskid'],
+                                    'message': 'Processor message', 'channel': 'task', 'room': processor.name,
+                                    'task': _signal['sender']}
 
                                 payload = json.dumps(data)
                                 data['message'] = payload
@@ -604,7 +594,8 @@ class Worker:
 
                         # Put log event into queue for emission
                         self.queue.put(
-                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor.name, 'message': 'A log message!'}])
+                            ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor.name,
+                                        'message': 'A log message!'}])
 
                         logging.info("PLUGS: %s", plugs)
 
@@ -668,10 +659,10 @@ class Worker:
                                 """ We have data in an outbound queue and need to find the associated plug and socket to construct the call
                                 and pass the data along """
 
-                                tkey = key+'.' + target_processor.name.replace(
-                                    ' ', '.')+'.'+processor_plug.target.task.name
+                                tkey = key + '.' + target_processor.name.replace(
+                                    ' ', '.') + '.' + processor_plug.target.task.name
 
-                                tkey2 = key+'.' + '.' + processor_plug.target.task.name
+                                tkey2 = key + '.' + '.' + processor_plug.target.task.name
 
                                 logging.info(
                                     "Sending {} to queue {}".format(msg, tkey))
@@ -683,13 +674,13 @@ class Worker:
 
                                     logging.info("Invoking {}=>{}({})".format(
                                         key,
-                                        target_processor.module+'.'+processor_plug.target.task.name, msg))
+                                        target_processor.module + '.' + processor_plug.target.task.name, msg))
 
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
                                             processor_plug.queue.name, type='direct'),
-                                        routing_key=processor.name+'.pyfi.celery.tasks.enqueue',
+                                        routing_key=processor.name + '.pyfi.celery.tasks.enqueue',
 
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -702,8 +693,9 @@ class Worker:
                                             'x-expires': 300}
                                     )
 
-                                    plug_sig = self.celery.signature(processor.name+'.pyfi.celery.tasks.enqueue', args=(
-                                        msg,), queue=plug_queue, kwargs=pass_kwargs)
+                                    plug_sig = self.celery.signature(processor.name + '.pyfi.celery.tasks.enqueue',
+                                                                     args=(
+                                                                         msg,), queue=plug_queue, kwargs=pass_kwargs)
                                     # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
                                         tkey,
@@ -751,8 +743,21 @@ class Worker:
                                         # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
+
                                         task_sig = self.celery.signature(
-                                            target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
+                                            target_processor.module + '.' + processor_plug.target.task.name,
+                                            args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
+
+                                        if processor_plug.argument:
+                                            logging.info(
+                                                "Processor plug is connected to argument: %s", processor_plug.argument)
+                                            argument = {
+                                                'name': processor_plug.argument.name,
+                                                'kind': processor_plug.argument.kind,
+                                                'position': processor_plug.argument.position}
+                                            task_sig = self.processor.app.signature(
+                                                self.processor.processor.module + '.' + self.socket.task.name + '.wait',
+                                                args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         delayed = pipeline(
                                             # plug_sig,
@@ -765,23 +770,25 @@ class Worker:
                                             "   ADDED TASK SIG: %s", task_sig)
                                         # logging.info(
                                         #    "PIPELINE invoke %s", delayed)
-                                        #result = delayed.get()
-                                        #logging.info("PIPELINE executed %s", result)
+                                        # result = delayed.get()
+                                        # logging.info("PIPELINE executed %s", result)
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
 
                                     logging.info(
-                                        "call complete %s %s %s", target_processor.module+'.'+processor_plug.target.task.name, (msg,), worker_queue)
+                                        "call complete %s %s %s",
+                                        target_processor.module + '.' + processor_plug.target.task.name, (msg,),
+                                        worker_queue)
 
                                     # Remove the message off the plug
                                     plugs[pname].remove(msg)
 
                         # Execute parallel( pipeline(plug,task), ...)
                         delayed = parallel(*pipelines).delay()
-                        #logging.info("PARALLEL invoke %s",delayed)
-                        #result = delayed.get()
-                        #logging.info("PARALLEL result %s",result)
+                        # logging.info("PARALLEL invoke %s",delayed)
+                        # result = delayed.get()
+                        # logging.info("PARALLEL result %s",result)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)
@@ -840,19 +847,18 @@ class Worker:
                             # a message to all the connected queues however sending a task to
                             # this queue will deliver to this processor only
                             processor_path = socket.queue.name + '.' + \
-                                self.processor.name.replace(' ', '.')
+                                             self.processor.name.replace(' ', '.')
 
                             logging.info("Joining room %s", processor_path)
                             if processor_path not in queues:
                                 queues += [processor_path]
 
                             processor_task = socket.queue.name + '.' + self.processor.name.replace(
-                                ' ', '.')+'.'+socket.task.name
+                                ' ', '.') + '.' + socket.task.name
                             processor_task2 = self.processor.module + '.' + socket.task.name
 
                             if processor_task not in queues:
-
-                                #room = {'room': processor_task}
+                                # room = {'room': processor_task}
                                 queues += [processor_task]
 
                             if processor_task2 not in queues:
@@ -860,7 +866,7 @@ class Worker:
 
                             # This topic queue represents the broadcast fanout to all workers connected
                             # to it. Sending a task to this queue delivers to all connected workers
-                            #queues += []
+                            # queues += []
 
                             from kombu import Exchange, Queue, binding
                             from kombu.common import Broadcast
@@ -868,12 +874,11 @@ class Worker:
                                           socket.queue.expires)
 
                             for processor_plug in socket.sourceplugs:
-
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
                                     Exchange(
                                         processor_plug.queue.name, type='direct'),
-                                    routing_key=self.processor.name+'.pyfi.celery.tasks.enqueue',
+                                    routing_key=self.processor.name + '.pyfi.celery.tasks.enqueue',
 
                                     message_ttl=processor_plug.queue.message_ttl,
                                     durable=processor_plug.queue.durable,
@@ -889,13 +894,13 @@ class Worker:
 
                             task_queues += [
                                 KQueue(
-                                    socket.queue.name+'.' +
+                                    socket.queue.name + '.' +
                                     self.processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name,
+                                        ' ', '.') + '.' + socket.task.name,
                                     Exchange(socket.queue.name + '.' + self.processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name, type='direct'),
+                                        ' ', '.') + '.' + socket.task.name, type='direct'),
                                     routing_key=socket.queue.name + '.' + self.processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name,
+                                        ' ', '.') + '.' + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
@@ -910,10 +915,10 @@ class Worker:
 
                             task_queues += [
                                 KQueue(
-                                    self.processor.module+'.'+socket.task.name,
+                                    self.processor.module + '.' + socket.task.name,
                                     Exchange(socket.queue.name + '.' + self.processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name, type='direct'),
-                                    routing_key=self.processor.module+'.'+socket.task.name,
+                                        ' ', '.') + '.' + socket.task.name, type='direct'),
+                                    routing_key=self.processor.module + '.' + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
@@ -928,9 +933,9 @@ class Worker:
 
                             task_queues += [
                                 KQueue(
-                                    socket.queue.name+'.' +
+                                    socket.queue.name + '.' +
                                     self.processor.name.replace(
-                                        ' ', '.')+'.'+socket.task.name,
+                                        ' ', '.') + '.' + socket.task.name,
                                     Exchange(socket.queue.name +
                                              '.topic', type='fanout'),
                                     routing_key=socket.queue.name + '.topic',
@@ -944,9 +949,9 @@ class Worker:
                                 )
                             ]
 
-                            task_routes[self.processor.module+'.'+socket.task.name] = {
+                            task_routes[self.processor.module + '.' + socket.task.name] = {
                                 'queue': socket.queue.name,
-                                'exchange': [socket.queue.name+'.topic', socket.queue.name]
+                                'exchange': [socket.queue.name + '.topic', socket.queue.name]
                             }
 
                 @worker_process_init.connect()
@@ -964,12 +969,13 @@ class Worker:
                 app.conf.task_routes = task_routes
 
                 logging.info("Creating celery worker %s %s %s %s",
-                             self.processor.name+'@'+HOSTNAME, self.backend, self.broker, self.processor.concurrency)
+                             self.processor.name + '@' + HOSTNAME, self.backend, self.broker,
+                             self.processor.concurrency)
 
                 worker = None
                 try:
                     worker = app.Worker(
-                        hostname=self.processor.name+'@'+HOSTNAME,
+                        hostname=self.processor.name + '@' + HOSTNAME,
                         backend=self.backend,
                         broker=self.broker,
                         beat=self.processor.beat,
@@ -988,15 +994,16 @@ class Worker:
                 # Find existing model first
                 try:
                     logging.info(
-                        "Creating worker_model with worker dir %s", self.workdir)
-                    worker_model = session.query(
-                        WorkerModel).filter_by(name=HOSTNAME+".agent."+self.processor.name+'.worker').first()
+                        "Creating workerModel with worker dir %s", self.workdir)
+                    workerModel = session.query(
+                        WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
-                    worker_model.workerdir = self.workdir
+                    workerModel.workerdir = self.workdir
 
-                    logging.info("Created worker_model")
-                    if worker_model is None:
-                        worker_model = WorkerModel(name=HOSTNAME+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
+                    logging.info("Created workerModel")
+                    if workerModel is None:
+                        workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
+                                                  concurrency=int(self.processor.concurrency),
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
@@ -1004,7 +1011,7 @@ class Worker:
                                                   hostname=HOSTNAME,
                                                   requested_status='start')
 
-                        session.add(worker_model)
+                        session.add(workerModel)
 
                     session.commit()
 
@@ -1019,8 +1026,8 @@ class Worker:
                     for socket in self.processor.sockets:
                         if socket.interval <= 0:
                             continue
-                        tkey = socket.queue.name+'.' + self.processor.name.replace(
-                            ' ', '.')+'.'+socket.task.name
+                        tkey = socket.queue.name + '.' + self.processor.name.replace(
+                            ' ', '.') + '.' + socket.task.name
 
                         worker_queue = KQueue(
                             tkey,
@@ -1096,7 +1103,7 @@ class Worker:
                                                     found = True
                                             '''
 
-                                            if not found and socket.interval and socket.interval > 0:
+                                            if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug
                                                 try:
@@ -1109,14 +1116,15 @@ class Worker:
                                                         while True:
                                                             logging.info(
                                                                 "Calling function %s", func)
-                                                            func(*args)
+                                                            # func(*args)
                                                             logging.info(
                                                                 "Sleeping %s", interval)
                                                             time.sleep(
                                                                 interval)
 
                                                     job = Process(target=schedule_function, args=(
-                                                        dispatcher, socket.interval, (self.processor, plug, "message", self.dburi, socket)))
+                                                        dispatcher, socket.interval,
+                                                        (self.processor, plug, "message", self.dburi, socket)))
                                                     job.start()
                                                     # scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                     #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
@@ -1148,10 +1156,29 @@ class Worker:
                             logging.info("NO TASK CODE")
 
                         # Get the function from the loaded module
-                        func = getattr(module, socket.task.name)
+                        _func = getattr(module, socket.task.name)
 
-                        func = self.celery.task(func, name=self.processor.module +
-                                                '.'+socket.task.name, retries=self.processor.retries)
+                        # Invoke the function directly, with direct connected plug
+                        func = self.celery.task(_func, name=self.processor.module +
+                                                            '.' + socket.task.name, retries=self.processor.retries)
+
+                        def wait_on_params(argument, *args, **kwargs):
+                            logging.info("Argument for %s: %s",
+                                         _func, argument)
+                            # Get incoming Argument, if you have them all then
+                            # invoke the _func otherwise, wait until you get all the Arguments
+
+                            return True  # _func(*args, **kwargs)
+
+                        # Invoke the param wrapper func endpoint. Used by Plugs that specify they
+                        # fill specific parameters of the task
+                        func_wait = self.celery.task(wait_on_params, name=self.processor.module +
+                                                                          '.' + socket.task.name + '.wait',
+                                                     retries=self.processor.retries)
+
+                        # TODO: Create a variation of the func with a wrapped function that
+                        # will wait for async incoming parameters before triggering the function
+                        # and pass all the ordered parameters to it
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
@@ -1167,9 +1194,11 @@ class Worker:
                                     return
 
                                 print("KWARGS:",
-                                      {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                      {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'],
+                                       'taskid': task_id, 'args': args})
                                 self.main_queue.put(
-                                    {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                    {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'],
+                                     'taskid': task_id, 'args': args})
 
                                 if 'tracking' not in kwargs.get('kwargs'):
                                     kwargs['kwargs']['tracking'] = str(uuid4())
@@ -1223,9 +1252,11 @@ class Worker:
                                 return
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                  {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id,
+                                   'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
-                                {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id, 'taskparent': request.parent_id, 'taskid': request.id})
+                                {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id,
+                                 'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
@@ -1246,11 +1277,13 @@ class Worker:
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
-                                         {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                         {'signal': 'postrun', 'result': retval, 'sender': sender.__name__,
+                                          'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
-                                {'signal': 'postrun', 'result': retval, 'sender': sender.__name__, 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
+                                {'signal': 'postrun', 'result': retval, 'sender': sender.__name__,
+                                 'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
                 logging.info("Starting scheduler...")
@@ -1368,7 +1401,7 @@ class Worker:
                     logging.info("Emitting message %s %s",
                                  message[1]['room'], message)
                     redisclient.publish(
-                        message[1]['room']+'.'+message[1]['channel'], json.dumps(message[1]))
+                        message[1]['room'] + '.' + message[1]['channel'], json.dumps(message[1]))
 
                 except Exception as ex:
                     logging.error(ex)
@@ -1377,7 +1410,7 @@ class Worker:
         emit_process = Thread(target=emit_messages, name="emit_messages")
         emit_process.daemon = True
         emit_process.start()
-        #logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
+        # logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
 
         # logging.debug(
         #    "Started worker process with pid[%s]", worker_process.pid)
@@ -1388,7 +1421,7 @@ class Worker:
         """
         Docstring
         """
-        #cinspect = celery.current_app.control.inspect()
+        # cinspect = celery.current_app.control.inspect()
         # cinspect.active()) + ccount(cinspect.scheduled()) + ccount(cinspect.reserved())
         pass
 
