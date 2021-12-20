@@ -126,6 +126,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
             delayed = task_sig.delay(argument, message)
         else:
+            logging.info("Plug argument %s", plug.argument)
             task_sig = celery.signature(
                 processor.module + '.' + socket.task.name, queue=queue, kwargs=kwargs)
 
