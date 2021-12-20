@@ -1311,10 +1311,10 @@ class Worker:
 
                             print("KWARGS", kwargs)
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': _function_name, 'kwargs': {}, 'request': request.id,
+                                  {'signal': 'received', 'sender': _function_name[0], 'kwargs': {}, 'request': request.id,
                                    'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
-                                {'signal': 'received', 'sender': _function_name, 'kwargs': {}, 'request': request.id,
+                                {'signal': 'received', 'sender': _function_name[0], 'kwargs': {}, 'request': request.id,
                                  'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
