@@ -757,9 +757,6 @@ class Worker:
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
 
-                                        task_sig = self.celery.signature(
-                                            target_processor.module + '.' + processor_plug.target.task.name,
-                                            args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         if processor_plug.argument:
                                             logging.info(
@@ -769,10 +766,11 @@ class Worker:
                                                 'kind': processor_plug.argument.kind,
                                                 'position': processor_plug.argument.position}
                                             pass_kwargs['argument'] = argument
-                                            task_sig = self.celery.signature(
-                                                target_processor.module + '.' + processor_plug.target.task.name,
-                                                args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
+                                        task_sig = self.celery.signature(
+                                            target_processor.module + '.' + processor_plug.target.task.name,
+                                            args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
+                                            
                                         delayed = pipeline(
                                             # plug_sig,
                                             task_sig
