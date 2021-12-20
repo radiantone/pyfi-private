@@ -1198,8 +1198,19 @@ class Worker:
                         # Get the function from the loaded module
                         _func = getattr(module, socket.task.name)
 
+                        def wrapped_function(*args, **kwargs):
+                            logging.info("WRAPPED FUNCTION INVOKE")
+                            logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
+
+                            return _func(*args, **kwargs)
+                            
+
+                        # Wrap the _func in another function that introspects the kwargs and if there is an argument
+                        # incoming then store that argument and if all the arguments are stored, then invoke the function,
+                        # Otherwise, just invoke the function
+
                         # Invoke the function directly, with direct connected plug
-                        func = self.celery.task(_func, name=self.processor.module +
+                        func = self.celery.task(wrapped_function, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
 
                         '''
