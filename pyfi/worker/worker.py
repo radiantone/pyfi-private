@@ -769,7 +769,7 @@ class Worker:
                                                 'kind': processor_plug.argument.kind,
                                                 'position': processor_plug.argument.position}
                                             task_sig = self.celery.signature(
-                                                self.processor.module + '.' + self.socket.task.name + '.wait',
+                                                target_processor.module + '.' + processor_plug.target.task.name + '.wait',
                                                 args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         delayed = pipeline(
