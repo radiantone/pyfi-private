@@ -1372,6 +1372,17 @@ class Worker:
                         logging.error("Could not install %s",
                                       self.processor.gitrepo.strip())
 
+                else:
+                    # Update pyfi
+                    env = VirtualEnvironment(
+                        'venv', python=sys.executable, system_site_packages=True)  # inside git directory
+
+                    login = os.environ['GIT_LOGIN']
+
+                    env.install('-e git+' + login +
+                                '/radiantone/pyfi-private#egg=pyfi')
+                    
+
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
 
