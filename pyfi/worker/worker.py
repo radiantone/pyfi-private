@@ -1327,22 +1327,23 @@ class Worker:
                             print("New KWARGS ARE:", kwargs)
 
                         @task_postrun.connect()
-                        def pyfi_task_postrun(sender=None, task_id=None, retval=None, *args, **kwargs):
+                        def pyfi_task_postrun(sender=None, task_id=None, task=None, retval=None, *args, **kwargs):
                             from datetime import datetime
                             from uuid import uuid4
 
                             if sender.__name__ == 'enqueue':
                                 return
 
+                            _function_name = task.name.rsplit('.')[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
                             logging.info("TASK_POSTRUN KWARGS: %s",
-                                         {'signal': 'postrun', 'result': retval, 'sender': sender.__name__,
+                                         {'signal': 'postrun', 'result': retval, 'sender': _function_name,
                                           'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
 
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
-                                {'signal': 'postrun', 'result': retval, 'sender': kwargs['kwargs']['function'],
+                                {'signal': 'postrun', 'result': retval, 'sender': _function_name,
                                  'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
