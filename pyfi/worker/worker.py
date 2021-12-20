@@ -456,10 +456,10 @@ class Worker:
                                 processor_path = _socket.queue.name + '.' + \
                                     processor.name.replace(' ', '.')
 
-                                data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
+                                _data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
                                     started), 'room': processor.name}]
 
-                                self.queue.put(data)
+                                self.queue.put(_data)
 
                                 sourceplug = None
                                 logging.info(
