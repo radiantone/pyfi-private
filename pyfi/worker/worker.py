@@ -768,8 +768,9 @@ class Worker:
                                                 'name': processor_plug.argument.name,
                                                 'kind': processor_plug.argument.kind,
                                                 'position': processor_plug.argument.position}
+                                            pass_kwargs['argument'] = argument
                                             task_sig = self.celery.signature(
-                                                target_processor.module + '.' + processor_plug.target.task.name + '.wait',
+                                                target_processor.module + '.' + processor_plug.target.task.name,
                                                 args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         delayed = pipeline(
@@ -790,11 +791,11 @@ class Worker:
                                         print(traceback.format_exc())
 
                                     logging.info(
-                                        "call complete %s %s %s",
+                                        "call complete %s %s %s %s",
                                         target_processor.module + '.' +
                                         processor_plug.target.task.name, (
                                             msg,),
-                                        worker_queue)
+                                        worker_queue, task_sig)
 
                                     # Remove the message off the plug
                                     plugs[pname].remove(msg)
@@ -984,6 +985,12 @@ class Worker:
                             task_routes[self.processor.module + '.' + socket.task.name] = {
                                 'queue': socket.queue.name,
                                 'exchange': [socket.queue.name + '.topic', socket.queue.name]
+                            }
+
+                            task_routes[self.processor.module + '.' + socket.task.name + '.wait'] = {
+                                'queue': socket.queue.name,
+                                'exchange': [socket.queue.name + '.' + self.processor.name.replace(
+                                    ' ', '.') + '.' + socket.task.name, socket.queue.name]
                             }
 
                 @worker_process_init.connect()
