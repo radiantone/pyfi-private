@@ -589,7 +589,7 @@ class Worker:
                                 data['message'] = payload
                                 break
 
-                        logging.info("DATA:", data)
+                        logging.info("DATA: %s", data)
 
                         # Add task result to data record
                         _r = _signal['result']
