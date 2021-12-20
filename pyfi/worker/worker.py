@@ -588,6 +588,7 @@ class Worker:
                                 payload = json.dumps(data)
                                 data['message'] = payload
                                 break
+                                
 
                         logging.info("DATA: %s", data)
 
@@ -598,6 +599,7 @@ class Worker:
                         except:
                             result = "Not JSON Serializable"
                             pass
+
                         data['message'] = json.dumps(result)
                         data['message'] = json.dumps(data)
                         data['state'] = 'postrun'
@@ -1306,10 +1308,10 @@ class Worker:
                                 return
 
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id,
+                                  {'signal': 'received', 'sender': kwargs['kwargs']['function'], 'kwargs': {}, 'request': request.id,
                                    'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
-                                {'signal': 'received', 'sender': sender, 'kwargs': {}, 'request': request.id,
+                                {'signal': 'received', 'sender': kwargs['kwargs']['function'], 'kwargs': {}, 'request': request.id,
                                  'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
