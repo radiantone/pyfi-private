@@ -127,7 +127,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             #delayed = task_sig.delay(argument, message)
             logging.info("Plug argument %s", plug.argument)
             kwargs['argument'] = argument
-            
+
         kwargs['function'] = socket.task.name
 
         task_sig = celery.signature(
@@ -1248,10 +1248,10 @@ class Worker:
                                     return
 
                                 print("KWARGS:",
-                                      {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'],
+                                      {'signal': 'prerun', 'sender': kwargs['kwargs']['function'], 'kwargs': kwargs['kwargs'],
                                        'taskid': task_id, 'args': args})
                                 self.main_queue.put(
-                                    {'signal': 'prerun', 'sender': sender.__name__, 'kwargs': kwargs['kwargs'],
+                                    {'signal': 'prerun', 'sender': kwargs['kwargs']['function'], 'kwargs': kwargs['kwargs'],
                                      'taskid': task_id, 'args': args})
 
                                 if 'tracking' not in kwargs.get('kwargs'):
