@@ -1210,7 +1210,7 @@ class Worker:
                         # Otherwise, just invoke the function
 
                         # Invoke the function directly, with direct connected plug
-                        func = self.celery.task(_func, name=self.processor.module +
+                        func = self.celery.task(wrapped_function, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
 
                         '''
