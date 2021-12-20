@@ -948,6 +948,23 @@ class Worker:
 
                             task_queues += [
                                 KQueue(
+                                    self.processor.module + '.' + socket.task.name + '.wait',
+                                    Exchange(socket.queue.name + '.' + self.processor.name.replace(
+                                        ' ', '.') + '.' + socket.task.name, type='direct'),
+                                    routing_key=self.processor.module + '.' + socket.task.name + '.wait',
+                                    message_ttl=socket.queue.message_ttl,
+                                    durable=socket.queue.durable,
+                                    expires=socket.queue.expires,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    queue_arguments={
+                                        'x-message-ttl': 30000,
+                                        'x-expires': 300
+                                    }
+                                )
+                            ]
+                            task_queues += [
+                                KQueue(
                                     socket.queue.name + '.' +
                                     self.processor.name.replace(
                                         ' ', '.') + '.' + socket.task.name,
