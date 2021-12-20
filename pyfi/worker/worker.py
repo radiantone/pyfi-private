@@ -1296,6 +1296,8 @@ class Worker:
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info("Task RECEIVED REQUEST %s %s %s",
                                          request.id, sender, request.name)
+
+                            _function_name = request.name.rsplit('.')[-1:]
                             logging.info("Task Request Parent %s",
                                          request.parent_id)
                             from datetime import datetime
@@ -1309,10 +1311,10 @@ class Worker:
 
                             print("KWARGS", kwargs)
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': kwargs['kwargs']['function'], 'kwargs': {}, 'request': request.id,
+                                  {'signal': 'received', 'sender': _function_name, 'kwargs': {}, 'request': request.id,
                                    'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
-                                {'signal': 'received', 'sender': kwargs['kwargs']['function'], 'kwargs': {}, 'request': request.id,
+                                {'signal': 'received', 'sender': _function_name, 'kwargs': {}, 'request': request.id,
                                  'taskparent': request.parent_id, 'taskid': request.id})
                             print("PUT RECEIVED KWARGS on queue")
 
