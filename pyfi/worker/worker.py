@@ -771,7 +771,7 @@ class Worker:
                                             pass_kwargs['argument'] = argument
                                             task_sig = self.celery.signature(
                                                 target_processor.module + '.' + processor_plug.target.task.name,
-                                                args=(argument, msg,), queue=worker_queue, kwargs=pass_kwargs)
+                                                args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         delayed = pipeline(
                                             # plug_sig,
