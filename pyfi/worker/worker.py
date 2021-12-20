@@ -1251,10 +1251,10 @@ class Worker:
 
                                 _function_name = task.name.rsplit('.')[-1:]
                                 print("KWARGS:",
-                                      {'signal': 'prerun', 'sender': _function_name, 'kwargs': kwargs['kwargs'],
+                                      {'signal': 'prerun', 'sender': _function_name[0], 'kwargs': kwargs['kwargs'],
                                        'taskid': task_id, 'args': args})
                                 self.main_queue.put(
-                                    {'signal': 'prerun', 'sender': _function_name, 'kwargs': kwargs['kwargs'],
+                                    {'signal': 'prerun', 'sender': _function_name[0], 'kwargs': kwargs['kwargs'],
                                      'taskid': task_id, 'args': args})
 
                                 if 'tracking' not in kwargs.get('kwargs'):
