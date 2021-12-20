@@ -327,11 +327,13 @@ class Worker:
 
             logging.debug("Worker launched successfully: process %s.",
                           self.process.pid)
+
+            return process
         else:
             """ Run agent worker inside previously launched container """
             pass
 
-        return process
+
 
     def start(self, start=True, listen=True):
         """
@@ -986,15 +988,15 @@ class Worker:
                 # Find existing model first
                 try:
                     logging.info(
-                        "Creating workerModel with worker dir %s", self.workdir)
-                    workerModel = session.query(
+                        "Creating worker_model with worker dir %s", self.workdir)
+                    worker_model = session.query(
                         WorkerModel).filter_by(name=HOSTNAME+".agent."+self.processor.name+'.worker').first()
 
-                    workerModel.workerdir = self.workdir
+                    worker_model.workerdir = self.workdir
 
-                    logging.info("Created workerModel")
-                    if workerModel is None:
-                        workerModel = WorkerModel(name=HOSTNAME+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
+                    logging.info("Created worker_model")
+                    if worker_model is None:
+                        worker_model = WorkerModel(name=HOSTNAME+".agent."+self.processor.name+'.worker', concurrency=int(self.processor.concurrency),
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
@@ -1002,7 +1004,7 @@ class Worker:
                                                   hostname=HOSTNAME,
                                                   requested_status='start')
 
-                        session.add(workerModel)
+                        session.add(worker_model)
 
                     session.commit()
 
