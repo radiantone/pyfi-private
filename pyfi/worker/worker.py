@@ -777,7 +777,9 @@ class Worker:
                                                 'function': processor_plug.task.name,
                                                 'position': processor_plug.argument.position}
                                             pass_kwargs['argument'] = argument
-
+                                        else:
+                                            logging.info("Processor plug not connected to argument.")
+                                            
                                         task_sig = self.celery.signature(
                                             target_processor.module + '.' + processor_plug.target.task.name,
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
