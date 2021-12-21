@@ -123,7 +123,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
-                'key': plug.task.module + '.' + plug.task.name,
+                'key': plug.target.module + '.' + plug.target.name,
                 'module': plug.task.module,
                 'function': plug.task.name,
                 'position': plug.argument.position}
