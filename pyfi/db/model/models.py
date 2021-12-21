@@ -513,15 +513,25 @@ class NodeModel(BaseModel):
         return '{}:{}:{}'.format(self.id, self.name, self.hostname)
 
 
+plugs_arguments = Table('plugs_arguments', Base.metadata,
+                        Column('plug_id', ForeignKey(
+                            'plug.id'), primary_key=True),
+                        Column('argument_id', ForeignKey(
+                            'argument.id'), primary_key=True)
+                        )
+
 class ArgumentModel(BaseModel):
     __tablename__ = 'argument'
 
-    name = Column(String(60))
+    name = Column(String(60), nullable=False)
     position = Column(Integer, default=0)
     kind = Column(Integer)
 
     task_id = Column(String(40), ForeignKey('task.id'))
 
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True)
+    plugs = relationship("PlugModel", backref='argument')
 
 class TaskModel(BaseModel):
     """
@@ -629,7 +639,6 @@ plugs_queues = Table('plugs_queues', Base.metadata,
                      Column('queue_id', ForeignKey('queue.id'))
                      )
 
-
 class PlugModel(BaseModel):
     """
     Docstring
@@ -647,8 +656,10 @@ class PlugModel(BaseModel):
     target = relationship("SocketModel", back_populates="targetplugs",
                           secondary=plugs_target_sockets, uselist=False)
 
-    argument_id = Column(String, ForeignKey("argument.id"), nullable=True)
-    argument = relationship("ArgumentModel")
+    #argument_id = Column(String, ForeignKey('argument.id'))
+    #argument = relationship("ArgumentModel", secondary=plugs_arguments, back_populates="plugs", uselist=False)
+    argument_id = Column(String, ForeignKey('argument.id'))
+    #argument = relationship("ArgumentModel", lazy=True)
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)

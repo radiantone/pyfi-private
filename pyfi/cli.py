@@ -221,7 +221,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             permissions = {SchedulerModel: "read", PrivilegeModel: "read", AgentModel: "read",
                            NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read",
                            QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read",
-                           UserModel: "read", ProcessorModel: "read", RoleModel: "read"}
+                           UserModel: "read", ArgumentModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
@@ -1229,6 +1229,7 @@ def add_argument(context, plug, task, argument):
     import importlib
     import inspect
 
+    user = context.obj['user']
     _task = context.obj['database'].session.query(
         TaskModel).filter_by(name=task).first()
 
@@ -1251,25 +1252,34 @@ def add_argument(context, plug, task, argument):
 
     position = 0
     _task.arguments = []
+    context.obj['database'].session.add(_task)
+    context.obj['database'].session.add(_plug)
     for pname in signature.parameters:
         param = signature.parameters[pname]
         print("Name", param.name)
         print("Kind", param.kind)
         print("Default", param.default)
         _argument = ArgumentModel(
-            name=param.name, position=position, kind=param.kind)
+            name=param.name, position=position, user=user, kind=param.kind)
         _task.arguments += [_argument]
-        context.obj['database'].session.add(_argument)
         position += 1
 
         if param.name == argument:
-            _plug.argument = _argument
-            context.obj['database'].session.add(_plug)
-            logging.info("Added argument %s to plug %s",param.name, _plug.name)
+            context.obj['database'].session.add(_argument)
+            logging.info("ADDING ARGUMENT")
+            _plug.argument_id = _argument.id
+            _argument.plugs += [_plug]
+            #_plug.argument = _argument
+            logging.info("Added argument %s %s to plug %s",
+                         _plug.argument, _argument, _plug.name)
 
+    logging.info("Task argument: %s", _task.arguments)
+    logging.info("Plug argument: %s", _plug.user)
+    logging.info("Added argument %s %s to plug %s",
+                 _argument.plugs, _argument, _plug.name)
     _task.updated = datetime.now()
     context.obj['database'].session.commit()
-
+    
 
 
 @add.command(name='task')
@@ -2774,13 +2784,13 @@ def ls_plug(context, name):
         PlugModel).filter_by(name=name).first()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket"]
+             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket", "Argument"]
     x.field_names = names
 
     node = plug
     x.add_row([node.name, node.id, node.owner, node.lastupdated,
                node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name,
-               node.target.name])
+               node.target.name, node.argument.id])
 
     print(x)
 
