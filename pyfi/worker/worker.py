@@ -1206,7 +1206,13 @@ class Worker:
                             logging.info("WRAPPED FUNCTION INVOKE")
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
-                            return _func(*args, **kwargs)
+                            _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
+
+                            if _kwargs:
+                                return _func(*args, **_kwargs)
+                            else:
+                                return _func(*args)
+
 
                         # Wrap the _func in another function that introspects the kwargs and if there is an argument
                         # incoming then store that argument and if all the arguments are stored, then invoke the function,
