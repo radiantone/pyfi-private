@@ -558,7 +558,7 @@ class Worker:
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 event = EventModel(
-                                    name='postrun', note='Postrun for task ')
+                                    name='postrun', note='Postrun for task')
 
                                 session.add(event)
                                 call.events += [event]
@@ -652,7 +652,10 @@ class Worker:
 
                             key = processor_plug.target.queue.name
 
-                            msgs = [msg for msg in plugs[pname]]
+
+                            #msgs = [msg for msg in plugs[pname]]
+                            
+                            msgs = [result]
 
                             logging.info("msgs %s", msgs)
 
