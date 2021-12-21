@@ -1180,7 +1180,7 @@ class Worker:
                                                                 interval)
 
                                                     
-                                                    logging.info("Pre-dispatch plug.argument %s", plug.argument)
+                                                    logging.info("Pre-dispatch plug.argument %s", plug.argument_id)
                                                     job = Process(target=schedule_function, args=(
                                                         dispatcher, socket.interval,
                                                         (self.processor, plug, "message", session, socket)))
