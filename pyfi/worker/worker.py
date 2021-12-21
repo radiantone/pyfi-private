@@ -121,6 +121,9 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
+                'key': plug.task.module + '.' + plug.task.name,
+                'module': plug.task.module,
+                'function': plug.task.name,
                 'position': plug.argument.position}
             #task_sig = celery.signature(
             #    processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
@@ -769,6 +772,9 @@ class Worker:
                                             argument = {
                                                 'name': processor_plug.argument.name,
                                                 'kind': processor_plug.argument.kind,
+                                                'key': processor_plug.task.module + '.' + processor_plug.task.name,
+                                                'module': processor_plug.task.module,
+                                                'function': processor_plug.task.name,
                                                 'position': processor_plug.argument.position}
                                             pass_kwargs['argument'] = argument
 
@@ -1202,7 +1208,11 @@ class Worker:
                         # Get the function from the loaded module
                         _func = getattr(module, socket.task.name)
 
+
+
                         def wrapped_function(*args, **kwargs):
+                            redisclient = redis.Redis.from_url(self.backend)
+
                             logging.info("WRAPPED FUNCTION INVOKE")
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
@@ -1279,6 +1289,15 @@ class Worker:
                                 logging.info("PRERUN QUEUE: %s", response)
                                 logging.info(
                                     "PRERUN KWARGS IS NOW: %s", kwargs)
+
+                                if 'argument' in kwargs['kwargs']:
+                                    _argument = kwargs['kwargs']['argument']
+                                    key = _argument['key']
+                                # If this is an argument call, then check redis for all current arguments
+                                # Including the one here, pull in all the arguments and put them in the kwargs
+                                # The wrapped_function will receive them and based on the function arguments
+                                # decide if it can invoke the function or not
+
                             finally:
                                 # PRERUN_CONDITION.release()
                                 pass
