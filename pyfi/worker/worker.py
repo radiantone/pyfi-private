@@ -530,6 +530,7 @@ class Worker:
                         import json
                         import pickle
 
+                        logging.info("POSTRUN: SIGNAL: %s", _signal)
                         logging.info("POSTRUN: KWARGS: %s", _signal['kwargs'])
                         task_kwargs = _signal['kwargs']
                         plugs = task_kwargs['plugs']
