@@ -627,7 +627,8 @@ class Worker:
 
                         pipelines = []
                         # Look for any data placed on socket plugs
-                        for pname in plugs:
+                        #for pname in plugs:
+                        for pname in sourceplugs:
                             logging.info("PLUG Pname: %s", pname)
                             processor_plug = None
 
