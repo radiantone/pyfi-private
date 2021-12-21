@@ -115,6 +115,8 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
                 'x-message-ttl': 30000,
                 'x-expires': 300}
         )
+
+        logging.info("Plug.argument %s",plug.argument)
         if plug.argument:
             logging.info(
                 "Processor plug %s is connected to argument: %s", plug, plug.argument)
