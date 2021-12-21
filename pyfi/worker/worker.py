@@ -618,11 +618,12 @@ class Worker:
                             ['roomsg', {'channel': 'log', 'date': str(datetime.now()), 'room': processor.name,
                                         'message': 'A log message!'}])
 
-                        logging.info("PLUGS: %s", plugs)
+                        logging.info("PLUGS-: %s", plugs)
 
                         pipelines = []
                         # Look for any data placed on socket plugs
                         for pname in plugs:
+                            logging.info("PLUG Pname: %s", pname)
                             processor_plug = None
 
                             if pname not in sourceplugs:
@@ -779,7 +780,7 @@ class Worker:
                                             pass_kwargs['argument'] = argument
                                         else:
                                             logging.info("Processor plug not connected to argument.")
-                                            
+
                                         task_sig = self.celery.signature(
                                             target_processor.module + '.' + processor_plug.target.task.name,
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
