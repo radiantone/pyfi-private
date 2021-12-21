@@ -130,6 +130,8 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             #delayed = task_sig.delay(argument, message)
             logging.info("Plug argument %s", plug.argument)
             kwargs['argument'] = argument
+        else:
+            logging.info("Processor plug is not connected to argument.")
 
         kwargs['function'] = socket.task.name
 
