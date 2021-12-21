@@ -648,7 +648,7 @@ class PlugModel(BaseModel):
                           secondary=plugs_target_sockets, uselist=False)
 
     argument_id = Column(String, ForeignKey("argument.id"), nullable=True)
-    argument = relationship("ArgumentModel", lazy=True)
+    argument = relationship("ArgumentModel")
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)

@@ -229,8 +229,9 @@ def compose_network(detail, command="build"):
                     continue
 
                 clean = node['clean'] if 'clean' in node else True
+                deploy = node['deploy'] if 'deploy' in node else True
 
-                repos += [(None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
+                repos += [deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
                            node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'],
                            clean)]
 
@@ -255,9 +256,11 @@ def compose_network(detail, command="build"):
 
     for repo in repos:
         logging.info("Installing repo %s", repo)
+        deploy = repo[0]
 
         if command == "build":
-            install_repo(*repo)
+            if deploy:
+                install_repo(*repo[1])
         elif command == "remove":
             try:
                 remove_network(*repo)
