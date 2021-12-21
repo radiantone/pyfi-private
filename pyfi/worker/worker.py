@@ -819,7 +819,7 @@ class Worker:
                                         worker_queue, task_sig)
 
                                     # Remove the message off the plug
-                                    plugs[pname].remove(msg)
+                                    #plugs[pname].remove(msg)
 
                         # Execute parallel( pipeline(plug,task), ...)
                         delayed = parallel(*pipelines).delay()
