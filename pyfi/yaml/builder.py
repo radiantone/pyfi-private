@@ -231,9 +231,9 @@ def compose_network(detail, command="build"):
                 clean = node['clean'] if 'clean' in node else True
                 deploy = node['deploy'] if 'deploy' in node else True
 
-                repos += [deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
+                repos += [(deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
                            node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'],
-                           clean)]
+                           clean))]
 
     if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:
