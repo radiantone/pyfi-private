@@ -117,7 +117,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
         )
         if plug.argument:
             logging.info(
-                "Processor plug is connected to argument: %s", plug.argument)
+                "Processor plug %s is connected to argument: %s", plug, plug.argument)
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
@@ -131,7 +131,7 @@ def dispatcher(processor, plug, message, dburi, socket, **kwargs):
             logging.info("Plug argument %s", plug.argument)
             kwargs['argument'] = argument
         else:
-            logging.info("Processor plug is not connected to argument.")
+            logging.info("Processor plug %s is not connected to argument.", plug)
 
         kwargs['function'] = socket.task.name
 
