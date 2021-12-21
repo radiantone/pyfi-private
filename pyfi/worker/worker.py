@@ -1179,7 +1179,7 @@ class Worker:
                                                             time.sleep(
                                                                 interval)
 
-                                                    session.refresh(plug)
+                                                    
                                                     logging.info("Pre-dispatch plug.argument %s", plug.argument)
                                                     job = Process(target=schedule_function, args=(
                                                         dispatcher, socket.interval,
