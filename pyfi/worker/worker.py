@@ -654,7 +654,7 @@ class Worker:
 
 
                             #msgs = [msg for msg in plugs[pname]]
-                            
+
                             msgs = [result]
 
                             logging.info("msgs %s", msgs)
@@ -782,9 +782,9 @@ class Worker:
                                             argument = {
                                                 'name': processor_plug.argument.name,
                                                 'kind': processor_plug.argument.kind,
-                                                'key': processor_plug.task.module + '.' + processor_plug.task.name,
-                                                'module': processor_plug.task.module,
-                                                'function': processor_plug.task.name,
+                                                'key': processor_plug.target.task.module + '.' + processor_plug.target.task.name,
+                                                'module': processor_plug.target.task.module,
+                                                'function': processor_plug.target.task.name,
                                                 'position': processor_plug.argument.position}
                                             pass_kwargs['argument'] = argument
                                         else:
