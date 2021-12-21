@@ -123,9 +123,9 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
-                'key': plug.target.module + '.' + plug.target.name,
-                'module': plug.target.module,
-                'function': plug.target.name,
+                'key': plug.target.task.module + '.' + plug.target.task.name,
+                'module': plug.target.task.module,
+                'function': plug.target.task.name,
                 'position': plug.argument.position}
             #task_sig = celery.signature(
             #    processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
