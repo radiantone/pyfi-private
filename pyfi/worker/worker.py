@@ -84,7 +84,7 @@ def shutdown(*args):
 signal.signal(signal.SIGINT, shutdown)
 
 
-def dispatcher(processor, plug, message, dburi, socket, **kwargs):
+def dispatcher(processor, plug, message, session, socket, **kwargs):
     """ Execute a task based on a schedule """
     logging.info("Dispatching %s", socket)
     celery = Celery(include=processor.module)
@@ -1179,9 +1179,11 @@ class Worker:
                                                             time.sleep(
                                                                 interval)
 
+                                                    session.refresh(plug)
+                                                    logging.info("Pre-dispatch plug.argument %s", plug.argument)
                                                     job = Process(target=schedule_function, args=(
                                                         dispatcher, socket.interval,
-                                                        (self.processor, plug, "message", self.dburi, socket)))
+                                                        (self.processor, plug, "message", session, socket)))
                                                     job.start()
                                                     # scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                     #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
