@@ -1235,8 +1235,8 @@ class Worker:
 
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
-                            if _kwargs:
-                                if 'argument' in _kwargs:
+                            if kwargs:
+                                if 'argument' in kwargs:
                                     argument = kwargs['argument']
 
                                     # Store argument in redis
@@ -1246,7 +1246,7 @@ class Worker:
                                     # Compare args names to task arguments and if they are 1 to 1
                                     # then trigger the function
                                     logging.info(
-                                        "WRAPPED FUNCTION INVOKE %s", socket.task.arguments)
+                                        "WRAPPED FUNCTION ARGUMENT %s", socket.task.arguments)
                                     for arg in socket.task.arguments:
                                         logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
