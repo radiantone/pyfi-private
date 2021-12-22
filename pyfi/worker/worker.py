@@ -1225,7 +1225,8 @@ class Worker:
 
 
                         def wrapped_function(*args, **kwargs):
-                            
+                            import json
+
                             redisclient = redis.Redis.from_url(self.backend)
 
                             logging.info("WRAPPED FUNCTION INVOKE")
@@ -1234,6 +1235,18 @@ class Worker:
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
                             if _kwargs:
+                                if 'argument' in kwargs:
+                                    argument = kwargs['argument']
+
+                                    # Store argument in redis
+                                    #redisclient.put(argument['key']+'.'+argument['name'], json.dumps(args))
+
+                                    # args = redisclient.get(argument['key']+'.*')
+                                    # Compare args names to task arguments and if they are 1 to 1
+                                    # then trigger the function
+                                    for arg in socket.task.arguments:
+                                        logging.info("WRAPPED_FUNCTION ARG: %s",arg)
+                                        
                                 return _func(*args, **_kwargs)
                             else:
                                 return _func(*args)
