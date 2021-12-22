@@ -1236,7 +1236,7 @@ class Worker:
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
                             if _kwargs:
-                                if 'argument' in kwargs:
+                                if 'argument' in _kwargs:
                                     argument = kwargs['argument']
 
                                     # Store argument in redis
