@@ -1248,8 +1248,8 @@ class Worker:
                                     "WRAPPED FUNCTION ARGUMENT %s", socket.task.arguments)
                                 for arg in socket.task.arguments:
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
-                                    
-                            if kwargs:
+
+                            if _kwargs:
 
                                 return _func(*args, **_kwargs)
                             else:
