@@ -2377,12 +2377,46 @@ def ls_processor(context, id, name, graph):
 
 
 @ls.command(name='task')
+@click.option('-n', '--name', default=None, required=True, help="Name of task")
 @click.pass_context
-def ls_task(context):
+def ls_task(context, name):
     """
     List a task
     """
-    pass
+    task = context.obj['database'].session.query(
+    TaskModel).filter_by(name=name).first()
+
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Module"]
+    names += ["Git Repo"]
+    x.field_names = names
+    tasks = [task]
+
+    for node in tasks:
+        values = [node.name, node.id, node.owner,
+                  node.lastupdated, node.module]
+
+        values += [node.gitrepo]
+        x.add_row(values)
+
+    print(x)
+    print()
+
+    print("Arguments")
+    x = PrettyTable()
+
+    names = ["ID", "Name", "Module", "Position", "Kind", "Function"]
+    x.field_names = names
+
+    kinds = ["POSITIONAL_ONLY","POSITIONAL_OR_KEYWORD","VAR_POSITIONAL","KEYWORD_ONLY","VAR_KEYWORD"]
+    for arg in node.arguments:
+        values = [arg.id, arg.name, task.module,
+                  arg.position, kinds[int(arg.kind)], task.name]
+
+        x.add_row(values)
+
+    print(x)
 
 
 @ls.command(name='stats')
@@ -2772,13 +2806,58 @@ def ls_plug(context, name):
         PlugModel).filter_by(name=name).first()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket", "Argument"]
+             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket"]
     x.field_names = names
 
     node = plug
     x.add_row([node.name, node.id, node.owner, node.lastupdated,
                node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name,
-               node.target.name, node.argument.id])
+               node.target.name])
+
+    print(x)
+    print()
+    print("Source Task")
+    x = PrettyTable()
+
+    names = ["ID", "Name","Module"]
+    x.field_names = names
+
+    for task in [plug.source.task]:
+        values = [task.id, task.name, task.module]
+
+        x.add_row(values)
+
+    print(x)
+    print()
+
+    print("Target Task")
+    x = PrettyTable()
+
+    names = ["ID", "Name","Module"]
+    x.field_names = names
+
+    for task in [plug.target.task]:
+        values = [task.id, task.name, task.module]
+
+        x.add_row(values)
+
+    print(x)
+    print()
+
+    print("Argument")
+
+    x = PrettyTable()
+
+    names = ["ID", "Name", "Task", "Module", "Position", "Kind", "Function"]
+    x.field_names = names
+
+    kinds = ["POSITIONAL_ONLY", "POSITIONAL_OR_KEYWORD",
+             "VAR_POSITIONAL", "KEYWORD_ONLY", "VAR_KEYWORD"]
+    for arg in [plug.argument]:
+        values = [arg.id, arg.name, arg.task.id, arg.task.module,
+                  arg.position, kinds[int(arg.kind)], arg.task.name]
+
+        x.add_row(values)
 
     print(x)
 
