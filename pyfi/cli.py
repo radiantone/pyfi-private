@@ -1235,14 +1235,6 @@ def add_argument(context, plug, task, argument):
 
     _plug = context.obj['database'].session.query(
         PlugModel).filter_by(name=plug).first()
-
-    if not _plug:
-        print("No plug by that name.")
-        return
-
-    if not _task:
-        print("No task by that name.")
-        return
         
     _module = importlib.import_module(_task.module)
     _function = getattr(_module, _task.name)
@@ -1264,7 +1256,7 @@ def add_argument(context, plug, task, argument):
         _task.arguments += [_argument]
         position += 1
 
-        if param.name == argument:
+        if param.name == argument and _plug:
             context.obj['database'].session.add(_argument)
             logging.info("ADDING ARGUMENT")
             _plug.argument_id = _argument.id
@@ -1273,10 +1265,6 @@ def add_argument(context, plug, task, argument):
             logging.info("Added argument %s %s to plug %s",
                          _plug.argument, _argument, _plug.name)
 
-    logging.info("Task argument: %s", _task.arguments)
-    logging.info("Plug argument: %s", _plug.user)
-    logging.info("Added argument %s %s to plug %s",
-                 _argument.plugs, _argument, _plug.name)
     _task.updated = datetime.now()
     context.obj['database'].session.commit()
     

@@ -1229,7 +1229,8 @@ class Worker:
 
                             redisclient = redis.Redis.from_url(self.backend)
 
-                            logging.info("WRAPPED FUNCTION INVOKE")
+                            logging.info(
+                                "WRAPPED FUNCTION INVOKE %s", socket.task)
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
@@ -1246,7 +1247,7 @@ class Worker:
                                     # then trigger the function
                                     for arg in socket.task.arguments:
                                         logging.info("WRAPPED_FUNCTION ARG: %s",arg)
-                                        
+
                                 return _func(*args, **_kwargs)
                             else:
                                 return _func(*args)
