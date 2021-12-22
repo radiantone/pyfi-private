@@ -1235,20 +1235,21 @@ class Worker:
 
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
+                            if 'argument' in kwargs:
+                                argument = kwargs['argument']
+
+                                # Store argument in redis
+                                #redisclient.put(argument['key']+'.'+argument['name'], json.dumps(args))
+
+                                # args = redisclient.get(argument['key']+'.*')
+                                # Compare args names to task arguments and if they are 1 to 1
+                                # then trigger the function
+                                logging.info(
+                                    "WRAPPED FUNCTION ARGUMENT %s", socket.task.arguments)
+                                for arg in socket.task.arguments:
+                                    logging.info("WRAPPED_FUNCTION ARG: %s",arg)
+                                    
                             if kwargs:
-                                if 'argument' in kwargs:
-                                    argument = kwargs['argument']
-
-                                    # Store argument in redis
-                                    #redisclient.put(argument['key']+'.'+argument['name'], json.dumps(args))
-
-                                    # args = redisclient.get(argument['key']+'.*')
-                                    # Compare args names to task arguments and if they are 1 to 1
-                                    # then trigger the function
-                                    logging.info(
-                                        "WRAPPED FUNCTION ARGUMENT %s", socket.task.arguments)
-                                    for arg in socket.task.arguments:
-                                        logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
                                 return _func(*args, **_kwargs)
                             else:
