@@ -1245,6 +1245,8 @@ class Worker:
                                     # args = redisclient.get(argument['key']+'.*')
                                     # Compare args names to task arguments and if they are 1 to 1
                                     # then trigger the function
+                                    logging.info(
+                                        "WRAPPED FUNCTION INVOKE %s", socket.task.arguments)
                                     for arg in socket.task.arguments:
                                         logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
