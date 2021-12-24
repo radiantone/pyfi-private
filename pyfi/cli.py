@@ -1101,19 +1101,20 @@ def run_task(context, name, type, socket, data):
         _task = context.obj['database'].session.query(
             TaskModel).filter_by(name=name).first()
 
-        if not _task.code:
-            print("Task must have code or specify socket.")
+        if _task.code:
+            result = exec(_task.code, mymodule.__dict__)
+
+            if result:
+                print(result)
             return
-
-        result = exec(_task.code, mymodule.__dict__)
-
-        if result:
-            print(result)
-        return
 
     user = context.obj['user']
     socket = Socket(name=socket, user=user)
 
+    if socket is None:
+        print("Task must have code or socket connected.")
+        return
+        
     if data:
         result = socket(data)
     else:
