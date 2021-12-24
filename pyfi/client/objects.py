@@ -215,7 +215,7 @@ class Socket(Base):
             SocketModel).filter_by(name=self.name).first()
 
         user = kwargs['user']
-        self.session.add(user)
+        #self.session.add(user)
 
         if self.socket is not None:
             if self.socket.queue is None and self.queue is not None:
