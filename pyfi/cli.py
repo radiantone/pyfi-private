@@ -1111,7 +1111,8 @@ def run_task(context, name, type, socket, data):
             print(result)
         return
 
-    socket = Socket(name=socket)
+    user = context.obj['user']
+    socket = Socket(name=socket, user=user)
 
     if data:
         result = socket(data)
