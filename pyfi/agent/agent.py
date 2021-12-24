@@ -181,6 +181,7 @@ class Agent:
                 """
                 Agents manage processors assigned to them and connect them to workers
                 """
+                global worker
                 from uuid import uuid4
                 import psutil
                 import shutil

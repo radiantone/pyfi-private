@@ -3,6 +3,7 @@ import os
 import paramiko
 import platform
 from sqlalchemy.sql.expression import true
+from pyfi.cli import remove_processor
 
 from pyfi.client.api import Processor, Socket, Plug, Agent
 from pyfi.client.user import USER
@@ -181,7 +182,46 @@ def stop_network(detail):
     pass
 
 
-def compose_network(detail, command="build"):
+def compose_agent(node, agent, deploy):
+    repos = []
+    sockets = {}
+
+    for processorname in agent['processors']:
+        # for each processor, add to database
+        logging.info("Creating processor {}".format(processorname))
+        processor = agent['processors'][processorname]
+        _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER,
+                                module=processor['module'], branch=processor['branch'],
+                                concurrency=processor['workers'],
+                                gitrepo=processor['gitrepo'])
+
+        # if "remove", then delete _processor
+        if 'sockets' in processor:
+            for socketname in processor['sockets']:
+                logging.info("Creating socket {}".format(socketname))
+                socket = processor['sockets'][socketname]
+                interval = socket['interval'] if 'interval' in socket else -1
+                _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
+                    'name': socket['queue']['name']}, task=socket['task']['function'])
+
+                sockets[socketname] = _socket
+
+        logging.info("Installing repository {}".format(
+            processor['gitrepo']))
+
+        if 'build' in agent and agent['build'] == False:
+            continue
+
+        clean = node['clean'] if 'clean' in node else True
+        deploy = node['deploy'] if 'deploy' in node else deploy
+
+        repos += [(deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
+                    node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'],
+                    clean))]
+
+    return repos, sockets
+
+def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
 
     import paramiko
@@ -190,8 +230,17 @@ def compose_network(detail, command="build"):
     repos = []
 
     for nodename in detail['network']['nodes']:
-        # For each node, check out repo, build venv
         node = detail['network']['nodes'][nodename]
+        node['name'] = nodename
+
+    _nodes = [detail['network']['nodes'][nodename]
+              for nodename in nodes] if len(nodes) > 0 else [detail['network']['nodes'][nodename]
+                                          for nodename in detail['network']['nodes']]
+
+    for node in _nodes:
+        nodename = node['name']
+        # For each node, check out repo, build venv
+
         if 'enabled' in node and not node['enabled']:
             continue
 
@@ -203,37 +252,10 @@ def compose_network(detail, command="build"):
 
         for agentname in node['agents']:
             agent = node['agents'][agentname]
-            for processorname in agent['processors']:
-                # for each processor, add to database
-                logging.info("Creating processor {}".format(processorname))
-                processor = agent['processors'][processorname]
-                _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER,
-                                       module=processor['module'], branch=processor['branch'],
-                                       concurrency=processor['workers'],
-                                       gitrepo=processor['gitrepo'])
+            _repos, _sockets = compose_agent(node, agent, deploy)
+            repos += _repos
+            sockets.update(_sockets)
 
-                if 'sockets' in processor:
-                    for socketname in processor['sockets']:
-                        logging.info("Creating socket {}".format(socketname))
-                        socket = processor['sockets'][socketname]
-                        interval = socket['interval'] if 'interval' in socket else -1
-                        _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
-                            'name': socket['queue']['name']}, task=socket['task']['function'])
-
-                        sockets[socketname] = _socket
-
-                logging.info("Installing repository {}".format(
-                    processor['gitrepo']))
-
-                if 'build' in agent and agent['build'] == False:
-                    continue
-
-                clean = node['clean'] if 'clean' in node else True
-                deploy = node['deploy'] if 'deploy' in node else True
-
-                repos += [(deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
-                           node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'],
-                           clean))]
 
     if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:

@@ -5,7 +5,7 @@ from .model.models import FlowModel as Flow
 from .model.models import LogModel as Log
 from .model.models import NodeModel as Node
 from .model.models import PlugModel as Plug
-from .model.models import ProcessorModel as Procesor
+from .model.models import ProcessorModel as Processor
 from .model.models import QueueModel as Queue
 from .model.models import RoleModel as Role
 from .model.models import SchedulerModel as Scheduler

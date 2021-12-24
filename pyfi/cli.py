@@ -37,6 +37,10 @@ home = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+def handle_exception(exc_type, exc_value, exc_traceback):
+    logging.error("Uncaught exception %s", exc_value)
+
+# sys.excepthook = handle_exception
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -331,7 +335,7 @@ def compose_kill(context, filename):
 @click.option('-f', '--file', default='pyfi.yaml', required=False)
 @click.pass_context
 def compose_remove(context, file):
-    """ Build infrastructure from a yaml file"""
+    """ Remove infrastructure defined in a yaml file"""
     import yaml
     from pyfi.yaml.builder import compose_network
 
@@ -345,16 +349,18 @@ def compose_remove(context, file):
 
 @compose.command(name='build')
 @click.option('-f', '--file', default='pyfi.yaml', required=False)
+@click.option('-nd', '--nodeploy', is_flag=True, default=False, help="Do not deploy the network")
+@click.argument('nodes', nargs=-1)
 @click.pass_context
-def compose_build(context, file):
+def compose_build(context, file, nodeploy, nodes):
     """ Build infrastructure from a yaml file"""
     import yaml
     from pyfi.yaml.builder import compose_network
-
+    logging.info("NoDeploy %s, NODES %s", nodeploy, nodes)
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
-            compose_network(detail, command="build")
+            compose_network(detail, command="build", deploy=not nodeploy, nodes=list(nodes))
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -1778,7 +1784,12 @@ def agent():
 @click.pass_context
 def stop_agent(context):
     """ Stop an agent """
-    pass
+    import os
+    # Send SIGINT to agent.pid
+
+    with open('agent.pid', 'r') as procfile:
+        _pid = procfile.read()
+        os.system("/usr/bin/kill -SIGINT "+_pid)
 
 
 @worker.command(name='kill', help='Kill a pyfi worker')
@@ -2212,7 +2223,12 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
                 print("            module::" + socket.task.module)
             function_node = Node("function::" + socket.task.name, task_node)
             if condensed:
-                print("            function::" + socket.task.name)
+                print("               function::" + socket.task.name)
+
+            for arg in socket.task.arguments:
+                argument_node = Node("argument::" + arg.name, function_node)
+                if condensed:
+                    print("                  argument::" + arg.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)
@@ -2974,7 +2990,7 @@ def api_start(context, ip, port):
 @click.pass_context
 def start_agent(context, port, clean, backend, broker, config, queues, user, pool, size, host, path):
     """
-    Run pyfi agent server
+    Start an agent
     """
     from pyfi.agent import Agent
 

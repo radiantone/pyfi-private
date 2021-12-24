@@ -1563,8 +1563,9 @@ class Worker:
         """
         Docstring
         """
-        logging.debug("Terminating process %s", self.process.pid)
+        logging.debug("Terminating worker")
 
+        '''
         process = psutil.Process(self.process.pid)
 
         for child in process.children(recursive=True):
@@ -1585,7 +1586,9 @@ class Worker:
             self.process.join()
         except:
             pass
-
+        
+        '''
+        
         if os.path.exists(self.workdir):
             logging.debug("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
