@@ -228,6 +228,8 @@ class Agent:
                                 processor['processor'])
 
                             if processor['processor'].hostname != HOSTNAME:
+                                logging.info(
+                                    "Processor hostname %s != %s", processor['processor'].hostname, HOSTNAME)
                                 # Processor of mine has been moved, kill it
                                 if processor['worker'] is not None:
                                     processor['processor'].requested_status = 'move'
