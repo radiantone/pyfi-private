@@ -420,6 +420,8 @@ class Agent:
                         if 'worker' in processor:
                             try:
                                 #process_died = not processor['worker']['wprocess'].is_alive()
+                                logging.info(
+                                    "processor['worker'] is %s", processor['worker'])
                                 if processor['worker'] and processor['worker']['wprocess']:
                                     process_died = processor['worker']['wprocess'].poll() is not None
                                 logging.info("process_died is %s",process_died)
