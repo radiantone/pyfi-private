@@ -3,6 +3,7 @@ Agent workerclass. Primary task/code execution context for processors
 """
 import configparser
 import logging
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
