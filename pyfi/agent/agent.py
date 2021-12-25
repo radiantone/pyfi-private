@@ -282,6 +282,9 @@ class Agent:
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     for processor in processors:
+
+                        logging.info(
+                            "Processor.requested_status START %s", processor['processor'].requested_status)
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:
                                 logging.info("Killing worker")
@@ -421,6 +424,8 @@ class Agent:
                         if 'worker' in processor:
                             try:
                                 #process_died = not processor['worker']['wprocess'].is_alive()
+                                logging.info(
+                                    "Processor.requested_status 0 %s", processor['processor'].requested_status)
                                 logging.info(
                                     "processor['worker'] is %s", processor['worker'])
                                 if processor['worker'] and processor['worker']['wprocess']:
