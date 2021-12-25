@@ -432,7 +432,10 @@ class Agent:
                                 import traceback
                                 print(traceback.format_exc())
 
-                        logging.error("Process worker is %s", processor['worker'] )
+                        if process_died:
+                            logging.error("Process died!")
+                            
+                        logging.info("Process worker is %s", processor['worker'] )
 
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
