@@ -372,6 +372,8 @@ class Worker:
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
                     # work is complete
+                    logging.info(
+                        "Processor.requested_status before do_work %s", processor.requested_status)
                     do_work()
 
                     _plugs = {}
