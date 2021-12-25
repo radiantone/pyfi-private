@@ -89,7 +89,7 @@ class BaseModel(Base):
     owner = Column(String(40), default=literal_column('current_user'))
 
     status = Column(String(20), nullable=False, default='ready')
-    requested_status = Column(String(40), default='update')
+    requested_status = Column(String(40), default='ready')
 
     created = Column(DateTime, default=datetime.now, nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
