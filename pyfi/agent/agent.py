@@ -250,6 +250,7 @@ class Agent:
                                     logging.info("Removed processor {} from list.".format(
                                         processor['processor'].name))
 
+                                    logging.info("Setting processor to UPDATE")
                                     processor['processor'].requested_status = 'update'
 
                                     with self.get_session() as session:

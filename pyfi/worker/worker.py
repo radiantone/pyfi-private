@@ -388,6 +388,8 @@ class Worker:
                     logging.info("SIGNAL: %s", _signal)
 
                     if _signal['signal'] == 'received':
+                        logging.info(
+                            "Processor.requested_status 1 %s", processor.requested_status)
                         logging.info("RECEIVED SIGNAL %s", _signal)
 
                         for _socket in processor.sockets:
@@ -420,7 +422,8 @@ class Worker:
                                     received), 'room': processor.name}]
 
                                 self.queue.put(_data)
-
+                                logging.info(
+                                    "Processor.requested_status 2 %s", processor.requested_status)
                                 call = CallModel(id=myid,
                                                  name=processor.module + '.' + _socket.task.name,
                                                  taskparent=_signal['taskparent'],
@@ -438,6 +441,9 @@ class Worker:
                                 logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 
+                                self.queue.put(_data)
+                                logging.info(
+                                    "Processor.requested_status 3 %s", processor.requested_status)
                                 self.received_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'prerun':
