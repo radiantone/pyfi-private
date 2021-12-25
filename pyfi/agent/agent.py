@@ -429,6 +429,8 @@ class Agent:
                                     "process_died is %s", process_died)
                                 logging.info(
                                     "processor['worker'] after is %s", processor['worker'])
+                                logging.info(
+                                    "Processor.requested_status 1 %s", processor['processor'].requested_status)
                             except:
                                 import traceback
                                 print(traceback.format_exc())
