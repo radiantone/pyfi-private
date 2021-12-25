@@ -202,12 +202,14 @@ class Agent:
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
+                        logging.warning("VIRTUAL MEMORY > 90%")
                         for processor in processors:
                             if processor['worker'] is not None:
                                 # Mark process last killed date and if it was killed
                                 # a few times recently, then mark it stopped and save it
                                 # adding a log.
                                 processor['worker']['process'].kill()
+                                logging.warning("Setting worker to none")
                                 processor['worker'] = None
                                 processor['processor'].status = 'stopped'
 
@@ -520,6 +522,7 @@ class Agent:
                                 worker['wprocess'] = wprocess
 
                                 processor['worker'] = worker
+                                logging.info("workerproc is %s", workerproc)
 
                                 workers += [worker]
 
