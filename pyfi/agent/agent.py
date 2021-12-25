@@ -487,7 +487,8 @@ class Agent:
                             if processor['worker'] is None or process_died:
                                 # If there is no worker Process create it
                                 worker = {}
-
+                                logging.info(
+                                    "process_died %s and Worker is %s", process_died, processor['worker'])
                                 dir = 'work/' + processor['processor'].id
                                 os.makedirs(dir, exist_ok=True)
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
