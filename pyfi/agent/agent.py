@@ -434,13 +434,19 @@ class Agent:
 
                         if process_died:
                             logging.error("Process died!")
-
+                            
                         logging.info("Process worker is %s", processor['worker'] )
 
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
                                 (processor['processor'].status != 'stopped' and processor[
                                     'processor'].requested_status != 'stopped')):
+
+                            logging.info("%s", process_died)
+                            logging.info("%s", processor['worker'])
+                            logging.info(
+                                "%s", processor['processor'].requested_status)
+                            logging.info("%s", processor['processor'].status)
 
                             if processor['worker'] is None:
                                 logging.info("Worker is none")
