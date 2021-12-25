@@ -417,15 +417,15 @@ class Agent:
                         process_died = False
                         if 'worker' in processor:
                             try:
-                                process_died = not processor['worker']['wprocess'].is_alive(
-                                )
+                                #process_died = not processor['worker']['wprocess'].is_alive()
+                                process_died = processor['worker']['wprocess'].poll() is not None
                             except:
                                 import traceback
                                 print(traceback.format_exc())
 
                         if not process_died:
                             logging.error("Process died!")
-                            
+
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
                                 (processor['processor'].status != 'stopped' and processor[

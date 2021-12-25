@@ -1084,8 +1084,9 @@ def show_task(context, name, gitrepo):
 @click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
 @click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
+@click.option('-nd', '--nodata', required=False, is_flag=True, default=False, help='Set this flag if no data is being passed in.')
 @click.pass_context
-def run_task(context, name, type, socket, data):
+def run_task(context, name, type, socket, data, nodata):
     """
     Run a task
     """
@@ -1110,13 +1111,15 @@ def run_task(context, name, type, socket, data):
 
     user = context.obj['user']
     socket = Socket(name=socket, user=user)
-
+    logging.info("Socket is %s",socket)
     if socket is None:
         print("Task must have code or socket connected.")
         return
 
     if data:
         result = socket(data)
+    elif nodata:
+        result = socket()
     else:
         #
         # code = sys.stdin.read()
