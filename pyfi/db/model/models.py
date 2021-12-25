@@ -366,6 +366,7 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
+    requested_status = Column(String(40), default='update')
     # requested_status = Column(String(20), onupdate='update')
     # status = Column(String(20), nullable=False)
     hostname = Column(String(60))
