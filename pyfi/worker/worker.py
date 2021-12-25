@@ -443,14 +443,16 @@ class Worker:
                                 session.add(event)
                                 call.events += [event]
 
+                                logging.info(
+                                    "Processor.requested_status 3a %s", processor.requested_status)
                                 processor.requested_status = 'ready'
                                 session.commit()
+                                logging.info(
+                                    "Processor.requested_status 3b %s", processor.requested_status)
                                 logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 
                                 self.queue.put(_data)
-                                logging.info(
-                                    "Processor.requested_status 3 %s", processor.requested_status)
                                 self.received_queue.put(_signal['kwargs'])
 
                     if _signal['signal'] == 'prerun':
