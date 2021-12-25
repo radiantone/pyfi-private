@@ -40,7 +40,7 @@ CONFIG = configparser.ConfigParser()
 def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
 
-# sys.excepthook = handle_exception
+sys.excepthook = handle_exception
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -1114,7 +1114,7 @@ def run_task(context, name, type, socket, data):
     if socket is None:
         print("Task must have code or socket connected.")
         return
-        
+
     if data:
         result = socket(data)
     else:
@@ -1177,7 +1177,6 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
-    processor.requested_status = 'update'
 
     if not hostname:
 
@@ -1214,6 +1213,7 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
+    processor.requested_status = 'update'
     context.obj['database'].session.add(processor)
     context.obj['database'].session.commit()
 
