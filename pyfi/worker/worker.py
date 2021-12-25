@@ -428,6 +428,8 @@ class Worker:
                                 self.queue.put(_data)
                                 logging.info(
                                     "Processor.requested_status 2 %s", processor.requested_status)
+
+                                processor.requested_status = 'ready'
                                 call = CallModel(id=myid,
                                                  name=processor.module + '.' + _socket.task.name,
                                                  taskparent=_signal['taskparent'],
