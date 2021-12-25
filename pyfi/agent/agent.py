@@ -426,7 +426,7 @@ class Agent:
 
                         if not process_died:
                             logging.error("Process died! %s",
-                                          processor['worker']['wprocess'])
+                                          processor['worker']['wprocess'] if processor['worker'] and processor['worker']['wprocess'] else None)
 
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
