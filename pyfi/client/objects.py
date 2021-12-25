@@ -339,8 +339,6 @@ class Socket(Base):
         self.session.refresh(
             self.socket)
 
-        logging.info("Calling " + self.processor.processor.module +
-                     '.' + self.socket.task.name + " %s", self.queue)
         task_sig = self.processor.app.signature(self.processor.processor.module + '.' + self.socket.task.name,
                                                 args=args, queue=self.queue, kwargs=kwargs).delay().get()
 
@@ -489,7 +487,6 @@ class Processor(Base):
             self.id = id
             self.processor = self.database.session.query(
                 ProcessorModel).filter_by(id=id).first()
-            logging.info("Found processor %s",self.processor)
             self.name = self.processor.name
         else:
             self.name = name
@@ -499,7 +496,6 @@ class Processor(Base):
 
         if self.processor is None:
             # Create it
-            logging.info("Creating processor")
             self.processor = ProcessorModel(
                 status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
                 branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,

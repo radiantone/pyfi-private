@@ -1111,7 +1111,6 @@ def run_task(context, name, type, socket, data, nodata):
 
     user = context.obj['user']
     socket = Socket(name=socket, user=user)
-    print(socket.processor.processor.hostname)
     logging.info("Socket is %s",socket)
 
     if socket is None:

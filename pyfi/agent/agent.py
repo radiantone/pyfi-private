@@ -424,7 +424,7 @@ class Agent:
                                 import traceback
                                 print(traceback.format_exc())
 
-                        if not process_died:
+                        if process_died:
                             logging.error("Process died! %s",
                                           processor['worker']['wprocess'] if processor['worker'] and processor['worker']['wprocess'] else None)
 
