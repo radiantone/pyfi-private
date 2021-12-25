@@ -3,7 +3,7 @@ Agent workerclass. Primary task/code execution context for processors
 """
 import configparser
 import logging
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
@@ -373,16 +373,12 @@ class Worker:
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
                     # work is complete
-                    logging.info(
-                        "Processor.requested_status before do_work %s", processor.requested_status)
                     do_work()
 
                     _plugs = {}
 
                     logging.info("DBACTION: Processor %s", processor)
 
-                    logging.info(
-                        "Processor.requested_status == %s", processor.requested_status)
                     logging.info(
                         "Checking main_queue[%s] with %s items", self.size, self.main_queue.qsize())
                     logging.info("---")
@@ -393,8 +389,6 @@ class Worker:
                     logging.info("SIGNAL: %s", _signal)
 
                     if _signal['signal'] == 'received':
-                        logging.info(
-                            "Processor.requested_status 1 %s", processor.requested_status)
                         logging.info("RECEIVED SIGNAL %s", _signal)
 
                         for _socket in processor.sockets:
@@ -427,8 +421,6 @@ class Worker:
                                     received), 'room': processor.name}]
 
                                 self.queue.put(_data)
-                                logging.info(
-                                    "Processor.requested_status 2 %s", processor.requested_status)
 
                                 call = CallModel(id=myid,
                                                  name=processor.module + '.' + _socket.task.name,
@@ -444,12 +436,8 @@ class Worker:
                                 session.add(event)
                                 call.events += [event]
 
-                                logging.info(
-                                    "Processor.requested_status 3a %s", processor.requested_status)
                                 processor.requested_status = 'ready'
                                 session.commit()
-                                logging.info(
-                                    "Processor.requested_status 3b %s", processor.requested_status)
                                 logging.info("CREATED CALL %s %s", myid,
                                              _signal['taskid'])
 

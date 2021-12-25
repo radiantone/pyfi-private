@@ -506,19 +506,24 @@ class Processor(Base):
             self.processor.commit = None
             self.processor.beat = False
 
-        if hostname != self.processor.hostname or self.processor.concurrency != concurrency or self.processor.commit != commit or self.processor.beat != beat:
-            self.processor.requested_status = 'update'
-
         if hostname is not None:
+            if hostname != self.processor.hostname:
+                self.processor.requested_status = 'update'
             self.processor.hostname = hostname
 
         if concurrency is not None:
+            if self.processor.concurrency != concurrency:
+                self.processor.requested_status = 'update'
             self.processor.concurrency = concurrency
 
         if commit is not None:
+            if self.processor.commit != commit:
+                self.processor.requested_status = 'update'
             self.processor.commit = commit
 
         if beat is not None:
+            if self.processor.beat != beat:
+                self.processor.requested_status = 'update'
             self.processor.beat = beat
 
         self.database.session.add(self.processor)

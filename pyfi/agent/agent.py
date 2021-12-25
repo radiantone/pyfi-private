@@ -424,18 +424,14 @@ class Agent:
                         if 'worker' in processor:
                             try:
                                 #process_died = not processor['worker']['wprocess'].is_alive()
-                                logging.info(
+                                logging.debug(
                                     "Processor.requested_status 0 %s", processor['processor'].requested_status)
-                                logging.info(
+                                logging.debug(
                                     "processor['worker'] is %s", processor['worker'])
                                 if processor['worker'] and processor['worker']['wprocess']:
                                     process_died = processor['worker']['wprocess'].poll() is not None
-                                logging.info(
+                                logging.debug(
                                     "process_died is %s", process_died)
-                                logging.info(
-                                    "processor['worker'] after is %s", processor['worker'])
-                                logging.info(
-                                    "Processor.requested_status 1 %s", processor['processor'].requested_status)
                             except:
                                 import traceback
                                 print(traceback.format_exc())
@@ -443,18 +439,19 @@ class Agent:
                         if process_died:
                             logging.error("Process died!")
                             
-                        logging.info("Process worker is %s", processor['worker'] )
+                        logging.debug("Process worker is %s",
+                                      processor['worker'])
 
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
                                 (processor['processor'].status != 'stopped' and processor[
                                     'processor'].requested_status != 'stopped')):
 
-                            logging.info("%s", process_died)
-                            logging.info("%s", processor['worker'])
-                            logging.info(
+                            logging.debug("%s", process_died)
+                            logging.debug("%s", processor['worker'])
+                            logging.debug(
                                 "%s", processor['processor'].requested_status)
-                            logging.info("%s", processor['processor'].status)
+                            logging.debug("%s", processor['processor'].status)
 
                             if processor['worker'] is None:
                                 logging.info("Worker is none")
