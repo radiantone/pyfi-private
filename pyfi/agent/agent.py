@@ -439,6 +439,12 @@ class Agent:
                                 (processor['processor'].status != 'stopped' and processor[
                                     'processor'].requested_status != 'stopped')):
 
+                            logging.info("%s", process_died)
+                            logging.info("%s", processor['worker'])
+                            logging.info(
+                                "%s", processor['processor'].requested_status)
+                            logging.info("%s", processor['processor'].status)
+
                             if processor['worker'] is None:
                                 logging.info("Worker is none")
 
