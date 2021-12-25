@@ -422,6 +422,7 @@ class Agent:
                                 #process_died = not processor['worker']['wprocess'].is_alive()
                                 if processor['worker'] and processor['worker']['wprocess']:
                                     process_died = processor['worker']['wprocess'].poll() is not None
+                                logging.info("process_died is %s",process_died)
                             except:
                                 import traceback
                                 print(traceback.format_exc())
