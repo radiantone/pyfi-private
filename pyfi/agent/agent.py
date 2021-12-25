@@ -430,8 +430,7 @@ class Agent:
                                 print(traceback.format_exc())
 
                         if process_died:
-                            logging.error("Process died! %s",
-                                          processor['worker']['wprocess'] if processor['worker'] and processor['worker']['wprocess'] else None)
+                            logging.error("Process died! %s", processor['worker'] )
 
                         if (processor['processor'].requested_status == 'start' or (process_died or (
                                 processor['processor'].requested_status == 'update' or processor['worker'] is None)) and
