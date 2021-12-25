@@ -6,6 +6,8 @@ socket = Socket(queue='pyfi.queue1', task='do_something')
 proc1.sockets += [socket]
 
 """
+import logging
+
 import configparser
 import os
 import platform
@@ -235,6 +237,7 @@ class Socket(Base):
             if interval > 0:
                 scheduled = True
 
+            logging.info("Creating new socket)")
             self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled,
                                       schedule_type=schedule_type, interval=interval,
                                       processor_id=self.processor.processor.id, requested_status='ready',
@@ -469,8 +472,8 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=platform.node(), id=None, name=None, user=None, gitrepo=None, branch=None, module=None,
-                 concurrency=3, commit=None, beat=False):
+    def __init__(self, hostname=None, id=None, name=None, user=None, gitrepo=None, branch=None, module=None,
+                 concurrency=None, commit=None, beat=None):
 
         super().__init__()
 
@@ -486,6 +489,7 @@ class Processor(Base):
             self.id = id
             self.processor = self.database.session.query(
                 ProcessorModel).filter_by(id=id).first()
+            logging.info("Found processor %s",self.processor)
             self.name = self.processor.name
         else:
             self.name = name
@@ -495,18 +499,31 @@ class Processor(Base):
 
         if self.processor is None:
             # Create it
+            logging.info("Creating processor")
             self.processor = ProcessorModel(
                 status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
                 branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,
                 module=module)
 
+            self.processor.hostname = platform.node()
+            self.processor.concurrency = 3
+            self.processor.commit = None
+            self.processor.beat = False
+
         if hostname != self.processor.hostname or self.processor.concurrency != concurrency or self.processor.commit != commit or self.processor.beat != beat:
             self.processor.requested_status = 'update'
 
-        self.processor.hostname = hostname
-        self.processor.concurrency = concurrency
-        self.processor.commit = commit
-        self.processor.beat = beat
+        if hostname is not None:
+            self.processor.hostname = hostname
+
+        if concurrency is not None:
+            self.processor.concurrency = concurrency
+
+        if commit is not None:
+            self.processor.commit = commit
+
+        if beat is not None:
+            self.processor.beat = beat
 
         self.database.session.add(self.processor)
 
