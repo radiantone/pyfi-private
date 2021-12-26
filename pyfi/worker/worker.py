@@ -1277,11 +1277,11 @@ class Worker:
                                     else:
                                         logging.info(
                                             "FOUND STORED ARGUMENT %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
-                                        _newargs[arg.position] = _arg
+                                        _newargs.append(_arg)
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
                                 args = _newargs
-                                
+
                             if _kwargs:
                                 return _func(*args, **_kwargs)
                             else:
