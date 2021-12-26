@@ -283,7 +283,7 @@ class Agent:
                     # on requested_status
                     for processor in processors:
 
-                        logging.info(
+                        logging.debug(
                             "Processor.requested_status START %s", processor['processor'].requested_status)
                         if processor['processor'].requested_status == 'removed':
                             if processor['worker'] is not None:

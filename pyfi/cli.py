@@ -1083,7 +1083,7 @@ def show_task(context, name, gitrepo):
 @click.option('-n', '--name', required=False, help='Name of task to run')
 @click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
 @click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
-@click.option('-d', '--data', required=False, help='String data to pass to the socket\'s task')
+@click.option('-d', '--data', required=False, help='Python evaluated string to pass to the socket\'s task')
 @click.option('-nd', '--nodata', required=False, is_flag=True, default=False, help='Set this flag if no data is being passed in.')
 @click.pass_context
 def run_task(context, name, type, socket, data, nodata):
@@ -1117,7 +1117,7 @@ def run_task(context, name, type, socket, data, nodata):
         return
 
     if data:
-        result = socket(data)
+        result = socket(eval(data))
     elif nodata:
         result = socket()
     else:
