@@ -1261,6 +1261,9 @@ class Worker:
                                 logging.info(
                                     "WRAPPED FUNCTION ARGUMENT %s ", argument)
 
+                                # If we received an argument and not all the arguments needed have been stored
+                                # then we simply return the argument, otherwise we execute the function
+                                _newargs = []
                                 for arg in socket.task.arguments:
                                     _argdata = redisclient.get(
                                         argument['key']+'.'+argument['name']+'.'+str(arg.position))
@@ -1274,8 +1277,11 @@ class Worker:
                                     else:
                                         logging.info(
                                             "FOUND STORED ARGUMENT %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
+                                        _newargs[arg.position] = _arg
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
+                                args = _newargs
+                                
                             if _kwargs:
                                 return _func(*args, **_kwargs)
                             else:
