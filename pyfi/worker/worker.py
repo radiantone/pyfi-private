@@ -1244,19 +1244,29 @@ class Worker:
 
                                 # Store argument in redis
                                 logging.info("ARGS %s %s %s",type(args),args, *args)
+                                
+                                # We are receiving an argument as a tuple, therefore only the first
+                                # element of the tuple is our data
+                                _argdata = args[0]
+                                _jsonargdata = json.dumps(_argdata)
+
                                 logging.info(
-                                    "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+str(argument['position']), json.dumps(args))
+                                    "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+str(argument['position']), _jsonargdata)
                                 redisclient.set(
-                                    argument['key']+'.'+argument['name']+'.'+str(argument['position']), json.dumps(args))
+                                    argument['key']+'.'+argument['name']+'.'+str(argument['position']), _jsonargdata)
 
                                 # args = redisclient.get(argument['key']+'.*')
                                 # Compare args names to task arguments and if they are 1 to 1
                                 # then trigger the function
                                 logging.info(
                                     "WRAPPED FUNCTION ARGUMENT %s ", argument)
+
                                 for arg in socket.task.arguments:
-                                    _arg = redisclient.get(
+                                    _argdata = redisclient.get(
                                         argument['key']+'.'+argument['name']+'.'+str(arg.position))
+
+                                    _arg = json.loads(_argdata)
+
                                     if _arg is None:
                                         logging.info(
                                             "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
@@ -1267,7 +1277,6 @@ class Worker:
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
                             if _kwargs:
-
                                 return _func(*args, **_kwargs)
                             else:
                                 return _func(*args)
