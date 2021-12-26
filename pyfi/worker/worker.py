@@ -1243,8 +1243,6 @@ class Worker:
                                 argument = kwargs['argument']
 
                                 # Store argument in redis
-
-
                                 logging.info(
                                     "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+argument['position'], json.dumps(args))
                                 redisclient.put(
