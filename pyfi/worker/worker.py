@@ -1243,14 +1243,28 @@ class Worker:
                                 argument = kwargs['argument']
 
                                 # Store argument in redis
-                                #redisclient.put(argument['key']+'.'+argument['name'], json.dumps(args))
+
+
+                                logging.info(
+                                    "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+argument['position'], json.dumps(args))
+                                redisclient.put(
+                                    argument['key']+'.'+argument['name']+'.'+argument['position'], json.dumps(args))
 
                                 # args = redisclient.get(argument['key']+'.*')
                                 # Compare args names to task arguments and if they are 1 to 1
                                 # then trigger the function
                                 logging.info(
-                                    "WRAPPED FUNCTION ARGUMENT %s", socket.task.arguments)
+                                    "WRAPPED FUNCTION ARGUMENT %s ", argument)
                                 for arg in socket.task.arguments:
+                                    _arg = redisclient.get(
+                                        argument['key']+'.'+argument['name']+'.'+arg.position)
+                                    if _arg is None:
+                                        logging.info(
+                                            "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+argument['name']+'.'+arg.position)
+                                        return argument
+                                    else:
+                                        logging.info(
+                                            "FOUND STORED ARGUMENT %s", argument['key']+'.'+argument['name']+'.'+arg.position)
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
                             if _kwargs:

@@ -8,7 +8,7 @@ import importlib
 from sqlalchemy.sql.expression import true
 from pyfi.cli import remove_processor
 
-from pyfi.client.api import Processor, Socket, Plug, Agent, Argument
+from pyfi.client.api import Processor, Socket, Plug, Agent
 from pyfi.client.user import USER
 from pyfi.config import CONFIG
 
@@ -209,7 +209,7 @@ def compose_agent(node, agent, deploy):
                 else:
                     arguments = False
                 _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
-                    'name': socket['queue']['name']}, task=socket['task']['function'], arguments=arguments)
+                    'name': socket['queue']['name']}, task=socket['task']['function']['name'], arguments=arguments)
 
                 sockets[socketname] = _socket
 

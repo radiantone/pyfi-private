@@ -40,7 +40,7 @@ CONFIG = configparser.ConfigParser()
 def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
 
-sys.excepthook = handle_exception
+#sys.excepthook = handle_exception
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -1085,8 +1085,9 @@ def show_task(context, name, gitrepo):
 @click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='Python evaluated string to pass to the socket\'s task')
 @click.option('-nd', '--nodata', required=False, is_flag=True, default=False, help='Set this flag if no data is being passed in.')
+@click.option('-a', '--argument', required=False, default=None, help='Name of argument to pass')
 @click.pass_context
-def run_task(context, name, type, socket, data, nodata):
+def run_task(context, name, type, socket, data, nodata, argument):
     """
     Run a task
     """
@@ -1116,10 +1117,33 @@ def run_task(context, name, type, socket, data, nodata):
         print("Task must have code or socket connected.")
         return
 
+    kwargs = {}
+
+    if argument:
+        found = False
+        for _argument in _task.arguments:
+            if _argument.name == argument:
+                found = True
+                break
+
+        if not found:
+            print("Argument {} not found.".format(argument))
+            return
+
+        o_argument = {
+                'name': argument,
+                'kind': _argument.kind,
+                'key': socket.processor.name + '.' + _task.module + '.' + _task.name,
+                'module': _task.module,
+                'function': _task.name,
+                'position': _argument.position}
+
+        kwargs['argument'] = o_argument
+
     if data:
-        result = socket(*eval(data))
+        result = socket(*eval(data), **kwargs)
     elif nodata:
-        result = socket()
+        result = socket(**kwargs)
     else:
         #
         # code = sys.stdin.read()
