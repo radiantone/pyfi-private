@@ -1141,7 +1141,10 @@ def run_task(context, name, type, socket, data, nodata, argument):
         kwargs['argument'] = o_argument
 
     if data:
-        result = socket(*eval(data), **kwargs)
+        if not argument:
+            result = socket(*eval(data), **kwargs)
+        else:
+            result = socket(eval(data), **kwargs)
     elif nodata:
         result = socket(**kwargs)
     else:
