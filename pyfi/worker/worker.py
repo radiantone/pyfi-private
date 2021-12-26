@@ -11,6 +11,9 @@ import redis
 import shutil
 import signal
 import sys
+
+from inspect import Parameter
+
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -1265,6 +1268,9 @@ class Worker:
                                 # then we simply return the argument, otherwise we execute the function
                                 _newargs = []
                                 for arg in socket.task.arguments:
+                                    if arg.kind != Parameter.POSITIONAL_ONLY and arg.kind != Parameter.POSITIONAL_OR_KEYWORD:
+                                        continue
+                                    
                                     _argdata = redisclient.get(
                                         argument['key']+'.'+arg.name+'.'+str(arg.position))
 
