@@ -1268,13 +1268,12 @@ class Worker:
                                     _argdata = redisclient.get(
                                         argument['key']+'.'+argument['name']+'.'+str(arg.position))
 
-                                    _arg = json.loads(_argdata)
-
-                                    if _arg is None:
+                                    if _argdata is None:
                                         logging.info(
                                             "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
                                         return argument
                                     else:
+                                        _arg = json.loads(_argdata)
                                         logging.info(
                                             "FOUND STORED ARGUMENT %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
                                         _newargs.append(_arg)
