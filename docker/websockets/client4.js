@@ -21,17 +21,18 @@ connection.onerror = (error) => {
 }
  
 connection.onmessage = (e) => {
-  var msg = JSON.parse(e.data)
-  console.log(msg['message'])
+  var _msg = e.data.replace("Do this String: ","");
+  var msg = JSON.parse(_msg)
+  console.log(msg);
 
   if (msg.hasOwnProperty('message')) {
-    var graph = JSON.parse(msg['message'])
-    console.log(graph)
-    if (graph.hasOwnProperty('message')) {
+    var _graph = JSON.parse(msg['message'])
+    var graph= JSON.parse(_graph['message'])
       
-    var graph = JSON.parse(graph['message'].slice(1,-1).replace(/\\n/g, '').replace(/\\/g, ''))
-      console.log("Inner message", graph)
-      if (graph.graph) {
+    //var graph = JSON.parse(graph['message'].slice(1,-1).replace(/\\n/g, '').replace(/\\/g, ''))
+    //  console.log("Inner message", graph)
+    var graph = JSON.parse(graph);
+        console.log("POINT",graph);
         const point1 = new Point(graph.graph.name)
           .tag('type', graph.graph.name)
           .floatField('value', parseFloat(graph.graph.value))
@@ -40,8 +41,6 @@ connection.onmessage = (e) => {
         console.log(point1);
         writeApi.writePoint(point1)
         writeApi.flush()
-      }
-    }
     console.log("Wrote to influxdb");
   }
 }

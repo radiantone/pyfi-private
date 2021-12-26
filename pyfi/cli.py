@@ -1117,7 +1117,7 @@ def run_task(context, name, type, socket, data, nodata):
         return
 
     if data:
-        result = socket(eval(data))
+        result = socket(*eval(data))
     elif nodata:
         result = socket()
     else:

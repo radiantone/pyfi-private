@@ -1,3 +1,10 @@
+JOBS
+------------
+- Jobs are tasks with a scheduled time to run or repeat
+- A scheduler object will trigger jobs from itself
+- 
+
+
 ARGUMENTS
 ------------
 

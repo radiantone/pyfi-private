@@ -10,7 +10,6 @@ network:
   nodes:
     phoenix:
       clean: true
-      enabled: false
       hostname: phoenix
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
@@ -79,6 +78,7 @@ network:
                     function: do_this
     agent2:
       clean: false
+      build: false
       hostname: agent2
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
@@ -101,12 +101,11 @@ network:
               beat: false
               workers: 1
               sockets:
-                pyfi.processors.sample.emit_five:
+                pyfi.processors.sample.do_this:
                   queue: 
-                    name: pyfi.queue1
+                    name: pyfi.queue3
                   task:
-                    function: add_two
-                      arguments: true
+                    function: do_this                        
     agent1:
       clean: false
       build: false
@@ -138,18 +137,18 @@ network:
                   task:
                     function: do_this    
 
-  #plugs:
-  #  plug1:
-  #    source: pyfi.processors.sample.do_something
-  #    target: pyfi.processors.sample.do_this
-  #    queue:
-  #      name: pyfi.queue3
+  plugs:
+    plug1:
+      enabled: false
+      source: pyfi.processors.sample.do_something
+      target: pyfi.processors.sample.do_this
+      queue:
+        name: pyfi.queue3
 
 # This will create work records which the scheduler will deploy
 work:
   
-# This will create scheduled tasks (i.e. jobs)
-jobs:
+
 
 # This will create immediate executions using the API models
 executions:

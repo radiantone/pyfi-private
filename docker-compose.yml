@@ -9,7 +9,7 @@ services:
     image: pyfi/websockets:latest
     container_name: websockets2
     environment:
-      - PYFI_CHANNEL=proc3.task
+      - PYFI_CHANNEL=proc4.task
     ports:
       - 3002:3000
 
@@ -179,6 +179,7 @@ services:
     restart: always
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./data:/var/lib/rabbitmq/mnesia/
     environment:
       - RABBITMQ_ERLANG_COOKIE=cluster_cookie
     ports:
@@ -223,7 +224,7 @@ services:
   redis:
     container_name: redis
     hostname: redis
-    image: redis
+    image: redis:6.2.6
     restart: always
     ports:
       - 6379:6379

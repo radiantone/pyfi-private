@@ -41,6 +41,8 @@ Overall Objectives
 - Visual tooling for devops: CHECK
 - Robust OSS stack: CHECK
 - Pluggable layers & implementations: CHECK
+- Temporal result presistence: CHECK
+- Async argument passing: TBD
 - Visualize network topology from CLI: CHECK
 - Start/Stop/Move processors anytime: CHECK
 - Self-healing: TBD

@@ -20,7 +20,7 @@ from sqlalchemy.orm import sessionmaker
 
 from celery import Celery, signature
 from pyfi.config.celery import Config
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, ActionModel, \
+from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, ArgumentModel, PlugModel, SocketModel, ActionModel, \
     FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.server import app
 
@@ -166,6 +166,9 @@ class Socket(Base):
     """
 
     def __init__(self, *args, **kwargs):
+        import inspect
+        import importlib
+
         super().__init__()
 
         backend = CONFIG.get('backend', 'uri')
@@ -215,12 +218,30 @@ class Socket(Base):
 
         self.socket = self.session.query(
             SocketModel).filter_by(name=self.name).first()
-
+        
         user = kwargs['user']
         try:
             self.session.add(user)
         except:
             pass
+
+        if 'arguments' in kwargs and kwargs['arguments']:
+
+            _module = importlib.import_module(self.task.module)
+            _function = getattr(_module, self.task.name)
+            signature = inspect.signature(_function)
+            print("Sig:", signature.parameters)
+
+            position = 0
+            self.task.arguments = []
+
+            for pname in signature.parameters:
+                param = signature.parameters[pname]
+                _argument = ArgumentModel(
+                    name=param.name, position=position, user=user, kind=param.kind)
+                self.session.add(_argument)
+                self.task.arguments += [_argument]
+                position += 1
 
         if self.socket is not None:
             if self.socket.queue is None and self.queue is not None:

@@ -2,10 +2,13 @@ import logging
 import os
 import paramiko
 import platform
+import inspect
+import importlib
+
 from sqlalchemy.sql.expression import true
 from pyfi.cli import remove_processor
 
-from pyfi.client.api import Processor, Socket, Plug, Agent
+from pyfi.client.api import Processor, Socket, Plug, Agent, Argument
 from pyfi.client.user import USER
 from pyfi.config import CONFIG
 
@@ -201,8 +204,12 @@ def compose_agent(node, agent, deploy):
                 logging.info("Creating socket {}".format(socketname))
                 socket = processor['sockets'][socketname]
                 interval = socket['interval'] if 'interval' in socket else -1
+                if 'arguments' in socket['task']['function']:
+                    arguments = socket['task']['function']
+                else:
+                    arguments = False
                 _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
-                    'name': socket['queue']['name']}, task=socket['task']['function'])
+                    'name': socket['queue']['name']}, task=socket['task']['function'], arguments=arguments)
 
                 sockets[socketname] = _socket
 
