@@ -1245,7 +1245,7 @@ class Worker:
                                 # Store argument in redis
                                 logging.info(
                                     "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+str(argument['position']), json.dumps(args))
-                                redisclient.put(
+                                redisclient.set(
                                     argument['key']+'.'+argument['name']+'.'+str(argument['position']), json.dumps(args))
 
                                 # args = redisclient.get(argument['key']+'.*')
