@@ -1266,24 +1266,27 @@ class Worker:
                                 _newargs = []
                                 for arg in socket.task.arguments:
                                     _argdata = redisclient.get(
-                                        argument['key']+'.'+argument['name']+'.'+str(arg.position))
+                                        argument['key']+'.'+arg.name+'.'+str(arg.position))
 
                                     if _argdata is None:
                                         logging.info(
-                                            "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
+                                            "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+arg.name+'.'+str(arg.position))
                                         return argument
                                     else:
                                         _arg = json.loads(_argdata)
                                         logging.info(
-                                            "FOUND STORED ARGUMENT %s", argument['key']+'.'+argument['name']+'.'+str(arg.position))
+                                            "FOUND STORED ARGUMENT %s", argument['key']+'.'+arg.name+'.'+str(arg.position))
                                         _newargs.append(_arg)
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 
                                 args = _newargs
 
                             if _kwargs:
+                                logging.info("Invoking function %s %s", args, _kwargs)
                                 return _func(*args, **_kwargs)
                             else:
+                                logging.info(
+                                    "Invoking function %s", args)
                                 return _func(*args)
 
 
