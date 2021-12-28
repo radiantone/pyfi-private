@@ -63,7 +63,34 @@ class Work(Base):
 
 
 class Node(Base):
-    pass
+
+    def __init__(self, name=None, hostname=None):
+        super().__init__()
+
+
+        self.node = self.session.query(
+            NodeModel).filter_by(hostname=hostname).first()
+
+        if self.node is None:
+            self.node = _node = NodeModel(name=name, hostname=hostname)
+
+        self.session.add(self.node)
+        self.session.commit()
+
+
+class Worker(Base):
+
+    def __init__(self, name=None, hostname=None, agent=None):
+        super().__init__()
+
+        self.worker = self.session.query(
+            WorkerModel).filter_by(name=name).first()
+
+        if self.worker is None:
+            self.worker = _worker = WorkerModel(name=name, backend=self.backend, agent_id=agent.id, broker=self.broker, hostname=hostname)
+
+        self.session.add(self.worker)
+        self.session.commit()
 
 
 class Task(Base):
@@ -101,6 +128,14 @@ class Task(Base):
                                   kwargs=kwargs).delay()
 
 
+class Argument(Base):
+
+    @classmethod
+    def find(cls, name, task):
+
+        return cls.session.query(ArgumentModel).join(TaskModel).filter(TaskModel.name == task and ArgumentModel.task_id == TaskModel.id and ArgumentModel.name == name).first()
+
+
 class Agent(Base):
 
     @classmethod
@@ -115,16 +150,18 @@ class Agent(Base):
         self.agent = None
 
         self.name = kwargs['name']
+        self.hostname = kwargs['hostname']
+        self.node = kwargs['node']
 
         self.agent = self.session.query(
             AgentModel).filter_by(name=self.name).first()
 
         if self.agent is None:
-            self.agent = AgentModel(name=self.name)
-            self.session.add(self.agent)
-            self.session.commit()
-        else:
-            self.session.add(self.agent)
+            self.agent = AgentModel(
+                name=self.name, node_id=self.node.node.id, hostname=self.hostname)
+
+        self.session.add(self.agent)
+        self.session.commit()
 
 
 class Scheduler(Base):
@@ -244,6 +281,10 @@ class Socket(Base):
                 position += 1
 
         if self.socket is not None:
+
+            if self.processor is None:
+                self.processor = Processor(id=self.socket.processor_id)
+
             if self.socket.queue is None and self.queue is not None:
                 self.socket.queue = self.queue.queue
 
@@ -272,8 +313,6 @@ class Socket(Base):
             self.session.refresh(
                 self.socket)
 
-        if self.processor is None:
-            self.processor = Processor(id=self.socket.processor_id)
 
         self.key = self.socket.queue.name + '.' + self.processor.name + '.' + self.socket.task.name
 
@@ -412,8 +451,13 @@ class Plug(Base):
             self.source.socket.sourceplugs += [self.plug]
             self.target.socket.targetplugs += [self.plug]
 
-            # self.session.add(self.source.socket)
-            # self.session.add(self.target.socket)
+            try:
+                self.session.add(self.source.socket)
+                self.session.add(self.target.socket)
+            except:
+                # May already be in session, so ignore
+                pass
+
             self.plug.source = self.source.socket
             self.plug.target = self.target.socket
 

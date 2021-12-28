@@ -927,6 +927,17 @@ def delete_task(context, name):
     context.obj['database'].session.commit()
 
 
+@delete.command(name='agent', help="Delete an agent from the database")
+@click.option('-n', '--name', default=None, required=True, help="Name of agent being deleted")
+@click.pass_context
+def delete_agent(context, name):
+    model = context.obj['database'].session.query(
+        AgentModel).filter_by(name=name).first()
+
+    context.obj['database'].session.delete(model)
+    context.obj['database'].session.commit()
+
+
 @delete.command(name='processor', help="Delete a processor from the database")
 @click.option('-n', '--name', default=None, required=True, help="Name of processor being deleted")
 @click.pass_context
@@ -2232,9 +2243,13 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
         if condensed:
             print("node::" + node.name)
         agent = node.agent
+        if not agent:
+            continue
         agent_node = Node("agent::" + agent.name, node_node)
         if condensed:
             print("  agent::" + agent.name)
+        if not agent.worker:
+            continue
         worker_node = Node("worker::" + agent.worker.name, agent_node)
         if condensed:
             print("    worker::" + agent.worker.name)
@@ -2509,10 +2524,11 @@ def ls_nodes(context):
     x.field_names = names
     nodes = context.obj['database'].session.query(NodeModel).all()
     for node in nodes:
+        agent_name = node.agent.name if node.agent else "None"
         x.add_row([node.name, node.id, node.hostname,
                    node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True),
                    humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True),
-                   node.agent.name])
+                   agent_name])
 
     print(x)
 
@@ -2667,9 +2683,14 @@ def ls_workers(context):
     workers = context.obj['database'].session.query(WorkerModel).all()
 
     for node in workers:
+        if node.processor is None:
+            pname = "None"
+        else:
+            pname = node.processor.name
+
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
                    node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.hostname,
-                   node.processor.name, node.workerdir])
+                   pname, node.workerdir])
 
     print(x)
 
@@ -2902,10 +2923,11 @@ def ls_plug(context, name):
     kinds = ["POSITIONAL_ONLY", "POSITIONAL_OR_KEYWORD",
              "VAR_POSITIONAL", "KEYWORD_ONLY", "VAR_KEYWORD"]
     for arg in [plug.argument]:
-        values = [arg.id, arg.name, arg.task.id, arg.task.module,
-                  arg.position, kinds[int(arg.kind)], arg.task.name]
+        if arg:
+            values = [arg.id, arg.name, arg.task.id, arg.task.module,
+                    arg.position, kinds[int(arg.kind)], arg.task.name]
 
-        x.add_row(values)
+            x.add_row(values)
 
     print(x)
 

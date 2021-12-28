@@ -8,7 +8,7 @@ import importlib
 from sqlalchemy.sql.expression import true
 from pyfi.cli import remove_processor
 
-from pyfi.client.api import Processor, Socket, Plug, Agent
+from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker
 from pyfi.client.user import USER
 from pyfi.config import CONFIG
 
@@ -213,9 +213,6 @@ def compose_agent(node, agent, deploy):
 
                 sockets[socketname] = _socket
 
-        logging.info("Installing repository {}".format(
-            processor['gitrepo']))
-
         if 'build' in agent and agent['build'] == False:
             continue
 
@@ -247,6 +244,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     for node in _nodes:
         nodename = node['name']
         # For each node, check out repo, build venv
+        _node = Node(name=nodename, hostname=node['hostname'])
 
         if 'enabled' in node and not node['enabled']:
             continue
@@ -259,9 +257,25 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
 
         for agentname in node['agents']:
             agent = node['agents'][agentname]
+            _agent = Agent(hostname=node['hostname'], node=_node,
+                               name=node['hostname'] + ".agent")
+            _node.node.agent = _agent.agent
             _repos, _sockets = compose_agent(node, agent, deploy)
+
+            _node.session.add(_agent.agent)
+            for socketname in _sockets:
+                socket = _sockets[socketname]
+                _node.session.add(socket.processor.processor)
+                worker = Worker(
+                    hostname=node['hostname'], agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
+                _agent.agent.worker = worker.worker
+                worker.worker.processor = socket.processor.processor
+
             repos += _repos
             sockets.update(_sockets)
+            _node.session.add(worker.worker)
+            _node.session.add(_node.node)
+            _node.session.commit()
 
 
     if 'plugs' in detail['network']:
@@ -272,7 +286,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                 continue
 
             plug_queue = plug['queue']
-
+            argument = plug['argument'] if 'argument' in plug else None
             source = plug['source']
             target = plug['target']
 
@@ -281,14 +295,25 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
 
             _plug = Plug(name=plugname, processor=source_socket.processor, user=USER,
                          source=source_socket, queue=plug_queue, target=target_socket)
+            _plug.session.add(target_socket.task)
+            if argument:
+                _argument = Argument.find(argument, target_socket.task.name)
+
+                if _argument is None:
+                    logging.error("No argument %s exists. Please create arguments for task.",argument)
+
+                # attach argument to plug
+                _plug.argument_id = _argument.id
+                _argument.plugs += [_plug.plug]
+
             logging.info("Created plug: %s", _plug)
 
     for repo in repos:
-        logging.info("Installing repo %s", repo)
         deploy = repo[0]
 
         if command == "build":
             if deploy:
+                logging.info("Installing repo %s", repo)
                 install_repo(*repo[1])
         elif command == "remove":
             try:
