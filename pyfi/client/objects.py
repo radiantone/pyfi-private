@@ -267,7 +267,6 @@ class Socket(Base):
             _module = importlib.import_module(self.task.module)
             _function = getattr(_module, self.task.name)
             signature = inspect.signature(_function)
-            print("Sig:", signature.parameters)
 
             position = 0
             self.task.arguments = []
@@ -441,8 +440,6 @@ class Plug(Base):
             self.session.add(self.queue.queue)
             self.session.add(self.source.socket)
             self.session.add(self.target.socket)
-            print("Queue SESSION ", Session.object_session(self.queue.queue))
-            print("Plug SESSION ", self.session)
 
             self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket,
                                   target=self.target.socket, queue=self.queue.queue,

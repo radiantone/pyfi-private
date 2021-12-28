@@ -6,6 +6,7 @@ import inspect
 import importlib
 
 from sqlalchemy.sql.expression import true
+from sqlalchemy import exc as sa_exc
 from pyfi.cli import remove_processor
 
 from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker
@@ -225,6 +226,7 @@ def compose_agent(node, agent, deploy):
 
     return repos, sockets
 
+
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
 
@@ -241,42 +243,47 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
               for nodename in nodes] if len(nodes) > 0 else [detail['network']['nodes'][nodename]
                                           for nodename in detail['network']['nodes']]
 
-    for node in _nodes:
-        nodename = node['name']
-        # For each node, check out repo, build venv
-        _node = Node(name=nodename, hostname=node['hostname'])
+    import warnings
 
-        if 'enabled' in node and not node['enabled']:
-            continue
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=sa_exc.SAWarning)
 
-        logging.info("Deploying node: {}".format(nodename))
-        logging.info("Host: {}".format(node['hostname']))
-        logging.info("ssh key: {}".format(node['ssh']['key']))
-        logging.info("ssh user: {}".format(node['ssh']['user']))
-        # Generate, copy pyfi.ini
+        for node in _nodes:
+            nodename = node['name']
+            # For each node, check out repo, build venv
+            _node = Node(name=nodename, hostname=node['hostname'])
 
-        for agentname in node['agents']:
-            agent = node['agents'][agentname]
-            _agent = Agent(hostname=node['hostname'], node=_node,
-                               name=node['hostname'] + ".agent")
-            _node.node.agent = _agent.agent
-            _repos, _sockets = compose_agent(node, agent, deploy)
+            if 'enabled' in node and not node['enabled']:
+                continue
 
-            _node.session.add(_agent.agent)
-            for socketname in _sockets:
-                socket = _sockets[socketname]
-                _node.session.add(socket.processor.processor)
-                worker = Worker(
-                    hostname=node['hostname'], agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
-                _agent.agent.worker = worker.worker
-                worker.worker.processor = socket.processor.processor
+            logging.info("Deploying node: {}".format(nodename))
+            logging.info("Host: {}".format(node['hostname']))
+            logging.info("ssh key: {}".format(node['ssh']['key']))
+            logging.info("ssh user: {}".format(node['ssh']['user']))
+            # Generate, copy pyfi.ini
 
-            repos += _repos
-            sockets.update(_sockets)
-            _node.session.add(worker.worker)
-            _node.session.add(_node.node)
-            _node.session.commit()
+            for agentname in node['agents']:
+                agent = node['agents'][agentname]
+                _agent = Agent(hostname=node['hostname'], node=_node,
+                                name=node['hostname'] + ".agent")
+                _node.node.agent = _agent.agent
+                _repos, _sockets = compose_agent(node, agent, deploy)
 
+                _node.session.add(_agent.agent)
+                for socketname in _sockets:
+                    socket = _sockets[socketname]
+                    _node.session.add(socket.socket)
+                    _node.session.add(socket.processor.processor)
+                    worker = Worker(
+                        hostname=node['hostname'], agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
+                    _agent.agent.worker = worker.worker
+                    worker.worker.processor = socket.processor.processor
+
+                repos += _repos
+                sockets.update(_sockets)
+                _node.session.add(worker.worker)
+                _node.session.add(_node.node)
+                _node.session.commit()
 
     if 'plugs' in detail['network']:
         for plugname in detail['network']['plugs']:

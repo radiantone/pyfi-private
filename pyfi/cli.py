@@ -1001,6 +1001,14 @@ def start_scheduler(context, name, interval):
     scheduler.run()
 
 
+@scheduler.command(name='remove')
+@click.option('-nd', '--node', default=None, required=False, help='Name of node to remove')
+@click.pass_context
+def remove_node_to_scheduler(context, node):
+    """ Remove node from scheduler """
+    pass
+
+
 @scheduler.command(name='add')
 @click.option('-nd', '--node', default=None, required=False, help='Name of node to add')
 @click.pass_context
@@ -1046,16 +1054,25 @@ def task():
     pass
 
 
-@task.command(name='cat', help="Cat the task")
-@click.option('-n', '--name', default=None, required=True, help="Name of task being deleted")
+@task.command(name='code', help="Print the task source code")
+@click.option('-n', '--name', default=None, required=True, help="Name of task")
 @click.pass_context
-def cat_task(context, name):
-    model = context.obj['database'].session.query(
+def code_task(context, name):
+    import importlib
+    import inspect
+
+
+    task = context.obj['database'].session.query(
         TaskModel).filter_by(name=name).first()
 
-    _code = model.code
-
-    print(_code)
+    _code = task.code
+    if _code is None:
+            _module = importlib.import_module(task.module)
+            _function = getattr(_module, task.name)
+            _source = inspect.getsource(_function)
+            print(_source)
+    else:
+        print(_code)
 
 
 @task.command(name='show', help="Show details for a task")
@@ -1289,7 +1306,6 @@ def add_argument(context, plug, task, argument):
     _function = getattr(_module, _task.name)
 
     signature = inspect.signature(_function)
-    print("Sig:", signature.parameters)
 
     position = 0
     _task.arguments = []
@@ -1346,7 +1362,6 @@ def add_task(context, name, module, code, repo):
     _function = getattr(_module, name)
 
     signature = inspect.signature(_function)
-    print("Sig:", signature.parameters)
 
     position = 0
     for pname in signature.parameters:
@@ -2146,7 +2161,7 @@ def ls_job(context, name, id):
 @click.pass_context
 def ls_calls(context, page, rows, unfinished, ascend):
     """
-    List queues
+    List calls
     """
     x = PrettyTable()
 
@@ -2285,7 +2300,7 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
 @click.pass_context
 def ls_work(context):
     """
-    List work submissions
+    List work
     """
 
     # Work is defined as the submission of a task along with scheduling requirements for a
@@ -2495,7 +2510,7 @@ def ls_stats(context):
 @click.pass_context
 def ls_schedulers(context):
     """
-    List queues
+    List schedulers
     """
     x = PrettyTable()
 
@@ -2513,7 +2528,7 @@ def ls_schedulers(context):
 @click.pass_context
 def ls_nodes(context):
     """
-    List queues
+    List nodes
     """
     import humanize
 

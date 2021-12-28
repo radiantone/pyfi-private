@@ -40,7 +40,7 @@ class PyTestCommand(distutils.cmd.Command):
     def run(self):
         """Run command."""
         command = [
-            'pytest --full-trace --verbose --color=yes --disable-pytest-warnings --no-summary --pyargs gsascli.tests']
+            'pytest --full-trace --verbose --color=yes --disable-pytest-warnings --no-summary --pyargs pyfi.tests']
 
         self.announce(
             'Running command: %s' % str(command),
@@ -70,7 +70,7 @@ class PylintCommand(distutils.cmd.Command):
 
     def run(self):
         """Run command."""
-        command = ['pylint gsascli']
+        command = ['pylint pyfi']
         self.announce(
             'Running command: %s' % str(command),
             level=distutils.log.INFO)
@@ -171,7 +171,7 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords='parallel processing, devops, dataflow, supercomputing, workflows'
 )

@@ -10,7 +10,7 @@ network:
   nodes:
     phoenix:
       clean: true
-      enabled: false
+      enabled: true
       hostname: phoenix
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
@@ -24,6 +24,21 @@ network:
             pool: 5
             size: 10
           processors:
+            proc3: 
+                branch: main
+                pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
+                gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+                commit:
+                module: pyfi.processors.sample
+                beat: true
+                workers: 2
+                sockets:
+                  pyfi.processors.sample.emit_two:
+                    queue: 
+                      name: pyfi.queue3
+                    task:
+                      function: 
+                        name: emit_two    
             proc1: 
               status: ready
               requested_status: update
@@ -33,14 +48,15 @@ network:
               commit:
               module: pyfi.processors.sample
               beat: true
-              workers: 6
+              workers: 3
               sockets:
-                pyfi.processors.sample.do_something:
-                  interval: 5
+                pyfi.processors.sample.emit_one:
+                  interval: -1
                   queue: 
                     name: pyfi.queue1
                   task:
-                    function: do_something
+                    function: 
+                      name: emit_one
       services:
         docker:
           websockets:
@@ -48,35 +64,6 @@ network:
             environment:
               - LISTEN_PROCESSOR=proc1
               - LISTEN_CHANNEL=task
-    radiant:
-      enabled: false
-      hostname: radiant
-      ssh:
-        key: '/home/darren/.ssh/id_rsa.pub'
-        user: 'darren'
-      path: /home/darren/node1
-      ini: /home/darren/pyfi.ini
-      polar: /home/darren/pyfi.polar
-      agents:
-        agent1:
-          parameters:
-            pool: 5
-            size: 10
-          processors:
-            proc2: 
-              branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
-              commit:
-              module: pyfi.processors.sample
-              beat: true
-              workers: 2
-              sockets:
-                socket1:
-                  queue: 
-                    name: pyfi.queue2
-                  task:
-                    function: do_this
     agent2:
       clean: false
       hostname: agent2
@@ -101,50 +88,28 @@ network:
               beat: false
               workers: 1
               sockets:
-                pyfi.processors.sample.emit_five:
-                  queue: 
-                    name: pyfi.queue1
-                  task:
-                    function: add_two
-                      arguments: true
-    agent1:
-      clean: false
-      build: false
-      hostname: agent1
-      ini: /home/darren/pyfi.ini
-      polar: /home/darren/pyfi.polar
-      ssh:
-        key: '/home/darren/.ssh/id_rsa.pub'
-        user: 'darren'
-      path: /home/darren/node1
-      agents:
-        agent1:
-          parameters:
-            pool: 5
-            size: 10
-          processors:
-            proc3: 
-              branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
-              commit:
-              module: pyfi.processors.sample
-              beat: true
-              workers: 5
-              sockets:
-                socket3:
+                pyfi.processors.sample.add_two:
                   queue: 
                     name: pyfi.queue2
                   task:
-                    function: do_this    
+                    function: 
+                      name: add_two
+                      arguments: true
+                      resetonexecute: true
 
-  #plugs:
-  #  plug1:
-  #    source: pyfi.processors.sample.do_something
-  #    target: pyfi.processors.sample.do_this
-  #    queue:
-  #      name: pyfi.queue3
-
+  plugs:
+    plug1:
+      source: pyfi.processors.sample.emit_one
+      target: pyfi.processors.sample.add_two
+      argument: one
+      queue:
+        name: pyfi.queue4
+    plug2:
+      source: pyfi.processors.sample.emit_two
+      target: pyfi.processors.sample.add_two
+      argument: two
+      queue:
+        name: pyfi.queue5
 # This will create work records which the scheduler will deploy
 work:
   
