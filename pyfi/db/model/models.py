@@ -305,8 +305,8 @@ class AgentModel(BaseModel):
     port = Column(Integer)
     pid = Column(Integer)
 
-    worker = relationship(
-        'WorkerModel', back_populates='agent', uselist=False, cascade="all, delete-orphan")
+    workers = relationship(
+        'WorkerModel', backref='agent', lazy=True, cascade="all, delete-orphan")
 
     node_id = Column(String(40), ForeignKey('node.id'),
                      nullable=False)
@@ -353,7 +353,7 @@ class WorkerModel(BaseModel):
     agent_id = Column(String(40), ForeignKey('agent.id'),
                       nullable=False)
 
-    agent = relationship("AgentModel", back_populates="worker")
+    #agent = relationship("AgentModel", back_populates="worker")
 
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status,

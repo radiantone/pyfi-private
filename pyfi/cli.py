@@ -2803,7 +2803,7 @@ def ls_agents(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Host", "Port", "Owner", "Last Updated",
-             "Status", "Node", "PID", "Worker"]
+             "Status", "Node", "PID"]
     x.field_names = names
     agents = context.obj['database'].session.query(AgentModel).all()
 
@@ -2812,7 +2812,7 @@ def ls_agents(context):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         for node in agents:
-            worker_name = node.worker.name if node.worker else 'None'
+            #worker_name = node.worker.name if node.worker else 'None'
             status = 'unreachable'
             try:
                 res = requests.get('http://' + node.hostname + ':' + str(node.port))
@@ -2821,7 +2821,7 @@ def ls_agents(context):
             except:
                 pass
             x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated,
-                       status, node.node.name, node.pid, worker_name])
+                       status, node.node.name, node.pid])
 
     print(x)
 

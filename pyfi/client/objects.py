@@ -298,12 +298,12 @@ class Socket(Base):
             if interval > 0:
                 scheduled = True
 
-            logging.info("Creating new socket)")
             self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled,
                                       schedule_type=schedule_type, interval=interval,
                                       processor_id=self.processor.processor.id, requested_status='ready',
                                       status='ready')
 
+            logging.info("Creating new socket %s", self.name)
             self.session.add(self.task)
             self.socket.task = self.task
             self.socket.queue = self.queue.queue
@@ -533,7 +533,7 @@ class Processor(Base):
     """
 
     def __init__(self, hostname=None, id=None, name=None, user=None, gitrepo=None, branch=None, module=None,
-                 concurrency=None, commit=None, beat=None):
+                 concurrency=None, agent=None, commit=None, beat=None):
 
         super().__init__()
 
@@ -562,12 +562,23 @@ class Processor(Base):
                 status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
                 branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,
                 module=module)
-
+            self.database.session.add(self.processor)
             self.processor.hostname = platform.node()
             self.processor.concurrency = 3
             self.processor.commit = None
             self.processor.beat = False
 
+        if self.processor.worker is None:
+            _name = hostname + ".agent." + self.processor.name + '.worker'
+            logging.info("Creating worker %s on %s",
+                         _name, self.processor.name)
+            _worker = WorkerModel(
+                name=_name, backend=self.backend, agent=agent, broker=self.broker, hostname=hostname)
+            self.processor.worker = _worker
+            self.database.session.add(_worker)
+            self.database.session.commit()
+            logging.info("   Worker: %s", self.processor.worker.name)
+            
         if hostname is not None:
             if hostname != self.processor.hostname:
                 self.processor.requested_status = 'update'

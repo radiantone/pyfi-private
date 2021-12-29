@@ -186,7 +186,7 @@ def stop_network(detail):
     pass
 
 
-def compose_agent(node, agent, deploy):
+def compose_agent(node, agent, deploy, _agent):
     repos = []
     sockets = {}
 
@@ -196,7 +196,7 @@ def compose_agent(node, agent, deploy):
         processor = agent['processors'][processorname]
         _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER,
                                 module=processor['module'], branch=processor['branch'],
-                                concurrency=processor['workers'],
+                                concurrency=processor['workers'], agent=_agent.agent,
                                 gitrepo=processor['gitrepo'])
 
         # if "remove", then delete _processor
@@ -264,19 +264,24 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
 
             for agentname in node['agents']:
                 agent = node['agents'][agentname]
+                logging.info(
+                    "Creating agent %s ", node['hostname'] + ".agent")
                 _agent = Agent(hostname=node['hostname'], node=_node,
                                 name=node['hostname'] + ".agent")
                 _node.node.agent = _agent.agent
-                _repos, _sockets = compose_agent(node, agent, deploy)
+                _repos, _sockets = compose_agent(node, agent, deploy, _agent)
 
                 _node.session.add(_agent.agent)
                 for socketname in _sockets:
                     socket = _sockets[socketname]
                     _node.session.add(socket.socket)
                     _node.session.add(socket.processor.processor)
+                    logging.info(
+                        "Creating worker %s ", node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
                     worker = Worker(
                         hostname=node['hostname'], agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
-                    _agent.agent.worker = worker.worker
+                    logging.info("Worker ID %s", worker.worker.id)
+                    _agent.agent.workers  += [worker.worker]
                     worker.worker.processor = socket.processor.processor
 
                 repos += _repos
