@@ -127,7 +127,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
-                'key': processor.name +'.' + plug.target.task.module + '.' + plug.target.task.name,
+                'key': plug.target.processor.name +'.' + plug.target.task.module + '.' + plug.target.task.name,
                 'module': plug.target.task.module,
                 'function': plug.target.task.name,
                 'position': plug.argument.position}
@@ -789,7 +789,7 @@ class Worker:
                                             argument = {
                                                 'name': processor_plug.argument.name,
                                                 'kind': processor_plug.argument.kind,
-                                                'key': processor.name + '.' + processor_plug.target.task.module + '.' + processor_plug.target.task.name,
+                                                'key': processor_plug.target.processor.name + '.' + processor_plug.target.task.module + '.' + processor_plug.target.task.name,
                                                 'module': processor_plug.target.task.module,
                                                 'function': processor_plug.target.task.name,
                                                 'position': processor_plug.argument.position}
