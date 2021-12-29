@@ -1109,13 +1109,13 @@ def show_task(context, name, gitrepo):
 
 @task.command(name='run')
 @click.option('-n', '--name', required=False, help='Name of task to run')
-@click.option('-t', '--type', required=False, default='raw', help='Type of return data (json, pickle, raw)')
+@click.option('-f', '--format', required=False, default='raw', help='Type of return data (json, pickle, raw)')
 @click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
 @click.option('-d', '--data', required=False, help='Python evaluated string to pass to the socket\'s task')
 @click.option('-nd', '--nodata', required=False, is_flag=True, default=False, help='Set this flag if no data is being passed in.')
 @click.option('-a', '--argument', required=False, default=None, help='Name of argument to pass')
 @click.pass_context
-def run_task(context, name, type, socket, data, nodata, argument):
+def run_task(context, name, format, socket, data, nodata, argument):
     """
     Run a task
     """
@@ -1170,7 +1170,11 @@ def run_task(context, name, type, socket, data, nodata, argument):
 
     if data:
         if not argument:
-            result = socket(*eval(data), **kwargs)
+            _args = eval(data)
+            if type(_args) is list or type(_args) is tuple:
+                result = socket(*eval(data), **kwargs)
+            else:
+                result = socket(eval(data), **kwargs)
         else:
             result = socket(eval(data), **kwargs)
     elif nodata:

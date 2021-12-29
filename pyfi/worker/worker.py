@@ -1281,7 +1281,7 @@ class Worker:
                                     else:
                                         _arg = json.loads(_argdata)
                                         logging.info(
-                                            "FOUND STORED ARGUMENT %s", argument['key']+'.'+arg.name+'.'+str(arg.position))
+                                            "FOUND STORED ARGUMENT %s %s", _arg, argument['key']+'.'+arg.name+'.'+str(arg.position))
                                         _newargs.append(_arg)
                                     logging.info("WRAPPED_FUNCTION ARG: %s",arg)
 

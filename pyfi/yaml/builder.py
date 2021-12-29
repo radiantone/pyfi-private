@@ -309,14 +309,18 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                          source=source_socket, queue=plug_queue, target=target_socket)
             _plug.session.add(target_socket.task)
             if argument:
+                logging.info("Fetching argument %s",argument)
                 _argument = Argument.find(argument, target_socket.task.name)
-
+                logging.info("Found argument: %s",_argument.name)
                 if _argument is None:
                     logging.error("No argument %s exists. Please create arguments for task.",argument)
 
                 # attach argument to plug
+                _plug.session.add(_argument)
                 _plug.argument_id = _argument.id
                 _argument.plugs += [_plug.plug]
+            
+            _plug.session.commit()
 
             logging.info("Created plug: %s", _plug)
 

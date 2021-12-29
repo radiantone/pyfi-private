@@ -133,7 +133,7 @@ class Argument(Base):
     @classmethod
     def find(cls, name, task):
 
-        return cls.session.query(ArgumentModel).join(TaskModel).filter(TaskModel.name == task and ArgumentModel.task_id == TaskModel.id and ArgumentModel.name == name).first()
+        return cls.session.query(ArgumentModel).join(TaskModel).filter(ArgumentModel.name == name and TaskModel.name == task and ArgumentModel.task_id == TaskModel.id).first()
 
 
 class Agent(Base):
