@@ -172,6 +172,8 @@ class Agent:
                         logging.info("Killing container...")
                         container.kill()
                         logging.info("Done")
+                        
+                os.remove('../../../containers.pid')
 
             if os.path.exists('../../../worker.pid'):
                 with open('../../../worker.pid','r') as wfile:
