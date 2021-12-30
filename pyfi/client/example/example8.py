@@ -1,10 +1,10 @@
-from pyfi.client.api import parallel, pipeline, fork
+from pyfi.client.api import parallel, pipeline
 from pyfi.client.example.api import do_something_p as do_something, do_this_p as do_this
 
-_fork = fork(parallel([
+_fork = parallel([
     do_something("Four"),
     do_something("Five"),
-]))
+])
 
 result = _fork().get()
 print("RESULT:", result)

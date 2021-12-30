@@ -6,11 +6,14 @@ import http
 import logging
 import signal
 import socketserver
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
+
 
 DIRECTORY = "app/dist/spa"
 
 Handler = functools.partial(
-    http.server.SimpleHTTPRequestHandler, directory=DIRECTORY)
+    SimpleHTTPRequestHandler, directory=DIRECTORY)
 
 
 def run_http(port):

@@ -1,17 +1,12 @@
 import logging
 import os
-import paramiko
 import platform
-import inspect
-import importlib
 
-from sqlalchemy.sql.expression import true
+import paramiko
 from sqlalchemy import exc as sa_exc
-from pyfi.cli import remove_processor
 
 from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker
 from pyfi.client.user import USER
-from pyfi.config import CONFIG
 
 HOSTNAME = platform.node()
 
@@ -229,8 +224,6 @@ def compose_agent(node, agent, deploy, _agent):
 
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
-
-    import paramiko
 
     sockets = {}
     repos = []

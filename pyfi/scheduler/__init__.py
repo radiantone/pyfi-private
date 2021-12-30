@@ -2,10 +2,9 @@ import logging
 import os
 import platform
 import time
-from multiprocessing import Process, Condition
+from multiprocessing import Process
 
-from pyfi.db.model import SchedulerModel, WorkModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, \
-    ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel
 
 HOSTNAME = platform.node()
 

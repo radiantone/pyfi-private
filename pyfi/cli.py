@@ -1,7 +1,6 @@
 """
 cli.py - pyfi CLI command tool for managing database
 """
-import click
 import configparser
 import getpass
 import hashlib
@@ -10,20 +9,19 @@ import os
 import platform
 import sys
 from datetime import datetime
-from flask import Flask
 from pathlib import Path
+
+import click
 from prettytable import PrettyTable
 from sqlalchemy import create_engine, MetaData, literal_column
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 
-import pyfi.db.postgres
 from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, \
-    WorkerModel, CallModel, PlugModel, SocketModel, ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, \
-    QueueModel, SettingsModel, TaskModel, LogModel
+    WorkerModel, CallModel, PlugModel, SocketModel, ProcessorModel, NodeModel, RoleModel, \
+    QueueModel, TaskModel, LogModel
 from pyfi.db.model.models import PrivilegeModel
-from pyfi.server import app
 from pyfi.web import run_http
 
 HOSTNAME = platform.node()
@@ -79,7 +77,6 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     """
     PYFI CLI for creating & managing PYFI networks
     """
-    from urllib.parse import urlparse
 
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -234,8 +231,6 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             session.close()
 
             return permissions
-
-        from functools import partial
 
         user_object = None
 
@@ -496,7 +491,6 @@ def migrate(context, directory):
     from pyfi.db.model import Base
     from alembic.migration import MigrationContext
     from alembic.autogenerate import compare_metadata, produce_migrations
-    from alembic.config import Config
 
     target_metadata = Base.metadata
 
@@ -612,6 +606,9 @@ def db_init(rls):
 
     try:
         from sqlalchemy import create_engine
+
+        engine = None
+        session = None
 
         try:
             _engine = create_engine(CONFIG.get('database', 'uri'))
@@ -750,6 +747,8 @@ def pause_processor(context, name):
     Pause a processor
     """
     id = context.obj['id']
+
+    processor = None
 
     if name is not None:
         print("Pausing ", name)
@@ -1239,7 +1238,6 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
-
     if not hostname:
 
         _hostname = click.prompt('Hostname',
@@ -1403,7 +1401,6 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     """
     Add processor to the database
     """
-    from sqlalchemy.orm import Session
 
     id = context.obj['id']
     user = context.obj['user']
@@ -1652,7 +1649,6 @@ def update_socket(context, name, queue, interval, procid, procname, task):
     """
     Update a socket in the database
     """
-    import inspect
     id = context.obj['id']
 
     # Get the named or id of the plug model
@@ -1858,8 +1854,6 @@ def stop_agent(context):
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.pass_context
 def kill_worker(context, name):
-    from pyfi.worker import Worker
-
     workerModel = context.obj['database'].session.query(
         WorkerModel).filter_by(name=name).first()
     workerModel.requested_status = 'shutdown'
@@ -2496,6 +2490,8 @@ def ls_task(context, name):
     names += ["Git Repo"]
     x.field_names = names
     tasks = [task]
+
+    node = None
 
     for node in tasks:
         values = [node.name, node.id, node.owner,

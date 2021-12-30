@@ -7,17 +7,17 @@ import logging
 import multiprocessing
 import os
 import platform
-import psutil
 import shutil
 import signal
 from contextlib import contextmanager
-from flask import Flask, request, send_from_directory, current_app, send_from_directory
 from pathlib import Path
-from sqlalchemy import inspect
+
+import psutil
+from flask import Flask
 
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import ProcessorModel, UserModel
-from pyfi.db.model import UserModel, WorkerModel, AgentModel, QueueModel, NodeModel
+from pyfi.db.model import ProcessorModel
+from pyfi.db.model import WorkerModel, AgentModel, NodeModel
 from pyfi.worker import Worker
 
 logging.basicConfig(level=logging.INFO)
@@ -66,6 +66,7 @@ class Agent:
         self.agent = None
         self.user = user
         self.size = size
+        self.workerproc = None
 
         if clean:
             logging.info("Cleaning work directories")
@@ -86,7 +87,6 @@ class Agent:
         from datetime import datetime
         import bjoern
         from billiard.context import Process
-        from uuid import uuid4
 
         with open('agent.pid', 'w') as procfile:
             procfile.write(str(os.getpid()))
@@ -150,7 +150,9 @@ class Agent:
 
             logging.info("Shutting down...")
             process = Process(os.getpid())
-            self.workerproc.kill()
+
+            if self.workerproc:
+                self.workerproc.kill()
 
             for child in process.children(recursive=True):
                 logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
@@ -561,7 +563,7 @@ class Agent:
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
-                logging.info("Shutting down...")
+                logging.info("web_server: exiting...")
 
         webserver = Process(target=web_server, daemon=True)
         webserver.start()

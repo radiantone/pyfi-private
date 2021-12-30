@@ -2,6 +2,7 @@
 Class database model definitions
 """
 import json
+
 from datetime import datetime
 from oso import Oso
 from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, \

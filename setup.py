@@ -157,7 +157,7 @@ setup(
         'uvicorn[standard]',
         'psycopg2',
         'docker'
-        'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
+        #'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
     ],
     license=about['__license__'],
     zip_safe=False,

@@ -15,5 +15,7 @@ from .model.models import TaskModel as Task
 from .model.models import UserModel as User
 from .model.models import WorkerModel as Worker
 
+from .postgres import _compile_drop_table
+
 __all__ = ('Worker', 'Agent', 'Role', 'Processor', 'User', 'Queue', 'Log',
            'Plug', 'Socket', 'Flow', 'Action', 'Settings', 'Node', 'Task', 'Scheduler', 'Base')
