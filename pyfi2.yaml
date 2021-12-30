@@ -47,35 +47,6 @@ network:
             environment:
               - LISTEN_PROCESSOR=proc1
               - LISTEN_CHANNEL=task
-    radiant:
-      enabled: false
-      hostname: radiant
-      ssh:
-        key: '/home/darren/.ssh/id_rsa.pub'
-        user: 'darren'
-      path: /home/darren/node1
-      ini: /home/darren/pyfi.ini
-      polar: /home/darren/pyfi.polar
-      agents:
-        agent1:
-          parameters:
-            pool: 5
-            size: 10
-          processors:
-            proc2: 
-              branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
-              commit:
-              module: pyfi.processors.sample
-              beat: true
-              workers: 2
-              sockets:
-                socket1:
-                  queue: 
-                    name: pyfi.queue2
-                  task:
-                    function: do_this
     agent2:
       clean: false
       build: false
@@ -109,6 +80,7 @@ network:
     agent1:
       clean: false
       build: false
+      enabled: false
       hostname: agent1
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar

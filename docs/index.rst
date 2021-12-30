@@ -14,7 +14,13 @@ Documentation Outline
    usecases/index
    install/index
    quickstart/index
-   
+
+.. toctree::
+   :caption: Data Flows
+   :maxdepth: 2
+
+   dataflows/index
+
 .. toctree::
    :caption: Technology
    :maxdepth: 2

@@ -2267,34 +2267,56 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
         agent_node = Node("agent::" + agent.name, node_node)
         if condensed:
             print("  agent::" + agent.name)
-        if not agent.worker:
+        if not agent.workers:
             continue
-        worker_node = Node("worker::" + agent.worker.name, agent_node)
-        if condensed:
-            print("    worker::" + agent.worker.name)
-        processor_node = Node(
-            "processor::" + agent.worker.processor.name, worker_node)
-        if condensed:
-            print("      processor::" + agent.worker.processor.name)
+        for worker in agent.workers:
+            worker_node = Node("worker::" + worker.name, agent_node)
+            if condensed:
+                print("    worker::" + worker.name)
+            processor_node = Node(
+                "processor::" + worker.processor.name, worker_node)
+            if condensed:
+                print("      processor::" + worker.processor.name)
 
-        for socket in agent.worker.processor.sockets:
-            socket_node = Node("socket::" + socket.name, processor_node)
-            if condensed:
-                print("        socket::" + socket.name)
-            task_node = Node("task::" + socket.task.name, socket_node)
-            if condensed:
-                print("          task::" + socket.task.name)
-            module_node = Node("module::" + socket.task.module, task_node)
-            if condensed:
-                print("            module::" + socket.task.module)
-            function_node = Node("function::" + socket.task.name, task_node)
-            if condensed:
-                print("               function::" + socket.task.name)
-
-            for arg in socket.task.arguments:
-                argument_node = Node("argument::" + arg.name, function_node)
+            for socket in worker.processor.sockets:
+                socket_node = Node("socket::" + socket.name, processor_node)
                 if condensed:
-                    print("                  argument::" + arg.name)
+                    print("        socket::" + socket.name)
+                task_node = Node("task::" + socket.task.name, socket_node)
+                if condensed:
+                    print("          task::" + socket.task.name)
+                module_node = Node("module::" + socket.task.module, task_node)
+                if condensed:
+                    print("            module::" + socket.task.module)
+                function_node = Node("function::" + socket.task.name, task_node)
+                if condensed:
+                    print("               function::" + socket.task.name)
+                for plug in socket.sourceplugs:
+                    plug_node = Node("plug::" + plug.name)
+                    if condensed:
+                        print("                    plug::" + plug.name)
+
+                    source_node = Node("source::" + plug.source.name)
+                    if condensed:
+                        print("                      source::" + \
+                                plug.source.name)
+                        print("                      target::" + \
+                                  plug.target.name)
+
+                for arg in socket.task.arguments:
+                    argument_node = Node("argument::" + arg.name, function_node)
+                    if condensed:
+                        print("                  argument::" + arg.name)
+
+                    for plug in arg.plugs:
+                        plug_node = Node("plug::" + plug.name)
+                        if condensed:
+                            print("                    plug::" + plug.name)
+
+                        source_node = Node("source::" + plug.source.name)
+                        if condensed:
+                            print("                      source::" + plug.source.name)
+                            print("                      target::" + plug.target.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)
@@ -2870,13 +2892,14 @@ def ls_node(context, name, tree, horizontal):
     if tree:
         root = Node("node::" + node.name)
         agent = Node("agent::" + node.agent.name, root)
-        worker = Node("worker::" + node.agent.worker.name, agent)
-        processor = Node(
-            "processor::" + node.agent.worker.processor.name, worker)
+        for _worker in agent.workers:
+            worker = Node("worker::" + _worker.name, agent)
+            processor = Node(
+                "processor::" + _worker.processor.name, worker)
 
-        for socket in node.agent.worker.processor.sockets:
-            _sock = Node("socket::" + socket.name, processor)
-            Node("task::" + socket.task.name, _sock)
+            for socket in _worker.processor.sockets:
+                _sock = Node("socket::" + socket.name, processor)
+                Node("task::" + socket.task.name, _sock)
 
         print_tree(root, horizontal=not horizontal)
 
