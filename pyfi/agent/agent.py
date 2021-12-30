@@ -168,7 +168,7 @@ class Agent:
                     pids = cfile.readlines()
                     for pid in pids:
                         logging.info("Getting client container %s",pid)
-                        container = client.containers.get(pid)
+                        container = client.containers.get(pid.strip())
                         logging.info("Killing container...")
                         container.kill()
                         logging.info("Done")
