@@ -155,7 +155,7 @@ class Agent:
                 self.workerproc.kill()
 
             for child in process.children(recursive=True):
-                logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
+                logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
                     process.pid, child.pid))
                 child.kill()
 

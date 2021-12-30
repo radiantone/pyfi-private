@@ -1536,9 +1536,22 @@ class Worker:
                 # Create or update venv
                 from virtualenvapi.manage import VirtualEnvironment
 
-                logging.info("Building virtualenv...in %s", os.getcwd())
 
+                if self.processor.use_container:
+                    logging.info("Installing repo inside container...%s",
+                                 self.processor.gitrepo.strip())
+                    # Install the repo inside the container
+                    output = self.container.exec_run(
+                        "pip install -e git+" + self.processor.gitrepo.strip(), stream=True)
+
+                    for line in output:
+                        logging.info(line)
+
+
+                # If not using a container, then build the virtualenv
                 if not os.path.exists("venv"):
+
+                    logging.info("Building virtualenv...in %s", os.getcwd())
                     env = VirtualEnvironment(
                         'venv', python=sys.executable, system_site_packages=True)  # inside git directory
 
