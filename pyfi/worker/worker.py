@@ -878,8 +878,8 @@ class Worker:
                     self.container = client.containers.run(
                         self.processor.container_image+":"+self.processor.container_version, detach=True)
                     logging.info("Working starting container....")
-                    logging.info("Container started %s:%s....",
-                                 self.processor.container_image, self.processor.container_version)
+                    logging.info("Container started %s:%s....%s",
+                                 self.processor.container_image, self.processor.container_version, self.container)
 
             logging.info("Worker starting session....")
 
