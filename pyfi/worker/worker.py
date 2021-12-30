@@ -876,7 +876,7 @@ class Worker:
                     logging.info("Running container %s:%s....",
                                  self.processor.container_image, self.processor.container_version)
                     self.container = client.containers.run(
-                        self.processor.container_image+":"+self.processor.container_version, entrypoint="/bin/bash", command="tail -f /etc/hosts", detach=True)
+                        self.processor.container_image+":"+self.processor.container_version, entrypoint="", command="tail -f /etc/hosts", detach=True)
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
