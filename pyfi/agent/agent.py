@@ -160,7 +160,7 @@ class Agent:
             with open('../../../worker.pid','r') as wfile:
                 workerpid = wfile.read()
                 workerpid = int(workerpid)
-                logging.info("Killing worker process", workerpid)
+                logging.info("Killing worker process %s", workerpid)
                 os.killpg(os.getpgid(workerpid), 15)
                 os.kill(workerpid, signal.SIGKILL)
 
