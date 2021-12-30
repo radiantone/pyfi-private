@@ -148,14 +148,14 @@ class Agent:
             """ Shutdown worker """
             from psutil import Process
 
-            logging.info("Shutting down...")
+            logging.info("Shutting down agent...")
             process = Process(os.getpid())
 
             if self.workerproc:
                 self.workerproc.kill()
 
             for child in process.children(recursive=True):
-                logging.debug("SHUTDOWN: Process pid {}: Killing child {}".format(
+                logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
                     process.pid, child.pid))
                 child.kill()
 

@@ -196,16 +196,14 @@ def compose_agent(node, agent, deploy, _agent):
 
 
         if 'container_image' in processor:
-            _processor.container_image = processor['container_image']
+            _processor.processor.container_image = processor['container_image']
             if 'container_version' in processor:
-                _processor.container_version = processor['container_version']
+                _processor.processor.container_version = processor['container_version']
             
             if 'use_container' in processor:
-                _processor.use_container = processor['use_container']
+                _processor.processor.use_container = processor['use_container']
                 
-        _processor.session.add(_processor)
-        _processor.session.commit()
-        
+
         # if "remove", then delete _processor
         if 'sockets' in processor:
             for socketname in processor['sockets']:
