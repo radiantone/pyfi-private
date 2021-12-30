@@ -147,6 +147,9 @@ class Agent:
         def shutdown(*args):
             """ Shutdown worker """
             from psutil import Process
+            import docker
+
+            client = docker.from_env()
 
             logging.info("Shutting down agent...")
             process = Process(os.getpid())
@@ -158,6 +161,16 @@ class Agent:
                 child.kill()
 
             logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
+
+            if os.path.exists('../../../containers.pid'):
+                with open('../../../containers.pid','r') as cfile:
+                    pids = cfile.readlines()
+                    for pid in pids:
+                        logging.info("Getting client container %s",pid)
+                        container = client.get(pid)
+                        logging.info("Killing container...")
+                        container.kill()
+                        logging.info("Done")
 
             if os.path.exists('../../../worker.pid'):
                 with open('../../../worker.pid','r') as wfile:
