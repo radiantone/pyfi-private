@@ -163,6 +163,7 @@ class Agent:
             logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
 
             if os.path.exists('../../../containers.pid'):
+                logging.info("Found containers.pid")
                 with open('../../../containers.pid','r') as cfile:
                     pids = cfile.readlines()
                     for pid in pids:
