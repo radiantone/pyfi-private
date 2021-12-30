@@ -869,6 +869,7 @@ class Worker:
             engine = create_engine(
                 dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
+            logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
                 logging.info("Working starting container....")
                 if self.processor.detached:
@@ -879,7 +880,7 @@ class Worker:
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....",
                                  self.processor.container_image, self.processor.container_version)
-                                 
+
             logging.info("Worker starting session....")
 
             with self.get_session(self.database) as session:
