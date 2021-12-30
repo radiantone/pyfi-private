@@ -881,6 +881,16 @@ class Worker:
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
 
+                    logging.info("Installing repo inside container...%s",
+                                 self.processor.gitrepo.strip())
+                    # Install the repo inside the container
+                    output = self.container.exec_run(
+                        "pip install -e git+" + self.processor.gitrepo.strip(), stream=True)
+
+                    for line in output:
+                        logging.info(line)
+
+                        
             logging.info("Worker starting session....")
 
             with self.get_session(self.database) as session:
@@ -1535,18 +1545,6 @@ class Worker:
 
                 # Create or update venv
                 from virtualenvapi.manage import VirtualEnvironment
-
-
-                if self.processor.use_container:
-                    logging.info("Installing repo inside container...%s",
-                                 self.processor.gitrepo.strip())
-                    # Install the repo inside the container
-                    output = self.container.exec_run(
-                        "pip install -e git+" + self.processor.gitrepo.strip(), stream=True)
-
-                    for line in output:
-                        logging.info(line)
-
 
                 # If not using a container, then build the virtualenv
                 if not os.path.exists("venv"):
