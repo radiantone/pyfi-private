@@ -197,6 +197,9 @@ def compose_agent(node, agent, deploy, _agent):
 
         if 'container_image' in processor:
             _processor.processor.container_image = processor['container_image']
+            if 'detached' in processor:
+                _processor.processor.detached = processor['detached']
+
             if 'container_version' in processor:
                 _processor.processor.container_version = processor['container_version']
             
