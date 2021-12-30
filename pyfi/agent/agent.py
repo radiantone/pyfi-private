@@ -157,6 +157,8 @@ class Agent:
                     process.pid, child.pid))
                 child.kill()
 
+            logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
+
             with open('../../../worker.pid','r') as wfile:
                 workerpid = wfile.read()
                 workerpid = int(workerpid)

@@ -890,7 +890,8 @@ class Worker:
                     for line in output:
                         logging.info(line)
 
-                        
+                    # Append container id to containers.pid
+
             logging.info("Worker starting session....")
 
             with self.get_session(self.database) as session:
