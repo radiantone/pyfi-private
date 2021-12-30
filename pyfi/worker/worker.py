@@ -891,7 +891,7 @@ class Worker:
                         logging.info(line)
 
                     with open('../../../containers.pid','a') as cfile:
-                        cfile.write(str(self.container.id)+"\n")
+                        cfile.write(str(self.container.short_id)+"\n")
                     # Append container id to containers.pid
 
             logging.info("Worker starting session....")
