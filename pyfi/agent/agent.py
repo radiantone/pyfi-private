@@ -159,12 +159,15 @@ class Agent:
 
             logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
 
-            with open('../../../worker.pid','r') as wfile:
-                workerpid = wfile.read()
-                workerpid = int(workerpid)
-                logging.info("Killing worker process %s", workerpid)
-                os.killpg(os.getpgid(workerpid), 15)
-                os.kill(workerpid, signal.SIGKILL)
+            if os.path.exists('../../../worker.pid'):
+                with open('../../../worker.pid','r') as wfile:
+                    workerpid = wfile.read()
+                    workerpid = int(workerpid)
+                    logging.info("Killing worker process %s", workerpid)
+                    os.killpg(os.getpgid(workerpid), 15)
+                    os.kill(workerpid, signal.SIGKILL)
+            else:
+                logging.warning("No worker.pid found")
 
             os.killpg(os.getpgid(os.getpid()), 15)
             os.kill(os.getpid(), signal.SIGKILL)
