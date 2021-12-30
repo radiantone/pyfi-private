@@ -151,13 +151,19 @@ class Agent:
             logging.info("Shutting down agent...")
             process = Process(os.getpid())
 
-            if self.workerproc:
-                self.workerproc.kill()
-
+            logging.info("    Terminating child processes...")
             for child in process.children(recursive=True):
-                logging.info("SHUTDOWN: Process pid {}: Killing child {}".format(
+                logging.info("         Process pid {}: Killing child {}".format(
                     process.pid, child.pid))
                 child.kill()
+
+
+            with open('worker.pid','r') as wfile:
+                workerpid = wfile.read()
+
+                logging.info("Killing worker process", workerpid)
+                os.killpg(os.getpgid(workerpid), 15)
+                os.kill(workerpid, signal.SIGKILL)
 
             os.killpg(os.getpgid(os.getpid()), 15)
             os.kill(os.getpid(), signal.SIGKILL)
