@@ -157,7 +157,7 @@ class Agent:
                     process.pid, child.pid))
                 child.kill()
 
-
+            logging.info("Shutdown CWD %s",os.getcwd())
             with open('worker.pid','r') as wfile:
                 workerpid = wfile.read()
 
