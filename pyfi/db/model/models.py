@@ -391,6 +391,12 @@ class ProcessorModel(HasLogs, BaseModel):
     trackstarted = Column(Boolean)
     retrydelay = Column(Integer)
 
+    container_image = Column(String(60))
+    container_command = Column(String(180))
+    container_version = Column(String(20), default="latest")
+    use_container = Column(Boolean, default=False)
+    detached = Column(Boolean, default=False)
+
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", backref="processor", lazy=True)
 

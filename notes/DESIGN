@@ -1,3 +1,22 @@
+GATES
+------------
+- Gates are special kinds of control flow objects linked to Tasks
+- When data arrives at a gate, the gate function introspects the incoming data and either forwards it or rejects it.
+- There are gate socket types for RESULT and REJECT to route the outcome of the gate
+- For example, maybe a gate uses a ML model to determine if the inbound data falls within expected range and if so, it forwards it, otherwise it rejects it, short-circuiting the flow.
+
+TASKS
+------------
+- Container based task execution
+- Resident container tasks 
+
+ROUTERS
+------------
+- Routers are special kinds of control flow objects linked to Tasks
+- A router has one inbound plug and many outbound plugs. 
+- The router function can select zero or more outbound plugs to route the function call to
+- 
+
 JOBS
 ------------
 - Jobs are tasks with a scheduled time to run or repeat

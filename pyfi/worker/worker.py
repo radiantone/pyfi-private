@@ -156,6 +156,8 @@ class Worker:
     Worker wrapper that manages task ingress/egress and celery worker processes
     """
     from contextlib import contextmanager
+    container = None
+
 
     @contextmanager
     def get_session(self, engine):
@@ -342,7 +344,7 @@ class Worker:
             logging.debug("Worker launched successfully: process %s.",
                           self.process.pid)
         else:
-            """ Run agent worker inside previously launched container """
+            """ Run agent worker inside new or previously launched container """
             pass
 
         return process
@@ -847,6 +849,9 @@ class Worker:
             import time
 
             from billiard.pool import Pool
+            import docker
+            
+            client = docker.from_env()
 
             from setproctitle import setproctitle
 
@@ -864,7 +869,13 @@ class Worker:
             engine = create_engine(
                 dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
-            logging.info("Worker getting session....")
+            if self.processor.use_container:
+                logging.info("Working starting container....")
+                if self.processor.detached:
+                    self.container = client.containers.run(
+                        self.processor.container_image+":"+self.processor.container_version, detach=True)
+
+            logging.info("Worker starting session....")
 
             with self.get_session(self.database) as session:
                 logging.info("Worker got session....")
@@ -974,24 +985,7 @@ class Worker:
                                     }
                                 )
                             ]
-
-                            task_queues += [
-                                KQueue(
-                                    self.processor.module + '.' + socket.task.name + '.wait',
-                                    Exchange(socket.queue.name + '.' + self.processor.name.replace(
-                                        ' ', '.') + '.' + socket.task.name, type='direct'),
-                                    routing_key=self.processor.module + '.' + socket.task.name + '.wait',
-                                    message_ttl=socket.queue.message_ttl,
-                                    durable=socket.queue.durable,
-                                    expires=socket.queue.expires,
-                                    # socket.queue.message_ttl
-                                    # socket.queue.expires
-                                    queue_arguments={
-                                        'x-message-ttl': 30000,
-                                        'x-expires': 300
-                                    }
-                                )
-                            ]
+                                
                             task_queues += [
                                 KQueue(
                                     socket.queue.name + '.' +
@@ -1287,13 +1281,37 @@ class Worker:
 
                                 args = _newargs
 
+                            # When running tasks inside a container, mount the current directory as a volume
+                            # use the harness script to run the task and write the pickled output to a file
+                            # Read in the pickled file and return it as the result
                             if _kwargs:
                                 logging.info("Invoking function %s %s", args, _kwargs)
-                                return _func(*args, **_kwargs)
+
+                                if self.container and self.processor.use_container:
+                                    # Run function in container and get result
+                                    if self.processor.detached:
+                                        # Run command inside self.container
+                                        pass
+                                    else:
+                                        # Run new non-detached container for task
+                                        pass
+                                    pass
+                                else:
+                                    return _func(*args, **_kwargs)
                             else:
                                 logging.info(
                                     "Invoking function %s", args)
-                                return _func(*args)
+
+                                if self.container and self.processor.use_container:
+                                    # Run function in container and get result
+                                    if self.processor.detached:
+                                        # Run command inside self.container
+                                        pass
+                                    else:
+                                        # Run new non-detached container for task
+                                        pass
+                                else:
+                                    return _func(*args)
 
 
                         # Wrap the _func in another function that introspects the kwargs and if there is an argument
@@ -1303,6 +1321,10 @@ class Worker:
                         # Invoke the function directly, with direct connected plug
                         func = self.celery.task(wrapped_function, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
+
+                        # Check socket.task.docker attributes
+                        # If it is a container service then spawn the container here
+
 
                         '''
                         def wait_on_params(argument, *args, **kwargs):

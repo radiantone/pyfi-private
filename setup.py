@@ -156,6 +156,7 @@ setup(
         'pyschedule',
         'uvicorn[standard]',
         'psycopg2',
+        'docker'
         'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
     ],
     license=about['__license__'],

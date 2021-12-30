@@ -61,6 +61,16 @@ services:
     volumes:
       - influxdb_data:/var/lib/influxdb2
 
+  processor:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile.processor
+    container_name: processor
+    image: pyfi/processor:latest
+    environment: 
+      - "EVENTS=events"
+      - "GIT_LOGIN=https://radiantone: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@github.com"
+
   agent2:
     build: 
       context: .
