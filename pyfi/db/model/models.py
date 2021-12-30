@@ -91,6 +91,7 @@ class BaseModel(Base):
     status = Column(String(20), nullable=False, default='ready')
     requested_status = Column(String(40), default='ready')
 
+    enabled = Column(Boolean)
     created = Column(DateTime, default=datetime.now, nullable=False)
     lastupdated = Column(DateTime, default=datetime.now,
                          onupdate=datetime.now, nullable=False)
@@ -270,6 +271,11 @@ class UserModel(HasLogins, BaseModel):
     def __repr__(self):
         return '{}:{}:{}:{}:{}'.format(self.id, self.name, self.email, self.roles, self.lastupdated)
 
+
+socket_types = [
+    'RESULT',
+    'ERROR'
+]
 
 schedule_types = [
     'CRON',
@@ -590,6 +596,14 @@ plugs_target_sockets = Table('plugs_target_sockets', Base.metadata,
                                  'socket.id'), primary_key=True)
                              )
 
+
+class GateModel(BaseModel):
+    __tablename__ = 'gate'
+
+    open = Column(Boolean)
+    task_id = Column(String(40), ForeignKey('task.id'))
+
+
 class SocketModel(BaseModel):
     """
     Docstring
@@ -602,6 +616,10 @@ class SocketModel(BaseModel):
 
     schedule_type = Column('schedule_type', Enum(
         *schedule_types, name='schedule_type'))
+
+
+    type = Column('socket_type', Enum(
+        *socket_types, name='socket_type'), default='RESULT')
 
     scheduled = Column(Boolean)
     cron = Column(String(20))
