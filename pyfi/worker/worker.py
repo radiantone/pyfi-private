@@ -74,11 +74,21 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     print("Execute function",taskid, mname, fname)
 
+    _args = args
+    _kwargs = kwargs
+
+    with open('out/'+taskid+'.args') as argsfile:
+        _args = pickle.load(argsfile)
+
+    with open('out/'+taskid+'.kwargs') as kwargsfile:
+        _kwargs = pickle.load(kwargsfile)
+
     _module = importlib.import_module(mname)
     _function = getattr(_module, fname)
 
-    result = _function(*args, **kwargs)
+    result = _function(*_args, **_kwargs)
 
+    print("RESULT: ",result)
     with open('out/'+taskid+".out") as rfile:
         pickle.dump(result, rfile)
 
@@ -1330,6 +1340,7 @@ class Worker:
                                 pfile.write(source+"\n")
                                 pfile.write(_call+"\n")
 
+                            import pickle
                             # When running tasks inside a container, mount the current directory as a volume
                             # use the harness script to run the task and write the pickled output to a file
                             # Read in the pickled file and return it as the result
@@ -1364,6 +1375,11 @@ class Worker:
                                         # Run command inside self.container
                                         #pythoncmd = "python -c \"{};\n{}\"".format(
                                         #    source, _call)
+                                        with open('out/'+taskid+'.kwargs', 'wb') as kwargsfile:
+                                            pickle.dump(kwargs, kwargsfile)
+                                        with open('out/'+taskid+'.args','wb') as argsfile:
+                                            pickle.dump(args,argsfile)
+
                                         pythoncmd = "python /tmp/"+taskid+".py"
                                         logging.info("Invoking %s",pythoncmd)
 
