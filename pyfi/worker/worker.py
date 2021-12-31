@@ -906,10 +906,9 @@ class Worker:
                                  self.processor.gitrepo.strip())
                     # Install the repo inside the container
                     res = self.container.exec_run(
-                        "pip install -e git+" + self.processor.gitrepo.strip(), stream=True)
+                        "pip install -e git+" + self.processor.gitrepo.strip())
 
-                    for line in res.output: 
-                        logging.info(line)
+                    logging.info("OUTPUT: %s", res.output)
 
                     with open('../../../containers.pid','a') as cfile:
                         cfile.write(str(self.container.short_id)+"\n")
