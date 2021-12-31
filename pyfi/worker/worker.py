@@ -1336,10 +1336,6 @@ class Worker:
                             _call = "execute_function(\"{}\", \"{}\", \"{}\")".format(
                                 taskid, socket.task.module, socket.task.name)
 
-                            with open("out/"+taskid+".py","w") as pfile:
-                                pfile.write(source+"\n")
-                                pfile.write(_call+"\n")
-
                             import pickle
 
                             # When running tasks inside a container, mount the current directory as a volume
@@ -1350,6 +1346,9 @@ class Worker:
 
                                 if self.container and self.processor.use_container:
                                     # Run function in container and get result
+                                    with open("out/"+taskid+".py","w") as pfile:
+                                        pfile.write(source+"\n")
+                                        pfile.write(_call+"\n")
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
                                         # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
@@ -1371,6 +1370,9 @@ class Worker:
 
                                 if self.container and self.processor.use_container:
                                     # Run function in container and get result
+                                    with open("out/"+taskid+".py", "w") as pfile:
+                                        pfile.write(source+"\n")
+                                        pfile.write(_call+"\n")
                                     if self.processor.detached:
                                         # Run command inside self.container
                                         #pythoncmd = "python -c \"{};\n{}\"".format(
