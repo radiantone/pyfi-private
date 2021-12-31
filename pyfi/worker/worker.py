@@ -1387,6 +1387,11 @@ class Worker:
 
                                         logging.info("OUTPUT: %s", res.output)
 
+                                        with open("out/"+taskid+".out","rb") as outfile:
+                                            result = pickle.load(outfile)
+
+                                            return result
+
                                     else:
                                         # Run new non-detached container for task
                                         pass
