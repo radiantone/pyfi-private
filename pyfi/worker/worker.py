@@ -1,5 +1,5 @@
 """
-Agent workerclass. Primary task/code execution context for processors
+Agent workerclass. Primary task/code execution context for processors. This is where all the magic happens
 """
 import configparser
 import logging
@@ -14,24 +14,25 @@ import sys
 import inspect
 
 from inspect import Parameter
+from functools import partial
+from pathlib import Path
+from pytz import utc
+from multiprocessing import Condition, Queue
 
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from celery import Celery, group as parallel, chain as pipeline
 from celery.signals import setup_logging
 from celery.signals import worker_process_init, after_task_publish, task_success, task_prerun, task_postrun, \
     task_failure, task_internal_error, task_received
-from functools import partial
-from kombu import Exchange, Queue as KQueue
-from multiprocessing import Condition, Queue
-from pathlib import Path
-from pytz import utc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
+from kombu import Exchange, Queue as KQueue
 
-from celery import Celery, group as parallel, chain as pipeline
 from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, \
     ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
 from pyfi.db.model.models import use_identity
@@ -44,13 +45,17 @@ POSTRUN_CONDITION = Condition()
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
 
-
+# Set global vars
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
+
+# Load the config
 if os.path.exists(HOME + "/pyfi.ini"):
     CONFIG.read(HOME + "/pyfi.ini")
+
 dburi = CONFIG.get('database', 'uri')
 
+# Create database engine
 DATABASE = create_engine(
     dburi, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
 
@@ -67,6 +72,7 @@ if 'PYFI_HOSTNAME' in os.environ:
 logging.info("OS PID is {}".format(os.getpid()))
 
 def execute_function(taskid, mname, fname, *args, **kwargs):
+    """ Executor for container based tasks """
     import importlib
     import pickle
     from uuid import uuid4
@@ -157,9 +163,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
                 'module': plug.target.task.module,
                 'function': plug.target.task.name,
                 'position': plug.argument.position}
-            #task_sig = celery.signature(
-            #    processor.module + '.' + socket.task.name+'.wait', queue=queue, kwargs=kwargs)
-            #delayed = task_sig.delay(argument, message)
+
             logging.info("Plug argument %s", plug.argument)
             kwargs['argument'] = argument
         else:
@@ -184,12 +188,9 @@ class Worker:
     from contextlib import contextmanager
     container = None
 
-
     @contextmanager
     def get_session(self, engine):
-        """ Creates a context with an open SQLAlchemy session.
-        """
-        # engine = create_engine(db_url, convert_unicode=True)
+        """ Creates a context with an open SQLAlchemy session. """
         logging.info("Connecting DB")
         connection = engine.connect()
         logging.info("Creating scoped session")
@@ -201,29 +202,6 @@ class Worker:
         db_session.close()
         logging.info("Closing connection")
         connection.close()
-
-    @contextmanager
-    def get_session_old(self):
-        session = scoped_session(self.sm)()
-
-        try:
-            logging.info("Yielding session")
-            yield session
-        except:
-            import traceback
-            print(traceback.format_exc())
-            session.rollback()
-            raise
-        else:
-            try:
-                session.commit()
-            except Exception as ex:
-                import traceback
-                print(traceback.format_exc())
-                session.rollback()
-        finally:
-            logging.info("Closing session")
-            session.close()
 
     def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False,
                  skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
@@ -258,17 +236,10 @@ class Worker:
         self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
-        self.database = DATABASE  # create_engine(
-        # self.dburi, pool_size=cpus, max_overflow=5, pool_recycle=3600, poolclass=QueuePool)
+        self.database = DATABASE
 
         sm = sessionmaker(bind=self.database)
-        # some_session = scoped_session(sm)
         self.sm = sm
-
-        # now all calls to Session() will create a thread-local session
-        # some_session = Session()
-        # self.session = some_session
-        # self.database.session = some_session  # self.session
 
         self.pool = pool
         self.user = user
@@ -299,15 +270,6 @@ class Worker:
                 job_defaults=job_defaults, timezone=utc)
 
             self.jobs = {}
-            '''
-            jobs = self.database.session.query(
-                JobModel).all()
-            self.database.session.close()
-
-
-            for job in jobs:
-                self.jobs[job.id] = job
-            '''
 
             logging.debug("JOBS %s", self.jobs)
 
@@ -355,8 +317,6 @@ class Worker:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                    "-n", name, "-q", str(size)]
             if self.user:
-                # cmd = ["runuser", "-u", self.user, "--", "venv/bin/pyfi", "worker", "start", "-s",
-                #       "-n", name]
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                        "-n", name, "-q", str(size)]
 
@@ -575,7 +535,6 @@ class Worker:
                         if 'tracking' in task_kwargs:
                             pass_kwargs['tracking'] = task_kwargs['tracking']
                         if 'parent' in task_kwargs:
-                            # _signal['kwargs']['myid']
                             pass_kwargs['parent'] = task_kwargs['parent']
                             logging.info("SETTING PARENT: %s", pass_kwargs)
 
@@ -661,8 +620,7 @@ class Worker:
                         logging.info("PLUGS-: %s", plugs)
 
                         pipelines = []
-                        # Look for any data placed on socket plugs
-                        #for pname in plugs:
+
                         for pname in sourceplugs:
                             logging.info("PLUG Pname: %s", pname)
                             processor_plug = None
@@ -681,14 +639,10 @@ class Worker:
                                     "No plug named [%s] found for processor[%s]", key, processor.name)
                                 continue
 
-                            # target_processor = self.database.session.query(
                             target_processor = session.query(
                                 ProcessorModel).filter_by(id=processor_plug.target.processor_id).first()
 
                             key = processor_plug.target.queue.name
-
-
-                            #msgs = [msg for msg in plugs[pname]]
 
                             msgs = [result]
 
@@ -701,7 +655,7 @@ class Worker:
                             """
 
                             """
-                            TODO: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
+                            NOTE: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
                             this signature for the socket after that. BINGO! Now we can track individual queues for each plug
                             that have their own properties and they will stack up before the actual socket task is called.
 
@@ -804,9 +758,6 @@ class Worker:
 
                                     # Create task signature
                                     try:
-                                        # TODO: Add kwarg injected objects for redis, _queue for pubsub, processor object or json, metadata
-                                        # Define context object that function can use to set outbound data and get inbound data
-                                        # Avoid risky direct object access in favor of context hashmap that is used by framework prerun/postrun
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
 
@@ -830,18 +781,11 @@ class Worker:
                                             args=(msg,), queue=worker_queue, kwargs=pass_kwargs)
 
                                         delayed = pipeline(
-                                            # plug_sig,
                                             task_sig
                                         )
                                         pipelines += [delayed]
-                                        # logging.info(
-                                        #    "   ADDED PLUG SIG: %s", plug_sig)
                                         logging.info(
                                             "   ADDED TASK SIG: %s", task_sig)
-                                        # logging.info(
-                                        #    "PIPELINE invoke %s", delayed)
-                                        # result = delayed.get()
-                                        # logging.info("PIPELINE executed %s", result)
                                     except:
                                         import traceback
                                         print(traceback.format_exc())
@@ -853,14 +797,8 @@ class Worker:
                                             msg,),
                                         worker_queue, task_sig)
 
-                                    # Remove the message off the plug
-                                    #plugs[pname].remove(msg)
 
-                        # Execute parallel( pipeline(plug,task), ...)
                         delayed = parallel(*pipelines).delay()
-                        # logging.info("PARALLEL invoke %s",delayed)
-                        # result = delayed.get()
-                        # logging.info("PARALLEL result %s",result)
 
         # Start database session thread
         dbactions = threading.Thread(target=database_actions)
@@ -1204,17 +1142,6 @@ class Worker:
                                             # execute sql to get jobs
                                             found = False
 
-                                            '''
-                                            results = session.execute(
-                                                "select * from {}_jobs".format(self.processor.name))
-                                            logging.info(
-                                                "JOB RESULTS %s", results)
-                                            for job in results:
-                                                logging.info("JOB %s",job)
-                                                if job.id == self.processor.name+plug.name:
-                                                    found = True
-                                            '''
-
                                             if not found:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug
@@ -1264,7 +1191,7 @@ class Worker:
                             # Inject the code into the module.
                             # The module originates in the mounted git repo
                             # So the task code is like a "mixin"
-                            logging.info("TASK CODE: %s", socket.task.code)
+                            logging.debug("TASK CODE: %s", socket.task.code)
                             exec(socket.task.code, module.__dict__)
                         else:
                             logging.info("NO TASK CODE")
@@ -1273,8 +1200,8 @@ class Worker:
                         _func = getattr(module, socket.task.name)
 
 
-
                         def wrapped_function(*args, **kwargs):
+                            """ Main meta function that tracks arguments and dispatches to the user code"""
                             import json
 
                             redisclient = redis.Redis.from_url(self.backend)
@@ -1338,10 +1265,8 @@ class Worker:
 
                             import pickle
 
-                            # When running tasks inside a container, mount the current directory as a volume
-                            # use the harness script to run the task and write the pickled output to a file
-                            # Read in the pickled file and return it as the result
                             if _kwargs:
+                                """ If we have kwargs to pass in """
                                 logging.info("Invoking function %s %s", args, _kwargs)
 
                                 if self.container and self.processor.use_container:
@@ -1349,11 +1274,9 @@ class Worker:
                                     with open("out/"+taskid+".py","w") as pfile:
                                         pfile.write(source+"\n")
                                         pfile.write(_call+"\n")
-                                        
+
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
-                                        # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
-                                        #pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
                                         pythoncmd = "python /tmp/"+taskid+".py"
                                         logging.info("Invoking %s",pythoncmd)
 
@@ -1366,6 +1289,7 @@ class Worker:
                                 else:
                                     return _func(*args, **_kwargs)
                             else:
+                                """ If we only have args to pass in """
                                 logging.info(
                                     "Invoking function %s", args)
 
@@ -1377,8 +1301,6 @@ class Worker:
 
                                     if self.processor.detached:
                                         # Run command inside self.container
-                                        #pythoncmd = "python -c \"{};\n{}\"".format(
-                                        #    source, _call)
                                         with open('out/'+taskid+'.kwargs', 'wb') as kwargsfile:
                                             pickle.dump(kwargs, kwargsfile)
                                         with open('out/'+taskid+'.args','wb') as argsfile:
@@ -1391,9 +1313,18 @@ class Worker:
 
                                         logging.info("OUTPUT: %s", res.output)
 
+                                        result = None
                                         with open("out/"+taskid+".out","rb") as outfile:
                                             result = pickle.load(outfile)
 
+                                        try:
+                                            """ Remove state files """
+                                            os.remove('out/'+taskid+'.kwargs')
+                                            os.remove('out/'+taskid+'.args')
+                                            os.remove('out/'+taskid+'.out')
+                                        except Exception as ex:
+                                            logging.warning(ex)
+                                        finally:
                                             return result
 
                                     else:
@@ -1401,38 +1332,9 @@ class Worker:
                                 else:
                                     return _func(*args)
 
-
-                        # Wrap the _func in another function that introspects the kwargs and if there is an argument
-                        # incoming then store that argument and if all the arguments are stored, then invoke the function,
-                        # Otherwise, just invoke the function
-
                         # Invoke the function directly, with direct connected plug
                         func = self.celery.task(wrapped_function, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
-
-                        # Check socket.task.docker attributes
-                        # If it is a container service then spawn the container here
-
-
-                        '''
-                        def wait_on_params(argument, *args, **kwargs):
-                            logging.info("Argument for %s: %s",
-                                         _func, argument)
-                            # Get incoming Argument, if you have them all then
-                            # invoke the _func otherwise, wait until you get all the Arguments
-
-                            return True  # _func(*args, **kwargs)
-
-                        # Invoke the param wrapper func endpoint. Used by Plugs that specify they
-                        # fill specific parameters of the task
-                        func_wait = self.celery.task(wait_on_params, name=self.processor.module +
-                                                     '.' + socket.task.name + '.wait',
-                                                     retries=self.processor.retries)
-                        '''
-
-                        # TODO: Create a variation of the func with a wrapped function that
-                        # will wait for async incoming parameters before triggering the function
-                        # and pass all the ordered parameters to it
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
@@ -1598,6 +1500,7 @@ class Worker:
 
                     os.chdir(self.workdir)
                     while True:
+                        """ Try 5 times to clone repo successfully """
                         if count >= 5:
                             break
                         try:
@@ -1633,13 +1536,15 @@ class Worker:
                     env.install('-e git+' + login +
                                 '/radiantone/pyfi-private#egg=pyfi')
 
-                    try:
-                        env.install('-e git+' + self.processor.gitrepo.strip())
-                    except:
-                        import traceback
-                        print(traceback.format_exc())
-                        logging.error("Could not install %s",
-                                      self.processor.gitrepo.strip())
+                    if not self.processor.use_container:
+                        """ If we are not running the processor tasks in a container, then load it into the venv """
+                        try:
+                            env.install('-e git+' + self.processor.gitrepo.strip())
+                        except:
+                            import traceback
+                            print(traceback.format_exc())
+                            logging.error("Could not install %s",
+                                        self.processor.gitrepo.strip())
 
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
@@ -1647,13 +1552,16 @@ class Worker:
         # Sometimes we just want to recreate the setup
         if not start:
             return
+
         from threading import Thread
         """ Start worker process"""
         worker_process = self.worker_process = Thread(target=worker_proc, name="worker_proc", args=(
             self.celery, self.queue, self.dburi))
+            
         worker_process.app = self.celery
         worker_process.daemon = True
         worker_process.start()
+        logging.info("worker_process started...")
 
         self.process = worker_process
 
@@ -1679,10 +1587,7 @@ class Worker:
         emit_process = self.emit_process = Thread(target=emit_messages, name="emit_messages")
         emit_process.daemon = True
         emit_process.start()
-        # logging.info("Started emit_messages process with pid[%s]", emit_process.pid)
-
-        # logging.debug(
-        #    "Started worker process with pid[%s]", worker_process.pid)
+        logging.info("emit_messages started...")
 
         return worker_process
 
