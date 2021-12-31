@@ -73,7 +73,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     from uuid import uuid4
 
     print("Execute function",taskid, mname, fname)
-    
+
     _module = importlib.import_module(mname)
     _function = getattr(_module, fname)
 
@@ -905,10 +905,10 @@ class Worker:
                     logging.info("Installing repo inside container...%s",
                                  self.processor.gitrepo.strip())
                     # Install the repo inside the container
-                    output = self.container.exec_run(
+                    res = self.container.exec_run(
                         "pip install -e git+" + self.processor.gitrepo.strip(), stream=True)
 
-                    for line in output:
+                    for line in res.output: 
                         logging.info(line)
 
                     with open('../../../containers.pid','a') as cfile:
