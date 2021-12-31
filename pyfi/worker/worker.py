@@ -1326,6 +1326,10 @@ class Worker:
                             _call = "execute_function(\"{}\", \"{}\", \"{}\")".format(
                                 taskid, socket.task.module, socket.task.name)
 
+                            with open("out/"+taskid+".py","w") as pfile:
+                                pfile.write(source+"\n")
+                                pfile.write(_call+"\n")
+
                             # When running tasks inside a container, mount the current directory as a volume
                             # use the harness script to run the task and write the pickled output to a file
                             # Read in the pickled file and return it as the result
@@ -1337,7 +1341,8 @@ class Worker:
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
                                         # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
-                                        pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
+                                        #pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
+                                        pythoncmd = "python /tmp/"+taskid+".py"
                                         logging.info("Invoking %s",pythoncmd)
 
                                         self.container.exec_run(pythoncmd)
@@ -1357,7 +1362,9 @@ class Worker:
                                     # Run function in container and get result
                                     if self.processor.detached:
                                         # Run command inside self.container
-                                        pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
+                                        #pythoncmd = "python -c \"{};\n{}\"".format(
+                                        #    source, _call)
+                                        pythoncmd = "python /tmp/"+taskid+".py"
                                         logging.info("Invoking %s",pythoncmd)
 
                                         res = self.container.exec_run(pythoncmd)
