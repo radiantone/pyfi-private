@@ -1515,7 +1515,7 @@ def add_user(context, name, email, password):
 
 @add.command(name='scheduler')
 @click.option('-n', '--name', required=True)
-@click.option('-s', '--strategy', default='BALANCED', required=False)
+@click.option('-s', '--strategy', type=click.Choice(['BALANCED', 'EFFICIENT']), default='BALANCED', required=False)
 @click.pass_context
 def add_scheduler(context, name, strategy):
     """

@@ -1,3 +1,6 @@
+- Depending on what type of processor it is (e.g. script, gate, router) there is different wrapped function that conducts the business of the processor before invoking the desired function
+
+
 
 - For a given socket, it can be configured to wait on all inputs or not
     - If it waits on all inputs, then the worker will store the incoming request parameters

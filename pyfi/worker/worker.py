@@ -1199,7 +1199,12 @@ class Worker:
                         # Get the function from the loaded module
                         _func = getattr(module, socket.task.name)
 
+                        # TODO: Encase the meta funtion and all the task signals into a loaded class
+                        # such that for different processor types, the correct class is loaded 
 
+                        def gate_function(*args, **kwargs):
+                            pass
+                        
                         def wrapped_function(*args, **kwargs):
                             """ Main meta function that tracks arguments and dispatches to the user code"""
                             import json
@@ -1332,9 +1337,23 @@ class Worker:
                                 else:
                                     return _func(*args)
 
-                        # Invoke the function directly, with direct connected plug
+                        
+                        # If processor is script
                         func = self.celery.task(wrapped_function, name=self.processor.module +
                                                 '.' + socket.task.name, retries=self.processor.retries)
+
+                        '''
+                        Everything that hosts and runs user code is a processor, but there are different types.
+                        Each type handles the meta invocation a bit different.
+
+                        if processor is a gate
+                            func = self.celery.task(gate_function, name=self.processor.module +
+                            '.' + socket.task.name, retries=self.processor.retries)
+
+                        if processor is a router
+                            func = self.celery.task(router_function, name=self.processor.module +
+                            '.' + socket.task.name, retries=self.processor.retries)
+                        '''
 
                         @task_prerun.connect()
                         def pyfi_task_prerun(sender=None, task=None, task_id=None, *args, **kwargs):
@@ -1455,6 +1474,7 @@ class Worker:
                                 {'signal': 'postrun', 'result': retval, 'sender': _function_name,
                                  'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
+
 
                 logging.info("Starting scheduler...")
                 scheduler.start()
