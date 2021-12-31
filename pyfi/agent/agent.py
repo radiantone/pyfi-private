@@ -172,7 +172,7 @@ class Agent:
                         logging.info("Killing container...")
                         container.kill()
                         logging.info("Done")
-                        
+
                 os.remove('../../../containers.pid')
 
             if os.path.exists('../../../worker.pid'):
@@ -191,6 +191,8 @@ class Agent:
             process.kill()
             process.terminate()
 
+            os.remove('../../../agent.pid')
+            os.remove('../../../worker.pid')
             exit(0)
 
         signal.signal(signal.SIGINT, shutdown)

@@ -849,6 +849,7 @@ class Worker:
             import time
 
             from billiard.pool import Pool
+            from docker.types import Mount
             import docker
             
             client = docker.from_env()
@@ -875,8 +876,10 @@ class Worker:
                 if self.processor.detached:
                     logging.info("Running container %s:%s....",
                                  self.processor.container_image, self.processor.container_version)
+
+                    #mount = Mount('/opt/pyfi/mount','.')
                     self.container = client.containers.run(
-                        self.processor.container_image+":"+self.processor.container_version, entrypoint="", command="tail -f /etc/hosts", detach=True)
+                        self.processor.container_image+":"+self.processor.container_version, volumes={os.getcwd(): {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
