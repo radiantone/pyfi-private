@@ -89,7 +89,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     result = _function(*_args, **_kwargs)
 
     print("RESULT: ",result)
-    with open('/tmp/'+taskid+".out") as rfile:
+    with open('/tmp/'+taskid+".out", 'wb') as rfile:
         pickle.dump(result, rfile)
 
     return result
