@@ -1349,6 +1349,7 @@ class Worker:
                                     with open("out/"+taskid+".py","w") as pfile:
                                         pfile.write(source+"\n")
                                         pfile.write(_call+"\n")
+                                        
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
                                         # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
@@ -1373,6 +1374,7 @@ class Worker:
                                     with open("out/"+taskid+".py", "w") as pfile:
                                         pfile.write(source+"\n")
                                         pfile.write(_call+"\n")
+
                                     if self.processor.detached:
                                         # Run command inside self.container
                                         #pythoncmd = "python -c \"{};\n{}\"".format(
