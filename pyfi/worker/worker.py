@@ -1360,10 +1360,9 @@ class Worker:
                                         pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
                                         logging.info("Invoking %s",pythoncmd)
 
-                                        output = self.container.exec_run(pythoncmd, stream=True)
+                                        res = self.container.exec_run(pythoncmd)
 
-                                        for line in output:
-                                            print("OUTPUT:", line)
+                                        logging.info("OUTPUT: %s", res.output)
 
                                     else:
                                         # Run new non-detached container for task
