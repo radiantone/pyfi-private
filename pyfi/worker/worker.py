@@ -878,7 +878,6 @@ class Worker:
             from docker.types import Mount
             import docker
             
-            client = docker.from_env()
 
             from setproctitle import setproctitle
 
@@ -898,6 +897,8 @@ class Worker:
 
             logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
+
+                client = docker.from_env()
                 logging.info("Working starting container....")
                 if self.processor.detached:
                     logging.info("Running container %s:%s....",

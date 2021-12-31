@@ -149,7 +149,6 @@ class Agent:
             from psutil import Process
             import docker
 
-            client = docker.from_env()
 
             logging.info("Shutting down agent...")
             process = Process(os.getpid())
@@ -163,6 +162,7 @@ class Agent:
             logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
 
             if os.path.exists('../../../containers.pid'):
+                client = docker.from_env()
                 logging.info("Found containers.pid")
                 with open('../../../containers.pid','r') as cfile:
                     pids = cfile.readlines()
