@@ -1614,7 +1614,7 @@ class Worker:
                 from virtualenvapi.manage import VirtualEnvironment
 
                 # If not using a container, then build the virtualenv
-                if not os.path.exists("venv"):
+                if not os.path.exists("venv") and not self.processor.use_container:
 
                     logging.info("Building virtualenv...in %s", os.getcwd())
                     env = VirtualEnvironment(
