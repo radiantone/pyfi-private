@@ -11,6 +11,7 @@ import redis
 import shutil
 import signal
 import sys
+import inspect
 
 from inspect import Parameter
 
@@ -66,6 +67,20 @@ if 'PYFI_HOSTNAME' in os.environ:
 
 logging.info("OS PID is {}".format(os.getpid()))
 
+def execute_function(taskid, mname, fname, *args, **kwargs):
+    import importlib
+    import pickle
+    from uuid import uuid4
+
+    _module = importlib.import_module(mname)
+    _function = getattr(_module, fname)
+
+    result = _function(*args, **kwargs)
+
+    with open('out/'+taskid+".out") as rfile:
+        pickle.dump(result, rfile)
+
+    return result
 
 def shutdown(*args):
     """ Shutdown worker """
@@ -877,9 +892,10 @@ class Worker:
                     logging.info("Running container %s:%s....",
                                  self.processor.container_image, self.processor.container_version)
 
+                    os.mkdir('out')
                     #mount = Mount('/opt/pyfi/mount','.')
                     self.container = client.containers.run(
-                        self.processor.container_image+":"+self.processor.container_version, volumes={os.getcwd(): {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
+                        self.processor.container_image+":"+self.processor.container_version, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
@@ -1256,6 +1272,8 @@ class Worker:
                                 "WRAPPED FUNCTION INVOKE %s", socket.task)
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
+                            taskid = kwargs['taskid']
+
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
                             if 'argument' in kwargs:
@@ -1312,8 +1330,16 @@ class Worker:
                                 if self.container and self.processor.use_container:
                                     # Run function in container and get result
                                     if self.processor.detached:
-                                        # Run command inside self.container
-                                        pass
+                                        # Run command inside self.container passing in task id, module and function
+                                        # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
+                                        source = inspect.getsource(execute_function)
+                                        _call = "execute_function({}, {}, {})".format(
+                                            taskid, module, socket.task.name)
+                                        
+                                        pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
+                                        logging.info("Invoking %s",pythoncmd)
+
+                                        self.container.exec_run(pythoncmd)
                                     else:
                                         # Run new non-detached container for task
                                         pass
