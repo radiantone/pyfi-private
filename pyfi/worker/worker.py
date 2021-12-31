@@ -43,7 +43,6 @@ POSTRUN_CONDITION = Condition()
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
-    pass
 
 
 HOME = str(Path.home())
@@ -372,7 +371,7 @@ class Worker:
                           self.process.pid)
         else:
             """ Run agent worker inside new or previously launched container """
-            pass
+            raise NotImplementedError
 
         return process
 
@@ -1341,6 +1340,7 @@ class Worker:
                                 pfile.write(_call+"\n")
 
                             import pickle
+
                             # When running tasks inside a container, mount the current directory as a volume
                             # use the harness script to run the task and write the pickled output to a file
                             # Read in the pickled file and return it as the result
@@ -1361,8 +1361,7 @@ class Worker:
                                         # Unpickle output and return it
                                     else:
                                         # Run new non-detached container for task
-                                        pass
-                                    pass
+                                        raise NotImplementedError
                                 else:
                                     return _func(*args, **_kwargs)
                             else:
@@ -1393,8 +1392,7 @@ class Worker:
                                             return result
 
                                     else:
-                                        # Run new non-detached container for task
-                                        pass
+                                        raise NotImplementedError
                                 else:
                                     return _func(*args)
 
@@ -1568,7 +1566,7 @@ class Worker:
 
             if self.usecontainer:
                 """ Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
-
+                raise NotImplementedError
             else:
                 """ Build our virtualenv and import the gitrepo for the processor """
                 logging.debug("git clone -b {} --single-branch {} git".format(
