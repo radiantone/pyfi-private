@@ -25,8 +25,13 @@ network:
             size: 10
           processors:
             proc3: 
+                # These properties allow the code repo for this processor 'gitrepo' to be
+                # installed in a container image that already has pyfi inside it
+                # The user code then runs safely inside the container without harming the host system 
                 container_image: pyfi/processor
                 use_container: true
+                detached: true
+
                 branch: main
                 pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
                 gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
