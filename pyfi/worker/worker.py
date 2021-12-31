@@ -1340,6 +1340,8 @@ class Worker:
                                         logging.info("Invoking %s",pythoncmd)
 
                                         self.container.exec_run(pythoncmd)
+
+                                        # Unpickle output and return it
                                     else:
                                         # Run new non-detached container for task
                                         pass
@@ -1357,7 +1359,11 @@ class Worker:
                                         pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
                                         logging.info("Invoking %s",pythoncmd)
 
-                                        self.container.exec_run(pythoncmd)
+                                        output = self.container.exec_run(pythoncmd, stream=True)
+
+                                        for line in output:
+                                            print("OUTPUT:", line)
+
                                     else:
                                         # Run new non-detached container for task
                                         pass
