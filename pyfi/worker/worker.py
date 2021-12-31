@@ -72,6 +72,8 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import pickle
     from uuid import uuid4
 
+    print("Execute function",taskid, mname, fname)
+    
     _module = importlib.import_module(mname)
     _function = getattr(_module, fname)
 
