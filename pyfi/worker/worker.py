@@ -77,10 +77,10 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     _args = args
     _kwargs = kwargs
 
-    with open('/tmp/'+taskid+'.args') as argsfile:
+    with open('/tmp/'+taskid+'.args','rb') as argsfile:
         _args = pickle.load(argsfile)
 
-    with open('/tmp/'+taskid+'.kwargs') as kwargsfile:
+    with open('/tmp/'+taskid+'.kwargs', 'rb') as kwargsfile:
         _kwargs = pickle.load(kwargsfile)
 
     _module = importlib.import_module(mname)
