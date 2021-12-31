@@ -1323,8 +1323,8 @@ class Worker:
                                 args = _newargs
 
                             source = inspect.getsource(execute_function)
-                            _call = "execute_function({}, {}, {})".format(
-                                taskid, module, socket.task.name)
+                            _call = "execute_function(\"{}\", \"{}\", \"{}\")".format(
+                                taskid, socket.task.module, socket.task.name)
 
                             # When running tasks inside a container, mount the current directory as a volume
                             # use the harness script to run the task and write the pickled output to a file
