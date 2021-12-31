@@ -278,6 +278,11 @@ socket_types = [
     'ERROR'
 ]
 
+plug_types = [
+    'RESULT',
+    'ERROR'
+]
+
 schedule_types = [
     'CRON',
     'INTERVAL'
@@ -307,7 +312,6 @@ class AgentModel(BaseModel):
     """
     __tablename__ = 'agent'
     hostname = Column(String(60))
-    # status = Column(String(20), nullable=False)
     cpus = Column(Integer)
     port = Column(Integer)
     pid = Column(Integer)
@@ -327,7 +331,6 @@ class ActionModel(BaseModel):
     Docstring
     """
     __tablename__ = 'action'
-    # status = Column(String(20), nullable=False)
     params = Column(String(80))
 
     # host, worker, processor, queue, or all
@@ -342,10 +345,8 @@ class WorkerModel(BaseModel):
     Docstring
     """
     __tablename__ = 'worker'
-    # status = Column(String(20), nullable=False)
     backend = Column(String(40), nullable=False)
     broker = Column(String(40), nullable=False)
-    # requested_status = Column(String(40), onupdate='update')
     concurrency = Column(Integer)
     process = Column(Integer)
     hostname = Column(String(60))
@@ -373,8 +374,6 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
-    # requested_status = Column(String(20), onupdate='update')
-    # status = Column(String(20), nullable=False)
     hostname = Column(String(60))
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
@@ -427,6 +426,14 @@ class JobModel(Base):
     next_run_time = Column(DOUBLE_PRECISION)
     job_state = Column(LargeBinary)
 
+
+class NetworkModel(BaseModel):
+    __tablename__ = 'network'
+
+    queues = relationship(
+        'QueueModel', backref='network', lazy=True, cascade="all, delete-orphan")
+    nodes = relationship(
+        'NodeModel', backref='network', lazy=True, cascade="all, delete-orphan")
 
 class WorkModel(BaseModel):
     __tablename__ = 'work'
@@ -519,6 +526,8 @@ class NodeModel(BaseModel):
     diskusage = Column(String(60), default="NaN")
     cpus = Column(Integer, default=0)
     cpuload = Column(Float, default=0)
+
+    network_id = Column(String(40), ForeignKey('network.id'))
 
     agent = relationship(
         'AgentModel', backref='node', uselist=False, cascade="all, delete-orphan")
@@ -617,17 +626,11 @@ class SocketModel(BaseModel):
     Docstring
     """
     __tablename__ = 'socket'
-    # requested_status = Column(String(20), onupdate='update')
-    # status = Column(String(20), nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
 
     schedule_type = Column('schedule_type', Enum(
         *schedule_types, name='schedule_type'))
-
-
-    type = Column('socket_type', Enum(
-        *socket_types, name='socket_type'), default='RESULT')
 
     scheduled = Column(Boolean)
     cron = Column(String(20))
@@ -670,8 +673,9 @@ class PlugModel(BaseModel):
     Docstring
     """
     __tablename__ = 'plug'
-    # requested_status = Column(String(20), onupdate='update')
-    # status = Column(String(20), nullable=False)
+
+    type = Column('type', Enum(
+        *plug_types, name='plug_type'), default='RESULT')
 
     processor_id = Column(String(40), ForeignKey('processor.id'),
                           nullable=False)
@@ -681,11 +685,7 @@ class PlugModel(BaseModel):
 
     target = relationship("SocketModel", back_populates="targetplugs",
                           secondary=plugs_target_sockets, uselist=False)
-
-    #argument_id = Column(String, ForeignKey('argument.id'))
-    #argument = relationship("ArgumentModel", secondary=plugs_arguments, back_populates="plugs", uselist=False)
     argument_id = Column(String, ForeignKey('argument.id'))
-    #argument = relationship("ArgumentModel", lazy=True)
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)
@@ -703,9 +703,7 @@ class QueueModel(BaseModel):
     Docstring
     """
     __tablename__ = 'queue'
-    # requested_status = Column(String(20), onupdate='update')
     qtype = Column(String(20), nullable=False, default='direct')
-    # status = Column(String(20), nullable=False)
     durable = Column(Boolean, default=True)
     reliable = Column(Boolean, default=True)
     auto_delete = Column(Boolean, default=True)
@@ -714,6 +712,8 @@ class QueueModel(BaseModel):
     message_ttl = Column(Integer, default=3000)
     expires = Column(Integer, default=3000)
 
+    network_id = Column(String(40), ForeignKey('network.id'))
+    
     def __repr__(self):
         return '{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.qtype, self.requested_status,
                                                                self.status, self.name, self.lastupdated,
@@ -763,3 +763,7 @@ oso.register_class(SchedulerModel)
 oso.register_class(CallModel)
 oso.register_class(TaskModel)
 oso.register_class(ArgumentModel)
+oso.register_class(NetworkModel)
+oso.register_class(GateModel)
+oso.register_class(LoginModel)
+oso.register_class(JobModel)

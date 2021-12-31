@@ -2224,14 +2224,14 @@ def ls_calls(context, page, rows, unfinished, ascend):
             cols += [node.argument]
         else:
             cols += [""]
-            
+
         x.add_row(cols)
 
     print(x)
 
     if total > 0:
         print("Page {} of {} of {} total records".format(
-            page, round(total / rows), total))
+            page, max(1,round(total / rows)), total))
     else:
         print("No rows")
 

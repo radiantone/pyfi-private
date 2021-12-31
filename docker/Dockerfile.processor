@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM python:3.9-slim-buster
 
 RUN mkdir -p /var/log/supervisor
 RUN apt-get update && \
@@ -23,7 +23,7 @@ ADD conf/pyfi.ini /root/pyfi.ini
 WORKDIR /opt/pyfi
 RUN pip3 install virtualenv
 
-RUN apt install -y python3.9
+#RUN apt install -y python3.9
 RUN virtualenv --python=python3.9 venv
 #RUN python3.9 -m venv venv
 RUN venv/bin/pip uninstall -y setuptools
@@ -43,4 +43,4 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt update && apt install -y tzdata
 ENV PATH "/opt/pyfi/venv/bin:$PATH"
 
-ENTRYPOINT [ "python"]
+CMD [ "python"]
