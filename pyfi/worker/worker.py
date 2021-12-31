@@ -549,6 +549,9 @@ class Worker:
 
                             # Add postrun event to the call
                             if call:
+                                if 'argument' in _signal['kwargs']:
+                                    call.argument = _signal['kwargs']['argument']['name']
+                                    
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 event = EventModel(
@@ -845,7 +848,7 @@ class Worker:
                     os.mkdir('out')
                     #mount = Mount('/opt/pyfi/mount','.')
                     self.container = client.containers.run(
-                        self.processor.container_image+":"+self.processor.container_version, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
+                        self.processor.container_image+":"+self.processor.container_version, name=self.processor.module, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
@@ -1204,7 +1207,7 @@ class Worker:
 
                         def gate_function(*args, **kwargs):
                             pass
-                        
+
                         def wrapped_function(*args, **kwargs):
                             """ Main meta function that tracks arguments and dispatches to the user code"""
                             import json

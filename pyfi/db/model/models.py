@@ -459,6 +459,7 @@ class CallModel(BaseModel):
     resultid = Column(String(80))
     celeryid = Column(String(80))
     tracking = Column(String(80))
+    argument = Column(String(40))
 
     task_id = Column(String(40), ForeignKey('task.id'),
                      nullable=False)

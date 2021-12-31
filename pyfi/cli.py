@@ -2164,7 +2164,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
     x = PrettyTable()
 
     names = ["Page", "Row", "Name", "ID", "Owner",
-             "Last Updated", "Socket", "Started", "Finished", "State"]
+             "Last Updated", "Socket", "Started", "Finished", "State", "Argument"]
     x.field_names = names
 
     if unfinished:
@@ -2217,8 +2217,15 @@ def ls_calls(context, page, rows, unfinished, ascend):
     row = 0
     for node in nodes:
         row += 1
-        x.add_row([page, row, node.name, node.id, node.owner,
-                   node.lastupdated, node.socket.name, node.started, node.finished, node.state])
+        cols = [page, row, node.name, node.id, node.owner,
+                   node.lastupdated, node.socket.name, node.started, node.finished, node.state]
+
+        if node.socket.task.arguments:
+            cols += [node.argument]
+        else:
+            cols += [""]
+            
+        x.add_row(cols)
 
     print(x)
 
