@@ -1272,7 +1272,7 @@ class Worker:
                                 "WRAPPED FUNCTION INVOKE %s", socket.task)
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
-                            taskid = kwargs['taskid']
+                            taskid = kwargs['myid']
 
                             _kwargs = kwargs['kwargs'] if 'kwargs' in kwargs else None
 
