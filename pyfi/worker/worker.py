@@ -1321,6 +1321,10 @@ class Worker:
 
                                 args = _newargs
 
+                            source = inspect.getsource(execute_function)
+                            _call = "execute_function({}, {}, {})".format(
+                                taskid, module, socket.task.name)
+
                             # When running tasks inside a container, mount the current directory as a volume
                             # use the harness script to run the task and write the pickled output to a file
                             # Read in the pickled file and return it as the result
@@ -1332,10 +1336,6 @@ class Worker:
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
                                         # pickle *args and **kwargs to out/taskid.args out/taskid.kwargs
-                                        source = inspect.getsource(execute_function)
-                                        _call = "execute_function({}, {}, {})".format(
-                                            taskid, module, socket.task.name)
-                                        
                                         pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
                                         logging.info("Invoking %s",pythoncmd)
 
@@ -1354,7 +1354,10 @@ class Worker:
                                     # Run function in container and get result
                                     if self.processor.detached:
                                         # Run command inside self.container
-                                        pass
+                                        pythoncmd = "python -c \"{};\n{}\"".format(source, _call)
+                                        logging.info("Invoking %s",pythoncmd)
+
+                                        self.container.exec_run(pythoncmd)
                                     else:
                                         # Run new non-detached container for task
                                         pass
