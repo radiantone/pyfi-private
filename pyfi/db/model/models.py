@@ -374,7 +374,9 @@ class ProcessorModel(HasLogs, BaseModel):
     """
     __tablename__ = 'processor'
 
+    # Needs to be list
     hostname = Column(String(60))
+
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
     gitrepo = Column(String(180))

@@ -167,11 +167,14 @@ class Agent:
                 with open('../../../containers.pid','r') as cfile:
                     pids = cfile.readlines()
                     for pid in pids:
-                        logging.info("Getting client container %s",pid)
-                        container = client.containers.get(pid.strip())
-                        logging.info("Killing container...")
-                        container.kill()
-                        logging.info("Done")
+                        try:
+                            logging.info("Getting client container %s",pid)
+                            container = client.containers.get(pid.strip())
+                            logging.info("Killing container...")
+                            container.kill()
+                            logging.info("Done")
+                        except Exception as ex:
+                            logging.error("Error obtaining or killing container %s", pid)
 
                 os.remove('../../../containers.pid')
 
