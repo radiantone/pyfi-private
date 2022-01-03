@@ -1919,10 +1919,10 @@ def start_worker(context, name, pool, skip_venv, queue):
 
     wprocess = workerproc.start()
 
-    processor.worker.requested_status = 'ready'
-    processor.worker.status = 'running'
+    workerModel.requested_status = 'ready'
+    workerModel.status = 'running'
     context.obj['database'].session.add(
-        processor.worker)
+        workerModelc)
 
     context.obj['database'].session.commit()
     wprocess.join()
