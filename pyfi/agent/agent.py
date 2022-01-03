@@ -548,7 +548,7 @@ class Agent:
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
                                 print("%s", processor['processor'])
                                 for deployment in processor['processor'].deployments:
-                                    print("DEPLOYMENT WORKER:",deployment)
+                                    logging.info("Deployment worker %s",deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
                                         processor['deployment'] = deployment

@@ -1912,9 +1912,9 @@ def start_worker(context, name, pool, skip_venv, queue):
 
     dir = 'work/' + processor.id
     os.makedirs(dir, exist_ok=True)
-
+    logging.info("workerModel %s Deployment %s",workerModel, workerModel.deployment)
     workerproc = Worker(
-        processor, workdir=dir, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
+        processor, workdir=dir, deployment=workerModel.deployment, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
         celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
@@ -2418,6 +2418,8 @@ def ls_socket(context, id, name, graph):
 
     from pptree import print_tree, Node
 
+    # TODO: Add graph for outbound plugs of this socket
+
     root = Node(socket.name)
     module = Node(socket.task.module, root)
     task = Node(socket.task.name, module)
@@ -2515,7 +2517,7 @@ def ls_processor(context, id, name, graph):
     names = ["Name", "ID", "Owner", "Last Updated", "Hostname",
              "Processor", "CPUs", "Requested Status", "Status", "Enabled"]
     x.field_names = names
-    nodes = context.obj['database'].session.query(DeploymentModel).all()
+    nodes = context.obj['database'].session.query(DeploymentModel).filter_by(processor_id=processor.id).all()
     for node in nodes:
         x.add_row([node.name, node.id, node.owner,
                    node.lastupdated, node.hostname, node.processor.name, node.cpus, node.requested_status, node.status,  "TBD"])
@@ -2785,7 +2787,7 @@ def ls_workers(context):
     x = PrettyTable()
 
     names = ["Name", "ID", "Owner", "Last Updated",
-             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor", "Workdir"]
+             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor", "Deployment", "Workdir"]
     x.field_names = names
     workers = context.obj['database'].session.query(WorkerModel).all()
 
@@ -2797,7 +2799,7 @@ def ls_workers(context):
 
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
                    node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.deployment.hostname,
-                   pname, node.workerdir])
+                   pname, node.deployment.name, node.workerdir])
 
     print(x)
 
