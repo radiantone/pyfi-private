@@ -203,7 +203,7 @@ class Worker:
         logging.info("Closing connection")
         connection.close()
 
-    def __init__(self, processor, workdir, pool=4, size=10, database=None, user=None, usecontainer=False,
+    def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None, usecontainer=False,
                  skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
@@ -211,7 +211,10 @@ class Worker:
         import multiprocessing
 
         self.processor = processor
-        self.worker = processor.worker
+
+        # TODO: Change to deployment
+        self.worker = deployment.worker
+        self.deployment = deployment
         self.backend = backend
         self.broker = broker
         self.workdir = workdir

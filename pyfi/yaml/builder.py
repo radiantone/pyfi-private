@@ -6,6 +6,7 @@ import paramiko
 from sqlalchemy import exc as sa_exc
 
 from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker
+from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
 
 HOSTNAME = platform.node()
@@ -240,6 +241,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
 
     sockets = {}
     repos = []
+    processors = {}
 
     for nodename in detail['network']['nodes']:
         node = detail['network']['nodes'][nodename]
@@ -282,13 +284,21 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     socket = _sockets[socketname]
                     _node.session.add(socket.socket)
                     _node.session.add(socket.processor.processor)
+                    processors[socket.processor.processor.name] = socket.processor.processor
                     logging.info(
                         "Creating worker %s ", node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
                     worker = Worker(
-                        hostname=node['hostname'], agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
+                        hostname=node['hostname'], processor=socket.processor.processor, agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
                     logging.info("Worker ID %s", worker.worker.id)
                     _agent.agent.workers  += [worker.worker]
                     worker.worker.processor = socket.processor.processor
+                    if 'deployments' in detail['network']:
+                        for depname in detail['network']['deployments']:
+                            deployment = detail['network']['deployments'][depname]
+                            if deployment['hostname'] == node['hostname']:
+                                deployment = Deployment(
+                                    name=depname, worker=worker.worker, hostname=deployment['hostname'], processor=processors[deployment['processor']], cpus=deployment['cpus'])
+                                print("Deployment.worker ", deployment.deployment.worker)
 
                 repos += _repos
                 sockets.update(_sockets)

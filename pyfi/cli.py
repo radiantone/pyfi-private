@@ -20,7 +20,7 @@ from sqlalchemy_oso import authorized_sessionmaker
 
 from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, \
     WorkerModel, CallModel, PlugModel, SocketModel, ProcessorModel, NodeModel, RoleModel, \
-    QueueModel, TaskModel, LogModel
+    QueueModel, TaskModel, LogModel, DeploymentModel
 from pyfi.db.model.models import PrivilegeModel
 from pyfi.web import run_http
 
@@ -222,7 +222,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             permissions = {SchedulerModel: "read", PrivilegeModel: "read", AgentModel: "read",
                            NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read",
                            QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read",
-                           UserModel: "read", ArgumentModel: "read", ProcessorModel: "read", RoleModel: "read"}
+                           UserModel: "read", ArgumentModel: "read", DeploymentModel: "read", ProcessorModel: "read", RoleModel: "read"}
 
             for privilege in _user.privileges:
                 if privilege.right == 'READ_LOG':
@@ -1238,13 +1238,13 @@ def update_processor(context, name, module, hostname, workers, gitrepo, commit, 
         processor = context.obj['database'].session.query(
             ProcessorModel).filter_by(id=id).first()
 
+    # TODO: Update deployment
     if not hostname:
 
         _hostname = click.prompt('Hostname',
                                  type=str, default=processor.hostname)
-        if _hostname != processor.hostname:
-            processor.requested_status = 'move'
-            processor.hostname = _hostname
+        
+        # Update deployment
 
     if not module:
         processor.module = click.prompt('Module',
@@ -1384,6 +1384,32 @@ def add_task(context, name, module, code, repo):
     print(task)
 
 
+@add.command(name='deployment')
+@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
+@click.option('-d', '--deploy', prompt=True, required=True, default=None, help="Name of this deployment")
+@click.option('-h', '--hostname', default=None, help='Target server hostname')
+@click.option('-c', '--cpus', default=0, help='Number of CPUs')
+@click.pass_context
+def add_deployment(context, name, deploy, hostname, cpus):
+
+    processor = context.obj['database'].session.query(
+        ProcessorModel).filter_by(name=name).first()
+    
+    deployment = context.obj['database'].session.query(
+        DeploymentModel).filter_by(name=deploy).first()
+
+    if deployment is not None:
+        print("Deployment {} exists.".format(deploy))
+        return
+    else:
+        deployment = DeploymentModel(hostname=hostname, name=deploy, processor_id=processor.id, cpus=cpus)
+        context.obj['database'].session.add(deployment)
+        processor.deployments += [deployment]
+        context.obj['database'].session.commit()
+
+    print("Deployment {}:{}:{} added.".format(deploy,hostname,cpus))
+    
+
 @add.command(name='processor')
 @click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
 @click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
@@ -1405,10 +1431,16 @@ def add_processor(context, name, module, hostname, workers, retries, gitrepo, co
     id = context.obj['id']
     user = context.obj['user']
 
+    #  hostname=hostname,
     processor = ProcessorModel(
-        id=id, status='ready', user_id=user.id, user=user, hostname=hostname, branch=branch, retries=retries,
+        id=id, status='ready', user_id=user.id, user=user, branch=branch, retries=retries,
         gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name,
         module=module)
+
+    if hostname:
+        deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=0)
+        processor.deployments += [deployment]
+        context.obj['database'].session.add(deployment)
 
     log1 = LogModel(oid=id, text='This is a log for ' + name, user_id=user.id, public=True, user=user,
                     discriminator='ProcessorModel', source='pyfi')
@@ -2427,7 +2459,6 @@ def ls_processor(context, id, name, graph):
         print("No processor found.")
         return
 
-    workername = processor.worker.name if processor.worker else "None"
 
     sockets = processor.sockets
     x = PrettyTable()
@@ -2452,8 +2483,6 @@ def ls_processor(context, id, name, graph):
         print("Name:", processor.name)
         print("ID:", processor.id)
         print("Module:", processor.module)
-        print("Workername:", workername)
-        print("Hostname:", processor.hostname)
         print("Owner:", processor.owner)
         print("Last Updated:", processor.lastupdated)
         print("Requested Status:", processor.requested_status)
@@ -2478,6 +2507,21 @@ def ls_processor(context, id, name, graph):
 
     print()
     print("Logs")
+    print(x)
+
+    nodes = processor.deployments
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Hostname",
+             "Processor", "CPUs", "Requested Status", "Status", "Enabled"]
+    x.field_names = names
+    nodes = context.obj['database'].session.query(DeploymentModel).all()
+    for node in nodes:
+        x.add_row([node.name, node.id, node.owner,
+                   node.lastupdated, node.hostname, node.processor.name, node.cpus, node.requested_status, node.status,  "TBD"])
+
+    print()
+    print("Deployments")
     print(x)
 
 
@@ -2533,6 +2577,25 @@ def ls_stats(context):
     List object stats
     """
     pass
+
+
+@ls.command(name='deployments')
+@click.pass_context
+def ls_deployments(context):
+    """
+    List deployments
+    """
+    x = PrettyTable()
+
+    names = ["Name", "ID", "Owner", "Last Updated", "Hostname",
+             "Processor", "CPUs", "Requested Status", "Status", "Enabled"]
+    x.field_names = names
+    nodes = context.obj['database'].session.query(DeploymentModel).all()
+    for node in nodes:
+        x.add_row([node.name, node.id, node.owner,
+                   node.lastupdated, node.hostname, node.processor.name, node.cpus, node.requested_status, node.status,  "TBD"])
+
+    print(x)
 
 
 @ls.command(name='schedulers')
@@ -2733,7 +2796,7 @@ def ls_workers(context):
             pname = node.processor.name
 
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.hostname,
+                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.deployment.hostname,
                    pname, node.workerdir])
 
     print(x)
@@ -2752,7 +2815,7 @@ def ls_processors(context, gitrepo, commit, module, owner):
     processors = context.obj['database'].session.query(ProcessorModel).all()
     x = PrettyTable()
 
-    names = ["Name", "ID", "Module", "Worker", "Host", "Owner", "Last Updated",
+    names = ["Name", "ID", "Module", "Owner", "Last Updated",
              "Requested Status", "Status", "Concurrency", "Beat"]
 
     if gitrepo:
@@ -2767,8 +2830,7 @@ def ls_processors(context, gitrepo, commit, module, owner):
     x.field_names = names
 
     for processor in processors:
-        workername = processor.worker.name if processor.worker else "None"
-        row = [processor.name, processor.id, processor.module, workername, processor.hostname, processor.owner,
+        row = [processor.name, processor.id, processor.module, processor.owner,
                processor.lastupdated,
                processor.requested_status, processor.status, processor.concurrency, processor.beat]
 

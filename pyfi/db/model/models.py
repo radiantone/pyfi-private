@@ -7,6 +7,10 @@ from datetime import datetime
 from oso import Oso
 from sqlalchemy import Enum, Table, Column, Integer, LargeBinary, Text, String, ForeignKey, DateTime, Boolean, Float, \
     Sequence, INTEGER, literal_column, select, column
+
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.ext.mutable import MutableList
+
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.ext.compiler import compiles
@@ -353,10 +357,14 @@ class WorkerModel(BaseModel):
 
     workerdir = Column(String(256))
 
+    processor = relationship("ProcessorModel")
     processor_id = Column(String(40), ForeignKey(
-        'processor.id'), nullable=True)
+        'processor.id'), nullable=False)
 
-    processor = relationship("ProcessorModel", back_populates="worker")
+    deployment_id = Column(String(40), ForeignKey(
+        'deployment.id'), nullable=True)
+
+    deployment = relationship("DeploymentModel", back_populates="worker")
 
     agent_id = Column(String(40), ForeignKey('agent.id'),
                       nullable=False)
@@ -364,18 +372,26 @@ class WorkerModel(BaseModel):
     #agent = relationship("AgentModel", back_populates="worker")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status,
-                                                self.concurrency, self.process, self.hostname, self.workerdir)
+        return '{}:{}:{}:{}:{}:{}:{}'.format(self.id, self.name, self.status, self.requested_status,
+                                                self.concurrency, self.process,  self.workerdir)
 
+
+class DeploymentModel(BaseModel):
+    __tablename__ = 'deployment'
+
+    name = Column(String(80), unique=False, nullable=False)
+    hostname = Column(String(80), nullable=False)
+    cpus = Column(Integer, nullable=False)
+    processor_id = Column(String(40), ForeignKey('processor.id'), nullable=False)
+
+    worker = relationship("WorkerModel", lazy=True, uselist=False,
+                          back_populates="deployment")
 
 class ProcessorModel(HasLogs, BaseModel):
     """
     Docstring
     """
     __tablename__ = 'processor'
-
-    # Needs to be list
-    hostname = Column(String(60))
 
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
@@ -405,19 +421,19 @@ class ProcessorModel(HasLogs, BaseModel):
     flow_id = Column(String(40), ForeignKey(
         'flow.id'), nullable=True)
 
-    worker = relationship(
-        'WorkerModel', back_populates='processor', uselist=False, lazy=True, cascade="all, delete-orphan")
-
     plugs = relationship('PlugModel', backref='processor',
                          lazy=True, cascade="all, delete-orphan")
+
+    deployments = relationship('DeploymentModel', backref='processor',
+                           lazy=True, cascade="all, delete-orphan")
 
     sockets = relationship('SocketModel', backref='processor',
                            lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
-        return '{}:{}:{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated,
-                                                                       self.hostname, self.concurrency,
-                                                                       self.requested_status, self.status, self.worker,
+        return '{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}'.format(self.id, self.name, self.beat, self.lastupdated,
+                                                                       self.concurrency,
+                                                                       self.requested_status, self.status, 
                                                                        self.plugs, self.sockets)
 
 
@@ -769,3 +785,4 @@ oso.register_class(NetworkModel)
 oso.register_class(GateModel)
 oso.register_class(LoginModel)
 oso.register_class(JobModel)
+oso.register_class(DeploymentModel)

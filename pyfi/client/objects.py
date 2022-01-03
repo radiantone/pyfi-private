@@ -21,7 +21,7 @@ from sqlalchemy.orm import sessionmaker
 from celery import Celery, signature
 from pyfi.config.celery import Config
 from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, ArgumentModel, PlugModel, SocketModel, ActionModel, \
-    FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
+    FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel, DeploymentModel
 from pyfi.server import app
 
 CONFIG = configparser.ConfigParser()
@@ -80,14 +80,14 @@ class Node(Base):
 
 class Worker(Base):
 
-    def __init__(self, name=None, hostname=None, agent=None):
+    def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
         self.worker = self.session.query(
             WorkerModel).filter_by(name=name).first()
 
         if self.worker is None:
-            self.worker = _worker = WorkerModel(name=name, backend=self.backend, agent_id=agent.id, broker=self.broker, hostname=hostname)
+            self.worker = _worker = WorkerModel(name=name, processor=processor, backend=self.backend, agent_id=agent.id, broker=self.broker, hostname=hostname)
 
         self.session.add(self.worker)
         self.session.commit()
@@ -518,6 +518,21 @@ class Queue(Base):
         self.session.close()
 
 
+class Deployment(Base):
+
+
+    def __init__(self, name=None, hostname=None, worker=None, processor=None, cpus=0):
+        self.processor = processor
+
+        self.deployment = self.database.session.query(
+            DeploymentModel).filter_by(name=name).first()
+
+        if self.deployment is None:
+            self.deployment = DeploymentModel(name=name, worker=worker, hostname=hostname, processor=processor, cpus=cpus)
+            self.session.add(self.deployment)
+            self.session.commit()
+
+        
 class Processor(Base):
     """
     Provide simple wrapper to ProcessorModel and execution behavior methods
@@ -559,15 +574,16 @@ class Processor(Base):
         if self.processor is None:
             # Create it
             self.processor = ProcessorModel(
-                status='ready', hostname=hostname, user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
+                status='ready', user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
                 branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,
                 module=module)
             self.database.session.add(self.processor)
-            self.processor.hostname = platform.node()
+            #self.processor.hostname = platform.node()
             self.processor.concurrency = 3
             self.processor.commit = None
             self.processor.beat = False
 
+        '''
         if self.processor.worker is None:
             _name = hostname + ".agent." + self.processor.name + '.worker'
             logging.info("Creating worker %s on %s",
@@ -578,11 +594,7 @@ class Processor(Base):
             self.database.session.add(_worker)
             self.database.session.commit()
             logging.info("   Worker: %s", self.processor.worker.name)
-            
-        if hostname is not None:
-            if hostname != self.processor.hostname:
-                self.processor.requested_status = 'update'
-            self.processor.hostname = hostname
+        '''
 
         if concurrency is not None:
             if self.processor.concurrency != concurrency:
