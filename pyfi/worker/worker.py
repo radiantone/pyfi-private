@@ -322,7 +322,6 @@ class Worker:
                 session.add(workerModel)
                 deployment.worker = workerModel
 
-            workerModel.workerdir = self.workdir
             session.commit()
 
         self.process = None
