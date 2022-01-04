@@ -40,11 +40,12 @@ if 'PYFI_HOSTNAME' in os.environ:
 
 def kill_containers():
     import docker
+    agent_cwd = os.environ['AGENT_CWD']
 
-    if os.path.exists('../../../containers.pid'):
+    if os.path.exists(f'{agent_cwd}/containers.pid'):
         client = docker.from_env()
         logging.info("Found containers.pid")
-        with open('../../../containers.pid', 'r') as cfile:
+        with open(f'{agent_cwd}/containers.pid', 'r') as cfile:
             pids = cfile.readlines()
             for pid in pids:
                 try:
@@ -57,7 +58,7 @@ def kill_containers():
                     logging.error(
                         "Error obtaining or killing container %s", pid)
 
-        os.remove('../../../containers.pid')
+        os.remove(f'{agent_cwd}/containers.pid')
 
 class Agent:
     """ Agent class """
@@ -211,8 +212,10 @@ class Agent:
             process.kill()
             process.terminate()
 
-            os.remove('../../../agent.pid')
-            os.remove('../../../worker.pid')
+            kill_containers()
+            
+            os.remove(f'{agent_cwd}/agent.pid')
+            os.remove(f'{agent_cwd}/worker.pid')
             exit(0)
 
         signal.signal(signal.SIGINT, shutdown)

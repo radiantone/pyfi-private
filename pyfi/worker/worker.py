@@ -864,6 +864,7 @@ class Worker:
 
             logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
+                agent_cwd = os.environ['AGENT_CWD']
 
                 client = docker.from_env()
                 logging.info("Working starting container....")
@@ -890,10 +891,10 @@ class Worker:
 
                     logging.info("OUTPUT: %s", res.output)
 
-                    with open(f'../../../{self.processor.name}.pid', 'w') as cfile:
+                    with open(f'{agent_cwd}/{self.processor.name}.pid', 'w') as cfile:
                         cfile.write(str(self.container.short_id)+"\n")
 
-                    with open('../../../containers.pid','a') as cfile:
+                    with open(f'{agent_cwd}/containers.pid', 'a') as cfile:
                         cfile.write(str(self.container.short_id)+"\n")
                     # Append container id to containers.pid
 
