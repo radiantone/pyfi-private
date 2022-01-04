@@ -277,7 +277,7 @@ class Agent:
                     # Gather host information and update node
 
                     if refresh == 0:
-                        # Time to refresh all the processors from the 
+                        # Time to refresh all the processors from the
                         # TODO: Change to DeploymentModel
                         mydeployments = self.database.session.query(
                             DeploymentModel).filter_by(
@@ -303,8 +303,7 @@ class Agent:
                                     "Processor no longer deployed")
 
                                 if processor['worker'] is not None:
-                                     logging.info("Killing processor {}.".format(
-                                        processor['processor'].name))
+                                    logging.info(f"Killing processor { processor['processor'].name}.")
                                     processor['worker']['process'].kill()
                                     processor['worker'] = None
                                     processors.remove(processor)
