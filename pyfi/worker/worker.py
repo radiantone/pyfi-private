@@ -851,7 +851,7 @@ class Worker:
                     os.mkdir('out')
                     #mount = Mount('/opt/pyfi/mount','.')
                     self.container = client.containers.run(
-                        self.processor.container_image+":"+self.processor.container_version, name=self.processor.module, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
+                        self.processor.container_image+":"+self.processor.container_version, auto_remove=True, name=self.processor.module, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)

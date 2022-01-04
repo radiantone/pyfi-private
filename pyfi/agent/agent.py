@@ -304,6 +304,7 @@ class Agent:
                                                 container_id.strip())
                                             logging.info(f"Killing worker container {container_id}")
                                             container.kill()
+                                            container.remove()
                                     #logging.info("Setting processor to UPDATE")
                                     #processor['processor'].requested_status = 'update'
 
