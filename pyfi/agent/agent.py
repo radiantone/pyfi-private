@@ -30,6 +30,7 @@ HOME = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+global HOSTNAME
 HOSTNAME = platform.node()
 
 CPUS = multiprocessing.cpu_count()
@@ -90,8 +91,10 @@ class Agent:
         self.size = size
         self.workerproc = None
         if name:
+            global HOSTNAME
             HOSTNAME = name
-            
+            logging.info("Setting agent HOSTNAME to {}".format(name))
+
         if clean:
             logging.info("Cleaning work directories")
             if os.path.exists("work"):
