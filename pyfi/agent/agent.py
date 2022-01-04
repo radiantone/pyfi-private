@@ -574,7 +574,7 @@ class Agent:
                                         processor['deployment'] = deployment
                                         logging.info("-------------------------------------------------------")
                                         logging.info(
-                                            f"-- Deploying processor {processor['processor'].name}")
+                                            f"-----------------------Deploying processor {processor['processor'].name}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
                                             database=self.dburi, deployment=deployment, celeryconfig=self.config, backend=self.backend,
@@ -582,12 +582,12 @@ class Agent:
 
                                         # Setup the virtualenv only
                                         logging.info(
-                                            f"Starting {processor['processor'].name}")
+                                            f"-----------------------Starting {processor['processor'].name}")
                                         workerproc.start(start=False)
 
                                         # Launch from the virtualenv
                                         logging.info(
-                                            f"Launching {processor['processor'].name}")
+                                            f"-----------------------Launching {processor['processor'].name}")
                                         wprocess = workerproc.launch(
                                             processor['deployment'].worker.name, self.pool)
 
@@ -598,7 +598,7 @@ class Agent:
                                             session.add(deployment.worker)
 
                                         logging.info(
-                                            "Worker process %s started.", wprocess.pid)
+                                            "-----------------------Worker process %s started.", wprocess.pid)
 
                                         worker['worker'] = deployment.worker
                                         worker['worker'].process = workerproc.process.pid
@@ -606,7 +606,8 @@ class Agent:
                                         worker['wprocess'] = wprocess
 
                                         processor['worker'] = worker
-                                        logging.info("workerproc is %s", workerproc)
+                                        logging.info(
+                                            "-----------------------workerproc is %s", workerproc)
 
                                         workers += [worker]
 
