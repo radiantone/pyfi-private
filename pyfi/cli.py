@@ -1922,7 +1922,7 @@ def start_worker(context, name, pool, skip_venv, queue):
     workerModel.requested_status = 'ready'
     workerModel.status = 'running'
     context.obj['database'].session.add(
-        workerModelc)
+        workerModel)
 
     context.obj['database'].session.commit()
     wprocess.join()
