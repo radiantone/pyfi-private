@@ -304,7 +304,6 @@ class Worker:
             workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
-            workerModel.workerdir = self.workdir
 
             logging.info("Created workerModel")
             if workerModel is None:
@@ -322,7 +321,9 @@ class Worker:
                 session.add(deployment)
                 session.add(workerModel)
                 deployment.worker = workerModel
-                session.commit()
+
+            workerModel.workerdir = self.workdir
+            session.commit()
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
@@ -1080,7 +1081,6 @@ class Worker:
                     workerModel = session.query(
                         WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
-                    workerModel.workerdir = self.workdir
 
                     logging.info("Created workerModel")
                     if workerModel is None:
@@ -1096,6 +1096,7 @@ class Worker:
 
                         session.add(workerModel)
 
+                    workerModel.workerdir = self.workdir
                     # Attach worker to deployment
                     self.deployment.worker = workerModel
                     session.commit()
