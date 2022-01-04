@@ -1097,6 +1097,7 @@ class Worker:
                     workerModel.workerdir = self.workdir
                     # Attach worker to deployment
                     self.deployment.worker = workerModel
+                    workerModel.deployment = self.deployment
                     session.commit()
 
                 except Exception as ex:
