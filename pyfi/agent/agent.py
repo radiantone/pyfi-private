@@ -213,7 +213,7 @@ class Agent:
             process.terminate()
 
             kill_containers()
-            
+
             os.remove(f'{agent_cwd}/agent.pid')
             os.remove(f'{agent_cwd}/worker.pid')
             exit(0)
@@ -588,6 +588,8 @@ class Agent:
                                     logging.info("Deployment worker %s",deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
+                                        logging.info("Deployment hostname is {} and HOSTNAME is {}".format(
+                                            deployment.hostname, HOSTNAME))
                                         processor['deployment'] = deployment
                                         logging.info("-------------------------------------------------------")
                                         logging.info(

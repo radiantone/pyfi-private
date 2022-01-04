@@ -376,6 +376,11 @@ class WorkerModel(BaseModel):
                                                 self.concurrency, self.process,  self.workerdir)
 
 
+class ContainerModel(BaseModel):
+    __tablename__ = 'container'
+
+    container_id = Column(String(80), unique=True, nullable=False)
+
 class DeploymentModel(BaseModel):
     __tablename__ = 'deployment'
 
