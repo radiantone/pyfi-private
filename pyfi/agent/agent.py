@@ -109,13 +109,20 @@ class Agent:
         import bjoern
         from billiard.context import Process
 
+        #########################################################################
+        # Store my pid
+        #########################################################################
         with open('agent.pid', 'w') as procfile:
             procfile.write(str(os.getpid()))
+
+        os.environ['AGENT_CWD'] = os.getcwd()
 
         logging.info("Serving agent on port {} {} {}".format(
             self.port, self.backend, self.broker))
 
-        # Retrieve any existing Agent for this hose
+        #########################################################################
+        # Query or Create Agent
+        #########################################################################
         agent = self.database.session.query(
             AgentModel).filter_by(hostname=HOSTNAME).first()
 
@@ -128,13 +135,16 @@ class Agent:
                                name=HOSTNAME + ".agent", pid=os.getpid())
 
         agent.pid = os.getpid()
-        # self.database.session.add(agent)
-        # self.database.session.commit()
 
         agent.status = "starting"
         self.agent = agent
+        #########################################################################
+
         vmem = psutil.virtual_memory()
 
+        #########################################################################
+        # Query or Create Node
+        #########################################################################
         node = self.database.session.query(NodeModel).filter_by(hostname=HOSTNAME).first()
 
         if node is None:
@@ -145,6 +155,8 @@ class Agent:
             self.database.session.refresh(node)
         else:
             self.database.session.add(node)
+
+        #########################################################################
 
         if node.agent is None:
             node.agent = agent
@@ -224,7 +236,14 @@ class Agent:
                 import os
                 refresh = 0
 
+                #########################################################################
+                # Main Loop
+                #########################################################################
                 while True:
+
+                    #########################################################################
+                    # Resource conditions
+                    #########################################################################
                     vmem = psutil.virtual_memory()
 
                     self.node.memsize = vmem.total
@@ -249,6 +268,10 @@ class Agent:
                                 processor['worker'] = None
                                 processor['processor'].status = 'stopped'
 
+
+                    #########################################################################
+                    # Check deployments for ones assigned to me
+                    #########################################################################
                     mydeployments = []
 
                     # Gather host information and update node
@@ -266,27 +289,21 @@ class Agent:
                             self.database.session.refresh(
                                 processor['processor'])
 
+                            # Check if I already have a deployment
                             found = False
                             for deployment in mydeployments:
                                 if deployment.processor == processor['processor']:
                                     found = True
                                     break
 
-                            #if processor['processor'].hostname != HOSTNAME:
+                            agent_cwd = os.environ['AGENT_CWD']
+                            # If I have no deployment for the current processor, undeploy it
                             if found == False:
                                 logging.info(
                                     "Processor no longer deployed")
-                                # Processor of mine has been moved, kill it
+
                                 if processor['worker'] is not None:
-                                    #processor['processor'].requested_status = 'move'
-
-                                    #with self.get_session() as session:
-                                    #    session.add(processor['processor'])
-                                    # self.database.session.add(processor['processor'])
-
-                                    #logging.info("Processor {} moved from {} to {}.".format(
-                                    #    processor['processor'].name, HOSTNAME, processor['processor'].hostname))
-                                    logging.info("Killing processor {}.".format(
+                                     logging.info("Killing processor {}.".format(
                                         processor['processor'].name))
                                     processor['worker']['process'].kill()
                                     processor['worker'] = None
@@ -294,21 +311,16 @@ class Agent:
                                     logging.info("Removed processor {} from list.".format(
                                         processor['processor'].name))
 
-                                    if os.path.exists(f"../../../{processor['processor'].name}.pid"):
+                                    if os.path.exists(f"{agent_cwd}/{processor['processor'].name}.pid"):
                                         import docker
 
-                                        with open(f"../../../{processor['processor'].name}.pid","r") as pidfile:
+                                        with open(f"{agent_cwd}/{processor['processor'].name}.pid","r") as pidfile:
                                             container_id = pidfile.read()
                                             client = docker.from_env()
                                             container = client.containers.get(
                                                 container_id.strip())
                                             logging.info(f"Killing worker container {container_id}")
                                             container.kill()
-                                    #logging.info("Setting processor to UPDATE")
-                                    #processor['processor'].requested_status = 'update'
-
-                                    #with self.get_session() as session:
-                                    #    session.add(processor['processor'])
 
                         # Loop through my database processors
                         for mydeployment in mydeployments:
@@ -317,6 +329,7 @@ class Agent:
                             if myprocessor.requested_status == 'move':
                                 continue
 
+                            # If I don't already have this processor deployment
                             found = False
                             for processor in processors:
                                 if processor['processor'].id == myprocessor.id:
