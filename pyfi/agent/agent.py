@@ -596,6 +596,7 @@ class Agent:
 
                                         with self.get_session() as session:
                                             session.add(deployment.worker)
+                                            deployment.worker.processor_id = processor['processor'].id
 
                                         logging.info(
                                             "-----------------------Worker process %s started.", wprocess.pid)
