@@ -572,15 +572,22 @@ class Agent:
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
                                         processor['deployment'] = deployment
+                                        logging.info("-------------------------------------------------------")
+                                        logging.info(
+                                            f"-- Deploying processor {processor['processor'].name}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
                                             database=self.dburi, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
                                         # Setup the virtualenv only
+                                        logging.info(
+                                            f"Starting {processor['processor'].name}")
                                         workerproc.start(start=False)
 
                                         # Launch from the virtualenv
+                                        logging.info(
+                                            f"Launching {processor['processor'].name}")
                                         wprocess = workerproc.launch(
                                             processor['deployment'].worker.name, self.pool)
 
@@ -602,6 +609,9 @@ class Agent:
                                         logging.info("workerproc is %s", workerproc)
 
                                         workers += [worker]
+
+                                        logging.info(
+                                            "-------------------------------------------------------")
 
                             processor['processor'].requested_status = 'ready'
                             processor['processor'].status = 'running'
