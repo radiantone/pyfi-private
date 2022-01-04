@@ -300,28 +300,29 @@ class Worker:
             logging.info("ENQUEUE: %s", data)
             return data
 
-        workerModel = self.session.query(
-                        WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
+        with self.get_session(self.database) as session:
+            workerModel = self.session.query(
+                            WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
-        workerModel.workerdir = self.workdir
+            workerModel.workerdir = self.workdir
 
-        logging.info("Created workerModel")
-        if workerModel is None:
-            workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
-                                        concurrency=int(
-                                            self.processor.concurrency),
-                                        status='ready',
-                                        backend=self.backend,
-                                        broker=self.broker,
-                                        workerdir=self.workerdir,
-                                        hostname=HOSTNAME,
-                                        requested_status='start')
+            logging.info("Created workerModel")
+            if workerModel is None:
+                workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
+                                            concurrency=int(
+                                                self.processor.concurrency),
+                                            status='ready',
+                                            backend=self.backend,
+                                            broker=self.broker,
+                                            workerdir=self.workerdir,
+                                            hostname=HOSTNAME,
+                                            requested_status='start')
 
 
-            self.session.add(deployment)
-            self.session.add(workerModel)
-            deployment.worker = workerModel
-            self.session.commit()
+                self.session.add(deployment)
+                self.session.add(workerModel)
+                deployment.worker = workerModel
+                self.session.commit()
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
