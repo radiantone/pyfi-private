@@ -1649,8 +1649,8 @@ class Worker:
         #self.emit_process.kill()
         #self.worker_process.kill()
 
-        '''
-        process = psutil.Process(self.process.pid)
+        
+        process = psutil.Process(os.getpid())
 
         for child in process.children(recursive=True):
             try:
@@ -1670,8 +1670,6 @@ class Worker:
             self.process.join()
         except:
             pass
-        
-        '''
         
         if os.path.exists(self.workdir):
             logging.debug("Removing working directory %s", self.workdir)

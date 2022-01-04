@@ -285,7 +285,6 @@ class Agent:
                                     #    processor['processor'].name, HOSTNAME, processor['processor'].hostname))
                                     logging.info("Killing processor {}.".format(
                                         processor['processor'].name))
-                                    processor['worker'].kill()
                                     processor['worker']['process'].kill()
                                     processor['worker'] = None
                                     processors.remove(processor)
