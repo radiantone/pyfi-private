@@ -318,7 +318,6 @@ class Worker:
                                             requested_status='start')
 
 
-                session.add(deployment)
                 session.add(workerModel)
                 deployment.worker = workerModel
 
