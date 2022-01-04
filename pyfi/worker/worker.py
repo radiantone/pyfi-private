@@ -1646,9 +1646,6 @@ class Worker:
         Docstring
         """
         logging.debug("Terminating worker")
-        #self.emit_process.kill()
-        #self.worker_process.kill()
-
         
         process = psutil.Process(os.getpid())
 
@@ -1658,11 +1655,11 @@ class Worker:
             except:
                 pass
 
-        process.kill()
-        process.terminate()
+        #process.kill()
+        #process.terminate()
 
-        os.killpg(os.getpgid(process.pid), 15)
-        os.kill(process.pid, signal.SIGKILL)
+        #os.killpg(os.getpgid(process.pid), 15)
+        #os.kill(process.pid, signal.SIGKILL)
 
         logging.debug("Finishing.")
 
