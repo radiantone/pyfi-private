@@ -191,10 +191,12 @@ class Agent:
                     process.pid, child.pid))
                 child.kill()
 
-            logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
+            logging.info("CWD is %s %s", os.getcwd(), os.environ['AGENT_CWD'])
 
-            if os.path.exists('../../../worker.pid'):
-                with open('../../../worker.pid','r') as wfile:
+            agent_cwd = os.environ['AGENT_CWD']
+
+            if os.path.exists(f'{agent_cwd}/worker.pid'):
+                with open(f'{agent_cwd}/worker.pid', 'r') as wfile:
                     workerpid = wfile.read()
                     workerpid = int(workerpid)
                     logging.info("Killing worker process %s", workerpid)
