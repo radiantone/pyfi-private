@@ -294,7 +294,7 @@ class Agent:
                                     logging.info("Removed processor {} from list.".format(
                                         processor['processor'].name))
 
-                                    if os.path.exists(f"{processor['processor'].name}.pid"):
+                                    if os.path.exists(f"../../../{processor['processor'].name}.pid"):
                                         import docker
 
                                         with open(f"../../../{processor['processor'].name}.pid","r") as pidfile:
