@@ -263,19 +263,26 @@ class Agent:
                             self.database.session.refresh(
                                 processor['processor'])
 
-                            if processor['processor'].hostname != HOSTNAME:
+                            found = False
+                            for deployment in mydeployments:
+                                if deployment.processor == processor['processor']:
+                                    found = True
+                                    break
+
+                            #if processor['processor'].hostname != HOSTNAME:
+                            if found == False:
                                 logging.info(
-                                    "Processor hostname %s != %s", processor['processor'].hostname, HOSTNAME)
+                                    "Processor no longer deployed")
                                 # Processor of mine has been moved, kill it
                                 if processor['worker'] is not None:
-                                    processor['processor'].requested_status = 'move'
+                                    #processor['processor'].requested_status = 'move'
 
-                                    with self.get_session() as session:
-                                        session.add(processor['processor'])
+                                    #with self.get_session() as session:
+                                    #    session.add(processor['processor'])
                                     # self.database.session.add(processor['processor'])
 
-                                    logging.info("Processor {} moved from {} to {}.".format(
-                                        processor['processor'].name, HOSTNAME, processor['processor'].hostname))
+                                    #logging.info("Processor {} moved from {} to {}.".format(
+                                    #    processor['processor'].name, HOSTNAME, processor['processor'].hostname))
                                     logging.info("Killing processor {}.".format(
                                         processor['processor'].name))
                                     processor['worker']['process'].kill()
@@ -284,11 +291,11 @@ class Agent:
                                     logging.info("Removed processor {} from list.".format(
                                         processor['processor'].name))
 
-                                    logging.info("Setting processor to UPDATE")
-                                    processor['processor'].requested_status = 'update'
+                                    #logging.info("Setting processor to UPDATE")
+                                    #processor['processor'].requested_status = 'update'
 
-                                    with self.get_session() as session:
-                                        session.add(processor['processor'])
+                                    #with self.get_session() as session:
+                                    #    session.add(processor['processor'])
 
                         # Loop through my database processors
                         for mydeployment in mydeployments:
