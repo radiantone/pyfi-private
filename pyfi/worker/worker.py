@@ -214,6 +214,7 @@ class Worker:
 
         # TODO: Change to deployment
         self.worker = deployment.worker
+        self.worker.processor = processor
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
