@@ -297,7 +297,7 @@ class Agent:
                                     if os.path.exists(f"{processor['processor'].name}.pid"):
                                         import docker
 
-                                        with open(f"{processor['processor'].name}.pid","r") as pidfile:
+                                        with open(f"../../../{processor['processor'].name}.pid","r") as pidfile:
                                             container_id = pidfile.read()
                                             client = docker.from_env()
                                             container = client.containers.get(
