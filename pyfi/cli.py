@@ -3158,9 +3158,9 @@ def start_agent(context, port, clean, backend, broker, name, config, queues, use
     """
     from pyfi.agent import Agent
 
-    if not name:
+    if name:
         os.environ['PYFI_HOSTNAME'] = name
-        
+
     if host is not None:
         """
         _ssh = paramiko.SSHClient()
