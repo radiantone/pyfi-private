@@ -313,7 +313,7 @@ class Worker:
                                             status='ready',
                                             backend=self.backend,
                                             broker=self.broker,
-                                            workerdir=self.workerdir,
+                                            workerdir=self.workdir,
                                             hostname=HOSTNAME,
                                             requested_status='start')
 
@@ -1089,7 +1089,7 @@ class Worker:
                                                   status='ready',
                                                   backend=self.backend,
                                                   broker=self.broker,
-                                                  workerdir=self.workerdir,
+                                                  workerdir=self.workdir,
                                                   hostname=HOSTNAME,
                                                   requested_status='start')
 
