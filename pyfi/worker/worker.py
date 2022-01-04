@@ -1072,6 +1072,8 @@ class Worker:
 
                         session.add(workerModel)
 
+                    # Attach worker to deployment
+                    self.deployment.worker = workerModel
                     session.commit()
 
                 except Exception as ex:
@@ -1490,8 +1492,9 @@ class Worker:
                 logging.info("Starting worker...")
                 worker.start()
 
-        logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
-                      self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
+        if self.worker:
+            logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
+                        self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         """ Install gitrepo and build virtualenv """
         if self.processor.commit and self.skipvenv:
