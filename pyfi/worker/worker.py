@@ -317,8 +317,7 @@ class Worker:
                                             hostname=HOSTNAME,
                                             requested_status='start')
 
-
-                session.add(workerModel)
+                
                 deployment.worker = workerModel
 
             session.commit()
