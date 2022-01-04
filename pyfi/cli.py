@@ -3143,6 +3143,7 @@ def api_start(context, ip, port):
 @click.option('--clean', default=False, is_flag=True, help="Remove work directories before launch")
 @click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
+@click.option('-n', '--name', default=None, help='Hostname for this agent to use')
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-u', '--user', default=None, help='Run the worker as user')
@@ -3151,12 +3152,15 @@ def api_start(context, ip, port):
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
 @click.option('-p', '--path', help='Remote PATH to use')
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, config, queues, user, pool, size, host, path):
+def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host, path):
     """
     Start an agent
     """
     from pyfi.agent import Agent
 
+    if not name:
+        os.environ['PYFI_HOSTNAME'] = name
+        
     if host is not None:
         """
         _ssh = paramiko.SSHClient()
