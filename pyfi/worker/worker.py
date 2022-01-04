@@ -864,7 +864,7 @@ class Worker:
 
                     logging.info("OUTPUT: %s", res.output)
 
-                    with open(f'../../../{self.processor.name}.pid', 'a') as cfile:
+                    with open(f'../../../{self.processor.name}.pid', 'w') as cfile:
                         cfile.write(str(self.container.short_id)+"\n")
 
                     with open('../../../containers.pid','a') as cfile:
