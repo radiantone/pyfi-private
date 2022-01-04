@@ -38,6 +38,27 @@ if 'PYFI_HOSTNAME' in os.environ:
     HOSTNAME = os.environ['PYFI_HOSTNAME']
 
 
+def kill_containers():
+    import docker
+
+    if os.path.exists('../../../containers.pid'):
+        client = docker.from_env()
+        logging.info("Found containers.pid")
+        with open('../../../containers.pid', 'r') as cfile:
+            pids = cfile.readlines()
+            for pid in pids:
+                try:
+                    logging.info("Getting client container %s", pid)
+                    container = client.containers.get(pid.strip())
+                    logging.info("Killing container...")
+                    container.kill()
+                    logging.info("Done")
+                except Exception as ex:
+                    logging.error(
+                        "Error obtaining or killing container %s", pid)
+
+        os.remove('../../../containers.pid')
+
 class Agent:
     """ Agent class """
 
@@ -147,9 +168,8 @@ class Agent:
         def shutdown(*args):
             """ Shutdown worker """
             from psutil import Process
-            import docker
 
-
+            kill_containers()
             logging.info("Shutting down agent...")
             process = Process(os.getpid())
 
@@ -160,23 +180,6 @@ class Agent:
                 child.kill()
 
             logging.info("CWD is %s %s",os.getcwd(), os.path.join(os.getcwd(),'../../../'))
-
-            if os.path.exists('../../../containers.pid'):
-                client = docker.from_env()
-                logging.info("Found containers.pid")
-                with open('../../../containers.pid','r') as cfile:
-                    pids = cfile.readlines()
-                    for pid in pids:
-                        try:
-                            logging.info("Getting client container %s",pid)
-                            container = client.containers.get(pid.strip())
-                            logging.info("Killing container...")
-                            container.kill()
-                            logging.info("Done")
-                        except Exception as ex:
-                            logging.error("Error obtaining or killing container %s", pid)
-
-                os.remove('../../../containers.pid')
 
             if os.path.exists('../../../worker.pid'):
                 with open('../../../worker.pid','r') as wfile:
@@ -291,6 +294,16 @@ class Agent:
                                     logging.info("Removed processor {} from list.".format(
                                         processor['processor'].name))
 
+                                    if os.path.exists(f"{processor['processor'].name}.pid"):
+                                        import docker
+
+                                        with open(f"{processor['processor'].name}.pid","r") as pidfile:
+                                            container_id = pidfile.read()
+                                            client = docker.from_env()
+                                            container = client.containers.get(
+                                                container_id.strip())
+                                            logging.info(f"Killing worker container {container_id}")
+                                            container.kill()
                                     #logging.info("Setting processor to UPDATE")
                                     #processor['processor'].requested_status = 'update'
 

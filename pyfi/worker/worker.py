@@ -864,6 +864,9 @@ class Worker:
 
                     logging.info("OUTPUT: %s", res.output)
 
+                    with open(f'../../../{self.processor.name}.pid', 'a') as cfile:
+                        cfile.write(str(self.container.short_id)+"\n")
+
                     with open('../../../containers.pid','a') as cfile:
                         cfile.write(str(self.container.short_id)+"\n")
                     # Append container id to containers.pid
@@ -1645,7 +1648,7 @@ class Worker:
         """
         Docstring
         """
-        logging.debug("Terminating worker")
+        logging.info("Terminating worker")
         
         process = psutil.Process(os.getpid())
 
@@ -1669,7 +1672,7 @@ class Worker:
             pass
         
         if os.path.exists(self.workdir):
-            logging.debug("Removing working directory %s", self.workdir)
+            logging.info("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
 
-        logging.debug("Done killing worker.")
+        logging.info("Done killing worker.")
