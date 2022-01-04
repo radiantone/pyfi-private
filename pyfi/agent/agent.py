@@ -593,8 +593,8 @@ class Agent:
                                     logging.info("Deployment worker %s",deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
-                                        logging.info("Deployment hostname is {} and HOSTNAME is {} {}".format(
-                                            deployment.hostname, HOSTNAME, os.environ['PYFI_HOSTNAME']))
+                                        logging.info("Deployment hostname is {} and HOSTNAME is {}".format(
+                                            deployment.hostname, HOSTNAME))
                                         processor['deployment'] = deployment
                                         logging.info("-------------------------------------------------------")
                                         logging.info(
