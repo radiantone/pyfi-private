@@ -301,7 +301,7 @@ class Worker:
             return data
 
         with self.get_session(self.database) as session:
-            workerModel = self.session.query(
+            workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
             workerModel.workerdir = self.workdir
@@ -319,10 +319,10 @@ class Worker:
                                             requested_status='start')
 
 
-                self.session.add(deployment)
-                self.session.add(workerModel)
+                session.add(deployment)
+                session.add(workerModel)
                 deployment.worker = workerModel
-                self.session.commit()
+                session.commit()
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
