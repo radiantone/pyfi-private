@@ -76,7 +76,7 @@ class Agent:
             session.commit()
 
     def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost',
-                 broker='pyamqp://localhost', size=10):
+                 broker='pyamqp://localhost', name=None, size=10):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -89,7 +89,9 @@ class Agent:
         self.user = user
         self.size = size
         self.workerproc = None
-
+        if name:
+            HOSTNAME = name
+            
         if clean:
             logging.info("Cleaning work directories")
             if os.path.exists("work"):
@@ -588,8 +590,8 @@ class Agent:
                                     logging.info("Deployment worker %s",deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
-                                        logging.info("Deployment hostname is {} and HOSTNAME is {}".format(
-                                            deployment.hostname, HOSTNAME))
+                                        logging.info("Deployment hostname is {} and HOSTNAME is {} {}".format(
+                                            deployment.hostname, HOSTNAME, os.environ['PYFI_HOSTNAME']))
                                         processor['deployment'] = deployment
                                         logging.info("-------------------------------------------------------")
                                         logging.info(

@@ -3173,7 +3173,7 @@ def start_agent(context, port, clean, backend, broker, name, config, queues, use
         """
     else:
         agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                      config=config, backend=backend, user=user, clean=clean, size=size, broker=broker)
+                      config=config, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
         agent.start()
 
 
