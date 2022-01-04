@@ -1044,7 +1044,7 @@ class Worker:
                     logging.error(ex)
 
                 logging.info("Created celery worker")
-                self.processor.worker.hostname = HOSTNAME
+                self.deployment.worker.hostname = HOSTNAME
 
                 # Find existing model first
                 try:
