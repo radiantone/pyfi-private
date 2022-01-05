@@ -610,7 +610,7 @@ class Agent:
                                             database=self.dburi, agent=agent, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
-                                        processor['deployment'].worker = workerproc.workerModel
+                                        # = workerproc.workerModel
                                         #deployment.worker = workerproc.workerModel
                                         #deployment.worker.processor = processor['processor']
                                         # Setup the virtualenv only
@@ -622,7 +622,7 @@ class Agent:
                                         logging.info(
                                             f"-----------------------Launching {processor['processor'].name}")
                                         wprocess = workerproc.launch(
-                                            processor['deployment'].worker.name, agent.name, HOSTNAME, self.pool)
+                                            workerproc.workerModel.name, agent.name, HOSTNAME, self.pool)
 
                                         deployment.requested_status = 'ready'
                                         deployment.status = 'running'
