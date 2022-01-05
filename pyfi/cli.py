@@ -1887,10 +1887,11 @@ def agent():
     pass
 
 
-@agent.command(name='stop')
+@agent.command(name='kill')
+@click.option('-n', '--name', required=True, help="Name of agent")
 @click.pass_context
-def stop_agent(context):
-    """ Stop an agent """
+def kill_agent(context, name):
+    """ Kill an agent """
     import os
     # Send SIGINT to agent.pid
 
@@ -1898,6 +1899,22 @@ def stop_agent(context):
         _pid = procfile.read()
         os.system("/usr/bin/kill -SIGINT "+_pid)
 
+
+@agent.command(name='stop')
+@click.option('-n', '--name', required=True, help="Name of agent")
+@click.pass_context
+def stop_agent(context, name):
+    """ Stop an agent """
+
+    agent = context.obj['database'].session.query(
+        AgentModel).filter_by(name=name).first()
+
+    if not agent:
+        print("Agent does not exist.")
+        return
+
+    agent.requested_status = "stop"
+    context.obj['database'].session.commit()
 
 @worker.command(name='kill', help='Kill a pyfi worker')
 @click.option('-n', '--name', required=True, help="Name of worker")
