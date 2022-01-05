@@ -306,7 +306,9 @@ class Worker:
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
             logging.info("Found worker {}".format(workerModel))
-            logging.info("Worker deployment is {}".format(workerModel.deployment))
+
+            if workerModel is not None:
+                logging.info("Worker deployment is {}".format(workerModel.deployment))
 
             if workerModel is None:
                 workerModel = self.workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
