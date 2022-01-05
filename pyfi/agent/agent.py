@@ -619,7 +619,7 @@ class Agent:
                                         workerproc.start(start=False)
 
                                         with self.get_session() as session:
-                                            session.merge(workerproc.workerModel)
+                                            session.add(workerproc.workerModel)
 
                                             # Launch from the virtualenv
                                             logging.info(
