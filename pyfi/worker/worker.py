@@ -305,7 +305,8 @@ class Worker:
             workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
-
+            logging.info("Found worker {}".format(workerModel))
+            
             if workerModel is None:
                 workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
                                             concurrency=int(
