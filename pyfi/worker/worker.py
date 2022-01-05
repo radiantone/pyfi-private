@@ -324,12 +324,14 @@ class Worker:
                                             backend=self.backend,
                                             broker=self.broker,
                                             workerdir=self.workdir,
-                                            agent_id=self.agent.id,
                                             hostname=HOSTNAME,
                                             requested_status='start')
 
                 logging.info("Created workerModel")
                 #session.merge(deployment)
+                if not workerModel.agent_id:
+                    workerModel.agent_id = self.agent.id
+                    
                 session.add(workerModel)
 
             _deployment.worker = workerModel
