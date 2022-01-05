@@ -319,9 +319,9 @@ class Worker:
                                             requested_status='start')
 
                 
-            deployment.worker = workerModel
-            deployment.worker.processor = processor
-            session.commit()
+                deployment.worker = workerModel
+                deployment.worker.processor = processor
+                session.commit()
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
