@@ -617,7 +617,7 @@ class Agent:
                                         logging.info(
                                             f"-----------------------Starting {processor['processor'].name}")
                                         workerproc.start(start=False)
-                                        session.commit()
+                                        session.merge(workerproc.workerModel)
 
                                         # Launch from the virtualenv
                                         logging.info(
