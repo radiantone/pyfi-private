@@ -1895,13 +1895,17 @@ def kill_worker(context, name):
 
 @worker.command(name='start', help='Start a pyfi worker')
 @click.option('-n', '--name', required=True, help="Name of worker")
+@click.option('-a', '--agent', required=True, help="Name of agent")
 @click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
 @click.option('-s', '--skip-venv', is_flag=True, default=False, required=False,
               help="Skip building the virtual environment")
 @click.option('-q', '--queue', default=1, help='Maximum number of messages on worker internal queue')
 @click.pass_context
-def start_worker(context, name, pool, skip_venv, queue):
+def start_worker(context, name, agent, pool, skip_venv, queue):
     from pyfi.worker import Worker
+
+    agentModel = context.obj['database'].session.query(
+        AgentModel).filter_by(name=agent).first()
 
     workerModel = context.obj['database'].session.query(
         WorkerModel).filter_by(name=name).first()
@@ -1915,7 +1919,7 @@ def start_worker(context, name, pool, skip_venv, queue):
     logging.info("workerModel %s Deployment %s",workerModel, workerModel.deployment)
     workerproc = Worker(
         processor, workdir=dir, deployment=workerModel.deployment, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
-        celeryconfig=None, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+        celeryconfig=None, agent=agent, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
 

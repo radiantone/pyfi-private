@@ -346,7 +346,7 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-    def launch(self, name, size):
+    def launch(self, name, agent, size):
         from subprocess import Popen
         from multiprocessing import Process
 
@@ -363,7 +363,7 @@ class Worker:
                    "-n", name, "-q", str(size)]
             if self.user:
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                       "-n", name, "-q", str(size)]
+                       "-n", name, "-a", agent, "-q", str(size)]
 
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(

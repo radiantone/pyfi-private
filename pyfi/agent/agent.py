@@ -621,7 +621,7 @@ class Agent:
                                         logging.info(
                                             f"-----------------------Launching {processor['processor'].name}")
                                         wprocess = workerproc.launch(
-                                            processor['deployment'].worker.name, self.pool)
+                                            processor['deployment'].worker.name, agent.name, self.pool)
 
                                         deployment.requested_status = 'ready'
                                         deployment.status = 'running'
