@@ -901,8 +901,10 @@ def delete():
 @click.option('-n', '--name', default=None, help="Name of deployment")
 @click.pass_context
 def delete_deployment(context, name):
-    context.obj['database'].session.query(
-        DeploymentModel).filter_by(name=name).delete()
+    deployment = context.obj['database'].session.query(
+        DeploymentModel).filter_by(name=name)
+    deployment.worker = None
+    deployment.delete()
     print("Deployment deleted.")
 
 
