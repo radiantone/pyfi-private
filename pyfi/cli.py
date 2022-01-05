@@ -903,9 +903,12 @@ def delete():
 def delete_deployment(context, name):
     deployment = context.obj['database'].session.query(
         DeploymentModel).filter_by(name=name).first()
-    deployment.worker.deployment = None
-    context.obj['database'].session.commit()
-    deployment.delete()
+
+    if deployment.worker:
+        deployment.worker.deployment = None
+        context.obj['database'].session.commit()
+    context.obj['database'].session.query(
+        DeploymentModel).filter_by(name=name).delete()
     print("Deployment deleted.")
 
 
