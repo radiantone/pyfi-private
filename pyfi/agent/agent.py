@@ -608,8 +608,8 @@ class Agent:
                                             database=self.dburi, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
-                                        deployment.worker = workerproc.workerModel
-                                        deployment.worker.processor = processor['processor']
+                                        #deployment.worker = workerproc.workerModel
+                                        #deployment.worker.processor = processor['processor']
                                         # Setup the virtualenv only
                                         logging.info(
                                             f"-----------------------Starting {processor['processor'].name}")

@@ -35,7 +35,7 @@ from kombu import Exchange, Queue as KQueue
 
 from pyfi.db.model import EventModel, UserModel, AgentModel, WorkerModel, PlugModel, SocketModel, JobModel, CallModel, \
     ActionModel, FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel
-from pyfi.db.model.models import use_identity
+from pyfi.db.model.models import DeploymentModel, use_identity
 
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
@@ -302,6 +302,9 @@ class Worker:
             return data
 
         with self.get_session(self.database) as session:
+            _deployment = session.query(
+                DeploymentModel).filter_by(name=deployment.name).first()
+
             workerModel = self.workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
@@ -322,11 +325,11 @@ class Worker:
                                             requested_status='start')
 
                 logging.info("Created workerModel")
-            #session.merge(deployment)
-            #session.add(workerModel)
+                #session.merge(deployment)
+                session.add(workerModel)
 
-            #deployment.worker = workerModel
-            #deployment.worker.processor = processor
+            _deployment.worker = workerModel
+            _deployment.worker.processor = processor
             #logging.info("Attached worker to deployment and processor...")
             session.commit()
 
