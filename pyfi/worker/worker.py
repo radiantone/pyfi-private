@@ -320,8 +320,8 @@ class Worker:
                                             requested_status='start')
 
                 logging.info("Created workerModel")
-            session.add(deployment)
-            session.add(workerModel)
+            session.merge(deployment)
+            session.merge(workerModel)
             deployment.worker = workerModel
             deployment.worker.processor = processor
             logging.info("Attached worker to deployment and processor...")
