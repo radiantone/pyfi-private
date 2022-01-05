@@ -621,7 +621,7 @@ class Agent:
                                         with self.get_session() as session:
                                             #session.add(workerproc.workerModel)
                                             workerModel = session.query(WorkerModel).filter_by(
-                                                name=HOSTNAME + ".agent." + processor['processor'].name + '.worker')
+                                                name=HOSTNAME + ".agent." + processor['processor'].name + '.worker').first()
                                             # Launch from the virtualenv
                                             logging.info(
                                                 f"-----------------------Launching {processor['processor'].name}")
