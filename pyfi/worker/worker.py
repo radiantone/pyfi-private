@@ -306,6 +306,7 @@ class Worker:
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
             logging.info("Found worker {}".format(workerModel))
+            logging.info("Worker deployment is {}".format(workerModel.deployment))
 
             if workerModel is None:
                 workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
@@ -319,6 +320,8 @@ class Worker:
                                             requested_status='start')
 
                 logging.info("Created workerModel")
+            session.add(deployment)
+            session.add(workerModel)
             deployment.worker = workerModel
             deployment.worker.processor = processor
             logging.info("Attached worker to deployment and processor...")
