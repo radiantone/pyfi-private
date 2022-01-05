@@ -564,6 +564,7 @@ class Agent:
                                                               hostname=HOSTNAME,
                                                               requested_status='start')
 
+
                                 processor['deployment'].worker = workerModel
                                 workerModel.lastupdated = datetime.now()
                                 workerModel.status = 'running'
@@ -586,9 +587,12 @@ class Agent:
                                 logging.info(
                                     "process_died %s and Worker is %s", process_died, processor['worker'])
                                 dir = 'work/' + processor['processor'].id
+                                
                                 os.makedirs(dir, exist_ok=True)
+
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
                                 print("%s", processor['processor'])
+
                                 for deployment in processor['processor'].deployments:
                                     logging.info("Deployment worker %s",deployment)
                                     # Only launch worker if we have a deployment for our host

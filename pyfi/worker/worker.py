@@ -306,7 +306,6 @@ class Worker:
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
 
-            logging.info("Created workerModel")
             if workerModel is None:
                 workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
                                             concurrency=int(
@@ -318,9 +317,10 @@ class Worker:
                                             hostname=HOSTNAME,
                                             requested_status='start')
 
-                
+                logging.info("Created workerModel")
                 deployment.worker = workerModel
                 deployment.worker.processor = processor
+                logging.info("Attached worker to deployment and processor...")
                 session.commit()
 
         self.process = None
