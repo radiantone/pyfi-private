@@ -1897,8 +1897,7 @@ def kill_worker(context, name):
 @click.option('-n', '--name', required=True, help="Name of worker")
 @click.option('-a', '--agent', required=True, help="Name of agent")
 @click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
-@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False,
-              help="Skip building the virtual environment")
+@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
 @click.option('-q', '--queue', default=1, help='Maximum number of messages on worker internal queue')
 @click.pass_context
 def start_worker(context, name, agent, pool, skip_venv, queue):
