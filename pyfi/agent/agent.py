@@ -619,13 +619,14 @@ class Agent:
                                         workerproc.start(start=False)
 
                                         with self.get_session() as session:
-                                            session.add(workerproc.workerModel)
-
+                                            #session.add(workerproc.workerModel)
+                                            workerModel = session.query(WorkerModel).filter_by(
+                                                name=HOSTNAME + ".agent." + processor['processor'].name + '.worker')
                                             # Launch from the virtualenv
                                             logging.info(
                                                 f"-----------------------Launching {processor['processor'].name}")
                                             wprocess = workerproc.launch(
-                                                workerproc.workerModel.name, agent.name, HOSTNAME, self.pool)
+                                                workerModel.name, agent.name, HOSTNAME, self.pool)
 
                                             deployment.requested_status = 'ready'
                                             deployment.status = 'running'
