@@ -334,6 +334,7 @@ class Worker:
                     
                 session.add(workerModel)
 
+            workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
             #logging.info("Attached worker to deployment and processor...")
