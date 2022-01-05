@@ -360,7 +360,7 @@ class Worker:
 
         if not self.usecontainer:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                   "-n", name, "-q", str(size)]
+                   "-n", name, "-a", agent, "-q", str(size)]
             if self.user:
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
                        "-n", name, "-a", agent, "-q", str(size)]
