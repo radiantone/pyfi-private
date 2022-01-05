@@ -204,7 +204,7 @@ class Worker:
         connection.close()
 
     def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None, usecontainer=False,
-                 skipvenv=False, backend='redis://localhost', celeryconfig=None, broker='pyamqp://localhost'):
+                 skipvenv=False, backend='redis://localhost', agent=None, celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -223,6 +223,7 @@ class Worker:
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
         self.size = size
+        self.agent = agent
 
         # Publish queue
         self.queue = Queue()
@@ -323,6 +324,7 @@ class Worker:
                                             backend=self.backend,
                                             broker=self.broker,
                                             workerdir=self.workdir,
+                                            agent_id=self.agent.id,
                                             hostname=HOSTNAME,
                                             requested_status='start')
 
