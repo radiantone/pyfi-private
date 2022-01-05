@@ -230,6 +230,7 @@ class Worker:
         if hostname:
             global HOSTNAME
             HOSTNAME = hostname
+            logging.info("HOSTNAME is {}".format(hostname))
         # Publish queue
         self.queue = Queue()
 
@@ -314,7 +315,7 @@ class Worker:
                 ProcessorModel).filter_by(name=processor.name).first()
 
             workerModel = self.workerModel = session.query(
-                            WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
+                            WorkerModel).filter_by(name=hostname + ".agent." + self.processor.name + '.worker').first()
 
             logging.info("Found worker {}".format(workerModel))
 
