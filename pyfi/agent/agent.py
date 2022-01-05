@@ -587,7 +587,7 @@ class Agent:
                                 logging.info(
                                     "process_died %s and Worker is %s", process_died, processor['worker'])
                                 dir = 'work/' + processor['processor'].id
-                                
+
                                 os.makedirs(dir, exist_ok=True)
 
                                 logging.info("Agent: Creating Worker() queue size %s", self.size)
@@ -608,6 +608,8 @@ class Agent:
                                             database=self.dburi, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
+                                        deployment.worker = workerproc.workerModel
+                                        deployment.worker.processor = processor['processor']
                                         # Setup the virtualenv only
                                         logging.info(
                                             f"-----------------------Starting {processor['processor'].name}")

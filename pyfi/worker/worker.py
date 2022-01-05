@@ -302,14 +302,14 @@ class Worker:
             return data
 
         with self.get_session(self.database) as session:
-            workerModel = session.query(
+            workerModel = self.workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
 
             logging.info("Found worker {}".format(workerModel))
             logging.info("Worker deployment is {}".format(workerModel.deployment))
 
             if workerModel is None:
-                workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
+                workerModel = self.workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
                                             concurrency=int(
                                                 self.processor.concurrency),
                                             status='ready',
@@ -320,12 +320,16 @@ class Worker:
                                             requested_status='start')
 
                 logging.info("Created workerModel")
-            session.merge(deployment)
-            session.add(workerModel)
-            deployment.worker = workerModel
-            deployment.worker.processor = processor
-            logging.info("Attached worker to deployment and processor...")
+            #session.merge(deployment)
+            #session.add(workerModel)
+
+            #deployment.worker = workerModel
+            #deployment.worker.processor = processor
+            #logging.info("Attached worker to deployment and processor...")
             session.commit()
+
+
+
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
