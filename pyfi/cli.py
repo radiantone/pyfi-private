@@ -896,6 +896,16 @@ def delete():
     pass
 
 
+
+@delete.command(name='deployment', help="Delete a deployment")
+@click.option('-n', '--name', default=None, help="Name of deployment")
+@click.pass_context
+def delete_deployment(context, name):
+    context.obj['database'].session.query(
+        DeploymentModel).filter_by(name=name).delete()
+    print("Deployment deleted.")
+
+
 @delete.command(name='calls', help="Delete all the call records")
 @click.pass_context
 def delete_calls(context):
