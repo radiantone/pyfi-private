@@ -617,38 +617,40 @@ class Agent:
                                         logging.info(
                                             f"-----------------------Starting {processor['processor'].name}")
                                         workerproc.start(start=False)
-                                        session.merge(workerproc.workerModel)
-
-                                        # Launch from the virtualenv
-                                        logging.info(
-                                            f"-----------------------Launching {processor['processor'].name}")
-                                        wprocess = workerproc.launch(
-                                            workerproc.workerModel.name, agent.name, HOSTNAME, self.pool)
-
-                                        deployment.requested_status = 'ready'
-                                        deployment.status = 'running'
 
                                         with self.get_session() as session:
-                                            session.add(deployment.worker)
-                                            deployment.worker.processor_id = processor['processor'].id
-                                            deployment.worker.agent = self.agent
+                                            session.add(workerproc.workerModel)
 
-                                        logging.info(
-                                            "-----------------------Worker process %s started.", wprocess.pid)
+                                            # Launch from the virtualenv
+                                            logging.info(
+                                                f"-----------------------Launching {processor['processor'].name}")
+                                            wprocess = workerproc.launch(
+                                                workerproc.workerModel.name, agent.name, HOSTNAME, self.pool)
 
-                                        worker['worker'] = deployment.worker
-                                        worker['worker'].process = workerproc.process.pid
-                                        worker['process'] = workerproc
-                                        worker['wprocess'] = wprocess
+                                            deployment.requested_status = 'ready'
+                                            deployment.status = 'running'
 
-                                        processor['worker'] = worker
-                                        logging.info(
-                                            "-----------------------workerproc is %s", workerproc)
+                                            with self.get_session() as session:
+                                                session.add(deployment.worker)
+                                                deployment.worker.processor_id = processor['processor'].id
+                                                deployment.worker.agent = self.agent
 
-                                        workers += [worker]
+                                            logging.info(
+                                                "-----------------------Worker process %s started.", wprocess.pid)
 
-                                        logging.info(
-                                            "-------------------------------------------------------")
+                                            worker['worker'] = deployment.worker
+                                            worker['worker'].process = workerproc.process.pid
+                                            worker['process'] = workerproc
+                                            worker['wprocess'] = wprocess
+
+                                            processor['worker'] = worker
+                                            logging.info(
+                                                "-----------------------workerproc is %s", workerproc)
+
+                                            workers += [worker]
+
+                                            logging.info(
+                                                "-------------------------------------------------------")
 
                             processor['processor'].requested_status = 'ready'
                             processor['processor'].status = 'running'
