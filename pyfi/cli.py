@@ -1906,6 +1906,10 @@ def start_worker(context, name, agent, pool, skip_venv, queue):
     agentModel = context.obj['database'].session.query(
         AgentModel).filter_by(name=agent).first()
 
+    if agentModel is None:
+        print("No agent by that name.")
+        return
+        
     workerModel = context.obj['database'].session.query(
         WorkerModel).filter_by(name=name).first()
 
@@ -1918,7 +1922,7 @@ def start_worker(context, name, agent, pool, skip_venv, queue):
     logging.info("workerModel %s Deployment %s",workerModel, workerModel.deployment)
     workerproc = Worker(
         processor, workdir=dir, deployment=workerModel.deployment, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
-        celeryconfig=None, agent=agent, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+        celeryconfig=None, agent=agentModel, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
 
     wprocess = workerproc.start()
 
