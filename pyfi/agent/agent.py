@@ -146,7 +146,9 @@ class Agent:
 
         agent.pid = os.getpid()
 
+        agent.requested_status = "starting"
         agent.status = "starting"
+
         self.agent = agent
         #########################################################################
 
@@ -255,6 +257,11 @@ class Agent:
                 #########################################################################
                 while True:
 
+                    self.database.session.refresh(self.agent)
+
+                    if self.agent.requested_status == 'stop':
+                        shutdown()
+                        
                     #########################################################################
                     # Resource conditions
                     #########################################################################
