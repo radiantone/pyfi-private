@@ -35,7 +35,7 @@ network:
               workers: 6
               sockets:
                 pyfi.processors.sample.do_something:
-                  interval: 5
+                  interval: -1
                   queue: 
                     name: pyfi.queue1
                   task:
@@ -64,6 +64,24 @@ network:
             pool: 5
             size: 10
           processors:
+            proc3: 
+              status: ready
+              requested_status: update
+              branch: main
+              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
+              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+              commit:
+              module: pyfi.processors.sample
+              beat: true
+              workers: 6
+              sockets:
+                proc3.do_something:
+                  interval: -1
+                  queue: 
+                    name: pyfi.queue3
+                  task:
+                    function: 
+                      name: do_something          
             proc4: 
               branch: main
               pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'

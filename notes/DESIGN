@@ -1,3 +1,23 @@
+
+Node
+  Agent
+    Worker
+      Processor -> Socket -> Task
+        Deployment
+          Container
+
+
+DEPLOYMENTS
+------------
+- A processor is now a logical entity not bound by host or location.
+- Deployment objects provide location and scaling properties for a processor. Adding or subtracting deployment objects affects scaling out or in.
+- Agents on hosts will detect deployments and respond accordingly
+- Schedulers may re-arrange deployments to better balance load
+- Schedulers may add or remove deployments based on demand
+- Different processors can scale out/in on demand and leverage available infrastructure "at that point in time".
+   - For example, during the day, certain processors might be more active and need more CPUs, which they occupy.
+   - At night, other processors are more active, yet both processors are able to meet the demand since they scale independently, at different times and thus are not competing for the same resources. The server scaling remains the same.
+
 GATES
 ------------
 - Gates are special kinds of control flow objects linked to Tasks

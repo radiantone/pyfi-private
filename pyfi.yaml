@@ -93,6 +93,20 @@ network:
                       arguments: true
                       resetonexecute: true
 
+  deployments:
+    proc3.d1:
+      hostname: phoenix
+      cpus: 3
+      processor: proc3
+    proc3.d2:
+      hostname: agent2
+      cpus: 3
+      processor: proc3      
+    proc4.d1:
+      hostname: agent2
+      cpus: 3
+      processor: proc4
+
   plugs:
     plug1:
       source: pyfi.processors.sample.emit_one
