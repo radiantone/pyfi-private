@@ -59,7 +59,10 @@ def kill_containers():
                     logging.error(
                         "Error obtaining or killing container %s", pid)
 
-        os.remove(f'{agent_cwd}/containers.pid')
+        try:
+            os.remove(f'{agent_cwd}/containers.pid')
+        except:
+            pass
 
 class Agent:
     """ Agent class """
