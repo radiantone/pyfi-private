@@ -304,6 +304,8 @@ class Worker:
         with self.get_session(self.database) as session:
             _deployment = session.query(
                 DeploymentModel).filter_by(name=deployment.name).first()
+            _processor = session.query(
+                ProcessorModel).filter_by(name=processor.name).first()
 
             workerModel = self.workerModel = session.query(
                             WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
@@ -329,7 +331,7 @@ class Worker:
                 session.add(workerModel)
 
             _deployment.worker = workerModel
-            _deployment.worker.processor = processor
+            _deployment.worker.processor = _processor
             #logging.info("Attached worker to deployment and processor...")
             session.commit()
 
