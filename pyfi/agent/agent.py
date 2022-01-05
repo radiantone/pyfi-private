@@ -605,7 +605,7 @@ class Agent:
                                             f"-----------------------Deploying processor {processor['processor'].name}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
-                                            database=self.dburi, agent=self, deployment=deployment, celeryconfig=self.config, backend=self.backend,
+                                            database=self.dburi, agent=agent, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
                                         #deployment.worker = workerproc.workerModel
