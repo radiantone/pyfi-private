@@ -631,8 +631,8 @@ class Agent:
 
                                             deployment.requested_status = 'ready'
                                             deployment.status = 'running'
-
-                                            session.add(deployment.worker)
+                                            
+                                            #session.add(deployment.worker)
                                             deployment.worker.processor_id = processor['processor'].id
                                             deployment.worker.agent = self.agent
 
