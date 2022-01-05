@@ -64,6 +64,8 @@ lock = Condition()
 
 QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ else 10
 
+global HOSTNAME
+
 HOSTNAME = platform.node()
 
 if 'PYFI_HOSTNAME' in os.environ:
@@ -204,7 +206,7 @@ class Worker:
         connection.close()
 
     def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None, usecontainer=False,
-                 skipvenv=False, backend='redis://localhost', agent=None, celeryconfig=None, broker='pyamqp://localhost'):
+                 skipvenv=False, backend='redis://localhost', hostname=None, agent=None, celeryconfig=None, broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -225,6 +227,9 @@ class Worker:
         self.size = size
         self.agent = agent
 
+        if hostname:
+            global HOSTNAME
+            HOSTNAME = hostname
         # Publish queue
         self.queue = Queue()
 
@@ -347,7 +352,7 @@ class Worker:
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
             pool, backend, broker))
 
-    def launch(self, name, agent, size):
+    def launch(self, name, agent, hostname, size):
         from subprocess import Popen
         from multiprocessing import Process
 
@@ -361,10 +366,10 @@ class Worker:
 
         if not self.usecontainer:
             cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                   "-n", name, "-a", agent, "-q", str(size)]
+                   "-n", name, "-h", hostname, "-a", agent, "-q", str(size)]
             if self.user:
                 cmd = ["venv/bin/pyfi", "worker", "start", "-s",
-                       "-n", name, "-a", agent, "-q", str(size)]
+                       "-n", name, "-h", hostname, "-a", agent, "-q", str(size)]
 
             logging.info("Launching worker %s %s", cmd, name)
             self.process = process = Popen(
@@ -899,6 +904,10 @@ class Worker:
                     except Exception:
                         self.container = client.containers.run(
                             self.processor.container_image+":"+self.processor.container_version, auto_remove=True, name=HOSTNAME+"."+self.processor.module, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
+
+                    # TODO: Create or Update ContainerModel
+                    # Add ContainerModel to self.deployment.container
+
                     logging.info("Working starting container....")
                     logging.info("Container started %s:%s....%s",
                                  self.processor.container_image, self.processor.container_version, self.container)
