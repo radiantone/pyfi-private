@@ -231,6 +231,9 @@ class Worker:
             global HOSTNAME
             HOSTNAME = hostname
             logging.info("HOSTNAME is {}".format(hostname))
+        else:
+            hostname = HOSTNAME
+            
         # Publish queue
         self.queue = Queue()
 
