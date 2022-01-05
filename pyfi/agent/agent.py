@@ -90,6 +90,7 @@ class Agent:
         self.user = user
         self.size = size
         self.workerproc = None
+        self.name = name
         if name:
             global HOSTNAME
             HOSTNAME = name
@@ -607,7 +608,7 @@ class Agent:
                                             f"-----------------------Agent {agent.id}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
-                                            database=self.dburi, agent=agent, deployment=deployment, celeryconfig=self.config, backend=self.backend,
+                                            database=self.dburi, hostname=self.name, agent=agent, deployment=deployment, celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
 
                                         # = workerproc.workerModel
