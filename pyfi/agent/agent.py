@@ -603,6 +603,8 @@ class Agent:
                                         logging.info("-------------------------------------------------------")
                                         logging.info(
                                             f"-----------------------Deploying processor {processor['processor'].name}")
+                                        logging.info(
+                                            f"-----------------------Agent {agent.id}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=dir, user=self.user, pool=self.pool,
                                             database=self.dburi, agent=agent, deployment=deployment, celeryconfig=self.config, backend=self.backend,
