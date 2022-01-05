@@ -321,7 +321,7 @@ class Worker:
 
                 logging.info("Created workerModel")
             session.merge(deployment)
-            session.merge(workerModel)
+            session.add(workerModel)
             deployment.worker = workerModel
             deployment.worker.processor = processor
             logging.info("Attached worker to deployment and processor...")
