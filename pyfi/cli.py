@@ -902,7 +902,7 @@ def delete():
 @click.pass_context
 def delete_deployment(context, name):
     deployment = context.obj['database'].session.query(
-        DeploymentModel).filter_by(name=name)
+        DeploymentModel).filter_by(name=name).first()
     deployment.worker.deployment = None
     context.obj['database'].session.commit()
     deployment.delete()
