@@ -214,7 +214,7 @@ class Worker:
 
         # TODO: Change to deployment
         self.worker = deployment.worker
-        self.worker.processor = processor
+        #self.worker.processor = processor
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
@@ -319,8 +319,8 @@ class Worker:
                                             requested_status='start')
 
                 
-                deployment.worker = workerModel
-
+            deployment.worker = workerModel
+            deployment.worker.processor = processor
             session.commit()
 
         self.process = None

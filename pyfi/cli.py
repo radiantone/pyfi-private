@@ -2797,9 +2797,12 @@ def ls_workers(context):
         else:
             pname = node.processor.name
 
+        hostname = node.deployment.hostname if node.deployment else 'None'
+        name = node.deployment.name if node.deployment else 'None'
+
         x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, node.deployment.hostname,
-                   pname, node.deployment.name, node.workerdir])
+                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, hostname,
+                   pname, name, node.workerdir])
 
     print(x)
 
