@@ -29,6 +29,7 @@ HOME = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+global HOSTNAME
 HOSTNAME: str = platform.node()
 
 CPUS = multiprocessing.cpu_count()
@@ -84,6 +85,7 @@ class Agent:
         self.workerproc = None
         self.name = name
         if name:
+            global HOSTNAME
             HOSTNAME = name
             logging.info("Setting agent HOSTNAME to {}".format(name))
 
