@@ -3204,9 +3204,8 @@ def api_start(context, ip, port):
 @click.option('-p', '--pool', default=1, help='Process pool for message dispatches')
 @click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
-@click.option('-p', '--path', help='Remote PATH to use')
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host, path):
+def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host):
     """
     Start an agent
     """
@@ -3226,8 +3225,8 @@ def start_agent(context, port, clean, backend, broker, name, config, queues, use
         _, stdout, _ = _ssh.exec_command(command)
         """
     else:
-        agent = Agent(context.obj['database'], context.obj['dburi'], port, pool=pool,
-                      config=config, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
+        agent = Agent(context.obj['database'], context.obj['dburi'], pool=pool,
+                      config=config, port=port, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
         agent.start()
 
 

@@ -69,7 +69,7 @@ def kill_containers():
 class Agent:
     """ Agent class """
 
-    def __init__(self, database, dburi, port, config=None, clean=False, user=None, pool=4, backend='redis://localhost',
+    def __init__(self, database, dburi, port=8003, config=None, clean=False, user=None, pool=4, backend='redis://localhost',
                  broker='pyamqp://localhost', name=None, size=10):
         self.port = port
         self.backend = backend
@@ -148,7 +148,6 @@ class Agent:
                                name=HOSTNAME + ".agent", pid=os.getpid())
 
         agent.pid = os.getpid()
-
         agent.requested_status = "starting"
         agent.status = "starting"
 
