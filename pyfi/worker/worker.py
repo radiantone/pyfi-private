@@ -1605,7 +1605,7 @@ class Worker:
                 else:
                     """ Clone gitrepo. Retry after 3 seconds if failure """
                     count = 1
-
+                    logging.info("workdir is %s",self.workdir)
                     os.chdir(self.workdir)
                     while True:
                         """ Try 5 times to clone repo successfully """
