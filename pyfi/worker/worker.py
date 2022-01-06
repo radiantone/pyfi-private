@@ -18,6 +18,9 @@ from functools import partial
 from pathlib import Path
 from pytz import utc
 from multiprocessing import Condition, Queue
+from flask import Flask
+
+app = Flask(__name__)
 
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
@@ -208,8 +211,8 @@ class Worker:
         logging.info("Closing connection")
         connection.close()
 
-    def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None,
-                 usecontainer=False,
+    def __init__(self, processor, workdir, pool=4, port=8020, size=10, deployment=None, database=None, user=None,
+                 usecontainer=False, workerport=8020,
                  skipvenv=False, backend='redis://localhost', hostname=None, agent=None, celeryconfig=None,
                  broker='pyamqp://localhost'):
         """
@@ -227,12 +230,14 @@ class Worker:
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
+        self.port = port
         self.workdir = workdir
         self.dburi = database
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
         self.size = size
         self.agent = agent
+        self.port = workerport
 
         if hostname:
             HOSTNAME = hostname
@@ -405,6 +410,7 @@ class Worker:
         import os
         import time
         import json
+        import bjoern
 
         def do_work():
             # Retrieve workmodels where worker=me and execute them
@@ -1702,6 +1708,20 @@ class Worker:
         emit_process.start()
         logging.info("emit_messages started...")
 
+        def web_server():
+            from setproctitle import setproctitle
+
+            try:
+                setproctitle('pyfi worker::web_server')
+                logging.info("Starting worker web server on %s", self.port)
+                bjoern.run(app, "0.0.0.0", self.port)
+            except Exception as ex:
+                logging.error(ex)
+                logging.info("worker web_server: exiting...")
+
+        webserver = Process(target=web_server, daemon=True)
+        webserver.start()
+
         return worker_process
 
     def busy(self):
@@ -1760,3 +1780,10 @@ class Worker:
             shutil.rmtree(self.workdir)
 
         logging.info("Done killing worker.")
+
+
+@app.route('/')
+def hello():
+    import json
+
+    return json.dumps({'status':'green'})

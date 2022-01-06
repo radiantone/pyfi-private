@@ -353,6 +353,7 @@ class WorkerModel(BaseModel):
     broker = Column(String(40), nullable=False)
     concurrency = Column(Integer)
     process = Column(Integer)
+    port = Column(Integer)
     hostname = Column(String(60))
 
     workerdir = Column(String(256))

@@ -3193,7 +3193,7 @@ def api_start(context, ip, port):
 
 
 @agent.command(name='start')
-@click.option('-p', '--port', default=8001, help='Listen port')
+@click.option('-p', '--port', default=8001, help='Healthcheck port')
 @click.option('--clean', default=False, is_flag=True, help="Remove work directories before launch")
 @click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
@@ -3204,8 +3204,9 @@ def api_start(context, ip, port):
 @click.option('-po', '--pool', default=1, help='Process pool for message dispatches')
 @click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
+@click.option('-wp', '--workerport', default=8001, help='Healthcheck port for worker')
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host):
+def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host, workerport):
     """
     Start an agent
     """
@@ -3226,7 +3227,7 @@ def start_agent(context, port, clean, backend, broker, name, config, queues, use
         """
     else:
         agent = Agent(context.obj['database'], context.obj['dburi'], pool=pool,
-                      config=config, port=port, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
+                      config=config, port=port, workerport=workerport, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
         agent.start()
 
 

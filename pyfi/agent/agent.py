@@ -70,7 +70,7 @@ class Agent:
     """ Agent class """
 
     def __init__(self, database, dburi, port=8003, config=None, clean=False, user=None, pool=4, backend='redis://localhost',
-                 broker='pyamqp://localhost', name=None, size=10):
+                 broker='pyamqp://localhost', name=None, size=10, workerport=8020):
         self.port = port
         self.backend = backend
         self.broker = broker
@@ -83,8 +83,11 @@ class Agent:
         self.user = user
         self.size = size
         self.workerproc = None
+        self.workerport = workerport
         self.name = name
+
         logging.info(f"Agent port is {port}")
+
         if name:
             global HOSTNAME
             HOSTNAME = name
@@ -618,7 +621,7 @@ class Agent:
                                             f"-----------------------Agent {agent.id}")
                                         workerproc = self.workerproc = Worker(
                                             processor['processor'], size=self.size, workdir=_dir, user=self.user,
-                                            pool=self.pool,
+                                            pool=self.pool, workerport=self.workerport,
                                             database=self.dburi, hostname=self.name, agent=agent, deployment=deployment,
                                             celeryconfig=self.config, backend=self.backend,
                                             broker=self.broker)
