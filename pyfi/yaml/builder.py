@@ -244,7 +244,7 @@ def build_queue(queue):
     expires = queue['expires'] if 'expires' in queue else 300
 
     _queue = Queue(name=queue['name'], message_ttl=message_ttl, durable=durable, expires=expires)
-
+    logging.info("Created queue %s", _queue)
 
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
