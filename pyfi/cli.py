@@ -1948,6 +1948,14 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     workerModel = context.obj['database'].session.query(
         WorkerModel).filter_by(name=name).first()
 
+    deployments = context.obj['database'].session.query(
+        DeploymentModel).filter_by(hostname=hostname).all()
+
+    for deployment in deployments:
+        if deployment.worker.id == workerModel.id:
+            workerModel.deployment = deployment
+            break
+        
     worker = {}
     processor = context.obj['database'].session.query(
         ProcessorModel).filter_by(id=workerModel.processor_id).first()

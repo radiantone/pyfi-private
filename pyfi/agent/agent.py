@@ -302,7 +302,7 @@ class Agent:
                         mydeployments = self.database.session.query(
                             DeploymentModel).filter_by(
                             hostname=HOSTNAME).all()
-                        logging.info("My deployments: %s",mydeployments)
+                            
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
