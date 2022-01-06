@@ -614,7 +614,7 @@ class Agent:
                                         logging.info(
                                             f"-----------------------Agent {agent.id}")
                                         workerproc = self.workerproc = Worker(
-                                            processor['processor'], size=self.size, workdir=dir, user=self.user,
+                                            processor['processor'], size=self.size, workdir=_dir, user=self.user,
                                             pool=self.pool,
                                             database=self.dburi, hostname=self.name, agent=agent, deployment=deployment,
                                             celeryconfig=self.config, backend=self.backend,
