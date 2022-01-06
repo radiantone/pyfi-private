@@ -230,7 +230,7 @@ class Agent:
             process.terminate()
 
             kill_containers()
-
+            self.workerproc.kill()
             os.remove(f'{agent_cwd}/agent.pid')
             os.remove(f'{agent_cwd}/worker.pid')
             exit(0)

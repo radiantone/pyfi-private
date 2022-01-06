@@ -236,12 +236,22 @@ def compose_agent(node, agent, deploy, _agent):
     return repos, sockets
 
 
+def build_queue(queue):
+    from kombu import Exchange, Queue as KQueue
+
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
 
     sockets = {}
     repos = []
     processors = {}
+
+    if 'queues' in detail['network']:
+        queues = detail['network']['queues']
+
+        for queue in queues:
+            build_queue(queue)
+
 
     for nodename in detail['network']['nodes']:
         node = detail['network']['nodes'][nodename]
