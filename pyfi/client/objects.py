@@ -518,8 +518,8 @@ class Queue(Base):
         self.queue.expires = self.expires
 
         self.session.commit()
-        self.session.expunge(self.queue)
-        self.session.close()
+        #self.session.expunge(self.queue)
+        #self.session.close()
 
 
 class Deployment(Base):
