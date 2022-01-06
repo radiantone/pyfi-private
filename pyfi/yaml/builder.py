@@ -239,10 +239,11 @@ def compose_agent(node, agent, deploy, _agent):
 def build_queue(name, queue):
     from kombu import Exchange, Queue as KQueue
 
-    message_ttl = queue['message_ttl'] if 'message_ttl' in queue else 300000
+    message_ttl = int(queue['message_ttl']) if 'message_ttl' in queue else 300000
     durable = queue['durable'] if 'durable' in queue else True
-    expires = queue['expires'] if 'expires' in queue else 300
+    expires = int(queue['expires']) if 'expires' in queue else 300
 
+    print("TTL ",message_ttl)
     _queue = Queue(name=name, message_ttl=message_ttl, durable=durable, expires=expires)
     logging.info("Created queue %s", queue)
 
