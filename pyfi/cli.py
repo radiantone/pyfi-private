@@ -3201,7 +3201,7 @@ def api_start(context, ip, port):
 @click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
 @click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
 @click.option('-u', '--user', default=None, help='Run the worker as user')
-@click.option('-p', '--pool', default=1, help='Process pool for message dispatches')
+@click.option('-po', '--pool', default=1, help='Process pool for message dispatches')
 @click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
 @click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
 @click.pass_context
