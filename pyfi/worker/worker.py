@@ -3,7 +3,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 """
 import configparser
 import logging
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
@@ -45,6 +45,7 @@ POSTRUN_CONDITION = Condition()
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
 
+
 # Set global vars
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -64,8 +65,6 @@ lock = Condition()
 
 QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ else 10
 
-global HOSTNAME
-
 HOSTNAME = platform.node()
 
 if 'PYFI_HOSTNAME' in os.environ:
@@ -73,21 +72,22 @@ if 'PYFI_HOSTNAME' in os.environ:
 
 logging.info("OS PID is {}".format(os.getpid()))
 
+
 def execute_function(taskid, mname, fname, *args, **kwargs):
     """ Executor for container based tasks """
     import importlib
     import pickle
     from uuid import uuid4
 
-    print("Execute function",taskid, mname, fname)
+    print("Execute function", taskid, mname, fname)
 
     _args = args
     _kwargs = kwargs
 
-    with open('/tmp/'+taskid+'.args','rb') as argsfile:
+    with open('/tmp/' + taskid + '.args', 'rb') as argsfile:
         _args = pickle.load(argsfile)
 
-    with open('/tmp/'+taskid+'.kwargs', 'rb') as kwargsfile:
+    with open('/tmp/' + taskid + '.kwargs', 'rb') as kwargsfile:
         _kwargs = pickle.load(kwargsfile)
 
     _module = importlib.import_module(mname)
@@ -95,11 +95,12 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     result = _function(*_args, **_kwargs)
 
-    print("RESULT: ",result)
-    with open('/tmp/'+taskid+".out", 'wb') as rfile:
+    print("RESULT: ", result)
+    with open('/tmp/' + taskid + ".out", 'wb') as rfile:
         pickle.dump(result, rfile)
 
     return result
+
 
 def shutdown(*args):
     """ Shutdown worker """
@@ -154,14 +155,14 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
                 'x-expires': 300}
         )
 
-        logging.info("Plug.argument %s",plug.argument)
+        logging.info("Plug.argument %s", plug.argument)
         if plug.argument:
             logging.info(
                 "Processor plug %s is connected to argument: %s", plug, plug.argument)
             argument = {
                 'name': plug.argument.name,
                 'kind': plug.argument.kind,
-                'key': plug.target.processor.name +'.' + plug.target.task.module + '.' + plug.target.task.name,
+                'key': plug.target.processor.name + '.' + plug.target.task.module + '.' + plug.target.task.name,
                 'module': plug.target.task.module,
                 'function': plug.target.task.name,
                 'position': plug.argument.position}
@@ -169,7 +170,8 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
             logging.info("Plug argument %s", plug.argument)
             kwargs['argument'] = argument
         else:
-            logging.info("Processor plug %s is not connected to argument.", plug)
+            logging.info(
+                "Processor plug %s is not connected to argument.", plug)
 
         kwargs['function'] = socket.task.name
 
@@ -205,8 +207,10 @@ class Worker:
         logging.info("Closing connection")
         connection.close()
 
-    def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None, usecontainer=False,
-                 skipvenv=False, backend='redis://localhost', hostname=None, agent=None, celeryconfig=None, broker='pyamqp://localhost'):
+    def __init__(self, processor, workdir, pool=4, size=10, deployment=None, database=None, user=None,
+                 usecontainer=False,
+                 skipvenv=False, backend='redis://localhost', hostname=None, agent=None, celeryconfig=None,
+                 broker='pyamqp://localhost'):
         """
         """
         from pyfi.db.model import Base
@@ -216,7 +220,7 @@ class Worker:
 
         # TODO: Change to deployment
         self.worker = deployment.worker
-        #self.worker.processor = processor
+        # self.worker.processor = processor
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
@@ -233,7 +237,7 @@ class Worker:
             logging.info("HOSTNAME is {}".format(hostname))
         else:
             hostname = HOSTNAME
-            
+
         # Publish queue
         self.queue = Queue()
 
@@ -318,39 +322,38 @@ class Worker:
                 ProcessorModel).filter_by(name=processor.name).first()
 
             workerModel = self.workerModel = session.query(
-                            WorkerModel).filter_by(name=hostname + ".agent." + self.processor.name + '.worker').first()
+                WorkerModel).filter_by(name=hostname + ".agent." + self.processor.name + '.worker').first()
 
             logging.info("Found worker {}".format(workerModel))
 
             if workerModel is not None:
-                logging.info("Worker deployment is {}".format(workerModel.deployment))
+                logging.info("Worker deployment is {}".format(
+                    workerModel.deployment))
 
             if workerModel is None:
-                workerModel = self.workerModel = WorkerModel(name=HOSTNAME + ".agent." + self.processor.name + '.worker',
-                                            concurrency=int(
-                                                self.processor.concurrency),
-                                            status='ready',
-                                            backend=self.backend,
-                                            broker=self.broker,
-                                            workerdir=self.workdir,
-                                            hostname=HOSTNAME,
-                                            requested_status='start')
+                workerModel = self.workerModel = WorkerModel(
+                    name=HOSTNAME + ".agent." + self.processor.name + '.worker',
+                    concurrency=int(
+                        self.processor.concurrency),
+                    status='ready',
+                    backend=self.backend,
+                    broker=self.broker,
+                    workerdir=self.workdir,
+                    hostname=HOSTNAME,
+                    requested_status='start')
 
                 logging.info("Created workerModel")
-                #session.merge(deployment)
+                # session.merge(deployment)
                 if not workerModel.agent_id:
                     workerModel.agent_id = self.agent.id
-                    
+
                 session.add(workerModel)
 
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
-            #logging.info("Attached worker to deployment and processor...")
+            # logging.info("Attached worker to deployment and processor...")
             session.commit()
-
-
-
 
         self.process = None
         logging.debug("Starting worker with pool[{}] backend:{} broker:{}".format(
@@ -461,7 +464,7 @@ class Worker:
                                 _signal['kwargs']['parent'] = myid
 
                                 processor_path = _socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 _data = ['roomsg', {'channel': 'task', 'state': 'received', 'date': str(
                                     received), 'room': processor.name}]
@@ -511,7 +514,7 @@ class Worker:
                                     parent = _signal['kwargs']['parent']
 
                                 processor_path = _socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 _data = ['roomsg', {'channel': 'task', 'state': 'running', 'date': str(
                                     started), 'room': processor.name}]
@@ -606,7 +609,7 @@ class Worker:
                             if call:
                                 if 'argument' in _signal['kwargs']:
                                     call.argument = _signal['kwargs']['argument']['name']
-                                    
+
                                 call.finished = datetime.now()
                                 call.state = 'finished'
                                 event = EventModel(
@@ -636,7 +639,7 @@ class Worker:
 
                                 # Build path to the task
                                 processor_path = socket.queue.name + '.' + \
-                                    processor.name.replace(' ', '.')
+                                                 processor.name.replace(' ', '.')
 
                                 # Create data record for this event
                                 data = {
@@ -648,7 +651,6 @@ class Worker:
                                 payload = json.dumps(data)
                                 data['message'] = payload
                                 break
-                                
 
                         logging.info("DATA: %s", data)
 
@@ -819,7 +821,6 @@ class Worker:
                                         logging.info(
                                             "PASS_KWARGS: %s", pass_kwargs)
 
-
                                         if processor_plug.argument:
                                             logging.info(
                                                 "Processor plug is connected to argument: %s", processor_plug.argument)
@@ -832,7 +833,8 @@ class Worker:
                                                 'position': processor_plug.argument.position}
                                             pass_kwargs['argument'] = argument
                                         else:
-                                            logging.info("Processor plug not connected to argument.")
+                                            logging.info(
+                                                "Processor plug not connected to argument.")
 
                                         task_sig = self.celery.signature(
                                             target_processor.module + '.' + processor_plug.target.task.name,
@@ -855,7 +857,6 @@ class Worker:
                                             msg,),
                                         worker_queue, task_sig)
 
-
                         delayed = parallel(*pipelines).delay()
 
         # Start database session thread
@@ -873,7 +874,6 @@ class Worker:
             from billiard.pool import Pool
             from docker.types import Mount
             import docker
-            
 
             from setproctitle import setproctitle
 
@@ -904,10 +904,13 @@ class Worker:
                     os.mkdir('out')
                     try:
                         self.container = client.containers.get(
-                            HOSTNAME+"."+self.processor.module)
+                            HOSTNAME + "." + self.processor.module)
                     except Exception:
                         self.container = client.containers.run(
-                            self.processor.container_image+":"+self.processor.container_version, auto_remove=True, name=HOSTNAME+"."+self.processor.module, volumes={os.getcwd()+'/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="", command="tail -f /etc/hosts", detach=True)
+                            self.processor.container_image + ":" + self.processor.container_version, auto_remove=True,
+                            name=HOSTNAME + "." + self.processor.module,
+                            volumes={os.getcwd() + '/out': {'bind': '/tmp/', 'mode': 'rw'}}, entrypoint="",
+                            command="tail -f /etc/hosts", detach=True)
 
                     # TODO: Create or Update ContainerModel
                     # Add ContainerModel to self.deployment.container
@@ -925,10 +928,10 @@ class Worker:
                     logging.info("OUTPUT: %s", res.output)
 
                     with open(f'{agent_cwd}/{self.processor.name}.pid', 'w') as cfile:
-                        cfile.write(str(self.container.short_id)+"\n")
+                        cfile.write(str(self.container.short_id) + "\n")
 
                     with open(f'{agent_cwd}/containers.pid', 'a') as cfile:
-                        cfile.write(str(self.container.short_id)+"\n")
+                        cfile.write(str(self.container.short_id) + "\n")
                     # Append container id to containers.pid
 
             logging.info("Worker starting session....")
@@ -958,7 +961,7 @@ class Worker:
                             # a message to all the connected queues however sending a task to
                             # this queue will deliver to this processor only
                             processor_path = socket.queue.name + '.' + \
-                                self.processor.name.replace(' ', '.')
+                                             self.processor.name.replace(' ', '.')
 
                             logging.info("Joining room %s", processor_path)
                             if processor_path not in queues:
@@ -1041,7 +1044,7 @@ class Worker:
                                     }
                                 )
                             ]
-                                
+
                             task_queues += [
                                 KQueue(
                                     socket.queue.name + '.' +
@@ -1115,7 +1118,6 @@ class Worker:
                         "Creating workerModel with worker dir %s", self.workdir)
                     workerModel = session.query(
                         WorkerModel).filter_by(name=HOSTNAME + ".agent." + self.processor.name + '.worker').first()
-
 
                     logging.info("Created workerModel")
                     if workerModel is None:
@@ -1233,8 +1235,8 @@ class Worker:
                                                             time.sleep(
                                                                 interval)
 
-                                                    
-                                                    logging.info("Pre-dispatch plug.argument %s", plug.argument_id)
+                                                    logging.info(
+                                                        "Pre-dispatch plug.argument %s", plug.argument_id)
                                                     job = Process(target=schedule_function, args=(
                                                         dispatcher, socket.interval,
                                                         (self.processor, plug, "message", session, socket)))
@@ -1272,7 +1274,7 @@ class Worker:
                         _func = getattr(module, socket.task.name)
 
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
-                        # such that for different processor types, the correct class is loaded 
+                        # such that for different processor types, the correct class is loaded
 
                         def gate_function(*args, **kwargs):
                             pass
@@ -1295,17 +1297,21 @@ class Worker:
                                 argument = kwargs['argument']
 
                                 # Store argument in redis
-                                logging.info("ARGS %s %s %s",type(args),args, *args)
-                                
+                                logging.info("ARGS %s %s %s",
+                                             type(args), args, *args)
+
                                 # We are receiving an argument as a tuple, therefore only the first
                                 # element of the tuple is our data
                                 _argdata = args[0]
                                 _jsonargdata = json.dumps(_argdata)
 
                                 logging.info(
-                                    "STORING ARGUMENT  %s %s", argument['key']+'.'+argument['name']+'.'+str(argument['position']), _jsonargdata)
+                                    "STORING ARGUMENT  %s %s",
+                                    argument['key'] + '.' + argument['name'] + '.' + str(argument['position']),
+                                    _jsonargdata)
                                 redisclient.set(
-                                    argument['key']+'.'+argument['name']+'.'+str(argument['position']), _jsonargdata)
+                                    argument['key'] + '.' + argument['name'] + '.' + str(argument['position']),
+                                    _jsonargdata)
 
                                 # args = redisclient.get(argument['key']+'.*')
                                 # Compare args names to task arguments and if they are 1 to 1
@@ -1319,20 +1325,23 @@ class Worker:
                                 for arg in socket.task.arguments:
                                     if arg.kind != Parameter.POSITIONAL_ONLY and arg.kind != Parameter.POSITIONAL_OR_KEYWORD:
                                         continue
-                                    
+
                                     _argdata = redisclient.get(
-                                        argument['key']+'.'+arg.name+'.'+str(arg.position))
+                                        argument['key'] + '.' + arg.name + '.' + str(arg.position))
 
                                     if _argdata is None:
                                         logging.info(
-                                            "ARGUMENT NOT SATISIFIED %s", argument['key']+'.'+arg.name+'.'+str(arg.position))
+                                            "ARGUMENT NOT SATISIFIED %s",
+                                            argument['key'] + '.' + arg.name + '.' + str(arg.position))
                                         return argument
                                     else:
                                         _arg = json.loads(_argdata)
                                         logging.info(
-                                            "FOUND STORED ARGUMENT %s %s", _arg, argument['key']+'.'+arg.name+'.'+str(arg.position))
+                                            "FOUND STORED ARGUMENT %s %s", _arg,
+                                            argument['key'] + '.' + arg.name + '.' + str(arg.position))
                                         _newargs.append(_arg)
-                                    logging.info("WRAPPED_FUNCTION ARG: %s",arg)
+                                    logging.info(
+                                        "WRAPPED_FUNCTION ARG: %s", arg)
 
                                 args = _newargs
 
@@ -1344,18 +1353,19 @@ class Worker:
 
                             if _kwargs:
                                 """ If we have kwargs to pass in """
-                                logging.info("Invoking function %s %s", args, _kwargs)
+                                logging.info(
+                                    "Invoking function %s %s", args, _kwargs)
 
                                 if self.container and self.processor.use_container:
                                     # Run function in container and get result
-                                    with open("out/"+taskid+".py","w") as pfile:
-                                        pfile.write(source+"\n")
-                                        pfile.write(_call+"\n")
+                                    with open("out/" + taskid + ".py", "w") as pfile:
+                                        pfile.write(source + "\n")
+                                        pfile.write(_call + "\n")
 
                                     if self.processor.detached:
                                         # Run command inside self.container passing in task id, module and function
-                                        pythoncmd = "python /tmp/"+taskid+".py"
-                                        logging.info("Invoking %s",pythoncmd)
+                                        pythoncmd = "python /tmp/" + taskid + ".py"
+                                        logging.info("Invoking %s", pythoncmd)
 
                                         self.container.exec_run(pythoncmd)
 
@@ -1372,33 +1382,34 @@ class Worker:
 
                                 if self.container and self.processor.use_container:
                                     # Run function in container and get result
-                                    with open("out/"+taskid+".py", "w") as pfile:
-                                        pfile.write(source+"\n")
-                                        pfile.write(_call+"\n")
+                                    with open("out/" + taskid + ".py", "w") as pfile:
+                                        pfile.write(source + "\n")
+                                        pfile.write(_call + "\n")
 
                                     if self.processor.detached:
                                         # Run command inside self.container
-                                        with open('out/'+taskid+'.kwargs', 'wb') as kwargsfile:
+                                        with open('out/' + taskid + '.kwargs', 'wb') as kwargsfile:
                                             pickle.dump(kwargs, kwargsfile)
-                                        with open('out/'+taskid+'.args','wb') as argsfile:
-                                            pickle.dump(args,argsfile)
+                                        with open('out/' + taskid + '.args', 'wb') as argsfile:
+                                            pickle.dump(args, argsfile)
 
-                                        pythoncmd = "python /tmp/"+taskid+".py"
-                                        logging.info("Invoking %s",pythoncmd)
+                                        pythoncmd = "python /tmp/" + taskid + ".py"
+                                        logging.info("Invoking %s", pythoncmd)
 
-                                        res = self.container.exec_run(pythoncmd)
+                                        res = self.container.exec_run(
+                                            pythoncmd)
 
                                         logging.info("OUTPUT: %s", res.output)
 
                                         result = None
-                                        with open("out/"+taskid+".out","rb") as outfile:
+                                        with open("out/" + taskid + ".out", "rb") as outfile:
                                             result = pickle.load(outfile)
 
                                         try:
                                             """ Remove state files """
-                                            os.remove('out/'+taskid+'.kwargs')
-                                            os.remove('out/'+taskid+'.args')
-                                            os.remove('out/'+taskid+'.out')
+                                            os.remove('out/' + taskid + '.kwargs')
+                                            os.remove('out/' + taskid + '.args')
+                                            os.remove('out/' + taskid + '.out')
                                         except Exception as ex:
                                             logging.warning(ex)
                                         finally:
@@ -1409,10 +1420,10 @@ class Worker:
                                 else:
                                     return _func(*args)
 
-                        
                         # If processor is script
                         func = self.celery.task(wrapped_function, name=self.processor.module +
-                                                '.' + socket.task.name, retries=self.processor.retries)
+                                                                       '.' + socket.task.name,
+                                                retries=self.processor.retries)
 
                         '''
                         Everything that hosts and runs user code is a processor, but there are different types.
@@ -1435,7 +1446,8 @@ class Worker:
 
                             # PRERUN_CONDITION.acquire()
                             try:
-                                print("prerun TASK: ", type(task), task, kwargs)
+                                print("prerun TASK: ", type(
+                                    task), task, kwargs)
 
                                 if sender.__name__ == 'enqueue':
                                     return
@@ -1512,7 +1524,8 @@ class Worker:
 
                             print("KWARGS", kwargs)
                             print("RECEIVED KWARGS:",
-                                  {'signal': 'received', 'sender': _function_name[0], 'kwargs': {}, 'request': request.id,
+                                  {'signal': 'received', 'sender': _function_name[0], 'kwargs': {},
+                                   'request': request.id,
                                    'taskparent': request.parent_id, 'taskid': request.id})
                             self.main_queue.put(
                                 {'signal': 'received', 'sender': _function_name[0], 'kwargs': {}, 'request': request.id,
@@ -1547,7 +1560,6 @@ class Worker:
                                  'kwargs': kwargs['kwargs'], 'taskid': task_id, 'args': args})
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
-
                 logging.info("Starting scheduler...")
                 scheduler.start()
                 logging.info("Starting worker...")
@@ -1555,7 +1567,7 @@ class Worker:
 
         if self.worker:
             logging.debug("Preparing worker %s %s %s %s %s", self.worker.name,
-                        self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
+                          self.processor.plugs, self.backend, self.broker, self.worker.processor.module)
 
         """ Install gitrepo and build virtualenv """
         if self.processor.commit and self.skipvenv:
@@ -1635,12 +1647,13 @@ class Worker:
                     if not self.processor.use_container:
                         """ If we are not running the processor tasks in a container, then load it into the venv """
                         try:
-                            env.install('-e git+' + self.processor.gitrepo.strip())
+                            env.install(
+                                '-e git+' + self.processor.gitrepo.strip())
                         except:
                             import traceback
                             print(traceback.format_exc())
                             logging.error("Could not install %s",
-                                        self.processor.gitrepo.strip())
+                                          self.processor.gitrepo.strip())
 
             if self.processor.commit:
                 os.system("git checkout {}".format(self.processor.commit))
@@ -1653,7 +1666,7 @@ class Worker:
         """ Start worker process"""
         worker_process = self.worker_process = Thread(target=worker_proc, name="worker_proc", args=(
             self.celery, self.queue, self.dburi))
-            
+
         worker_process.app = self.celery
         worker_process.daemon = True
         worker_process.start()
@@ -1680,7 +1693,8 @@ class Worker:
                     logging.error(ex)
                     time.sleep(3)
 
-        emit_process = self.emit_process = Thread(target=emit_messages, name="emit_messages")
+        emit_process = self.emit_process = Thread(
+            target=emit_messages, name="emit_messages")
         emit_process.daemon = True
         emit_process.start()
         logging.info("emit_messages started...")
@@ -1716,7 +1730,7 @@ class Worker:
         Docstring
         """
         logging.info("Terminating worker")
-        
+
         process = psutil.Process(os.getpid())
 
         for child in process.children(recursive=True):
@@ -1725,11 +1739,11 @@ class Worker:
             except:
                 pass
 
-        #process.kill()
-        #process.terminate()
+        # process.kill()
+        # process.terminate()
 
-        #os.killpg(os.getpgid(process.pid), 15)
-        #os.kill(process.pid, signal.SIGKILL)
+        # os.killpg(os.getpgid(process.pid), 15)
+        # os.kill(process.pid, signal.SIGKILL)
 
         logging.debug("Finishing.")
 
@@ -1737,7 +1751,7 @@ class Worker:
             self.process.join()
         except:
             pass
-        
+
         if os.path.exists(self.workdir):
             logging.info("Removing working directory %s", self.workdir)
             shutil.rmtree(self.workdir)
