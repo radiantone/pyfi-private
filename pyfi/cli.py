@@ -3193,7 +3193,7 @@ def api_start(context, ip, port):
 
 
 @agent.command(name='start')
-@click.option('-p', '--port', default=8002, help='Listen port')
+@click.option('-p', '--port', default=8001, help='Listen port')
 @click.option('--clean', default=False, is_flag=True, help="Remove work directories before launch")
 @click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
 @click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
