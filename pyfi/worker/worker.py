@@ -65,6 +65,7 @@ lock = Condition()
 
 QUEUE_SIZE = os.environ['PYFI_QUEUE_SIZE'] if 'PYFI_QUEUE_SIZE' in os.environ else 10
 
+global HOSTNAME
 HOSTNAME = platform.node()
 
 if 'PYFI_HOSTNAME' in os.environ:
@@ -216,6 +217,8 @@ class Worker:
         from pyfi.db.model import Base
         import multiprocessing
 
+        global HOSTNAME
+
         self.processor = processor
 
         # TODO: Change to deployment
@@ -232,8 +235,8 @@ class Worker:
         self.agent = agent
 
         if hostname:
-            global HOSTNAME
             HOSTNAME = hostname
+            self.hostname = hostname
             logging.info("HOSTNAME is {}".format(hostname))
         else:
             hostname = HOSTNAME
@@ -1096,7 +1099,7 @@ class Worker:
                 worker = None
                 try:
                     worker = app.Worker(
-                        hostname=self.processor.name + '@' + HOSTNAME,
+                        hostname=self.hostname + '.' + self.processor.name + '@' + HOSTNAME,
                         backend=self.backend,
                         broker=self.broker,
                         beat=self.processor.beat,
