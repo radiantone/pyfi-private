@@ -84,6 +84,7 @@ class Agent:
         self.size = size
         self.workerproc = None
         self.name = name
+        logging.info(f"Agent port is {port}")
         if name:
             global HOSTNAME
             HOSTNAME = name
