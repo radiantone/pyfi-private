@@ -357,6 +357,7 @@ class Worker:
 
                 session.add(workerModel)
 
+            workerModel.port = self.port
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
@@ -1146,6 +1147,7 @@ class Worker:
                     # Attach worker to deployment
                     self.deployment.worker = workerModel
                     workerModel.deployment = self.deployment
+                    workerModel.port = self.port
                     session.commit()
 
                 except Exception as ex:
