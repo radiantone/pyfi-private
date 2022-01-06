@@ -357,6 +357,7 @@ class Worker:
 
                 session.add(workerModel)
 
+            workerModel.workerdir = self.workdir
             workerModel.port = self.port
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
