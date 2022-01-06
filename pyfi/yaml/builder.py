@@ -256,7 +256,8 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     if 'queues' in detail['network']:
         queues = detail['network']['queues']
 
-        for name, queue in enumerate(queues):
+        for name in queues:
+            queue = queues[name]
             build_queue(name, queue)
 
 
