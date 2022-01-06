@@ -360,6 +360,7 @@ class Agent:
                                 # If this is a new processor, add it to cache
                                 processors += [{'worker': None,
                                                 'processor': myprocessor}]
+                                logging.info("Added processor %s", myprocessor)
 
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
