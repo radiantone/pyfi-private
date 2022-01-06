@@ -213,8 +213,11 @@ class Agent:
                     workerpid = wfile.read()
                     workerpid = int(workerpid)
                     logging.info("Killing worker process %s", workerpid)
-                    os.killpg(os.getpgid(workerpid), 15)
-                    os.kill(workerpid, signal.SIGKILL)
+                    try:
+                        os.killpg(os.getpgid(workerpid), 15)
+                        os.kill(workerpid, signal.SIGKILL)
+                    except Exception as ex:
+                        logging.warning(ex)
             else:
                 logging.warning("No worker.pid found")
 
@@ -302,7 +305,7 @@ class Agent:
                         mydeployments = self.database.session.query(
                             DeploymentModel).filter_by(
                             hostname=HOSTNAME).all()
-                            
+
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
