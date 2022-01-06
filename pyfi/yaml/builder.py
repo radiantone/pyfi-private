@@ -246,6 +246,7 @@ def build_queue(name, queue):
     print("TTL ",message_ttl)
     _queue = Queue(name=name, message_ttl=message_ttl, durable=durable, expires=expires)
     logging.info("Created queue %s %s", name, queue)
+    val = input("Enter your value: ")
 
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
