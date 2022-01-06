@@ -2837,7 +2837,7 @@ def ls_workers(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated",
+    names = ["Name", "ID", "Owner", "Port", "Last Updated",
              "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor", "Deployment", "Workdir"]
     x.field_names = names
     workers = context.obj['database'].session.query(WorkerModel).all()
@@ -2851,7 +2851,7 @@ def ls_workers(context):
         hostname = node.deployment.hostname if node.deployment else 'None'
         name = node.deployment.name if node.deployment else 'None'
 
-        x.add_row([node.name, node.id, node.owner, node.lastupdated,
+        x.add_row([node.name, node.id, node.owner, node.port, node.lastupdated,
                    node.requested_status, node.status, node.agent.name, node.backend, node.broker, hostname,
                    pname, name, node.workerdir])
 
