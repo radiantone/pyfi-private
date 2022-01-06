@@ -210,8 +210,6 @@ class Agent:
 
             agent_cwd = os.environ['AGENT_CWD']
 
-            os.killpg(os.getpgid(os.getpid()), 15)
-            os.kill(os.getpid(), signal.SIGKILL)
 
             logging.info("Calling kill_containers")
             kill_containers()
@@ -231,6 +229,9 @@ class Agent:
                         logging.warning(ex)
             else:
                 logging.warning("No worker.pid found")
+
+            os.killpg(os.getpgid(os.getpid()), 15)
+            os.kill(os.getpid(), signal.SIGKILL)                
             process.kill()
             process.terminate()
             exit(0)
