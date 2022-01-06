@@ -511,11 +511,12 @@ class Queue(Base):
             # message_ttl=message_ttl, durable=durable, expires=expires,
             self.queue = QueueModel(name=name, requested_status='ready',
                                     status='ready')
+
+            self.queue.message_ttl = self.message_ttl
+            self.queue.durable = self.durable
+            self.queue.expires = self.expires                                    
             self.session.add(self.queue)
 
-        self.queue.message_ttl = self.message_ttl
-        self.queue.durable = self.durable
-        self.queue.expires = self.expires
 
         self.session.commit()
         #self.session.expunge(self.queue)
