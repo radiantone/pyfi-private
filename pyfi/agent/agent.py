@@ -210,9 +210,6 @@ class Agent:
 
             agent_cwd = os.environ['AGENT_CWD']
 
-
-            logging.info("Calling kill_containers")
-            kill_containers()
             logging.info("Killing worker")
             self.workerproc.kill()
             os.remove(f'{agent_cwd}/agent.pid')
