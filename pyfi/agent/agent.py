@@ -210,6 +210,15 @@ class Agent:
 
             agent_cwd = os.environ['AGENT_CWD']
 
+            os.killpg(os.getpgid(os.getpid()), 15)
+            os.kill(os.getpid(), signal.SIGKILL)
+
+            logging.info("Calling kill_containers")
+            kill_containers()
+            logging.info("Killing worker")
+            self.workerproc.kill()
+            os.remove(f'{agent_cwd}/agent.pid')
+            os.remove(f'{agent_cwd}/worker.pid')
             if os.path.exists(f'{agent_cwd}/worker.pid'):
                 with open(f'{agent_cwd}/worker.pid', 'r') as wfile:
                     workerpid = wfile.read()
@@ -222,17 +231,6 @@ class Agent:
                         logging.warning(ex)
             else:
                 logging.warning("No worker.pid found")
-
-            os.killpg(os.getpgid(os.getpid()), 15)
-            os.kill(os.getpid(), signal.SIGKILL)
-
-            logging.info("Calling kill_containers")
-            kill_containers()
-            logging.info("Killing worker")
-            self.workerproc.kill()
-            os.remove(f'{agent_cwd}/agent.pid')
-            os.remove(f'{agent_cwd}/worker.pid')
-
             process.kill()
             process.terminate()
             exit(0)
