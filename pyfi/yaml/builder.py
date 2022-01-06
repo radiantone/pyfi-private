@@ -5,7 +5,7 @@ import platform
 import paramiko
 from sqlalchemy import exc as sa_exc
 
-from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker
+from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker, Queue
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
 
@@ -238,6 +238,13 @@ def compose_agent(node, agent, deploy, _agent):
 
 def build_queue(queue):
     from kombu import Exchange, Queue as KQueue
+
+    message_ttl = queue['message_ttl'] if 'message_ttl' in queue else 300000
+    durable = queue['durable'] if 'durable' in queue else True
+    expires = queue['expires'] if 'expires' in queue else 300
+
+    _queue = Queue(name=queue['name'], message_ttl=message_ttl, durable=durable, expires=expires)
+
 
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """ Given a parsed yaml detail, build out the pyfi network"""
