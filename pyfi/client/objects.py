@@ -152,7 +152,6 @@ class Agent(Base):
         self.name = kwargs['name']
         self.hostname = kwargs['hostname']
         self.node = kwargs['node']
-        self.workerport = kwargs['workerport']
         
         self.agent = self.session.query(
             AgentModel).filter_by(name=self.name).first()
