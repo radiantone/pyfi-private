@@ -2039,7 +2039,7 @@ def ls_queue(context, id, name, task):
 
     x.field_names = names
     for binding in content:
-        if binding['name'] != 'celery':
+        if binding['name'] != 'celery' and binding['name'].find(node.name) == 0:
             x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
 
     print()
