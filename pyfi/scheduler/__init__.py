@@ -43,6 +43,17 @@ class Scheduler:
             # Put processors in pending list to be assigned below
             # if there are available nodes, otherwise release the read lock
 
+
+            processors = self.context.obj['database'].session.query(
+                ProcessorModel).filter_by(requested_status=='deploy')
+
+            for processor in processors:
+                if len(processor.deployments) == 0:
+                    # I need to add deployments for this processor
+
+                    # Look across my nodes and agents for free cpus
+                    pass
+
             # These are my nodes to manage
             for node in scheduler.nodes:
 

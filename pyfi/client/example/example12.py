@@ -40,7 +40,7 @@ class ProcessorA:
 
 # Here we are defining a processor without a specific node assigned
 # The scheduler will then look to place the processor on a free node with 6 cpus
-# or multiple nodes totalling 6 cpus
+# or multiple nodes totalling 6 cpus. The scheduler creates the deployments
 @processor(gitrepo="", cpus=6)
 class ProcessorB:
     """ Description """

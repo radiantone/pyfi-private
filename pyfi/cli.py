@@ -2995,7 +2995,7 @@ def ls_agents(context):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Host", "Port", "Owner", "Last Updated", "Requested Status",
+    names = ["Name", "ID", "Host", "CPUs", "Port", "Owner", "Last Updated", "Requested Status",
              "Status", "Node", "PID"]
     x.field_names = names
     agents = context.obj['database'].session.query(AgentModel).all()
@@ -3013,7 +3013,7 @@ def ls_agents(context):
                     status = 'running'
             except:
                 pass
-            x.add_row([node.name, node.id, node.hostname, node.port, node.owner, node.lastupdated, node.requested_status,
+            x.add_row([node.name, node.id, node.hostname, node.cpus, node.port, node.owner, node.lastupdated, node.requested_status,
                        status, node.node.name, node.pid])
 
     print(x)
