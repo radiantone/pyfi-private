@@ -2039,7 +2039,8 @@ def ls_queue(context, id, name, task):
 
     x.field_names = names
     for binding in content:
-        x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
+        if binding['name'] != 'celery':
+            x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
 
     print()
     print("Bindings")
@@ -2047,7 +2048,7 @@ def ls_queue(context, id, name, task):
 
     print(x)
 
-    
+
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of call')
