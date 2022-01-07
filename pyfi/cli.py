@@ -1993,7 +1993,9 @@ def ls_queue(context, id, name, task):
 
     # Combine info from database and rabbitmq about this queue
     import requests
+    import json
 
+    x = PrettyTable()
     if id is not None:
         queue = context.obj['database'].session.query(
             QueueModel).filter_by(id=id).first()
@@ -2005,25 +2007,35 @@ def ls_queue(context, id, name, task):
         # Query for task, get task name, processor name and queue name
         # to combine into queuname.procname.taskname
         # Then return info about queuename and queuname.procname.taskname from broker
-        pass
-    if queue is None:
-        queuename = name
-    else:
-        queuename = queue.name
+        pass    
 
     user = CONFIG.get('broker', 'user')
     password = CONFIG.get('broker', 'password')
-    api = CONFIG.get('broker', 'api')
+    uri = CONFIG.get('broker', 'api')
 
     session = requests.Session()
     session.auth = (user, password)
 
-    apiurl = urlparse(api)
+    names = ["Name", "ID", "Owner", "Last Updated", "Messages", "Message TTL", "Expires",
+             "Requested Status", "Broadcast Queue", "Status", "Type"]
 
-    auth = session.post(apiurl.scheme + "://" + apiurl.netloc)
-    response = session.get(
-        api + "/queues/#/" + queuename)
-    print(response.content)
+    x.field_names = names
+    node = context.obj['database'].session.query(QueueModel).filter_by(name=name).first()
+
+    messages = 0
+    try:
+        response = session.get(uri+"/queues/#/"+node.name)
+        content = json.loads(response.content)
+        for binding in content:
+            if binding['name'].find(node.name) == 0:
+                messages += binding['messages']
+    except:
+        pass
+
+    x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
+                node.requested_status, node.name + ".topic", node.status, node.qtype])
+
+    print(x)
 
 
 @ls.command(name='call')
@@ -2724,7 +2736,6 @@ def ls_queues(context):
         try:
             response = session.get(uri+"/queues/#/"+node.name)
             content = json.loads(response.content)
-            print(json.dumps(content, indent=4))
             for binding in content:
                 if binding['name'].find(node.name) == 0:
                     messages += binding['messages']

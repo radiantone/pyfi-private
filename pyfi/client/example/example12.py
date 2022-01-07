@@ -22,11 +22,11 @@ Declare an infrastructure node in the database that can be immediately used.
 @node(hostname="agent2")
 @agent(name="ag2") # To make config settings for agent and workers
 @worker(hostname="agent2")
-@processor(gitrepo="", module="pyfi.processors.sample") # module can be implied
+@processor(gitrepo="", module="pyfi.processors.sample") # gitrepo and module can be implied
 class ProcessorA:
     """ Description """
 
-    @plug(target="sock2", queue={"name":"queue1"})
+    @plug(target="sock2", queue={"name":"queue1", "message_ttl":300000, "durable":True, "expires":200})
     @socket(key="value", name="sock1", queue={"name": "sockq1"})
     def do_something(message):
         """ do_something """
@@ -38,7 +38,7 @@ class ProcessorA:
         return {'message': message, 'graph': graph}
 
 
-# Here we are defining a processor with a specific node assigned
+# Here we are defining a processor without a specific node assigned
 # The scheduler will then look to place the processor on a free node with 6 cpus
 # or multiple nodes totalling 6 cpus
 @processor(gitrepo="", cpus=6)
