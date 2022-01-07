@@ -2705,7 +2705,7 @@ def ls_queues(context):
 
     x = PrettyTable()
 
-    uri = CONFIG.get('broker', 'uri')
+    uri = CONFIG.get('broker', 'api')
     user = CONFIG.get('broker', 'user')
     pwd = CONFIG.get('broker', 'password')
     session = requests.Session()
@@ -2722,7 +2722,7 @@ def ls_queues(context):
     for node in queues:
         messages = 0
         try:
-            response = session.get(uri+"/api/queues/#/"+node.name)
+            response = session.get(uri+"/queues/#/"+node.name)
             content = json.loads(response.content)
             messages = content[0]['messages']
         except:
