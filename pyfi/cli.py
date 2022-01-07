@@ -154,6 +154,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     # If there is a pyfi.ini file in users home directory
     # if db is None then check the .pyfi property file
     context.obj['dburi'] = db
+
     try:
         engine = create_engine(db)
         engine.uri = db
@@ -2699,14 +2700,34 @@ def ls_queues(context):
     """
     List queues
     """
+    import requests
+    import json
+
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Message TTL", "Expires",
+    uri = CONFIG.get('broker', 'uri')
+    user = CONFIG.get('broker', 'user')
+    pwd = CONFIG.get('broker', 'password')
+    session = requests.Session()
+    session.auth = (user,pwd)
+
+    auth = session.post(uri)
+    
+    names = ["Name", "ID", "Owner", "Last Updated", "Messages", "Message TTL", "Expires",
              "Requested Status", "Broadcast Queue", "Status", "Type"]
+
     x.field_names = names
     queues = context.obj['database'].session.query(QueueModel).all()
+
     for node in queues:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated, node.message_ttl, node.expires,
+        messages = 0
+        try:
+            response = session.get(uri+"/api/queues/#/"+node.name)
+            content = json.loads(response.content)
+            messages = content[0]['messages']
+        except:
+            pass
+        x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
                    node.requested_status, node.name + ".topic", node.status, node.qtype])
 
     print(x)
