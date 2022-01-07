@@ -2976,6 +2976,16 @@ def ls_tasks(context, gitrepo):
     print(x)
 
 
+@ls.command(name='cpus')
+@click.pass_context
+def ls_cpus(context):
+    """
+    List occupied and available cpus across network
+    """
+    pass
+
+
+
 @ls.command(name='agent')
 @click.pass_context
 def ls_agent(context):

@@ -387,7 +387,7 @@ class DeploymentModel(BaseModel):
 
     name = Column(String(80), unique=False, nullable=False)
     hostname = Column(String(80), nullable=False)
-    cpus = Column(Integer, nullable=False)
+    cpus = Column(Integer, default=1, nullable=False)
     processor_id = Column(String(40), ForeignKey('processor.id'), nullable=False)
 
     worker = relationship("WorkerModel", lazy=True, uselist=False,

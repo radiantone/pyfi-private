@@ -196,7 +196,7 @@ class Agent:
             session.add(agent)
 
         session.commit()
-        
+
         def shutdown(*args):
             """ Shutdown worker """
             from psutil import Process
@@ -573,7 +573,7 @@ class Agent:
                                 if worker_model is None:
                                     logging.info("Creating worker model...")
                                     worker_model = WorkerModel(id=str(uuid4()), name=HOSTNAME + ".agent." + processor[
-                                        'processor'].name + '.worker', concurrency=processor['processor'].concurrency,
+                                        'processor'].name + '.worker', concurrency=processor['deployment'].cpus,
                                                               status='ready',
                                                               backend=self.backend,
                                                               broker=self.broker,

@@ -45,13 +45,16 @@ class Scheduler:
 
 
             processors = self.context.obj['database'].session.query(
-                ProcessorModel).filter_by(requested_status=='deploy')
+                ProcessorModel).filter_by(requested_status='deploy')
 
             for processor in processors:
                 if len(processor.deployments) == 0:
                     # I need to add deployments for this processor
 
-                    # Look across my nodes and agents for free cpus
+                    # Look across my nodes and agents for cpus
+                    # subtract running workers with concurrency to get free cpus for that node
+                    # If no node can host all the cpus for the deployment, then create
+                    # separate deployments with smaller cpus spread across nodes
                     pass
 
             # These are my nodes to manage
