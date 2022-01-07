@@ -2023,21 +2023,31 @@ def ls_queue(context, id, name, task):
     node = context.obj['database'].session.query(QueueModel).filter_by(name=name).first()
 
     messages = 0
-    try:
-        response = session.get(uri+"/queues/#/"+node.name)
-        content = json.loads(response.content)
-        for binding in content:
-            if binding['name'].find(node.name) == 0:
-                messages += binding['messages']
-    except:
-        pass
+    response = session.get(uri+"/queues/#/"+node.name)
+    content = json.loads(response.content)
+    for binding in content:
+        if binding['name'].find(node.name) == 0:
+            messages += binding['messages']
 
     x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
                 node.requested_status, node.name + ".topic", node.status, node.qtype])
 
     print(x)
 
+    x = PrettyTable()
+    names = ["Name", "State", "Messages", "Rate", "Memory", "Durable", "Consumers","Auto Delete"]
 
+    x.field_names = names
+    for binding in content:
+        x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
+
+    print()
+    print("Bindings")
+    print()
+
+    print(x)
+
+    
 @ls.command(name='call')
 @click.option('--id', default=None, help="ID of call")
 @click.option('-n', '--name', default=None, required=False, help='Name of call')
