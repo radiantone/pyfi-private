@@ -2724,7 +2724,8 @@ def ls_queues(context):
         try:
             response = session.get(uri+"/queues/#/"+node.name)
             content = json.loads(response.content)
-            messages = content[0]['messages']
+            for binding in content:
+                messages += binding['messages']
         except:
             pass
         x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
