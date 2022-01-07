@@ -193,7 +193,7 @@ def install_repo(
         logging.info("Skipping uninstall...")
 
     # Start the agent
-    command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
+    command = "cd {}/git; export GIT_LOGIN={}; venv/bin/flow agent start --clean -p 1 >> agent.log 2>&1 &".format(
         path, login
     )
     _, stdout, stderr = _ssh.exec_command(command)

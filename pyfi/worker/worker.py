@@ -436,7 +436,7 @@ class WorkerService:
 
         if not self.usecontainer:
             cmd = [
-                "venv/bin/pyfi",
+                "venv/bin/flow",
                 "worker",
                 "start",
                 "-s",
@@ -451,7 +451,7 @@ class WorkerService:
             ]
             if self.user:
                 cmd = [
-                    "venv/bin/pyfi",
+                    "venv/bin/flow",
                     "worker",
                     "start",
                     "-s",
