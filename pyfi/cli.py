@@ -2044,7 +2044,6 @@ def ls_queue(context, id, name, task):
 
     print()
     print("Bindings")
-    print()
 
     print(x)
 
