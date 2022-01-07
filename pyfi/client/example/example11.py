@@ -7,10 +7,7 @@ from pyfi.client.api import parallel, pipeline, funnel, select, where
 from pyfi.client.example.api import do_something_p as do_something
 
 # Define a parallel workflow
-_pipeline = parallel([
-    do_something("One"),
-    do_something("Two"),
-    do_something("Three")])
+_pipeline = parallel([do_something("One"), do_something("Two"), do_something("Three")])
 
 # Execute the workflow, which invokes the functions wherever they may be located
 # Return a delayed/promise
@@ -24,17 +21,14 @@ import json
 print(json.dumps(result, indent=4))
 
 # Filter the results where value > 5
-r = list(
-    result
-    | where(lambda g: g['graph']['value'] > 5)
-)
+r = list(result | where(lambda g: g["graph"]["value"] > 5))
 print(r)
 
 # Create a list of do_something functions after filtering the results
 r = list(
     result
-    | where(lambda g: g['graph']['value'] > 2)
-    | select(lambda g: do_something(g['message']))
+    | where(lambda g: g["graph"]["value"] > 2)
+    | select(lambda g: do_something(g["message"]))
 )
 print(r)
 

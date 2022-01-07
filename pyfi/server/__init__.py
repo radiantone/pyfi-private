@@ -13,12 +13,12 @@ logging.basicConfig(level=logging.INFO)
 
 hostname = platform.node()
 
-POSTGRES = 'postgresql://postgres:pyfi101@' + hostname + ':5432/pyfi'
+POSTGRES = "postgresql://postgres:pyfi101@" + hostname + ":5432/pyfi"
 
 app = Flask(__name__)
 app.register_blueprint(blueprint)
 
 
-@app.route('/')
+@app.route("/")
 def hello():
-    logging.debug('Invoking hello')
+    logging.debug("Invoking hello")

@@ -1,13 +1,13 @@
 from flask import Blueprint
 
-blueprint = Blueprint('show', __name__)
+blueprint = Blueprint("show", __name__)
 
 
-@blueprint.route('/<page>')
+@blueprint.route("/<page>")
 def show(page):
-    return 'show {}'.format(page)
+    return "show {}".format(page)
 
 
-@blueprint.route('/one')
+@blueprint.route("/one")
 def one():
-    return 'show one'
+    return "show one"

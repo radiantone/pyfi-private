@@ -7,12 +7,13 @@ from flask_restx import Api
 
 from pyfi.api.resource.user import api as user_ns
 
-blueprint = Blueprint('api', __name__)
+blueprint = Blueprint("api", __name__)
 
-api = Api(blueprint,
-          title='FLASK RESTPLUS API BOILER-PLATE WITH JWT',
-          version='1.0',
-          description='a boilerplate for flask restplus web service'
-          )
+api = Api(
+    blueprint,
+    title="FLASK RESTPLUS API BOILER-PLATE WITH JWT",
+    version="1.0",
+    description="a boilerplate for flask restplus web service",
+)
 
-api.add_namespace(user_ns, path='/user')
+api.add_namespace(user_ns, path="/user")

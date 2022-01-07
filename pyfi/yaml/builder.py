@@ -5,21 +5,43 @@ import platform
 import paramiko
 from sqlalchemy import exc as sa_exc
 
-from pyfi.client.api import Node, Processor, Socket, Plug, Agent, Argument, Worker, Queue
+from pyfi.client.api import (
+    Node,
+    Processor,
+    Socket,
+    Plug,
+    Agent,
+    Argument,
+    Worker,
+    Queue,
+)
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
 
 HOSTNAME = platform.node()
 
-if 'PYFI_HOSTNAME' in os.environ:
-    HOSTNAME = os.environ['PYFI_HOSTNAME']
+if "PYFI_HOSTNAME" in os.environ:
+    HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
 
-def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
-    """ Remote host only needs to have ssh key trust to be managed by pyfi 
-        PYFI will remote install itself and manage the running agent processes on it.
-        It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
-        both use their own virtual environments and do not pollute the host environment.
+def remove_network(
+    _ssh,
+    path,
+    ini,
+    polar,
+    hostname,
+    username,
+    sshkey,
+    branch,
+    pyfi,
+    repo,
+    clean,
+    commit=None,
+):
+    """Remote host only needs to have ssh key trust to be managed by pyfi
+    PYFI will remote install itself and manage the running agent processes on it.
+    It uses an isolated virtualenvironment for itself AND the processor code, meaning that
+    both use their own virtual environments and do not pollute the host environment.
     """
     if not clean:
         raise
@@ -27,19 +49,18 @@ def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, p
     if _ssh is None:
         _ssh = paramiko.SSHClient()
         _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        _ssh.connect(hostname=hostname, username=username,
-                     key_filename=sshkey)
+        _ssh.connect(hostname=hostname, username=username, key_filename=sshkey)
 
     if hostname != HOSTNAME:
         sftp = _ssh.open_sftp()
-        sftp.put(ini, '/home/' + username + '/pyfi.ini')
-        sftp.put(polar, '/home/' + username + '/pyfi.polar')
+        sftp.put(ini, "/home/" + username + "/pyfi.ini")
+        sftp.put(polar, "/home/" + username + "/pyfi.polar")
 
-    agent = Agent.find(name=hostname + '.agent')
+    agent = Agent.find(name=hostname + ".agent")
 
     # Kill any existing agent
     if agent and agent.pid:
-        command = 'kill -s SIGINT ' + str(agent.pid)
+        command = "kill -s SIGINT " + str(agent.pid)
         _, stdout, stderr = _ssh.exec_command(command)
 
     # Kill existing processors and remove existing directories
@@ -76,11 +97,24 @@ def remove_network(_ssh, path, ini, polar, hostname, username, sshkey, branch, p
     return login, _ssh
 
 
-def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyfi, repo, clean, commit=None):
-    """ Remote host only needs to have ssh key trust to be managed by pyfi 
-        PYFI will remote install itself and manage the running agent processes on it.
-        It uses an isolated virtualenvironment for itself AND the processor code, meaning that 
-        both use their own virtual environments and do not pollute the host environment.
+def install_repo(
+    _ssh,
+    path,
+    ini,
+    polar,
+    hostname,
+    username,
+    sshkey,
+    branch,
+    pyfi,
+    repo,
+    clean,
+    commit=None,
+):
+    """Remote host only needs to have ssh key trust to be managed by pyfi
+    PYFI will remote install itself and manage the running agent processes on it.
+    It uses an isolated virtualenvironment for itself AND the processor code, meaning that
+    both use their own virtual environments and do not pollute the host environment.
     """
 
     _login = repo.split("/", 3)[:3]
@@ -90,8 +124,7 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
         try:
             _ssh = paramiko.SSHClient()
             _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            _ssh.connect(hostname=hostname, username=username,
-                         key_filename=sshkey)
+            _ssh.connect(hostname=hostname, username=username, key_filename=sshkey)
         except:
             logging.error("Unable to establish ssh to %s", hostname)
             return
@@ -103,7 +136,8 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
 
         # Install new git repos
         command = "mkdir -p {};cd {};rm -rf git 2> /dev/null; git clone -b {} --single-branch {} git".format(
-            path, path, branch, repo.split('#')[0])
+            path, path, branch, repo.split("#")[0]
+        )
         logging.info(hostname + ":" + command)
         _, stdout, stderr = _ssh.exec_command(command)
         for line in stdout.read().splitlines():
@@ -125,8 +159,7 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
         logging.info(hostname + ":" + command)
         _, stdout, stderr = _ssh.exec_command(command)
         for line in stdout.read().splitlines():
-            logging.info(
-                hostname + ":" + "pip install --upgrade pip: stdout: %s", line)
+            logging.info(hostname + ":" + "pip install --upgrade pip: stdout: %s", line)
         for line in stderr.read().splitlines():
             logging.info(hostname + ":ERROR: % s", line)
 
@@ -143,8 +176,7 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
         logging.info(hostname + ":" + command)
         _, stdout, stderr = _ssh.exec_command(command)
         for line in stdout.read().splitlines():
-            logging.info(hostname + ":" + command +
-                         ": stdout: %s", line)
+            logging.info(hostname + ":" + command + ": stdout: %s", line)
 
         # Install pyfi
         command = "cd {}/git; venv/bin/pip install -e git+{}".format(path, pyfi)
@@ -162,7 +194,8 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
 
     # Start the agent
     command = "cd {}/git; export GIT_LOGIN={}; venv/bin/pyfi agent start --clean -p 1 >> agent.log 2>&1 &".format(
-        path, login)
+        path, login
+    )
     _, stdout, stderr = _ssh.exec_command(command)
     logging.info(hostname + ":" + command)
     for line in stdout.read().splitlines():
@@ -173,10 +206,10 @@ def install_repo(_ssh, path, ini, polar, hostname, username, sshkey, branch, pyf
 
 
 def stop_network(detail):
-    for nodename in detail['network']['nodes']:
+    for nodename in detail["network"]["nodes"]:
         # For each node, check out repo, build venv
-        node = detail['network']['nodes'][nodename]
-        if 'enabled' in node and not node['enabled']:
+        node = detail["network"]["nodes"][nodename]
+        if "enabled" in node and not node["enabled"]:
             continue
 
     pass
@@ -186,52 +219,79 @@ def compose_agent(node, agent, deploy, _agent):
     repos = []
     sockets = {}
 
-    for processorname in agent['processors']:
+    for processorname in agent["processors"]:
         # for each processor, add to database
         logging.info("Creating processor {}".format(processorname))
-        processor = agent['processors'][processorname]
-        _processor = Processor(name=processorname, hostname=node['hostname'], beat=processor['beat'], user=USER,
-                                module=processor['module'], branch=processor['branch'],
-                                concurrency=processor['workers'], agent=_agent.agent,
-                                gitrepo=processor['gitrepo'])
+        processor = agent["processors"][processorname]
+        _processor = Processor(
+            name=processorname,
+            hostname=node["hostname"],
+            beat=processor["beat"],
+            user=USER,
+            module=processor["module"],
+            branch=processor["branch"],
+            concurrency=processor["workers"],
+            agent=_agent.agent,
+            gitrepo=processor["gitrepo"],
+        )
 
+        if "container_image" in processor:
+            _processor.processor.container_image = processor["container_image"]
+            if "detached" in processor:
+                _processor.processor.detached = processor["detached"]
 
-        if 'container_image' in processor:
-            _processor.processor.container_image = processor['container_image']
-            if 'detached' in processor:
-                _processor.processor.detached = processor['detached']
+            if "container_version" in processor:
+                _processor.processor.container_version = processor["container_version"]
 
-            if 'container_version' in processor:
-                _processor.processor.container_version = processor['container_version']
-            
-            if 'use_container' in processor:
-                _processor.processor.use_container = processor['use_container']
-                
+            if "use_container" in processor:
+                _processor.processor.use_container = processor["use_container"]
 
         # if "remove", then delete _processor
-        if 'sockets' in processor:
-            for socketname in processor['sockets']:
+        if "sockets" in processor:
+            for socketname in processor["sockets"]:
                 logging.info("Creating socket {}".format(socketname))
-                socket = processor['sockets'][socketname]
-                interval = socket['interval'] if 'interval' in socket else -1
-                if 'arguments' in socket['task']['function']:
-                    arguments = socket['task']['function']
+                socket = processor["sockets"][socketname]
+                interval = socket["interval"] if "interval" in socket else -1
+                if "arguments" in socket["task"]["function"]:
+                    arguments = socket["task"]["function"]
                 else:
                     arguments = False
-                _socket = Socket(name=socketname, user=USER, interval=interval, processor=_processor, queue={
-                    'name': socket['queue']['name']}, task=socket['task']['function']['name'], arguments=arguments)
+                _socket = Socket(
+                    name=socketname,
+                    user=USER,
+                    interval=interval,
+                    processor=_processor,
+                    queue={"name": socket["queue"]["name"]},
+                    task=socket["task"]["function"]["name"],
+                    arguments=arguments,
+                )
 
                 sockets[socketname] = _socket
 
-        if 'build' in agent and agent['build'] == False:
+        if "build" in agent and agent["build"] == False:
             continue
 
-        clean = node['clean'] if 'clean' in node else True
-        deploy = node['deploy'] if 'deploy' in node else deploy
+        clean = node["clean"] if "clean" in node else True
+        deploy = node["deploy"] if "deploy" in node else deploy
 
-        repos += [(deploy, (None, node['path'] + '/' + processorname, node['ini'], node['polar'], node['hostname'],
-                    node['ssh']['user'], node['ssh']['key'], "main", processor['pyfirepo'], processor['gitrepo'],
-                    clean))]
+        repos += [
+            (
+                deploy,
+                (
+                    None,
+                    node["path"] + "/" + processorname,
+                    node["ini"],
+                    node["polar"],
+                    node["hostname"],
+                    node["ssh"]["user"],
+                    node["ssh"]["key"],
+                    "main",
+                    processor["pyfirepo"],
+                    processor["gitrepo"],
+                    clean,
+                ),
+            )
+        ]
 
     return repos, sockets
 
@@ -239,37 +299,41 @@ def compose_agent(node, agent, deploy, _agent):
 def build_queue(name, queue):
     from kombu import Exchange, Queue as KQueue
 
-    message_ttl = int(queue['message_ttl']) if 'message_ttl' in queue else 300000
-    durable = queue['durable'] if 'durable' in queue else True
-    expires = int(queue['expires']) if 'expires' in queue else 300
+    message_ttl = int(queue["message_ttl"]) if "message_ttl" in queue else 300000
+    durable = queue["durable"] if "durable" in queue else True
+    expires = int(queue["expires"]) if "expires" in queue else 300
 
-    print("TTL ",message_ttl)
+    print("TTL ", message_ttl)
     _queue = Queue(name=name, message_ttl=message_ttl, durable=durable, expires=expires)
     logging.info("Created queue %s %s", name, queue)
-    val = input("Enter your value: ")
+
 
 def compose_network(detail, command="build", deploy=True, nodes=[]):
-    """ Given a parsed yaml detail, build out the pyfi network"""
+    """Given a parsed yaml detail, build out the pyfi network"""
 
     sockets = {}
     repos = []
     processors = {}
 
-    if 'queues' in detail['network']:
-        queues = detail['network']['queues']
+    if "queues" in detail["network"]:
+        queues = detail["network"]["queues"]
 
         for name in queues:
             queue = queues[name]
             build_queue(name, queue)
 
+    for nodename in detail["network"]["nodes"]:
+        node = detail["network"]["nodes"][nodename]
+        node["name"] = nodename
 
-    for nodename in detail['network']['nodes']:
-        node = detail['network']['nodes'][nodename]
-        node['name'] = nodename
-
-    _nodes = [detail['network']['nodes'][nodename]
-              for nodename in nodes] if len(nodes) > 0 else [detail['network']['nodes'][nodename]
-                                          for nodename in detail['network']['nodes']]
+    _nodes = (
+        [detail["network"]["nodes"][nodename] for nodename in nodes]
+        if len(nodes) > 0
+        else [
+            detail["network"]["nodes"][nodename]
+            for nodename in detail["network"]["nodes"]
+        ]
+    )
 
     import warnings
 
@@ -277,25 +341,27 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
 
         for node in _nodes:
-            nodename = node['name']
+            nodename = node["name"]
             # For each node, check out repo, build venv
-            _node = Node(name=nodename, hostname=node['hostname'])
+            _node = Node(name=nodename, hostname=node["hostname"])
 
-            if 'enabled' in node and not node['enabled']:
+            if "enabled" in node and not node["enabled"]:
                 continue
 
             logging.info("Deploying node: {}".format(nodename))
-            logging.info("Host: {}".format(node['hostname']))
-            logging.info("ssh key: {}".format(node['ssh']['key']))
-            logging.info("ssh user: {}".format(node['ssh']['user']))
+            logging.info("Host: {}".format(node["hostname"]))
+            logging.info("ssh key: {}".format(node["ssh"]["key"]))
+            logging.info("ssh user: {}".format(node["ssh"]["user"]))
             # Generate, copy pyfi.ini
 
-            for agentname in node['agents']:
-                agent = node['agents'][agentname]
-                logging.info(
-                    "Creating agent %s ", node['hostname'] + ".agent")
-                _agent = Agent(hostname=node['hostname'], node=_node,
-                                name=node['hostname'] + ".agent")
+            for agentname in node["agents"]:
+                agent = node["agents"][agentname]
+                logging.info("Creating agent %s ", node["hostname"] + ".agent")
+                _agent = Agent(
+                    hostname=node["hostname"],
+                    node=_node,
+                    name=node["hostname"] + ".agent",
+                )
                 _node.node.agent = _agent.agent
                 _repos, _sockets = compose_agent(node, agent, deploy, _agent)
 
@@ -304,21 +370,42 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     socket = _sockets[socketname]
                     _node.session.add(socket.socket)
                     _node.session.add(socket.processor.processor)
-                    processors[socket.processor.processor.name] = socket.processor.processor
+                    processors[
+                        socket.processor.processor.name
+                    ] = socket.processor.processor
                     logging.info(
-                        "Creating worker %s ", node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
+                        "Creating worker %s ",
+                        node["hostname"]
+                        + ".agent."
+                        + socket.socket.processor.name
+                        + ".worker",
+                    )
                     worker = Worker(
-                        hostname=node['hostname'], processor=socket.processor.processor, agent=_agent.agent, name=node['hostname'] + ".agent."+socket.socket.processor.name+".worker")
+                        hostname=node["hostname"],
+                        processor=socket.processor.processor,
+                        agent=_agent.agent,
+                        name=node["hostname"]
+                        + ".agent."
+                        + socket.socket.processor.name
+                        + ".worker",
+                    )
                     logging.info("Worker ID %s", worker.worker.id)
-                    _agent.agent.workers  += [worker.worker]
+                    _agent.agent.workers += [worker.worker]
                     worker.worker.processor = socket.processor.processor
-                    if 'deployments' in detail['network']:
-                        for depname in detail['network']['deployments']:
-                            deployment = detail['network']['deployments'][depname]
-                            if deployment['hostname'] == node['hostname']:
+                    if "deployments" in detail["network"]:
+                        for depname in detail["network"]["deployments"]:
+                            deployment = detail["network"]["deployments"][depname]
+                            if deployment["hostname"] == node["hostname"]:
                                 deployment = Deployment(
-                                    name=depname, worker=worker.worker, hostname=deployment['hostname'], processor=processors[deployment['processor']], cpus=deployment['cpus'])
-                                print("Deployment.worker ", deployment.deployment.worker)
+                                    name=depname,
+                                    worker=worker.worker,
+                                    hostname=deployment["hostname"],
+                                    processor=processors[deployment["processor"]],
+                                    cpus=deployment["cpus"],
+                                )
+                                print(
+                                    "Deployment.worker ", deployment.deployment.worker
+                                )
 
                 repos += _repos
                 sockets.update(_sockets)
@@ -326,36 +413,45 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                 _node.session.add(_node.node)
                 _node.session.commit()
 
-    if 'plugs' in detail['network']:
-        for plugname in detail['network']['plugs']:
-            plug = detail['network']['plugs'][plugname]
+    if "plugs" in detail["network"]:
+        for plugname in detail["network"]["plugs"]:
+            plug = detail["network"]["plugs"][plugname]
 
-            if hasattr(plug, 'enabled') and plug.enabled == False:
+            if hasattr(plug, "enabled") and plug.enabled == False:
                 continue
 
-            plug_queue = plug['queue']
-            argument = plug['argument'] if 'argument' in plug else None
-            source = plug['source']
-            target = plug['target']
+            plug_queue = plug["queue"]
+            argument = plug["argument"] if "argument" in plug else None
+            source = plug["source"]
+            target = plug["target"]
 
             source_socket = sockets[source]
             target_socket = sockets[target]
 
-            _plug = Plug(name=plugname, processor=source_socket.processor, user=USER,
-                         source=source_socket, queue=plug_queue, target=target_socket)
+            _plug = Plug(
+                name=plugname,
+                processor=source_socket.processor,
+                user=USER,
+                source=source_socket,
+                queue=plug_queue,
+                target=target_socket,
+            )
             _plug.session.add(target_socket.task)
             if argument:
-                logging.info("Fetching argument %s",argument)
+                logging.info("Fetching argument %s", argument)
                 _argument = Argument.find(argument, target_socket.task.name)
-                logging.info("Found argument: %s",_argument.name)
+                logging.info("Found argument: %s", _argument.name)
                 if _argument is None:
-                    logging.error("No argument %s exists. Please create arguments for task.",argument)
+                    logging.error(
+                        "No argument %s exists. Please create arguments for task.",
+                        argument,
+                    )
 
                 # attach argument to plug
                 _plug.session.add(_argument)
                 _plug.argument_id = _argument.id
                 _argument.plugs += [_plug.plug]
-            
+
             _plug.session.commit()
 
             logging.info("Created plug: %s", _plug)
@@ -374,4 +470,4 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                 pass
 
     # start agent
-    logging.info("Built network: {}".format(detail['network']['name']))
+    logging.info("Built network: {}".format(detail["network"]["name"]))

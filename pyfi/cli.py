@@ -18,9 +18,26 @@ from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 
-from pyfi.db.model import oso, SchedulerModel, UserModel, EventModel, ArgumentModel, LoginModel, AgentModel, \
-    WorkerModel, CallModel, PlugModel, SocketModel, ProcessorModel, NodeModel, RoleModel, \
-    QueueModel, TaskModel, LogModel, DeploymentModel
+from pyfi.db.model import (
+    oso,
+    SchedulerModel,
+    UserModel,
+    EventModel,
+    ArgumentModel,
+    LoginModel,
+    AgentModel,
+    WorkerModel,
+    CallModel,
+    PlugModel,
+    SocketModel,
+    ProcessorModel,
+    NodeModel,
+    RoleModel,
+    QueueModel,
+    TaskModel,
+    LogModel,
+    DeploymentModel,
+)
 from pyfi.db.model.models import PrivilegeModel
 from pyfi.web import run_http
 
@@ -28,17 +45,20 @@ HOSTNAME = platform.node()
 
 current_user = getpass.getuser()
 
-POSTGRES_ROOT = 'postgresql://postgres:pyfi101@' + HOSTNAME + ':5432/'
-POSTGRES = 'postgresql://postgres:pyfi101@' + HOSTNAME + ':5432/pyfi'
+POSTGRES_ROOT = "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/"
+POSTGRES = "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/pyfi"
 
 home = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+
 def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
 
-#sys.excepthook = handle_exception
+
+# sys.excepthook = handle_exception
+
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -46,14 +66,16 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;21m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    format = (
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+    )
 
     FORMATS = {
         logging.DEBUG: grey + format + reset,
         logging.INFO: grey + format + reset,
         logging.WARNING: yellow + format + reset,
         logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset
+        logging.CRITICAL: bold_red + format + reset,
     }
 
     def format(self, record):
@@ -63,15 +85,17 @@ class CustomFormatter(logging.Formatter):
 
 
 @click.group(invoke_without_command=True)
-@click.option('--debug', is_flag=True, default=False, help='Debug switch')
-@click.option('-d', '--db', help='Database URI')
-@click.option('--backend', help='Task queue backend')
-@click.option('--broker', help='Message broker URI')
-@click.option('-a', '--api', help='Message broker API URI')
-@click.option('-u', '--user', help='Message broker API user')
-@click.option('-p', '--password', help='Message broker API password')
-@click.option('-i', '--ini', default=home + "/pyfi.ini", help='PYFI .ini configuration file')
-@click.option('-c', '--config', default=False, is_flag=True, help='Configure pyfi')
+@click.option("--debug", is_flag=True, default=False, help="Debug switch")
+@click.option("-d", "--db", help="Database URI")
+@click.option("--backend", help="Task queue backend")
+@click.option("--broker", help="Message broker URI")
+@click.option("-a", "--api", help="Message broker API URI")
+@click.option("-u", "--user", help="Message broker API user")
+@click.option("-p", "--password", help="Message broker API password")
+@click.option(
+    "-i", "--ini", default=home + "/pyfi.ini", help="PYFI .ini configuration file"
+)
+@click.option("-c", "--config", default=False, is_flag=True, help="Configure pyfi")
 @click.pass_context
 def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     """
@@ -82,58 +106,63 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         logging.root.removeHandler(handler)
     if debug:
         logging.basicConfig(
-            format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
+            format="%(asctime)s : %(levelname)s : %(message)s", level=logging.DEBUG
+        )
     else:
         logging.basicConfig(
-            format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+            format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+        )
 
     context.obj = {}
     # If login section, then query for User and see if token matches and still valid
 
     if config:
         if not db:
-            db = click.prompt('Database connection URI',
-                              type=str, default=POSTGRES)
+            db = click.prompt("Database connection URI", type=str, default=POSTGRES)
         if not backend:
-            backend = click.prompt('Result backend URI',
-                                   type=str, default='redis://localhost')
+            backend = click.prompt(
+                "Result backend URI", type=str, default="redis://localhost"
+            )
         if not broker:
-            broker = click.prompt('Message broker URI',
-                                  type=str, default='pyamqp://localhost')
+            broker = click.prompt(
+                "Message broker URI", type=str, default="pyamqp://localhost"
+            )
         if not api:
-            api = click.prompt('Message broker API',
-                               type=str, default='http://localhost:15672/api')
+            api = click.prompt(
+                "Message broker API", type=str, default="http://localhost:15672/api"
+            )
         if not user:
-            user = click.prompt('Message broker API username',
-                                type=str, default='guest')
+            user = click.prompt(
+                "Message broker API username", type=str, default="guest"
+            )
         if not password:
-            password = click.prompt('Message broker API password',
-                                    type=str, default='guest')
+            password = click.prompt(
+                "Message broker API password", type=str, default="guest"
+            )
 
-        email = click.prompt('Postgres user email', type=str, default='p@e')
-        password = click.prompt('Postgres user password',
-                                type=str, default='pyfi101')
+        email = click.prompt("Postgres user email", type=str, default="p@e")
+        password = click.prompt("Postgres user password", type=str, default="pyfi101")
 
         _password = hashlib.md5(password.encode()).hexdigest()
 
         _config = configparser.ConfigParser()
 
-        _config.add_section('login')
+        _config.add_section("login")
 
-        _config.set('login', 'password', _password)
-        _config.set('login', 'user', 'postgres')
+        _config.set("login", "password", _password)
+        _config.set("login", "user", "postgres")
 
-        _config.add_section('database')
-        _config.set('database', 'uri', db)
+        _config.add_section("database")
+        _config.set("database", "uri", db)
 
-        _config.add_section('backend')
-        _config.set('backend', 'uri', backend)
+        _config.add_section("backend")
+        _config.set("backend", "uri", backend)
 
-        _config.add_section('broker')
-        _config.set('broker', 'uri', broker)
-        _config.set('broker', 'api', api)
-        _config.set('broker', 'user', user)
-        _config.set('broker', 'password', password)
+        _config.add_section("broker")
+        _config.set("broker", "uri", broker)
+        _config.set("broker", "api", api)
+        _config.set("broker", "user", user)
+        _config.set("broker", "password", password)
 
         with open(home + "/pyfi.ini", "w") as configfile:
             _config.write(configfile)
@@ -149,33 +178,34 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
     if os.path.exists(ini) and db is None:
         CONFIG.read(ini)
-        db = CONFIG.get('database', 'uri')
+        db = CONFIG.get("database", "uri")
 
     # If there is a pyfi.ini file in users home directory
     # if db is None then check the .pyfi property file
-    context.obj['dburi'] = db
+    context.obj["dburi"] = db
 
     try:
         engine = create_engine(db)
         engine.uri = db
         session = sessionmaker(bind=engine)()
 
-        context.obj['database'] = engine
-        context.obj['session'] = session
+        context.obj["database"] = engine
+        context.obj["session"] = session
         engine.session = session
 
-        context.obj['owner'] = session.query(
-            literal_column("current_user")).first()[0]
+        context.obj["owner"] = session.query(literal_column("current_user")).first()[0]
 
     except:
         # import traceback
         # print(traceback.format_exc())
-        print("Database unavailable. Please check your configuration or ensure database server is running.")
+        print(
+            "Database unavailable. Please check your configuration or ensure database server is running."
+        )
         return
 
-    if CONFIG.has_section('login'):
-        username = CONFIG.get('login', 'user')
-        password = CONFIG.get('login', 'password')
+    if CONFIG.has_section("login"):
+        username = CONFIG.get("login", "user")
+        password = CONFIG.get("login", "password")
 
         import warnings
 
@@ -186,8 +216,11 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 # engine.uri = db
                 session = sessionmaker(bind=engine)()
 
-                user_m = session.query(
-                    UserModel).filter_by(name=username, password=password).first()
+                user_m = (
+                    session.query(UserModel)
+                    .filter_by(name=username, password=password)
+                    .first()
+                )
                 # context.obj['user'] = user_m
                 # context.obj['database'].session.add(user_m)
                 if username is None:
@@ -201,7 +234,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
                 session.expunge(user_m)
             except:
-                context.obj['user'] = None
+                context.obj["user"] = None
                 print(f"Unable to log in {username}..")
                 return
 
@@ -210,7 +243,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
         oso.load_files([home + "/pyfi.polar"])
 
-        context.obj['database'].session.close()
+        context.obj["database"].session.close()
 
         def get_checked_permissions(*args, **kwargs):
             logging.debug("cli: get_checked_permissions")
@@ -218,15 +251,32 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             # engine = create_engine(db)
             # engine.uri = db
             session = sessionmaker(bind=engine)()
-            _user = session.query(
-                UserModel).filter_by(name=username, password=password).first()
-            permissions = {SchedulerModel: "read", PrivilegeModel: "read", AgentModel: "read",
-                           NodeModel: "read", EventModel: "read", CallModel: "read", TaskModel: "read",
-                           QueueModel: "read", SocketModel: "read", PlugModel: "read", WorkerModel: "read",
-                           UserModel: "read", ArgumentModel: "read", DeploymentModel: "read", ProcessorModel: "read", RoleModel: "read"}
+            _user = (
+                session.query(UserModel)
+                .filter_by(name=username, password=password)
+                .first()
+            )
+            permissions = {
+                SchedulerModel: "read",
+                PrivilegeModel: "read",
+                AgentModel: "read",
+                NodeModel: "read",
+                EventModel: "read",
+                CallModel: "read",
+                TaskModel: "read",
+                QueueModel: "read",
+                SocketModel: "read",
+                PlugModel: "read",
+                WorkerModel: "read",
+                UserModel: "read",
+                ArgumentModel: "read",
+                DeploymentModel: "read",
+                ProcessorModel: "read",
+                RoleModel: "read",
+            }
 
             for privilege in _user.privileges:
-                if privilege.right == 'READ_LOG':
+                if privilege.right == "READ_LOG":
                     permissions[LogModel] = "read"
 
             session.close()
@@ -235,17 +285,20 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
         user_object = None
 
-        context.obj['session'] = session = authorized_sessionmaker(get_oso=lambda: oso,
-                                                                   get_user=lambda: user_m,
-                                                                   get_checked_permissions=get_checked_permissions,
-                                                                   bind=engine)()
-        user_m2 = user_object = session.query(
-            UserModel).filter_by(name=username, password=password).first()
+        context.obj["session"] = session = authorized_sessionmaker(
+            get_oso=lambda: oso,
+            get_user=lambda: user_m,
+            get_checked_permissions=get_checked_permissions,
+            bind=engine,
+        )()
+        user_m2 = user_object = (
+            session.query(UserModel).filter_by(name=username, password=password).first()
+        )
         # Add the logged in user to the authorized_session
         # context.obj['database'].session.merge(user_m)
         session.add(user_m2)
-        context.obj['user'] = user_m2
-        context.obj['database'].session = session  # context.obj['session']
+        context.obj["user"] = user_m2
+        context.obj["database"].session = session  # context.obj['session']
         # Load the base policy file into OSO
 
         # Generate OSO user policy file based on roles and privileges in the database
@@ -253,7 +306,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
         # Update database URI based on logged in user
     else:
-        context.obj['user'] = None
+        context.obj["user"] = None
 
     if len(sys.argv) == 1:
         click.echo(context.get_help())
@@ -268,9 +321,9 @@ def user():
 
 
 @user.command(name="remove")
-@click.option('-u', '--user', default=None, required=True)
-@click.option('-r', '--role', default=None, required=False)
-@click.option('-p', '--privilege', default=None, required=False)
+@click.option("-u", "--user", default=None, required=True)
+@click.option("-r", "--role", default=None, required=False)
+@click.option("-p", "--privilege", default=None, required=False)
 @click.pass_context
 def user_remove(context, user, role, privilege):
     """
@@ -280,22 +333,27 @@ def user_remove(context, user, role, privilege):
 
 
 @user.command(name="add")
-@click.option('-u', '--user', default=None, required=True)
-@click.option('-r', '--role', default=None, required=False)
-@click.option('-p', '--privilege', default=None, required=False)
+@click.option("-u", "--user", default=None, required=True)
+@click.option("-r", "--role", default=None, required=False)
+@click.option("-p", "--privilege", default=None, required=False)
 @click.pass_context
 def user_add(context, user, role, privilege):
     """
     Add roles and privileges to a user
     """
-    user_m = context.obj['database'].session.query(
-        UserModel).filter_by(name=user).first()
+    user_m = (
+        context.obj["database"].session.query(UserModel).filter_by(name=user).first()
+    )
     if role:
-        role_m = context.obj['database'].session.query(
-            RoleModel).filter_by(name=role).first()
+        role_m = (
+            context.obj["database"]
+            .session.query(RoleModel)
+            .filter_by(name=role)
+            .first()
+        )
         print("ROLE:", role_m)
         user_m.roles += [role_m]
-        database = context.obj['database']
+        database = context.obj["database"]
         database.session.add(user_m)
         database.session.add(role_m)
         database.session.commit()
@@ -308,14 +366,14 @@ def user_add(context, user, role, privilege):
 
 @cli.group()
 def compose():
-    """ Manage declarative infrastructure files """
+    """Manage declarative infrastructure files"""
 
 
-@compose.command(name='kill')
-@click.argument('filename')
+@compose.command(name="kill")
+@click.argument("filename")
 @click.pass_context
 def compose_kill(context, filename):
-    """ Kill a running infrastructure """
+    """Kill a running infrastructure"""
     import yaml
     from pyfi.yaml.builder import stop_network
 
@@ -327,11 +385,11 @@ def compose_kill(context, filename):
             print(exc)
 
 
-@compose.command(name='remove')
-@click.option('-f', '--file', default='pyfi.yaml', required=False)
+@compose.command(name="remove")
+@click.option("-f", "--file", default="pyfi.yaml", required=False)
 @click.pass_context
 def compose_remove(context, file):
-    """ Remove infrastructure defined in a yaml file"""
+    """Remove infrastructure defined in a yaml file"""
     import yaml
     from pyfi.yaml.builder import compose_network
 
@@ -343,40 +401,47 @@ def compose_remove(context, file):
             print(exc)
 
 
-@compose.command(name='build')
-@click.option('-f', '--file', default='pyfi.yaml', required=False)
-@click.option('-nd', '--nodeploy', is_flag=True, default=False, help="Do not deploy the network")
-@click.argument('nodes', nargs=-1)
+@compose.command(name="build")
+@click.option("-f", "--file", default="pyfi.yaml", required=False)
+@click.option(
+    "-nd", "--nodeploy", is_flag=True, default=False, help="Do not deploy the network"
+)
+@click.argument("nodes", nargs=-1)
 @click.pass_context
 def compose_build(context, file, nodeploy, nodes):
-    """ Build infrastructure from a yaml file"""
+    """Build infrastructure from a yaml file"""
     import yaml
     from pyfi.yaml.builder import compose_network
+
     logging.info("NoDeploy %s, NODES %s", nodeploy, nodes)
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
-            compose_network(detail, command="build", deploy=not nodeploy, nodes=list(nodes))
+            compose_network(
+                detail, command="build", deploy=not nodeploy, nodes=list(nodes)
+            )
         except yaml.YAMLError as exc:
             print(exc)
 
 
 @cli.command()
 def logout():
-    """ Logout current user """
+    """Logout current user"""
     ini = home + "/pyfi.ini"
 
-    if CONFIG.has_option('login', 'user'):
-        CONFIG.remove_section('login')
+    if CONFIG.has_option("login", "user"):
+        CONFIG.remove_section("login")
         print("Logged out.")
 
-    with open(ini, 'w') as inifile:
+    with open(ini, "w") as inifile:
         CONFIG.write(inifile)
 
 
 @cli.command()
 @click.pass_context
-@click.option('-d', '--database', is_flag=True, default=False, help="Database login only")
+@click.option(
+    "-d", "--database", is_flag=True, default=False, help="Database login only"
+)
 def login(context, database):
     """
     Log into PYFI CLI
@@ -388,47 +453,59 @@ def login(context, database):
 
     user = None
 
-    if context.obj['user'] is not None:
+    if context.obj["user"] is not None:
         print("Please logout first.")
         return
 
-    if CONFIG.has_option('login', 'user'):
-        _user = CONFIG.get('login', 'user')
+    if CONFIG.has_option("login", "user"):
+        _user = CONFIG.get("login", "user")
     else:
-        CONFIG.add_section('login')
+        CONFIG.add_section("login")
 
     password = None
-    if CONFIG.has_option('login', 'password'):
-        _password = CONFIG.get('login', 'password')
+    if CONFIG.has_option("login", "password"):
+        _password = CONFIG.get("login", "password")
 
-    user = click.prompt('User',
-                        type=str)
-    __password = click.prompt('Password',
-                              type=str)
+    user = click.prompt("User", type=str)
+    __password = click.prompt("Password", type=str)
     password = hashlib.md5(__password.encode()).hexdigest()
 
-    CONFIG.set('login', 'user', user)
+    CONFIG.set("login", "user", user)
 
     if not database:
-        user_m = context.obj['database'].session.query(
-            UserModel).filter_by(name=user, password=password).first()
+        user_m = (
+            context.obj["database"]
+            .session.query(UserModel)
+            .filter_by(name=user, password=password)
+            .first()
+        )
 
         if user_m is not None:
             _login = LoginModel(user=user_m)
-            context.obj['database'].session.add(_login)
-            context.obj['database'].session.commit()
+            context.obj["database"].session.add(_login)
+            context.obj["database"].session.commit()
             print("Logged in.")
         else:
             print("Invalid login.")
 
-    dburi = CONFIG.get('database', 'uri')
+    dburi = CONFIG.get("database", "uri")
     uri = urlparse(dburi)
-    newuri = uri.scheme + '://' + user + ':' + __password + \
-             '@' + uri.hostname + ':' + str(uri.port) + uri.path
-    CONFIG.set('database', 'uri', newuri)
-    CONFIG.set('login', 'password', password)
+    newuri = (
+        uri.scheme
+        + "://"
+        + user
+        + ":"
+        + __password
+        + "@"
+        + uri.hostname
+        + ":"
+        + str(uri.port)
+        + uri.path
+    )
+    CONFIG.set("database", "uri", newuri)
+    CONFIG.set("login", "password", password)
 
-    with open(ini, 'w') as inifile:
+    with open(ini, "w") as inifile:
         CONFIG.write(inifile)
 
 
@@ -449,7 +526,7 @@ def node(context):
 
 
 @node.command()
-@click.option('-t', '--to', required=True)
+@click.option("-t", "--to", required=True)
 @click.pass_context
 def clone(context, to):
     """
@@ -459,7 +536,7 @@ def clone(context, to):
 
 
 @cli.group()
-@click.option('--id', default=None, help="ID of processor")
+@click.option("--id", default=None, help="ID of processor")
 @click.pass_context
 def proc(context, id):
     """
@@ -470,7 +547,7 @@ def proc(context, id):
     if id is None:
         id = uuid4()
 
-    context.obj['id'] = str(id)
+    context.obj["id"] = str(id)
 
 
 @cli.group()
@@ -483,7 +560,9 @@ def db(context):
 
 
 @db.command()
-@click.option('-d', '--directory', default='migrations', help="Directory of migration pyfi agent")
+@click.option(
+    "-d", "--directory", default="migrations", help="Directory of migration pyfi agent"
+)
 @click.pass_context
 def migrate(context, directory):
     """
@@ -495,7 +574,7 @@ def migrate(context, directory):
 
     target_metadata = Base.metadata
 
-    engine = context.obj['database']
+    engine = context.obj["database"]
 
     mc = MigrationContext.configure(engine.connect())
     diff = compare_metadata(mc, target_metadata)
@@ -504,20 +583,20 @@ def migrate(context, directory):
     from alembic.config import Config
     from alembic import command
 
-    alembic_cfg = Config('alembic.ini')
-    alembic_cfg.set_main_option('script_location', directory)
-    alembic_cfg.set_main_option('sqlalchemy.url', context.obj['dburi'])
-    command.upgrade(alembic_cfg, 'head')
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("script_location", directory)
+    alembic_cfg.set_main_option("sqlalchemy.url", context.obj["dburi"])
+    command.upgrade(alembic_cfg, "head")
 
 
 @db.command(help="Drop and rebuild database tables")
-@click.option('-y', '--yes', is_flag=True, prompt=True, help="Yes to rebuild now")
+@click.option("-y", "--yes", is_flag=True, prompt=True, help="Yes to rebuild now")
 @click.pass_context
 def rebuild(context, yes):
     if yes:
 
-        if CONFIG.has_section('login'):
-            CONFIG.remove_section('login')
+        if CONFIG.has_section("login"):
+            CONFIG.remove_section("login")
 
         dropdb(context)
         context.invoke(db_init)
@@ -528,33 +607,33 @@ def dropdb(context):
 
     # For every user in "user" table, DROP USER name
 
-    _users = [u.name for u in context.obj['database'].session.query(
-        UserModel).all()]
+    _users = [u.name for u in context.obj["database"].session.query(UserModel).all()]
 
     for user in _users:
-        if user != 'postgres':
-            context.obj['database'].session.execute(
-                f"DROP OWNED BY {user}")
-            context.obj['database'].session.execute(
-                f"DROP USER {user}")
+        if user != "postgres":
+            context.obj["database"].session.execute(f"DROP OWNED BY {user}")
+            context.obj["database"].session.execute(f"DROP USER {user}")
             print("Dropped user {}".format(user))
 
-    context.obj['database'].session.commit()
+    context.obj["database"].session.commit()
 
     for t in Base.metadata.sorted_tables:
         try:
             print("Dropping {}".format(t.name))
-            t.drop(context.obj['database'])
+            t.drop(context.obj["database"])
             print("Dropped {}".format(t.name))
         except:
             import traceback
+
             print(traceback.format_exc())
 
     print("Database dropped.")
 
 
-@db.command(name='drop')
-@click.option('-y', '--yes', is_flag=True, default=False, help="Yes to rebuild without prompting")
+@db.command(name="drop")
+@click.option(
+    "-y", "--yes", is_flag=True, default=False, help="Yes to rebuild without prompting"
+)
 @click.pass_context
 def db_drop(context, yes):
     """
@@ -562,8 +641,12 @@ def db_drop(context, yes):
     """
     try:
         if not yes:
-            if click.confirm('Are you sure you want to drop the database?', default=False):
-                if click.confirm('Are you REALLY sure you want to drop the database?', default=False):
+            if click.confirm(
+                "Are you sure you want to drop the database?", default=False
+            ):
+                if click.confirm(
+                    "Are you REALLY sure you want to drop the database?", default=False
+                ):
                     dropdb(context)
                 else:
                     print("Operation aborted.")
@@ -575,7 +658,7 @@ def db_drop(context, yes):
         logging.error(ex)
 
 
-@db.command(name='json', help="Dump the database to JSON")
+@db.command(name="json", help="Dump the database to JSON")
 @click.pass_context
 def db_json(context):
     """
@@ -584,19 +667,18 @@ def db_json(context):
     import json
 
     """ Returns the entire content of a database as lists of dicts"""
-    engine = context.obj['database']
+    engine = context.obj["database"]
     meta = MetaData()
     # http://docs.sqlalchemy.org/en/rel_0_9/core/reflection.html
     meta.reflect(bind=engine)
     result = {}
     for table in meta.sorted_tables:
-        result[table.name] = [dict(row)
-                              for row in engine.execute(table.select())]
+        result[table.name] = [dict(row) for row in engine.execute(table.select())]
     print(json.dumps(result, indent=4, default=str))
 
 
-@db.command(name='init')
-@click.option('-r', '--rls', is_flag=True, default=False, help="Row level security")
+@db.command(name="init")
+@click.option("-r", "--rls", is_flag=True, default=False, help="Row level security")
 def db_init(rls):
     """
     Initialize database tables
@@ -612,21 +694,21 @@ def db_init(rls):
         session = None
 
         try:
-            _engine = create_engine(CONFIG.get('database', 'uri'))
+            _engine = create_engine(CONFIG.get("database", "uri"))
             _session = sessionmaker(bind=_engine)()
             users = _session.query(UserModel).all()
-            print("Database already created. Please run \"pyfi db drop\".")
+            print('Database already created. Please run "pyfi db drop".')
             _session.close()
             return
         except:
             pass
 
         try:
-            engine = create_engine(POSTGRES_ROOT + 'postgres')
+            engine = create_engine(POSTGRES_ROOT + "postgres")
             session = sessionmaker(bind=engine)()
 
             session.connection().connection.set_isolation_level(0)
-            session.execute('CREATE DATABASE pyfi')
+            session.execute("CREATE DATABASE pyfi")
             session.connection().connection.set_isolation_level(1)
             print("Database created")
             session.close()
@@ -634,7 +716,7 @@ def db_init(rls):
             pass
 
         try:
-            engine = create_engine(CONFIG.get('database', 'uri'))
+            engine = create_engine(CONFIG.get("database", "uri"))
             engine.uri = db
             session = sessionmaker(bind=engine)()
             session.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
@@ -651,22 +733,22 @@ def db_init(rls):
         session.commit()
 
         try:
-            sql = "ALTER TABLE \"user\" ENABLE ROW LEVEL SECURITY"
+            sql = 'ALTER TABLE "user" ENABLE ROW LEVEL SECURITY'
             print("Enabling security on table user")
             session.execute(sql)
             session.commit()
-            sql = "CREATE POLICY user_security ON \"user\" USING (user.owner::text = current_user)"
+            sql = 'CREATE POLICY user_security ON "user" USING (user.owner::text = current_user)'
             session.execute(sql)
             session.commit()
         except:
             pass
 
         try:
-            sql = "ALTER TABLE \"login\" ENABLE ROW LEVEL SECURITY"
+            sql = 'ALTER TABLE "login" ENABLE ROW LEVEL SECURITY'
             print("Enabling security on table login")
             session.execute(sql)
             session.commit()
-            sql = "CREATE POLICY user_security ON \"login\" USING (login.owner::text = current_user)"
+            sql = 'CREATE POLICY user_security ON "login" USING (login.owner::text = current_user)'
             session.execute(sql)
             session.commit()
         except:
@@ -677,7 +759,7 @@ def db_init(rls):
         if rls:
             for t in Base.metadata.sorted_tables:
                 try:
-                    sql = f"ALTER TABLE \"{t.name}\" ENABLE ROW LEVEL SECURITY"
+                    sql = f'ALTER TABLE "{t.name}" ENABLE ROW LEVEL SECURITY'
                     print("Enabling security on table {}".format(t.name))
                     session.execute(sql)
                     session.commit()
@@ -686,7 +768,7 @@ def db_init(rls):
                     session.rollback()
 
                 try:
-                    sql = f"CREATE POLICY {t.name}_security ON \"{t.name}\" USING ({t.name}.owner::text = current_user)"
+                    sql = f'CREATE POLICY {t.name}_security ON "{t.name}" USING ({t.name}.owner::text = current_user)'
                     print(sql)
                     session.execute(sql)
                     session.commit()
@@ -696,23 +778,24 @@ def db_init(rls):
 
         print("Database create all schemas done.")
 
-        email = click.prompt('Postgres user email', type=str, default='p@e')
-        password = click.prompt('Postgres user password', type=str, default='pyfi101')
+        email = click.prompt("Postgres user email", type=str, default="p@e")
+        password = click.prompt("Postgres user password", type=str, default="pyfi101")
 
         _password = hashlib.md5(password.encode()).hexdigest()
 
-        if not CONFIG.has_section('login'):
-            CONFIG.add_section('login')
+        if not CONFIG.has_section("login"):
+            CONFIG.add_section("login")
 
-        CONFIG.set('login', 'password', _password)
-        CONFIG.set('login', 'user', 'postgres')
+        CONFIG.set("login", "password", _password)
+        CONFIG.set("login", "user", "postgres")
 
-        with open(ini, 'w') as inifile:
+        with open(ini, "w") as inifile:
             CONFIG.write(inifile)
 
-        user = UserModel(name='postgres', email=email,
-                         password=_password, clear=password)
-        role = RoleModel(name='admin')
+        user = UserModel(
+            name="postgres", email=email, password=_password, clear=password
+        )
+        role = RoleModel(name="admin")
         user.roles += [role]
         session.add(role)
         session.add(user)
@@ -724,157 +807,201 @@ def db_init(rls):
         logging.error(ex)
 
 
-@proc.command(name='remove')
+@proc.command(name="remove")
 @click.pass_context
 def remove_processor(context):
     """
     Remove a processor
     """
-    processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(id=context.obj['id']).first()
+    processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(id=context.obj["id"])
+        .first()
+    )
     # Business logic here?
-    processor.requested_status = 'removed'
-    database = context.obj['database']
+    processor.requested_status = "removed"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor remove requested.")
 
 
-@proc.command(name='pause')
-@click.option('-n', '--name', default=None, required=False)
+@proc.command(name="pause")
+@click.option("-n", "--name", default=None, required=False)
 @click.pass_context
 def pause_processor(context, name):
     """
     Pause a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     processor = None
 
     if name is not None:
         print("Pausing ", name)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
         print("Pausing ", id)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # Business logic here?
-    processor.requested_status = 'paused'
-    database = context.obj['database']
+    processor.requested_status = "paused"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor pause requested.")
 
 
-@proc.command(name='resume')
-@click.option('-n', '--name', default=None, required=False)
+@proc.command(name="resume")
+@click.option("-n", "--name", default=None, required=False)
 @click.pass_context
 def resume_processor(context, name):
     """
     Pause a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     if name is not None:
         print("Pausing ", name)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
         print("Pausing ", id)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # Business logic here?
-    processor.requested_status = 'resumed'
-    database = context.obj['database']
+    processor.requested_status = "resumed"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor resume requested.")
 
 
-@proc.command(name='stop')
-@click.option('-n', '--name', default=None, required=False)
+@proc.command(name="stop")
+@click.option("-n", "--name", default=None, required=False)
 @click.pass_context
 def stop_processor(context, name):
     """
     Stop a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     if name is not None:
         print("Stopping", name)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
         print("Stopping ", id)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # Business logic here?
-    processor.requested_status = 'stopped'
-    database = context.obj['database']
+    processor.requested_status = "stopped"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor stop requested.")
 
 
-@proc.command(name='start')
-@click.option('-n', '--name', default=None, required=False)
+@proc.command(name="start")
+@click.option("-n", "--name", default=None, required=False)
 @click.pass_context
 def start_processor(context, name):
     """
     Start a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     if name is not None:
         print("Starting", name)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
         print("Starting", id)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # Business logic here?
-    processor.requested_status = 'start'
-    database = context.obj['database']
+    processor.requested_status = "start"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor start requested.")
 
 
-@proc.command(name='restart')
-@click.option('-n', '--name', default=None, required=False)
+@proc.command(name="restart")
+@click.option("-n", "--name", default=None, required=False)
 @click.pass_context
 def restart_processor(context, name):
     """
     Start a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     if name is not None:
         print("Restarting", name)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
         print("Restarting", id)
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # Business logic here?
-    processor.requested_status = 'restart'
-    database = context.obj['database']
+    processor.requested_status = "restart"
+    database = context.obj["database"]
     database.session.add(processor)
     database.session.commit()
     print("Processor restart requested.")
 
 
 @cli.group()
-@click.option('--id', default=None, help="ID of scheduler")
-@click.option('-n', '--name', default=None, required=False, help='Name of scheduler')
+@click.option("--id", default=None, help="ID of scheduler")
+@click.option("-n", "--name", default=None, required=False, help="Name of scheduler")
 @click.pass_context
 def scheduler(context, id, name):
     """
@@ -885,8 +1012,8 @@ def scheduler(context, id, name):
     if id is None:
         id = uuid4()
 
-    context.obj['id'] = str(id)
-    context.obj['name'] = name
+    context.obj["id"] = str(id)
+    context.obj["name"] = name
 
 
 @cli.group(name="delete")
@@ -897,88 +1024,103 @@ def delete():
     pass
 
 
-
-@delete.command(name='deployment', help="Delete a deployment")
-@click.option('-n', '--name', default=None, help="Name of deployment")
+@delete.command(name="deployment", help="Delete a deployment")
+@click.option("-n", "--name", default=None, help="Name of deployment")
 @click.pass_context
 def delete_deployment(context, name):
-    deployment = context.obj['database'].session.query(
-        DeploymentModel).filter_by(name=name).first()
+    deployment = (
+        context.obj["database"]
+        .session.query(DeploymentModel)
+        .filter_by(name=name)
+        .first()
+    )
 
     if deployment.worker:
         deployment.worker.deployment = None
-        context.obj['database'].session.commit()
-    context.obj['database'].session.query(
-        DeploymentModel).filter_by(name=name).delete()
-    context.obj['database'].session.commit()
+        context.obj["database"].session.commit()
+    context.obj["database"].session.query(DeploymentModel).filter_by(name=name).delete()
+    context.obj["database"].session.commit()
     print("Deployment deleted.")
 
 
-@delete.command(name='calls', help="Delete all the call records")
+@delete.command(name="calls", help="Delete all the call records")
 @click.pass_context
 def delete_calls(context):
-    rows = context.obj['database'].session.query(
-        CallModel).delete()
+    rows = context.obj["database"].session.query(CallModel).delete()
     print(rows, "deleted.")
 
 
-@delete.command(name='socket', help="Delete a socket from the database")
-@click.option('-n', '--name', default=None, required=True, help="Name of socket being deleted")
+@delete.command(name="socket", help="Delete a socket from the database")
+@click.option(
+    "-n", "--name", default=None, required=True, help="Name of socket being deleted"
+)
 @click.pass_context
 def delete_socket(context, name):
-    model = context.obj['database'].session.query(
-        SocketModel).filter_by(name=name).first()
+    model = (
+        context.obj["database"].session.query(SocketModel).filter_by(name=name).first()
+    )
 
-    context.obj['database'].session.delete(model)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
 
 
-@delete.command(name='task', help="Delete a task from the database")
-@click.option('-n', '--name', default=None, required=True, help="Name of task being deleted")
+@delete.command(name="task", help="Delete a task from the database")
+@click.option(
+    "-n", "--name", default=None, required=True, help="Name of task being deleted"
+)
 @click.pass_context
 def delete_task(context, name):
-    model = context.obj['database'].session.query(
-        TaskModel).filter_by(name=name).first()
+    model = (
+        context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
+    )
 
-    context.obj['database'].session.delete(model)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
 
 
-@delete.command(name='agent', help="Delete an agent from the database")
-@click.option('-n', '--name', default=None, required=True, help="Name of agent being deleted")
+@delete.command(name="agent", help="Delete an agent from the database")
+@click.option(
+    "-n", "--name", default=None, required=True, help="Name of agent being deleted"
+)
 @click.pass_context
 def delete_agent(context, name):
-    model = context.obj['database'].session.query(
-        AgentModel).filter_by(name=name).first()
+    model = (
+        context.obj["database"].session.query(AgentModel).filter_by(name=name).first()
+    )
 
-    context.obj['database'].session.delete(model)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
 
 
-@delete.command(name='processor', help="Delete a processor from the database")
-@click.option('-n', '--name', default=None, required=True, help="Name of processor being deleted")
+@delete.command(name="processor", help="Delete a processor from the database")
+@click.option(
+    "-n", "--name", default=None, required=True, help="Name of processor being deleted"
+)
 @click.pass_context
 def delete_processor(context, name):
-    model = context.obj['database'].session.query(
-        ProcessorModel).filter_by(name=name).first()
+    model = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(name=name)
+        .first()
+    )
 
-    context.obj['database'].session.delete(model)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
 
 
-@delete.command(name='user', help="Delete a user object from the database")
-@click.option('--id', default=None, required=True, help="ID of user being deleted")
+@delete.command(name="user", help="Delete a user object from the database")
+@click.option("--id", default=None, required=True, help="ID of user being deleted")
 @click.pass_context
 def delete_user(context, id):
-    model = context.obj['database'].session.query(
-        UserModel).filter_by(id=id).first()
+    model = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
 
-    context.obj['database'].session.delete(model)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
 
 
 @cli.group()
-@click.option('--id', default=None, help="ID of object being added")
+@click.option("--id", default=None, help="ID of object being added")
 @click.pass_context
 def add(context, id):
     """
@@ -989,11 +1131,11 @@ def add(context, id):
     if id is None:
         id = uuid4()
 
-    context.obj['id'] = str(id)
+    context.obj["id"] = str(id)
 
 
 @cli.group()
-@click.option('--id', default=None, help="ID of object being added")
+@click.option("--id", default=None, help="ID of object being added")
 @click.pass_context
 def update(context, id):
     """
@@ -1004,52 +1146,64 @@ def update(context, id):
     if id is None:
         id = uuid4()
 
-    context.obj['id'] = str(id)
+    context.obj["id"] = str(id)
 
 
-@scheduler.command(name='start', help='Start the default scheduler')
-@click.option('-n', '--name', default=None, required=True)
-@click.option('-i', '--interval', default=3, required=False)
+@scheduler.command(name="start", help="Start the default scheduler")
+@click.option("-n", "--name", default=None, required=True)
+@click.option("-i", "--interval", default=3, required=False)
 @click.pass_context
 def start_scheduler(context, name, interval):
     from pyfi.scheduler import Scheduler
+
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
     scheduler = Scheduler(context, name, interval)
     scheduler.run()
 
 
-@scheduler.command(name='remove')
-@click.option('-nd', '--node', default=None, required=False, help='Name of node to remove')
+@scheduler.command(name="remove")
+@click.option(
+    "-nd", "--node", default=None, required=False, help="Name of node to remove"
+)
 @click.pass_context
 def remove_node_to_scheduler(context, node):
-    """ Remove node from scheduler """
+    """Remove node from scheduler"""
     pass
 
 
-@scheduler.command(name='add')
-@click.option('-nd', '--node', default=None, required=False, help='Name of node to add')
+@scheduler.command(name="add")
+@click.option("-nd", "--node", default=None, required=False, help="Name of node to add")
 @click.pass_context
 def add_node_to_scheduler(context, node):
     """
     Add a node to a scheduler
     """
-    id = context.obj['id']
-    name = context.obj['name']
+    id = context.obj["id"]
+    name = context.obj["name"]
 
     if name is not None:
-        scheduler = context.obj['database'].session.query(
-            SchedulerModel).filter_by(name=name).first()
+        scheduler = (
+            context.obj["database"]
+            .session.query(SchedulerModel)
+            .filter_by(name=name)
+            .first()
+        )
 
     elif id is not None:
-        scheduler = context.obj['database'].session.query(
-            SchedulerModel).filter_by(id=id).first()
+        scheduler = (
+            context.obj["database"]
+            .session.query(SchedulerModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     if scheduler is None:
         print(f"Scheduler {name} does not exist.")
         return
 
-    _node = context.obj['database'].session.query(
-        NodeModel).filter_by(name=node).first()
+    _node = (
+        context.obj["database"].session.query(NodeModel).filter_by(name=node).first()
+    )
 
     if _node is None:
         print(f"Node {node} does not exist.")
@@ -1057,8 +1211,8 @@ def add_node_to_scheduler(context, node):
 
     scheduler.nodes += [_node]
 
-    context.obj['database'].session.add(scheduler)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(scheduler)
+    context.obj["database"].session.commit()
 
     print(_node)
 
@@ -1071,34 +1225,31 @@ def task():
     pass
 
 
-@task.command(name='code', help="Print the task source code")
-@click.option('-n', '--name', default=None, required=True, help="Name of task")
+@task.command(name="code", help="Print the task source code")
+@click.option("-n", "--name", default=None, required=True, help="Name of task")
 @click.pass_context
 def code_task(context, name):
     import importlib
     import inspect
 
-
-    task = context.obj['database'].session.query(
-        TaskModel).filter_by(name=name).first()
+    task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
     _code = task.code
     if _code is None:
-            _module = importlib.import_module(task.module)
-            _function = getattr(_module, task.name)
-            _source = inspect.getsource(_function)
-            print(_source)
+        _module = importlib.import_module(task.module)
+        _function = getattr(_module, task.name)
+        _source = inspect.getsource(_function)
+        print(_source)
     else:
         print(_code)
 
 
-@task.command(name='show', help="Show details for a task")
-@click.option('-n', '--name', required=True, help='Name of task to run')
-@click.option('-g', '--gitrepo', is_flag=True, default=False)
+@task.command(name="show", help="Show details for a task")
+@click.option("-n", "--name", required=True, help="Name of task to run")
+@click.option("-g", "--gitrepo", is_flag=True, default=False)
 @click.pass_context
 def show_task(context, name, gitrepo):
-    task = context.obj['database'].session.query(
-        TaskModel).filter_by(name=name).first()
+    task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
     x = PrettyTable()
 
@@ -1114,8 +1265,7 @@ def show_task(context, name, gitrepo):
         print(task.code)
 
     for node in nodes:
-        values = [node.name, node.id, node.owner,
-                  node.lastupdated, node.module]
+        values = [node.name, node.id, node.owner, node.lastupdated, node.module]
         if gitrepo:
             values += [node.gitrepo]
 
@@ -1124,13 +1274,38 @@ def show_task(context, name, gitrepo):
     print(x)
 
 
-@task.command(name='run')
-@click.option('-n', '--name', required=False, help='Name of task to run')
-@click.option('-f', '--format', required=False, default='raw', help='Type of return data (json, pickle, raw)')
-@click.option('-s', '--socket', required=False, help='Name of socket associated with the task to run')
-@click.option('-d', '--data', required=False, help='Python evaluated string to pass to the socket\'s task')
-@click.option('-nd', '--nodata', required=False, is_flag=True, default=False, help='Set this flag if no data is being passed in.')
-@click.option('-a', '--argument', required=False, default=None, help='Name of argument to pass')
+@task.command(name="run")
+@click.option("-n", "--name", required=False, help="Name of task to run")
+@click.option(
+    "-f",
+    "--format",
+    required=False,
+    default="raw",
+    help="Type of return data (json, pickle, raw)",
+)
+@click.option(
+    "-s",
+    "--socket",
+    required=False,
+    help="Name of socket associated with the task to run",
+)
+@click.option(
+    "-d",
+    "--data",
+    required=False,
+    help="Python evaluated string to pass to the socket's task",
+)
+@click.option(
+    "-nd",
+    "--nodata",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Set this flag if no data is being passed in.",
+)
+@click.option(
+    "-a", "--argument", required=False, default=None, help="Name of argument to pass"
+)
 @click.pass_context
 def run_task(context, name, format, socket, data, nodata, argument):
     """
@@ -1145,8 +1320,12 @@ def run_task(context, name, format, socket, data, nodata, argument):
 
         mymodule = imp.new_module(name)
 
-        _task = context.obj['database'].session.query(
-            TaskModel).filter_by(name=name).first()
+        _task = (
+            context.obj["database"]
+            .session.query(TaskModel)
+            .filter_by(name=name)
+            .first()
+        )
 
         if _task.code:
             result = exec(_task.code, mymodule.__dict__)
@@ -1155,7 +1334,7 @@ def run_task(context, name, format, socket, data, nodata, argument):
                 print(result)
             return
 
-    user = context.obj['user']
+    user = context.obj["user"]
     socket = Socket(name=socket, user=user)
 
     if socket is None:
@@ -1176,14 +1355,15 @@ def run_task(context, name, format, socket, data, nodata, argument):
             return
 
         o_argument = {
-                'name': argument,
-                'kind': _argument.kind,
-                'key': socket.processor.name + '.' + _task.module + '.' + _task.name,
-                'module': _task.module,
-                'function': _task.name,
-                'position': _argument.position}
+            "name": argument,
+            "kind": _argument.kind,
+            "key": socket.processor.name + "." + _task.module + "." + _task.name,
+            "module": _task.module,
+            "function": _task.name,
+            "position": _argument.position,
+        }
 
-        kwargs['argument'] = o_argument
+        kwargs["argument"] = o_argument
 
     if data:
         if not argument:
@@ -1209,7 +1389,7 @@ def run_task(context, name, format, socket, data, nodata, argument):
                 break
             lines.append(stripped)
 
-        result = socket(''.join(lines))
+        result = socket("".join(lines))
 
     # If type is set to pickle, then pickle the result
     # If type is set to json, then json dumps
@@ -1222,7 +1402,7 @@ def update_object(obj, locals):
     Docstring
     """
     for var in locals.keys():
-        if locals[var] is not None and var != 'id':
+        if locals[var] is not None and var != "id":
             setattr(obj, var, locals[var])
 
     obj.updated = datetime.now()
@@ -1230,98 +1410,126 @@ def update_object(obj, locals):
     return obj
 
 
-@update.command(name='processor')
-@click.option('-n', '--name', default=None, required=False)
-@click.option('-m', '--module', default=None, required=False)
-@click.option('-h', '--hostname', default=None, help='Target server hostname')
-@click.option('-w', '--workers', default=None, help='Number of worker tasks')
-@click.option('-g', '--gitrepo', default=None, help='Git repo URI')
-@click.option('-c', '--commit', default=None, help='Git commit id for processor code')
-@click.option('-b', '--beat', default=None, is_flag=True, required=False)
-@click.option('-r', '--requested_status', default=None, required=False)
-@click.option('-br', '--branch', default=None, required=False)
+@update.command(name="processor")
+@click.option("-n", "--name", default=None, required=False)
+@click.option("-m", "--module", default=None, required=False)
+@click.option("-h", "--hostname", default=None, help="Target server hostname")
+@click.option("-w", "--workers", default=None, help="Number of worker tasks")
+@click.option("-g", "--gitrepo", default=None, help="Git repo URI")
+@click.option("-c", "--commit", default=None, help="Git commit id for processor code")
+@click.option("-b", "--beat", default=None, is_flag=True, required=False)
+@click.option("-r", "--requested_status", default=None, required=False)
+@click.option("-br", "--branch", default=None, required=False)
 @click.pass_context
-def update_processor(context, name, module, hostname, workers, gitrepo, commit, beat, requested_status, branch):
+def update_processor(
+    context,
+    name,
+    module,
+    hostname,
+    workers,
+    gitrepo,
+    commit,
+    beat,
+    requested_status,
+    branch,
+):
     """
     Update a processor in the database
     """
     import inspect
-    id = context.obj['id']
+
+    id = context.obj["id"]
 
     if name is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
 
     elif id is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     # TODO: Update deployment
     if not hostname:
 
-        _hostname = click.prompt('Hostname',
-                                 type=str, default=processor.hostname)
-        
+        _hostname = click.prompt("Hostname", type=str, default=processor.hostname)
+
         # Update deployment
 
     if not module:
-        processor.module = click.prompt('Module',
-                                        type=str, default=processor.module)
+        processor.module = click.prompt("Module", type=str, default=processor.module)
 
     if not workers:
-        processor.concurrency = click.prompt('Workers',
-                                             type=int, default=processor.concurrency)
+        processor.concurrency = click.prompt(
+            "Workers", type=int, default=processor.concurrency
+        )
 
     if not gitrepo:
-        processor.gitrepo = click.prompt('Gitrepo',
-                                         type=str, default=processor.gitrepo)
+        processor.gitrepo = click.prompt("Gitrepo", type=str, default=processor.gitrepo)
 
     if not commit:
-        processor.commit = click.prompt('Commit',
-                                        type=str, default=processor.commit)
+        processor.commit = click.prompt("Commit", type=str, default=processor.commit)
 
     if not branch:
-        processor.branch = click.prompt('Branch',
-                                        type=str, default=processor.branch)
+        processor.branch = click.prompt("Branch", type=str, default=processor.branch)
 
     if not beat:
-        processor.beat = click.prompt('Beat',
-                                      type=bool, default=processor.beat)
+        processor.beat = click.prompt("Beat", type=bool, default=processor.beat)
 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
-    processor.requested_status = 'update'
-    context.obj['database'].session.add(processor)
-    context.obj['database'].session.commit()
+    processor.requested_status = "update"
+    context.obj["database"].session.add(processor)
+    context.obj["database"].session.commit()
 
 
-@add.command(name='log')
-@click.option('-i', '--id', default=None, help="id of object")
-@click.option('-s', '--source', default=None, required=False, help='Source name')
-@click.option('-t', '--text', default=None, required=False, help='Text of log')
+@add.command(name="log")
+@click.option("-i", "--id", default=None, help="id of object")
+@click.option("-s", "--source", default=None, required=False, help="Source name")
+@click.option("-t", "--text", default=None, required=False, help="Text of log")
 def add_log(context, id, source, text):
-    """ Add a log to the database """
+    """Add a log to the database"""
     pass
 
 
-@add.command(name='argument')
-@click.option('-p', '--plug', prompt=True, required=True, default=None, help="Name of plug")
-@click.option('-t', '--task', prompt=True, required=True, default=None, help="Name of task")
-@click.option('-a', '--argument', prompt=True, required=True, default=None, help="Name of argument")
+@add.command(name="argument")
+@click.option(
+    "-p", "--plug", prompt=True, required=True, default=None, help="Name of plug"
+)
+@click.option(
+    "-t", "--task", prompt=True, required=True, default=None, help="Name of task"
+)
+@click.option(
+    "-a",
+    "--argument",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Name of argument",
+)
 @click.pass_context
 def add_argument(context, plug, task, argument):
-    """ Add argument to plug """
+    """Add argument to plug"""
     import importlib
     import inspect
 
-    user = context.obj['user']
-    _task = context.obj['database'].session.query(
-        TaskModel).filter_by(name=task).first()
+    user = context.obj["user"]
+    _task = (
+        context.obj["database"].session.query(TaskModel).filter_by(name=task).first()
+    )
 
-    _plug = context.obj['database'].session.query(
-        PlugModel).filter_by(name=plug).first()
-        
+    _plug = (
+        context.obj["database"].session.query(PlugModel).filter_by(name=plug).first()
+    )
+
     _module = importlib.import_module(_task.module)
     _function = getattr(_module, _task.name)
 
@@ -1329,40 +1537,52 @@ def add_argument(context, plug, task, argument):
 
     position = 0
     _task.arguments = []
-    context.obj['database'].session.add(_task)
-    context.obj['database'].session.add(_plug)
+    context.obj["database"].session.add(_task)
+    context.obj["database"].session.add(_plug)
     for pname in signature.parameters:
         param = signature.parameters[pname]
         print("Name", param.name)
         print("Kind", param.kind)
         print("Default", param.default)
         _argument = ArgumentModel(
-            name=param.name, position=position, user=user, kind=param.kind)
+            name=param.name, position=position, user=user, kind=param.kind
+        )
         _task.arguments += [_argument]
         position += 1
 
         if param.name == argument and _plug:
-            context.obj['database'].session.add(_argument)
+            context.obj["database"].session.add(_argument)
             logging.info("ADDING ARGUMENT")
             _plug.argument_id = _argument.id
             _argument.plugs += [_plug]
-            #_plug.argument = _argument
-            logging.info("Added argument %s %s to plug %s",
-                         _plug.argument, _argument, _plug.name)
+            # _plug.argument = _argument
+            logging.info(
+                "Added argument %s %s to plug %s", _plug.argument, _argument, _plug.name
+            )
 
     _task.updated = datetime.now()
-    context.obj['database'].session.commit()
-    
+    context.obj["database"].session.commit()
 
 
-@add.command(name='task')
-@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this task")
-@click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
-@click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
-@click.option('-r', '--repo', default="None", help='Git repo containing packages')
+@add.command(name="task")
+@click.option(
+    "-n", "--name", prompt=True, required=True, default=None, help="Name of this task"
+)
+@click.option(
+    "-m",
+    "--module",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Python module (e.g. some.module.path",
+)
+@click.option(
+    "-c", "--code", is_flag=True, default=None, help="Code flag. reads from stdin."
+)
+@click.option("-r", "--repo", default="None", help="Git repo containing packages")
 @click.pass_context
 def add_task(context, name, module, code, repo):
-    """ Add task to the database """
+    """Add task to the database"""
     import importlib
     import inspect
 
@@ -1377,7 +1597,7 @@ def add_task(context, name, module, code, repo):
 
     task = TaskModel(name=name, module=module, code=code, gitrepo=repo)
 
-    context.obj['database'].session.add(task)
+    context.obj["database"].session.add(task)
     _module = importlib.import_module(module)
     _function = getattr(_module, name)
 
@@ -1391,97 +1611,194 @@ def add_task(context, name, module, code, repo):
         print("Default", param.default)
         argument = ArgumentModel(name=param.name, position=position, kind=param.kind)
         task.arguments += [argument]
-        context.obj['database'].session.add(argument)
+        context.obj["database"].session.add(argument)
         position += 1
     # Create argument models from code and associate with task
     # task.arguments += [argument]
 
     task.updated = datetime.now()
-    context.obj['database'].session.commit()
+    context.obj["database"].session.commit()
 
     print(task)
 
 
-@add.command(name='deployment')
-@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
-@click.option('-d', '--deploy', prompt=True, required=True, default=None, help="Name of this deployment")
-@click.option('-h', '--hostname', default=None, help='Target server hostname')
-@click.option('-c', '--cpus', default=0, help='Number of CPUs')
+@add.command(name="deployment")
+@click.option(
+    "-n",
+    "--name",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Name of this processor",
+)
+@click.option(
+    "-d",
+    "--deploy",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Name of this deployment",
+)
+@click.option("-h", "--hostname", default=None, help="Target server hostname")
+@click.option("-c", "--cpus", default=0, help="Number of CPUs")
 @click.pass_context
 def add_deployment(context, name, deploy, hostname, cpus):
 
-    processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(name=name).first()
-    
-    deployment = context.obj['database'].session.query(
-        DeploymentModel).filter_by(name=deploy).first()
+    processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(name=name)
+        .first()
+    )
+
+    deployment = (
+        context.obj["database"]
+        .session.query(DeploymentModel)
+        .filter_by(name=deploy)
+        .first()
+    )
 
     if deployment is not None:
         print("Deployment {} exists.".format(deploy))
         return
     else:
-        deployment = DeploymentModel(hostname=hostname, name=deploy, processor_id=processor.id, cpus=cpus)
-        context.obj['database'].session.add(deployment)
+        deployment = DeploymentModel(
+            hostname=hostname, name=deploy, processor_id=processor.id, cpus=cpus
+        )
+        context.obj["database"].session.add(deployment)
         processor.deployments += [deployment]
-        context.obj['database'].session.commit()
+        context.obj["database"].session.commit()
 
-    print("Deployment {}:{}:{} added.".format(deploy,hostname,cpus))
-    
+    print("Deployment {}:{}:{} added.".format(deploy, hostname, cpus))
 
-@add.command(name='processor')
-@click.option('-n', '--name', prompt=True, required=True, default=None, help="Name of this processor")
-@click.option('-m', '--module', prompt=True, required=True, default=None, help="Python module (e.g. some.module.path")
-@click.option('-h', '--hostname', default=None, help='Target server hostname')
-@click.option('-w', '--workers', default=1, help='Number of worker tasks')
-@click.option('-r', '--retries', default=5, help='Number of retries to invoke this processor')
-@click.option('-g', '--gitrepo', prompt=True, default=None, required=True, help='Git repo URI')
-@click.option('-c', '--commit', default=None, help='Git commit id for processor code')
-@click.option('-rs', '--requested_status', default='ready', required=False,
-              help="The requested status for this processor")
-@click.option('-b', '--beat', default=False, is_flag=True, required=False, help="Enable the beat scheduler")
-@click.option('-br', '--branch', default='main', required=False, help="Git branch to be used for checkouts")
+
+@add.command(name="processor")
+@click.option(
+    "-n",
+    "--name",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Name of this processor",
+)
+@click.option(
+    "-m",
+    "--module",
+    prompt=True,
+    required=True,
+    default=None,
+    help="Python module (e.g. some.module.path",
+)
+@click.option("-h", "--hostname", default=None, help="Target server hostname")
+@click.option("-w", "--workers", default=1, help="Number of worker tasks")
+@click.option(
+    "-r", "--retries", default=5, help="Number of retries to invoke this processor"
+)
+@click.option(
+    "-g", "--gitrepo", prompt=True, default=None, required=True, help="Git repo URI"
+)
+@click.option("-c", "--commit", default=None, help="Git commit id for processor code")
+@click.option(
+    "-rs",
+    "--requested_status",
+    default="ready",
+    required=False,
+    help="The requested status for this processor",
+)
+@click.option(
+    "-b",
+    "--beat",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="Enable the beat scheduler",
+)
+@click.option(
+    "-br",
+    "--branch",
+    default="main",
+    required=False,
+    help="Git branch to be used for checkouts",
+)
 @click.pass_context
-def add_processor(context, name, module, hostname, workers, retries, gitrepo, commit, requested_status, beat, branch):
+def add_processor(
+    context,
+    name,
+    module,
+    hostname,
+    workers,
+    retries,
+    gitrepo,
+    commit,
+    requested_status,
+    beat,
+    branch,
+):
     """
     Add processor to the database
     """
 
-    id = context.obj['id']
-    user = context.obj['user']
+    id = context.obj["id"]
+    user = context.obj["user"]
 
     #  hostname=hostname,
     processor = ProcessorModel(
-        id=id, status='ready', user_id=user.id, user=user, branch=branch, retries=retries,
-        gitrepo=gitrepo, beat=beat, commit=commit, concurrency=workers, requested_status=requested_status, name=name,
-        module=module)
+        id=id,
+        status="ready",
+        user_id=user.id,
+        user=user,
+        branch=branch,
+        retries=retries,
+        gitrepo=gitrepo,
+        beat=beat,
+        commit=commit,
+        concurrency=workers,
+        requested_status=requested_status,
+        name=name,
+        module=module,
+    )
 
     if hostname:
         deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=0)
         processor.deployments += [deployment]
-        context.obj['database'].session.add(deployment)
+        context.obj["database"].session.add(deployment)
 
-    log1 = LogModel(oid=id, text='This is a log for ' + name, user_id=user.id, public=True, user=user,
-                    discriminator='ProcessorModel', source='pyfi')
-    log2 = LogModel(oid=id, text='This is a log for ' + name + ' too', public=False, user_id=user.id, user=user,
-                    discriminator='ProcessorModel', source='pyfi')
+    log1 = LogModel(
+        oid=id,
+        text="This is a log for " + name,
+        user_id=user.id,
+        public=True,
+        user=user,
+        discriminator="ProcessorModel",
+        source="pyfi",
+    )
+    log2 = LogModel(
+        oid=id,
+        text="This is a log for " + name + " too",
+        public=False,
+        user_id=user.id,
+        user=user,
+        discriminator="ProcessorModel",
+        source="pyfi",
+    )
 
-    context.obj['database'].session.add(log1)
-    context.obj['database'].session.add(log2)
+    context.obj["database"].session.add(log1)
+    context.obj["database"].session.add(log2)
 
     processor.logs += [log1]
     processor.logs += [log2]
     processor.updated = datetime.now()
 
-    context.obj['database'].session.add(processor)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(processor)
+    context.obj["database"].session.commit()
 
     print(processor)
 
 
-@add.command(name='privilege')
-@click.option('-u', '--user', default=None, required=True)
-@click.option('-n', '--name', default=None, required=True)
-@click.option('-r', '--role', default=None, required=False)
+@add.command(name="privilege")
+@click.option("-u", "--user", default=None, required=True)
+@click.option("-n", "--name", default=None, required=True)
+@click.option("-r", "--role", default=None, required=False)
 @click.pass_context
 def add_privilege(context, user, name, role):
     """
@@ -1493,33 +1810,38 @@ def add_privilege(context, user, name, role):
         print("User and Role cannot both be None.")
         return
 
-    id = context.obj['id']
+    id = context.obj["id"]
 
     import warnings
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         try:
-            user = context.obj['database'].session.query(
-                UserModel).filter_by(name=user).first()
+            user = (
+                context.obj["database"]
+                .session.query(UserModel)
+                .filter_by(name=user)
+                .first()
+            )
             user.lastupdated = datetime.now()
             privilege = PrivilegeModel(id=id, name=name, right=name)
             user.privileges += [privilege]
-            context.obj['database'].session.add(privilege)
-            context.obj['database'].session.add(user)
-            context.obj['database'].session.commit()
+            context.obj["database"].session.add(privilege)
+            context.obj["database"].session.add(user)
+            context.obj["database"].session.commit()
             print("Privilege added")
         except IntegrityError:
             import traceback
+
             print(traceback.format_exc())
-            context.obj['database'].session.rollback()
+            context.obj["database"].session.rollback()
             print("Error: Database constraint violation")
 
 
-@add.command(name='user')
-@click.option('-n', '--name', prompt=True, default=None, required=True)
-@click.option('-e', '--email', prompt=True, default=None, required=True)
-@click.option('-p', '--password', prompt=True, default=None, required=True)
+@add.command(name="user")
+@click.option("-n", "--name", prompt=True, default=None, required=True)
+@click.option("-e", "--email", prompt=True, default=None, required=True)
+@click.option("-p", "--password", prompt=True, default=None, required=True)
 @click.pass_context
 def add_user(context, name, email, password):
     """
@@ -1529,7 +1851,7 @@ def add_user(context, name, email, password):
     from pyfi.db.model import Base
     import hashlib
 
-    id = context.obj['id']
+    id = context.obj["id"]
 
     if name is None or email is None:
         raise click.UsageError("Name and Email are required")
@@ -1537,130 +1859,146 @@ def add_user(context, name, email, password):
     try:
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
-        user = UserModel(name=name, owner=name,
-                         password=_password, clear=password, email=email)
+        user = UserModel(
+            name=name, owner=name, password=_password, clear=password, email=email
+        )
         user.lastupdated = datetime.now()
 
-        context.obj['database'].session.add(user)
-        context.obj['database'].session.commit()
+        context.obj["database"].session.add(user)
+        context.obj["database"].session.commit()
 
         sql = f"CREATE USER {name} WITH PASSWORD '{password}'"
         print(sql)
-        context.obj['database'].session.execute(sql)
+        context.obj["database"].session.execute(sql)
 
         for t in Base.metadata.sorted_tables:
-            sql = f"GRANT CONNECT ON DATABASE pyfi TO \"{name}\""
-            context.obj['database'].session.execute(sql)
-            sql = f"GRANT SELECT, UPDATE, INSERT, DELETE ON \"{t.name}\" TO \"{name}\""
-            context.obj['database'].session.execute(sql)
+            sql = f'GRANT CONNECT ON DATABASE pyfi TO "{name}"'
+            context.obj["database"].session.execute(sql)
+            sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO "{name}"'
+            context.obj["database"].session.execute(sql)
 
-        context.obj['database'].session.commit()
-        print(f"User \"{name}\" added")
+        context.obj["database"].session.commit()
+        print(f'User "{name}" added')
     except IntegrityError:
         import traceback
+
         print(traceback.format_exc())
-        context.obj['database'].session.rollback()
+        context.obj["database"].session.rollback()
         print("Error: Database constraint violation")
 
 
-@add.command(name='scheduler')
-@click.option('-n', '--name', required=True)
-@click.option('-s', '--strategy', type=click.Choice(['BALANCED', 'EFFICIENT']), default='BALANCED', required=False)
+@add.command(name="scheduler")
+@click.option("-n", "--name", required=True)
+@click.option(
+    "-s",
+    "--strategy",
+    type=click.Choice(["BALANCED", "EFFICIENT"]),
+    default="BALANCED",
+    required=False,
+)
 @click.pass_context
 def add_scheduler(context, name, strategy):
     """
     Add scheduler object to the database
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     scheduler = SchedulerModel(name=name, strategy=strategy, id=id)
     scheduler.updated = datetime.now()
-    context.obj['database'].session.add(scheduler)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(scheduler)
+    context.obj["database"].session.commit()
 
     print(scheduler)
 
 
-@add.command(name='node')
-@click.option('-n', '--name', required=True)
-@click.option('-h', '--hostname', default=None, help='Hostname of the node')
+@add.command(name="node")
+@click.option("-n", "--name", required=True)
+@click.option("-h", "--hostname", default=None, help="Hostname of the node")
 @click.pass_context
 def add_node(context, name, hostname):
     """
     Add node object to the database
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     node = NodeModel(name=name, id=id, hostname=hostname)
     node.updated = datetime.now()
-    context.obj['database'].session.add(node)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(node)
+    context.obj["database"].session.commit()
 
     print(node)
 
 
-@add.command(name='agent')
-@click.option('-n', '--name', required=True)
-@click.option('-nd', '--node', required=True)
+@add.command(name="agent")
+@click.option("-n", "--name", required=True)
+@click.option("-nd", "--node", required=True)
 @click.pass_context
 def add_agent(context, name, node):
     """
     Add agent object to the database
     """
-    id = context.obj['id']
-    node = context.obj['database'].session.query(
-        NodeModel).filter_by(name=node).first()
+    id = context.obj["id"]
+    node = context.obj["database"].session.query(NodeModel).filter_by(name=node).first()
 
     agent = AgentModel(name=name, id=id, hostname=node.hostname, node_id=node.id)
     agent.updated = datetime.now()
-    context.obj['database'].session.add(agent)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(agent)
+    context.obj["database"].session.commit()
 
     print(agent)
 
 
-@add.command(name='role')
-@click.option('-n', '--name', required=True)
+@add.command(name="role")
+@click.option("-n", "--name", required=True)
 @click.pass_context
 def add_role(context, name):
     """
     Add role object to the database
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     role = RoleModel(name=name, id=id)
     role.updated = datetime.now()
-    context.obj['database'].session.add(role)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(role)
+    context.obj["database"].session.commit()
 
     print(role)
 
 
-@add.command(name='queue')
-@click.option('-n', '--name', required=True)
-@click.option('-t', '--type', type=click.Choice(['topic', 'direct', 'fanout'], case_sensitive=False), show_default=True,
-              default='direct', required=True)
+@add.command(name="queue")
+@click.option("-n", "--name", required=True)
+@click.option(
+    "-t",
+    "--type",
+    type=click.Choice(["topic", "direct", "fanout"], case_sensitive=False),
+    show_default=True,
+    default="direct",
+    required=True,
+)
 @click.pass_context
 def add_queue(context, name, type):
     """
     Add queue object to the database
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
-    queue = QueueModel(name=name, id=id, qtype=type, requested_status='create',
-                       status='ready')
+    queue = QueueModel(
+        name=name, id=id, qtype=type, requested_status="create", status="ready"
+    )
 
     queue.updated = datetime.now()
-    context.obj['database'].session.add(queue)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(queue)
+    context.obj["database"].session.commit()
 
     print(queue)
 
 
-@update.command(name='task')
-@click.option('-n', '--name', required=True)
-@click.option('-m', '--module', is_flag=True, default=False)
-@click.option('-c', '--code', is_flag=True, default=None, help='Code flag. reads from stdin.')
+@update.command(name="task")
+@click.option("-n", "--name", required=True)
+@click.option("-m", "--module", is_flag=True, default=False)
+@click.option(
+    "-c", "--code", is_flag=True, default=None, help="Code flag. reads from stdin."
+)
 @click.pass_context
 def update_task(context, name, module, code):
     """
@@ -1671,92 +2009,122 @@ def update_task(context, name, module, code):
         # get from stdin
         code = sys.stdin.read()
 
-    _task = context.obj['database'].session.query(
-        TaskModel).filter_by(name=name).first()
+    _task = (
+        context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
+    )
 
     if _task and code:
         _task.code = code
-        _task.requested_status = 'update'
-        socket = context.obj['database'].session.query(
-            SocketModel).join(TaskModel).filter(SocketModel.task_id == TaskModel.id).first()
-        socket.processor.requested_status = 'update'
+        _task.requested_status = "update"
+        socket = (
+            context.obj["database"]
+            .session.query(SocketModel)
+            .join(TaskModel)
+            .filter(SocketModel.task_id == TaskModel.id)
+            .first()
+        )
+        socket.processor.requested_status = "update"
 
         print(socket)
 
-    context.obj['database'].session.add(_task)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(_task)
+    context.obj["database"].session.commit()
 
 
-@update.command(name='socket')
-@click.option('-n', '--name', required=True)
-@click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-i', '--interval', default=None, required=False)
-@click.option('-pi', '--procid', default=None, required=False, help="Processor id")
-@click.option('-pn', '--procname', default=None, required=False, help="Processor name")
-@click.option('-t', '--task', default=None, required=False, help="Task name")
+@update.command(name="socket")
+@click.option("-n", "--name", required=True)
+@click.option("-q", "--queue", required=True, help="Queue name")
+@click.option("-i", "--interval", default=None, required=False)
+@click.option("-pi", "--procid", default=None, required=False, help="Processor id")
+@click.option("-pn", "--procname", default=None, required=False, help="Processor name")
+@click.option("-t", "--task", default=None, required=False, help="Task name")
 @click.pass_context
 def update_socket(context, name, queue, interval, procid, procname, task):
     """
     Update a socket in the database
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
     # Get the named or id of the plug model
     if name is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(name=name).first()
+        socket = (
+            context.obj["database"]
+            .session.query(SocketModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(id=id).first()
+        socket = (
+            context.obj["database"].session.query(SocketModel).filter_by(id=id).first()
+        )
 
-    processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(id=socket.processor_id).first()
+    processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(id=socket.processor_id)
+        .first()
+    )
     if not interval and interval > 0:
-        socket.interval = click.prompt('Interval',
-                                       type=int, default=socket.interval)
-        processor.requested_status = 'update'
+        socket.interval = click.prompt("Interval", type=int, default=socket.interval)
+        processor.requested_status = "update"
 
     return
 
 
-@update.command(name='plug')
-@click.option('-n', '--name', required=True)
-@click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-pi', '--procid', default=None, required=False, help="Processor id")
-@click.option('-pn', '--procname', default=None, required=False, help="Processor name")
+@update.command(name="plug")
+@click.option("-n", "--name", required=True)
+@click.option("-q", "--queue", required=True, help="Queue name")
+@click.option("-pi", "--procid", default=None, required=False, help="Processor id")
+@click.option("-pn", "--procname", default=None, required=False, help="Processor name")
 @click.pass_context
 def update_plug(context, name, queue, procid, procname):
     """
     Update or move a processor plug
     """
     import inspect
-    id = context.obj['id']
+
+    id = context.obj["id"]
 
     # Get the named or id of the plug model
     if name is not None:
-        plug = context.obj['database'].session.query(
-            PlugModel).filter_by(name=name).first()
+        plug = (
+            context.obj["database"]
+            .session.query(PlugModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
-        plug = context.obj['database'].session.query(
-            PlugModel).filter_by(id=id).first()
+        plug = context.obj["database"].session.query(PlugModel).filter_by(id=id).first()
 
     # Get the plug's current processor
-    current_processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(id=plug.processor_id).first()
+    current_processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(id=plug.processor_id)
+        .first()
+    )
 
     # Get the processor referenced in the CLI
     if procname is not None:
-        new_processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=procname).first()
+        new_processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=procname)
+            .first()
+        )
     elif procid is not None:
-        new_processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=procid).first()
+        new_processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=procid)
+            .first()
+        )
 
     # If the new processor is different, then add it to the transaction
     # and request it be updated by the agent
     if new_processor.id != current_processor.id:
-        new_processor.requested_status = 'update'
-        context.obj['database'].session.add(new_processor)
+        new_processor.requested_status = "update"
+        context.obj["database"].session.add(new_processor)
 
     # Update all the values in the plug object
     argspec = inspect.getargvalues(inspect.currentframe())
@@ -1771,96 +2139,135 @@ def update_plug(context, name, queue, procid, procname):
             new_plugs += [_plug]
 
     current_processor.plugs = new_plugs
-    current_processor.requested_status = 'update'
-    context.obj['database'].session.add(plug)
-    context.obj['database'].session.add(current_processor)
-    context.obj['database'].session.commit()
+    current_processor.requested_status = "update"
+    context.obj["database"].session.add(plug)
+    context.obj["database"].session.add(current_processor)
+    context.obj["database"].session.commit()
     print(plug)
 
 
-@add.command(name='plug')
-@click.option('-n', '--name', required=True)
-@click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-s', '--source', default=None, required=True, help="Source socket name")
-@click.option('-t', '--target', default=None, required=True, help="Target socket name")
+@add.command(name="plug")
+@click.option("-n", "--name", required=True)
+@click.option("-q", "--queue", required=True, help="Queue name")
+@click.option("-s", "--source", default=None, required=True, help="Source socket name")
+@click.option("-t", "--target", default=None, required=True, help="Target socket name")
 @click.pass_context
 def add_plug(context, name, queue, source, target):
     """
     Add plug to a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
-    source_socket = context.obj['database'].session.query(
-        SocketModel).filter_by(name=source).first()
+    source_socket = (
+        context.obj["database"]
+        .session.query(SocketModel)
+        .filter_by(name=source)
+        .first()
+    )
 
-    target_socket = context.obj['database'].session.query(
-        SocketModel).filter_by(name=target).first()
+    target_socket = (
+        context.obj["database"]
+        .session.query(SocketModel)
+        .filter_by(name=target)
+        .first()
+    )
 
-    queue = context.obj['database'].session.query(
-        QueueModel).filter_by(name=queue).first()
+    queue = (
+        context.obj["database"].session.query(QueueModel).filter_by(name=queue).first()
+    )
 
-    user = context.obj['user']
-    plug = PlugModel(name=name, id=id, requested_status='create',
-                     status='ready', processor=source_socket.processor, user=user,
-                     processor_id=source_socket.processor.id)
+    user = context.obj["user"]
+    plug = PlugModel(
+        name=name,
+        id=id,
+        requested_status="create",
+        status="ready",
+        processor=source_socket.processor,
+        user=user,
+        processor_id=source_socket.processor.id,
+    )
 
     plug.source = source_socket
     plug.target = target_socket
     plug.queue = queue
     plug.updated = datetime.now()
 
-    context.obj['database'].session.add(source_socket)
-    context.obj['database'].session.add(target_socket)
-    context.obj['database'].session.add(plug)
-    context.obj['database'].session.commit()
+    context.obj["database"].session.add(source_socket)
+    context.obj["database"].session.add(target_socket)
+    context.obj["database"].session.add(plug)
+    context.obj["database"].session.commit()
 
     print(plug)
 
 
-@add.command(name='socket')
-@click.option('-n', '--name', required=True)
-@click.option('-q', '--queue', required=True, help="Queue name")
-@click.option('-i', '--interval', default=10, required=False, help="Interval in seconds this socket is triggered")
-@click.option('-pn', '--procname', default=None, required=True, help="Processor name")
-@click.option('-t', '--task', default=None, required=True, help="Task name")
+@add.command(name="socket")
+@click.option("-n", "--name", required=True)
+@click.option("-q", "--queue", required=True, help="Queue name")
+@click.option(
+    "-i",
+    "--interval",
+    default=10,
+    required=False,
+    help="Interval in seconds this socket is triggered",
+)
+@click.option("-pn", "--procname", default=None, required=True, help="Processor name")
+@click.option("-t", "--task", default=None, required=True, help="Task name")
 @click.pass_context
 def add_socket(context, name, queue, interval, procname, task):
     """
     Add socket to a processor
     """
-    id = context.obj['id']
+    id = context.obj["id"]
 
-    processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(name=procname).first()
+    processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(name=procname)
+        .first()
+    )
 
-    queue = context.obj['database'].session.query(
-        QueueModel).filter_by(name=queue).first()
+    queue = (
+        context.obj["database"].session.query(QueueModel).filter_by(name=queue).first()
+    )
 
-    user = context.obj['user']
+    user = context.obj["user"]
 
-    socket = SocketModel(name=name, id=id, user=user, user_id=user.id, requested_status='create', interval=interval,
-                         status='ready', processor_id=processor.id)
+    socket = SocketModel(
+        name=name,
+        id=id,
+        user=user,
+        user_id=user.id,
+        requested_status="create",
+        interval=interval,
+        status="ready",
+        processor_id=processor.id,
+    )
 
     if task is not None:
-        _task = context.obj['database'].session.query(
-            TaskModel).filter_by(name=task).first()
+        _task = (
+            context.obj["database"]
+            .session.query(TaskModel)
+            .filter_by(name=task)
+            .first()
+        )
         if _task is None:
-            _task = TaskModel(name=task, module=processor.module,
-                              gitrepo=processor.gitrepo)
+            _task = TaskModel(
+                name=task, module=processor.module, gitrepo=processor.gitrepo
+            )
 
             # Create Arguments and add to task
 
         socket.task = _task
-        context.obj['database'].session.add(_task)
+        context.obj["database"].session.add(_task)
 
     socket.queue = queue
     socket.interval = interval
     socket.updated = datetime.now()
     processor.sockets += [socket]
-    processor.requested_status = 'update'
-    context.obj['database'].session.add(socket)
-    context.obj['database'].session.add(processor)
-    context.obj['database'].session.commit()
+    processor.requested_status = "update"
+    context.obj["database"].session.add(socket)
+    context.obj["database"].session.add(processor)
+    context.obj["database"].session.commit()
     print(socket)
 
 
@@ -1888,102 +2295,140 @@ def agent():
     pass
 
 
-@agent.command(name='kill')
-@click.option('-n', '--name', required=True, help="Name of agent")
+@agent.command(name="kill")
+@click.option("-n", "--name", required=True, help="Name of agent")
 @click.pass_context
 def kill_agent(context, name):
-    """ Kill an agent """
+    """Kill an agent"""
     import os
+
     # Send SIGINT to agent.pid
 
-    with open('agent.pid', 'r') as procfile:
+    with open("agent.pid", "r") as procfile:
         _pid = procfile.read()
-        os.system("/usr/bin/kill -SIGINT "+_pid)
+        os.system("/usr/bin/kill -SIGINT " + _pid)
 
 
-@agent.command(name='stop')
-@click.option('-n', '--name', required=True, help="Name of agent")
+@agent.command(name="stop")
+@click.option("-n", "--name", required=True, help="Name of agent")
 @click.pass_context
 def stop_agent(context, name):
-    """ Stop an agent """
+    """Stop an agent"""
 
-    agent = context.obj['database'].session.query(
-        AgentModel).filter_by(name=name).first()
+    agent = (
+        context.obj["database"].session.query(AgentModel).filter_by(name=name).first()
+    )
 
     if not agent:
         print("Agent does not exist.")
         return
 
     agent.requested_status = "stop"
-    context.obj['database'].session.commit()
+    context.obj["database"].session.commit()
 
-@worker.command(name='kill', help='Kill a pyfi worker')
-@click.option('-n', '--name', required=True, help="Name of worker")
+
+@worker.command(name="kill", help="Kill a pyfi worker")
+@click.option("-n", "--name", required=True, help="Name of worker")
 @click.pass_context
 def kill_worker(context, name):
-    workerModel = context.obj['database'].session.query(
-        WorkerModel).filter_by(name=name).first()
-    workerModel.requested_status = 'shutdown'
+    workerModel = (
+        context.obj["database"].session.query(WorkerModel).filter_by(name=name).first()
+    )
+    workerModel.requested_status = "shutdown"
 
-    context.obj['database'].session.commit()
+    context.obj["database"].session.commit()
 
 
-@worker.command(name='start', help='Start a pyfi worker')
-@click.option('-n', '--name', required=True, help="Name of worker")
-@click.option('-a', '--agent', required=True, help="Name of agent")
-@click.option('-h', '--hostname', required=True, help="Hostname to use")
-@click.option('-p', '--pool', default=1, required=False, help="Size of worker pool")
-@click.option('-s', '--skip-venv', is_flag=True, default=False, required=False, help="Skip building the virtual environment")
-@click.option('-q', '--queue', default=1, help='Maximum number of messages on worker internal queue')
+@worker.command(name="start", help="Start a pyfi worker")
+@click.option("-n", "--name", required=True, help="Name of worker")
+@click.option("-a", "--agent", required=True, help="Name of agent")
+@click.option("-h", "--hostname", required=True, help="Hostname to use")
+@click.option("-p", "--pool", default=1, required=False, help="Size of worker pool")
+@click.option(
+    "-s",
+    "--skip-venv",
+    is_flag=True,
+    default=False,
+    required=False,
+    help="Skip building the virtual environment",
+)
+@click.option(
+    "-q",
+    "--queue",
+    default=1,
+    help="Maximum number of messages on worker internal queue",
+)
 @click.pass_context
 def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
-    from pyfi.worker import Worker
+    from pyfi.worker import WorkerService
 
-    agentModel = context.obj['database'].session.query(
-        AgentModel).filter_by(name=agent).first()
+    agentModel = (
+        context.obj["database"].session.query(AgentModel).filter_by(name=agent).first()
+    )
 
     if agentModel is None:
         print("No agent by that name.")
         return
 
-    workerModel = context.obj['database'].session.query(
-        WorkerModel).filter_by(name=name).first()
+    workerModel = (
+        context.obj["database"].session.query(WorkerModel).filter_by(name=name).first()
+    )
 
-    deployments = context.obj['database'].session.query(
-        DeploymentModel).filter_by(hostname=hostname).all()
+    deployments = (
+        context.obj["database"]
+        .session.query(DeploymentModel)
+        .filter_by(hostname=hostname)
+        .all()
+    )
 
     for deployment in deployments:
-        logging.info("Checking %s against worker.id %s",deployment.worker.id, workerModel.id)
+        logging.info(
+            "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
+        )
         if deployment.worker.id == workerModel.id:
             workerModel.deployment = deployment
             break
 
     worker = {}
-    processor = context.obj['database'].session.query(
-        ProcessorModel).filter_by(id=workerModel.processor_id).first()
+    processor = (
+        context.obj["database"]
+        .session.query(ProcessorModel)
+        .filter_by(id=workerModel.processor_id)
+        .first()
+    )
 
-    dir = 'work/' + processor.id
+    dir = "work/" + processor.id
     os.makedirs(dir, exist_ok=True)
-    logging.info("workerModel %s Deployment %s",workerModel, workerModel.deployment)
-    workerproc = Worker(
-        processor, workdir=dir, hostname=hostname, deployment=workerModel.deployment, pool=pool, size=queue, database=context.obj['dburi'], skipvenv=skip_venv,
-        celeryconfig=None, agent=agentModel, backend=CONFIG.get('backend', 'uri'), broker=CONFIG.get('broker', 'uri'))
+    logging.info("workerModel %s Deployment %s", workerModel, workerModel.deployment)
+    workerproc = WorkerService(
+        processor,
+        workdir=dir,
+        hostname=hostname,
+        deployment=workerModel.deployment,
+        pool=pool,
+        size=queue,
+        database=context.obj["dburi"],
+        skipvenv=skip_venv,
+        celeryconfig=None,
+        agent=agentModel,
+        backend=CONFIG.get("backend", "uri"),
+        broker=CONFIG.get("broker", "uri"),
+    )
 
     wprocess = workerproc.start()
 
-    workerModel.requested_status = 'ready'
-    workerModel.status = 'running'
-    context.obj['database'].session.add(
-        workerModel)
+    workerModel.requested_status = "ready"
+    workerModel.status = "running"
+    context.obj["database"].session.add(workerModel)
 
-    context.obj['database'].session.commit()
+    context.obj["database"].session.commit()
     wprocess.join()
 
 
-@ls.command(name='queue')
-@click.option('--id', default=None, help="ID of call")
-@click.option('-n', '--name', default=None, required=False, help='Name of queue')
-@click.option('-t', '--task', default=None, required=False, help='Name of task')
+@ls.command(name="queue")
+@click.option("--id", default=None, help="ID of call")
+@click.option("-n", "--name", default=None, required=False, help="Name of queue")
+@click.option("-t", "--task", default=None, required=False, help="Name of task")
 @click.pass_context
 def ls_queue(context, id, name, task):
     """
@@ -1997,50 +2442,101 @@ def ls_queue(context, id, name, task):
 
     x = PrettyTable()
     if id is not None:
-        queue = context.obj['database'].session.query(
-            QueueModel).filter_by(id=id).first()
+        queue = (
+            context.obj["database"].session.query(QueueModel).filter_by(id=id).first()
+        )
     elif name is not None:
-        queue = context.obj['database'].session.query(
-            QueueModel).filter_by(name=name).first()
+        queue = (
+            context.obj["database"]
+            .session.query(QueueModel)
+            .filter_by(name=name)
+            .first()
+        )
 
     if task:
         # Query for task, get task name, processor name and queue name
         # to combine into queuname.procname.taskname
         # Then return info about queuename and queuname.procname.taskname from broker
-        pass    
+        pass
 
-    user = CONFIG.get('broker', 'user')
-    password = CONFIG.get('broker', 'password')
-    uri = CONFIG.get('broker', 'api')
+    user = CONFIG.get("broker", "user")
+    password = CONFIG.get("broker", "password")
+    uri = CONFIG.get("broker", "api")
 
     session = requests.Session()
     session.auth = (user, password)
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Messages", "Message TTL", "Expires",
-             "Requested Status", "Broadcast Queue", "Status", "Type"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Messages",
+        "Message TTL",
+        "Expires",
+        "Requested Status",
+        "Broadcast Queue",
+        "Status",
+        "Type",
+    ]
 
     x.field_names = names
-    node = context.obj['database'].session.query(QueueModel).filter_by(name=name).first()
+    node = (
+        context.obj["database"].session.query(QueueModel).filter_by(name=name).first()
+    )
 
     messages = 0
-    response = session.get(uri+"/queues/#/"+node.name)
+    response = session.get(uri + "/queues/#/" + node.name)
     content = json.loads(response.content)
     for binding in content:
-        if binding['name'].find(node.name) == 0:
-            messages += binding['messages']
+        if binding["name"].find(node.name) == 0:
+            messages += binding["messages"]
 
-    x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
-                node.requested_status, node.name + ".topic", node.status, node.qtype])
+    x.add_row(
+        [
+            node.name,
+            node.id,
+            node.owner,
+            node.lastupdated,
+            messages,
+            node.message_ttl,
+            node.expires,
+            node.requested_status,
+            node.name + ".topic",
+            node.status,
+            node.qtype,
+        ]
+    )
 
     print(x)
 
     x = PrettyTable()
-    names = ["Name", "State", "Messages", "Rate", "Memory", "Durable", "Consumers","Auto Delete"]
+    names = [
+        "Name",
+        "State",
+        "Messages",
+        "Rate",
+        "Memory",
+        "Durable",
+        "Consumers",
+        "Auto Delete",
+    ]
 
     x.field_names = names
     for binding in content:
-        if binding['name'] != 'celery' and binding['name'].find(node.name) == 0:
-            x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
+        if binding["name"] != "celery" and binding["name"].find(node.name) == 0:
+            x.add_row(
+                [
+                    binding["name"],
+                    binding["state"],
+                    binding["messages"],
+                    binding["messages_details"]["rate"],
+                    binding["memory"],
+                    binding["durable"],
+                    binding["consumers"],
+                    binding["auto_delete"],
+                ]
+            )
 
     print()
     print("Tasks")
@@ -2048,13 +2544,19 @@ def ls_queue(context, id, name, task):
     print(x)
 
 
-@ls.command(name='call')
-@click.option('--id', default=None, help="ID of call")
-@click.option('-n', '--name', default=None, required=False, help='Name of call')
-@click.option('-r', '--result', default=False, is_flag=True, help="Show result of call")
-@click.option('-t', '--tree', default=False, is_flag=True, help="Show forward call tree")
-@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
-@click.option('-f', '--flow', default=False, is_flag=True, help="Show all calls in a workflow")
+@ls.command(name="call")
+@click.option("--id", default=None, help="ID of call")
+@click.option("-n", "--name", default=None, required=False, help="Name of call")
+@click.option("-r", "--result", default=False, is_flag=True, help="Show result of call")
+@click.option(
+    "-t", "--tree", default=False, is_flag=True, help="Show forward call tree"
+)
+@click.option(
+    "-g", "--graph", default=False, is_flag=True, help="Show complete call graph"
+)
+@click.option(
+    "-f", "--flow", default=False, is_flag=True, help="Show all calls in a workflow"
+)
 @click.pass_context
 def ls_call(context, id, name, result, tree, graph, flow):
     """
@@ -2065,8 +2567,16 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated",
-             "Socket", "Started", "Finished", "State"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Socket",
+        "Started",
+        "Finished",
+        "State",
+    ]
     x.field_names = names
 
     calls = None
@@ -2077,18 +2587,22 @@ def ls_call(context, id, name, result, tree, graph, flow):
         return
 
     if name is not None:
-        calls = context.obj['database'].session.query(
-            CallModel).filter_by(name=name).all()
+        calls = (
+            context.obj["database"].session.query(CallModel).filter_by(name=name).all()
+        )
     elif id is not None:
-        call = context.obj['database'].session.query(
-            CallModel).filter_by(id=id).first()
+        call = context.obj["database"].session.query(CallModel).filter_by(id=id).first()
         if call is None:
             print("No call with that id.")
             return
         if flow:  # task_id is NOT unique to each workflow invocation
             # Should use tracking
-            nodes = context.obj['database'].session.query(
-                CallModel).filter_by(task_id=call.task_id).all()
+            nodes = (
+                context.obj["database"]
+                .session.query(CallModel)
+                .filter_by(task_id=call.task_id)
+                .all()
+            )
         else:
             nodes = [call]
 
@@ -2098,7 +2612,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
         import pickle
 
         if result:
-            redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
+            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
             r = redisclient.get(call.resultid)
 
             _r = pickle.loads(r)
@@ -2106,8 +2620,12 @@ def ls_call(context, id, name, result, tree, graph, flow):
             return
 
         if graph:
-            calls = context.obj['database'].session.query(
-                CallModel).filter_by(task_id=call.task_id).all()
+            calls = (
+                context.obj["database"]
+                .session.query(CallModel)
+                .filter_by(task_id=call.task_id)
+                .all()
+            )
 
             calldict = {}
 
@@ -2126,8 +2644,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
                 for _child in _calls:
                     if _child.taskparent == node.celeryid:
                         _child_node = Node(_child.name, parent)
-                        _child_node = get_call_graph(
-                            _child_node, _child, _calls)
+                        _child_node = get_call_graph(_child_node, _child, _calls)
 
                 return parent
 
@@ -2142,8 +2659,12 @@ def ls_call(context, id, name, result, tree, graph, flow):
             root = Node(call.name)
 
             def get_call_graph(root, _call):
-                _calls = context.obj['database'].session.query(
-                    CallModel).filter_by(parent=_call.id).all()
+                _calls = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .filter_by(parent=_call.id)
+                    .all()
+                )
 
                 for _child in _calls:
                     _child_node = Node(_child.name, root)
@@ -2156,8 +2677,18 @@ def ls_call(context, id, name, result, tree, graph, flow):
             return
 
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner,
-                   node.lastupdated, node.socket.name, node.started, node.finished, node.state])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                node.socket.name,
+                node.started,
+                node.finished,
+                node.state,
+            ]
+        )
     print(x)
     x = PrettyTable()
     print()
@@ -2174,20 +2705,21 @@ def ls_call(context, id, name, result, tree, graph, flow):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         print()
-        print('Events')
+        print("Events")
         names = ["Name", "ID", "Owner", "Last Updated", "Note"]
         x.field_names = names
         if call:
             for event in call.events:
-                x.add_row([event.name, event.id, event.owner,
-                           event.lastupdated, event.note])
+                x.add_row(
+                    [event.name, event.id, event.owner, event.lastupdated, event.note]
+                )
     print(x)
 
 
 @ls.command(name="roles")
-@click.option('-p', '--page', default=1, required=False)
-@click.option('-r', '--rows', default=10, required=False)
-@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
+@click.option("-p", "--page", default=1, required=False)
+@click.option("-r", "--rows", default=10, required=False)
+@click.option("-a", "--ascend", default=False, is_flag=True, required=False)
 @click.pass_context
 def ls_roles(context, page, rows, ascend):
     """
@@ -2195,11 +2727,10 @@ def ls_roles(context, page, rows, ascend):
     """
     x = PrettyTable()
 
-    names = ["Page", "Row", "Name", "ID", "Owner",
-             "Last Updated", "Created"]
+    names = ["Page", "Row", "Name", "ID", "Owner", "Last Updated", "Created"]
     x.field_names = names
 
-    total = context.obj['database'].session.query(RoleModel).count()
+    total = context.obj["database"].session.query(RoleModel).count()
 
     if total == 0:
         print("No data yet.")
@@ -2211,57 +2742,67 @@ def ls_roles(context, page, rows, ascend):
 
     if not ascend:
         if total < rows:
-            nodes = context.obj['database'].session.query(
-                RoleModel).all()
+            nodes = context.obj["database"].session.query(RoleModel).all()
         else:
-            nodes = context.obj['database'].session.query(
-                RoleModel).order_by(RoleModel.lastupdated.desc()).offset((page - 1) * rows).limit(rows)
+            nodes = (
+                context.obj["database"]
+                .session.query(RoleModel)
+                .order_by(RoleModel.lastupdated.desc())
+                .offset((page - 1) * rows)
+                .limit(rows)
+            )
     else:
         if total < rows:
-            nodes = context.obj['database'].session.query(
-                RoleModel).all()
+            nodes = context.obj["database"].session.query(RoleModel).all()
         else:
-            nodes = context.obj['database'].session.query(
-                RoleModel).order_by(RoleModel.lastupdated.asc()).offset((page - 1) * rows).limit(rows)
+            nodes = (
+                context.obj["database"]
+                .session.query(RoleModel)
+                .order_by(RoleModel.lastupdated.asc())
+                .offset((page - 1) * rows)
+                .limit(rows)
+            )
 
     row = 0
     for node in nodes:
         row += 1
-        x.add_row([page, row, node.name, node.id, node.owner,
-                   node.lastupdated, node.created])
+        x.add_row(
+            [page, row, node.name, node.id, node.owner, node.lastupdated, node.created]
+        )
 
     print(x)
 
     if total > 0:
-        print("Page {} of {} of {} total records".format(
-            page, round(total / rows), total))
+        print(
+            "Page {} of {} of {} total records".format(page, round(total / rows), total)
+        )
     else:
         print("No rows")
 
 
-@ls.command(name='jobs')
-@click.option('-n', '--name', default=None, required=False, help='Name of processor')
-@click.option('-p', '--page', default=1, required=False)
-@click.option('-r', '--rows', default=10, required=False)
-@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
+@ls.command(name="jobs")
+@click.option("-n", "--name", default=None, required=False, help="Name of processor")
+@click.option("-p", "--page", default=1, required=False)
+@click.option("-r", "--rows", default=10, required=False)
+@click.option("-a", "--ascend", default=False, is_flag=True, required=False)
 @click.pass_context
 def ls_jobs(context, name, page, rows, ascend):
-    """ List scheduled jobs """
+    """List scheduled jobs"""
     pass
 
 
-@ls.command(name='job')
+@ls.command(name="job")
 @click.pass_context
 def ls_job(context, name, id):
-    """ List a job """
+    """List a job"""
     pass
 
 
-@ls.command(name='calls')
-@click.option('-p', '--page', default=1, required=False)
-@click.option('-r', '--rows', default=10, required=False)
-@click.option('-u', '--unfinished', is_flag=True, default=False, required=False)
-@click.option('-a', '--ascend', default=False, is_flag=True, required=False)
+@ls.command(name="calls")
+@click.option("-p", "--page", default=1, required=False)
+@click.option("-r", "--rows", default=10, required=False)
+@click.option("-u", "--unfinished", is_flag=True, default=False, required=False)
+@click.option("-a", "--ascend", default=False, is_flag=True, required=False)
 @click.pass_context
 def ls_calls(context, page, rows, unfinished, ascend):
     """
@@ -2269,15 +2810,30 @@ def ls_calls(context, page, rows, unfinished, ascend):
     """
     x = PrettyTable()
 
-    names = ["Page", "Row", "Name", "ID", "Owner",
-             "Last Updated", "Socket", "Started", "Finished", "State", "Argument"]
+    names = [
+        "Page",
+        "Row",
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Socket",
+        "Started",
+        "Finished",
+        "State",
+        "Argument",
+    ]
     x.field_names = names
 
     if unfinished:
-        total = context.obj['database'].session.query(
-            CallModel).filter_by(finished=None).count()
+        total = (
+            context.obj["database"]
+            .session.query(CallModel)
+            .filter_by(finished=None)
+            .count()
+        )
     else:
-        total = context.obj['database'].session.query(CallModel).count()
+        total = context.obj["database"].session.query(CallModel).count()
 
     if total == 0:
         print("No data yet.")
@@ -2290,41 +2846,77 @@ def ls_calls(context, page, rows, unfinished, ascend):
     if not ascend:
         if total < rows:
             if unfinished:
-                nodes = context.obj['database'].session.query(
-                    CallModel).filter_by(finished=None).all()
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .filter_by(finished=None)
+                    .all()
+                )
             else:
-                nodes = context.obj['database'].session.query(
-                    CallModel).all()
+                nodes = context.obj["database"].session.query(CallModel).all()
         else:
             if unfinished:
-                nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.desc()).filter_by(finished=None).offset(
-                    (page - 1) * rows).limit(rows)
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.desc())
+                    .filter_by(finished=None)
+                    .offset((page - 1) * rows)
+                    .limit(rows)
+                )
             else:
-                nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.desc()).offset((page - 1) * rows).limit(rows)
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.desc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
+                )
     else:
         if total < rows:
             if unfinished:
-                nodes = context.obj['database'].session.query(
-                    CallModel).filter_by(finished=None).all()
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .filter_by(finished=None)
+                    .all()
+                )
             else:
-                nodes = context.obj['database'].session.query(
-                    CallModel).all()
+                nodes = context.obj["database"].session.query(CallModel).all()
         else:
             if unfinished:
-                nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.asc()).filter_by(finished=None).offset(
-                    (page - 1) * rows).limit(rows)
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.asc())
+                    .filter_by(finished=None)
+                    .offset((page - 1) * rows)
+                    .limit(rows)
+                )
             else:
-                nodes = context.obj['database'].session.query(
-                    CallModel).order_by(CallModel.lastupdated.asc()).offset((page - 1) * rows).limit(rows)
+                nodes = (
+                    context.obj["database"]
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.asc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
+                )
 
     row = 0
     for node in nodes:
         row += 1
-        cols = [page, row, node.name, node.id, node.owner,
-                   node.lastupdated, node.socket.name, node.started, node.finished, node.state]
+        cols = [
+            page,
+            row,
+            node.name,
+            node.id,
+            node.owner,
+            node.lastupdated,
+            node.socket.name,
+            node.started,
+            node.finished,
+            node.state,
+        ]
 
         if node.socket.task.arguments:
             cols += [node.argument]
@@ -2336,19 +2928,36 @@ def ls_calls(context, page, rows, unfinished, ascend):
     print(x)
 
     if total > 0:
-        print("Page {} of {} of {} total records".format(
-            page, max(1,round(total / rows)), total))
+        print(
+            "Page {} of {} of {} total records".format(
+                page, max(1, round(total / rows)), total
+            )
+        )
     else:
         print("No rows")
 
 
-@ls.command(name='network')
-@click.option('-h', '--horizontal', default=False, is_flag=True, required=False, help="Horizontal tree mode")
-@click.option('-v', '--vertical', default=False, is_flag=True, required=False, help="Vertical tree mode")
-@click.option('-n', '--node', required=False, help="List network for node")
+@ls.command(name="network")
+@click.option(
+    "-h",
+    "--horizontal",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="Horizontal tree mode",
+)
+@click.option(
+    "-v",
+    "--vertical",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="Vertical tree mode",
+)
+@click.option("-n", "--node", required=False, help="List network for node")
 @click.pass_context
 def ls_network(context, horizontal, vertical, node, condensed=True):
-    """ List the PYFI network """
+    """List the PYFI network"""
 
     from pptree import print_tree, Node
 
@@ -2356,11 +2965,15 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
         condensed = False
 
     if node is not None:
-        node = context.obj['database'].session.query(
-            NodeModel).filter_by(name=node).first()
+        node = (
+            context.obj["database"]
+            .session.query(NodeModel)
+            .filter_by(name=node)
+            .first()
+        )
         nodes = [node]
     else:
-        nodes = context.obj['database'].session.query(NodeModel).all()
+        nodes = context.obj["database"].session.query(NodeModel).all()
 
     root = Node("PYFI")
 
@@ -2380,8 +2993,7 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
             worker_node = Node("worker::" + worker.name, agent_node)
             if condensed:
                 print("    worker::" + worker.name)
-            processor_node = Node(
-                "processor::" + worker.processor.name, worker_node)
+            processor_node = Node("processor::" + worker.processor.name, worker_node)
             if condensed:
                 print("      processor::" + worker.processor.name)
 
@@ -2405,10 +3017,8 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
 
                     source_node = Node("source::" + plug.source.name)
                     if condensed:
-                        print("                      source::" + \
-                                plug.source.name)
-                        print("                      target::" + \
-                                  plug.target.name)
+                        print("                      source::" + plug.source.name)
+                        print("                      target::" + plug.target.name)
 
                 for arg in socket.task.arguments:
                     argument_node = Node("argument::" + arg.name, function_node)
@@ -2429,7 +3039,7 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
         print_tree(root, horizontal=horizontal)
 
 
-@ls.command(name='work')
+@ls.command(name="work")
 @click.pass_context
 def ls_work(context):
     """
@@ -2452,7 +3062,7 @@ def ls_work(context):
     pass
 
 
-@ls.command(name='worker')
+@ls.command(name="worker")
 @click.pass_context
 def ls_worker(context):
     """
@@ -2461,34 +3071,63 @@ def ls_worker(context):
     pass
 
 
-@ls.command(name='socket')
-@click.option('--id', default=None, help="ID of call")
-@click.option('-n', '--name', default=None, required=False, help='Name of call')
-@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
+@ls.command(name="socket")
+@click.option("--id", default=None, help="ID of call")
+@click.option("-n", "--name", default=None, required=False, help="Name of call")
+@click.option(
+    "-g", "--graph", default=False, is_flag=True, help="Show complete call graph"
+)
 @click.pass_context
 def ls_socket(context, id, name, graph):
     """
     List a socket
     """
     if name is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(name=name).first()
+        socket = (
+            context.obj["database"]
+            .session.query(SocketModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
-        socket = context.obj['database'].session.query(
-            SocketModel).filter_by(id=id).first()
+        socket = (
+            context.obj["database"].session.query(SocketModel).filter_by(id=id).first()
+        )
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
-             "Status", "Processor", "Queue", "Interval"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Module",
+        "Task",
+        "Last Updated",
+        "Status",
+        "Processor",
+        "Queue",
+        "Interval",
+    ]
 
     x.field_names = names
 
     sockets = [socket]
 
     for node in sockets:
-        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                   node.status, node.processor.name, node.queue.name, node.interval])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.task.module,
+                node.task.name,
+                node.lastupdated,
+                node.status,
+                node.processor.name,
+                node.queue.name,
+                node.interval,
+            ]
+        )
 
     from pptree import print_tree, Node
 
@@ -2504,7 +3143,7 @@ def ls_socket(context, id, name, graph):
         print(x)
 
 
-@ls.command(name='scheduler')
+@ls.command(name="scheduler")
 @click.pass_context
 def ls_scheduler(context):
     """
@@ -2513,10 +3152,12 @@ def ls_scheduler(context):
     pass
 
 
-@ls.command(name='processor')
-@click.option('--id', default=None, help="ID of call")
-@click.option('-n', '--name', default=None, required=False, help='Name of call')
-@click.option('-g', '--graph', default=False, is_flag=True, help="Show complete call graph")
+@ls.command(name="processor")
+@click.option("--id", default=None, help="ID of call")
+@click.option("-n", "--name", default=None, required=False, help="Name of call")
+@click.option(
+    "-g", "--graph", default=False, is_flag=True, help="Show complete call graph"
+)
 @click.pass_context
 def ls_processor(context, id, name, graph):
     """
@@ -2525,29 +3166,58 @@ def ls_processor(context, id, name, graph):
     from pptree import print_tree, Node
 
     if name is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(name=name).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
+        )
     elif id is not None:
-        processor = context.obj['database'].session.query(
-            ProcessorModel).filter_by(id=id).first()
+        processor = (
+            context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
+        )
 
     if processor is None:
         print("No processor found.")
         return
 
-
     sockets = processor.sockets
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
-             "Status", "Processor", "Queue", "Interval"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Module",
+        "Task",
+        "Last Updated",
+        "Status",
+        "Processor",
+        "Queue",
+        "Interval",
+    ]
 
     x.field_names = names
 
     root = Node(processor.name)
     for node in sockets:
-        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                   node.status, node.processor.name, node.queue.name, node.interval])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.task.module,
+                node.task.name,
+                node.lastupdated,
+                node.status,
+                node.processor.name,
+                node.queue.name,
+                node.interval,
+            ]
+        )
 
         sock = Node(node.name, root)
         module = Node(node.task.module, sock)
@@ -2588,28 +3258,54 @@ def ls_processor(context, id, name, graph):
     nodes = processor.deployments
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Hostname",
-             "Processor", "CPUs", "Requested Status", "Status", "Enabled"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Hostname",
+        "Processor",
+        "CPUs",
+        "Requested Status",
+        "Status",
+        "Enabled",
+    ]
     x.field_names = names
-    nodes = context.obj['database'].session.query(DeploymentModel).filter_by(processor_id=processor.id).all()
+    nodes = (
+        context.obj["database"]
+        .session.query(DeploymentModel)
+        .filter_by(processor_id=processor.id)
+        .all()
+    )
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner,
-                   node.lastupdated, node.hostname, node.processor.name, node.cpus, node.requested_status, node.status,  "TBD"])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                node.hostname,
+                node.processor.name,
+                node.cpus,
+                node.requested_status,
+                node.status,
+                "TBD",
+            ]
+        )
 
     print()
     print("Deployments")
     print(x)
 
 
-@ls.command(name='task')
-@click.option('-n', '--name', default=None, required=True, help="Name of task")
+@ls.command(name="task")
+@click.option("-n", "--name", default=None, required=True, help="Name of task")
 @click.pass_context
 def ls_task(context, name):
     """
     List a task
     """
-    task = context.obj['database'].session.query(
-    TaskModel).filter_by(name=name).first()
+    task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
     x = PrettyTable()
 
@@ -2621,8 +3317,7 @@ def ls_task(context, name):
     node = None
 
     for node in tasks:
-        values = [node.name, node.id, node.owner,
-                  node.lastupdated, node.module]
+        values = [node.name, node.id, node.owner, node.lastupdated, node.module]
 
         values += [node.gitrepo]
         x.add_row(values)
@@ -2636,17 +3331,29 @@ def ls_task(context, name):
     names = ["ID", "Name", "Module", "Position", "Kind", "Function"]
     x.field_names = names
 
-    kinds = ["POSITIONAL_ONLY","POSITIONAL_OR_KEYWORD","VAR_POSITIONAL","KEYWORD_ONLY","VAR_KEYWORD"]
+    kinds = [
+        "POSITIONAL_ONLY",
+        "POSITIONAL_OR_KEYWORD",
+        "VAR_POSITIONAL",
+        "KEYWORD_ONLY",
+        "VAR_KEYWORD",
+    ]
     for arg in node.arguments:
-        values = [arg.id, arg.name, task.module,
-                  arg.position, kinds[int(arg.kind)], task.name]
+        values = [
+            arg.id,
+            arg.name,
+            task.module,
+            arg.position,
+            kinds[int(arg.kind)],
+            task.name,
+        ]
 
         x.add_row(values)
 
     print(x)
 
 
-@ls.command(name='stats')
+@ls.command(name="stats")
 @click.pass_context
 def ls_stats(context):
     """
@@ -2655,7 +3362,7 @@ def ls_stats(context):
     pass
 
 
-@ls.command(name='deployments')
+@ls.command(name="deployments")
 @click.pass_context
 def ls_deployments(context):
     """
@@ -2663,18 +3370,40 @@ def ls_deployments(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated", "Hostname",
-             "Processor", "CPUs", "Requested Status", "Status", "Enabled"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Hostname",
+        "Processor",
+        "CPUs",
+        "Requested Status",
+        "Status",
+        "Enabled",
+    ]
     x.field_names = names
-    nodes = context.obj['database'].session.query(DeploymentModel).all()
+    nodes = context.obj["database"].session.query(DeploymentModel).all()
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner,
-                   node.lastupdated, node.hostname, node.processor.name, node.cpus, node.requested_status, node.status,  "TBD"])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                node.hostname,
+                node.processor.name,
+                node.cpus,
+                node.requested_status,
+                node.status,
+                "TBD",
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='schedulers')
+@ls.command(name="schedulers")
 @click.pass_context
 def ls_schedulers(context):
     """
@@ -2684,15 +3413,23 @@ def ls_schedulers(context):
 
     names = ["Name", "ID", "Owner", "Last Updated", "Strategy", "Nodes"]
     x.field_names = names
-    nodes = context.obj['database'].session.query(SchedulerModel).all()
+    nodes = context.obj["database"].session.query(SchedulerModel).all()
     for node in nodes:
-        x.add_row([node.name, node.id, node.owner,
-                   node.lastupdated, node.strategy, [n.name for n in node.nodes]])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                node.strategy,
+                [n.name for n in node.nodes],
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='nodes')
+@ls.command(name="nodes")
 @click.pass_context
 def ls_nodes(context):
     """
@@ -2702,21 +3439,41 @@ def ls_nodes(context):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Host", "Owner", "Last Updated",
-             "CPUs", "Mem Size", "Free Mem", "Used Mem", "Agent"]
+    names = [
+        "Name",
+        "ID",
+        "Host",
+        "Owner",
+        "Last Updated",
+        "CPUs",
+        "Mem Size",
+        "Free Mem",
+        "Used Mem",
+        "Agent",
+    ]
     x.field_names = names
-    nodes = context.obj['database'].session.query(NodeModel).all()
+    nodes = context.obj["database"].session.query(NodeModel).all()
     for node in nodes:
         agent_name = node.agent.name if node.agent else "None"
-        x.add_row([node.name, node.id, node.hostname,
-                   node.owner, node.lastupdated, node.cpus, humanize.naturalsize(node.memsize, gnu=True),
-                   humanize.naturalsize(node.freemem, gnu=True), humanize.naturalsize(node.memused, gnu=True),
-                   agent_name])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.hostname,
+                node.owner,
+                node.lastupdated,
+                node.cpus,
+                humanize.naturalsize(node.memsize, gnu=True),
+                humanize.naturalsize(node.freemem, gnu=True),
+                humanize.naturalsize(node.memused, gnu=True),
+                agent_name,
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='queues')
+@ls.command(name="queues")
 @click.pass_context
 def ls_queues(context):
     """
@@ -2727,38 +3484,62 @@ def ls_queues(context):
 
     x = PrettyTable()
 
-    uri = CONFIG.get('broker', 'api')
-    user = CONFIG.get('broker', 'user')
-    pwd = CONFIG.get('broker', 'password')
+    uri = CONFIG.get("broker", "api")
+    user = CONFIG.get("broker", "user")
+    pwd = CONFIG.get("broker", "password")
     session = requests.Session()
-    session.auth = (user,pwd)
+    session.auth = (user, pwd)
 
     auth = session.post(uri)
-    
-    names = ["Name", "ID", "Owner", "Last Updated", "Messages", "Message TTL", "Expires",
-             "Requested Status", "Broadcast Queue", "Status", "Type"]
+
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Messages",
+        "Message TTL",
+        "Expires",
+        "Requested Status",
+        "Broadcast Queue",
+        "Status",
+        "Type",
+    ]
 
     x.field_names = names
-    queues = context.obj['database'].session.query(QueueModel).all()
+    queues = context.obj["database"].session.query(QueueModel).all()
 
     for node in queues:
         messages = 0
         try:
-            response = session.get(uri+"/queues/#/"+node.name)
+            response = session.get(uri + "/queues/#/" + node.name)
             content = json.loads(response.content)
             for binding in content:
-                if binding['name'].find(node.name) == 0:
-                    messages += binding['messages']
+                if binding["name"].find(node.name) == 0:
+                    messages += binding["messages"]
         except:
             pass
 
-        x.add_row([node.name, node.id, node.owner, node.lastupdated, messages, node.message_ttl, node.expires,
-                   node.requested_status, node.name + ".topic", node.status, node.qtype])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                messages,
+                node.message_ttl,
+                node.expires,
+                node.requested_status,
+                node.name + ".topic",
+                node.status,
+                node.qtype,
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='users')
+@ls.command(name="users")
 @click.pass_context
 def ls_users(context):
     """
@@ -2769,19 +3550,19 @@ def ls_users(context):
     names = ["Name", "ID", "Owner", "Email", "Password"]
     x.field_names = names
 
-    w = context.obj['database'].session.execute("select current_user").first()
-    users = context.obj['database'].session.query(UserModel).all()
+    w = context.obj["database"].session.execute("select current_user").first()
+    users = context.obj["database"].session.query(UserModel).all()
     for user in users:
         x.add_row([user.name, user.id, user.owner, user.email, user.password])
 
     print(x)
 
 
-@ls.command(name='role')
-@click.option('-n', '--name', default=None, required=True)
+@ls.command(name="role")
+@click.option("-n", "--name", default=None, required=True)
 @click.pass_context
 def ls_role(context, name):
-    """ List a role"""
+    """List a role"""
     import warnings
 
     x = PrettyTable()
@@ -2790,8 +3571,7 @@ def ls_role(context, name):
 
     roles = []
 
-    role = context.obj['database'].session.query(
-        RoleModel).filter_by(name=name).first()
+    role = context.obj["database"].session.query(RoleModel).filter_by(name=name).first()
 
     if role is None:
         print("No role found.")
@@ -2819,8 +3599,8 @@ def ls_role(context, name):
         print(x)
 
 
-@ls.command(name='user')
-@click.option('-n', '--name', default=None, required=True)
+@ls.command(name="user")
+@click.option("-n", "--name", default=None, required=True)
 @click.pass_context
 def ls_user(context, name):
     """
@@ -2830,8 +3610,7 @@ def ls_user(context, name):
 
     names = ["Name", "ID", "Owner", "Email"]
     x.field_names = names
-    user = context.obj['database'].session.query(
-        UserModel).filter_by(name=name).first()
+    user = context.obj["database"].session.query(UserModel).filter_by(name=name).first()
     x.add_row([user.name, user.id, user.owner, user.email])
 
     print(x)
@@ -2875,7 +3654,7 @@ def ls_user(context, name):
         print(x)
 
 
-@ls.command(name='workers')
+@ls.command(name="workers")
 @click.pass_context
 def ls_workers(context):
     """
@@ -2883,10 +3662,24 @@ def ls_workers(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Port", "Last Updated",
-             "Requested Status", "Status", "Agent", "Backend", "Broker", "Hostname", "Processor", "Deployment", "Workdir"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Port",
+        "Last Updated",
+        "Requested Status",
+        "Status",
+        "Agent",
+        "Backend",
+        "Broker",
+        "Hostname",
+        "Processor",
+        "Deployment",
+        "Workdir",
+    ]
     x.field_names = names
-    workers = context.obj['database'].session.query(WorkerModel).all()
+    workers = context.obj["database"].session.query(WorkerModel).all()
 
     for node in workers:
         if node.processor is None:
@@ -2894,31 +3687,56 @@ def ls_workers(context):
         else:
             pname = node.processor.name
 
-        hostname = node.deployment.hostname if node.deployment else 'None'
-        name = node.deployment.name if node.deployment else 'None'
+        hostname = node.deployment.hostname if node.deployment else "None"
+        name = node.deployment.name if node.deployment else "None"
 
-        x.add_row([node.name, node.id, node.owner, node.port, node.lastupdated,
-                   node.requested_status, node.status, node.agent.name, node.backend, node.broker, hostname,
-                   pname, name, node.workerdir])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.port,
+                node.lastupdated,
+                node.requested_status,
+                node.status,
+                node.agent.name,
+                node.backend,
+                node.broker,
+                hostname,
+                pname,
+                name,
+                node.workerdir,
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='processors')
-@click.option('-g', '--gitrepo', is_flag=True, default=False)
-@click.option('-c', '--commit', is_flag=True, default=False)
-@click.option('-m', '--module', is_flag=True, default=False)
-@click.option('-o', '--owner', is_flag=True, default=False)
+@ls.command(name="processors")
+@click.option("-g", "--gitrepo", is_flag=True, default=False)
+@click.option("-c", "--commit", is_flag=True, default=False)
+@click.option("-m", "--module", is_flag=True, default=False)
+@click.option("-o", "--owner", is_flag=True, default=False)
 @click.pass_context
 def ls_processors(context, gitrepo, commit, module, owner):
     """
     List processors
     """
-    processors = context.obj['database'].session.query(ProcessorModel).all()
+    processors = context.obj["database"].session.query(ProcessorModel).all()
     x = PrettyTable()
 
-    names = ["Name", "ID", "Module", "Owner", "Last Updated",
-             "Requested Status", "Status", "Concurrency", "Beat", "Sockets"]
+    names = [
+        "Name",
+        "ID",
+        "Module",
+        "Owner",
+        "Last Updated",
+        "Requested Status",
+        "Status",
+        "Concurrency",
+        "Beat",
+        "Sockets",
+    ]
 
     if gitrepo:
         names += ["Git"]
@@ -2932,9 +3750,18 @@ def ls_processors(context, gitrepo, commit, module, owner):
     x.field_names = names
 
     for processor in processors:
-        row = [processor.name, processor.id, processor.module, processor.owner,
-               processor.lastupdated,
-               processor.requested_status, processor.status, processor.concurrency, processor.beat, len(processor.sockets)]
+        row = [
+            processor.name,
+            processor.id,
+            processor.module,
+            processor.owner,
+            processor.lastupdated,
+            processor.requested_status,
+            processor.status,
+            processor.concurrency,
+            processor.beat,
+            len(processor.sockets),
+        ]
 
         if gitrepo:
             row += [processor.gitrepo]
@@ -2950,8 +3777,8 @@ def ls_processors(context, gitrepo, commit, module, owner):
     print(x)
 
 
-@ls.command(name='tasks')
-@click.option('-g', '--gitrepo', is_flag=True, default=False)
+@ls.command(name="tasks")
+@click.option("-g", "--gitrepo", is_flag=True, default=False)
 @click.pass_context
 def ls_tasks(context, gitrepo):
     """
@@ -2963,11 +3790,10 @@ def ls_tasks(context, gitrepo):
     if gitrepo:
         names += ["Git Repo"]
     x.field_names = names
-    tasks = context.obj['database'].session.query(TaskModel).all()
+    tasks = context.obj["database"].session.query(TaskModel).all()
 
     for node in tasks:
-        values = [node.name, node.id, node.owner,
-                  node.lastupdated, node.module]
+        values = [node.name, node.id, node.owner, node.lastupdated, node.module]
 
         if gitrepo:
             values += [node.gitrepo]
@@ -2976,7 +3802,7 @@ def ls_tasks(context, gitrepo):
     print(x)
 
 
-@ls.command(name='cpus')
+@ls.command(name="cpus")
 @click.pass_context
 def ls_cpus(context):
     """
@@ -2985,8 +3811,7 @@ def ls_cpus(context):
     pass
 
 
-
-@ls.command(name='agent')
+@ls.command(name="agent")
 @click.pass_context
 def ls_agent(context):
     """
@@ -2995,7 +3820,7 @@ def ls_agent(context):
     pass
 
 
-@ls.command(name='agents')
+@ls.command(name="agents")
 @click.pass_context
 def ls_agents(context):
     """
@@ -3005,31 +3830,55 @@ def ls_agents(context):
 
     x = PrettyTable()
 
-    names = ["Name", "ID", "Host", "CPUs", "Port", "Owner", "Last Updated", "Requested Status",
-             "Status", "Node", "PID"]
+    names = [
+        "Name",
+        "ID",
+        "Host",
+        "CPUs",
+        "Port",
+        "Owner",
+        "Last Updated",
+        "Requested Status",
+        "Status",
+        "Node",
+        "PID",
+    ]
     x.field_names = names
-    agents = context.obj['database'].session.query(AgentModel).all()
+    agents = context.obj["database"].session.query(AgentModel).all()
 
     import warnings
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         for node in agents:
-            #worker_name = node.worker.name if node.worker else 'None'
-            status = 'unreachable'
+            # worker_name = node.worker.name if node.worker else 'None'
+            status = "unreachable"
             try:
-                res = requests.get('http://' + node.hostname + ':' + str(node.port))
+                res = requests.get("http://" + node.hostname + ":" + str(node.port))
                 if res.status_code == 200:
-                    status = 'running'
+                    status = "running"
             except:
                 pass
-            x.add_row([node.name, node.id, node.hostname, node.cpus, node.port, node.owner, node.lastupdated, node.requested_status,
-                       status, node.node.name, node.pid])
+            x.add_row(
+                [
+                    node.name,
+                    node.id,
+                    node.hostname,
+                    node.cpus,
+                    node.port,
+                    node.owner,
+                    node.lastupdated,
+                    node.requested_status,
+                    status,
+                    node.node.name,
+                    node.pid,
+                ]
+            )
 
     print(x)
 
 
-@ls.command(name='sockets')
+@ls.command(name="sockets")
 @click.pass_context
 def ls_sockets(context):
     """
@@ -3037,22 +3886,60 @@ def ls_sockets(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Module", "Task", "Last Updated",
-             "Status", "Processor", "Queue", "Type", "Interval"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Module",
+        "Task",
+        "Last Updated",
+        "Status",
+        "Processor",
+        "Queue",
+        "Type",
+        "Interval",
+    ]
     x.field_names = names
-    sockets = context.obj['database'].session.query(SocketModel).all()
+    sockets = context.obj["database"].session.query(SocketModel).all()
 
     for node in sockets:
-        x.add_row([node.name, node.id, node.owner, node.task.module, node.task.name, node.lastupdated,
-                   node.status, node.processor.name, node.queue.name, node.schedule_type, node.interval])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.task.module,
+                node.task.name,
+                node.lastupdated,
+                node.status,
+                node.processor.name,
+                node.queue.name,
+                node.schedule_type,
+                node.interval,
+            ]
+        )
 
     print(x)
 
 
-@ls.command(name='node')
-@click.option('-n', '--name', default=None, required=True, help="Name of node")
-@click.option('-t', '--tree', default=False, is_flag=True, required=False, help="Display object tree")
-@click.option('-h', '--horizontal', default=True, is_flag=True, required=False, help="Vertical tree mode")
+@ls.command(name="node")
+@click.option("-n", "--name", default=None, required=True, help="Name of node")
+@click.option(
+    "-t",
+    "--tree",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="Display object tree",
+)
+@click.option(
+    "-h",
+    "--horizontal",
+    default=True,
+    is_flag=True,
+    required=False,
+    help="Vertical tree mode",
+)
 @click.pass_context
 def ls_node(context, name, tree, horizontal):
     """
@@ -3060,8 +3947,7 @@ def ls_node(context, name, tree, horizontal):
     """
     from pptree import print_tree, Node
 
-    node = context.obj['database'].session.query(
-        NodeModel).filter_by(name=name).first()
+    node = context.obj["database"].session.query(NodeModel).filter_by(name=name).first()
 
     if not node:
         return
@@ -3071,8 +3957,7 @@ def ls_node(context, name, tree, horizontal):
         agent = Node("agent::" + node.agent.name, root)
         for _worker in agent.workers:
             worker = Node("worker::" + _worker.name, agent)
-            processor = Node(
-                "processor::" + _worker.processor.name, worker)
+            processor = Node("processor::" + _worker.processor.name, worker)
 
             for socket in _worker.processor.sockets:
                 _sock = Node("socket::" + socket.name, processor)
@@ -3081,8 +3966,8 @@ def ls_node(context, name, tree, horizontal):
         print_tree(root, horizontal=not horizontal)
 
 
-@ls.command(name='plug')
-@click.option('-n', '--name', default=None, required=True, help="Name of processor")
+@ls.command(name="plug")
+@click.option("-n", "--name", default=None, required=True, help="Name of processor")
 @click.pass_context
 def ls_plug(context, name):
     """
@@ -3090,24 +3975,44 @@ def ls_plug(context, name):
     """
     x = PrettyTable()
 
-    plug = context.obj['database'].session.query(
-        PlugModel).filter_by(name=name).first()
+    plug = context.obj["database"].session.query(PlugModel).filter_by(name=name).first()
 
-    names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Queue", "Source Task", "Target Task", "Source Socket", "Target Socket"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Status",
+        "Queue",
+        "Source Task",
+        "Target Task",
+        "Source Socket",
+        "Target Socket",
+    ]
     x.field_names = names
 
     node = plug
-    x.add_row([node.name, node.id, node.owner, node.lastupdated,
-               node.status, node.queue.name, node.source.task.name, node.target.task.name, node.source.name,
-               node.target.name])
+    x.add_row(
+        [
+            node.name,
+            node.id,
+            node.owner,
+            node.lastupdated,
+            node.status,
+            node.queue.name,
+            node.source.task.name,
+            node.target.task.name,
+            node.source.name,
+            node.target.name,
+        ]
+    )
 
     print(x)
     print()
     print("Source Task")
     x = PrettyTable()
 
-    names = ["ID", "Name","Module"]
+    names = ["ID", "Name", "Module"]
     x.field_names = names
 
     for task in [plug.source.task]:
@@ -3121,7 +4026,7 @@ def ls_plug(context, name):
     print("Target Task")
     x = PrettyTable()
 
-    names = ["ID", "Name","Module"]
+    names = ["ID", "Name", "Module"]
     x.field_names = names
 
     for task in [plug.target.task]:
@@ -3139,19 +4044,31 @@ def ls_plug(context, name):
     names = ["ID", "Name", "Task", "Module", "Position", "Kind", "Function"]
     x.field_names = names
 
-    kinds = ["POSITIONAL_ONLY", "POSITIONAL_OR_KEYWORD",
-             "VAR_POSITIONAL", "KEYWORD_ONLY", "VAR_KEYWORD"]
+    kinds = [
+        "POSITIONAL_ONLY",
+        "POSITIONAL_OR_KEYWORD",
+        "VAR_POSITIONAL",
+        "KEYWORD_ONLY",
+        "VAR_KEYWORD",
+    ]
     for arg in [plug.argument]:
         if arg:
-            values = [arg.id, arg.name, arg.task.id, arg.task.module,
-                    arg.position, kinds[int(arg.kind)], arg.task.name]
+            values = [
+                arg.id,
+                arg.name,
+                arg.task.id,
+                arg.task.module,
+                arg.position,
+                kinds[int(arg.kind)],
+                arg.task.name,
+            ]
 
             x.add_row(values)
 
     print(x)
 
 
-@ls.command(name='plugs')
+@ls.command(name="plugs")
 @click.pass_context
 def ls_plugs(context):
     """
@@ -3159,22 +4076,53 @@ def ls_plugs(context):
     """
     x = PrettyTable()
 
-    names = ["Name", "ID", "Owner", "Last Updated",
-             "Status", "Processor", "Queue", "Source", "Target"]
+    names = [
+        "Name",
+        "ID",
+        "Owner",
+        "Last Updated",
+        "Status",
+        "Processor",
+        "Queue",
+        "Source",
+        "Target",
+    ]
     x.field_names = names
-    plugs = context.obj['database'].session.query(PlugModel).all()
+    plugs = context.obj["database"].session.query(PlugModel).all()
 
     for node in plugs:
-        x.add_row([node.name, node.id, node.owner, node.lastupdated,
-                   node.status, node.processor.name, node.queue.name, node.source.name, node.target.name])
+        x.add_row(
+            [
+                node.name,
+                node.id,
+                node.owner,
+                node.lastupdated,
+                node.status,
+                node.processor.name,
+                node.queue.name,
+                node.source.name,
+                node.target.name,
+            ]
+        )
 
     print(x)
 
 
 @cli.command(help="Listen to a processor output")
-@click.option('-n', '--name', default=None, required=True, help="Name of processor")
-@click.option('-c', '--channel', default='task', required=True, help="Listen channel (e.g. task, log, etc)")
-@click.option('-a', '--adaptor', default=None, help="Adaptor class function (e.g. my.module.class.function)")
+@click.option("-n", "--name", default=None, required=True, help="Name of processor")
+@click.option(
+    "-c",
+    "--channel",
+    default="task",
+    required=True,
+    help="Listen channel (e.g. task, log, etc)",
+)
+@click.option(
+    "-a",
+    "--adaptor",
+    default=None,
+    help="Adaptor class function (e.g. my.module.class.function)",
+)
 @click.pass_context
 def listen(context, name, channel, adaptor):
     """
@@ -3183,14 +4131,14 @@ def listen(context, name, channel, adaptor):
     import redis
     import importlib
 
-    redisclient = redis.Redis.from_url(CONFIG.get('backend', 'uri'))
+    redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
     p = redisclient.pubsub()
-    p.psubscribe([name + '.' + channel])
+    p.psubscribe([name + "." + channel])
     print("Listening to", name)
     func = None
     if adaptor:
-        module = importlib.import_module('.'.join(adaptor.rsplit('.')[:-1]))
-        _class = getattr(module, adaptor.rsplit('.')[-1:][0])
+        module = importlib.import_module(".".join(adaptor.rsplit(".")[:-1]))
+        _class = getattr(module, adaptor.rsplit(".")[-1:][0])
         print("Loaded adaptor function", adaptor)
         func = _class()
 
@@ -3207,12 +4155,12 @@ def whoami(context):
     """
     Print who I am logged in as
     """
-    name = context.obj['user'].name if context.obj['user'] is not None else None
+    name = context.obj["user"].name if context.obj["user"] is not None else None
 
     loginstr = "Not logged in"
     if name is not None:
         loginstr = "Logged into PYFI as " + name
-    print("Database user {}.\n{}.".format(context.obj['owner'], loginstr))
+    print("Database user {}.\n{}.".format(context.obj["owner"], loginstr))
 
 
 @cli.group()
@@ -3223,9 +4171,9 @@ def api():
     pass
 
 
-@api.command(name='start')
-@click.option('-ip', default=HOSTNAME, help='IP bind address')
-@click.option('-p', '--port', default=8000, help='Listen port')
+@api.command(name="start")
+@click.option("-ip", default=HOSTNAME, help="IP bind address")
+@click.option("-p", "--port", default=8000, help="Listen port")
 @click.pass_context
 def api_start(context, ip, port):
     """
@@ -3233,6 +4181,7 @@ def api_start(context, ip, port):
     """
     import bjoern
     from pyfi.server import app as server
+
     logging.info("Initializing server app....")
     logging.info("Serving API on {}:{}".format(ip, port))
 
@@ -3248,28 +4197,56 @@ def api_start(context, ip, port):
         logging.info("Shutting down...")
 
 
-@agent.command(name='start')
-@click.option('-p', '--port', default=8001, help='Healthcheck port')
-@click.option('--clean', default=False, is_flag=True, help="Remove work directories before launch")
-@click.option('-b', '--backend', default='redis://localhost', help='Message backend URI')
-@click.option('-r', '--broker', default='pyamqp://localhost', help='Message broker URI')
-@click.option('-n', '--name', default=None, help='Hostname for this agent to use')
-@click.option('-c', '--config', default=None, help='Config module.object import (e.g. path.to.module.MyConfigClass')
-@click.option('-q', '--queues', is_flag=True, help='Run the queue monitor only')
-@click.option('-u', '--user', default=None, help='Run the worker as user')
-@click.option('-po', '--pool', default=1, help='Process pool for message dispatches')
-@click.option('-s', '--size', default=10, help='Maximum number of messages on worker internal queue')
-@click.option('-h', '--host', help='Remote hostname to start the agent via ssh')
-@click.option('-wp', '--workerport', default=8001, help='Healthcheck port for worker')
+@agent.command(name="start")
+@click.option("-p", "--port", default=8001, help="Healthcheck port")
+@click.option(
+    "--clean", default=False, is_flag=True, help="Remove work directories before launch"
+)
+@click.option(
+    "-b", "--backend", default="redis://localhost", help="Message backend URI"
+)
+@click.option("-r", "--broker", default="pyamqp://localhost", help="Message broker URI")
+@click.option("-n", "--name", default=None, help="Hostname for this agent to use")
+@click.option(
+    "-c",
+    "--config",
+    default=None,
+    help="Config module.object import (e.g. path.to.module.MyConfigClass",
+)
+@click.option("-q", "--queues", is_flag=True, help="Run the queue monitor only")
+@click.option("-u", "--user", default=None, help="Run the worker as user")
+@click.option("-po", "--pool", default=1, help="Process pool for message dispatches")
+@click.option(
+    "-s",
+    "--size",
+    default=10,
+    help="Maximum number of messages on worker internal queue",
+)
+@click.option("-h", "--host", help="Remote hostname to start the agent via ssh")
+@click.option("-wp", "--workerport", default=8001, help="Healthcheck port for worker")
 @click.pass_context
-def start_agent(context, port, clean, backend, broker, name, config, queues, user, pool, size, host, workerport):
+def start_agent(
+    context,
+    port,
+    clean,
+    backend,
+    broker,
+    name,
+    config,
+    queues,
+    user,
+    pool,
+    size,
+    host,
+    workerport,
+):
     """
     Start an agent
     """
-    from pyfi.agent import Agent
+    from pyfi.agent import AgentService
 
     if name:
-        os.environ['PYFI_HOSTNAME'] = name
+        os.environ["PYFI_HOSTNAME"] = name
 
     if host is not None:
         """
@@ -3282,8 +4259,20 @@ def start_agent(context, port, clean, backend, broker, name, config, queues, use
         _, stdout, _ = _ssh.exec_command(command)
         """
     else:
-        agent = Agent(context.obj['database'], context.obj['dburi'], pool=pool,
-                      config=config, port=port, workerport=workerport, backend=backend, name=name, user=user, clean=clean, size=size, broker=broker)
+        agent = AgentService(
+            context.obj["database"],
+            context.obj["dburi"],
+            pool=pool,
+            config=config,
+            port=port,
+            workerport=workerport,
+            backend=backend,
+            name=name,
+            user=user,
+            clean=clean,
+            size=size,
+            broker=broker,
+        )
         agent.start()
 
 
@@ -3296,13 +4285,14 @@ def web(context):
     pass
 
 
-@web.command(name='start')
-@click.option('-p', '--port', default=8001, help='Listen port')
+@web.command(name="start")
+@click.option("-p", "--port", default=8001, help="Listen port")
 def web_start(port):
     """
     Run pyfi test web server
     """
     from multiprocessing import Process
+
     try:
         process = Process(target=run_http, args=[port])
         process.start()

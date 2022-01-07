@@ -1,3 +1,3 @@
-from .agent import Agent
+from .agent import AgentService
 
-__all__ = ('Agent',)
+__all__ = ("AgentService",)

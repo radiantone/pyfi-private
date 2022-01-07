@@ -20,8 +20,25 @@ from sqlalchemy.orm import sessionmaker
 
 from celery import Celery, signature
 from pyfi.config.celery import Config
-from pyfi.db.model import SchedulerModel, UserModel, AgentModel, WorkerModel, ArgumentModel, PlugModel, SocketModel, ActionModel, \
-    FlowModel, ProcessorModel, NodeModel, RoleModel, QueueModel, SettingsModel, TaskModel, LogModel, DeploymentModel
+from pyfi.db.model import (
+    SchedulerModel,
+    UserModel,
+    AgentModel,
+    WorkerModel,
+    ArgumentModel,
+    PlugModel,
+    SocketModel,
+    ActionModel,
+    FlowModel,
+    ProcessorModel,
+    NodeModel,
+    RoleModel,
+    QueueModel,
+    SettingsModel,
+    TaskModel,
+    LogModel,
+    DeploymentModel,
+)
 from pyfi.server import app
 
 CONFIG = configparser.ConfigParser()
@@ -40,12 +57,13 @@ class Base:
     """
     Docstring
     """
+
     database = None
     session = None
 
-    db = CONFIG.get('database', 'uri')
-    backend = CONFIG.get('backend', 'uri')
-    broker = CONFIG.get('broker', 'uri')
+    db = CONFIG.get("database", "uri")
+    backend = CONFIG.get("backend", "uri")
+    broker = CONFIG.get("broker", "uri")
     database = create_engine(db)
     session = sessionmaker(bind=database)()
     database.session = session
@@ -55,7 +73,7 @@ class Base:
 
 
 class Work(Base):
-    """ A descripion of a task or scheduled task submitted for execution"""
+    """A descripion of a task or scheduled task submitted for execution"""
 
     # Some users may only have permission to create Work objects and not
     # reference Sockets/Plugs directly
@@ -63,13 +81,10 @@ class Work(Base):
 
 
 class Node(Base):
-
     def __init__(self, name=None, hostname=None):
         super().__init__()
 
-
-        self.node = self.session.query(
-            NodeModel).filter_by(hostname=hostname).first()
+        self.node = self.session.query(NodeModel).filter_by(hostname=hostname).first()
 
         if self.node is None:
             self.node = _node = NodeModel(name=name, hostname=hostname)
@@ -79,15 +94,20 @@ class Node(Base):
 
 
 class Worker(Base):
-
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
-        self.worker = self.session.query(
-            WorkerModel).filter_by(name=name).first()
+        self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
 
         if self.worker is None:
-            self.worker = _worker = WorkerModel(name=name, processor=processor, backend=self.backend, agent_id=agent.id, broker=self.broker, hostname=hostname)
+            self.worker = _worker = WorkerModel(
+                name=name,
+                processor=processor,
+                backend=self.backend,
+                agent_id=agent.id,
+                broker=self.broker,
+                hostname=hostname,
+            )
 
         self.session.add(self.worker)
         self.session.commit()
@@ -102,12 +122,10 @@ class Task(Base):
         super().__init__()
 
         self.app = Celery(backend=self.backend, broker=self.broker)
-        self.task = self.session.query(
-            TaskModel).filter_by(name=name).first()
+        self.task = self.session.query(TaskModel).filter_by(name=name).first()
 
         if self.task is None:
-            self.task = _task = TaskModel(name=name, module=module,
-                                          gitrepo=repo)
+            self.task = _task = TaskModel(name=name, module=module, gitrepo=repo)
 
             # Add Argument objects ehre
 
@@ -115,50 +133,63 @@ class Task(Base):
             self.session.commit()
             # raise Exception(f"Task {name} does not exist.")
 
-        self.name = module + '.' + name
+        self.name = module + "." + name
 
         self.queue = KQueue(
-            queue['name'],
-            Exchange(queue['name'], type=queue['type'],
-                     routing_key=module + '.' + name)
+            queue["name"],
+            Exchange(
+                queue["name"], type=queue["type"], routing_key=module + "." + name
+            ),
         )
 
     def __call__(self, *args, **kwargs):
-        return self.app.signature(self.name, app=self.app, args=args, serializer='pickle', queue=self.queue,
-                                  kwargs=kwargs).delay()
+        return self.app.signature(
+            self.name,
+            app=self.app,
+            args=args,
+            serializer="pickle",
+            queue=self.queue,
+            kwargs=kwargs,
+        ).delay()
 
 
 class Argument(Base):
-
     @classmethod
     def find(cls, name, task):
 
-        return cls.session.query(ArgumentModel).join(TaskModel).filter(ArgumentModel.name == name and TaskModel.name == task and ArgumentModel.task_id == TaskModel.id).first()
+        return (
+            cls.session.query(ArgumentModel)
+            .join(TaskModel)
+            .filter(
+                ArgumentModel.name == name
+                and TaskModel.name == task
+                and ArgumentModel.task_id == TaskModel.id
+            )
+            .first()
+        )
 
 
 class Agent(Base):
-
     @classmethod
     def find(cls, name):
 
-        return cls.session.query(
-            AgentModel).filter_by(name=name).first()
+        return cls.session.query(AgentModel).filter_by(name=name).first()
 
     def __init__(self, *args, **kwargs):
         super().__init__()
 
         self.agent = None
 
-        self.name = kwargs['name']
-        self.hostname = kwargs['hostname']
-        self.node = kwargs['node']
-        
-        self.agent = self.session.query(
-            AgentModel).filter_by(name=self.name).first()
+        self.name = kwargs["name"]
+        self.hostname = kwargs["hostname"]
+        self.node = kwargs["node"]
+
+        self.agent = self.session.query(AgentModel).filter_by(name=self.name).first()
 
         if self.agent is None:
             self.agent = AgentModel(
-                name=self.name, node_id=self.node.node.id, hostname=self.hostname)
+                name=self.name, node_id=self.node.node.id, hostname=self.hostname
+            )
 
         self.session.add(self.agent)
         self.session.commit()
@@ -174,10 +205,11 @@ class Scheduler(Base):
 
         self.scheduler = None
 
-        self.name = kwargs['name']
+        self.name = kwargs["name"]
 
-        self.scheduler = self.session.query(
-            SchedulerModel).filter_by(name=self.name).first()
+        self.scheduler = (
+            self.session.query(SchedulerModel).filter_by(name=self.name).first()
+        )
 
         if self.scheduler is None:
             self.scheduler = SchedulerModel(name=self.name)
@@ -208,41 +240,43 @@ class Socket(Base):
 
         super().__init__()
 
-        backend = CONFIG.get('backend', 'uri')
-        broker = CONFIG.get('broker', 'uri')
+        backend = CONFIG.get("backend", "uri")
+        broker = CONFIG.get("broker", "uri")
         self.app = Celery(backend=backend, broker=broker)
 
         from pyfi.celery import config
+
         self.app.config_from_object(config)
         self.processor = None
 
-        self.name = kwargs['name']
+        self.name = kwargs["name"]
 
         interval = -1
 
-        if 'interval' in kwargs:
-            interval = kwargs['interval']
+        if "interval" in kwargs:
+            interval = kwargs["interval"]
 
-        if 'queue' in kwargs:
-            self.queuename = kwargs['queue']['name']
+        if "queue" in kwargs:
+            self.queuename = kwargs["queue"]["name"]
             # pass in x-expires, message-ttl
-            self.queue = Queue(**kwargs['queue'])
+            self.queue = Queue(**kwargs["queue"])
             self.session.add(self.queue.queue)
 
-        if 'processor' in kwargs:
-            self.processor = kwargs['processor']
+        if "processor" in kwargs:
+            self.processor = kwargs["processor"]
             self.session.add(self.processor.processor)
 
         self.loadbalanced = False
-        if 'loadbalanced' in kwargs:
-            self.loadbalanced = kwargs['loadbalanced']
+        if "loadbalanced" in kwargs:
+            self.loadbalanced = kwargs["loadbalanced"]
 
-        if 'task' in kwargs:
-            taskname = kwargs['task']
+        if "task" in kwargs:
+            taskname = kwargs["task"]
 
             if type(taskname) is str:
-                self.task = self.session.query(
-                    TaskModel).filter_by(name=taskname).first()
+                self.task = (
+                    self.session.query(TaskModel).filter_by(name=taskname).first()
+                )
                 if self.task is None:
                     self.task = TaskModel(name=taskname)
 
@@ -253,16 +287,15 @@ class Socket(Base):
             self.task.gitrepo = self.processor.processor.gitrepo
             self.session.add(self.task)
 
-        self.socket = self.session.query(
-            SocketModel).filter_by(name=self.name).first()
-        
-        user = kwargs['user']
+        self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
+
+        user = kwargs["user"]
         try:
             self.session.add(user)
         except:
             pass
 
-        if 'arguments' in kwargs and kwargs['arguments']:
+        if "arguments" in kwargs and kwargs["arguments"]:
 
             _module = importlib.import_module(self.task.module)
             _function = getattr(_module, self.task.name)
@@ -274,7 +307,8 @@ class Socket(Base):
             for pname in signature.parameters:
                 param = signature.parameters[pname]
                 _argument = ArgumentModel(
-                    name=param.name, position=position, user=user, kind=param.kind)
+                    name=param.name, position=position, user=user, kind=param.kind
+                )
                 self.session.add(_argument)
                 self.task.arguments += [_argument]
                 position += 1
@@ -293,15 +327,22 @@ class Socket(Base):
                 self.socket.task = self.task
         else:
             scheduled = False
-            schedule_type = 'INTERVAL'
+            schedule_type = "INTERVAL"
 
             if interval > 0:
                 scheduled = True
 
-            self.socket = SocketModel(name=self.name, user=user, user_id=user.id, scheduled=scheduled,
-                                      schedule_type=schedule_type, interval=interval,
-                                      processor_id=self.processor.processor.id, requested_status='ready',
-                                      status='ready')
+            self.socket = SocketModel(
+                name=self.name,
+                user=user,
+                user_id=user.id,
+                scheduled=scheduled,
+                schedule_type=schedule_type,
+                interval=interval,
+                processor_id=self.processor.processor.id,
+                requested_status="ready",
+                status="ready",
+            )
 
             logging.info("Creating new socket %s", self.name)
             self.session.add(self.task)
@@ -309,11 +350,15 @@ class Socket(Base):
             self.socket.queue = self.queue.queue
             self.session.add(self.socket)
             self.session.commit()
-            self.session.refresh(
-                self.socket)
+            self.session.refresh(self.socket)
 
-
-        self.key = self.socket.queue.name + '.' + self.processor.name + '.' + self.socket.task.name
+        self.key = (
+            self.socket.queue.name
+            + "."
+            + self.processor.name
+            + "."
+            + self.socket.task.name
+        )
 
         try:
             self.database.session.add(self.queue.queue)
@@ -330,59 +375,56 @@ class Socket(Base):
 
         self.queue = KQueue(
             self.key,
-            Exchange(self.socket.queue.name, type='direct'),
+            Exchange(self.socket.queue.name, type="direct"),
             routing_key=self.key,
             message_ttl=self.socket.queue.message_ttl,
             durable=self.socket.queue.durable,
             expires=self.socket.queue.expires,
             # socket.queue.message_ttl
             # socket.queue.expires
-            queue_arguments={
-                'x-message-ttl': 30000,
-                'x-expires': 300}
+            queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
         )
 
         # For load balanced queue
 
         if self.loadbalanced:
-            self.key = self.processor.processor.module + '.' + self.socket.task.name
+            self.key = self.processor.processor.module + "." + self.socket.task.name
             self.queue = KQueue(
                 self.key,
                 # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
-                Exchange(self.socket.queue.name, type='direct'),
+                Exchange(self.socket.queue.name, type="direct"),
                 routing_key=self.key,
                 message_ttl=self.socket.queue.message_ttl,
                 durable=self.socket.queue.durable,
                 expires=self.socket.queue.expires,
                 # socket.queue.message_ttl
                 # socket.queue.expires
-                queue_arguments={
-                    'x-message-ttl': 30000,
-                    'x-expires': 300}
+                queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
             )
 
         self.app.conf.task_routes = {
-            self.key: {
-                'queue': self.queue,
-                'exchange': self.socket.queue.name
-            }
+            self.key: {"queue": self.queue, "exchange": self.socket.queue.name}
         }
 
     def p(self, *args, **kwargs):
-        """ Partial method signature (not executed) """
-        return self.processor.app.signature(self.processor.processor.module + '.' + self.socket.task.name,
-                                            app=self.processor.app, args=args, serializer='pickle', queue=self.queue,
-                                            kwargs=kwargs)
+        """Partial method signature (not executed)"""
+        return self.processor.app.signature(
+            self.processor.processor.module + "." + self.socket.task.name,
+            app=self.processor.app,
+            args=args,
+            serializer="pickle",
+            queue=self.queue,
+            kwargs=kwargs,
+        )
 
     def delay(self, *args, **kwargs):
-        """ Execute this socket's task on the network """
+        """Execute this socket's task on the network"""
         # socket.queue.message_ttl
         # socket.queue.expires
-        kwargs['x-expires'] = 300
+        kwargs["x-expires"] = 300
         self.session.add(self.processor.processor)
         self.session.add(self.socket)
-        self.session.refresh(
-            self.socket)
+        self.session.refresh(self.socket)
 
         return self.p(args, kwargs).delay()
 
@@ -392,14 +434,21 @@ class Socket(Base):
         """"""
         # socket.queue.message_ttl
         # socket.queue.expires
-        kwargs['x-expires'] = 300
+        kwargs["x-expires"] = 300
         self.session.add(self.processor.processor)
         self.session.add(self.socket)
-        self.session.refresh(
-            self.socket)
+        self.session.refresh(self.socket)
 
-        task_sig = self.processor.app.signature(self.processor.processor.module + '.' + self.socket.task.name,
-                                                args=args, queue=self.queue, kwargs=kwargs).delay().get()
+        task_sig = (
+            self.processor.app.signature(
+                self.processor.processor.module + "." + self.socket.task.name,
+                args=args,
+                queue=self.queue,
+                kwargs=kwargs,
+            )
+            .delay()
+            .get()
+        )
 
         # argument = {'name':'message','kind':3,'position':0}
         # task_sig_wait = self.processor.app.signature(
@@ -411,27 +460,27 @@ class Socket(Base):
 
 class Plug(Base):
     """"""
+
     import inspect
 
     def __init__(self, *args, **kwargs):
         super().__init__()
         from sqlalchemy.orm import Session
 
-        self.name = kwargs['name']
+        self.name = kwargs["name"]
 
-        self.plug = self.session.query(
-            PlugModel).filter_by(name=self.name).first()
+        self.plug = self.session.query(PlugModel).filter_by(name=self.name).first()
 
-        user = kwargs['user']
+        user = kwargs["user"]
 
         if self.plug is None:
 
-            if 'queue' in kwargs:
-                self.queuename = kwargs['queue']['name']
+            if "queue" in kwargs:
+                self.queuename = kwargs["queue"]["name"]
 
-            self.source = kwargs['source']
-            self.target = kwargs['target']
-            self.processor = kwargs['processor']
+            self.source = kwargs["source"]
+            self.target = kwargs["target"]
+            self.processor = kwargs["processor"]
 
             self.queue = Queue(name=self.queuename)
             self.session.add(self.processor.processor)
@@ -441,9 +490,17 @@ class Plug(Base):
             self.session.add(self.source.socket)
             self.session.add(self.target.socket)
 
-            self.plug = PlugModel(name=self.name, user=user, user_id=user.id, source=self.source.socket,
-                                  target=self.target.socket, queue=self.queue.queue,
-                                  processor_id=self.processor.processor.id, requested_status='ready', status='ready')
+            self.plug = PlugModel(
+                name=self.name,
+                user=user,
+                user_id=user.id,
+                source=self.source.socket,
+                target=self.target.socket,
+                queue=self.queue.queue,
+                processor_id=self.processor.processor.id,
+                requested_status="ready",
+                status="ready",
+            )
 
             self.source.socket.sourceplugs += [self.plug]
             self.target.socket.targetplugs += [self.plug]
@@ -504,40 +561,42 @@ class Queue(Base):
         self.durable = durable
         self.expires = expires
 
-        self.queue = self.session.query(
-            QueueModel).filter_by(name=name).first()
+        self.queue = self.session.query(QueueModel).filter_by(name=name).first()
 
         if self.queue is None:
             # message_ttl=message_ttl, durable=durable, expires=expires,
-            self.queue = QueueModel(name=name, requested_status='ready',
-                                    status='ready')
+            self.queue = QueueModel(name=name, requested_status="ready", status="ready")
 
             self.queue.message_ttl = self.message_ttl
             self.queue.durable = self.durable
-            self.queue.expires = self.expires                                    
+            self.queue.expires = self.expires
             self.session.add(self.queue)
 
-
         self.session.commit()
-        #self.session.expunge(self.queue)
-        #self.session.close()
+        # self.session.expunge(self.queue)
+        # self.session.close()
 
 
 class Deployment(Base):
-
-
     def __init__(self, name=None, hostname=None, worker=None, processor=None, cpus=0):
         self.processor = processor
 
-        self.deployment = self.database.session.query(
-            DeploymentModel).filter_by(name=name).first()
+        self.deployment = (
+            self.database.session.query(DeploymentModel).filter_by(name=name).first()
+        )
 
         if self.deployment is None:
-            self.deployment = DeploymentModel(name=name, worker=worker, hostname=hostname, processor=processor, cpus=cpus)
+            self.deployment = DeploymentModel(
+                name=name,
+                worker=worker,
+                hostname=hostname,
+                processor=processor,
+                cpus=cpus,
+            )
             self.session.add(self.deployment)
             self.session.commit()
 
-        
+
 class Processor(Base):
     """
     Provide simple wrapper to ProcessorModel and execution behavior methods
@@ -552,43 +611,67 @@ class Processor(Base):
     using the cli you can only manage the database model.
     """
 
-    def __init__(self, hostname=None, id=None, name=None, user=None, gitrepo=None, branch=None, module=None,
-                 concurrency=None, agent=None, commit=None, beat=None):
+    def __init__(
+        self,
+        hostname=None,
+        id=None,
+        name=None,
+        user=None,
+        gitrepo=None,
+        branch=None,
+        module=None,
+        concurrency=None,
+        agent=None,
+        commit=None,
+        beat=None,
+    ):
 
         super().__init__()
 
         from kombu.common import Broadcast
         from pyfi.celery import config
 
-        '''
+        """
         Load the processor by name and match the queue by name, then use
         the queue object to create the kombu Queue() class so it matches
-        '''
+        """
 
         if id is not None:
             self.id = id
-            self.processor = self.database.session.query(
-                ProcessorModel).filter_by(id=id).first()
+            self.processor = (
+                self.database.session.query(ProcessorModel).filter_by(id=id).first()
+            )
             self.name = self.processor.name
         else:
             self.name = name
-            self.processor = self.database.session.query(
-                ProcessorModel).filter_by(name=name).first()
+            self.processor = (
+                self.database.session.query(ProcessorModel).filter_by(name=name).first()
+            )
         # Collection for socket relations
 
         if self.processor is None:
             # Create it
             self.processor = ProcessorModel(
-                status='ready', user_id=user.id, user=user, retries=10, gitrepo=gitrepo,
-                branch=branch, beat=beat, commit=commit, concurrency=concurrency, requested_status='update', name=name,
-                module=module)
+                status="ready",
+                user_id=user.id,
+                user=user,
+                retries=10,
+                gitrepo=gitrepo,
+                branch=branch,
+                beat=beat,
+                commit=commit,
+                concurrency=concurrency,
+                requested_status="update",
+                name=name,
+                module=module,
+            )
             self.database.session.add(self.processor)
-            #self.processor.hostname = platform.node()
+            # self.processor.hostname = platform.node()
             self.processor.concurrency = 3
             self.processor.commit = None
             self.processor.beat = False
 
-        '''
+        """
         if self.processor.worker is None:
             _name = hostname + ".agent." + self.processor.name + '.worker'
             logging.info("Creating worker %s on %s",
@@ -599,29 +682,29 @@ class Processor(Base):
             self.database.session.add(_worker)
             self.database.session.commit()
             logging.info("   Worker: %s", self.processor.worker.name)
-        '''
+        """
 
         if concurrency is not None:
             if self.processor.concurrency != concurrency:
-                self.processor.requested_status = 'update'
+                self.processor.requested_status = "update"
             self.processor.concurrency = concurrency
 
         if commit is not None:
             if self.processor.commit != commit:
-                self.processor.requested_status = 'update'
+                self.processor.requested_status = "update"
             self.processor.commit = commit
 
         if beat is not None:
             if self.processor.beat != beat:
-                self.processor.requested_status = 'update'
+                self.processor.requested_status = "update"
             self.processor.beat = beat
 
         self.database.session.add(self.processor)
 
         self.sockets = Sockets(self.database, self.processor)
 
-        backend = CONFIG.get('backend', 'uri')
-        broker = CONFIG.get('broker', 'uri')
+        backend = CONFIG.get("backend", "uri")
+        broker = CONFIG.get("broker", "uri")
 
         self.app = Celery(backend=backend, broker=broker)
 
@@ -633,12 +716,12 @@ class Processor(Base):
         return self
 
     def start(self):
-        self.processor.requested_status = 'start'
+        self.processor.requested_status = "start"
         self.database.session.add(self.processor)
         self.database.session.commit()
 
     def stop(self):
-        self.processor.requested_status = 'stopped'
+        self.processor.requested_status = "stopped"
         self.database.session.add(self.processor)
         self.database.session.commit()
 

@@ -1,3 +1,3 @@
 from .dto import UserDto
 
-__all__ = ('UserDto',)
+__all__ = ("UserDto",)

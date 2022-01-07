@@ -19,6 +19,33 @@ with open(os.path.join(here, 'pyfi', '__version__.py')) as f:
 with open('README.md', 'r') as f:
     readme = f.read()
 
+class FormatterCommand(distutils.cmd.Command):
+    """A custom command to run Pylint on all Python source files."""
+
+    description = 'Run black code formatter'
+    user_options = [
+
+    ]
+
+    def initialize_options(self):
+        """Set default values for options."""
+        # Each user option must be listed here with their default value.
+        pass
+
+    def finalize_options(self):
+        """Post-process options."""
+        pass
+
+    def run(self):
+        """Run command."""
+        command = [
+            'black pyfi']
+
+        self.announce(
+            'Running command: %s' % str(command),
+            level=distutils.log.INFO)
+        subprocess.Popen(command, shell=True)
+
 
 class PyTestCommand(distutils.cmd.Command):
     """A custom command to run Pylint on all Python source files."""
@@ -164,7 +191,8 @@ setup(
     cmdclass={
         'clean': CleanCommand,
         'pylint': PylintCommand,
-        'test': PyTestCommand
+        'test': PyTestCommand,
+        'format': FormatterCommand
     },
     entry_points={
         'console_scripts': ['pyfi=pyfi.cli:cli']

@@ -5,8 +5,17 @@ network:
   name: network-1
   queues:
     pyfi.queue1:
+      message_ttl: 200000
+      durable: true
+      expires: 200
     pyfi.queue2:
+      message_ttl: 200000
+      expires: 200
+      durable: true
     pyfi.queue3:
+      message_ttl: 200000
+      expires: 200
+      durable: true
   nodes:
     phoenix:
       clean: true

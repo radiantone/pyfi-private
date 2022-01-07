@@ -1,15 +1,17 @@
 from pyfi.client.api import parallel, pipeline
 from pyfi.client.example.api import do_something_p as do_something, do_this_p as do_this
 
-_fork = parallel([
-    do_something("Four"),
-    do_something("Five"),
-])
+_fork = parallel(
+    [
+        do_something("Four"),
+        do_something("Five"),
+    ]
+)
 
 result = _fork().get()
 print("RESULT:", result)
 
-'''
+"""
 # fork takes the head (first arg), executes it and passes the result to the body (second arg) running each in parallel
 _pipeline = pipeline(
     do_something("One"),
@@ -47,4 +49,4 @@ _f | fork([
     do_this,
     do_this
 ])
-'''
+"""

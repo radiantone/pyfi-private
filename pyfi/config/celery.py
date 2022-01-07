@@ -4,10 +4,9 @@
 
 
 class Config:
-    """
+    """ """
 
-    """
     enable_utc = True
-    timezone = 'America/New_York'
-    broker_url = 'pyamqp://localhost'
-    result_backend = 'redis://localhost'
+    timezone = "America/New_York"
+    broker_url = "pyamqp://localhost"
+    result_backend = "redis://localhost"

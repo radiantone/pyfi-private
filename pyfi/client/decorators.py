@@ -1,5 +1,6 @@
-
 from functools import wraps
+
+
 class processor1(object):
     def __init__(self, arg):
         self._arg = arg
@@ -9,20 +10,17 @@ class processor1(object):
         return retval ** 2
 
 
-def task(
-        name="",
-        module="",
-        processor=None,
-        gitrepo=""):
-
+def task(name="", module="", processor=None, gitrepo=""):
     def wrapper_func(func):
         func()
 
     return wrapper_func
 
+
 def processor2(*args, **kwargs):
     # decoration body - doing nothing really since we need to wait until the decorated object is instantiated
     print("processor called ", args, kwargs)
+
     class Processor:
         def __init__(self, *args, **kwargs):
             print(f"__init__() called with args: {args} and kwargs: {kwargs}")
@@ -52,7 +50,8 @@ def processor(*args, **kwargs):
         print("processor class", klass, **kwargs)
 
         class Processor:
-            """ Populate methods of klass as tasks """
+            """Populate methods of klass as tasks"""
+
             cls = None
 
             def __init__(self, *args, **kwargs):
@@ -80,7 +79,8 @@ def processor(*args, **kwargs):
 
 
 class Agent:
-    """ Populate methods of klass as tasks """
+    """Populate methods of klass as tasks"""
+
     cls = None
 
     def __init__(self, worker, *args, **kwargs):
@@ -88,12 +88,13 @@ class Agent:
         print(f"   Agent instance with args: {args} and kwargs: {kwargs}")
 
 
-def node(*args,**kwargs):
-    print("node called ",kwargs)
+def node(*args, **kwargs):
+    print("node called ", kwargs)
+
     def decorator(processor):
 
         if isinstance(processor, Agent):
-            print("node:agent",processor, processor.worker)
+            print("node:agent", processor, processor.worker)
         else:
             print("node:processor", processor)
 
@@ -103,29 +104,32 @@ def node(*args,**kwargs):
         """
 
         return processor
+
     return decorator
 
 
 def agent(*args, **kwargs):
-    print("agent called ",args,kwargs)
+    print("agent called ", args, kwargs)
     _kwargs = kwargs
 
     def decorator(worker, **kwargs):
         print("agent:worker", worker, worker.processor.cls)
 
         return Agent(worker, **_kwargs)
-    
+
     return decorator
 
 
 def worker(*args, **kwargs):
 
     print("worker called ", args, kwargs)
+
     def decorator(processor):
-        print("worker:processor",processor)
+        print("worker:processor", processor)
 
         class Worker:
-            """ Worker """
+            """Worker"""
+
             cls = None
 
             def __init__(self, processor, *args, **kwargs):
@@ -133,7 +137,6 @@ def worker(*args, **kwargs):
                 self.processor = processor
 
         return Worker(processor)
-
 
     return decorator
 
@@ -146,17 +149,18 @@ def socket(*args, **kwargs):
         print("socket:task", task)
 
         class Socket:
-            """ Worker """
+            """Worker"""
+
             cls = None
 
             def __init__(self, task, *args, **kwargs):
-                print(
-                    f"   worker instance with args: {args} and kwargs: {kwargs}")
+                print(f"   worker instance with args: {args} and kwargs: {kwargs}")
                 self.task = task
 
         return Socket(task)
 
     return decorator
+
 
 def plug(*args, **kwargs):
 
@@ -166,12 +170,12 @@ def plug(*args, **kwargs):
         print("plug:socket", socket)
 
         class Plug:
-            """ Worker """
+            """Worker"""
+
             cls = None
 
             def __init__(self, socket, *args, **kwargs):
-                print(
-                    f"   worker instance with args: {args} and kwargs: {kwargs}")
+                print(f"   worker instance with args: {args} and kwargs: {kwargs}")
                 self.socket = socket
 
         return Plug(socket)

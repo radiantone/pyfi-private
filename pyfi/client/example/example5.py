@@ -9,23 +9,18 @@ from pyfi.client.example.api import do_something_p as do_something, do_this_p as
 _pipeline = pipeline(
     do_something("One"),
     do_something("Two"),
-    parallel([
-        do_something("Four"),
-        do_something("Five"),
-    ]),
-    do_something("Three")
+    parallel(
+        [
+            do_something("Four"),
+            do_something("Five"),
+        ]
+    ),
+    do_something("Three"),
 )
 
-_parallel = parallel([
-    do_something("Six"),
-    do_something("Seven"),
-    _pipeline]
-)
+_parallel = parallel([do_something("Six"), do_something("Seven"), _pipeline])
 
-_funnel = funnel([
-    _parallel,
-    do_something("Eight"),
-    do_this("Nine")])
+_funnel = funnel([_parallel, do_something("Eight"), do_this("Nine")])
 
 print("FUNNEL: ", _funnel(do_this("Ten")).get())
 # print("_pipeline: ", _parallel().get())

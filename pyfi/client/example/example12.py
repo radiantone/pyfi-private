@@ -19,23 +19,38 @@ from pyfi.client.api import node, agent, processor, worker, socket, plug
 """
 Declare an infrastructure node in the database that can be immediately used.
 """
-@node(hostname="agent2")
-@agent(name="ag2") # To make config settings for agent and workers
-@worker(hostname="agent2")
-@processor(gitrepo="", module="pyfi.processors.sample") # gitrepo and module can be implied
-class ProcessorA:
-    """ Description """
 
-    @plug(target="sock2", queue={"name":"queue1", "message_ttl":300000, "durable":True, "expires":200})
+
+@node(hostname="agent2")
+@agent(name="ag2")  # To make config settings for agent and workers
+@worker(hostname="agent2")
+@processor(
+    gitrepo="", module="pyfi.processors.sample"
+)  # gitrepo and module can be implied
+class ProcessorA:
+    """Description"""
+
+    @plug(
+        target="sock2",
+        queue={
+            "name": "queue1",
+            "message_ttl": 300000,
+            "durable": True,
+            "expires": 200,
+        },
+    )
     @socket(key="value", name="sock1", queue={"name": "sockq1"})
     def do_something(message):
-        """ do_something """
+        """do_something"""
         from random import randrange
 
-        message = "TEXT:"+str(message)
-        graph = {'tag': {'name': 'tagname', 'value': 'tagvalue'},
-                    'name': 'temperature', 'value': randrange(10)}
-        return {'message': message, 'graph': graph}
+        message = "TEXT:" + str(message)
+        graph = {
+            "tag": {"name": "tagname", "value": "tagvalue"},
+            "name": "temperature",
+            "value": randrange(10),
+        }
+        return {"message": message, "graph": graph}
 
 
 # Here we are defining a processor without a specific node assigned
@@ -43,7 +58,7 @@ class ProcessorA:
 # or multiple nodes totalling 6 cpus. The scheduler creates the deployments
 @processor(gitrepo="", cpus=6)
 class ProcessorB:
-    """ Description """
+    """Description"""
 
     # socket can also be implied
     @socket(key="value", name="sock2")
@@ -51,19 +66,29 @@ class ProcessorB:
         from random import randrange
 
         print("Do this!", message)
-        message = "Do this String: "+str(message)
-        graph = {'tag': {'name': 'tagname', 'value': 'tagvalue'},
-                    'name': 'distance', 'value': randrange(50)}
-        return {'message': message, 'graph': graph}
+        message = "Do this String: " + str(message)
+        graph = {
+            "tag": {"name": "tagname", "value": "tagvalue"},
+            "name": "distance",
+            "value": randrange(50),
+        }
+        return {"message": message, "graph": graph}
 
 
-do_something = Socket(name='pyfi.processors.sample.ProcessorA.do_something', user=USER).p
+do_something = Socket(
+    name="pyfi.processors.sample.ProcessorA.do_something", user=USER
+).p
 
-_pipeline = pipeline([
-    do_something("One"),
-    do_something("Two"),
-    parallel([
-        do_something("Four"),
-        do_something("Five"),
-    ]),
-    do_something("Three")])
+_pipeline = pipeline(
+    [
+        do_something("One"),
+        do_something("Two"),
+        parallel(
+            [
+                do_something("Four"),
+                do_something("Five"),
+            ]
+        ),
+        do_something("Three"),
+    ]
+)

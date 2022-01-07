@@ -8,12 +8,13 @@ from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel
 
 HOSTNAME = platform.node()
 
-if 'PYFI_HOSTNAME' in os.environ:
-    HOSTNAME = os.environ['PYFI_HOSTNAME']
+if "PYFI_HOSTNAME" in os.environ:
+    HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
 
 class Scheduler:
-    """ Basic Scheduler """
+    """Basic Scheduler"""
+
     process = None
 
     def __init__(self, context, name, interval):
@@ -29,11 +30,14 @@ class Scheduler:
             time.sleep(self.interval)
             logging.info("Performing schedule")
 
-            scheduler = self.context.obj['database'].session.query(
-                SchedulerModel).filter_by(name=self.name).first()
+            scheduler = (
+                self.context.obj["database"]
+                .session.query(SchedulerModel)
+                .filter_by(name=self.name)
+                .first()
+            )
 
-            all_work = self.context.obj['database'].session.query(
-                WorkModel).all()
+            all_work = self.context.obj["database"].session.query(WorkModel).all()
 
             for work in all_work:
                 # Determine the work request and schedule or run it
@@ -43,9 +47,11 @@ class Scheduler:
             # Put processors in pending list to be assigned below
             # if there are available nodes, otherwise release the read lock
 
-
-            processors = self.context.obj['database'].session.query(
-                ProcessorModel).filter_by(requested_status='deploy')
+            processors = (
+                self.context.obj["database"]
+                .session.query(ProcessorModel)
+                .filter_by(requested_status="deploy")
+            )
 
             for processor in processors:
                 if len(processor.deployments) == 0:
@@ -64,14 +70,14 @@ class Scheduler:
                 # run the agent. The agent worker will then notice any processors assigned to it
                 # and launch those processors on its own
 
-                """ Calculate any changes needed by inspecting the nodes, agents, workers, etc """
+                """Calculate any changes needed by inspecting the nodes, agents, workers, etc"""
                 """ If changes are needed, put read lock on table and make change """
                 logging.info("Node %s", node)
                 agent = node.agent
 
                 logging.info("Agent %s CPUs", agent.cpus)
                 try:
-                    result = requests.get('http://' + agent.hostname + ':8002')
+                    result = requests.get("http://" + agent.hostname + ":8002")
                     if result.status_code == 200:
                         logging.info("Agent is alive.")
                     else:
@@ -83,8 +89,9 @@ class Scheduler:
                 # If there are, then move the processor to this agent and node.h
 
                 processor = agent.worker.processor
-                logging.info("Processor %s %s CPU workers",
-                             processor.name, processor.concurrency)
+                logging.info(
+                    "Processor %s %s CPU workers", processor.name, processor.concurrency
+                )
 
                 # Look at all the processors for this node, if the total CPUs exceeds the nodes CPUs
                 # Then determine which processor to find a better home
@@ -98,8 +105,13 @@ class Scheduler:
 
             try:
                 # These are processors without an node to run on currently
-                orphaned_processors = self.context.obj['database'].session.query(
-                    ProcessorModel).filter_by(hostname=None).with_for_update().all()
+                orphaned_processors = (
+                    self.context.obj["database"]
+                    .session.query(ProcessorModel)
+                    .filter_by(hostname=None)
+                    .with_for_update()
+                    .all()
+                )
 
                 for processor in orphaned_processors:
                     logging.info("Finding home for orphaned processor %s", processor)
@@ -107,7 +119,7 @@ class Scheduler:
                     # Scan my nodes and agents looking for space or rearranging for space
 
             finally:
-                self.context.obj['database'].session.commit()
+                self.context.obj["database"].session.commit()
 
     def start(self):
         self.process = Process(target=self.run)

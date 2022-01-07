@@ -12,8 +12,7 @@ from http.server import SimpleHTTPRequestHandler
 
 DIRECTORY = "app/dist/spa"
 
-Handler = functools.partial(
-    SimpleHTTPRequestHandler, directory=DIRECTORY)
+Handler = functools.partial(SimpleHTTPRequestHandler, directory=DIRECTORY)
 
 
 def run_http(port):
@@ -26,8 +25,7 @@ def run_http(port):
 
     with socketserver.TCPServer(("", PORT), Handler) as httpd:
         logging.info("Serving app on port %s", PORT)
-        logging.warn(
-            "DO NOT use this server for production! Use NGINX")
+        logging.warn("DO NOT use this server for production! Use NGINX")
 
         def http_shutdown():
             """
