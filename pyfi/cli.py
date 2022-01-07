@@ -2538,7 +2538,7 @@ def ls_queue(context, id, name, task):
             )
 
     print()
-    print("Tasks")
+    print("Bindings")
 
     print(x)
 

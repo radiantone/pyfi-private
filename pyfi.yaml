@@ -47,7 +47,7 @@ network:
                 commit:
                 module: pyfi.processors.sample
                 beat: true
-                workers: 2
+                cpus: 2
                 sockets:
                   pyfi.processors.sample.emit_one:
                     interval: -1
@@ -91,7 +91,7 @@ network:
               commit:
               module: pyfi.processors.sample
               beat: false
-              workers: 1
+              cpus: 1
               sockets:
                 pyfi.processors.sample.add_two:
                   queue: 
