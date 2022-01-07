@@ -2726,7 +2726,8 @@ def ls_queues(context):
             content = json.loads(response.content)
             print(json.dumps(content, indent=4))
             for binding in content:
-                messages += binding['messages']
+                if binding['name'].find(node.name) == 0:
+                    messages += binding['messages']
         except:
             pass
 
