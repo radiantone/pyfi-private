@@ -195,6 +195,8 @@ class Agent:
         with self.get_session() as session:
             session.add(agent)
 
+        session.commit()
+        
         def shutdown(*args):
             """ Shutdown worker """
             from psutil import Process
