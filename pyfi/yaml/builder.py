@@ -214,6 +214,55 @@ def stop_network(detail):
 
     pass
 
+def build_processor(processor):
+    sockets = {}
+
+    _processor = Processor(
+        name=processor['name'],
+        beat=processor["beat"],
+        user=USER,
+        module=processor["module"],
+        branch=processor["branch"],
+        concurrency=0,
+        gitrepo=processor["gitrepo"],
+    )
+
+    if "container_image" in processor:
+        _processor.processor.container_image = processor["container_image"]
+        if "detached" in processor:
+            _processor.processor.detached = processor["detached"]
+
+        if "container_version" in processor:
+            _processor.processor.container_version = processor["container_version"]
+
+        if "use_container" in processor:
+            _processor.processor.use_container = processor["use_container"]
+
+    # if "remove", then delete _processor
+    if "sockets" in processor:
+        for socketname in processor["sockets"]:
+            logging.info("Creating socket {}".format(socketname))
+            socket = processor["sockets"][socketname]
+            interval = socket["interval"] if "interval" in socket else -1
+            if "arguments" in socket["task"]["function"]:
+                arguments = socket["task"]["function"]
+            else:
+                arguments = False
+            _socket = Socket(
+                name=socketname,
+                user=USER,
+                interval=interval,
+                processor=_processor,
+                queue={"name": socket["queue"]["name"]},
+                task=socket["task"]["function"]["name"],
+                arguments=arguments,
+            )
+
+            sockets[socketname] = _socket
+
+
+    return sockets
+
 
 def compose_agent(node, agent, deploy, _agent):
     repos = []
@@ -230,7 +279,7 @@ def compose_agent(node, agent, deploy, _agent):
             user=USER,
             module=processor["module"],
             branch=processor["branch"],
-            concurrency=processor["workers"],
+            concurrency=processor["cpus"],
             agent=_agent.agent,
             gitrepo=processor["gitrepo"],
         )
@@ -322,23 +371,41 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
             queue = queues[name]
             build_queue(name, queue)
 
-    for nodename in detail["network"]["nodes"]:
-        node = detail["network"]["nodes"][nodename]
-        node["name"] = nodename
+    if "scheduler" in detail["network"]:
+        pass
 
-    _nodes = (
-        [detail["network"]["nodes"][nodename] for nodename in nodes]
-        if len(nodes) > 0
-        else [
-            detail["network"]["nodes"][nodename]
-            for nodename in detail["network"]["nodes"]
-        ]
-    )
+    _nodes = []
+    if "nodes" in detail["network"]:
+        for nodename in detail["network"]["nodes"]:
+            node = detail["network"]["nodes"][nodename]
+            node["name"] = nodename
+
+        _nodes = (
+            [detail["network"]["nodes"][nodename] for nodename in nodes]
+            if len(nodes) > 0
+            else [
+                detail["network"]["nodes"][nodename]
+                for nodename in detail["network"]["nodes"]
+            ]
+        )
+
+    _procs = []
+    if "processors" in detail["network"]:
+        for procname in detail["network"]["processors"]:
+            processor = detail["network"]["processors"][procname]
+            processor['name'] = procname
+            _procs += [processor]
 
     import warnings
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+
+        for processor in _procs:
+            logging.info("Building processor %s", processor['name'])
+            _sockets = build_processor(processor)
+            sockets.update(_sockets)
+            logging.info("Updated sockets from build_processor")
 
         for node in _nodes:
             nodename = node["name"]

@@ -184,7 +184,7 @@ setup(
         'uvicorn[standard]',
         'psycopg2',
         'docker'
-        #'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
+        # 'sphinx-material @ git+https://github.com/radiantone/sphinx-material'
     ],
     license=about['__license__'],
     zip_safe=False,
@@ -195,7 +195,7 @@ setup(
         'format': FormatterCommand
     },
     entry_points={
-        'console_scripts': ['pyfi=pyfi.cli:cli']
+        'console_scripts': ['flow=pyfi.cli:cli']
     },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

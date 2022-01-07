@@ -1,0 +1,40 @@
+version: '1.0'
+
+# In this configuration there are no nodes or agents, just processors
+# The scheduler will assign processors to free resources of its nodes
+# Nodes are associated with the scheduler separately
+network:
+  name: network-1
+  scheduler:
+    name: sched1
+    strategy: BALANCED
+  queues:
+    pyfi.queue1:
+      message_ttl: 200000
+      durable: true
+      expires: 200
+    pyfi.queue2:
+      message_ttl: 200000
+      expires: 200
+      durable: true
+    pyfi.queue3:
+      message_ttl: 200000
+      expires: 200
+      durable: true
+  processors:
+    proc1:
+    proc2:
+
+  plugs:
+    plug1:
+      source: pyfi.processors.sample.emit_one
+      target: pyfi.processors.sample.add_two
+      argument: one
+      queue:
+        name: pyfi.queue4
+    plug2:
+      source: pyfi.processors.sample.emit_two
+      target: pyfi.processors.sample.add_two
+      argument: two
+      queue:
+        name: pyfi.queue5

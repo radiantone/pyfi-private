@@ -404,21 +404,20 @@ def compose_remove(context, file):
 @compose.command(name="build")
 @click.option("-f", "--file", default="pyfi.yaml", required=False)
 @click.option(
-    "-nd", "--nodeploy", is_flag=True, default=False, help="Do not deploy the network"
+    "-d", "--deploy", is_flag=True, default=False, help="Deploy the network"
 )
 @click.argument("nodes", nargs=-1)
 @click.pass_context
-def compose_build(context, file, nodeploy, nodes):
+def compose_build(context, file, deploy, nodes):
     """Build infrastructure from a yaml file"""
     import yaml
     from pyfi.yaml.builder import compose_network
 
-    logging.info("NoDeploy %s, NODES %s", nodeploy, nodes)
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
             compose_network(
-                detail, command="build", deploy=not nodeploy, nodes=list(nodes)
+                detail, command="build", deploy=deploy, nodes=list(nodes)
             )
         except yaml.YAMLError as exc:
             print(exc)
