@@ -2043,7 +2043,7 @@ def ls_queue(context, id, name, task):
             x.add_row([binding['name'],binding['state'], binding['messages'], binding['messages_details']['rate'],binding['memory'],binding['durable'],binding['consumers'],binding['auto_delete']])
 
     print()
-    print("Bindings")
+    print("Tasks")
 
     print(x)
 
