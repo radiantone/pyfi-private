@@ -2724,6 +2724,7 @@ def ls_queues(context):
         try:
             response = session.get(uri+"/queues/#/"+node.name)
             content = json.loads(response.content)
+            print(content)
             for binding in content:
                 print(binding)
                 messages += binding['messages']
