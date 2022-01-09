@@ -11,59 +11,54 @@ HOSTNAME = platform.node()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
+import sched, time
 
-class Scheduler:
-    """Basic Scheduler"""
+class SchedulerPlugin:
 
-    process = None
+    context = None
+    interval = None
+    name = None
 
-    def __init__(self, context, name, interval):
+    def run(self, *args, **kwargs):
+        logging.info("Schedule run %s %s",args,kwargs)
 
+    def start(self, name, context, interval, *args, **kwargs):
+        import threading
+        
         self.context = context
-        self.name = name
         self.interval = interval
+        self.name = name
 
-    def run(self):
+        logging.info("Plugin starting...")
+        thread = threading.Thread(target=self.schedule, args=(self.interval,self.run,args))
+        thread.start()
+
+    def schedule(self, interval,func,args=(),priority=1):
+        s = sched.scheduler(time.time, time.sleep)
+        self.periodic_task(s,interval,func,args,priority)
+        s.run()
+
+    def periodic_task(self, scheduler,interval,func,args,priority):
+        func(*args)
+        scheduler.enter(interval,priority,self.periodic_task,
+                        (scheduler,interval,func,args,priority))
+
+class NodePlugin(SchedulerPlugin):
+
+    def run(self, *args, **kwargs):
         import requests
 
-        while True:
-            time.sleep(self.interval)
-            logging.info("Performing schedule")
+        logging.info("NodePlugin: Schedule run %s %s",args,kwargs)
 
-            scheduler = (
-                self.context.obj["database"]
-                .session.query(SchedulerModel)
-                .filter_by(name=self.name)
-                .first()
-            )
+        scheduler = (
+            self.context.obj["database"]
+            .session.query(SchedulerModel)
+            .filter_by(name=self.name)
+            .first()
+        )
 
-            all_work = self.context.obj["database"].session.query(WorkModel).all()
-
-            for work in all_work:
-                # Determine the work request and schedule or run it
-                # Assign the workmodel to a worker
-                pass
-            # Perform read lock of processors without hostnames
-            # Put processors in pending list to be assigned below
-            # if there are available nodes, otherwise release the read lock
-
-            processors = (
-                self.context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(requested_status="deploy")
-            )
-
-            for processor in processors:
-                if len(processor.deployments) == 0:
-                    # I need to add deployments for this processor
-
-                    # Look across my nodes and agents for cpus
-                    # subtract running workers with concurrency to get free cpus for that node
-                    # If no node can host all the cpus for the deployment, then create
-                    # separate deployments with smaller cpus spread across nodes
-                    pass
-
-            # These are my nodes to manage
+        # These are my nodes to manage
+        if scheduler.nodes:
             for node in scheduler.nodes:
 
                 # For each node->agent determine if it is running and if not ssh into host and
@@ -103,6 +98,9 @@ class Scheduler:
                 # can run on its own core. This allows the scheduler to determine the compute needs for
                 # each processor and locate it accordingly.
 
+            # Perform read lock of processors without hostnames
+            # Put processors in pending list to be assigned below
+            # if there are available nodes, otherwise release the read lock
             try:
                 # These are processors without an node to run on currently
                 orphaned_processors = (
@@ -120,6 +118,65 @@ class Scheduler:
 
             finally:
                 self.context.obj["database"].session.commit()
+
+
+class DeployProcessorPlugin(SchedulerPlugin):
+
+    def run(self, *args, **kwargs):
+        logging.info("DeployProcessorPlugin: Schedule run %s, %s",args,kwargs)
+        logging.info("Fetching processors to be deployed")
+        processor = (
+            self.context.obj["database"]
+            .session.query(ProcessorModel)
+            .filter_by(requested_status="deploy")
+            .with_for_update()
+            .first()
+        )
+
+        if processor:
+            logging.info("Deploying processor %s", processor)
+            if len(processor.deployments) == 0:
+                # I need to add deployments for this processor
+
+                # Look across my nodes and agents for cpus
+                # subtract running workers with concurrency to get free cpus for that node
+                # If no node can host all the cpus for the deployment, then create
+                # separate deployments with smaller cpus spread across nodes
+                pass
+
+class WorkPlugin(SchedulerPlugin):
+
+    def run(self, *args, **kwargs):
+        logging.info("WorkPlugin: Schedule run %s %s",args,kwargs)
+        logging.info("WorkPlugin: Fetching work")
+        all_work = self.context.obj["database"].session.query(WorkModel).all()
+
+        for work in all_work:
+            # Determine the work request and schedule or run it
+            # Assign the workmodel to a worker
+            logging.info("WorkPlugin: Found work %s", work)
+
+_plugins = [NodePlugin,DeployProcessorPlugin,WorkPlugin]
+
+class Scheduler:
+    """ Basic Scheduler """
+
+    process = None
+    nodes = []
+
+    def __init__(self, context, name, interval):
+
+        self.context = context
+        self.name = name
+        self.interval = interval
+
+        self.plugins = [cls() for cls in _plugins]
+
+    def run(self):
+
+        [plugin.start(self.name, self.context, self.interval) for plugin in self.plugins]
+        logging.info("Started")
+
 
     def start(self):
         self.process = Process(target=self.run)

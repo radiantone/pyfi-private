@@ -93,13 +93,13 @@ class CustomFormatter(logging.Formatter):
 @click.option("-u", "--user", help="Message broker API user")
 @click.option("-p", "--password", help="Message broker API password")
 @click.option(
-    "-i", "--ini", default=home + "/pyfi.ini", help="PYFI .ini configuration file"
+    "-i", "--ini", default=home + "/pyfi.ini", help="flow .ini configuration file"
 )
 @click.option("-c", "--config", default=False, is_flag=True, help="Configure pyfi")
 @click.pass_context
 def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     """
-    PYFI CLI for creating & managing PYFI networks
+    CLI for creating & managing flow networks
     """
 
     for handler in logging.root.handlers[:]:
@@ -443,7 +443,7 @@ def logout():
 )
 def login(context, database):
     """
-    Log into PYFI CLI
+    Log into flow CLI
     """
     import hashlib
     from urllib.parse import urlparse
@@ -2956,7 +2956,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
 @click.option("-n", "--node", required=False, help="List network for node")
 @click.pass_context
 def ls_network(context, horizontal, vertical, node, condensed=True):
-    """List the PYFI network"""
+    """List the flow network"""
 
     from pptree import print_tree, Node
 
@@ -4158,7 +4158,7 @@ def whoami(context):
 
     loginstr = "Not logged in"
     if name is not None:
-        loginstr = "Logged into PYFI as " + name
+        loginstr = "Logged into flow as " + name
     print("Database user {}.\n{}.".format(context.obj["owner"], loginstr))
 
 

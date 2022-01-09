@@ -279,7 +279,7 @@ def compose_agent(node, agent, deploy, _agent):
             user=USER,
             module=processor["module"],
             branch=processor["branch"],
-            concurrency=processor["cpus"],
+            concurrency=processor["cpus"] if 'cpus' in processor else 1,
             agent=_agent.agent,
             gitrepo=processor["gitrepo"],
         )
@@ -348,6 +348,7 @@ def compose_agent(node, agent, deploy, _agent):
 def build_queue(name, queue):
     from kombu import Exchange, Queue as KQueue
 
+    logging.info("Building queue %s %s", name, queue)
     message_ttl = int(queue["message_ttl"]) if "message_ttl" in queue else 300000
     durable = queue["durable"] if "durable" in queue else True
     expires = int(queue["expires"]) if "expires" in queue else 300
@@ -366,9 +367,11 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
 
     if "queues" in detail["network"]:
         queues = detail["network"]["queues"]
-
+        logging.info("Building queues %s", queues)
         for name in queues:
             queue = queues[name]
+            if queue is None:
+                queue = {}
             build_queue(name, queue)
 
     if "scheduler" in detail["network"]:
@@ -459,26 +462,24 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     logging.info("Worker ID %s", worker.worker.id)
                     _agent.agent.workers += [worker.worker]
                     worker.worker.processor = socket.processor.processor
-                    if "deployments" in detail["network"]:
-                        for depname in detail["network"]["deployments"]:
-                            deployment = detail["network"]["deployments"][depname]
-                            if deployment["hostname"] == node["hostname"]:
-                                deployment = Deployment(
-                                    name=depname,
-                                    worker=worker.worker,
-                                    hostname=deployment["hostname"],
-                                    processor=processors[deployment["processor"]],
-                                    cpus=deployment["cpus"],
-                                )
-                                print(
-                                    "Deployment.worker ", deployment.deployment.worker
-                                )
+
 
                 repos += _repos
                 sockets.update(_sockets)
                 _node.session.add(worker.worker)
                 _node.session.add(_node.node)
                 _node.session.commit()
+
+
+    if "deployments" in detail["network"]:
+        for depname in detail["network"]["deployments"]:
+            deployment = detail["network"]["deployments"][depname]
+            deployment = Deployment(
+                name=depname,                   
+                hostname=deployment["hostname"],
+                processor=processors[deployment["processor"]],
+                cpus=deployment["cpus"],
+            )
 
     if "plugs" in detail["network"]:
         for plugname in detail["network"]["plugs"]:
