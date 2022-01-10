@@ -5,6 +5,7 @@ import configparser
 import getpass
 import hashlib
 import logging
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import sys
@@ -37,6 +38,7 @@ from pyfi.db.model import (
     TaskModel,
     LogModel,
     DeploymentModel,
+    NetworkModel
 )
 from pyfi.db.model.models import PrivilegeModel
 from pyfi.web import run_http
@@ -273,6 +275,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 DeploymentModel: "read",
                 ProcessorModel: "read",
                 RoleModel: "read",
+                NetworkModel: "read"
             }
 
             for privilege in _user.privileges:
@@ -381,22 +384,6 @@ def compose_kill(context, filename):
         try:
             detail = yaml.safe_load(stream)
             stop_network(detail)
-        except yaml.YAMLError as exc:
-            print(exc)
-
-
-@compose.command(name="remove")
-@click.option("-f", "--file", default="pyfi.yaml", required=False)
-@click.pass_context
-def compose_remove(context, file):
-    """Remove infrastructure defined in a yaml file"""
-    import yaml
-    from pyfi.yaml.builder import compose_network
-
-    with open(file, "r") as stream:
-        try:
-            detail = yaml.safe_load(stream)
-            compose_network(detail, command="remove")
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -1022,6 +1009,17 @@ def delete():
     """
     pass
 
+
+@delete.command(name="network", help="Delete a network")
+@click.option("-n", "--name", default=None, help="Name of network")
+@click.pass_context
+def delete_network(context, name):
+
+    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    logging.info("Network %s %s",name, network)
+    context.obj["database"].session.delete(network)
+    context.obj["database"].session.commit()
+    print("Network deleted.")
 
 @delete.command(name="deployment", help="Delete a deployment")
 @click.option("-n", "--name", default=None, help="Name of deployment")
@@ -2937,6 +2935,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
 
 
 @ls.command(name="network")
+@click.option("-n", "--name", default=None, required=True, help="Name of network")
 @click.option(
     "-h",
     "--horizontal",
@@ -2953,9 +2952,8 @@ def ls_calls(context, page, rows, unfinished, ascend):
     required=False,
     help="Vertical tree mode",
 )
-@click.option("-n", "--node", required=False, help="List network for node")
 @click.pass_context
-def ls_network(context, horizontal, vertical, node, condensed=True):
+def ls_network(context, name, horizontal, vertical, condensed=True):
     """List the flow network"""
 
     from pptree import print_tree, Node
@@ -2963,20 +2961,11 @@ def ls_network(context, horizontal, vertical, node, condensed=True):
     if horizontal or vertical:
         condensed = False
 
-    if node is not None:
-        node = (
-            context.obj["database"]
-            .session.query(NodeModel)
-            .filter_by(name=node)
-            .first()
-        )
-        nodes = [node]
-    else:
-        nodes = context.obj["database"].session.query(NodeModel).all()
-
+    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    
     root = Node("PYFI")
 
-    for node in nodes:
+    for node in network.nodes:
         node_node = Node("node::" + node.name, root)
         if condensed:
             print("node::" + node.name)
@@ -3427,6 +3416,28 @@ def ls_schedulers(context):
 
     print(x)
 
+
+@ls.command(name="networks")
+@click.pass_context
+def ls_networks(context):
+
+    x = PrettyTable()
+
+    names = [
+        "Name",
+        "ID"
+    ]
+    x.field_names = names
+    nodes = context.obj["database"].session.query(NetworkModel).all()
+    for node in nodes:
+        x.add_row(
+            [
+                node.name,
+                node.id
+            ]
+        )
+
+    print(x)
 
 @ls.command(name="nodes")
 @click.pass_context

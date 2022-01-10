@@ -14,6 +14,7 @@ from pyfi.client.api import (
     Argument,
     Worker,
     Queue,
+    Network
 )
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
@@ -365,6 +366,9 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     repos = []
     processors = {}
 
+    network = detail['network']['name']
+    _network = Network(name=network)
+
     if "queues" in detail["network"]:
         queues = detail["network"]["queues"]
         logging.info("Building queues %s", queues)
@@ -414,6 +418,8 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
             nodename = node["name"]
             # For each node, check out repo, build venv
             _node = Node(name=nodename, hostname=node["hostname"])
+            _network.network.nodes += [_node.node]
+            _node.session.add(_network.network)
 
             if "enabled" in node and not node["enabled"]:
                 continue
@@ -434,7 +440,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                 )
                 _node.node.agent = _agent.agent
                 _repos, _sockets = compose_agent(node, agent, deploy, _agent)
-
+                
                 _node.session.add(_agent.agent)
                 for socketname in _sockets:
                     socket = _sockets[socketname]

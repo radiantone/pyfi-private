@@ -382,7 +382,7 @@ class WorkerModel(BaseModel):
 
     workerdir = Column(String(256))
 
-    processor = relationship("ProcessorModel")
+    processor = relationship("ProcessorModel", cascade="all, delete")
     processor_id = Column(String(40), ForeignKey("processor.id"), nullable=False)
 
     deployment_id = Column(String(40), ForeignKey("deployment.id"), nullable=True)
@@ -496,10 +496,10 @@ class NetworkModel(BaseModel):
     __tablename__ = "network"
 
     queues = relationship(
-        "QueueModel", backref="network", lazy=True, cascade="all, delete-orphan"
+        "QueueModel", backref="network", lazy=True, cascade="all, delete"
     )
     nodes = relationship(
-        "NodeModel", backref="network", lazy=True, cascade="all, delete-orphan"
+        "NodeModel", backref="network", lazy=True, cascade="all, delete"
     )
 
 

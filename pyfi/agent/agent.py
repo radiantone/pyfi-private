@@ -261,8 +261,6 @@ class AgentService:
                         os.kill(workerpid, signal.SIGKILL)
                     except Exception as ex:
                         logging.warning(ex)
-            else:
-                logging.warning("No worker.pid found")
 
             os.killpg(os.getpgid(os.getpid()), 15)
             os.kill(os.getpid(), signal.SIGKILL)

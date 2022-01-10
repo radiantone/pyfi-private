@@ -24,6 +24,7 @@ from .models import (
     NodeModel,
     Base,
     DeploymentModel,
+    NetworkModel
 )
 
 __all__ = (
@@ -52,4 +53,5 @@ __all__ = (
     "SchedulerModel",
     "Base",
     "DeploymentModel",
+    "NetworkModel"
 )

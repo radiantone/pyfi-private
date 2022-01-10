@@ -38,6 +38,7 @@ from pyfi.db.model import (
     TaskModel,
     LogModel,
     DeploymentModel,
+    NetworkModel
 )
 from pyfi.server import app
 
@@ -78,6 +79,19 @@ class Work(Base):
     # Some users may only have permission to create Work objects and not
     # reference Sockets/Plugs directly
     pass
+
+
+class Network(Base):
+    def __init__(self, name=None):
+        super().__init__()
+
+        self.network = self.session.query(NetworkModel).filter_by(name=name).first()
+
+        if self.network is None:
+            self.network = NetworkModel(name=name)
+
+        self.session.add(self.network)
+        self.session.commit()
 
 
 class Node(Base):
