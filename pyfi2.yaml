@@ -3,6 +3,9 @@ version: '1.0'
 # This creates database records and a running scheduler will do the deployments
 network:
   name: network-1
+  scheduler:
+    name: sched1
+    strategy: BALANCED
   queues:
     pyfi.queue1:
     pyfi.queue2:
@@ -35,7 +38,7 @@ network:
               workers: 6
               sockets:
                 pyfi.processors.sample.do_something:
-                  interval: -1
+                  interval: 5
                   queue: 
                     name: pyfi.queue1
                   task:
@@ -96,8 +99,21 @@ network:
                     name: pyfi.queue3
                   task:
                     function: 
+                      arguments: true
                       name: do_this                        
-
+  deployments:
+    proc1.d1:
+      hostname: phoenix
+      cpus: 3
+      processor: proc1
+    proc3.d2:
+      hostname: agent2
+      cpus: 3
+      processor: proc3      
+    proc4.d1:
+      hostname: agent2
+      cpus: 3
+      processor: proc4
   plugs:
     plug1a:
       enabled: true

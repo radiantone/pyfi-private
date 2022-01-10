@@ -370,6 +370,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     if "scheduler" in detail["network"]:
         logging.info("Building scheduler %s", detail["network"]["scheduler"])
         _scheduler = Scheduler(name=detail["network"]["scheduler"]["name"], strategy=detail["network"]["scheduler"]["strategy"])
+        _network.network.schedulers += [_scheduler.scheduler]
 
     if "queues" in detail["network"]:
         queues = detail["network"]["queues"]
