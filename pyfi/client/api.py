@@ -22,7 +22,8 @@ from .objects import (
     Agent,
     Argument,
     Worker,
-    Network
+    Network,
+    Scheduler
 )
 from .decorators import processor, task, node, agent, worker
 
@@ -38,6 +39,7 @@ __all__ = (
     "Node",
     "Worker",
     "Network",
+    "Scheduler",
     "processor",
     "task",
     "node",

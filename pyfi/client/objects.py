@@ -213,20 +213,22 @@ class Scheduler(Base):
     """
     Docstring
     """
-
+    strategy = "BALANCED"
+    
     def __init__(self, *args, **kwargs):
         super().__init__()
 
         self.scheduler = None
 
         self.name = kwargs["name"]
+        self.strategy = kwargs["strategy"]
 
         self.scheduler = (
             self.session.query(SchedulerModel).filter_by(name=self.name).first()
         )
 
         if self.scheduler is None:
-            self.scheduler = SchedulerModel(name=self.name)
+            self.scheduler = SchedulerModel(name=self.name, strategy=self.strategy)
             self.session.add(self.scheduler)
             self.session.commit()
         else:

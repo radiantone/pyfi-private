@@ -495,6 +495,10 @@ class JobModel(Base):
 class NetworkModel(BaseModel):
     __tablename__ = "network"
 
+    schedulers = relationship(
+        "SchedulerModel", backref="network", lazy=True, cascade="all, delete"
+    )
+
     queues = relationship(
         "QueueModel", backref="network", lazy=True, cascade="all, delete"
     )
@@ -564,6 +568,8 @@ class SchedulerModel(BaseModel):
     nodes = relationship("NodeModel", backref="scheduler", lazy=True)
     strategy = Column("strategy", Enum(*strategies, name="strategies"))
 
+    network_id = Column(String(40), ForeignKey("network.id"))
+    
     def __repr__(self):
         return "{}:{}:{}".format(self.id, self.name, self.lastupdated)
 

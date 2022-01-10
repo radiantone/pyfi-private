@@ -14,7 +14,8 @@ from pyfi.client.api import (
     Argument,
     Worker,
     Queue,
-    Network
+    Network,
+    Scheduler
 )
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
@@ -264,7 +265,6 @@ def build_processor(processor):
 
     return sockets
 
-
 def compose_agent(node, agent, deploy, _agent):
     repos = []
     sockets = {}
@@ -345,7 +345,6 @@ def compose_agent(node, agent, deploy, _agent):
 
     return repos, sockets
 
-
 def build_queue(name, queue):
     from kombu import Exchange, Queue as KQueue
 
@@ -358,7 +357,6 @@ def build_queue(name, queue):
     _queue = Queue(name=name, message_ttl=message_ttl, durable=durable, expires=expires)
     logging.info("Created queue %s %s", name, queue)
 
-
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """Given a parsed yaml detail, build out the pyfi network"""
 
@@ -369,6 +367,10 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     network = detail['network']['name']
     _network = Network(name=network)
 
+    if "scheduler" in detail["network"]:
+        logging.info("Building scheduler %s", detail["network"]["scheduler"])
+        _scheduler = Scheduler(name=detail["network"]["scheduler"]["name"], strategy=detail["network"]["scheduler"]["strategy"])
+
     if "queues" in detail["network"]:
         queues = detail["network"]["queues"]
         logging.info("Building queues %s", queues)
@@ -377,9 +379,6 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
             if queue is None:
                 queue = {}
             build_queue(name, queue)
-
-    if "scheduler" in detail["network"]:
-        pass
 
     _nodes = []
     if "nodes" in detail["network"]:
