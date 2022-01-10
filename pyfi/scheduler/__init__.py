@@ -2,6 +2,10 @@ import logging
 import os
 import platform
 import time
+import sched
+import signal
+import sys
+
 from multiprocessing import Process
 
 from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel
@@ -11,16 +15,20 @@ HOSTNAME = platform.node()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
-import sched, time
-
 class SchedulerPlugin:
-
+    """ Base scheduler plugin class """
     context = None
     interval = None
     name = None
+    _stop = False
 
     def run(self, *args, **kwargs):
         logging.info("Schedule run %s %s",args,kwargs)
+
+    def stop(self):
+        logging.info("Stopping {}".format(self.name))
+        self._stop = True
+        self.s.cancel(self.event)
 
     def start(self, name, context, interval, *args, **kwargs):
         import threading
@@ -30,21 +38,24 @@ class SchedulerPlugin:
         self.name = name
 
         logging.info("Plugin starting...")
-        thread = threading.Thread(target=self.schedule, args=(self.interval,self.run,args))
+        self.thread = thread = threading.Thread(target=self.schedule, args=(self.interval,self.run,args))
         thread.start()
 
     def schedule(self, interval,func,args=(),priority=1):
-        s = sched.scheduler(time.time, time.sleep)
+        self.s = s = sched.scheduler(time.time, time.sleep)
         self.periodic_task(s,interval,func,args,priority)
         s.run()
 
     def periodic_task(self, scheduler,interval,func,args,priority):
         func(*args)
-        scheduler.enter(interval,priority,self.periodic_task,
+        if self._stop:
+            return
+
+        self.event = scheduler.enter(interval,priority,self.periodic_task,
                         (scheduler,interval,func,args,priority))
 
 class NodePlugin(SchedulerPlugin):
-
+    """ Enforce agent status on nodes """
     def run(self, *args, **kwargs):
         import requests
 
@@ -119,9 +130,8 @@ class NodePlugin(SchedulerPlugin):
             finally:
                 self.context.obj["database"].session.commit()
 
-
 class DeployProcessorPlugin(SchedulerPlugin):
-
+    """ Enforce, create, move, delete deployments """
     def run(self, *args, **kwargs):
         logging.info("DeployProcessorPlugin: Schedule run %s, %s",args,kwargs)
         logging.info("Fetching processors to be deployed")
@@ -145,7 +155,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 pass
 
 class WorkPlugin(SchedulerPlugin):
-
+    """ Process work records, which are queued or scheduled tasks """
     def run(self, *args, **kwargs):
         logging.info("WorkPlugin: Schedule run %s %s",args,kwargs)
         logging.info("WorkPlugin: Fetching work")
@@ -158,7 +168,7 @@ class WorkPlugin(SchedulerPlugin):
 
 _plugins = [NodePlugin,DeployProcessorPlugin,WorkPlugin]
 
-class Scheduler:
+class BasicScheduler:
     """ Basic Scheduler """
 
     process = None
@@ -172,8 +182,13 @@ class Scheduler:
 
         self.plugins = [cls() for cls in _plugins]
 
-    def run(self):
+        signal.signal(signal.SIGINT, self.stop)
 
+    def stop(self, *args, **kwargs):
+        [plugin.stop() for plugin in self.plugins]
+        logging.info("Stopped")
+
+    def run(self):
         [plugin.start(self.name, self.context, self.interval) for plugin in self.plugins]
         logging.info("Started")
 

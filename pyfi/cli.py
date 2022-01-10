@@ -1016,10 +1016,9 @@ def delete():
 def delete_network(context, name):
 
     network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
-    logging.info("Network %s %s",name, network)
     context.obj["database"].session.delete(network)
     context.obj["database"].session.commit()
-    print("Network deleted.")
+    print(f"Network {name} deleted.")
 
 @delete.command(name="deployment", help="Delete a deployment")
 @click.option("-n", "--name", default=None, help="Name of deployment")
@@ -1151,10 +1150,10 @@ def update(context, id):
 @click.option("-i", "--interval", default=3, required=False)
 @click.pass_context
 def start_scheduler(context, name, interval):
-    from pyfi.scheduler import Scheduler
+    from pyfi.scheduler import BasicScheduler
 
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
-    scheduler = Scheduler(context, name, interval)
+    scheduler = BasicScheduler(context, name, interval)
     scheduler.run()
 
 
