@@ -11,26 +11,44 @@ Moreover the code of the task is stored on the task object and used for executin
 The processor still provides a gitrepo or container image to be used to run the code. It is assumed that the code dependencies
 for the task methods are provided by the container or gitrepo.
 """
-from pyfi.client.api import parallel, pipeline
 from pyfi.client.user import USER
+from pyfi.client.api import parallel, pipeline
 from pyfi.client.api import Socket
-from pyfi.client.api import node, agent, processor, worker, socket, plug
+from pyfi.client.api import network, node, agent, processor, worker, socket, plug
 
 """
 Declare an infrastructure node in the database that can be immediately used.
 """
+@network(name="network-1")
+@node(name="node1", hostname="agent2")
+@agent(name="ag2")
+@processor(name="proc2", gitrepo="", module="pyfi.processors.sample", concurrency=6)
+class ProcessorB:
+    """Description"""
 
+    # socket can also be implied
+    @socket(name="sock2", processor="proc2", queue={"name": "sockq2"})
+    def do_this(message):
+        from random import randrange
 
-@node(hostname="agent2")
-@agent(name="ag2")  # To make config settings for agent and workers
-@worker(hostname="agent2")
-@processor(
-    gitrepo="", module="pyfi.processors.sample"
-)  # gitrepo and module can be implied
+        print("Do this!", message)
+        message = "Do this String: " + str(message)
+        graph = {
+            "tag": {"name": "tagname", "value": "tagvalue"},
+            "name": "distance",
+            "value": randrange(50),
+        }
+        return {"message": message, "graph": graph}
+
+@network(name="network-1")
+@node(name="node1", hostname="agent2")
+@agent(name="ag2")
+@processor(name="proc1", gitrepo="", module="pyfi.processors.sample")  # gitrepo and module can be implied
 class ProcessorA:
     """Description"""
 
     @plug(
+        name="plug1",
         target="sock2",
         queue={
             "name": "queue1",
@@ -39,7 +57,7 @@ class ProcessorA:
             "expires": 200,
         },
     )
-    @socket(key="value", name="sock1", queue={"name": "sockq1"})
+    @socket(name="sock1", processor="proc1", queue={"name": "sockq1"})
     def do_something(message):
         """do_something"""
         from random import randrange
@@ -53,32 +71,16 @@ class ProcessorA:
         return {"message": message, "graph": graph}
 
 
-# Here we are defining a processor without a specific node assigned
-# The scheduler will then look to place the processor on a free node with 6 cpus
-# or multiple nodes totalling 6 cpus. The scheduler creates the deployments
-@processor(gitrepo="", cpus=6)
-class ProcessorB:
-    """Description"""
-
-    # socket can also be implied
-    @socket(key="value", name="sock2")
-    def do_this(message):
-        from random import randrange
-
-        print("Do this!", message)
-        message = "Do this String: " + str(message)
-        graph = {
-            "tag": {"name": "tagname", "value": "tagvalue"},
-            "name": "distance",
-            "value": randrange(50),
-        }
-        return {"message": message, "graph": graph}
+# Processors can be defined without nodes or agents. A scheduler will place
+# any processors without nodes or agents. In the example below we are placing
+# the processor on agent "ag2"
+#@agent(name="ag2")  
 
 
-do_something = Socket(
-    name="pyfi.processors.sample.ProcessorA.do_something", user=USER
-).p
 
+do_something = Socket(name="sock1", user=USER).p
+
+'''
 _pipeline = pipeline(
     [
         do_something("One"),
@@ -92,3 +94,4 @@ _pipeline = pipeline(
         do_something("Three"),
     ]
 )
+'''

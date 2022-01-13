@@ -95,6 +95,7 @@ class Network(Base):
 
 
 class Node(Base):
+
     def __init__(self, name=None, hostname=None):
         super().__init__()
 
@@ -105,7 +106,6 @@ class Node(Base):
 
         self.session.add(self.node)
         self.session.commit()
-
 
 class Worker(Base):
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
@@ -287,6 +287,12 @@ class Socket(Base):
         if "loadbalanced" in kwargs:
             self.loadbalanced = kwargs["loadbalanced"]
 
+        print("Finding socket ",self.name)
+        self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
+
+        if not self.processor:
+            self.processor = self.socket.processor
+
         if "task" in kwargs:
             taskname = kwargs["task"]
 
@@ -304,7 +310,6 @@ class Socket(Base):
             self.task.gitrepo = self.processor.processor.gitrepo
             self.session.add(self.task)
 
-        self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
 
         user = kwargs["user"]
         try:

@@ -1,5 +1,7 @@
 from functools import wraps
+from pyfi.client.api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network
 
+from pyfi.client.user import USER
 
 class processor1(object):
     def __init__(self, arg):
@@ -9,6 +11,13 @@ class processor1(object):
         retval = self._arg(a, b)
         return retval ** 2
 
+stack = []
+processors = {}
+nodes = {}
+agents = {}
+sockets = {}
+plugs = {}
+tasks = {}
 
 def task(name="", module="", processor=None, gitrepo=""):
     def wrapper_func(func):
@@ -17,105 +26,80 @@ def task(name="", module="", processor=None, gitrepo=""):
     return wrapper_func
 
 
-def processor2(*args, **kwargs):
-    # decoration body - doing nothing really since we need to wait until the decorated object is instantiated
-    print("processor called ", args, kwargs)
-
-    class Processor:
-        def __init__(self, *args, **kwargs):
-            print(f"__init__() called with args: {args} and kwargs: {kwargs}")
-            self.decorated_obj = Cls(*args, **kwargs)
-
-        def __getattribute__(self, s):
-            try:
-                x = super().__getattribute__(s)
-                return x
-            except AttributeError:
-                pass
-            x = self.decorated_obj.__getattribute__(s)
-            if type(x) == type(self.__init__):  # it is an instance method
-                print(f"attribute belonging to decorated_obj: {s}")
-                # this is equivalent of just decorating the method with time_this
-                return task(x)
-            else:
-                return x
-
-    return Processor  # decoration ends here
-
-
 def processor(*args, **kwargs):
     print("processor called ", args, kwargs)
 
-    def decorator(klass, **kwargs):
-        print("processor class", klass, **kwargs)
+    model = stack.pop()
 
-        class Processor:
-            """Populate methods of klass as tasks"""
+    if isinstance(model, Agent):
+        kwargs['hostname'] = model.hostname
+        
+    kwargs['user'] = USER
+    _proc = Processor(**kwargs)
+    stack.append(_proc)
 
-            cls = None
+    processors[kwargs['name']] = _proc
 
-            def __init__(self, *args, **kwargs):
-                print(f"__init__() called with args: {args} and kwargs: {kwargs}")
-                self.decorated_obj = klass(*args, **kwargs)
+    def decorator(klass, **dkwargs):
 
-            def __getattribute__(self, s):
-                try:
-                    x = super().__getattribute__(s)
-                    return x
-                except AttributeError:
-                    pass
-                x = self.decorated_obj.__getattribute__(s)
-                if type(x) == type(self.__init__):  # it is an instance method
-                    print(f"attribute belonging to decorated_obj: {s}")
-                    # this is equivalent of just decorating the method with time_this
-                    return task(x)
-                else:
-                    return x
-
-        Processor.cls = klass
-        return Processor
+        pname = kwargs['module']+'.'+klass.__name__
+        print("processor class", klass, pname)
+        
+        print("Created processor ",_proc)
+        return _proc
 
     return decorator
 
 
-class Agent:
-    """Populate methods of klass as tasks"""
+def network(*args, **kwargs):
+    print("network called ", kwargs)
 
-    cls = None
+    _node = Network(**kwargs)
+    stack.append(_node)
 
-    def __init__(self, worker, *args, **kwargs):
-        self.worker = worker
-        print(f"   Agent instance with args: {args} and kwargs: {kwargs}")
+    def decorator(model,*dargs,**dkwargs):
+        if isinstance(model,Node):
+            print("network:node", model)
 
+            return model
+
+        return model
+
+    return decorator
 
 def node(*args, **kwargs):
     print("node called ", kwargs)
 
-    def decorator(processor):
+    _node = Node(**kwargs)
+    stack.append(_node)
 
-        if isinstance(processor, Agent):
-            print("node:agent", processor, processor.worker)
-        else:
-            print("node:processor", processor)
+    def decorator(model,*dargs,**dkwargs):
+        if isinstance(model,Agent):
+            print("node:agent", model)
 
-        """
-        Either processor is of type Processor or Agent
-        If it is an Agent class then it will have Agent.Worker.Processor
-        """
+            return model
 
-        return processor
+        return model
 
     return decorator
 
 
 def agent(*args, **kwargs):
     print("agent called ", args, kwargs)
-    _kwargs = kwargs
 
-    def decorator(worker, **kwargs):
-        print("agent:worker", worker, worker.processor.cls)
+    node = stack.pop()
+    kwargs['hostname'] = node.node.hostname
+    kwargs['user'] = USER
+    kwargs['node'] = node
+    _agent = Agent(**kwargs)
+    stack.append(_agent)
+    node.agent = _agent
 
-        return Agent(worker, **_kwargs)
+    def decorator(_worker):
+
+        if isinstance(_worker,Worker):
+            print("agent:worker", worker)
+            return _worker
 
     return decorator
 
@@ -124,19 +108,16 @@ def worker(*args, **kwargs):
 
     print("worker called ", args, kwargs)
 
+    kwargs['user'] = USER
+    agent = stack.pop()
+    _worker = Worker(hostname=agent.hostname, user=USER)
+    agent.worker = _worker
+    stack.append(_worker)
+
     def decorator(processor):
         print("worker:processor", processor)
 
-        class Worker:
-            """Worker"""
-
-            cls = None
-
-            def __init__(self, processor, *args, **kwargs):
-                print(f"   worker instance with args: {args} and kwargs: {kwargs}")
-                self.processor = processor
-
-        return Worker(processor)
+        return processor
 
     return decorator
 
@@ -145,19 +126,21 @@ def socket(*args, **kwargs):
 
     print("socket called ", args, kwargs)
 
+    model = stack.pop()
+    print("MODEL: ",model)
+
+    kwargs['user'] = USER
     def decorator(task):
         print("socket:task", task)
-
-        class Socket:
-            """Worker"""
-
-            cls = None
-
-            def __init__(self, task, *args, **kwargs):
-                print(f"   worker instance with args: {args} and kwargs: {kwargs}")
-                self.task = task
-
-        return Socket(task)
+        print("task:name",task.__name__)
+        #procname = task.__qualname__.rsplit('.')[0]
+        _proc = processors[kwargs['processor']]
+        print("socket:processor",_proc)
+        kwargs['processor'] = _proc
+        kwargs['task'] = task.__name__
+        _socket = Socket(**kwargs)
+        sockets[_socket.name] = _socket
+        return _socket
 
     return decorator
 
@@ -166,18 +149,17 @@ def plug(*args, **kwargs):
 
     print("plug called ", args, kwargs)
 
+    model = stack.pop()
+    print("PLUG POP: ",model)
+
+    stack.append(kwargs)
+
     def decorator(socket):
-        print("plug:socket", socket)
+        print("plug:socket", socket, socket.task)
+        target = Socket(name=kwargs['target'], processor=model, user=USER)
 
-        class Plug:
-            """Worker"""
-
-            cls = None
-
-            def __init__(self, socket, *args, **kwargs):
-                print(f"   worker instance with args: {args} and kwargs: {kwargs}")
-                self.socket = socket
-
-        return Plug(socket)
+        _plug = Plug(name=kwargs['name'], queue=kwargs['queue'], source=socket, target=target, processor=socket.processor, user=USER)
+        plugs[_plug.name] = _plug
+        return _plug
 
     return decorator
