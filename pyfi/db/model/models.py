@@ -569,7 +569,7 @@ class SchedulerModel(BaseModel):
     strategy = Column("strategy", Enum(*strategies, name="strategies"))
 
     network_id = Column(String(40), ForeignKey("network.id"))
-    
+
     def __repr__(self):
         return "{}:{}:{}".format(self.id, self.name, self.lastupdated)
 

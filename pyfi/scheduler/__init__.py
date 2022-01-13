@@ -15,15 +15,17 @@ HOSTNAME = platform.node()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
+
 class SchedulerPlugin:
-    """ Base scheduler plugin class """
+    """Base scheduler plugin class"""
+
     context = None
     interval = None
     name = None
     _stop = False
 
     def run(self, *args, **kwargs):
-        logging.info("Schedule run %s %s",args,kwargs)
+        logging.info("Schedule run %s %s", args, kwargs)
 
     def stop(self):
         logging.info("Stopping {}".format(self.name))
@@ -32,34 +34,42 @@ class SchedulerPlugin:
 
     def start(self, name, context, interval, *args, **kwargs):
         import threading
-        
+
         self.context = context
         self.interval = interval
         self.name = name
 
         logging.info("Plugin starting...")
-        self.thread = thread = threading.Thread(target=self.schedule, args=(self.interval,self.run,args))
+        self.thread = thread = threading.Thread(
+            target=self.schedule, args=(self.interval, self.run, args)
+        )
         thread.start()
 
-    def schedule(self, interval,func,args=(),priority=1):
+    def schedule(self, interval, func, args=(), priority=1):
         self.s = s = sched.scheduler(time.time, time.sleep)
-        self.periodic_task(s,interval,func,args,priority)
+        self.periodic_task(s, interval, func, args, priority)
         s.run()
 
-    def periodic_task(self, scheduler,interval,func,args,priority):
+    def periodic_task(self, scheduler, interval, func, args, priority):
         func(*args)
         if self._stop:
             return
 
-        self.event = scheduler.enter(interval,priority,self.periodic_task,
-                        (scheduler,interval,func,args,priority))
+        self.event = scheduler.enter(
+            interval,
+            priority,
+            self.periodic_task,
+            (scheduler, interval, func, args, priority),
+        )
+
 
 class NodePlugin(SchedulerPlugin):
-    """ Enforce agent status on nodes """
+    """Enforce agent status on nodes"""
+
     def run(self, *args, **kwargs):
         import requests
 
-        logging.info("NodePlugin: Schedule run %s %s",args,kwargs)
+        logging.info("NodePlugin: Schedule run %s %s", args, kwargs)
 
         scheduler = (
             self.context.obj["database"]
@@ -130,10 +140,12 @@ class NodePlugin(SchedulerPlugin):
             finally:
                 self.context.obj["database"].session.commit()
 
+
 class DeployProcessorPlugin(SchedulerPlugin):
-    """ Enforce, create, move, delete deployments """
+    """Enforce, create, move, delete deployments"""
+
     def run(self, *args, **kwargs):
-        logging.info("DeployProcessorPlugin: Schedule run %s, %s",args,kwargs)
+        logging.info("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
         logging.info("Fetching processors to be deployed")
         processor = (
             self.context.obj["database"]
@@ -154,10 +166,12 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # separate deployments with smaller cpus spread across nodes
                 pass
 
+
 class WorkPlugin(SchedulerPlugin):
-    """ Process work records, which are queued or scheduled tasks """
+    """Process work records, which are queued or scheduled tasks"""
+
     def run(self, *args, **kwargs):
-        logging.info("WorkPlugin: Schedule run %s %s",args,kwargs)
+        logging.info("WorkPlugin: Schedule run %s %s", args, kwargs)
         logging.info("WorkPlugin: Fetching work")
         all_work = self.context.obj["database"].session.query(WorkModel).all()
 
@@ -166,10 +180,12 @@ class WorkPlugin(SchedulerPlugin):
             # Assign the workmodel to a worker
             logging.info("WorkPlugin: Found work %s", work)
 
-_plugins = [NodePlugin,DeployProcessorPlugin,WorkPlugin]
+
+_plugins = [NodePlugin, DeployProcessorPlugin, WorkPlugin]
+
 
 class BasicScheduler:
-    """ Basic Scheduler """
+    """Basic Scheduler"""
 
     process = None
     nodes = []
@@ -189,9 +205,11 @@ class BasicScheduler:
         logging.info("Stopped")
 
     def run(self):
-        [plugin.start(self.name, self.context, self.interval) for plugin in self.plugins]
+        [
+            plugin.start(self.name, self.context, self.interval)
+            for plugin in self.plugins
+        ]
         logging.info("Started")
-
 
     def start(self):
         self.process = Process(target=self.run)

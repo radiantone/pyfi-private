@@ -201,7 +201,6 @@ class AgentService:
         if node.agent is None:
             node.agent = agent
 
-
         #########################################################################
         # Set agent and node properties
         #########################################################################

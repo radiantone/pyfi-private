@@ -15,7 +15,7 @@ from pyfi.client.api import (
     Worker,
     Queue,
     Network,
-    Scheduler
+    Scheduler,
 )
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
@@ -216,11 +216,12 @@ def stop_network(detail):
 
     pass
 
+
 def build_processor(processor):
     sockets = {}
 
     _processor = Processor(
-        name=processor['name'],
+        name=processor["name"],
         beat=processor["beat"],
         user=USER,
         module=processor["module"],
@@ -262,8 +263,8 @@ def build_processor(processor):
 
             sockets[socketname] = _socket
 
-
     return sockets
+
 
 def compose_agent(node, agent, deploy, _agent):
     repos = []
@@ -280,7 +281,7 @@ def compose_agent(node, agent, deploy, _agent):
             user=USER,
             module=processor["module"],
             branch=processor["branch"],
-            concurrency=processor["cpus"] if 'cpus' in processor else 1,
+            concurrency=processor["cpus"] if "cpus" in processor else 1,
             agent=_agent.agent,
             gitrepo=processor["gitrepo"],
         )
@@ -345,6 +346,7 @@ def compose_agent(node, agent, deploy, _agent):
 
     return repos, sockets
 
+
 def build_queue(name, queue):
     from kombu import Exchange, Queue as KQueue
 
@@ -357,6 +359,7 @@ def build_queue(name, queue):
     _queue = Queue(name=name, message_ttl=message_ttl, durable=durable, expires=expires)
     logging.info("Created queue %s %s", name, queue)
 
+
 def compose_network(detail, command="build", deploy=True, nodes=[]):
     """Given a parsed yaml detail, build out the pyfi network"""
 
@@ -364,12 +367,15 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     repos = []
     processors = {}
 
-    network = detail['network']['name']
+    network = detail["network"]["name"]
     _network = Network(name=network)
 
     if "scheduler" in detail["network"]:
         logging.info("Building scheduler %s", detail["network"]["scheduler"])
-        _scheduler = Scheduler(name=detail["network"]["scheduler"]["name"], strategy=detail["network"]["scheduler"]["strategy"])
+        _scheduler = Scheduler(
+            name=detail["network"]["scheduler"]["name"],
+            strategy=detail["network"]["scheduler"]["strategy"],
+        )
         _network.network.schedulers += [_scheduler.scheduler]
 
     if "queues" in detail["network"]:
@@ -400,7 +406,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     if "processors" in detail["network"]:
         for procname in detail["network"]["processors"]:
             processor = detail["network"]["processors"][procname]
-            processor['name'] = procname
+            processor["name"] = procname
             _procs += [processor]
 
     import warnings
@@ -409,7 +415,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
 
         for processor in _procs:
-            logging.info("Building processor %s", processor['name'])
+            logging.info("Building processor %s", processor["name"])
             _sockets = build_processor(processor)
             sockets.update(_sockets)
             logging.info("Updated sockets from build_processor")
@@ -440,7 +446,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                 )
                 _node.node.agent = _agent.agent
                 _repos, _sockets = compose_agent(node, agent, deploy, _agent)
-                
+
                 _node.session.add(_agent.agent)
                 for socketname in _sockets:
                     socket = _sockets[socketname]
@@ -469,19 +475,17 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     _agent.agent.workers += [worker.worker]
                     worker.worker.processor = socket.processor.processor
 
-
                 repos += _repos
                 sockets.update(_sockets)
                 _node.session.add(worker.worker)
                 _node.session.add(_node.node)
                 _node.session.commit()
 
-
     if "deployments" in detail["network"]:
         for depname in detail["network"]["deployments"]:
             deployment = detail["network"]["deployments"][depname]
             deployment = Deployment(
-                name=depname,                   
+                name=depname,
                 hostname=deployment["hostname"],
                 processor=processors[deployment["processor"]],
                 cpus=deployment["cpus"],

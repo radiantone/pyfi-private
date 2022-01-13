@@ -5,7 +5,8 @@ import configparser
 import getpass
 import hashlib
 import logging
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import sys
@@ -38,7 +39,7 @@ from pyfi.db.model import (
     TaskModel,
     LogModel,
     DeploymentModel,
-    NetworkModel
+    NetworkModel,
 )
 from pyfi.db.model.models import PrivilegeModel
 from pyfi.web import run_http
@@ -275,7 +276,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 DeploymentModel: "read",
                 ProcessorModel: "read",
                 RoleModel: "read",
-                NetworkModel: "read"
+                NetworkModel: "read",
             }
 
             for privilege in _user.privileges:
@@ -390,9 +391,7 @@ def compose_kill(context, filename):
 
 @compose.command(name="build")
 @click.option("-f", "--file", default="pyfi.yaml", required=False)
-@click.option(
-    "-d", "--deploy", is_flag=True, default=False, help="Deploy the network"
-)
+@click.option("-d", "--deploy", is_flag=True, default=False, help="Deploy the network")
 @click.argument("nodes", nargs=-1)
 @click.pass_context
 def compose_build(context, file, deploy, nodes):
@@ -403,9 +402,7 @@ def compose_build(context, file, deploy, nodes):
     with open(file, "r") as stream:
         try:
             detail = yaml.safe_load(stream)
-            compose_network(
-                detail, command="build", deploy=deploy, nodes=list(nodes)
-            )
+            compose_network(detail, command="build", deploy=deploy, nodes=list(nodes))
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -1015,10 +1012,13 @@ def delete():
 @click.pass_context
 def delete_network(context, name):
 
-    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    network = (
+        context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    )
     context.obj["database"].session.delete(network)
     context.obj["database"].session.commit()
     print(f"Network {name} deleted.")
+
 
 @delete.command(name="deployment", help="Delete a deployment")
 @click.option("-n", "--name", default=None, help="Name of deployment")
@@ -2960,8 +2960,10 @@ def ls_network(context, name, horizontal, vertical, condensed=True):
     if horizontal or vertical:
         condensed = False
 
-    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
-    
+    network = (
+        context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    )
+
     root = Node("PYFI")
 
     for node in network.nodes:
@@ -3422,21 +3424,14 @@ def ls_networks(context):
 
     x = PrettyTable()
 
-    names = [
-        "Name",
-        "ID"
-    ]
+    names = ["Name", "ID"]
     x.field_names = names
     nodes = context.obj["database"].session.query(NetworkModel).all()
     for node in nodes:
-        x.add_row(
-            [
-                node.name,
-                node.id
-            ]
-        )
+        x.add_row([node.name, node.id])
 
     print(x)
+
 
 @ls.command(name="nodes")
 @click.pass_context

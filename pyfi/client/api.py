@@ -23,7 +23,7 @@ from .objects import (
     Argument,
     Worker,
     Network,
-    Scheduler
+    Scheduler,
 )
 from .decorators import processor, task, node, agent, worker
 

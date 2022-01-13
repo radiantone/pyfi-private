@@ -38,7 +38,7 @@ from pyfi.db.model import (
     TaskModel,
     LogModel,
     DeploymentModel,
-    NetworkModel
+    NetworkModel,
 )
 from pyfi.server import app
 
@@ -213,8 +213,9 @@ class Scheduler(Base):
     """
     Docstring
     """
+
     strategy = "BALANCED"
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__()
 

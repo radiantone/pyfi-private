@@ -69,9 +69,11 @@ from pyfi.db.model.models import DeploymentModel, use_identity
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
 
+
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
+
 
 # Set global vars
 HOME = str(Path.home())
@@ -101,6 +103,7 @@ if "PYFI_HOSTNAME" in os.environ:
 
 logging.info("OS PID is {}".format(os.getpid()))
 
+
 def execute_function(taskid, mname, fname, *args, **kwargs):
     """Executor for container based tasks"""
     import importlib
@@ -129,6 +132,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     return result
 
+
 def shutdown(*args):
     """Shutdown worker"""
     from psutil import Process
@@ -147,7 +151,9 @@ def shutdown(*args):
 
     exit(0)
 
+
 signal.signal(signal.SIGINT, shutdown)
+
 
 def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
@@ -243,22 +249,22 @@ class WorkerService:
 
     def __init__(
         self,
-        processor,
-        workdir,
-        pool=4,
-        port=8020,
-        size=10,
-        deployment=None,
+        processor:ProcessorModel,
+        workdir:str,
+        pool:int=4,
+        port:int=8020,
+        size:int=10,
+        deployment:DeploymentModel=DeploymentModel,
         database=None,
-        user=None,
-        usecontainer=False,
-        workerport=8020,
-        skipvenv=False,
-        backend="redis://localhost",
-        hostname=None,
-        agent=None,
+        user:UserModel=UserModel,
+        usecontainer:bool=False,
+        workerport:int=8020,
+        skipvenv:bool=False,
+        backend:str="redis://localhost",
+        hostname:str=None,
+        agent:AgentModel=AgentModel,
         celeryconfig=None,
-        broker="pyamqp://localhost",
+        broker:str="pyamqp://localhost",
     ):
         """ """
         from pyfi.db.model import Base
@@ -418,7 +424,6 @@ class WorkerService:
             )
         )
 
-
     #########################################################################
     # Launch worker in new shell
     #########################################################################
@@ -479,7 +484,6 @@ class WorkerService:
             raise NotImplementedError
 
         return process
-
 
     #########################################################################
     # Start worker thread
@@ -774,6 +778,18 @@ class WorkerService:
                             logging.error("No pre-existing Call object for id %s", myid)
 
                         sourceplugs = {}
+                        data = {
+                                    "module": self.processor.module,
+                                    "date": str(datetime.now()),
+                                    "resultkey": "celery-task-meta-"
+                                    + _signal["taskid"],
+                                    "message": "Processor message",
+                                    "channel": "task",
+                                    "room": processor.name,
+                                    "task": _signal["sender"],
+                                }
+
+
                         # Dispatch result to connected plugs
                         for socket in processor.sockets:
 
@@ -858,7 +874,7 @@ class WorkerService:
                             if processor_plug is None:
                                 logging.warning(
                                     "No plug named [%s] found for processor[%s]",
-                                    key,
+                                    pname,
                                     processor.name,
                                 )
                                 continue
@@ -995,7 +1011,8 @@ class WorkerService:
 
                                     logging.info("worker queue %s", worker_queue)
                                     logging.info("task queue %s", worker_queue)
-
+                                    task_sig = None
+                                    
                                     # Create task signature
                                     try:
                                         logging.info("PASS_KWARGS: %s", pass_kwargs)
@@ -1040,15 +1057,16 @@ class WorkerService:
 
                                         print(traceback.format_exc())
 
-                                    logging.info(
-                                        "call complete %s %s %s %s",
-                                        target_processor.module
-                                        + "."
-                                        + processor_plug.target.task.name,
-                                        (msg,),
-                                        worker_queue,
-                                        task_sig,
-                                    )
+                                    if task_sig:
+                                        logging.info(
+                                            "call complete %s %s %s %s",
+                                            target_processor.module
+                                            + "."
+                                            + processor_plug.target.task.name,
+                                            (msg,),
+                                            worker_queue,
+                                            task_sig,
+                                        )
 
                         delayed = parallel(*pipelines).delay()
 
