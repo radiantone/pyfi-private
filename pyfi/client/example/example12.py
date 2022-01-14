@@ -1,13 +1,13 @@
 """
 
 """
-from pyfi.client.user import USER
 from pyfi.client.api import parallel, pipeline
 from pyfi.client.api import ProcessorBase, network, node, agent, processor, worker, socket, plug
 
+
 @network(name="network-1")
 @node(name="node1", hostname="agent2")
-@agent(name="ag2")
+@agent(name="ag1")
 @processor(name="proc2", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample", concurrency=6)
 class ProcessorB(ProcessorBase):
     """Description"""
@@ -33,6 +33,9 @@ class ProcessorB(ProcessorBase):
 class ProcessorA(ProcessorBase):
     """Description"""
 
+    def get_message(self):
+        return "Self message!"
+
     @plug(
         name="plug1",
         target="sock2",
@@ -57,27 +60,32 @@ class ProcessorA(ProcessorBase):
         return {"message": message, "graph": graph}
 
 
-proca = ProcessorA()
-# Synchronous method call
-print("Hi!",proca.do_something("HI!"))
 
-# Get parallel method handle
-do_something = proca.do_something.p
+if __name__ == '__main__':
+    print("Network created.")
+    '''
+    proca = ProcessorA()
+    # Synchronous method call
+    print("Hi!",proca.do_something("HI!"))
 
-# Asynchronous workflow
-_pipeline = pipeline(
-    [
-        do_something("One"),
-        do_something("Two"),
-        parallel(
-            [
-                do_something("Four"),
-                do_something("Five"),
-            ]
-        ),
-        do_something("Three"),
-    ]
-)
+    # Get parallel method handle
+    do_something = proca.do_something.p
 
-# Wait for result and print it
-print(_pipeline().get())
+    # Asynchronous workflow
+    _pipeline = pipeline(
+        [
+            do_something("One"),
+            do_something("Two"),
+            parallel(
+                [
+                    do_something("Four"),
+                    do_something("Five"),
+                ]
+            ),
+            do_something("Three"),
+        ]
+    )
+
+    # Wait for result and print it
+    print(_pipeline().get())
+    '''

@@ -287,7 +287,6 @@ class Socket(Base):
         if "loadbalanced" in kwargs:
             self.loadbalanced = kwargs["loadbalanced"]
 
-        print("Finding socket ",self.name)
         self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
 
         if not self.processor:
@@ -366,7 +365,7 @@ class Socket(Base):
                 status="ready",
             )
 
-            logging.info("Creating new socket %s", self.name)
+            logging.debug("Creating new socket %s", self.name)
             self.session.add(self.task)
             self.socket.task = self.task
             self.socket.queue = self.queue.queue

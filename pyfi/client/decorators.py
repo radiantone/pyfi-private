@@ -1,3 +1,7 @@
+import logging
+
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
 from functools import wraps
 from pyfi.client.api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network, Deployment
 
@@ -7,6 +11,7 @@ stack = []
 processors = {}
 nodes = {}
 agents = {}
+workers = {}
 sockets = {}
 plugs = {}
 tasks = {}
@@ -27,7 +32,7 @@ class TheMeta(type):
 
     def __init__(cls, name, bases, dct):
             
-        print("TheMeta init")
+        logging.debug("TheMeta init")
         super(TheMeta, cls).__init__(name, bases, dct)
 
 class ProcessorBase:
@@ -37,26 +42,33 @@ class ProcessorBase:
         import types
 
 
-        print("ProcessorBase init")
-        print("ProcessorBase: sockets: ",self.__sockets__)
+        logging.debug("ProcessorBase init")
+        logging.debug("ProcessorBase: sockets: %s",self.__sockets__)
         # TODO: Patch instance methods with Socket calls
         for socket in self.__sockets__:
+            def wait(self, *args, taskid=None):
+                """ Given the taskid, return an asynchronous result """
+                print("Waiting on",taskid)
+                return "Waited result"
 
             def socket_dispatch(*args, **kwargs):
-                print("socket_dispatch")
+                """ In place of the original class method, dispatch to the socket """
+                logging.debug("socket_dispatch")
                 _sock = Socket(name=socket.name, user=USER).p
                 return _sock
 
             _function = types.MethodType(socket_dispatch, self)
             _sock = Socket(name=socket.name, user=USER)
+            _wait = types.MethodType(wait, _sock)
+            setattr(_sock,'wait',_wait)
             setattr(self,socket.task.name,_sock )
         
 
 def processor(*args, **kwargs):
-    print("processor called ", args, kwargs)
+    logging.debug("processor called %s %s", args, kwargs)
 
     model = stack.pop()
-
+    logging.debug("processor:agent %s",model)
     if isinstance(model, Agent):
         kwargs['hostname'] = model.hostname
         
@@ -67,61 +79,73 @@ def processor(*args, **kwargs):
         del kwargs['deploy']
 
     _proc = Processor(**kwargs)
+
     stack.append(_proc)
 
     processors[kwargs['name']] = _proc
     if deploy:
         _deployment = Deployment(processor=_proc.processor, name=_proc.name+".d"+str(len(_proc.processor.deployments)), hostname=model.hostname)
-        print("Deploment added",_deployment.deployment.name)
+        logging.debug("Deploment added %s",_deployment.deployment.name)
 
     def decorator(klass, **dkwargs):
 
         pname = kwargs['module']+'.'+klass.__name__
-        print("processor class", klass, pname)
+        logging.debug("processor class %s %s", klass, pname)
         _proc.cls = klass
-        print("Created processor ",_proc)
+        logging.debug("Created processor %s ",_proc)
         # TODO: Instrument _proc.cls and monkey patch new
         # method 'task' that creates and returns the associated socket
         setattr(klass,'__metaclass__',TheMeta)
-        print("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
+        logging.debug("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
         for socket in _proc.processor.sockets:
-            print("processor:socket",socket)
+            logging.debug("processor:socket %s ",socket)
         
         setattr(klass,'__sockets__',_proc.processor.sockets)
+        setattr(klass,'__processor__',_proc)
+        logging.debug("processor:returning: %s ",klass)
         return klass
 
     return decorator
 
 
 def network(*args, **kwargs):
-    print("network called ", kwargs)
+    logging.debug("network called  %s ", kwargs)
 
     _network = Network(**kwargs)
     stack.append(_network)
 
     def decorator(node,*dargs,**dkwargs):
+        logging.debug("network:%s adding node %s",_network.network.name,node.node.name)
         _network.network.nodes += [node.node]
-
+        _network.session.commit()
         return node.agent._processor
 
     return decorator
 
 def node(*args, **kwargs):
-    print("node called ", kwargs)
+    logging.debug("node called  %s ", kwargs)
 
     _node = Node(**kwargs)
     stack.append(_node)
 
     def decorator(model,*dargs,**dkwargs):
-        print("node:agent", model)
+        logging.debug("node:agent %s ", model)
 
+        logging.debug("---->Agent workers %s  %s ",model.agent.name, model.agent.workers)
+        for worker in model.agent.workers:
+            if worker.name.rsplit('.')[-1] == worker.processor.name:
+                continue
+            logging.debug("---->Worker processor %s ",worker.processor)
+            logging.debug("====>Updating WORKER NAME %s ",worker.name)
+            worker.name = worker.name+"."+worker.processor.name
+            
         return _node
 
     return decorator
 
 
 def agent(*args, **kwargs):
-    print("agent called ", args, kwargs)
+    logging.debug("agent called  %s  %s ", args, kwargs)
 
     node = stack.pop()
     kwargs['hostname'] = node.node.hostname
@@ -132,12 +156,13 @@ def agent(*args, **kwargs):
     node.agent = _agent
 
     def decorator(processor):
-        print("agent:model",processor)
-        if isinstance(processor, Processor):
-            print("Creating worker:",kwargs['name']+'.worker'+str(len(_agent.agent.workers)))
-            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker'+str(len(_agent.agent.workers)), processor=processor.processor)
-            _agent.agent.workers += [worker.worker]
-        if isinstance(processor, Worker):
+        logging.debug("agent:model %s ",processor)
+        if getattr(processor,'__processor__'):
+            _processor = processor.__processor__
+            logging.debug("Creating worker: %s ",kwargs['name']+'.worker')
+            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker.'+_processor.name, processor=_processor.processor)
+            workers[_processor.name] = worker
+        elif isinstance(processor, Worker):
             _agent.agent.workers += [processor.worker]
         
         _agent._processor = processor
@@ -148,7 +173,7 @@ def agent(*args, **kwargs):
 
 def worker(*args, **kwargs):
 
-    print("worker called ", args, kwargs)
+    logging.debug("worker called  %s  %s ", args, kwargs)
 
     kwargs['user'] = USER
     agent = stack.pop()
@@ -157,7 +182,7 @@ def worker(*args, **kwargs):
     stack.append(_worker)
 
     def decorator(processor):
-        print("worker:processor", processor)
+        logging.debug("worker:processor %s ", processor)
 
         return processor
 
@@ -166,18 +191,19 @@ def worker(*args, **kwargs):
 
 def socket(*args, **kwargs):
 
-    print("socket called ", args, kwargs)
+    logging.debug("socket called  %s  %s ", args, kwargs)
 
     model = stack.pop()
-    print("MODEL: ",model)
+    logging.debug("MODEL:  %s ",model)
 
     kwargs['user'] = USER
     def decorator(task):
-        print("socket:task", task)
-        print("task:name",task.__name__)
+        logging.debug("socket:task %s ", task)
+        logging.debug("task:name %s ",task.__name__)
         #procname = task.__qualname__.rsplit('.')[0]
         _proc = processors[kwargs['processor']]
-        print("socket:processor",_proc)
+        logging.debug("socket:worker %s ",worker)
+        logging.debug("socket:processor %s ",_proc)
         kwargs['processor'] = _proc
         kwargs['task'] = task.__name__
         _socket = Socket(**kwargs)
@@ -190,15 +216,15 @@ def socket(*args, **kwargs):
 
 def plug(*args, **kwargs):
 
-    print("plug called ", args, kwargs)
+    logging.debug("plug called  %s %s", args, kwargs)
 
     model = stack.pop()
-    print("PLUG POP: ",model)
+    logging.debug("PLUG POP:  %s ",model)
 
     stack.append(kwargs)
 
     def decorator(socket):
-        print("plug:socket", socket, socket.task)
+        logging.debug("plug:socket %s  %s ", socket, socket.task)
         target = Socket(name=kwargs['target'], processor=model, user=USER)
 
         _plug = Plug(name=kwargs['name'], queue=kwargs['queue'], source=socket, target=target, processor=socket.processor, user=USER)

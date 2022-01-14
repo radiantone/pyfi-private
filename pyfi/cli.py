@@ -2964,65 +2964,67 @@ def ls_network(context, name, horizontal, vertical, condensed=True):
         context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
     )
 
-    root = Node("PYFI")
-
+    _root = Node("PYFI")
+    root = Node(name, _root)
+    if condensed:
+        print("network::" + name)
     for node in network.nodes:
         node_node = Node("node::" + node.name, root)
         if condensed:
-            print("node::" + node.name)
+            print("  node::" + node.name)
         agent = node.agent
         if not agent:
             continue
         agent_node = Node("agent::" + agent.name, node_node)
         if condensed:
-            print("  agent::" + agent.name)
+            print("    agent::" + agent.name)
         if not agent.workers:
             continue
         for worker in agent.workers:
             worker_node = Node("worker::" + worker.name, agent_node)
             if condensed:
-                print("    worker::" + worker.name)
+                print("      worker::" + worker.name)
             processor_node = Node("processor::" + worker.processor.name, worker_node)
             if condensed:
-                print("      processor::" + worker.processor.name)
+                print("        processor::" + worker.processor.name)
 
             for socket in worker.processor.sockets:
                 socket_node = Node("socket::" + socket.name, processor_node)
                 if condensed:
-                    print("        socket::" + socket.name)
+                    print("          socket::" + socket.name)
                 task_node = Node("task::" + socket.task.name, socket_node)
                 if condensed:
-                    print("          task::" + socket.task.name)
+                    print("            task::" + socket.task.name)
                 module_node = Node("module::" + socket.task.module, task_node)
                 if condensed:
-                    print("            module::" + socket.task.module)
+                    print("              module::" + socket.task.module)
                 function_node = Node("function::" + socket.task.name, task_node)
                 if condensed:
-                    print("               function::" + socket.task.name)
+                    print("                 function::" + socket.task.name)
                 for plug in socket.sourceplugs:
                     plug_node = Node("plug::" + plug.name)
                     if condensed:
-                        print("                    plug::" + plug.name)
+                        print("                      plug::" + plug.name)
 
                     source_node = Node("source::" + plug.source.name)
                     if condensed:
-                        print("                      source::" + plug.source.name)
-                        print("                      target::" + plug.target.name)
+                        print("                        source::" + plug.source.name)
+                        print("                        target::" + plug.target.name)
 
                 for arg in socket.task.arguments:
                     argument_node = Node("argument::" + arg.name, function_node)
                     if condensed:
-                        print("                  argument::" + arg.name)
+                        print("                    argument::" + arg.name)
 
                     for plug in arg.plugs:
                         plug_node = Node("plug::" + plug.name)
                         if condensed:
-                            print("                    plug::" + plug.name)
+                            print("                      plug::" + plug.name)
 
                         source_node = Node("source::" + plug.source.name)
                         if condensed:
-                            print("                      source::" + plug.source.name)
-                            print("                      target::" + plug.target.name)
+                            print("                        source::" + plug.source.name)
+                            print("                        target::" + plug.target.name)
 
     if not condensed:
         print_tree(root, horizontal=horizontal)
@@ -3447,6 +3449,7 @@ def ls_nodes(context):
         "Name",
         "ID",
         "Host",
+        "Network",
         "Owner",
         "Last Updated",
         "CPUs",
@@ -3458,12 +3461,17 @@ def ls_nodes(context):
     x.field_names = names
     nodes = context.obj["database"].session.query(NodeModel).all()
     for node in nodes:
+        if node.network:
+            network = node.network.name
+        else:
+            network = "None"
         agent_name = node.agent.name if node.agent else "None"
         x.add_row(
             [
                 node.name,
                 node.id,
                 node.hostname,
+                network,
                 node.owner,
                 node.lastupdated,
                 node.cpus,
