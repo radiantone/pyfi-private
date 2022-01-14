@@ -748,11 +748,12 @@ class SocketModel(BaseModel):
     )
 
     def __repr__(self):
-        return "{}:{}:{}:{}:Queue:{} - Processor:{}".format(
+        return "{}:{}:{}:{}:Task:{}:Queue:{} - Processor:{}".format(
             self.id,
             self.requested_status,
             self.status,
             self.name,
+            self.task.name,
             self.queue.name,
             self.processor_id,
         )

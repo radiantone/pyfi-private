@@ -99,7 +99,7 @@ class Node(Base):
     def __init__(self, name=None, hostname=None):
         super().__init__()
 
-        self.node = self.session.query(NodeModel).filter_by(hostname=hostname).first()
+        self.node = self.session.query(NodeModel).filter_by(name=name).first()
 
         if self.node is None:
             self.node = _node = NodeModel(name=name, hostname=hostname)

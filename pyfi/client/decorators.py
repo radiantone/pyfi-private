@@ -17,6 +17,40 @@ def task(name="", module="", processor=None, gitrepo=""):
 
     return wrapper_func
 
+class TheMeta(type):
+    def __new__(meta, name, bases, attributes):
+        # Check if args contains the number "42" 
+        # or has the string "The answer to life, the universe, and everything"
+        # If so, just return a pointer to an existing object:
+        # Else, just create the object as it is:
+        return super(TheMeta, meta).__new__(meta, name, bases, attributes)
+
+    def __init__(cls, name, bases, dct):
+            
+        print("TheMeta init")
+        super(TheMeta, cls).__init__(name, bases, dct)
+
+class ProcessorBase:
+    __metaclass__ = TheMeta
+
+    def __init__(self):
+        import types
+
+
+        print("ProcessorBase init")
+        print("ProcessorBase: sockets: ",self.__sockets__)
+        # TODO: Patch instance methods with Socket calls
+        for socket in self.__sockets__:
+
+            def socket_dispatch(*args, **kwargs):
+                print("socket_dispatch")
+                _sock = Socket(name=socket.name, user=USER).p
+                return _sock
+
+            _function = types.MethodType(socket_dispatch, self)
+            _sock = Socket(name=socket.name, user=USER)
+            setattr(self,socket.task.name,_sock )
+        
 
 def processor(*args, **kwargs):
     print("processor called ", args, kwargs)
@@ -44,9 +78,17 @@ def processor(*args, **kwargs):
 
         pname = kwargs['module']+'.'+klass.__name__
         print("processor class", klass, pname)
-        
+        _proc.cls = klass
         print("Created processor ",_proc)
-        return _proc
+        # TODO: Instrument _proc.cls and monkey patch new
+        # method 'task' that creates and returns the associated socket
+        setattr(klass,'__metaclass__',TheMeta)
+        print("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
+        for socket in _proc.processor.sockets:
+            print("processor:socket",socket)
+        
+        setattr(klass,'__sockets__',_proc.processor.sockets)
+        return klass
 
     return decorator
 
@@ -60,7 +102,7 @@ def network(*args, **kwargs):
     def decorator(node,*dargs,**dkwargs):
         _network.network.nodes += [node.node]
 
-        return node
+        return node.agent._processor
 
     return decorator
 
@@ -97,6 +139,8 @@ def agent(*args, **kwargs):
             _agent.agent.workers += [worker.worker]
         if isinstance(processor, Worker):
             _agent.agent.workers += [processor.worker]
+        
+        _agent._processor = processor
         return _agent
 
     return decorator
@@ -138,6 +182,7 @@ def socket(*args, **kwargs):
         kwargs['task'] = task.__name__
         _socket = Socket(**kwargs)
         sockets[_socket.name] = _socket
+
         return _socket
 
     return decorator

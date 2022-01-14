@@ -1,32 +1,17 @@
 """
-This is the decorator API for PYFI. To build infrastructure you layer decorators with keyword arguments to configure them
 
-The @node decorator will create a node for the given "hostname". Lower layer decorators such as @agent, @worker, @processor
-can then be used and passed keyword args to configure them. Some decorators are optional and defaults will be used.
-
-At the class level if the @processor decorator which will use the current python module for the processor and each method in
-the class becomes a "task" of the processor. The type of task is "class" and the classname is stored on the class.
-Moreover the code of the task is stored on the task object and used for executing the task.
-
-The processor still provides a gitrepo or container image to be used to run the code. It is assumed that the code dependencies
-for the task methods are provided by the container or gitrepo.
 """
 from pyfi.client.user import USER
 from pyfi.client.api import parallel, pipeline
-from pyfi.client.api import Socket
-from pyfi.client.api import network, node, agent, processor, worker, socket, plug
+from pyfi.client.api import ProcessorBase, network, node, agent, processor, worker, socket, plug
 
-"""
-Declare an infrastructure node in the database that can be immediately used.
-"""
 @network(name="network-1")
 @node(name="node1", hostname="agent2")
 @agent(name="ag2")
 @processor(name="proc2", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample", concurrency=6)
-class ProcessorB:
+class ProcessorB(ProcessorBase):
     """Description"""
 
-    # socket can also be implied
     @socket(name="sock2", processor="proc2", arguments=True, queue={"name": "sockq2"})
     def do_this(message):
         from random import randrange
@@ -40,11 +25,12 @@ class ProcessorB:
         }
         return {"message": message, "graph": graph}
 
+
 @network(name="network-1")
-@node(name="node1", hostname="phoenix")
+@node(name="node2", hostname="phoenix")
 @agent(name="ag2")
 @processor(name="proc1", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample")  # gitrepo and module can be implied
-class ProcessorA:
+class ProcessorA(ProcessorBase):
     """Description"""
 
     @plug(
@@ -71,9 +57,14 @@ class ProcessorA:
         return {"message": message, "graph": graph}
 
 
-do_something = Socket(name="sock1", user=USER).p
+proca = ProcessorA()
+# Synchronous method call
+print("Hi!",proca.do_something("HI!"))
 
+# Get parallel method handle
+do_something = proca.do_something.p
 
+# Asynchronous workflow
 _pipeline = pipeline(
     [
         do_something("One"),
@@ -88,4 +79,5 @@ _pipeline = pipeline(
     ]
 )
 
+# Wait for result and print it
 print(_pipeline().get())
