@@ -107,10 +107,12 @@ class Node(Base):
         self.session.add(self.node)
         self.session.commit()
 
+
 class Worker(Base):
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
+        name = hostname+".agent."+processor.name+".worker"
         self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
 
         if self.worker is None:

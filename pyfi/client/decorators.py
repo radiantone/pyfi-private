@@ -1,10 +1,13 @@
 import logging
+import configparser
+from pathlib import Path
 
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
+#logging.basicConfig()
+#logging.getLogger().setLevel(logging.DEBUG)
 from functools import wraps
 from pyfi.client.api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network, Deployment
 
+from celery import Celery
 from pyfi.client.user import USER
 
 stack = []
@@ -16,11 +19,12 @@ sockets = {}
 plugs = {}
 tasks = {}
 
-def task(name="", module="", processor=None, gitrepo=""):
-    def wrapper_func(func):
-        func()
+CONFIG = configparser.ConfigParser()
+HOME = str(Path.home())
 
-    return wrapper_func
+ini = HOME + "/pyfi.ini"
+
+CONFIG.read(ini)
 
 class TheMeta(type):
     def __new__(meta, name, bases, attributes):
@@ -35,6 +39,7 @@ class TheMeta(type):
         logging.debug("TheMeta init")
         super(TheMeta, cls).__init__(name, bases, dct)
 
+
 class ProcessorBase:
     __metaclass__ = TheMeta
 
@@ -46,10 +51,21 @@ class ProcessorBase:
         logging.debug("ProcessorBase: sockets: %s",self.__sockets__)
         # TODO: Patch instance methods with Socket calls
         for socket in self.__sockets__:
+
             def wait(self, *args, taskid=None):
+                """ Retrive result for task """
+                from celery.result import AsyncResult
+
+                backend = CONFIG.get("backend", "uri")
+                broker = CONFIG.get("broker", "uri")
+                app = Celery(backend=backend, broker=broker)
+                from pyfi.celery import config
+
+                app.config_from_object(config)
                 """ Given the taskid, return an asynchronous result """
-                print("Waiting on",taskid)
-                return "Waited result"
+                res = AsyncResult(taskid,app=app)
+
+                return res
 
             def socket_dispatch(*args, **kwargs):
                 """ In place of the original class method, dispatch to the socket """
@@ -60,7 +76,7 @@ class ProcessorBase:
             _function = types.MethodType(socket_dispatch, self)
             _sock = Socket(name=socket.name, user=USER)
             _wait = types.MethodType(wait, _sock)
-            setattr(_sock,'wait',_wait)
+            setattr(_sock,'get',_wait)
             setattr(self,socket.task.name,_sock )
         
 
@@ -122,6 +138,7 @@ def network(*args, **kwargs):
 
     return decorator
 
+
 def node(*args, **kwargs):
     logging.debug("node called  %s ", kwargs)
 
@@ -137,7 +154,7 @@ def node(*args, **kwargs):
                 continue
             logging.debug("---->Worker processor %s ",worker.processor)
             logging.debug("====>Updating WORKER NAME %s ",worker.name)
-            worker.name = worker.name+"."+worker.processor.name
+            #worker.name = worker.name+"."+worker.processor.name
             
         return _node
 
@@ -232,3 +249,11 @@ def plug(*args, **kwargs):
         return _plug
 
     return decorator
+
+
+def task(name="", module="", processor=None, gitrepo=""):
+    def wrapper_func(func):
+        func()
+
+    return wrapper_func
+

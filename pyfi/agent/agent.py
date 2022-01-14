@@ -354,7 +354,6 @@ class AgentService:
                             .filter_by(hostname=HOSTNAME)
                             .all()
                         )
-                        logging.info("mydeployments %s %s",HOSTNAME, mydeployments)
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:

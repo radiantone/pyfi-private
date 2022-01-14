@@ -1,13 +1,12 @@
 """
-
+Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 """
-from pyfi.client.api import parallel, pipeline
-from pyfi.client.api import ProcessorBase, network, node, agent, processor, worker, socket, plug
+from pyfi.client.api import ProcessorBase, network, node, agent, processor, socket, plug
 
 
 @network(name="network-1")
-@node(name="node1", hostname="agent2")
-@agent(name="ag1")
+@node(name="node2", hostname="agent2")
+@agent(name="ag2")
 @processor(name="proc2", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample", concurrency=6)
 class ProcessorB(ProcessorBase):
     """Description"""
@@ -27,8 +26,8 @@ class ProcessorB(ProcessorBase):
 
 
 @network(name="network-1")
-@node(name="node2", hostname="phoenix")
-@agent(name="ag2")
+@node(name="node1", hostname="phoenix")
+@agent(name="ag1")
 @processor(name="proc1", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample")  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
     """Description"""
@@ -38,7 +37,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="sock2",
+        target="sock2",     # Must be defined above already
         queue={
             "name": "queue1",
             "message_ttl": 300000,
@@ -60,32 +59,5 @@ class ProcessorA(ProcessorBase):
         return {"message": message, "graph": graph}
 
 
-
 if __name__ == '__main__':
     print("Network created.")
-    '''
-    proca = ProcessorA()
-    # Synchronous method call
-    print("Hi!",proca.do_something("HI!"))
-
-    # Get parallel method handle
-    do_something = proca.do_something.p
-
-    # Asynchronous workflow
-    _pipeline = pipeline(
-        [
-            do_something("One"),
-            do_something("Two"),
-            parallel(
-                [
-                    do_something("Four"),
-                    do_something("Five"),
-                ]
-            ),
-            do_something("Three"),
-        ]
-    )
-
-    # Wait for result and print it
-    print(_pipeline().get())
-    '''
