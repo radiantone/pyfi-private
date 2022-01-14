@@ -1452,9 +1452,7 @@ def update_processor(
             .first()
         )
 
-    # TODO: Update deployment
     if not hostname:
-
         _hostname = click.prompt("Hostname", type=str, default=processor.hostname)
 
         # Update deployment

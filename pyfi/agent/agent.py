@@ -347,8 +347,6 @@ class AgentService:
                     # Gather host information and update node
 
                     if refresh == 0:
-                        # Time to refresh all the processors from the
-                        # TODO: Change to DeploymentModel
                         mydeployments = (
                             self.database.session.query(DeploymentModel)
                             .filter_by(hostname=HOSTNAME)

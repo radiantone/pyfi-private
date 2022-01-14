@@ -49,7 +49,6 @@ class ProcessorBase:
 
         logging.debug("ProcessorBase init")
         logging.debug("ProcessorBase: sockets: %s",self.__sockets__)
-        # TODO: Patch instance methods with Socket calls
         for socket in self.__sockets__:
 
             def wait(self, *args, taskid=None):
@@ -109,8 +108,7 @@ def processor(*args, **kwargs):
         logging.debug("processor class %s %s", klass, pname)
         _proc.cls = klass
         logging.debug("Created processor %s ",_proc)
-        # TODO: Instrument _proc.cls and monkey patch new
-        # method 'task' that creates and returns the associated socket
+        
         setattr(klass,'__metaclass__',TheMeta)
         logging.debug("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
         for socket in _proc.processor.sockets:
