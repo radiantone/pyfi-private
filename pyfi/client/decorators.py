@@ -1,15 +1,7 @@
 from functools import wraps
-from pyfi.client.api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network
+from pyfi.client.api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network, Deployment
 
 from pyfi.client.user import USER
-
-class processor1(object):
-    def __init__(self, arg):
-        self._arg = arg
-
-    def __call__(self, a, b):
-        retval = self._arg(a, b)
-        return retval ** 2
 
 stack = []
 processors = {}
@@ -35,10 +27,18 @@ def processor(*args, **kwargs):
         kwargs['hostname'] = model.hostname
         
     kwargs['user'] = USER
+    deploy = False
+    if 'deploy' in kwargs and kwargs['deploy']:
+        deploy = kwargs['deploy']
+        del kwargs['deploy']
+
     _proc = Processor(**kwargs)
     stack.append(_proc)
 
     processors[kwargs['name']] = _proc
+    if deploy:
+        _deployment = Deployment(processor=_proc.processor, name=_proc.name+".d"+str(len(_proc.processor.deployments)), hostname=model.hostname)
+        print("Deploment added",_deployment.deployment.name)
 
     def decorator(klass, **dkwargs):
 
@@ -92,7 +92,8 @@ def agent(*args, **kwargs):
     def decorator(processor):
         print("agent:model",processor)
         if isinstance(processor, Processor):
-            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker1', processor=processor.processor)
+            print("Creating worker:",kwargs['name']+'.worker'+str(len(_agent.agent.workers)))
+            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker'+str(len(_agent.agent.workers)), processor=processor.processor)
             _agent.agent.workers += [worker.worker]
         if isinstance(processor, Worker):
             _agent.agent.workers += [processor.worker]

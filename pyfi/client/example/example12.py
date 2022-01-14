@@ -22,12 +22,12 @@ Declare an infrastructure node in the database that can be immediately used.
 @network(name="network-1")
 @node(name="node1", hostname="agent2")
 @agent(name="ag2")
-@processor(name="proc2", gitrepo="", module="pyfi.processors.sample", concurrency=6)
+@processor(name="proc2", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample", concurrency=6)
 class ProcessorB:
     """Description"""
 
     # socket can also be implied
-    @socket(name="sock2", processor="proc2", queue={"name": "sockq2"})
+    @socket(name="sock2", processor="proc2", arguments=True, queue={"name": "sockq2"})
     def do_this(message):
         from random import randrange
 
@@ -41,9 +41,9 @@ class ProcessorB:
         return {"message": message, "graph": graph}
 
 @network(name="network-1")
-@node(name="node1", hostname="agent2")
+@node(name="node1", hostname="phoenix")
 @agent(name="ag2")
-@processor(name="proc1", gitrepo="", module="pyfi.processors.sample")  # gitrepo and module can be implied
+@processor(name="proc1", deploy=True, gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample")  # gitrepo and module can be implied
 class ProcessorA:
     """Description"""
 
@@ -71,16 +71,9 @@ class ProcessorA:
         return {"message": message, "graph": graph}
 
 
-# Processors can be defined without nodes or agents. A scheduler will place
-# any processors without nodes or agents. In the example below we are placing
-# the processor on agent "ag2"
-#@agent(name="ag2")  
-
-
-
 do_something = Socket(name="sock1", user=USER).p
 
-'''
+
 _pipeline = pipeline(
     [
         do_something("One"),
@@ -94,4 +87,5 @@ _pipeline = pipeline(
         do_something("Three"),
     ]
 )
-'''
+
+print(_pipeline().get())

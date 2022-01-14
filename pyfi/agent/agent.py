@@ -247,19 +247,28 @@ class AgentService:
             agent_cwd = os.environ["AGENT_CWD"]
 
             logging.info("Killing worker")
-            self.workerproc.kill()
-            os.remove(f"{agent_cwd}/agent.pid")
-            os.remove(f"{agent_cwd}/worker.pid")
+
+            # TODO: This needs to be a list of all worker procs
+            #if self.workerproc:
+            #    self.workerproc.kill()
+
+            if os.path.exists(f"{agent_cwd}/agent.pid"):
+                os.remove(f"{agent_cwd}/agent.pid")
+
             if os.path.exists(f"{agent_cwd}/worker.pid"):
                 with open(f"{agent_cwd}/worker.pid", "r") as wfile:
-                    workerpid = wfile.read()
-                    workerpid = int(workerpid)
-                    logging.info("Killing worker process %s", workerpid)
-                    try:
-                        os.killpg(os.getpgid(workerpid), 15)
-                        os.kill(workerpid, signal.SIGKILL)
-                    except Exception as ex:
-                        logging.warning(ex)
+                    workerpids = wfile.readlines()
+
+                    for workerpid in workerpids:
+                        workerpid = int(workerpid)
+                        logging.info("Killing worker process %s", workerpid)
+                        try:
+                            os.killpg(os.getpgid(workerpid), 15)
+                            os.kill(workerpid, signal.SIGKILL)
+                        except Exception as ex:
+                            logging.warning(ex)
+
+                os.remove(f"{agent_cwd}/worker.pid")
 
             os.killpg(os.getpgid(os.getpid()), 15)
             os.kill(os.getpid(), signal.SIGKILL)
@@ -345,7 +354,7 @@ class AgentService:
                             .filter_by(hostname=HOSTNAME)
                             .all()
                         )
-
+                        logging.info("mydeployments %s %s",HOSTNAME, mydeployments)
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
@@ -743,6 +752,7 @@ class AgentService:
                                             backend=self.backend,
                                             broker=self.broker,
                                         )
+                                        # TODO: Add to workerproc list
 
                                         # = workerproc.worker_model
                                         # deployment.worker = workerproc.worker_model

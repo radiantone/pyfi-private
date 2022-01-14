@@ -434,7 +434,7 @@ class ProcessorModel(HasLogs, BaseModel):
     module = Column(String(80), nullable=False)
     beat = Column(Boolean)
     gitrepo = Column(String(180))
-    branch = Column(String(30))
+    branch = Column(String(30), default="main")
     commit = Column(String(50))
     retries = Column(Integer)
     concurrency = Column(Integer)

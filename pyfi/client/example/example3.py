@@ -3,7 +3,7 @@ from pyfi.client.user import USER
 
 # do_something = Socket(name='pyfi.processors.sample.do_something', user=USER)
 do_something = Socket(
-    name="pyfi.processors.sample.do_something", loadbalanced=True, user=USER
+    name="sock1", loadbalanced=True, user=USER
 )
 
 result = do_something("Example 3 result!")

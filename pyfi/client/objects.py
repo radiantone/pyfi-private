@@ -291,7 +291,7 @@ class Socket(Base):
         self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
 
         if not self.processor:
-            self.processor = self.socket.processor
+            self.processor = Processor(id=self.socket.processor.id)
 
         if "task" in kwargs:
             taskname = kwargs["task"]

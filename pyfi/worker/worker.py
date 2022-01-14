@@ -475,7 +475,7 @@ class WorkerService:
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
             )
 
-            with open(self.pwd + "/worker.pid", "w") as pidfile:
+            with open(self.pwd + "/worker.pid", "a") as pidfile:
                 pidfile.write(str(process.pid))
 
             logging.debug("Worker launched successfully: process %s.", self.process.pid)
