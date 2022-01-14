@@ -54,16 +54,13 @@ def processor(*args, **kwargs):
 def network(*args, **kwargs):
     print("network called ", kwargs)
 
-    _node = Network(**kwargs)
-    stack.append(_node)
+    _network = Network(**kwargs)
+    stack.append(_network)
 
-    def decorator(model,*dargs,**dkwargs):
-        if isinstance(model,Node):
-            print("network:node", model)
+    def decorator(node,*dargs,**dkwargs):
+        _network.network.nodes += [node.node]
 
-            return model
-
-        return model
+        return node
 
     return decorator
 
@@ -74,12 +71,9 @@ def node(*args, **kwargs):
     stack.append(_node)
 
     def decorator(model,*dargs,**dkwargs):
-        if isinstance(model,Agent):
-            print("node:agent", model)
+        print("node:agent", model)
 
-            return model
-
-        return model
+        return _node
 
     return decorator
 
@@ -95,11 +89,14 @@ def agent(*args, **kwargs):
     stack.append(_agent)
     node.agent = _agent
 
-    def decorator(_worker):
-
-        if isinstance(_worker,Worker):
-            print("agent:worker", worker)
-            return _worker
+    def decorator(processor):
+        print("agent:model",processor)
+        if isinstance(processor, Processor):
+            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker1', processor=processor.processor)
+            _agent.agent.workers += [worker.worker]
+        if isinstance(processor, Worker):
+            _agent.agent.workers += [processor.worker]
+        return _agent
 
     return decorator
 
