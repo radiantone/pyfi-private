@@ -88,18 +88,20 @@ def processor(*args, **kwargs):
         kwargs['hostname'] = model.hostname
         
     kwargs['user'] = USER
-    deploy = False
-    if 'deploy' in kwargs and kwargs['deploy']:
-        deploy = kwargs['deploy']
-        del kwargs['deploy']
-
+    
+    deployname = None
+    if 'deployment' in kwargs:
+        deployname = kwargs['deployment']
+        del kwargs['deployment']
+        
     _proc = Processor(**kwargs)
 
     stack.append(_proc)
 
     processors[kwargs['name']] = _proc
-    if deploy:
-        _deployment = Deployment(processor=_proc.processor, name=_proc.name+".d"+str(len(_proc.processor.deployments)), hostname=model.hostname)
+    
+    if deployname:
+        _deployment = Deployment(processor=_proc.processor, name=deployname, hostname=model.hostname)
         logging.debug("Deploment added %s",_deployment.deployment.name)
 
     def decorator(klass, **dkwargs):
@@ -108,7 +110,7 @@ def processor(*args, **kwargs):
         logging.debug("processor class %s %s", klass, pname)
         _proc.cls = klass
         logging.debug("Created processor %s ",_proc)
-        
+
         setattr(klass,'__metaclass__',TheMeta)
         logging.debug("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
         for socket in _proc.processor.sockets:

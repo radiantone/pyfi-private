@@ -2021,6 +2021,7 @@ class WorkerService:
                 else:
                     """Clone gitrepo. Retry after 3 seconds if failure"""
                     count = 1
+                    logging.info("cwd is %s", os.getcwd())
                     logging.info("workdir is %s", self.workdir)
                     os.chdir(self.workdir)
                     while True:
