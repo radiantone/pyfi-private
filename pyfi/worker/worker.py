@@ -561,7 +561,9 @@ class WorkerService:
                                 _signal["kwargs"]["myid"] = myid
                                 # For next call
                                 _signal["kwargs"]["parent"] = myid
-                                tracking = _signal["kwargs"]["tracking"]
+
+                                if "tracking" not in _signal["kwargs"]:
+                                    _signal["kwargs"]["tracking"] = tracking = str(uuid4())
 
                                 processor_path = (
                                     _socket.queue.name
@@ -1890,13 +1892,14 @@ class WorkerService:
                             if sender == "enqueue":
                                 return
 
+                            tracking = str(uuid4())
                             print("KWARGS", kwargs)
                             print(
                                 "RECEIVED KWARGS:",
                                 {
                                     "signal": "received",
                                     "sender": _function_name[0],
-                                    "kwargs": {},
+                                    "kwargs": {"tracking":tracking},
                                     "request": request.id,
                                     "taskparent": request.parent_id,
                                     "taskid": request.id,
@@ -1906,7 +1909,7 @@ class WorkerService:
                                 {
                                     "signal": "received",
                                     "sender": _function_name[0],
-                                    "kwargs": {},
+                                    "kwargs": {"tracking":tracking},
                                     "request": request.id,
                                     "taskparent": request.parent_id,
                                     "taskid": request.id,
