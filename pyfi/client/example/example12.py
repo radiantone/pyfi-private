@@ -37,7 +37,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="sock2",     # Must be defined above already
+        target="sock2",     # Must be defined above already (prevents cycles)
         queue={
             "name": "queue1",
             "message_ttl": 300000,
@@ -45,7 +45,7 @@ class ProcessorA(ProcessorBase):
             "expires": 200,
         },
     )
-    @socket(name="sock1", processor="proc1", queue={"name": "sockq1"})
+    @socket(name="sock1", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"})
     def do_something(message):
         """do_something"""
         from random import randrange

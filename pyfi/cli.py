@@ -1628,7 +1628,7 @@ def add_task(context, name, module, code, repo):
 @click.option(
     "-d",
     "--deploy",
-    prompt=True,
+    prompt=True, 
     required=True,
     default=None,
     help="Name of this deployment",
@@ -1637,7 +1637,7 @@ def add_task(context, name, module, code, repo):
 @click.option("-c", "--cpus", default=0, help="Number of CPUs")
 @click.pass_context
 def add_deployment(context, name, deploy, hostname, cpus):
-
+    """ Add a deployment """
     processor = (
         context.obj["database"]
         .session.query(ProcessorModel)
@@ -2617,7 +2617,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
             calls = (
                 context.obj["database"]
                 .session.query(CallModel)
-                .filter_by(task_id=call.task_id)
+                .filter_by(tracking=call.tracking)
                 .all()
             )
 
@@ -2633,18 +2633,20 @@ def ls_call(context, id, name, result, tree, graph, flow):
                     break
 
             def get_call_graph(parent, node, _calls):
-                print("node is",node)
+                logging.debug("node is %s",node)
                 for _child in _calls:
-                    print("_child ",_child.name, _child.task_id)
+                    logging.debug("_child %s %s %s %s",_child.name, _child.id, _child.parent, _child.task_id)
                     if _child.parent == node.id:
-                        print("Found child node",_child)
+                        logging.debug("Found child node %s",_child)
                         _child_node = Node(_child.name, parent)
                         _child_node = get_call_graph(_child_node, _child, _calls)
 
                 return parent
 
-            print("get_call_graph ", call.task_id)
-            root = get_call_graph(root, call, calls)
+            _root = [_call for _call in calls if _call.parent is None][0]
+            root = Node(_root.name)
+            logging.debug("get_call_graph %s", call.tracking)
+            root = get_call_graph(root, _root, calls)
 
             print_tree(root, horizontal=False)
             if not tree:
@@ -3427,7 +3429,7 @@ def ls_schedulers(context):
 @ls.command(name="networks")
 @click.pass_context
 def ls_networks(context):
-
+    """ List current networks """
     x = PrettyTable()
 
     names = ["Name", "ID"]
@@ -3822,7 +3824,7 @@ def ls_tasks(context, gitrepo):
 @click.pass_context
 def ls_cpus(context):
     """
-    List occupied and available cpus across network
+    List network cpus
     """
     pass
 

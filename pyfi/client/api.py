@@ -26,7 +26,8 @@ from .objects import (
     Scheduler,
     Deployment
 )
-from .decorators import ProcessorBase, processor, task, node, agent, worker, socket, plug, network
+from .decorators import processor, task, node, agent, worker, socket, plug, network
+from .library import ProcessorBase
 
 __all__ = (
     "Processor",
