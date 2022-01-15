@@ -561,6 +561,7 @@ class WorkerService:
                                 _signal["kwargs"]["myid"] = myid
                                 # For next call
                                 _signal["kwargs"]["parent"] = myid
+                                tracking = _signal["kwargs"]["tracking"]
 
                                 processor_path = (
                                     _socket.queue.name
@@ -586,6 +587,7 @@ class WorkerService:
                                     taskparent=_signal["taskparent"],
                                     socket=_socket,
                                     parent=parent,
+                                    tracking=tracking,
                                     resultid="celery-task-meta-" + _signal["taskid"],
                                     celeryid=_signal["taskid"],
                                     task_id=_socket.task.id,
@@ -699,7 +701,7 @@ class WorkerService:
                                         + "."
                                         + _socket.task.name,
                                     )
-
+                                    call.tracking = _signal["kwargs"]["tracking"]
                                     session.add(event)
                                     call.events += [event]
                                     session.add(call.socket)
@@ -1805,6 +1807,8 @@ class WorkerService:
                                     return
 
                                 _function_name = task.name.rsplit(".")[-1:]
+                                tracking = str(uuid4())
+                                kwargs["kwargs"]["tracking"] = tracking
                                 print(
                                     "KWARGS:",
                                     {
@@ -1825,8 +1829,6 @@ class WorkerService:
                                     }
                                 )
 
-                                if "tracking" not in kwargs.get("kwargs"):
-                                    kwargs["kwargs"]["tracking"] = str(uuid4())
 
                                 logging.info("Waiting on PRERUN REPLY")
                                 response = self.prerun_queue.get()

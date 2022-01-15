@@ -2622,26 +2622,28 @@ def ls_call(context, id, name, result, tree, graph, flow):
             )
 
             calldict = {}
-
-            for call in calls:
-                calldict[call.celeryid] = call
+            for _call in calls:
+                calldict[call.celeryid] = _call
 
             from pptree import print_tree, Node
 
-            for call in calls:
-                if call.taskparent is None:
-                    root = Node(call.name)
+            for _call in calls:
+                if _call.taskparent is None:
+                    root = Node(_call.name)
                     break
 
             def get_call_graph(parent, node, _calls):
-
+                print("node is",node)
                 for _child in _calls:
-                    if _child.taskparent == node.celeryid:
+                    print("_child ",_child.name, _child.task_id)
+                    if _child.parent == node.id:
+                        print("Found child node",_child)
                         _child_node = Node(_child.name, parent)
                         _child_node = get_call_graph(_child_node, _child, _calls)
 
                 return parent
 
+            print("get_call_graph ", call.task_id)
             root = get_call_graph(root, call, calls)
 
             print_tree(root, horizontal=False)
@@ -2810,6 +2812,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
         "Name",
         "ID",
         "Task ID",
+        "Tracking",
         "Owner",
         "Last Updated",
         "Socket",
@@ -2906,6 +2909,7 @@ def ls_calls(context, page, rows, unfinished, ascend):
             node.name,
             node.id,
             node.resultid,
+            node.tracking,
             node.owner,
             node.lastupdated,
             node.socket.name,
