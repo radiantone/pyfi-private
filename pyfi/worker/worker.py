@@ -1809,8 +1809,10 @@ class WorkerService:
                                     return
 
                                 _function_name = task.name.rsplit(".")[-1:]
-                                tracking = str(uuid4())
-                                kwargs["kwargs"]["tracking"] = tracking
+
+                                if "tracking" not in kwargs["kwargs"]:
+                                    tracking = str(uuid4())
+                                    kwargs["kwargs"]["tracking"] = tracking
                                 print(
                                     "KWARGS:",
                                     {
@@ -1818,6 +1820,7 @@ class WorkerService:
                                         "sender": _function_name[0],
                                         "kwargs": kwargs["kwargs"],
                                         "taskid": task_id,
+                                        "tracking": kwargs["kwargs"]["tracking"],
                                         "args": args,
                                     },
                                 )
@@ -1826,6 +1829,7 @@ class WorkerService:
                                         "signal": "prerun",
                                         "sender": _function_name[0],
                                         "kwargs": kwargs["kwargs"],
+                                        "tracking": kwargs["kwargs"]["tracking"],
                                         "taskid": task_id,
                                         "args": args,
                                     }
