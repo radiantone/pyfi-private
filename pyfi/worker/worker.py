@@ -563,7 +563,7 @@ class WorkerService:
                                 _signal["kwargs"]["parent"] = myid
 
                                 if "tracking" not in _signal["kwargs"]:
-                                    _signal["kwargs"]["tracking"] = tracking = str(uuid4())
+                                    _signal["kwargs"]["tracking"] = str(uuid4())
 
                                 processor_path = (
                                     _socket.queue.name
@@ -589,7 +589,7 @@ class WorkerService:
                                     taskparent=_signal["taskparent"],
                                     socket=_socket,
                                     parent=parent,
-                                    tracking=tracking,
+                                    tracking=_signal["kwargs"]["tracking"],
                                     resultid="celery-task-meta-" + _signal["taskid"],
                                     celeryid=_signal["taskid"],
                                     task_id=_socket.task.id,
