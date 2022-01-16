@@ -1597,6 +1597,11 @@ class WorkerService:
                         # Get the function from the loaded module
                         _func = getattr(module, socket.task.name)
 
+                        _source = inspect.getsource(_func)
+                        socket.task.source = _source
+                        logging.info("Updated source for %s", socket.task)
+                        socket.session.commit()
+                        
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
                         # such that for different processor types, the correct class is loaded
 

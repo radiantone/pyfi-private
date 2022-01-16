@@ -3297,8 +3297,10 @@ def ls_processor(context, id, name, graph):
 
 @ls.command(name="task")
 @click.option("-n", "--name", default=None, required=True, help="Name of task")
+@click.option("-s", "--source", is_flag=True, required=False, help="Source of task function")
+@click.option("-c", "--code", is_flag=True, required=False, help="Code override of task")
 @click.pass_context
-def ls_task(context, name):
+def ls_task(context, name, source, code):
     """
     List a task
     """
@@ -3310,6 +3312,13 @@ def ls_task(context, name):
     names += ["Git Repo"]
     x.field_names = names
     tasks = [task]
+
+    if source:
+        print(task.source)
+        return
+    if code:
+        print(task.code)
+        return
 
     node = None
 

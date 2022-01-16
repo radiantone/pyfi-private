@@ -550,7 +550,7 @@ class CallModel(BaseModel):
         "SocketModel", back_populates="call", lazy=True, uselist=False
     )
 
-    events = relationship("EventModel", secondary=calls_events, cascade="all, delete")
+    events = relationship("EventModel", secondary=calls_events, lazy=True, cascade="all, delete")
 
     def __repr__(self):
         return "{}:{}:{}:{}:{}".format(
@@ -650,7 +650,9 @@ class TaskModel(BaseModel):
     using the code field, which must contain a function
     """
     mixin = Column(Boolean, default=False)
-    code = Column(Text)  # Source code of function
+
+    source = Column(Text) # Repo module function code
+    code = Column(Text)  # Source code override for task
 
     sockets = relationship("SocketModel", back_populates="task")
 
