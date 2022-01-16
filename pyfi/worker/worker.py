@@ -1599,10 +1599,10 @@ class WorkerService:
 
                         logging.info("TASK SOURCE: %s %s", socket.task, socket.task.source)
                         _source = inspect.getsource(_func)
-                        _task = session.query(TaskModel).filter_by(id=socket.task.id).first()
-                        _task.source = _source
+                        socket.task.source = _source
                         logging.info("Updated source for %s %s", socket.task, socket.task.source)
                         session.commit()
+                        input("?")
                         logging.info("TASK SOURCE: %s %s", socket.task, socket.task.source)
                         
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
