@@ -1601,7 +1601,7 @@ class WorkerService:
                         socket.task.source = _source
                         logging.info("Updated source for %s %s", socket.task, socket.task.source)
                         session.commit()
-                        logging.info("TASK SOURCE: %s", socket.task.source)
+                        logging.info("TASK SOURCE: %s %s", socket.task, socket.task.source)
                         
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
                         # such that for different processor types, the correct class is loaded
