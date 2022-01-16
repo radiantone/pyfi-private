@@ -1599,6 +1599,7 @@ class WorkerService:
 
                         logging.info("TASK SOURCE: %s %s", socket.task, socket.task.source)
                         _source = inspect.getsource(_func)
+                        session.add(socket)
                         session.add(socket.task)
                         socket.task.source = _source
                         logging.info("Updated source for %s %s", socket.task, socket.task.source)
