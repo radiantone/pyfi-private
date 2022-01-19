@@ -836,9 +836,12 @@ class WorkerService:
 
                         data["message"] = json.dumps(result)
                         data["message"] = json.dumps(data)
+                        data["error"] = False
 
                         if isinstance(_r, Exception):
                             data["error"] = True
+                            data["message"] = str(_r)
+
                         data["state"] = "postrun"
 
                         logging.debug("EMITTING ROOMSG: %s", data)
@@ -872,6 +875,10 @@ class WorkerService:
                                 continue
 
                             processor_plug = sourceplugs[pname]
+
+                            if data["error"] and processor_plug.type != "ERROR":
+                                logging.debug("Skipping non-error processor plug {} for data error {}".format(processor_plug, data))
+                                continue
 
                             logging.info("Using PLUG: %s", processor_plug)
 
