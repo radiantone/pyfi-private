@@ -838,7 +838,7 @@ class WorkerService:
                         data["message"] = json.dumps(data)
 
                         if isinstance(_r, Exception):
-                            data["error"] = true
+                            data["error"] = True
                         data["state"] = "postrun"
 
                         logging.debug("EMITTING ROOMSG: %s", data)
