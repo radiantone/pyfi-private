@@ -1778,7 +1778,10 @@ class WorkerService:
                                     else:
                                         raise NotImplementedError
                                 else:
-                                    return _func(*args)
+                                    try:
+                                        return _func(*args)
+                                    except Exception as ex:
+                                        return ex
 
                         # If processor is script
                         func = self.celery.task(
