@@ -832,11 +832,13 @@ class WorkerService:
                         try:
                             result = json.dumps(_r, indent=4)
                         except:
-                            result = "Not JSON Serializable"
-                            pass
+                            result = str(_r)
 
                         data["message"] = json.dumps(result)
                         data["message"] = json.dumps(data)
+
+                        if isinstance(_r, Exception):
+                            data["error"] = true
                         data["state"] = "postrun"
 
                         logging.debug("EMITTING ROOMSG: %s", data)
@@ -1956,17 +1958,20 @@ class WorkerService:
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
                             logging.info("TASK POSTRUN RETVAL: %s", retval)
+
                             logging.info(
                                 "TASK_POSTRUN KWARGS: %s",
                                 {
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
+                                    "type": str(type(retval)),
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
                                 },
                             )
+
 
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
@@ -1974,6 +1979,7 @@ class WorkerService:
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
+                                    "type": str(type(retval)),
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
