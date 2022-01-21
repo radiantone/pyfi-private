@@ -839,8 +839,11 @@ class WorkerService:
                         data["error"] = False
 
                         if isinstance(_r, Exception):
+                            import traceback
+
+                            _r = traceback.format_tb(_r.__traceback__)
                             data["error"] = True
-                            data["message"] = str(_r)
+                            data["message"] = _r
 
                         data["state"] = "postrun"
 
@@ -1974,8 +1977,6 @@ class WorkerService:
                                 return
 
                             _type = str(type(retval).__name__)
-                            if _type == 'Exception':
-                                retval = traceback.format_tb(retval.__traceback__)
 
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
