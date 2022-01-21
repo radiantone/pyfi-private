@@ -796,7 +796,7 @@ class WorkerService:
                                     "message": "Processor message",
                                     "channel": "task",
                                     "room": processor.name,
-                                    "task": _signal["sender"],
+                                    "task": _signal["sender"]
                                 }
 
 
@@ -846,10 +846,10 @@ class WorkerService:
                         data["message"] = json.dumps(data)
                         data["error"] = False
 
-                        if isinstance(_r, Exception):
+                        if isinstance(_r, TaskInvokeException):
                             import traceback
                             data["error"] = True
-                            data["message"] = traceback.format_tb(_r.__traceback__)
+                            data["message"] = _r.tb
 
                         data["state"] = "postrun"
 
@@ -1816,7 +1816,7 @@ class WorkerService:
                                         _ex = TaskInvokeException()
                                         _ex.tb = _r
                                         _ex.exception = ex
-                                        raise ex
+                                        raise _ex from ex
 
                         # If processor is script
                         func = self.celery.task(
