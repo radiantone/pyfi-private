@@ -1815,7 +1815,7 @@ class WorkerService:
                                         _ex = TaskInvokeException()
                                         _ex.tb = _r
                                         _ex.exception = ex
-                                        raise _ex
+                                        raise ex
 
                         # If processor is script
                         func = self.celery.task(
