@@ -825,7 +825,6 @@ class WorkerService:
                                 data["message"] = payload
                                 break
 
-                        logging.info("DATA2: %s", data)
 
                         # Add task result to data record
                         _r = _signal["result"]
@@ -845,6 +844,7 @@ class WorkerService:
 
                         data["state"] = "postrun"
 
+                        logging.info("DATA2: %s", data)
                         logging.debug("EMITTING ROOMSG: %s", data)
 
                         # Put data record into queue for emission
