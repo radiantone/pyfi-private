@@ -846,9 +846,10 @@ class WorkerService:
                         data["message"] = json.dumps(data)
                         data["error"] = False
 
-                        if isinstance(_r, TaskInvokeException):
+                        if isinstance(_r, Exception):
+                            import traceback
                             data["error"] = True
-                            data["message"] = _r.tb
+                            data["message"] = traceback.format_tb(_r.__traceback__)
 
                         data["state"] = "postrun"
 
