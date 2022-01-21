@@ -840,7 +840,7 @@ class WorkerService:
 
                         print("ISINSTANCE:",isinstance(_r, Exception))
                         print("TYPE:",type(_r))
-                        
+
                         if isinstance(_r, Exception):
                             import traceback
                             print("Exception",_r)
@@ -1807,6 +1807,10 @@ class WorkerService:
                                     try:
                                         return _func(*args)
                                     except Exception as ex:
+                                        import traceback
+
+                                        _r = traceback.format_tb(ex.__traceback__)
+                                        print("_R EXCEPTION",_r)
                                         return ex
 
                         # If processor is script
