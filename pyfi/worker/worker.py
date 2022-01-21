@@ -4,7 +4,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 import configparser
 import logging
 
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
@@ -1188,19 +1188,26 @@ class WorkerService:
 
                 logging.info("My processor is: {}".format(self.processor))
                 logging.info("Processor sockets: {}".format(self.processor.sockets))
-
+                
+                _processor = (
+                    session.query(ProcessorModel)
+                    .filter_by(
+                        id=self.processor.id
+                    )
+                    .first()
+                )
                 if (
-                    self.processor
-                    and self.processor.sockets
-                    and len(self.processor.sockets) > 0
+                    _processor
+                    and _processor.sockets
+                    and len(_processor.sockets) > 0
                 ):
                     logging.info("Setting up sockets...")
-                    for socket in self.processor.sockets:
+                    for socket in _processor.sockets:
                         logging.info("Socket %s", socket)
                         if socket.queue:
 
-                            # TODO: Use socket.task.name as the task name and self.processor.module as the module
-                            # For each socket task, use a queue named socket.queue.name+self.processor.name+socket.task.name
+                            # TODO: Use socket.task.name as the task name and _processor.module as the module
+                            # For each socket task, use a queue named socket.queue.name+_processor.name+socket.task.name
                             # for example: queue1.proc1.some_task_A, queue1.proc1.some_task_B
 
                             # This queue is bound to a broadcast(fanout) exchange that delivers
@@ -1209,7 +1216,7 @@ class WorkerService:
                             processor_path = (
                                 socket.queue.name
                                 + "."
-                                + self.processor.name.replace(" ", ".")
+                                + _processor.name.replace(" ", ".")
                             )
 
                             logging.info("Joining room %s", processor_path)
@@ -1219,12 +1226,12 @@ class WorkerService:
                             processor_task = (
                                 socket.queue.name
                                 + "."
-                                + self.processor.name.replace(" ", ".")
+                                + _processor.name.replace(" ", ".")
                                 + "."
                                 + socket.task.name
                             )
                             processor_task2 = (
-                                self.processor.module + "." + socket.task.name
+                                _processor.module + "." + socket.task.name
                             )
 
                             if processor_task not in queues:
@@ -1387,18 +1394,18 @@ class WorkerService:
                     worker = app.Worker(
                         hostname=self.hostname
                         + "."
-                        + self.processor.name
+                        + _processor.name
                         + "@"
                         + HOSTNAME,
                         backend=self.backend,
                         broker=self.broker,
-                        beat=self.processor.beat,
+                        beat=_processor.beat,
                         uid="pyfi",
                         without_mingle=True,
                         without_gossip=True,
-                        concurrency=int(self.processor.concurrency),
+                        concurrency=int(_processor.concurrency),
                     )
-                    worker.concurrency = int(self.processor.concurrency)
+                    worker.concurrency = int(_processor.concurrency)
                 except Exception as ex:
                     logging.error(ex)
 
@@ -1413,7 +1420,7 @@ class WorkerService:
                     workerModel = (
                         session.query(WorkerModel)
                         .filter_by(
-                            name=HOSTNAME + ".agent." + self.processor.name + ".worker"
+                            name=HOSTNAME + ".agent." + _processor.name + ".worker"
                         )
                         .first()
                     )
@@ -1421,8 +1428,8 @@ class WorkerService:
                     logging.info("Created workerModel")
                     if workerModel is None:
                         workerModel = WorkerModel(
-                            name=HOSTNAME + ".agent." + self.processor.name + ".worker",
-                            concurrency=int(self.processor.concurrency),
+                            name=HOSTNAME + ".agent." + _processor.name + ".worker",
+                            concurrency=int(_processor.concurrency),
                             status="ready",
                             backend=self.backend,
                             broker=self.broker,
@@ -1485,21 +1492,21 @@ class WorkerService:
                 logging.debug("CWD %s", os.getcwd())
 
                 logging.info("Importing processor module")
-                module = importlib.import_module(self.processor.module)
+                module = importlib.import_module(_processor.module)
 
                 _plugs = {}
 
                 logging.info("Initializing plugs")
-                for plug in self.processor.plugs:
+                for plug in _processor.plugs:
                     _plugs[plug.queue.name] = []
 
                 logging.info("Configuring sockets")
                 if (
-                    self.processor
-                    and self.processor.sockets
-                    and len(self.processor.sockets) > 0
+                    _processor
+                    and _processor.sockets
+                    and len(_processor.sockets) > 0
                 ):
-                    for socket in self.processor.sockets:
+                    for socket in _processor.sockets:
 
                         if socket.scheduled:
                             try:
@@ -1513,7 +1520,7 @@ class WorkerService:
                                     if socket.name not in self.jobs:
                                         logging.info("Adding job-> %s", socket.name)
                                         plug = None
-                                        for plug in self.processor.plugs:
+                                        for plug in _processor.plugs:
                                             if plug.target.name == socket.name:
                                                 break
 
@@ -1559,7 +1566,7 @@ class WorkerService:
                                                             dispatcher,
                                                             socket.interval,
                                                             (
-                                                                self.processor,
+                                                                _processor,
                                                                 plug,
                                                                 "message",
                                                                 session,
@@ -1608,6 +1615,8 @@ class WorkerService:
 
                         logging.info("TASK SOURCE: %s %s %s", socket.task.id, socket.task, socket.task.source)
                         _source = inspect.getsource(_func)
+                        #session.merge(socket)
+                        session.add(socket.task)
                         socket.task.source = _source
                         logging.info("Updated source for %s %s %s",  socket.task.id, socket.task, socket.task.source)
                         session.commit()
@@ -1721,13 +1730,13 @@ class WorkerService:
                                 """If we have kwargs to pass in"""
                                 logging.info("Invoking function %s %s", args, _kwargs)
 
-                                if self.container and self.processor.use_container:
+                                if self.container and _processor.use_container:
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
                                         pfile.write(source + "\n")
                                         pfile.write(_call + "\n")
 
-                                    if self.processor.detached:
+                                    if _processor.detached:
                                         # Run command inside self.container passing in task id, module and function
                                         pythoncmd = "python /tmp/" + taskid + ".py"
                                         logging.info("Invoking %s", pythoncmd)
@@ -1744,13 +1753,13 @@ class WorkerService:
                                 """If we only have args to pass in"""
                                 logging.info("Invoking function %s", args)
 
-                                if self.container and self.processor.use_container:
+                                if self.container and _processor.use_container:
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
                                         pfile.write(source + "\n")
                                         pfile.write(_call + "\n")
 
-                                    if self.processor.detached:
+                                    if _processor.detached:
                                         # Run command inside self.container
                                         with open(
                                             "out/" + taskid + ".kwargs", "wb"
@@ -1795,8 +1804,8 @@ class WorkerService:
                         # If processor is script
                         func = self.celery.task(
                             wrapped_function,
-                            name=self.processor.module + "." + socket.task.name,
-                            retries=self.processor.retries,
+                            name=_processor.module + "." + socket.task.name,
+                            retries=_processor.retries,
                         )
 
                         """
@@ -1972,7 +1981,7 @@ class WorkerService:
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
-                                    "type": str(type(retval)),
+                                    "type": str(type(retval).__name__),
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
@@ -1986,7 +1995,7 @@ class WorkerService:
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
-                                    "type": str(type(retval)),
+                                    "type": str(type(retval).__name__),
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
