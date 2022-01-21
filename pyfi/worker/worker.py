@@ -838,10 +838,14 @@ class WorkerService:
                         data["message"] = json.dumps(data)
                         data["error"] = False
 
+                        print("ISINSTANCE:",isinstance(_r, Exception))
+                        print("TYPE:",type(_r))
+                        
                         if isinstance(_r, Exception):
                             import traceback
                             print("Exception",_r)
                             _r = traceback.format_tb(_r.__traceback__)
+                            print("Traceback",_r)
                             data["error"] = True
                             data["message"] = _r
 
