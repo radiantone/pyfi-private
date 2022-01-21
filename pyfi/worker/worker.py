@@ -219,6 +219,13 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
         pass
 
 
+class TaskInvokeException(Exception):
+
+    def __init__(self, ex, tb):
+        self.tb = tb
+        self.exception = ex
+        super().__init__()
+
 #########################################################################
 # WorkerService class
 #########################################################################
@@ -838,16 +845,9 @@ class WorkerService:
                         data["message"] = json.dumps(data)
                         data["error"] = False
 
-                        print("ISINSTANCE:",isinstance(_r, Exception))
-                        print("TYPE:",type(_r))
-
-                        if isinstance(_r, Exception):
-                            import traceback
-                            print("Exception",_r)
-                            _r = traceback.format_tb(_r.__traceback__)
-                            print("Traceback",_r)
+                        if isinstance(_r, TaskInvokeException):
                             data["error"] = True
-                            data["message"] = _r
+                            data["message"] = _r.tb
 
                         data["state"] = "postrun"
 
@@ -1811,7 +1811,8 @@ class WorkerService:
 
                                         _r = traceback.format_tb(ex.__traceback__)
                                         print("_R EXCEPTION",_r)
-                                        return ex
+                                        _ex = TaskInvokeException(ex, _r)
+                                        return _ex
 
                         # If processor is script
                         func = self.celery.task(
