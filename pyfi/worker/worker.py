@@ -589,7 +589,7 @@ class WorkerService:
                                     },
                                 ]
 
-                                self.queue.put(_data)
+                                #self.queue.put(_data)
 
                                 call = CallModel(
                                     id=myid,
