@@ -1813,7 +1813,7 @@ class WorkerService:
                                         _r = traceback.format_tb(ex.__traceback__)
                                         print("_R EXCEPTION",_r)
                                         _ex = TaskInvokeException()
-                                        _ex.tb = tb
+                                        _ex.tb = _r
                                         _ex.exception = ex
                                         return _ex
 
