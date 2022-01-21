@@ -840,7 +840,7 @@ class WorkerService:
 
                         if isinstance(_r, Exception):
                             import traceback
-
+                            print("Exception",_r)
                             _r = traceback.format_tb(_r.__traceback__)
                             data["error"] = True
                             data["message"] = _r
