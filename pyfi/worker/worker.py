@@ -836,7 +836,7 @@ class WorkerService:
 
                         # Add task result to data record
                         _r = _signal["result"]
-                        logging.info("RESULT2: %s",_r)
+                        logging.info("RESULT2: %s %s",type(_r), _r)
                         try:
                             result = json.dumps(_r, indent=4)
                         except:
