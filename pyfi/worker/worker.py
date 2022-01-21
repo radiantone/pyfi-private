@@ -825,10 +825,11 @@ class WorkerService:
                                 data["message"] = payload
                                 break
 
-                        logging.info("DATA: %s", data)
+                        logging.info("DATA2: %s", data)
 
                         # Add task result to data record
                         _r = _signal["result"]
+                        logging.info("RESULT2: %s",_r)
                         try:
                             result = json.dumps(_r, indent=4)
                         except:
