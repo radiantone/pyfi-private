@@ -4,7 +4,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 import configparser
 import logging
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
@@ -1974,7 +1974,7 @@ class WorkerService:
 
                             _type = str(type(retval).__name__)
                             if _type == 'Exception':
-                                retval = retval.__traceback__
+                                retval = traceback.format_tb(retval.__traceback__)
 
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
