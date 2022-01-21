@@ -2610,7 +2610,16 @@ def ls_call(context, id, name, result, tree, graph, flow):
             r = redisclient.get(call.resultid)
 
             _r = pickle.loads(r)
-            print(json.dumps(_r, indent=4))
+            if isinstance(_r, Exception):
+                import traceback
+
+                #_r = traceback.format_tb(_r.__traceback__)
+                print(_r.__traceback__)
+            else:
+                try:
+                    print(json.dumps(_r, indent=4))
+                except:
+                    print(_r)
             return
 
         if graph:

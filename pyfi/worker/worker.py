@@ -1913,7 +1913,7 @@ class WorkerService:
                         @task_failure.connect()
                         def pyfi_task_failure(sender=None, **kwargs):
                             # Store task run data
-                            pass
+                            logging.info("Task FAILURE: %s %s", sender, kwargs)
 
                         @task_internal_error.connect()
                         def pyfi_task_internal_error(sender=None, **kwargs):
