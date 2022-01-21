@@ -886,7 +886,7 @@ class WorkerService:
                             processor_plug = sourceplugs[pname]
 
                             if data["error"] and processor_plug.type != "ERROR":
-                                logging.debug("Skipping non-error processor plug {} for data error {}".format(processor_plug, data))
+                                logging.info("Skipping non-error processor plug {} for data error {}".format(processor_plug, data))
                                 continue
 
                             logging.info("Using PLUG: %s", processor_plug)
