@@ -221,9 +221,10 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
 class TaskInvokeException(Exception):
 
-    def __init__(self, ex, tb):
-        self.tb = tb
-        self.exception = ex
+    tb = None
+    exception = None
+
+    def __init__(self):
         super().__init__()
 
 #########################################################################
@@ -1811,7 +1812,9 @@ class WorkerService:
 
                                         _r = traceback.format_tb(ex.__traceback__)
                                         print("_R EXCEPTION",_r)
-                                        _ex = TaskInvokeException(ex, _r)
+                                        _ex = TaskInvokeException()
+                                        _ex.tb = tb
+                                        _ex.exception = ex
                                         return _ex
 
                         # If processor is script
