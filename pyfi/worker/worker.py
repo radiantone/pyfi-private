@@ -1974,7 +1974,7 @@ class WorkerService:
 
                             _type = str(type(retval).__name__)
                             if _type == 'Exception':
-                                retval = str(traceback.print_tb(retval.__traceback__))
+                                retval = retval.__traceback__
 
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
