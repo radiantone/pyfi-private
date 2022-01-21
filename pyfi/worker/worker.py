@@ -1967,9 +1967,14 @@ class WorkerService:
                         ):
                             from datetime import datetime
                             from uuid import uuid4
+                            import traceback
 
                             if sender.__name__ == "enqueue":
                                 return
+
+                            _type = str(type(retval).__name__)
+                            if _type == 'Exception':
+                                retval = str(traceback.print_tb(retval.__traceback__))
 
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.info("TASK POSTRUN ARGS: %s", args)
@@ -1981,7 +1986,7 @@ class WorkerService:
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
-                                    "type": str(type(retval).__name__),
+                                    "type": _type,
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
@@ -1995,7 +2000,7 @@ class WorkerService:
                                     "signal": "postrun",
                                     "result": retval,
                                     "sender": _function_name,
-                                    "type": str(type(retval).__name__),
+                                    "type": _type,
                                     "kwargs": kwargs["kwargs"],
                                     "taskid": task_id,
                                     "args": args,
