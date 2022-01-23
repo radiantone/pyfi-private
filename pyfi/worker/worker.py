@@ -523,7 +523,8 @@ class WorkerService:
                 )
 
                 while True:
-
+                    
+                    session.refresh(processor)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
                     # work is complete
@@ -1094,7 +1095,7 @@ class WorkerService:
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
         dbactions = threading.Thread(target=database_actions)
-        #dbactions.start()
+        dbactions.start()
 
         def worker_proc(app, _queue, dburi):
             """Main celery worker thread. Configure worker, queues and launch celery worker"""
