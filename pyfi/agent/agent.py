@@ -98,6 +98,7 @@ class AgentService:
         self.workerproc = None
         self.workerport = workerport
         self.name = name
+        self.workers = []
 
         logging.info(f"Agent port is {port}")
 
@@ -246,12 +247,12 @@ class AgentService:
 
             agent_cwd = os.environ["AGENT_CWD"]
 
-            logging.info("Killing worker")
+            logging.info("Killing workers")
 
-            # TODO: This needs to be a list of all worker procs
-            #if self.workerproc:
-            #    self.workerproc.kill()
-
+            for worker in self.workers:
+                logging.info("Killing worker %s", worker)
+                worker.kill()
+                
             if os.path.exists(f"{agent_cwd}/agent.pid"):
                 os.remove(f"{agent_cwd}/agent.pid")
 
@@ -759,6 +760,7 @@ class AgentService:
                                             f"-----------------------Starting {processor['processor'].name}"
                                         )
                                         workerproc.start(start=False)
+                                        self.workers += [workerproc]
 
                                         with self.get_session() as session:
                                             # session.add(workerproc.worker_model)
@@ -846,7 +848,7 @@ class AgentService:
 
 
 @app.route("/")
-def hello():
+def health():
     import json
 
     return json.dumps({"status": "green"})

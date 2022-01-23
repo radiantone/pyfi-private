@@ -4115,6 +4115,7 @@ def ls_plugs(context):
     names = [
         "Name",
         "ID",
+        "Type",
         "Owner",
         "Last Updated",
         "Status",
@@ -4131,6 +4132,7 @@ def ls_plugs(context):
             [
                 node.name,
                 node.id,
+                node.type,
                 node.owner,
                 node.lastupdated,
                 node.status,

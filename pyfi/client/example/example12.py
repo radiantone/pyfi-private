@@ -43,7 +43,7 @@ class ProcessorA(ProcessorBase):
             "message_ttl": 300000,
             "durable": True,
             "expires": 200,
-        },
+        }
     )
     @socket(name="sock1", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"})
     def do_something(message):

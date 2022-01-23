@@ -115,27 +115,6 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
 
-  elasticsearch:
-      image: elasticsearch:7.7.0
-      container_name: elasticsearch
-      hostname: elasticsearch
-      environment:
-          - "discovery.type=single-node"
-      ports:
-          - 9200:9200
-          - 9300:9300
-
-  # http://localhost:5601
-  kibana:
-      image: kibana:7.7.0
-      container_name: kibana
-      hostname: kibana
-      ports:
-          - 5601:5601
-      links:
-          - elasticsearch:elasticsearch
-      depends_on:
-          - elasticsearch
 
   # http://localhost:5001
   logs:
