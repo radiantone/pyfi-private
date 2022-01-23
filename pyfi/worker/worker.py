@@ -734,7 +734,7 @@ class WorkerService:
                                     "Done Putting %s on PRERUN_QUEUE", _signal["kwargs"]
                                 )
 
-                    if _signal["signal"] == "postrun":
+                    if _signal["signal"] == "postrun2":
                         """
                         Task has completed, now we need to determine how to send the results to downstream plugs
                         """
