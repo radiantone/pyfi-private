@@ -734,7 +734,7 @@ class WorkerService:
                                     "Done Putting %s on PRERUN_QUEUE", _signal["kwargs"]
                                 )
 
-                    if _signal["signal"] == "postrun2":
+                    if _signal["signal"] == "postrun":
                         """
                         Task has completed, now we need to determine how to send the results to downstream plugs
                         """
@@ -1094,7 +1094,7 @@ class WorkerService:
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
         dbactions = threading.Thread(target=database_actions)
-        dbactions.start()
+        #dbactions.start()
 
         def worker_proc(app, _queue, dburi):
             """Main celery worker thread. Configure worker, queues and launch celery worker"""
