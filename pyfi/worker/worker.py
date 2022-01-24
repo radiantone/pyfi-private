@@ -13,7 +13,9 @@ import shutil
 import signal
 import sys
 import inspect
+import tracemalloc
 
+tracemalloc.start()
 from inspect import Parameter
 from functools import partial
 from pathlib import Path
@@ -523,7 +525,10 @@ class WorkerService:
                 )
 
                 while True:
-                    
+                    snapshot=tracemalloc.take_snapshot()
+                    for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
+                        logging.info("top_current %s %s", i, stat)
+                        
                     session.refresh(processor)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
