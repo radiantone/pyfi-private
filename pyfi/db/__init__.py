@@ -17,7 +17,28 @@ from .model.models import WorkerModel as Worker
 
 from .postgres import _compile_drop_table
 
+
+def get_session():
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    import configparser
+
+    CONFIG = configparser.ConfigParser()
+
+    from pathlib import Path
+    HOME = str(Path.home())
+
+    ini = HOME + "/pyfi.ini"
+
+    CONFIG.read(ini)
+
+    _engine = create_engine(CONFIG.get("database", "uri"))
+    _session = sessionmaker(bind=_engine)()
+
+    return _session
+
 __all__ = (
+    "get_session",
     "Worker",
     "Agent",
     "Role",

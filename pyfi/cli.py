@@ -1153,7 +1153,7 @@ def start_scheduler(context, name, interval):
     from pyfi.scheduler import BasicScheduler
 
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
-    scheduler = BasicScheduler(context, name, interval)
+    scheduler = BasicScheduler(name, interval)
     scheduler.run()
 
 
@@ -3711,6 +3711,7 @@ def ls_workers(context):
         "Broker",
         "Hostname",
         "Processor",
+        "Concurrency",
         "Deployment",
         "Workdir",
     ]
@@ -3740,6 +3741,8 @@ def ls_workers(context):
                 node.broker,
                 hostname,
                 pname,
+                node.concurrency,
+                
                 name,
                 node.workerdir,
             ]
@@ -3770,6 +3773,7 @@ def ls_processors(context, gitrepo, commit, module, owner):
         "Requested Status",
         "Status",
         "Concurrency",
+        "Deployed CPUs",
         "Beat",
         "Sockets",
     ]
@@ -3786,6 +3790,9 @@ def ls_processors(context, gitrepo, commit, module, owner):
     x.field_names = names
 
     for processor in processors:
+        deployed_cpus = 0
+        for deployment in processor.deployments:
+            deployed_cpus += deployment.cpus
         row = [
             processor.name,
             processor.id,
@@ -3795,6 +3802,7 @@ def ls_processors(context, gitrepo, commit, module, owner):
             processor.requested_status,
             processor.status,
             processor.concurrency,
+            deployed_cpus,
             processor.beat,
             len(processor.sockets),
         ]
@@ -4254,6 +4262,7 @@ def api_start(context, ip, port):
 @click.option("-q", "--queues", is_flag=True, help="Run the queue monitor only")
 @click.option("-u", "--user", default=None, help="Run the worker as user")
 @click.option("-po", "--pool", default=1, help="Process pool for message dispatches")
+@click.option("-cp", "--cpus", default=-1, help="Number of CPUs")
 @click.option(
     "-s",
     "--size",
@@ -4274,6 +4283,7 @@ def start_agent(
     queues,
     user,
     pool,
+    cpus,
     size,
     host,
     workerport,
@@ -4309,6 +4319,7 @@ def start_agent(
             user=user,
             clean=clean,
             size=size,
+            cpus=cpus,
             broker=broker,
         )
         agent.start()

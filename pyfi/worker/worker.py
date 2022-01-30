@@ -401,7 +401,7 @@ class WorkerService:
             if workerModel is None:
                 workerModel = self.workerModel = WorkerModel(
                     name=HOSTNAME + ".agent." + self.processor.name + ".worker",
-                    concurrency=int(self.processor.concurrency),
+                    concurrency=int(_deployment.cpus),
                     status="ready",
                     backend=self.backend,
                     broker=self.broker,
@@ -416,13 +416,14 @@ class WorkerService:
                     workerModel.agent_id = self.agent.id
 
                 session.add(workerModel)
+                logging.info("Added workerModel to session")
 
             workerModel.workerdir = self.workdir
             workerModel.port = self.port
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
-            # logging.info("Attached worker to deployment and processor...")
+            logging.info("Attached worker to deployment and processor...")
             session.commit()
 
         self.process = None
@@ -1398,11 +1399,11 @@ class WorkerService:
                 app.conf.task_routes = task_routes
 
                 logging.info(
-                    "Creating celery worker %s %s %s %s",
+                    "Creating celery worker %s %s %s deployment %s",
                     self.processor.name + "@" + HOSTNAME,
                     self.backend,
                     self.broker,
-                    self.processor.concurrency,
+                    self.deployment.cpus,
                 )
 
                 worker = None
@@ -1419,9 +1420,9 @@ class WorkerService:
                         uid="pyfi",
                         without_mingle=True,
                         without_gossip=True,
-                        concurrency=int(_processor.concurrency),
+                        concurrency=int(self.deployment.cpus),
                     )
-                    worker.concurrency = int(_processor.concurrency)
+                    worker.concurrency = int(self.deployment.cpus)
                 except Exception as ex:
                     logging.error(ex)
 
@@ -1445,7 +1446,7 @@ class WorkerService:
                     if workerModel is None:
                         workerModel = WorkerModel(
                             name=HOSTNAME + ".agent." + _processor.name + ".worker",
-                            concurrency=int(_processor.concurrency),
+                            concurrency=int(self.deployment.cpus),
                             status="ready",
                             backend=self.backend,
                             broker=self.broker,

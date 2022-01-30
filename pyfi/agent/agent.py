@@ -78,6 +78,7 @@ class AgentService:
         clean=False,
         user=None,
         pool=4,
+        cpus=-1,
         backend="redis://localhost",
         broker="pyamqp://localhost",
         name=None,
@@ -90,6 +91,7 @@ class AgentService:
         self.database = database
         self.config = config
         self.pool = pool
+        self.cpus = cpus
         self.dburi = dburi
         self.node = None
         self.agent = None
@@ -207,14 +209,18 @@ class AgentService:
         #########################################################################
         agent.node_id = node.id
 
-        node.cpus = CPUS
+        if self.cpus == -1:
+            node.cpus = CPUS
+        else:
+            node.cpus = self.cpus
+
         node.memsize = vmem.total
         node.freemem = vmem.free
         node.memused = vmem.percent
         self.node = node
 
         agent.status = "running"
-        agent.cpus = CPUS
+        agent.cpus = node.cpus
         agent.port = self.port
         agent.updated = datetime.now()
 
@@ -252,7 +258,7 @@ class AgentService:
             for worker in self.workers:
                 logging.info("Killing worker %s", worker)
                 worker.kill()
-                
+
             if os.path.exists(f"{agent_cwd}/agent.pid"):
                 os.remove(f"{agent_cwd}/agent.pid")
 

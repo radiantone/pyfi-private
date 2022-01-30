@@ -30,11 +30,14 @@ CONFIG.read(ini)
 def processor(*args, **kwargs):
     logging.debug("processor called %s %s", args, kwargs)
 
-    model = stack.pop()
-    logging.debug("processor:agent %s",model)
-    if isinstance(model, Agent):
-        kwargs['hostname'] = model.hostname
-        
+    try:
+        model = stack.pop()
+        logging.debug("processor:agent %s",model)
+        if isinstance(model, Agent):
+            kwargs['hostname'] = model.hostname
+    except:
+        pass
+    
     kwargs['user'] = USER
     
     deployname = None

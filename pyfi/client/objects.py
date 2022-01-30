@@ -643,6 +643,7 @@ class Processor(Base):
         gitrepo=None,
         branch=None,
         module=None,
+        requested_status="ready",
         concurrency=None,
         agent=None,
         commit=None,
@@ -684,7 +685,7 @@ class Processor(Base):
                 beat=beat,
                 commit=commit,
                 concurrency=concurrency,
-                requested_status="update",
+                requested_status=requested_status,
                 name=name,
                 module=module,
             )
@@ -708,8 +709,8 @@ class Processor(Base):
         """
 
         if concurrency is not None:
-            if self.processor.concurrency != concurrency:
-                self.processor.requested_status = "update"
+            #if self.processor.concurrency != concurrency:
+            #    self.processor.requested_status = "update"
             self.processor.concurrency = concurrency
 
         if commit is not None:
