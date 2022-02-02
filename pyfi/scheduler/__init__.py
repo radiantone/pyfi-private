@@ -194,12 +194,15 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 _cpus = agent.cpus - worker_cpus
                                 if _cpus > needed_cpus:
                                     _cpus = needed_cpus
-                                logging.info("Creating new deployment for %s CPUS", _cpus)
-                                _deployment = DeploymentModel(cpus=_cpus, processor=processor, name=processor.name+".deploy"+str(len(processor.deployments)), hostname=node.hostname)
-                                session.add(_deployment)
-                                logging.info("Deploying processor to node %s with %s cpus", node, _cpus)
-                                session.commit()
-                                needed_cpus -= _cpus
+                                if _cpus > 0:
+                                    logging.info("Creating new deployment for %s CPUS", _cpus)
+                                    _deployment = DeploymentModel(cpus=_cpus, processor=processor, name=processor.name+".deploy"+str(len(processor.deployments)), hostname=node.hostname)
+                                    session.add(_deployment)
+                                    logging.info("Deploying processor to node %s with %s cpus", node, _cpus)
+                                    session.commit()
+                                    needed_cpus -= _cpus
+                                else:
+                                    logging.warning("_cpus is zero")
 
                 else:
                     logging.info("Processor concurrency needs are met.")
