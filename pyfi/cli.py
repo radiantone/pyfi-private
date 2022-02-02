@@ -199,8 +199,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         context.obj["owner"] = session.query(literal_column("current_user")).first()[0]
 
     except:
-        # import traceback
-        # print(traceback.format_exc())
+        import traceback
+        print(traceback.format_exc())
         print(
             "Database unavailable. Please check your configuration or ensure database server is running."
         )

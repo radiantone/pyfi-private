@@ -185,7 +185,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             worker_cpus = 0
                             for worker in agent.workers:
                                 logging.info("Agent worker with %s cpus", worker.concurrency)
-                                worker_cpus += worker.concurrency
+                                if worker.deployment:
+                                    worker_cpus += worker.deployment.cpus
 
                             logging.info("Agent %s is using %s of its %s cpus", agent.name, worker_cpus, agent.cpus)
 

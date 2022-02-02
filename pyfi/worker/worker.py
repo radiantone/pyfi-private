@@ -1427,7 +1427,6 @@ class WorkerService:
                     logging.error(ex)
 
                 logging.info("Created celery worker")
-                self.deployment.worker.hostname = HOSTNAME
 
                 # Find existing model first
                 try:
@@ -1460,6 +1459,7 @@ class WorkerService:
                     workerModel.workerdir = self.workdir
                     # Attach worker to deployment
                     self.deployment.worker = workerModel
+                    self.deployment.worker.hostname = HOSTNAME
                     workerModel.deployment = self.deployment
                     workerModel.port = self.port
                     session.commit()
