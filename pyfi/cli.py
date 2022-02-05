@@ -542,6 +542,40 @@ def db(context):
     pass
 
 
+@cli.group()
+@click.pass_context
+def network(context):
+    """
+    Network operations
+    """
+    pass
+
+
+@network.command(name="add")
+@click.option("-n","--name", help="Name of network")
+@click.option("-nd","--node", help="Name of node to add")
+@click.pass_context
+def add_node_to_network(context, name, node):
+
+    network = (
+        context.obj["database"]
+        .session.query(NetworkModel)
+        .filter_by(name=name)
+        .first()
+    )
+    node = (
+        context.obj["database"]
+        .session.query(NodeModel)
+        .filter_by(name=node)
+        .first()
+    )
+
+    network.nodes += [node]
+
+    context.obj["database"].session.commit()
+    print(f"Node {node.name} added to network {network.name}")
+
+    
 @db.command()
 @click.option(
     "-d", "--directory", default="migrations", help="Directory of migration pyfi agent"
@@ -1788,6 +1822,18 @@ def add_processor(
 
     print(processor)
 
+
+@add.command(name="network")
+@click.option("-n", "--name", default=None, required=True)
+@click.pass_context
+def add_network(context, name):
+    """ Create a named network """
+
+    user = context.obj["user"]
+    network = NetworkModel(name=name, user=user)
+    context.obj["database"].session.add(network)
+    context.obj["database"].session.commit()
+    print(f"Network {name} created.")
 
 @add.command(name="privilege")
 @click.option("-u", "--user", default=None, required=True)

@@ -506,6 +506,8 @@ class NetworkModel(BaseModel):
         "NodeModel", backref="network", lazy=True, cascade="all, delete"
     )
 
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True)
 
 class WorkModel(BaseModel):
     __tablename__ = "work"
