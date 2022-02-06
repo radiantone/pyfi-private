@@ -447,6 +447,7 @@ class ProcessorModel(HasLogs, BaseModel):
     trackstarted = Column(Boolean)
     retrydelay = Column(Integer)
 
+    description = Column(Text(), nullable=True, default="Some description")
     container_image = Column(String(60))
     container_command = Column(String(180))
     container_version = Column(String(20), default="latest")
@@ -666,7 +667,7 @@ class TaskModel(BaseModel):
 
 class EventModel(BaseModel):
     """
-    Docstring
+    Events are linked to call objects: received, prerun, postrun
     """
 
     __tablename__ = "event"
@@ -726,6 +727,7 @@ class SocketModel(BaseModel):
     scheduled = Column(Boolean)
     cron = Column(String(20))
 
+    description = Column(Text(), nullable=True, default="Some description")
     interval = Column(Integer)
     task_id = Column(String(40), ForeignKey("task.id"))
     task = relationship(
@@ -800,6 +802,7 @@ class PlugModel(BaseModel):
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)
 
+    description = Column(Text(), nullable=True, default="Some description")
     queue = relationship("QueueModel", secondary=plugs_queues, uselist=False)
 
     def __repr__(self):

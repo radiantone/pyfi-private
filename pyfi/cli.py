@@ -271,6 +271,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 SocketModel: "read",
                 PlugModel: "read",
                 WorkerModel: "read",
+                LogModel: "read",
                 UserModel: "read",
                 ArgumentModel: "read",
                 DeploymentModel: "read",
@@ -535,6 +536,15 @@ def proc(context, id):
 
 @cli.group()
 @click.pass_context
+def server(context):
+    """
+    Server operations
+    """
+    pass
+
+
+@cli.group()
+@click.pass_context
 def db(context):
     """
     Database operations
@@ -575,7 +585,7 @@ def add_node_to_network(context, name, node):
     context.obj["database"].session.commit()
     print(f"Node {node.name} added to network {network.name}")
 
-    
+
 @db.command()
 @click.option(
     "-d", "--directory", default="migrations", help="Directory of migration pyfi agent"
@@ -873,11 +883,14 @@ def pause_processor(context, name):
         )
 
     # Business logic here?
-    processor.requested_status = "paused"
-    database = context.obj["database"]
-    database.session.add(processor)
-    database.session.commit()
-    print("Processor pause requested.")
+    if processor:
+        processor.requested_status = "paused"
+        database = context.obj["database"]
+        database.session.add(processor)
+        database.session.commit()
+        print("Processor pause requested.")
+    else:
+        print("Processor not found.")
 
 
 @proc.command(name="resume")
@@ -889,6 +902,7 @@ def resume_processor(context, name):
     """
     id = context.obj["id"]
 
+    processor = None
     if name is not None:
         print("Pausing ", name)
         processor = (
@@ -907,11 +921,14 @@ def resume_processor(context, name):
         )
 
     # Business logic here?
-    processor.requested_status = "resumed"
-    database = context.obj["database"]
-    database.session.add(processor)
-    database.session.commit()
-    print("Processor resume requested.")
+    if processor:
+        processor.requested_status = "resumed"
+        database = context.obj["database"]
+        database.session.add(processor)
+        database.session.commit()
+        print("Processor resume requested.")
+    else:
+        print("Processor not found.")
 
 
 @proc.command(name="stop")
@@ -923,6 +940,7 @@ def stop_processor(context, name):
     """
     id = context.obj["id"]
 
+    processor = None
     if name is not None:
         print("Stopping", name)
         processor = (
@@ -941,12 +959,24 @@ def stop_processor(context, name):
         )
 
     # Business logic here?
-    processor.requested_status = "stopped"
-    database = context.obj["database"]
-    database.session.add(processor)
-    database.session.commit()
-    print("Processor stop requested.")
+    if processor:
+        processor.requested_status = "stopped"
+        database = context.obj["database"]
+        database.session.add(processor)
+        database.session.commit()
+        print("Processor stop requested.")
+    else:
+        print("Processor not found.")
 
+
+@server.command(name="start")
+@click.option("-p", "--port", default=8000, required=False)
+@click.pass_context
+def start_server(context, port):
+    """ Start elasticcode flow server """
+    from pyfi.server import app
+
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 @proc.command(name="start")
 @click.option("-n", "--name", default=None, required=False)
@@ -4272,7 +4302,7 @@ def api_start(context, ip, port):
     Run pyfi API server
     """
     import bjoern
-    from pyfi.server import app as server
+    from pyfi.server.api import app as server
 
     logging.info("Initializing server app....")
     logging.info("Serving API on {}:{}".format(ip, port))
