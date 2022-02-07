@@ -40,7 +40,7 @@ from pyfi.db.model import (
     DeploymentModel,
     NetworkModel,
 )
-from pyfi.server import app
+from pyfi.server.api import app
 
 CONFIG = configparser.ConfigParser()
 HOME = str(Path.home())

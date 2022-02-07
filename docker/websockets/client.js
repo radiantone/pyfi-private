@@ -22,7 +22,6 @@ connection.onerror = (error) => {
  
 connection.onmessage = (e) => {
   var msg = JSON.parse(e.data)
-  console.log(msg['message'])
 
   if (msg.hasOwnProperty('message')) {
     var graph = JSON.parse(msg['message'])
@@ -37,7 +36,7 @@ connection.onmessage = (e) => {
           .floatField('value', parseFloat(graph.graph.value))
           .timestamp(new Date())
       
-        console.log(point1);
+        console.log("point1",point1);
         writeApi.writePoint(point1)
         writeApi.flush()
       }

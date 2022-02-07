@@ -71,6 +71,23 @@ services:
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
 
+  api:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: api
+    image: api:latest
+    environment: 
+      - "EVENTS=events"
+      - "GIT_LOGIN=https://radiantone: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@github.com"
+    ports:
+      - 8014:8003
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
+
   agent2:
     build: 
       context: .
@@ -156,6 +173,8 @@ services:
       - ./app/dist/spa:/var/share/html
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
+    depends_on:
+      - api
     ports:
       - 80:80
       - 443:443
