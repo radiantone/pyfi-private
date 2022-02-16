@@ -19,7 +19,7 @@ from pyfi.blueprints.show import blueprint
 from pyfi.db.model import WorkerModel, AgentModel, NodeModel, DeploymentModel
 from pyfi.worker import WorkerService
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
