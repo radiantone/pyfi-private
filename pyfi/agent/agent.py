@@ -830,8 +830,8 @@ class AgentService:
 
                             with self.get_session() as session:
                                 session.add(processor["processor"])
-                    break
-                
+
+
             manage_processors(workers, processors)
 
         #########################################################################
