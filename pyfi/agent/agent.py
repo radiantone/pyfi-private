@@ -329,6 +329,7 @@ class AgentService:
 
                     with self.get_session() as session:
                         session.add(self.node)
+                        session.commit()
 
                     time.sleep(3)
                     sm = psutil.virtual_memory()
@@ -437,6 +438,8 @@ class AgentService:
 
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
+                    logging.info("Processors[] length %s",len(processors))
+                    
                     for processor in processors:
 
                         logging.debug(

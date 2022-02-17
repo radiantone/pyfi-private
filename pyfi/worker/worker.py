@@ -1577,14 +1577,13 @@ class WorkerService:
                                                             #    "Sleeping %s", interval
                                                             #)
                                                             #time.sleep(interval)
-                                                            '''
+                                                            
                                                             scheduler.enter(
                                                                 interval,
                                                                 1,
                                                                 call_function,
                                                                 (scheduler, func, interval, args),
                                                             )
-                                                            '''
 
                                                         s = sched.scheduler(time.time, time.sleep)
                                                         s.enter(
