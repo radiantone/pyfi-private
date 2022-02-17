@@ -161,7 +161,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
     logging.info("Dispatching %s", socket)
 
-    '''
+    
     celery = Celery(include=processor.module)
 
     try:
@@ -222,7 +222,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     finally:
         pass
 
-    '''
+    
 
 class TaskInvokeException(Exception):
 
