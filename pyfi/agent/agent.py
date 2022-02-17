@@ -662,6 +662,8 @@ class AgentService:
                             Once a WorkerModel has been created with all the details, spawn `pyfi worker start` FROM the virtualenv after the gitrepo setup.py has been
                             installed.
                             """
+
+                            '''
                             if (
                                     "deployment" in processor
                                     and processor["deployment"].worker is None
@@ -834,7 +836,7 @@ class AgentService:
 
                             processor["processor"].requested_status = "ready"
                             processor["processor"].status = "running"
-
+                            '''
                             #with self.get_session() as session:
                             #    session.add(processor["processor"])
                         
