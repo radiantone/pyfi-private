@@ -626,7 +626,7 @@ class AgentService:
                             logging.error("Process died!")
 
                         logging.debug("Process worker is %s", processor["worker"])
-
+                        '''
                         if (
                                 processor["processor"].requested_status == "start"
                                 or (
@@ -835,9 +835,9 @@ class AgentService:
                             processor["processor"].requested_status = "ready"
                             processor["processor"].status = "running"
 
-                            with self.get_session() as session:
-                                session.add(processor["processor"])
-
+                            #with self.get_session() as session:
+                            #    session.add(processor["processor"])
+                        '''
                     
             manage_processors(workers, processors)
 
