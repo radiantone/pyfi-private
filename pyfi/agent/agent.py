@@ -307,13 +307,13 @@ class AgentService:
                 import shutil
                 import os
 
-                refresh = 0
+                
 
                 #########################################################################
                 # Main Loop
                 #########################################################################
                 while True:
-
+                    refresh = 0
                     def main_loop():
                             
                         self.database.session.refresh(self.agent)
