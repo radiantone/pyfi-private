@@ -1582,6 +1582,7 @@ class WorkerService:
                                                             (func,)
                                                         )
                                                         s.run()
+                                                        logging.debug("Scheduler completed.")
 
                                                     logging.info(
                                                         "Pre-dispatch plug.argument %s",
