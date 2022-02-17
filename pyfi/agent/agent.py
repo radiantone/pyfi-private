@@ -836,12 +836,12 @@ class AgentService:
                                             logging.info(
                                                 "-------------------------------------------------------"
                                             )
-
+                            '''
                             processor["processor"].requested_status = "ready"
                             processor["processor"].status = "running"
-                            '''
-                            #with self.get_session() as session:
-                            #    session.add(processor["processor"])
+                            
+                            with self.get_session() as session:
+                                session.add(processor["processor"])
                         
                     
             manage_processors(workers, processors)
