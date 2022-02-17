@@ -1614,6 +1614,7 @@ class WorkerService:
                                                         ),
                                                     )
                                                     job.start()
+                                                    logging.info("Starting thread")
                                                     '''
                                                     schedule_function(dispatcher,
                                                             socket.interval,
