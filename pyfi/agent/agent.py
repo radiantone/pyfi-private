@@ -312,7 +312,7 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-                    self.database.session.refresh(self.agent)
+                    #self.database.session.refresh(self.agent)
 
                     if self.agent.requested_status == "stop":
                         shutdown()
