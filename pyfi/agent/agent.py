@@ -319,8 +319,6 @@ class AgentService:
                     if self.agent.requested_status == "stop":
                         shutdown()
                     time.sleep(3)
-                    gc.collect()
-                    continue
                     #########################################################################
                     # Resource conditions
                     #########################################################################
@@ -336,7 +334,7 @@ class AgentService:
                     self.database.session.commit()
                     self.database.session.flush()
                     gc.collect()
-                    
+                    '''                    
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
