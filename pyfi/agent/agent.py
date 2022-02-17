@@ -449,7 +449,7 @@ class AgentService:
                         logging.info("Processors[] length %s",len(processors))
 
                         # TODO: Memory in this block
-                        
+                        '''
                         for processor in processors:
 
                             logging.debug(
@@ -601,7 +601,7 @@ class AgentService:
                             Otherwise, if processor requested state is 'update', then restart process
                             or if processor worker is None, restart it (e.g. on startup)
                             """
-                            '''
+                            
                             process_died = False
                             if "worker" in processor:
                                 try:
@@ -848,7 +848,7 @@ class AgentService:
                                 
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
-                            '''
+                        '''
                         
                     time.sleep(3)
 
