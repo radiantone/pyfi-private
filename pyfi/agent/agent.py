@@ -601,6 +601,7 @@ class AgentService:
                             Otherwise, if processor requested state is 'update', then restart process
                             or if processor worker is None, restart it (e.g. on startup)
                             """
+                            '''
                             process_died = False
                             if "worker" in processor:
                                 try:
@@ -645,7 +646,7 @@ class AgentService:
                                     and processor["processor"].requested_status != "stopped"
                             )
                             ):
-                                '''
+                                
                                 logging.debug("process_died %s", process_died)
                                 logging.debug("worker %s", processor["worker"])
                                 logging.debug("requested_status %s", processor["processor"].requested_status)
@@ -847,7 +848,7 @@ class AgentService:
                                 
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
-                                '''
+                            '''
                         
                     time.sleep(3)
 
