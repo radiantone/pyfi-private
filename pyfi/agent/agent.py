@@ -441,6 +441,8 @@ class AgentService:
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
+
+                        # TODO: Memory in this block
                         '''
                         for processor in processors:
 
@@ -839,14 +841,15 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
 
-                        '''    
+                        '''
                     time.sleep(3)
 
-                    main_loop(refresh, processors)
+                    #main_loop(refresh, processors)
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
                     gc.collect()
+
             manage_processors(workers, processors)
 
         #########################################################################
