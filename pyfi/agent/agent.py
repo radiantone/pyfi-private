@@ -368,7 +368,7 @@ class AgentService:
                             # Loop through existing processor references and refresh from database
                             # Check for moved processors
 
-                            '''
+                            
                             for processor in processors:
                                 self.database.session.refresh(processor["processor"])
 
@@ -416,7 +416,7 @@ class AgentService:
                                                 )
                                                 container.kill()
 
-                            
+                            '''
                             # Loop through my database processors
                             for mydeployment in mydeployments:
                                 myprocessor = mydeployment.processor
