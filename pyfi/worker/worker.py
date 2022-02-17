@@ -4,7 +4,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 import configparser
 import logging
 
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import psutil
@@ -160,7 +160,6 @@ signal.signal(signal.SIGINT, shutdown)
 def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
     logging.info("Dispatching %s", socket)
-    return
     celery = Celery(include=processor.module)
 
     try:
@@ -195,10 +194,10 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
                 "name": plug.argument.name,
                 "kind": plug.argument.kind,
                 "key": plug.target.processor.name
-                       + "."
-                       + plug.target.task.module
-                       + "."
-                       + plug.target.task.name,
+                + "."
+                + plug.target.task.module
+                + "."
+                + plug.target.task.name,
                 "module": plug.target.task.module,
                 "function": plug.target.task.name,
                 "position": plug.argument.position,
@@ -223,12 +222,12 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
 
 class TaskInvokeException(Exception):
+
     tb = None
     exception = None
 
     def __init__(self):
         super().__init__()
-
 
 #########################################################################
 # WorkerService class
@@ -259,23 +258,23 @@ class WorkerService:
         connection.close()
 
     def __init__(
-            self,
-            processor: ProcessorModel,
-            workdir: str,
-            pool: int = 4,
-            port: int = 8020,
-            size: int = 10,
-            deployment: DeploymentModel = DeploymentModel,
-            database=None,
-            user: UserModel = UserModel,
-            usecontainer: bool = False,
-            workerport: int = 8020,
-            skipvenv: bool = False,
-            backend: str = "redis://localhost",
-            hostname: str = None,
-            agent: AgentModel = AgentModel,
-            celeryconfig=None,
-            broker: str = "pyamqp://localhost",
+        self,
+        processor:ProcessorModel,
+        workdir:str,
+        pool:int=4,
+        port:int=8020,
+        size:int=10,
+        deployment:DeploymentModel=DeploymentModel,
+        database=None,
+        user:UserModel=UserModel,
+        usecontainer:bool=False,
+        workerport:int=8020,
+        skipvenv:bool=False,
+        backend:str="redis://localhost",
+        hostname:str=None,
+        agent:AgentModel=AgentModel,
+        celeryconfig=None,
+        broker:str="pyamqp://localhost",
     ):
         """ """
         from pyfi.db.model import Base
@@ -390,8 +389,8 @@ class WorkerService:
 
             workerModel = self.workerModel = (
                 session.query(WorkerModel)
-                    .filter_by(name=hostname + ".agent." + self.processor.name + ".worker")
-                    .first()
+                .filter_by(name=hostname + ".agent." + self.processor.name + ".worker")
+                .first()
             )
 
             logging.info("Found worker {}".format(workerModel))
@@ -522,13 +521,13 @@ class WorkerService:
             with self.get_session(self.database) as session:
                 processor = (
                     session.query(ProcessorModel)
-                        .filter_by(id=self.processor.id)
-                        .first()
+                    .filter_by(id=self.processor.id)
+                    .first()
                 )
 
                 while True:
-                    # snapshot=tracemalloc.take_snapshot()
-                    # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
+                    #snapshot=tracemalloc.take_snapshot()
+                    #for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
 
                     session.refresh(processor)
@@ -582,9 +581,9 @@ class WorkerService:
                                     _signal["kwargs"]["tracking"] = str(uuid4())
 
                                 processor_path = (
-                                        _socket.queue.name
-                                        + "."
-                                        + processor.name.replace(" ", ".")
+                                    _socket.queue.name
+                                    + "."
+                                    + processor.name.replace(" ", ".")
                                 )
 
                                 _data = [
@@ -597,7 +596,7 @@ class WorkerService:
                                     },
                                 ]
 
-                                # self.queue.put(_data)
+                                #self.queue.put(_data)
 
                                 call = CallModel(
                                     id=myid,
@@ -616,9 +615,9 @@ class WorkerService:
                                 event = EventModel(
                                     name="received",
                                     note="Received task "
-                                         + processor.module
-                                         + "."
-                                         + _socket.task.name,
+                                    + processor.module
+                                    + "."
+                                    + _socket.task.name,
                                 )
 
                                 session.add(event)
@@ -653,9 +652,9 @@ class WorkerService:
                                     parent = _signal["kwargs"]["parent"]
 
                                 processor_path = (
-                                        _socket.queue.name
-                                        + "."
-                                        + processor.name.replace(" ", ".")
+                                    _socket.queue.name
+                                    + "."
+                                    + processor.name.replace(" ", ".")
                                 )
 
                                 _data = [
@@ -687,8 +686,8 @@ class WorkerService:
                                 logging.info("Looking up call %s", _signal["taskid"])
                                 call = (
                                     session.query(CallModel)
-                                        .filter_by(celeryid=_signal["taskid"])
-                                        .first()
+                                    .filter_by(celeryid=_signal["taskid"])
+                                    .first()
                                 )
 
                                 if call is None:
@@ -700,8 +699,8 @@ class WorkerService:
                                     )
                                     call = (
                                         session.query(CallModel)
-                                            .filter_by(celeryid=_signal["taskid"])
-                                            .first()
+                                        .filter_by(celeryid=_signal["taskid"])
+                                        .first()
                                     )
 
                                 if call is not None:
@@ -715,9 +714,9 @@ class WorkerService:
                                     event = EventModel(
                                         name="prerun",
                                         note="Prerun for task "
-                                             + processor.module
-                                             + "."
-                                             + _socket.task.name,
+                                        + processor.module
+                                        + "."
+                                        + _socket.task.name,
                                     )
                                     call.tracking = _signal["kwargs"]["tracking"]
                                     session.add(event)
@@ -797,15 +796,16 @@ class WorkerService:
 
                         sourceplugs = {}
                         data = {
-                            "module": self.processor.module,
-                            "date": str(datetime.now()),
-                            "resultkey": "celery-task-meta-"
-                                         + _signal["taskid"],
-                            "message": "Processor message",
-                            "channel": "task",
-                            "room": processor.name,
-                            "task": _signal["sender"]
-                        }
+                                    "module": self.processor.module,
+                                    "date": str(datetime.now()),
+                                    "resultkey": "celery-task-meta-"
+                                    + _signal["taskid"],
+                                    "message": "Processor message",
+                                    "channel": "task",
+                                    "room": processor.name,
+                                    "task": _signal["sender"]
+                                }
+
 
                         # Dispatch result to connected plugs
                         for socket in processor.sockets:
@@ -819,9 +819,9 @@ class WorkerService:
 
                                 # Build path to the task
                                 processor_path = (
-                                        socket.queue.name
-                                        + "."
-                                        + processor.name.replace(" ", ".")
+                                    socket.queue.name
+                                    + "."
+                                    + processor.name.replace(" ", ".")
                                 )
 
                                 # Create data record for this event
@@ -829,7 +829,7 @@ class WorkerService:
                                     "module": self.processor.module,
                                     "date": str(datetime.now()),
                                     "resultkey": "celery-task-meta-"
-                                                 + _signal["taskid"],
+                                    + _signal["taskid"],
                                     "message": "Processor message",
                                     "channel": "task",
                                     "room": processor.name,
@@ -840,9 +840,10 @@ class WorkerService:
                                 data["message"] = payload
                                 break
 
+
                         # Add task result to data record
                         _r = _signal["result"]
-                        logging.info("RESULT2: %s %s", type(_r), _r)
+                        logging.info("RESULT2: %s %s",type(_r), _r)
                         try:
                             result = json.dumps(_r, indent=4)
                         except:
@@ -893,9 +894,7 @@ class WorkerService:
                             processor_plug = sourceplugs[pname]
 
                             if data["error"] and processor_plug.type != "ERROR":
-                                logging.info(
-                                    "Skipping non-error processor plug {} for data error {}".format(processor_plug,
-                                                                                                    data))
+                                logging.info("Skipping non-error processor plug {} for data error {}".format(processor_plug, data))
                                 continue
 
                             logging.info("Using PLUG: %s", processor_plug)
@@ -910,8 +909,8 @@ class WorkerService:
 
                             target_processor = (
                                 session.query(ProcessorModel)
-                                    .filter_by(id=processor_plug.target.processor_id)
-                                    .first()
+                                .filter_by(id=processor_plug.target.processor_id)
+                                .first()
                             )
 
                             key = processor_plug.target.queue.name
@@ -952,15 +951,15 @@ class WorkerService:
                                 and pass the data along"""
 
                                 tkey = (
-                                        key
-                                        + "."
-                                        + target_processor.name.replace(" ", ".")
-                                        + "."
-                                        + processor_plug.target.task.name
+                                    key
+                                    + "."
+                                    + target_processor.name.replace(" ", ".")
+                                    + "."
+                                    + processor_plug.target.task.name
                                 )
 
                                 tkey2 = (
-                                        key + "." + "." + processor_plug.target.task.name
+                                    key + "." + "." + processor_plug.target.task.name
                                 )
 
                                 logging.info("Sending {} to queue {}".format(msg, tkey))
@@ -986,7 +985,7 @@ class WorkerService:
                                             processor_plug.queue.name, type="direct"
                                         ),
                                         routing_key=processor.name
-                                                    + ".pyfi.celery.tasks.enqueue",
+                                        + ".pyfi.celery.tasks.enqueue",
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
                                         expires=processor_plug.queue.expires,
@@ -1041,7 +1040,7 @@ class WorkerService:
                                     logging.info("worker queue %s", worker_queue)
                                     logging.info("task queue %s", worker_queue)
                                     task_sig = None
-
+                                    
                                     # Create task signature
                                     try:
                                         logging.info("PASS_KWARGS: %s", pass_kwargs)
@@ -1055,10 +1054,10 @@ class WorkerService:
                                                 "name": processor_plug.argument.name,
                                                 "kind": processor_plug.argument.kind,
                                                 "key": processor_plug.target.processor.name
-                                                       + "."
-                                                       + processor_plug.target.task.module
-                                                       + "."
-                                                       + processor_plug.target.task.name,
+                                                + "."
+                                                + processor_plug.target.task.module
+                                                + "."
+                                                + processor_plug.target.task.name,
                                                 "module": processor_plug.target.task.module,
                                                 "function": processor_plug.target.task.name,
                                                 "position": processor_plug.argument.position,
@@ -1206,18 +1205,18 @@ class WorkerService:
 
                 logging.info("My processor is: {}".format(self.processor))
                 logging.info("Processor sockets: {}".format(self.processor.sockets))
-
+                
                 _processor = (
                     session.query(ProcessorModel)
-                        .filter_by(
+                    .filter_by(
                         id=self.processor.id
                     )
-                        .first()
+                    .first()
                 )
                 if (
-                        _processor
-                        and _processor.sockets
-                        and len(_processor.sockets) > 0
+                    _processor
+                    and _processor.sockets
+                    and len(_processor.sockets) > 0
                 ):
                     logging.info("Setting up sockets...")
                     for socket in _processor.sockets:
@@ -1232,9 +1231,9 @@ class WorkerService:
                             # a message to all the connected queues however sending a task to
                             # this queue will deliver to this processor only
                             processor_path = (
-                                    socket.queue.name
-                                    + "."
-                                    + _processor.name.replace(" ", ".")
+                                socket.queue.name
+                                + "."
+                                + _processor.name.replace(" ", ".")
                             )
 
                             logging.info("Joining room %s", processor_path)
@@ -1242,14 +1241,14 @@ class WorkerService:
                                 queues += [processor_path]
 
                             processor_task = (
-                                    socket.queue.name
-                                    + "."
-                                    + _processor.name.replace(" ", ".")
-                                    + "."
-                                    + socket.task.name
+                                socket.queue.name
+                                + "."
+                                + _processor.name.replace(" ", ".")
+                                + "."
+                                + socket.task.name
                             )
                             processor_task2 = (
-                                    _processor.module + "." + socket.task.name
+                                _processor.module + "." + socket.task.name
                             )
 
                             if processor_task not in queues:
@@ -1275,7 +1274,7 @@ class WorkerService:
                                     processor_plug.queue.name,
                                     Exchange(processor_plug.queue.name, type="direct"),
                                     routing_key=self.processor.name
-                                                + ".pyfi.celery.tasks.enqueue",
+                                    + ".pyfi.celery.tasks.enqueue",
                                     message_ttl=processor_plug.queue.message_ttl,
                                     durable=processor_plug.queue.durable,
                                     expires=processor_plug.queue.expires,
@@ -1305,10 +1304,10 @@ class WorkerService:
                                         type="direct",
                                     ),
                                     routing_key=socket.queue.name
-                                                + "."
-                                                + self.processor.name.replace(" ", ".")
-                                                + "."
-                                                + socket.task.name,
+                                    + "."
+                                    + self.processor.name.replace(" ", ".")
+                                    + "."
+                                    + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
@@ -1333,8 +1332,8 @@ class WorkerService:
                                         type="direct",
                                     ),
                                     routing_key=self.processor.module
-                                                + "."
-                                                + socket.task.name,
+                                    + "."
+                                    + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
@@ -1370,7 +1369,7 @@ class WorkerService:
 
                             task_routes[
                                 self.processor.module + "." + socket.task.name
-                                ] = {
+                            ] = {
                                 "queue": socket.queue.name,
                                 "exchange": [
                                     socket.queue.name + ".topic",
@@ -1411,10 +1410,10 @@ class WorkerService:
                 try:
                     worker = app.Worker(
                         hostname=self.hostname
-                                 + "."
-                                 + _processor.name
-                                 + "@"
-                                 + HOSTNAME,
+                        + "."
+                        + _processor.name
+                        + "@"
+                        + HOSTNAME,
                         backend=self.backend,
                         broker=self.broker,
                         beat=_processor.beat,
@@ -1436,10 +1435,10 @@ class WorkerService:
                     )
                     workerModel = (
                         session.query(WorkerModel)
-                            .filter_by(
+                        .filter_by(
                             name=HOSTNAME + ".agent." + _processor.name + ".worker"
                         )
-                            .first()
+                        .first()
                     )
 
                     logging.info("Created workerModel")
@@ -1477,11 +1476,11 @@ class WorkerService:
                         if socket.interval <= 0:
                             continue
                         tkey = (
-                                socket.queue.name
-                                + "."
-                                + self.processor.name.replace(" ", ".")
-                                + "."
-                                + socket.task.name
+                            socket.queue.name
+                            + "."
+                            + self.processor.name.replace(" ", ".")
+                            + "."
+                            + socket.task.name
                         )
 
                         worker_queue = KQueue(
@@ -1520,9 +1519,9 @@ class WorkerService:
 
                 logging.info("Configuring sockets")
                 if (
-                        _processor
-                        and _processor.sockets
-                        and len(_processor.sockets) > 0
+                    _processor
+                    and _processor.sockets
+                    and len(_processor.sockets) > 0
                 ):
                     for socket in _processor.sockets:
 
@@ -1559,7 +1558,7 @@ class WorkerService:
                                                     )
 
                                                     def schedule_function(
-                                                            func, interval, args
+                                                        func, interval, args
                                                     ):
                                                         import time
 
@@ -1568,7 +1567,7 @@ class WorkerService:
                                                                 "Calling function %s",
                                                                 func,
                                                             )
-                                                            func(*args)
+                                                            #func(*args)
                                                             logging.info(
                                                                 "Sleeping %s", interval
                                                             )
@@ -1633,13 +1632,13 @@ class WorkerService:
 
                         logging.info("TASK SOURCE: %s %s %s", socket.task.id, socket.task, socket.task.source)
                         _source = inspect.getsource(_func)
-                        # session.merge(socket)
+                        #session.merge(socket)
                         session.add(socket.task)
                         socket.task.source = _source
-                        logging.info("Updated source for %s %s %s", socket.task.id, socket.task, socket.task.source)
+                        logging.info("Updated source for %s %s %s",  socket.task.id, socket.task, socket.task.source)
                         session.commit()
-                        logging.info("TASK SOURCE:-> %s %s %s", socket.task.id, socket.task, socket.task.source)
-
+                        logging.info("TASK SOURCE:-> %s %s %s",  socket.task.id, socket.task, socket.task.source)
+                        
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
                         # such that for different processor types, the correct class is loaded
 
@@ -1698,8 +1697,8 @@ class WorkerService:
                                 _newargs = []
                                 for arg in socket.task.arguments:
                                     if (
-                                            arg.kind != Parameter.POSITIONAL_ONLY
-                                            and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
+                                        arg.kind != Parameter.POSITIONAL_ONLY
+                                        and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
                                     ):
                                         continue
 
@@ -1780,11 +1779,11 @@ class WorkerService:
                                     if _processor.detached:
                                         # Run command inside self.container
                                         with open(
-                                                "out/" + taskid + ".kwargs", "wb"
+                                            "out/" + taskid + ".kwargs", "wb"
                                         ) as kwargsfile:
                                             pickle.dump(kwargs, kwargsfile)
                                         with open(
-                                                "out/" + taskid + ".args", "wb"
+                                            "out/" + taskid + ".args", "wb"
                                         ) as argsfile:
                                             pickle.dump(args, argsfile)
 
@@ -1797,7 +1796,7 @@ class WorkerService:
 
                                         result = None
                                         with open(
-                                                "out/" + taskid + ".out", "rb"
+                                            "out/" + taskid + ".out", "rb"
                                         ) as outfile:
                                             result = pickle.load(outfile)
 
@@ -1820,7 +1819,7 @@ class WorkerService:
                                         import traceback
 
                                         _r = traceback.format_tb(ex.__traceback__)
-                                        print("_R EXCEPTION", _r)
+                                        print("_R EXCEPTION",_r)
                                         _ex = TaskInvokeException()
                                         _ex.tb = _r
                                         _ex.exception = ex
@@ -1846,9 +1845,9 @@ class WorkerService:
                             '.' + socket.task.name, retries=self.processor.retries)
                         """
 
-                        #@task_prerun.connect()
+                        @task_prerun.connect()
                         def pyfi_task_prerun(
-                                sender=None, task=None, task_id=None, *args, **kwargs
+                            sender=None, task=None, task_id=None, *args, **kwargs
                         ):
                             """Update args and kwargs before sending to task. Other bookeeping"""
                             from datetime import datetime
@@ -1887,6 +1886,7 @@ class WorkerService:
                                         "args": args,
                                     }
                                 )
+
 
                                 logging.info("Waiting on PRERUN REPLY")
                                 response = self.prerun_queue.get()
@@ -1928,7 +1928,7 @@ class WorkerService:
                             # Store task run data
                             pass
 
-                        #@task_received.connect()
+                        @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info(
                                 "Task RECEIVED REQUEST %s %s %s",
@@ -1955,7 +1955,7 @@ class WorkerService:
                                 {
                                     "signal": "received",
                                     "sender": _function_name[0],
-                                    "kwargs": {"tracking": tracking},
+                                    "kwargs": {"tracking":tracking},
                                     "request": request.id,
                                     "taskparent": request.parent_id,
                                     "taskid": request.id,
@@ -1965,7 +1965,7 @@ class WorkerService:
                                 {
                                     "signal": "received",
                                     "sender": _function_name[0],
-                                    "kwargs": {"tracking": tracking},
+                                    "kwargs": {"tracking":tracking},
                                     "request": request.id,
                                     "taskparent": request.parent_id,
                                     "taskid": request.id,
@@ -1980,14 +1980,14 @@ class WorkerService:
                             print("GOT RECEIVED REPLY ", _kwargs)
                             print("New KWARGS ARE:", kwargs)
 
-                        #@task_postrun.connect()
+                        @task_postrun.connect()
                         def pyfi_task_postrun(
-                                sender=None,
-                                task_id=None,
-                                task=None,
-                                retval=None,
-                                *args,
-                                **kwargs,
+                            sender=None,
+                            task_id=None,
+                            task=None,
+                            retval=None,
+                            *args,
+                            **kwargs,
                         ):
                             from datetime import datetime
                             from uuid import uuid4
@@ -2014,6 +2014,7 @@ class WorkerService:
                                     "args": args,
                                 },
                             )
+
 
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
@@ -2072,10 +2073,10 @@ class WorkerService:
                 logging.info("Current directory: %s", os.getcwd())
 
                 if (
-                        self.worker
-                        and self.worker.workerdir
-                        and os.path.exists(self.worker.workerdir)
-                        and os.path.exists(self.worker.workerdir + "/git")
+                    self.worker
+                    and self.worker.workerdir
+                    and os.path.exists(self.worker.workerdir)
+                    and os.path.exists(self.worker.workerdir + "/git")
                 ):
                     logging.info(
                         "Changing to existing work directory %s", self.worker.workerdir
