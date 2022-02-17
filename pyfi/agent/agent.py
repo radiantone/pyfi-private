@@ -315,11 +315,8 @@ class AgentService:
                 while True:
 
                     def main_loop(refresh, processors, workers):
-                        process = psutil.Process(os.getpid())
-                        print(process.memory_info().rss)  # in bytes 
-
-
-                        #self.database.session.refresh(self.agent)
+                        
+                        self.database.session.refresh(self.agent)
                         logging.debug("Agent looping")
 
                         if self.agent.requested_status == "stop":
@@ -858,7 +855,9 @@ class AgentService:
                         
                     time.sleep(3)
 
-                    main_loop(refresh, processors, workers)
+                    #main_loop(refresh, processors, workers)
+                    process = psutil.Process(os.getpid())
+                    print(process.memory_info().rss)  # in bytes 
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
