@@ -319,6 +319,7 @@ class AgentService:
                     if self.agent.requested_status == "stop":
                         shutdown()
                     time.sleep(3)
+                    gc.collect()
                     continue
                     #########################################################################
                     # Resource conditions
