@@ -668,6 +668,7 @@ class AgentService:
                                 """
 
                                 logging.debug("Current processor %s", processor)
+                                '''
                                 if (
                                         "deployment" in processor
                                         and processor["deployment"].worker is None
@@ -721,7 +722,7 @@ class AgentService:
 
                                     logging.info("Worker %s created.", worker_model.id)
                                     
-                                '''
+                                
                                 if processor["worker"] is None or process_died:
                                     # If there is no worker Process create it
                                     worker = {}
