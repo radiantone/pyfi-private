@@ -440,6 +440,7 @@ class AgentService:
                                     processors += [
                                         {"worker": None, "processor": myprocessor}
                                     ]
+                                    logging.info("PROCESSORS LENGTH %s",len(processors))
                                     logging.info("Added processor %s", myprocessor)
                                 
                             
