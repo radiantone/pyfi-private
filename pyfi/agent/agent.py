@@ -327,13 +327,14 @@ class AgentService:
                     self.node.freemem = _vmem.free
                     self.node.memused = _vmem.percent
 
+                    time.sleep(3)
+
+                    '''
                     with self.get_session() as session:
                         session.add(self.node)
                         session.commit()
 
-                    time.sleep(3)
 
-                    '''
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
