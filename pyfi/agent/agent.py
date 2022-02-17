@@ -423,7 +423,7 @@ class AgentService:
                                 self.database.session.refresh(
                                     myprocessor
                                 )  # Might not be needed
-                                '''
+                                
                                 if myprocessor.requested_status == "move":
                                     continue
 
@@ -441,7 +441,7 @@ class AgentService:
                                         {"worker": None, "processor": myprocessor}
                                     ]
                                     logging.info("Added processor %s", myprocessor)
-                                '''
+                                
                             
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
