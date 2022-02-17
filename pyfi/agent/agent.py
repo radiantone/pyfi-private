@@ -705,7 +705,7 @@ class AgentService:
                                 worker_model.status = "running"
                                 worker_model.processor = processor["processor"]
 
-                                '''
+                                
                                 with self.get_session() as session:
                                     session.add(self.agent)
                                     session.add(worker_model)
