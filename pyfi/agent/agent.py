@@ -329,12 +329,11 @@ class AgentService:
 
                     time.sleep(3)
 
+                    self.database.session.add(self.node)
+                    self.database.session.commit()
+                    self.database.session.flush()
+
                     '''
-                    with self.get_session() as session:
-                        session.add(self.node)
-                        session.commit()
-
-
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
