@@ -669,7 +669,7 @@ class AgentService:
                                     and processor["deployment"].worker is None
                             ):
                                 """If there is no worker model, create one and link to Processor"""
-
+                                logging.debug("Querying for worker model")
                                 # TODO: Not sure this is needed since worker now puts worker model row in database
                                 worker_model = (
                                     self.database.session.query(WorkerModel)
