@@ -313,6 +313,7 @@ class AgentService:
                 #########################################################################
                 while True:
                     #self.database.session.refresh(self.agent)
+                    logging.debug("Agent looping")
 
                     if self.agent.requested_status == "stop":
                         shutdown()
@@ -331,6 +332,8 @@ class AgentService:
                         session.commit()
 
                     time.sleep(3)
+
+                    '''
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
@@ -831,7 +834,7 @@ class AgentService:
                             with self.get_session() as session:
                                 session.add(processor["processor"])
 
-
+                    '''
             manage_processors(workers, processors)
 
         #########################################################################
