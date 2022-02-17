@@ -223,7 +223,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
         pass
 
     '''
-    
+
 class TaskInvokeException(Exception):
 
     tb = None
@@ -1571,7 +1571,7 @@ class WorkerService:
                                                                 "Calling function %s",
                                                                 func,
                                                             )
-                                                            func(*args)
+                                                            #func(*args)
                                                             #logging.info(
                                                             #    "Sleeping %s", interval
                                                             #)
