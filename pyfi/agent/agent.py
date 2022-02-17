@@ -356,7 +356,7 @@ class AgentService:
                         mydeployments = []
 
                         # Gather host information and update node
-                        '''
+                        
                         if refresh == 0:
                             logging.debug("Refreshing...")
                             mydeployments = (
@@ -367,7 +367,7 @@ class AgentService:
                                                 
                             # Loop through existing processor references and refresh from database
                             # Check for moved processors
-
+                            '''
                             
                             for processor in processors:
                                 self.database.session.refresh(processor["processor"])
@@ -443,7 +443,9 @@ class AgentService:
                                     logging.info("PROCESSORS LENGTH %s",len(processors))
                                     logging.info("Added processor %s", myprocessor)
                                 
-                            
+                            '''
+
+                        '''
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
