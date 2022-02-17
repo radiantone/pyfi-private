@@ -1571,7 +1571,7 @@ class WorkerService:
                                                                 "Calling function %s %s",
                                                                 func, args
                                                             )
-                                                            #func(*args)
+                                                            func(*args)
                                                             #logging.info(
                                                             #    "Sleeping %s", interval
                                                             #)
