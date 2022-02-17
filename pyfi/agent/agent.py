@@ -699,6 +699,7 @@ class AgentService:
                                         requested_status="start",
                                     )
 
+                                logging.debug("Adding worker model")
                                 processor["deployment"].worker = worker_model
                                 worker_model.lastupdated = datetime.now()
                                 worker_model.status = "running"
