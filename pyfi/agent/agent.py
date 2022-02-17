@@ -312,7 +312,6 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-                    time.sleep(200)
                     self.database.session.refresh(self.agent)
 
                     if self.agent.requested_status == "stop":
@@ -832,6 +831,8 @@ class AgentService:
                             with self.get_session() as session:
                                 session.add(processor["processor"])
 
+
+                    time.sleep(200)
             manage_processors(workers, processors)
 
         #########################################################################
