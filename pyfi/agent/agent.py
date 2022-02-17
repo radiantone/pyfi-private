@@ -705,7 +705,7 @@ class AgentService:
                                 worker_model.status = "running"
                                 worker_model.processor = processor["processor"]
 
-                                '''
+                                
                                 with self.get_session() as session:
                                     session.add(self.agent)
                                     session.add(worker_model)
@@ -716,7 +716,7 @@ class AgentService:
                                     self.agent.workers += [worker_model]
 
                                 logging.info("Worker %s created.", worker_model.id)
-                                '''
+                                
                             '''
                             if processor["worker"] is None or process_died:
                                 # If there is no worker Process create it
