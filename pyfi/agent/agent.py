@@ -355,6 +355,7 @@ class AgentService:
                     # Gather host information and update node
 
                     if refresh == 0:
+                        logging.debug("Refreshing...")
                         mydeployments = (
                             self.database.session.query(DeploymentModel)
                                 .filter_by(hostname=HOSTNAME)
