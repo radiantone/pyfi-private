@@ -313,6 +313,7 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
+
                     def main_loop(refresh, processors):
                             
                         self.database.session.refresh(self.agent)
@@ -366,6 +367,8 @@ class AgentService:
                                                 
                             # Loop through existing processor references and refresh from database
                             # Check for moved processors
+
+                            '''
                             for processor in processors:
                                 self.database.session.refresh(processor["processor"])
 
@@ -438,6 +441,7 @@ class AgentService:
                                     ]
                                     logging.info("Added processor %s", myprocessor)
 
+                            '''
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
@@ -844,7 +848,7 @@ class AgentService:
                         '''
                     time.sleep(3)
 
-                    #main_loop(refresh, processors)
+                    main_loop(refresh, processors)
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
