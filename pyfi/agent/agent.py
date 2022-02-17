@@ -645,7 +645,7 @@ class AgentService:
                                     and processor["processor"].requested_status != "stopped"
                             )
                             ):
-
+                                '''
                                 logging.debug("process_died %s", process_died)
                                 logging.debug("worker %s", processor["worker"])
                                 logging.debug("requested_status %s", processor["processor"].requested_status)
@@ -668,7 +668,7 @@ class AgentService:
                                 """
 
                                 logging.debug("Current processor %s", processor)
-                                '''
+                                
                                 if (
                                         "deployment" in processor
                                         and processor["deployment"].worker is None
