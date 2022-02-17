@@ -663,7 +663,7 @@ class AgentService:
                             installed.
                             """
 
-                            
+                            logging.debug("Current processor %s", processor)
                             if (
                                     "deployment" in processor
                                     and processor["deployment"].worker is None
