@@ -360,7 +360,7 @@ class AgentService:
                                 .filter_by(hostname=HOSTNAME)
                                 .all()
                         )
-                        break
+                        '''
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
@@ -434,6 +434,7 @@ class AgentService:
                                 ]
                                 logging.info("Added processor %s", myprocessor)
 
+                        '''
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
