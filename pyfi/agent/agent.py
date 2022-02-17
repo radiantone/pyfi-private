@@ -318,6 +318,7 @@ class AgentService:
 
                     if self.agent.requested_status == "stop":
                         shutdown()
+                    time.sleep(3)
                     continue
                     #########################################################################
                     # Resource conditions
