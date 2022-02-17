@@ -1568,8 +1568,8 @@ class WorkerService:
 
                                                         def call_function(scheduler, func, interval, args):
                                                             logging.info(
-                                                                "Calling function %s",
-                                                                func,
+                                                                "Calling function %s %s",
+                                                                func, args
                                                             )
                                                             #func(*args)
                                                             #logging.info(
