@@ -312,7 +312,7 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-
+                    time.sleep(200)
                     self.database.session.refresh(self.agent)
 
                     if self.agent.requested_status == "stop":
@@ -439,7 +439,7 @@ class AgentService:
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     logging.info("Processors[] length %s",len(processors))
-                    
+
                     for processor in processors:
 
                         logging.debug(
