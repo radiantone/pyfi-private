@@ -449,7 +449,7 @@ class AgentService:
                         logging.info("Processors[] length %s",len(processors))
 
                         # TODO: Memory in this block
-                        '''
+                        
                         for processor in processors:
 
                             logging.debug(
@@ -847,7 +847,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
 
-                        '''
+                        
                     time.sleep(3)
 
                     main_loop(refresh, processors)
