@@ -1577,7 +1577,7 @@ class WorkerService:
                                                                 interval,
                                                                 1,
                                                                 call_function,
-                                                                (scheduler, interval, func, args),
+                                                                (scheduler, func, interval, args),
                                                             )
 
                                                         s = sched.scheduler(time.time, time.sleep)
