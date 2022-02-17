@@ -5,6 +5,7 @@ import configparser
 import logging
 
 #logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+import gc
 import os
 import platform
 import psutil
@@ -532,7 +533,7 @@ class WorkerService:
                     #snapshot=tracemalloc.take_snapshot()
                     #for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
-
+                    gc.collect()
                     session.refresh(processor)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
