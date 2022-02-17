@@ -306,15 +306,14 @@ class AgentService:
                 import psutil
                 import shutil
                 import os
-
                 
+                refresh = 0
 
                 #########################################################################
                 # Main Loop
                 #########################################################################
                 while True:
-                    refresh = 0
-                    def main_loop():
+                    def main_loop(refresh):
                             
                         self.database.session.refresh(self.agent)
                         logging.debug("Agent looping")
@@ -436,10 +435,6 @@ class AgentService:
                                         {"worker": None, "processor": myprocessor}
                                     ]
                                     logging.info("Added processor %s", myprocessor)
-
-                        refresh += 1
-                        if refresh >= 3:  # 3 cycle interval
-                            refresh = 0
 
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
@@ -844,7 +839,10 @@ class AgentService:
                             
                     time.sleep(3)
 
-                    main_loop()
+                    main_loop(refresh)
+                    refresh += 1
+                    if refresh >= 3:  # 3 cycle interval
+                        refresh = 0
                     gc.collect()
             manage_processors(workers, processors)
 
