@@ -318,8 +318,8 @@ class AgentService:
                         process = psutil.Process(os.getpid())
                         print(process.memory_info().rss)  # in bytes 
 
-                        
-                        self.database.session.refresh(self.agent)
+
+                        #self.database.session.refresh(self.agent)
                         logging.debug("Agent looping")
 
                         if self.agent.requested_status == "stop":
