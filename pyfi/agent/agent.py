@@ -332,9 +332,7 @@ class AgentService:
 
                     self.database.session.add(self.node)
                     self.database.session.commit()
-                    self.database.session.flush()
-                    gc.collect()
-                    continue           
+                    self.database.session.flush()  
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
@@ -439,6 +437,8 @@ class AgentService:
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
 
+                    gc.collect()
+                    continue         
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     logging.info("Processors[] length %s",len(processors))
