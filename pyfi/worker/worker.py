@@ -1563,7 +1563,7 @@ class WorkerService:
                                                         import time
                                                         import sched
 
-                                                        def call_function(func):
+                                                        def call_function(scheduler, func, interval, args):
                                                             logging.info(
                                                                 "Calling function %s",
                                                                 func,
@@ -1573,13 +1573,19 @@ class WorkerService:
                                                             #    "Sleeping %s", interval
                                                             #)
                                                             #time.sleep(interval)
+                                                            scheduler.enter(
+                                                                interval,
+                                                                1,
+                                                                call_function,
+                                                                (scheduler, interval, func, args),
+                                                            )
 
                                                         s = sched.scheduler(time.time, time.sleep)
                                                         s.enter(
                                                             interval,
                                                             1,
                                                             call_function,
-                                                            (func,)
+                                                            (s, func, interval, args)
                                                         )
                                                         s.run()
                                                         logging.debug("Scheduler completed.")
