@@ -14,6 +14,7 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
+
 class TheMeta(type):
     def __new__(meta, name, bases, attributes):
         # Check if args contains the number "42" 
@@ -23,7 +24,6 @@ class TheMeta(type):
         return super(TheMeta, meta).__new__(meta, name, bases, attributes)
 
     def __init__(cls, name, bases, dct):
-            
         logging.debug("TheMeta init")
         super(TheMeta, cls).__init__(name, bases, dct)
 
@@ -35,9 +35,8 @@ class ProcessorBase:
         import types
 
         logging.debug("ProcessorBase init")
-        logging.debug("ProcessorBase: sockets: %s",self.__sockets__)
+        logging.debug("ProcessorBase: sockets: %s", self.__sockets__)
         for socket in self.__sockets__:
-
             def wait(self, *args, taskid=None):
                 """ Retrive result for task """
                 from celery.result import AsyncResult
@@ -49,7 +48,7 @@ class ProcessorBase:
 
                 app.config_from_object(config)
                 """ Given the taskid, return an asynchronous result """
-                res = AsyncResult(taskid,app=app)
+                res = AsyncResult(taskid, app=app)
 
                 return res
 
@@ -62,16 +61,15 @@ class ProcessorBase:
             _function = types.MethodType(socket_dispatch, self)
             _sock = Socket(name=socket.name, user=USER)
             _wait = types.MethodType(wait, _sock)
-            setattr(_sock,'get',_wait)
-            setattr(self,socket.task.name,_sock )
-        
+            setattr(_sock, 'get', _wait)
+            setattr(self, socket.task.name, _sock)
+
 
 class HTTPProcessor(ProcessorBase):
-    
+
     def __init__(self, *args):
         logging.debug("HTTPProcessor init")
         super(HTTPProcessor, self).__init__(*args)
 
     def http_get(self, *args, **kwargs):
         logging.info("http_get %s %s", args, kwargs)
-    

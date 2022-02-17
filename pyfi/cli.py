@@ -221,8 +221,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
                 user_m = (
                     session.query(UserModel)
-                    .filter_by(name=username, password=password)
-                    .first()
+                        .filter_by(name=username, password=password)
+                        .first()
                 )
                 # context.obj['user'] = user_m
                 # context.obj['database'].session.add(user_m)
@@ -256,8 +256,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             session = sessionmaker(bind=engine)()
             _user = (
                 session.query(UserModel)
-                .filter_by(name=username, password=password)
-                .first()
+                    .filter_by(name=username, password=password)
+                    .first()
             )
             permissions = {
                 SchedulerModel: "read",
@@ -352,9 +352,9 @@ def user_add(context, user, role, privilege):
     if role:
         role_m = (
             context.obj["database"]
-            .session.query(RoleModel)
-            .filter_by(name=role)
-            .first()
+                .session.query(RoleModel)
+                .filter_by(name=role)
+                .first()
         )
         print("ROLE:", role_m)
         user_m.roles += [role_m]
@@ -459,9 +459,9 @@ def login(context, database):
     if not database:
         user_m = (
             context.obj["database"]
-            .session.query(UserModel)
-            .filter_by(name=user, password=password)
-            .first()
+                .session.query(UserModel)
+                .filter_by(name=user, password=password)
+                .first()
         )
 
         if user_m is not None:
@@ -475,16 +475,16 @@ def login(context, database):
     dburi = CONFIG.get("database", "uri")
     uri = urlparse(dburi)
     newuri = (
-        uri.scheme
-        + "://"
-        + user
-        + ":"
-        + __password
-        + "@"
-        + uri.hostname
-        + ":"
-        + str(uri.port)
-        + uri.path
+            uri.scheme
+            + "://"
+            + user
+            + ":"
+            + __password
+            + "@"
+            + uri.hostname
+            + ":"
+            + str(uri.port)
+            + uri.path
     )
     CONFIG.set("database", "uri", newuri)
     CONFIG.set("login", "password", password)
@@ -562,22 +562,21 @@ def network(context):
 
 
 @network.command(name="add")
-@click.option("-n","--name", help="Name of network")
-@click.option("-nd","--node", help="Name of node to add")
+@click.option("-n", "--name", help="Name of network")
+@click.option("-nd", "--node", help="Name of node to add")
 @click.pass_context
 def add_node_to_network(context, name, node):
-
     network = (
         context.obj["database"]
-        .session.query(NetworkModel)
-        .filter_by(name=name)
-        .first()
+            .session.query(NetworkModel)
+            .filter_by(name=name)
+            .first()
     )
     node = (
         context.obj["database"]
-        .session.query(NodeModel)
-        .filter_by(name=node)
-        .first()
+            .session.query(NodeModel)
+            .filter_by(name=node)
+            .first()
     )
 
     network.nodes += [node]
@@ -669,10 +668,10 @@ def db_drop(context, yes):
     try:
         if not yes:
             if click.confirm(
-                "Are you sure you want to drop the database?", default=False
+                    "Are you sure you want to drop the database?", default=False
             ):
                 if click.confirm(
-                    "Are you REALLY sure you want to drop the database?", default=False
+                        "Are you REALLY sure you want to drop the database?", default=False
                 ):
                     dropdb(context)
                 else:
@@ -842,9 +841,9 @@ def remove_processor(context):
     """
     processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(id=context.obj["id"])
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=context.obj["id"])
+            .first()
     )
     # Business logic here?
     processor.requested_status = "removed"
@@ -869,17 +868,17 @@ def pause_processor(context, name):
         print("Pausing ", name)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         print("Pausing ", id)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     # Business logic here?
@@ -907,17 +906,17 @@ def resume_processor(context, name):
         print("Pausing ", name)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         print("Pausing ", id)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     # Business logic here?
@@ -945,17 +944,17 @@ def stop_processor(context, name):
         print("Stopping", name)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         print("Stopping ", id)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     # Business logic here?
@@ -978,6 +977,7 @@ def start_server(context, port):
 
     app.run(host='0.0.0.0', port=port, debug=True)
 
+
 @proc.command(name="start")
 @click.option("-n", "--name", default=None, required=False)
 @click.pass_context
@@ -991,17 +991,17 @@ def start_processor(context, name):
         print("Starting", name)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         print("Starting", id)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     # Business logic here?
@@ -1025,17 +1025,17 @@ def restart_processor(context, name):
         print("Restarting", name)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         print("Restarting", id)
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     # Business logic here?
@@ -1075,7 +1075,6 @@ def delete():
 @click.option("-n", "--name", default=None, help="Name of network")
 @click.pass_context
 def delete_network(context, name):
-
     network = (
         context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
     )
@@ -1090,9 +1089,9 @@ def delete_network(context, name):
 def delete_deployment(context, name):
     deployment = (
         context.obj["database"]
-        .session.query(DeploymentModel)
-        .filter_by(name=name)
-        .first()
+            .session.query(DeploymentModel)
+            .filter_by(name=name)
+            .first()
     )
 
     if deployment.worker:
@@ -1160,9 +1159,9 @@ def delete_agent(context, name):
 def delete_processor(context, name):
     model = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(name=name)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
     )
 
     context.obj["database"].session.delete(model)
@@ -1244,17 +1243,17 @@ def add_node_to_scheduler(context, node):
     if name is not None:
         scheduler = (
             context.obj["database"]
-            .session.query(SchedulerModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(SchedulerModel)
+                .filter_by(name=name)
+                .first()
         )
 
     elif id is not None:
         scheduler = (
             context.obj["database"]
-            .session.query(SchedulerModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(SchedulerModel)
+                .filter_by(id=id)
+                .first()
         )
 
     if scheduler is None:
@@ -1382,9 +1381,9 @@ def run_task(context, name, format, socket, data, nodata, argument):
 
         _task = (
             context.obj["database"]
-            .session.query(TaskModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(TaskModel)
+                .filter_by(name=name)
+                .first()
         )
 
         if _task.code:
@@ -1482,16 +1481,16 @@ def update_object(obj, locals):
 @click.option("-br", "--branch", default=None, required=False)
 @click.pass_context
 def update_processor(
-    context,
-    name,
-    module,
-    hostname,
-    workers,
-    gitrepo,
-    commit,
-    beat,
-    requested_status,
-    branch,
+        context,
+        name,
+        module,
+        hostname,
+        workers,
+        gitrepo,
+        commit,
+        beat,
+        requested_status,
+        branch,
 ):
     """
     Update a processor in the database
@@ -1503,17 +1502,17 @@ def update_processor(
     if name is not None:
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
 
     elif id is not None:
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     if not hostname:
@@ -1692,7 +1691,7 @@ def add_task(context, name, module, code, repo):
 @click.option(
     "-d",
     "--deploy",
-    prompt=True, 
+    prompt=True,
     required=True,
     default=None,
     help="Name of this deployment",
@@ -1704,16 +1703,16 @@ def add_deployment(context, name, deploy, hostname, cpus):
     """ Add a deployment """
     processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(name=name)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
     )
 
     deployment = (
         context.obj["database"]
-        .session.query(DeploymentModel)
-        .filter_by(name=deploy)
-        .first()
+            .session.query(DeploymentModel)
+            .filter_by(name=deploy)
+            .first()
     )
 
     if deployment is not None:
@@ -1780,17 +1779,17 @@ def add_deployment(context, name, deploy, hostname, cpus):
 )
 @click.pass_context
 def add_processor(
-    context,
-    name,
-    module,
-    hostname,
-    workers,
-    retries,
-    gitrepo,
-    commit,
-    requested_status,
-    beat,
-    branch,
+        context,
+        name,
+        module,
+        hostname,
+        workers,
+        retries,
+        gitrepo,
+        commit,
+        requested_status,
+        beat,
+        branch,
 ):
     """
     Add processor to the database
@@ -1865,6 +1864,7 @@ def add_network(context, name):
     context.obj["database"].session.commit()
     print(f"Network {name} created.")
 
+
 @add.command(name="privilege")
 @click.option("-u", "--user", default=None, required=True)
 @click.option("-n", "--name", default=None, required=True)
@@ -1889,9 +1889,9 @@ def add_privilege(context, user, name, role):
         try:
             user = (
                 context.obj["database"]
-                .session.query(UserModel)
-                .filter_by(name=user)
-                .first()
+                    .session.query(UserModel)
+                    .filter_by(name=user)
+                    .first()
             )
             user.lastupdated = datetime.now()
             privilege = PrivilegeModel(id=id, name=name, right=name)
@@ -2088,10 +2088,10 @@ def update_task(context, name, module, code):
         _task.requested_status = "update"
         socket = (
             context.obj["database"]
-            .session.query(SocketModel)
-            .join(TaskModel)
-            .filter(SocketModel.task_id == TaskModel.id)
-            .first()
+                .session.query(SocketModel)
+                .join(TaskModel)
+                .filter(SocketModel.task_id == TaskModel.id)
+                .first()
         )
         socket.processor.requested_status = "update"
 
@@ -2119,9 +2119,9 @@ def update_socket(context, name, queue, interval, procid, procname, task):
     if name is not None:
         socket = (
             context.obj["database"]
-            .session.query(SocketModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(SocketModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         socket = (
@@ -2130,9 +2130,9 @@ def update_socket(context, name, queue, interval, procid, procname, task):
 
     processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(id=socket.processor_id)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=socket.processor_id)
+            .first()
     )
     if not interval and interval > 0:
         socket.interval = click.prompt("Interval", type=int, default=socket.interval)
@@ -2159,9 +2159,9 @@ def update_plug(context, name, queue, procid, procname):
     if name is not None:
         plug = (
             context.obj["database"]
-            .session.query(PlugModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(PlugModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         plug = context.obj["database"].session.query(PlugModel).filter_by(id=id).first()
@@ -2169,25 +2169,25 @@ def update_plug(context, name, queue, procid, procname):
     # Get the plug's current processor
     current_processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(id=plug.processor_id)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=plug.processor_id)
+            .first()
     )
 
     # Get the processor referenced in the CLI
     if procname is not None:
         new_processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=procname)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=procname)
+                .first()
         )
     elif procid is not None:
         new_processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=procid)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=procid)
+                .first()
         )
 
     # If the new processor is different, then add it to the transaction
@@ -2230,16 +2230,16 @@ def add_plug(context, name, queue, source, target):
 
     source_socket = (
         context.obj["database"]
-        .session.query(SocketModel)
-        .filter_by(name=source)
-        .first()
+            .session.query(SocketModel)
+            .filter_by(name=source)
+            .first()
     )
 
     target_socket = (
         context.obj["database"]
-        .session.query(SocketModel)
-        .filter_by(name=target)
-        .first()
+            .session.query(SocketModel)
+            .filter_by(name=target)
+            .first()
     )
 
     queue = (
@@ -2291,9 +2291,9 @@ def add_socket(context, name, queue, interval, procname, task):
 
     processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(name=procname)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=procname)
+            .first()
     )
 
     queue = (
@@ -2316,9 +2316,9 @@ def add_socket(context, name, queue, interval, procname, task):
     if task is not None:
         _task = (
             context.obj["database"]
-            .session.query(TaskModel)
-            .filter_by(name=task)
-            .first()
+                .session.query(TaskModel)
+                .filter_by(name=task)
+                .first()
         )
         if _task is None:
             _task = TaskModel(
@@ -2446,9 +2446,9 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     deployments = (
         context.obj["database"]
-        .session.query(DeploymentModel)
-        .filter_by(hostname=hostname)
-        .all()
+            .session.query(DeploymentModel)
+            .filter_by(hostname=hostname)
+            .all()
     )
 
     for deployment in deployments:
@@ -2462,9 +2462,9 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     worker = {}
     processor = (
         context.obj["database"]
-        .session.query(ProcessorModel)
-        .filter_by(id=workerModel.processor_id)
-        .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=workerModel.processor_id)
+            .first()
     )
 
     dir = "work/" + processor.id
@@ -2518,9 +2518,9 @@ def ls_queue(context, id, name, task):
     elif name is not None:
         queue = (
             context.obj["database"]
-            .session.query(QueueModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(QueueModel)
+                .filter_by(name=name)
+                .first()
         )
 
     if task:
@@ -2669,9 +2669,9 @@ def ls_call(context, id, name, result, tree, graph, flow):
             # Should use tracking
             nodes = (
                 context.obj["database"]
-                .session.query(CallModel)
-                .filter_by(task_id=call.task_id)
-                .all()
+                    .session.query(CallModel)
+                    .filter_by(task_id=call.task_id)
+                    .all()
             )
         else:
             nodes = [call]
@@ -2689,7 +2689,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
             if isinstance(_r, Exception):
                 import traceback
 
-                #_r = traceback.format_tb(_r.__traceback__)
+                # _r = traceback.format_tb(_r.__traceback__)
                 print(_r.__traceback__)
             else:
                 try:
@@ -2701,9 +2701,9 @@ def ls_call(context, id, name, result, tree, graph, flow):
         if graph:
             calls = (
                 context.obj["database"]
-                .session.query(CallModel)
-                .filter_by(tracking=call.tracking)
-                .all()
+                    .session.query(CallModel)
+                    .filter_by(tracking=call.tracking)
+                    .all()
             )
 
             calldict = {}
@@ -2718,11 +2718,11 @@ def ls_call(context, id, name, result, tree, graph, flow):
                     break
 
             def get_call_graph(parent, node, _calls):
-                logging.debug("node is %s",node)
+                logging.debug("node is %s", node)
                 for _child in _calls:
-                    logging.debug("_child %s %s %s %s",_child.name, _child.id, _child.parent, _child.task_id)
+                    logging.debug("_child %s %s %s %s", _child.name, _child.id, _child.parent, _child.task_id)
                     if _child.parent == node.id:
-                        logging.debug("Found child node %s",_child)
+                        logging.debug("Found child node %s", _child)
                         _child_node = Node(_child.name, parent)
                         _child_node = get_call_graph(_child_node, _child, _calls)
 
@@ -2744,9 +2744,9 @@ def ls_call(context, id, name, result, tree, graph, flow):
             def get_call_graph(root, _call):
                 _calls = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .filter_by(parent=_call.id)
-                    .all()
+                        .session.query(CallModel)
+                        .filter_by(parent=_call.id)
+                        .all()
                 )
 
                 for _child in _calls:
@@ -2829,10 +2829,10 @@ def ls_roles(context, page, rows, ascend):
         else:
             nodes = (
                 context.obj["database"]
-                .session.query(RoleModel)
-                .order_by(RoleModel.lastupdated.desc())
-                .offset((page - 1) * rows)
-                .limit(rows)
+                    .session.query(RoleModel)
+                    .order_by(RoleModel.lastupdated.desc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
             )
     else:
         if total < rows:
@@ -2840,10 +2840,10 @@ def ls_roles(context, page, rows, ascend):
         else:
             nodes = (
                 context.obj["database"]
-                .session.query(RoleModel)
-                .order_by(RoleModel.lastupdated.asc())
-                .offset((page - 1) * rows)
-                .limit(rows)
+                    .session.query(RoleModel)
+                    .order_by(RoleModel.lastupdated.asc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
             )
 
     row = 0
@@ -2913,9 +2913,9 @@ def ls_calls(context, page, rows, unfinished, ascend):
     if unfinished:
         total = (
             context.obj["database"]
-            .session.query(CallModel)
-            .filter_by(finished=None)
-            .count()
+                .session.query(CallModel)
+                .filter_by(finished=None)
+                .count()
         )
     else:
         total = context.obj["database"].session.query(CallModel).count()
@@ -2933,9 +2933,9 @@ def ls_calls(context, page, rows, unfinished, ascend):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .filter_by(finished=None)
-                    .all()
+                        .session.query(CallModel)
+                        .filter_by(finished=None)
+                        .all()
                 )
             else:
                 nodes = context.obj["database"].session.query(CallModel).all()
@@ -2943,28 +2943,28 @@ def ls_calls(context, page, rows, unfinished, ascend):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .order_by(CallModel.lastupdated.desc())
-                    .filter_by(finished=None)
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                        .session.query(CallModel)
+                        .order_by(CallModel.lastupdated.desc())
+                        .filter_by(finished=None)
+                        .offset((page - 1) * rows)
+                        .limit(rows)
                 )
             else:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .order_by(CallModel.lastupdated.desc())
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                        .session.query(CallModel)
+                        .order_by(CallModel.lastupdated.desc())
+                        .offset((page - 1) * rows)
+                        .limit(rows)
                 )
     else:
         if total < rows:
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .filter_by(finished=None)
-                    .all()
+                        .session.query(CallModel)
+                        .filter_by(finished=None)
+                        .all()
                 )
             else:
                 nodes = context.obj["database"].session.query(CallModel).all()
@@ -2972,19 +2972,19 @@ def ls_calls(context, page, rows, unfinished, ascend):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .order_by(CallModel.lastupdated.asc())
-                    .filter_by(finished=None)
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                        .session.query(CallModel)
+                        .order_by(CallModel.lastupdated.asc())
+                        .filter_by(finished=None)
+                        .offset((page - 1) * rows)
+                        .limit(rows)
                 )
             else:
                 nodes = (
                     context.obj["database"]
-                    .session.query(CallModel)
-                    .order_by(CallModel.lastupdated.asc())
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                        .session.query(CallModel)
+                        .order_by(CallModel.lastupdated.asc())
+                        .offset((page - 1) * rows)
+                        .limit(rows)
                 )
 
     row = 0
@@ -3167,9 +3167,9 @@ def ls_socket(context, id, name, graph):
     if name is not None:
         socket = (
             context.obj["database"]
-            .session.query(SocketModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(SocketModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         socket = (
@@ -3250,16 +3250,16 @@ def ls_processor(context, id, name, graph):
     if name is not None:
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(name=name)
+                .first()
         )
     elif id is not None:
         processor = (
             context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=id)
-            .first()
+                .session.query(ProcessorModel)
+                .filter_by(id=id)
+                .first()
         )
 
     if processor is None:
@@ -3355,9 +3355,9 @@ def ls_processor(context, id, name, graph):
     x.field_names = names
     nodes = (
         context.obj["database"]
-        .session.query(DeploymentModel)
-        .filter_by(processor_id=processor.id)
-        .all()
+            .session.query(DeploymentModel)
+            .filter_by(processor_id=processor.id)
+            .all()
     )
     for node in nodes:
         x.add_row(
@@ -3818,7 +3818,7 @@ def ls_workers(context):
                 hostname,
                 pname,
                 node.concurrency,
-                
+
                 name,
                 node.workerdir,
             ]
@@ -4349,20 +4349,20 @@ def api_start(context, ip, port):
 @click.option("-wp", "--workerport", default=8001, help="Healthcheck port for worker")
 @click.pass_context
 def start_agent(
-    context,
-    port,
-    clean,
-    backend,
-    broker,
-    name,
-    config,
-    queues,
-    user,
-    pool,
-    cpus,
-    size,
-    host,
-    workerport,
+        context,
+        port,
+        clean,
+        backend,
+        broker,
+        name,
+        config,
+        queues,
+        user,
+        pool,
+        cpus,
+        size,
+        host,
+        workerport,
 ):
     """
     Start an agent

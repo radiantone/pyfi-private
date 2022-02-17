@@ -37,6 +37,7 @@ def get_session():
 
     return _session
 
+
 __all__ = (
     "get_session",
     "Worker",

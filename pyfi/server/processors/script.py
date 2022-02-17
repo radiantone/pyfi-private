@@ -79,8 +79,8 @@ class Script:
             _newargs = []
             for arg in socket.task.arguments:
                 if (
-                    arg.kind != Parameter.POSITIONAL_ONLY
-                    and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
+                        arg.kind != Parameter.POSITIONAL_ONLY
+                        and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
                 ):
                     continue
 
@@ -304,7 +304,7 @@ class Script:
 
     @task_postrun.connect()
     def pyfi_task_postrun(
-        sender=None, task_id=None, task=None, retval=None, *args, **kwargs
+            sender=None, task_id=None, task=None, retval=None, *args, **kwargs
     ):
         from datetime import datetime
         from uuid import uuid4

@@ -80,8 +80,8 @@ class NodePlugin(SchedulerPlugin):
 
             scheduler = (
                 session.query(SchedulerModel)
-                .filter_by(name=self.name)
-                .first()
+                    .filter_by(name=self.name)
+                    .first()
             )
 
             # These are my nodes to manage
@@ -141,9 +141,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.info("Fetching processors to be deployed")
             processor = (
                 session.query(ProcessorModel)
-                #.filter_by(requested_status="deploy")
-                .with_for_update()
-                .first()
+                    # .filter_by(requested_status="deploy")
+                    .with_for_update()
+                    .first()
             )
             logging.info("Processor is %s", processor)
             if processor:
@@ -159,8 +159,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 scheduler = (
                     session.query(SchedulerModel)
-                    .filter_by(name=self.name)
-                    .first()
+                        .filter_by(name=self.name)
+                        .first()
                 )
 
                 # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
@@ -171,7 +171,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 deployed_cpus = 0
                 for deployment in processor.deployments:
                     logging.info("   Deployment: CPU %s", deployment.cpus)
-                    deployed_cpus += deployment.cpus            
+                    deployed_cpus += deployment.cpus
 
                 if deployed_cpus < processor.concurrency:
                     needed_cpus = processor.concurrency - deployed_cpus
@@ -196,7 +196,10 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     _cpus = needed_cpus
                                 if _cpus > 0:
                                     logging.info("Creating new deployment for %s CPUS", _cpus)
-                                    _deployment = DeploymentModel(cpus=_cpus, processor=processor, name=processor.name+".deploy"+str(len(processor.deployments)), hostname=node.hostname)
+                                    _deployment = DeploymentModel(cpus=_cpus, processor=processor,
+                                                                  name=processor.name + ".deploy" + str(
+                                                                      len(processor.deployments)),
+                                                                  hostname=node.hostname)
                                     session.add(_deployment)
                                     logging.info("Deploying processor to node %s with %s cpus", node, _cpus)
                                     session.commit()
@@ -208,6 +211,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     logging.info("Processor concurrency needs are met.")
         finally:
             session.close()
+
 
 class WorkPlugin(SchedulerPlugin):
     """Process work records, which are queued or scheduled tasks"""
@@ -238,7 +242,6 @@ class BasicScheduler:
     nodes = []
 
     def __init__(self, name, interval):
-
         self.name = name
         self.interval = interval
 

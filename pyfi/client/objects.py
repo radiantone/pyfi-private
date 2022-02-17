@@ -112,7 +112,7 @@ class Worker(Base):
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
-        name = hostname+".agent."+processor.name+".worker"
+        name = hostname + ".agent." + processor.name + ".worker"
         self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
 
         if self.worker is None:
@@ -172,23 +172,21 @@ class Task(Base):
 class Argument(Base):
     @classmethod
     def find(cls, name, task):
-
         return (
             cls.session.query(ArgumentModel)
-            .join(TaskModel)
-            .filter(
+                .join(TaskModel)
+                .filter(
                 ArgumentModel.name == name
                 and TaskModel.name == task
                 and ArgumentModel.task_id == TaskModel.id
             )
-            .first()
+                .first()
         )
 
 
 class Agent(Base):
     @classmethod
     def find(cls, name):
-
         return cls.session.query(AgentModel).filter_by(name=name).first()
 
     def __init__(self, *args, **kwargs):
@@ -311,7 +309,6 @@ class Socket(Base):
             self.task.gitrepo = self.processor.processor.gitrepo
             self.session.add(self.task)
 
-
         user = kwargs["user"]
         try:
             self.session.add(user)
@@ -376,11 +373,11 @@ class Socket(Base):
             self.session.refresh(self.socket)
 
         self.key = (
-            self.socket.queue.name
-            + "."
-            + self.processor.name
-            + "."
-            + self.socket.task.name
+                self.socket.queue.name
+                + "."
+                + self.processor.name
+                + "."
+                + self.socket.task.name
         )
 
         try:
@@ -469,8 +466,8 @@ class Socket(Base):
                 queue=self.queue,
                 kwargs=kwargs,
             )
-            .delay()
-            .get()
+                .delay()
+                .get()
         )
 
         # argument = {'name':'message','kind':3,'position':0}
@@ -635,19 +632,19 @@ class Processor(Base):
     """
 
     def __init__(
-        self,
-        hostname=None,
-        id=None,
-        name=None,
-        user=None,
-        gitrepo=None,
-        branch=None,
-        module=None,
-        requested_status="ready",
-        concurrency=None,
-        agent=None,
-        commit=None,
-        beat=None,
+            self,
+            hostname=None,
+            id=None,
+            name=None,
+            user=None,
+            gitrepo=None,
+            branch=None,
+            module=None,
+            requested_status="ready",
+            concurrency=None,
+            agent=None,
+            commit=None,
+            beat=None,
     ):
 
         super().__init__()
@@ -709,7 +706,7 @@ class Processor(Base):
         """
 
         if concurrency is not None:
-            #if self.processor.concurrency != concurrency:
+            # if self.processor.concurrency != concurrency:
             #    self.processor.requested_status = "update"
             self.processor.concurrency = concurrency
 

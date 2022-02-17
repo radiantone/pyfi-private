@@ -2,8 +2,8 @@ import logging
 import configparser
 from pathlib import Path
 
-#logging.basicConfig()
-#logging.getLogger().setLevel(logging.DEBUG)
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
 from functools import wraps
 from .api import Node, Agent, Worker, Processor, Socket, Plug, Task, Network, Deployment
 from .library import ProcessorBase, TheMeta
@@ -27,49 +27,50 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
+
 def processor(*args, **kwargs):
     logging.debug("processor called %s %s", args, kwargs)
 
     try:
         model = stack.pop()
-        logging.debug("processor:agent %s",model)
+        logging.debug("processor:agent %s", model)
         if isinstance(model, Agent):
             kwargs['hostname'] = model.hostname
     except:
         pass
-    
+
     kwargs['user'] = USER
-    
+
     deployname = None
     if 'deployment' in kwargs:
         deployname = kwargs['deployment']
         del kwargs['deployment']
-        
+
     _proc = Processor(**kwargs)
 
     stack.append(_proc)
 
     processors[kwargs['name']] = _proc
-    
+
     if deployname:
         _deployment = Deployment(processor=_proc.processor, name=deployname, hostname=model.hostname)
-        logging.debug("Deploment added %s",_deployment.deployment.name)
+        logging.debug("Deploment added %s", _deployment.deployment.name)
 
     def decorator(klass, **dkwargs):
 
-        pname = kwargs['module']+'.'+klass.__name__
+        pname = kwargs['module'] + '.' + klass.__name__
         logging.debug("processor class %s %s", klass, pname)
         _proc.cls = klass
-        logging.debug("Created processor %s ",_proc)
+        logging.debug("Created processor %s ", _proc)
 
-        setattr(klass,'__metaclass__',TheMeta)
+        setattr(klass, '__metaclass__', TheMeta)
         logging.debug("Instrumenting class {}:{} from {}".format(_proc, klass.__metaclass__, klass))
         for socket in _proc.processor.sockets:
-            logging.debug("processor:socket %s ",socket)
-        
-        setattr(klass,'__sockets__',_proc.processor.sockets)
-        setattr(klass,'__processor__',_proc)
-        logging.debug("processor:returning: %s ",klass)
+            logging.debug("processor:socket %s ", socket)
+
+        setattr(klass, '__sockets__', _proc.processor.sockets)
+        setattr(klass, '__processor__', _proc)
+        logging.debug("processor:returning: %s ", klass)
         return klass
 
     return decorator
@@ -81,8 +82,8 @@ def network(*args, **kwargs):
     _network = Network(**kwargs)
     stack.append(_network)
 
-    def decorator(node,*dargs,**dkwargs):
-        logging.debug("network:%s adding node %s",_network.network.name,node.node.name)
+    def decorator(node, *dargs, **dkwargs):
+        logging.debug("network:%s adding node %s", _network.network.name, node.node.name)
         _network.network.nodes += [node.node]
         _network.session.commit()
         return node.agent._processor
@@ -96,17 +97,17 @@ def node(*args, **kwargs):
     _node = Node(**kwargs)
     stack.append(_node)
 
-    def decorator(model,*dargs,**dkwargs):
+    def decorator(model, *dargs, **dkwargs):
         logging.debug("node:agent %s ", model)
 
-        logging.debug("---->Agent workers %s  %s ",model.agent.name, model.agent.workers)
+        logging.debug("---->Agent workers %s  %s ", model.agent.name, model.agent.workers)
         for worker in model.agent.workers:
             if worker.name.rsplit('.')[-1] == worker.processor.name:
                 continue
-            logging.debug("---->Worker processor %s ",worker.processor)
-            logging.debug("====>Updating WORKER NAME %s ",worker.name)
-            #worker.name = worker.name+"."+worker.processor.name
-            
+            logging.debug("---->Worker processor %s ", worker.processor)
+            logging.debug("====>Updating WORKER NAME %s ", worker.name)
+            # worker.name = worker.name+"."+worker.processor.name
+
         return _node
 
     return decorator
@@ -124,15 +125,16 @@ def agent(*args, **kwargs):
     node.agent = _agent
 
     def decorator(processor):
-        logging.debug("agent:model %s ",processor)
-        if getattr(processor,'__processor__'):
+        logging.debug("agent:model %s ", processor)
+        if getattr(processor, '__processor__'):
             _processor = processor.__processor__
-            logging.debug("Creating worker: %s ",kwargs['name']+'.worker')
-            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent, name=kwargs['name']+'.worker.'+_processor.name, processor=_processor.processor)
+            logging.debug("Creating worker: %s ", kwargs['name'] + '.worker')
+            worker = Worker(hostname=kwargs['hostname'], agent=_agent.agent,
+                            name=kwargs['name'] + '.worker.' + _processor.name, processor=_processor.processor)
             workers[_processor.name] = worker
         elif isinstance(processor, Worker):
             _agent.agent.workers += [processor.worker]
-        
+
         _agent._processor = processor
         return _agent
 
@@ -140,7 +142,6 @@ def agent(*args, **kwargs):
 
 
 def worker(*args, **kwargs):
-
     logging.debug("worker called  %s  %s ", args, kwargs)
 
     kwargs['user'] = USER
@@ -158,20 +159,20 @@ def worker(*args, **kwargs):
 
 
 def socket(*args, **kwargs):
-
     logging.debug("socket called  %s  %s ", args, kwargs)
 
     model = stack.pop()
-    logging.debug("MODEL:  %s ",model)
+    logging.debug("MODEL:  %s ", model)
 
     kwargs['user'] = USER
+
     def decorator(task):
         logging.debug("socket:task %s ", task)
-        logging.debug("task:name %s ",task.__name__)
-        #procname = task.__qualname__.rsplit('.')[0]
+        logging.debug("task:name %s ", task.__name__)
+        # procname = task.__qualname__.rsplit('.')[0]
         _proc = processors[kwargs['processor']]
-        logging.debug("socket:worker %s ",worker)
-        logging.debug("socket:processor %s ",_proc)
+        logging.debug("socket:worker %s ", worker)
+        logging.debug("socket:processor %s ", _proc)
         kwargs['processor'] = _proc
         kwargs['task'] = task.__name__
         _socket = Socket(**kwargs)
@@ -183,11 +184,10 @@ def socket(*args, **kwargs):
 
 
 def plug(*args, **kwargs):
-
     logging.debug("plug called  %s %s", args, kwargs)
 
     model = stack.pop()
-    logging.debug("PLUG POP:  %s ",model)
+    logging.debug("PLUG POP:  %s ", model)
 
     stack.append(kwargs)
 
@@ -195,7 +195,8 @@ def plug(*args, **kwargs):
         logging.debug("plug:socket %s  %s ", socket, socket.task)
         target = Socket(name=kwargs['target'], processor=model, user=USER)
 
-        _plug = Plug(name=kwargs['name'], queue=kwargs['queue'], source=socket, target=target, processor=socket.processor, user=USER)
+        _plug = Plug(name=kwargs['name'], queue=kwargs['queue'], source=socket, target=target,
+                     processor=socket.processor, user=USER)
         plugs[_plug.name] = _plug
         return _plug
 
@@ -207,4 +208,3 @@ def task(name="", module="", processor=None, gitrepo=""):
         func()
 
     return wrapper_func
-

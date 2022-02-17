@@ -22,6 +22,7 @@ app.register_blueprint(blueprint)
 def send_js(path):
     return send_from_directory('static/assets', path)
 
+
 @app.route("/")
 def hello():
     logging.debug("Invoking hello")

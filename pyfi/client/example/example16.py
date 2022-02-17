@@ -13,4 +13,4 @@ class MyHTTPProcessor(HTTPProcessor):
 
     @socket(name="sock2", processor="http_proc", arguments=True, queue={"name": "sockq2"})
     def http_get(self, *args, **kwargs):
-        super( MyHTTPProcessor, self ).http_get( *args, **kwargs )
+        super(MyHTTPProcessor, self).http_get(*args, **kwargs)

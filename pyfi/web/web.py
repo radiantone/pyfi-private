@@ -9,7 +9,6 @@ import socketserver
 from http.server import HTTPServer
 from http.server import SimpleHTTPRequestHandler
 
-
 DIRECTORY = "app/dist/spa"
 
 Handler = functools.partial(SimpleHTTPRequestHandler, directory=DIRECTORY)

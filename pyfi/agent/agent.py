@@ -4,6 +4,7 @@ agent.py - pyfi agent server responsible for managing worker/processor lifecycle
 import configparser
 import glob
 import logging
+# logging.basicConfig(level=logging.DEBUG)
 import multiprocessing
 import os
 import platform
@@ -18,8 +19,6 @@ from flask import Flask
 from pyfi.blueprints.show import blueprint
 from pyfi.db.model import WorkerModel, AgentModel, NodeModel, DeploymentModel
 from pyfi.worker import WorkerService
-
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -70,20 +69,20 @@ class AgentService:
     """Agent class"""
 
     def __init__(
-        self,
-        database,
-        dburi,
-        port=8003,
-        config=None,
-        clean=False,
-        user=None,
-        pool=4,
-        cpus=-1,
-        backend="redis://localhost",
-        broker="pyamqp://localhost",
-        name=None,
-        size=10,
-        workerport=8020,
+            self,
+            database,
+            dburi,
+            port=8003,
+            config=None,
+            clean=False,
+            user=None,
+            pool=4,
+            cpus=-1,
+            backend="redis://localhost",
+            broker="pyamqp://localhost",
+            name=None,
+            size=10,
+            workerport=8020,
     ):
         self.port = port
         self.backend = backend
@@ -356,8 +355,8 @@ class AgentService:
                     if refresh == 0:
                         mydeployments = (
                             self.database.session.query(DeploymentModel)
-                            .filter_by(hostname=HOSTNAME)
-                            .all()
+                                .filter_by(hostname=HOSTNAME)
+                                .all()
                         )
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
@@ -390,13 +389,13 @@ class AgentService:
                                     )
 
                                     if os.path.exists(
-                                        f"{agent_cwd}/{processor['processor'].name}.pid"
+                                            f"{agent_cwd}/{processor['processor'].name}.pid"
                                     ):
                                         import docker
 
                                         with open(
-                                            f"{agent_cwd}/{processor['processor'].name}.pid",
-                                            "r",
+                                                f"{agent_cwd}/{processor['processor'].name}.pid",
+                                                "r",
                                         ) as pidfile:
                                             container_id = pidfile.read()
                                             client = docker.from_env()
@@ -601,12 +600,12 @@ class AgentService:
                                     "processor['worker'] is %s", processor["worker"]
                                 )
                                 if (
-                                    processor["worker"]
-                                    and processor["worker"]["wprocess"]
+                                        processor["worker"]
+                                        and processor["worker"]["wprocess"]
                                 ):
                                     process_died = (
-                                        processor["worker"]["wprocess"].poll()
-                                        is not None
+                                            processor["worker"]["wprocess"].poll()
+                                            is not None
                                     )
                                 logging.debug("process_died is %s", process_died)
                             except:
@@ -620,18 +619,18 @@ class AgentService:
                         logging.debug("Process worker is %s", processor["worker"])
 
                         if (
-                            processor["processor"].requested_status == "start"
-                            or (
+                                processor["processor"].requested_status == "start"
+                                or (
                                 process_died
                                 or (
-                                    processor["processor"].requested_status == "update"
-                                    or processor["worker"] is None
+                                        processor["processor"].requested_status == "update"
+                                        or processor["worker"] is None
                                 )
-                            )
-                            and (
+                        )
+                                and (
                                 processor["processor"].status != "stopped"
                                 and processor["processor"].requested_status != "stopped"
-                            )
+                        )
                         ):
 
                             logging.debug("%s", process_died)
@@ -655,21 +654,21 @@ class AgentService:
                             installed.
                             """
                             if (
-                                "deployment" in processor
-                                and processor["deployment"].worker is None
+                                    "deployment" in processor
+                                    and processor["deployment"].worker is None
                             ):
                                 """If there is no worker model, create one and link to Processor"""
 
                                 # TODO: Not sure this is needed since worker now puts worker model row in database
                                 worker_model = (
                                     self.database.session.query(WorkerModel)
-                                    .filter_by(
+                                        .filter_by(
                                         name=HOSTNAME
-                                        + ".agent."
-                                        + processor["processor"].name
-                                        + ".worker"
+                                             + ".agent."
+                                             + processor["processor"].name
+                                             + ".worker"
                                     )
-                                    .first()
+                                        .first()
                                 )
 
                                 if worker_model is None:
@@ -677,9 +676,9 @@ class AgentService:
                                     worker_model = WorkerModel(
                                         id=str(uuid4()),
                                         name=HOSTNAME
-                                        + ".agent."
-                                        + processor["processor"].name
-                                        + ".worker",
+                                             + ".agent."
+                                             + processor["processor"].name
+                                             + ".worker",
                                         concurrency=processor["deployment"].cpus,
                                         status="ready",
                                         backend=self.backend,
@@ -772,13 +771,13 @@ class AgentService:
                                             # session.add(workerproc.worker_model)
                                             worker_model = (
                                                 session.query(WorkerModel)
-                                                .filter_by(
+                                                    .filter_by(
                                                     name=HOSTNAME
-                                                    + ".agent."
-                                                    + processor["processor"].name
-                                                    + ".worker"
+                                                         + ".agent."
+                                                         + processor["processor"].name
+                                                         + ".worker"
                                                 )
-                                                .first()
+                                                    .first()
                                             )
                                             # Launch from the virtualenv
                                             logging.info(

@@ -3,7 +3,7 @@ from pyfi.client.api import parallel, pipeline, where, select
 
 proca = ProcessorA()
 
-print("Hi!",proca.do_something(proca.get_message()))
+print("Hi!", proca.do_something(proca.get_message()))
 
 do_something = proca.do_something.p
 
@@ -22,8 +22,8 @@ _pipeline = pipeline(
     ]
 )
 result = _pipeline()
-print("Task Status",result.status)
-print("Task ID",result.id)
+print("Task Status", result.status)
+print("Task ID", result.id)
 print("Do other stuff")
 
 print(result.get())

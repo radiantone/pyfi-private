@@ -27,18 +27,18 @@ if "PYFI_HOSTNAME" in os.environ:
 
 
 def remove_network(
-    _ssh,
-    path,
-    ini,
-    polar,
-    hostname,
-    username,
-    sshkey,
-    branch,
-    pyfi,
-    repo,
-    clean,
-    commit=None,
+        _ssh,
+        path,
+        ini,
+        polar,
+        hostname,
+        username,
+        sshkey,
+        branch,
+        pyfi,
+        repo,
+        clean,
+        commit=None,
 ):
     """Remote host only needs to have ssh key trust to be managed by pyfi
     PYFI will remote install itself and manage the running agent processes on it.
@@ -100,18 +100,18 @@ def remove_network(
 
 
 def install_repo(
-    _ssh,
-    path,
-    ini,
-    polar,
-    hostname,
-    username,
-    sshkey,
-    branch,
-    pyfi,
-    repo,
-    clean,
-    commit=None,
+        _ssh,
+        path,
+        ini,
+        polar,
+        hostname,
+        username,
+        sshkey,
+        branch,
+        pyfi,
+        repo,
+        clean,
+        commit=None,
 ):
     """Remote host only needs to have ssh key trust to be managed by pyfi
     PYFI will remote install itself and manage the running agent processes on it.
@@ -467,9 +467,9 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                         processor=socket.processor.processor,
                         agent=_agent.agent,
                         name=node["hostname"]
-                        + ".agent."
-                        + socket.socket.processor.name
-                        + ".worker",
+                             + ".agent."
+                             + socket.socket.processor.name
+                             + ".worker",
                     )
                     logging.info("Worker ID %s", worker.worker.id)
                     _agent.agent.workers += [worker.worker]

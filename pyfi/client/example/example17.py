@@ -23,7 +23,8 @@ class ProcessorB(ProcessorBase):
         return {"message": message, "graph": graph}
 
 
-@processor(name="proc1", gitrepo=os.environ['GIT_REPO'], module="pyfi.processors.sample", concurrency=6)  # gitrepo and module can be implied
+@processor(name="proc1", gitrepo=os.environ['GIT_REPO'], module="pyfi.processors.sample",
+           concurrency=6)  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
     """Description"""
 
@@ -32,7 +33,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="pyfi.processors.sample.do_this",     # Must be defined above already (prevents cycles)
+        target="pyfi.processors.sample.do_this",  # Must be defined above already (prevents cycles)
         queue={
             "name": "queue1",
             "message_ttl": 300000,
@@ -40,7 +41,8 @@ class ProcessorA(ProcessorBase):
             "expires": 200,
         }
     )
-    @socket(name="pyfi.processors.sample.do_something", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"})
+    @socket(name="pyfi.processors.sample.do_something", processor="proc1", beat=True, interval=5,
+            queue={"name": "sockq1"})
     def do_something(message):
         """do_something"""
         from random import randrange

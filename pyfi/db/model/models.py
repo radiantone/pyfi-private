@@ -510,6 +510,7 @@ class NetworkModel(BaseModel):
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     user = relationship("UserModel", lazy=True)
 
+
 class WorkModel(BaseModel):
     __tablename__ = "work"
 
@@ -654,7 +655,7 @@ class TaskModel(BaseModel):
     """
     mixin = Column(Boolean, default=False)
 
-    source = Column(Text) # Repo module function code
+    source = Column(Text)  # Repo module function code
     code = Column(Text)  # Source code override for task
 
     sockets = relationship("SocketModel", back_populates="task")

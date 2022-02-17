@@ -7,7 +7,9 @@ from pyfi.client.api import ProcessorBase, network, node, agent, processor, sock
 @network(name="network-1")
 @node(name="node2", hostname="agent2")
 @agent(name="ag2")
-@processor(name="proc2", deployment="proc2.deploy", gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample", concurrency=6)
+@processor(name="proc2", deployment="proc2.deploy",
+           gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+           module="pyfi.processors.sample", concurrency=6)
 class ProcessorB(ProcessorBase):
     """Description"""
 
@@ -28,7 +30,9 @@ class ProcessorB(ProcessorBase):
 @network(name="network-1")
 @node(name="node1", hostname="phoenix")
 @agent(name="ag1")
-@processor(name="proc1", deployment="proc1.deploy", gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor", module="pyfi.processors.sample")  # gitrepo and module can be implied
+@processor(name="proc1", deployment="proc1.deploy",
+           gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+           module="pyfi.processors.sample")  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
     """Description"""
 
@@ -37,7 +41,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="sock2",     # Must be defined above already (prevents cycles)
+        target="sock2",  # Must be defined above already (prevents cycles)
         queue={
             "name": "queue1",
             "message_ttl": 300000,
