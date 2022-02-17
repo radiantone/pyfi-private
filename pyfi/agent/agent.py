@@ -353,14 +353,14 @@ class AgentService:
                     mydeployments = []
 
                     # Gather host information and update node
-                    gc.collect()
-                    continue   
+
                     if refresh == 0:
                         mydeployments = (
                             self.database.session.query(DeploymentModel)
                                 .filter_by(hostname=HOSTNAME)
                                 .all()
                         )
+                        break
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
