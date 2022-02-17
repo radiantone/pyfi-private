@@ -312,7 +312,7 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-                    #self.database.session.refresh(self.agent)
+                    self.database.session.refresh(self.agent)
                     logging.debug("Agent looping")
 
                     if self.agent.requested_status == "stop":
