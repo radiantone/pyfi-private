@@ -334,7 +334,7 @@ class AgentService:
                     self.database.session.commit()
                     self.database.session.flush()
                     gc.collect()
-                    '''
+                    
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
                         # Send health alert log
@@ -835,7 +835,7 @@ class AgentService:
                             with self.get_session() as session:
                                 session.add(processor["processor"])
 
-                    '''
+                    
             manage_processors(workers, processors)
 
         #########################################################################
