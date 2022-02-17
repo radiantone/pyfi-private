@@ -1571,7 +1571,7 @@ class WorkerService:
                                                                 "Calling function %s %s",
                                                                 func, args
                                                             )
-                                                            #func(*args)
+                                                            func(*args)
                                                             
                                                             #logging.info(
                                                             #    "Sleeping %s", interval
@@ -1614,7 +1614,7 @@ class WorkerService:
                                                             ),
                                                         ),
                                                     )
-                                                    job.start()
+                                                    #job.start()
                                                     logging.info("Starting thread")
                                                     '''
                                                     schedule_function(dispatcher,
