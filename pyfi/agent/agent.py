@@ -642,10 +642,10 @@ class AgentService:
                         )
                         ):
 
-                            logging.debug("%s", process_died)
-                            logging.debug("%s", processor["worker"])
-                            logging.debug("%s", processor["processor"].requested_status)
-                            logging.debug("%s", processor["processor"].status)
+                            logging.debug("process_died %s", process_died)
+                            logging.debug("worker %s", processor["worker"])
+                            logging.debug("requested_status %s", processor["processor"].requested_status)
+                            logging.debug("status %s", processor["processor"].status)
 
                             if processor["worker"] is None:
                                 logging.info("Worker is none")
