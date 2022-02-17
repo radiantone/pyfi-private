@@ -3,6 +3,7 @@ agent.py - pyfi agent server responsible for managing worker/processor lifecycle
 """
 import configparser
 import glob
+import gc
 import logging
 # logging.basicConfig(level=logging.DEBUG)
 import multiprocessing
@@ -332,7 +333,7 @@ class AgentService:
                     self.database.session.add(self.node)
                     self.database.session.commit()
                     self.database.session.flush()
-
+                    gc.collect()
                     '''
                     sm = psutil.virtual_memory()
                     if sm.percent > 90.0:
