@@ -360,7 +360,7 @@ class AgentService:
                                 .filter_by(hostname=HOSTNAME)
                                 .all()
                         )
-                        '''
+                        
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
@@ -410,6 +410,7 @@ class AgentService:
                                             )
                                             container.kill()
 
+                        '''
                         # Loop through my database processors
                         for mydeployment in mydeployments:
                             myprocessor = mydeployment.processor
