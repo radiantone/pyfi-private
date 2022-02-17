@@ -314,7 +314,7 @@ class AgentService:
                 #########################################################################
                 while True:
 
-                    def main_loop(refresh, processors):
+                    def main_loop(refresh, processors, workers):
                             
                         self.database.session.refresh(self.agent)
                         logging.debug("Agent looping")
@@ -850,7 +850,7 @@ class AgentService:
                         
                     time.sleep(3)
 
-                    main_loop(refresh, processors)
+                    main_loop(refresh, processors, workers)
                     refresh += 1
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
