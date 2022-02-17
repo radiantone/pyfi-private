@@ -359,6 +359,7 @@ class AgentService:
                         
                         if refresh == 0:
                             logging.debug("Refreshing...")
+                            '''
                             mydeployments = (
                                 self.database.session.query(DeploymentModel)
                                     .filter_by(hostname=HOSTNAME)
@@ -367,7 +368,7 @@ class AgentService:
                                                 
                             # Loop through existing processor references and refresh from database
                             # Check for moved processors
-                            '''
+                            
                             
                             for processor in processors:
                                 self.database.session.refresh(processor["processor"])
