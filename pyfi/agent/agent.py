@@ -315,7 +315,10 @@ class AgentService:
                 while True:
 
                     def main_loop(refresh, processors, workers):
-                            
+                        process = psutil.Process(os.getpid())
+                        print(process.memory_info().rss)  # in bytes 
+
+                        
                         self.database.session.refresh(self.agent)
                         logging.debug("Agent looping")
 
