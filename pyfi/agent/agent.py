@@ -353,7 +353,8 @@ class AgentService:
                     mydeployments = []
 
                     # Gather host information and update node
-
+                    gc.collect()
+                    continue   
                     if refresh == 0:
                         mydeployments = (
                             self.database.session.query(DeploymentModel)
