@@ -356,7 +356,7 @@ class AgentService:
                         mydeployments = []
 
                         # Gather host information and update node
-
+                        '''
                         if refresh == 0:
                             logging.debug("Refreshing...")
                             mydeployments = (
@@ -448,8 +448,8 @@ class AgentService:
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
 
-                        # TODO: Memory in this block
-                        '''
+                        # TODO: Memory leak in this block
+                        
                         for processor in processors:
 
                             logging.debug(
