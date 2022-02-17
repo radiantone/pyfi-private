@@ -1579,7 +1579,7 @@ class WorkerService:
                                                             interval,
                                                             1,
                                                             call_function,
-                                                            (func)
+                                                            (func,)
                                                         )
                                                         s.run()
 
