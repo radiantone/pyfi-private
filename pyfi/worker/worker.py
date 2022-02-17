@@ -1561,17 +1561,27 @@ class WorkerService:
                                                         func, interval, args
                                                     ):
                                                         import time
+                                                        import sched
 
-                                                        while True:
+                                                        def call_function(func):
                                                             logging.info(
                                                                 "Calling function %s",
                                                                 func,
                                                             )
-                                                            #func(*args)
-                                                            logging.info(
-                                                                "Sleeping %s", interval
-                                                            )
-                                                            time.sleep(interval)
+                                                            func(*args)
+                                                            #logging.info(
+                                                            #    "Sleeping %s", interval
+                                                            #)
+                                                            #time.sleep(interval)
+
+                                                        s = sched.scheduler(time.time, time.sleep)
+                                                        s.enter(
+                                                            interval,
+                                                            1,
+                                                            call_function,
+                                                            (func)
+                                                        )
+                                                        s.run()
 
                                                     logging.info(
                                                         "Pre-dispatch plug.argument %s",
