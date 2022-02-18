@@ -464,14 +464,14 @@ class AgentService:
 
                         
                         # TODO: Memory leak in this block
-                        
+                        '''
                         for processor in processors:
 
                             logging.debug(
                                 "Processor.requested_status START %s",
                                 processor["processor"].requested_status,
                             )
-                            '''
+                            
                             if processor["processor"].requested_status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
@@ -611,7 +611,7 @@ class AgentService:
                                     # Add it to workers list
                                     pass
 
-                            '''
+                        
                             """
                             If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
                             Otherwise, if processor requested state is 'update', then restart process
@@ -865,7 +865,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                        
+                        '''
                     time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)

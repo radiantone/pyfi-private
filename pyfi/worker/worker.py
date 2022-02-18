@@ -2075,10 +2075,10 @@ class WorkerService:
                             )
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
-                logging.info("Starting scheduler...")
+                #logging.info("Starting scheduler...")
                 #scheduler.start()
                 logging.info("Starting worker...")
-                #worker.start()
+                worker.start()
 
             
         if self.worker:
