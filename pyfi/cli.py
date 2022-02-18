@@ -2487,9 +2487,10 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             broker=CONFIG.get("broker", "uri"),
         )
     except:
+        logging.info("Error creating WorkerService")
         import traceback
         print(traceback.format_exc())
-        
+
     logging.info("Creating WorkerService Done")
     logging.info("FLOW WORKER START")
     wprocess = workerproc.start(start=True)

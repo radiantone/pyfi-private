@@ -431,7 +431,8 @@ class WorkerService:
             session.commit()
             #session.flush()
             session.close()
-
+            logging.info("Returning")
+            
         self.process = None
         logging.debug(
             "Starting worker with pool[{}] backend:{} broker:{}".format(
