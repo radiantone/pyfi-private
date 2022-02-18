@@ -2471,20 +2471,25 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     os.makedirs(dir, exist_ok=True)
     logging.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
     logging.info("Creating WorkerService")
-    workerproc = WorkerService(
-        processor,
-        workdir=dir,
-        hostname=hostname,
-        deployment=workerModel.deployment,
-        pool=pool,
-        size=queue,
-        database=context.obj["dburi"],
-        skipvenv=skip_venv,
-        celeryconfig=None,
-        agent=agentModel,
-        backend=CONFIG.get("backend", "uri"),
-        broker=CONFIG.get("broker", "uri"),
-    )
+    try:
+        workerproc = WorkerService(
+            processor,
+            workdir=dir,
+            hostname=hostname,
+            deployment=workerModel.deployment,
+            pool=pool,
+            size=queue,
+            database=context.obj["dburi"],
+            skipvenv=skip_venv,
+            celeryconfig=None,
+            agent=agentModel,
+            backend=CONFIG.get("backend", "uri"),
+            broker=CONFIG.get("broker", "uri"),
+        )
+    except:
+        import traceback
+        print(traceback.format_exc())
+        
     logging.info("Creating WorkerService Done")
     logging.info("FLOW WORKER START")
     wprocess = workerproc.start(start=True)

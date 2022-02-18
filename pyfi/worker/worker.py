@@ -429,7 +429,7 @@ class WorkerService:
             _deployment.worker.processor = _processor
             logging.info("Attached worker to deployment and processor...")
             session.commit()
-            session.flush()
+            #session.flush()
             session.close()
 
         self.process = None
@@ -514,7 +514,7 @@ class WorkerService:
         import json
         import bjoern
         logging.debug("WORKER START: %s", start)
-        
+
         def do_work():
             # Retrieve workmodels where worker=me and execute them
             pass
