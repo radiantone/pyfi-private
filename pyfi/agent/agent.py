@@ -332,7 +332,7 @@ class AgentService:
 
                         if agent.requested_status == "stop":
                             shutdown()
-
+                        '''
                         #########################################################################
                         # Resource conditions
                         #########################################################################
@@ -367,7 +367,7 @@ class AgentService:
                         mydeployments = []
 
                         # Gather host information and update node
-                        '''
+                        
                         if refresh == 0:
                             logging.debug("Refreshing...")
                             
