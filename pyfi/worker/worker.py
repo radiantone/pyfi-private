@@ -430,9 +430,9 @@ class WorkerService:
             logging.info("Attached worker to deployment and processor...")
             session.commit()
             #session.flush()
-            session.close()
+            #session.close()
             logging.info("Returning")
-            
+
         self.process = None
         logging.debug(
             "Starting worker with pool[{}] backend:{} broker:{}".format(
