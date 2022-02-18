@@ -438,9 +438,9 @@ class AgentService:
                             # Loop through my database processors
                             for mydeployment in mydeployments:
                                 myprocessor = mydeployment.processor
-                                database.session.refresh(
-                                    myprocessor
-                                )  # Might not be needed
+                                #database.session.refresh(
+                                #    myprocessor
+                                #)  # Might not be needed
                                 
                                 if myprocessor.requested_status == "move":
                                     continue
