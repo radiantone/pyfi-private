@@ -332,7 +332,7 @@ class AgentService:
 
                         if agent.requested_status == "stop":
                             shutdown()
-                        
+                        '''
                         #########################################################################
                         # Resource conditions
                         #########################################################################
@@ -464,7 +464,7 @@ class AgentService:
 
                         
                         # TODO: Memory leak in this block
-                        '''
+                        
                         for processor in processors:
                                 
                             logging.debug("Looping processors"
@@ -862,7 +862,7 @@ class AgentService:
                         '''
                     time.sleep(3)
 
-                    #main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
+                    main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
                     process = psutil.Process(os.getpid())
                     print(process.memory_info().rss)  # in bytes 
                     refresh += 1
