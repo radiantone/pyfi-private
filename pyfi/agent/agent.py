@@ -344,8 +344,8 @@ class AgentService:
                         node.memused = _vmem.percent
 
                         #database.session.add(node)
-                        database.session.commit()
-                        #database.session.flush()
+                        #database.session.commit()
+                        database.session.flush()
                         
                         '''
                         sm = psutil.virtual_memory()
