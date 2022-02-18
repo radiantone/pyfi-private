@@ -2485,7 +2485,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         broker=CONFIG.get("broker", "uri"),
     )
 
-    wprocess = workerproc.start()
+    wprocess = workerproc.start(start=True)
 
     workerModel.requested_status = "ready"
     workerModel.status = "running"
