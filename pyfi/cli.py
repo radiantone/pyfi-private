@@ -60,8 +60,12 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
 
 
-# sys.excepthook = handle_exception
-
+def import_class(name):
+    components = name.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -4381,6 +4385,7 @@ def start_agent(
         os.environ["PYFI_HOSTNAME"] = name
 
     if host is not None:
+        logging.debug("host is %s", host)
         """
         _ssh = paramiko.SSHClient()
         _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -4391,21 +4396,46 @@ def start_agent(
         _, stdout, _ = _ssh.exec_command(command)
         """
     else:
-        agent = AgentService(
-            context.obj["database"],
-            context.obj["dburi"],
-            pool=pool,
-            config=config,
-            port=port,
-            workerport=workerport,
-            backend=backend,
-            name=name,
-            user=user,
-            clean=clean,
-            size=size,
-            cpus=cpus,
-            broker=broker,
-        )
+
+        if CONFIG.has_section("services"):
+            agent_class_name = CONFIG.get("services", "agent")
+            logging.debug("Importing agent service class %s",agent_class_name)
+            try:
+                agent_class = import_class(agent_class_name)
+            except Exception as ex:
+                logging.error(ex)
+                return
+
+            agent = agent_class(
+                context.obj["database"],
+                context.obj["dburi"],
+                pool=pool,
+                config=config,
+                port=port,
+                workerport=workerport,
+                backend=backend,
+                name=name,
+                user=user,
+                clean=clean,
+                size=size,
+                cpus=cpus,
+                broker=broker)
+        else:
+            agent = AgentService(
+                context.obj["database"],
+                context.obj["dburi"],
+                pool=pool,
+                config=config,
+                port=port,
+                workerport=workerport,
+                backend=backend,
+                name=name,
+                user=user,
+                clean=clean,
+                size=size,
+                cpus=cpus,
+                broker=broker)
+
         agent.start()
 
 
