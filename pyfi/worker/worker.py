@@ -453,7 +453,7 @@ class WorkerService:
 
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
-
+        logging.debug("Launching worker")
         if not self.usecontainer:
             cmd = [
                 "venv/bin/flow",
@@ -525,20 +525,21 @@ class WorkerService:
             from datetime import datetime
 
             with self.get_session(self.database) as session:
-                processor = (
-                    session.query(ProcessorModel)
-                    .filter_by(id=self.processor.id)
-                    .first()
-                )
+
 
                 while True:
+                    processor = (
+                        session.query(ProcessorModel)
+                        .filter_by(id=self.processor.id)
+                        .first()
+                    )
                     #snapshot=tracemalloc.take_snapshot()
                     #for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
                     gc.collect()
                     process = psutil.Process(os.getpid())
                     print("Worker memory before: ",process.memory_info().rss)
-                    session.refresh(processor)
+                    #session.refresh(processor)
                     print("Worker memory after: ",process.memory_info().rss)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
@@ -1111,6 +1112,7 @@ class WorkerService:
         # to perform all database interactions. Receives messages from queue
         dbactions = threading.Thread(target=database_actions)
         dbactions.start()
+        logging.debug("Started dbactions thread.")
 
         def worker_proc(app, _queue, dburi):
             """Main celery worker thread. Configure worker, queues and launch celery worker"""
