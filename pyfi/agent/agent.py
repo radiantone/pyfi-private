@@ -135,7 +135,7 @@ class AgentService:
             session.rollback()
             raise
         else:
-            session.commit()
+            session.flush()
 
     def start(self):
         from datetime import datetime
@@ -346,7 +346,6 @@ class AgentService:
                         #database.session.add(node)
                         #database.session.commit()
                         database.session.flush()
-                        
                         
                         sm = psutil.virtual_memory()
                         if sm.percent > 90.0:
