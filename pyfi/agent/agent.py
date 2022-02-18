@@ -346,9 +346,8 @@ class AgentService:
                         database.session.commit()
                         #database.session.flush()
                         
-                        '''
-                        sm = psutil.virtual_memory()
-                        if sm.percent > 90.0:
+                        #sm = psutil.virtual_memory()
+                        #if sm.percent > 90.0:
                             # Send health alert log
                             logging.warning("VIRTUAL MEMORY > 90%")
                             for processor in processors:
@@ -466,6 +465,7 @@ class AgentService:
                         
                         # TODO: Memory leak in this block
                         
+                        '''
                         for processor in processors:
                                 
                             logging.debug("Looping processors"
@@ -861,7 +861,7 @@ class AgentService:
                                     session.add(processor["processor"])
                         
                         '''
-                    time.sleep(3)
+                    time.sleep(1)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
                     process = psutil.Process(os.getpid())
