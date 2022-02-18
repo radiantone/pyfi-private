@@ -370,9 +370,9 @@ class AgentService:
 
                         # Gather host information and update node
                         
+                        process = psutil.Process(os.getpid())
                         if refresh == 0:
                             logging.debug("Refreshing...")
-                            process = psutil.Process(os.getpid())
                             print("Refresh 1", process.memory_info().rss)
                             mydeployments = (
                                 database.session.query(DeploymentModel)
@@ -868,7 +868,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                        
+                        print("After Processors", process.memory_info().rss)
                     time.sleep(3)
                     gc.collect()
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
