@@ -2201,6 +2201,7 @@ class WorkerService:
 
         # Sometimes we just want to recreate the setup
         if not start:
+            logging.debug("Start = False, returning.")
             return
 
         from threading import Thread
