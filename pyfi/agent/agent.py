@@ -456,6 +456,7 @@ class AgentService:
                                     logging.info("Added processor %s", myprocessor)
                                 
                             
+                            logging.debug("Refresh complete...")
 
                         
                         # Loop through my processor cache again and operate on them based
@@ -463,7 +464,7 @@ class AgentService:
                         logging.info("Processors[] length %s",len(processors))
 
                         # TODO: Memory leak in this block
-                        
+                        '''
                         for processor in processors:
 
                             logging.debug(
@@ -863,7 +864,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                        
+                        '''
                     time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
