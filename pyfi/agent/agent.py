@@ -317,13 +317,13 @@ class AgentService:
                     def main_loop(agentid, nodeid, database, refresh, processors, workers):
                         
                         agent = (
-                            session.query(AgentModel)
+                            database.session.query(AgentModel)
                             .filter_by(id=agentid)
                             .first()
                         )
 
                         node = (
-                            session.query(NodeModel)
+                            database.session.query(NodeModel)
                             .filter_by(id=nodeid)
                             .first()
                         )
