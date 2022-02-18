@@ -429,6 +429,8 @@ class WorkerService:
             _deployment.worker.processor = _processor
             logging.info("Attached worker to deployment and processor...")
             session.commit()
+            session.flush()
+            session.close()
 
         self.process = None
         logging.debug(
@@ -534,7 +536,10 @@ class WorkerService:
                     #for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
                     gc.collect()
+                    process = psutil.Process(os.getpid())
+                    print("Worker memory before: ",process.memory_info().rss)
                     session.refresh(processor)
+                    print("Worker memory after: ",process.memory_info().rss)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
                     # work is complete
