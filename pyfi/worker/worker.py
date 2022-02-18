@@ -1622,9 +1622,9 @@ class WorkerService:
                                                             ),
                                                         ),
                                                     )
-                                                    #job.start()
+                                                    job.start()
                                                     logging.info("Starting thread")
-                                                    '''
+                                                    
                                                     schedule_function(dispatcher,
                                                             socket.interval,
                                                             (
@@ -1634,7 +1634,7 @@ class WorkerService:
                                                                 session,
                                                                 socket,
                                                             ))
-                                                    '''
+                                                    
                                                     # scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                     #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
                                                     logging.info(
