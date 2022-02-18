@@ -372,13 +372,15 @@ class AgentService:
                         
                         if refresh == 0:
                             logging.debug("Refreshing...")
-                            
+                            process = psutil.Process(os.getpid())
+                            print("Refresh 1", process.memory_info().rss)
                             mydeployments = (
                                 database.session.query(DeploymentModel)
                                     .filter_by(hostname=HOSTNAME)
                                     .all()
                             )
                                                 
+                            print("Refresh 2", process.memory_info().rss)
                             # Loop through existing processor references and refresh from database
                             # Check for moved processors
                             
@@ -431,6 +433,7 @@ class AgentService:
                                                 container.kill()
 
                             
+                            print("Refresh 3", process.memory_info().rss)
                             # Loop through my database processors
                             for mydeployment in mydeployments:
                                 myprocessor = mydeployment.processor
@@ -458,6 +461,7 @@ class AgentService:
                                     logging.info("Added processor %s", myprocessor)
                                 
                             
+                            print("Refresh 4", process.memory_info().rss)
                             logging.debug("Refresh complete...")
 
                         
