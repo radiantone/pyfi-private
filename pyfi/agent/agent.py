@@ -470,7 +470,7 @@ class AgentService:
                             logging.debug("Looping processors"
                             )
                             _status = processor["processor"].requested_status
-                            '''
+                            
                             if _status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
@@ -611,7 +611,7 @@ class AgentService:
                                     pass
 
                             process_died = False
-
+                            '''
                             if "worker" in processor:
                                 try:
                                     # process_died = not processor['worker']['wprocess'].is_alive()
