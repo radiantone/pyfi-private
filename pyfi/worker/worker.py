@@ -6,6 +6,7 @@ import logging
 
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
+import gc
 import platform
 import psutil
 import redis
@@ -530,7 +531,7 @@ class WorkerService:
                     # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
 
-                    session.refresh(processor)
+                    #session.refresh(processor)
                     # Check if any work has been assigned to me and then do it
                     # This will pause the task execution for this worker until the
                     # work is complete

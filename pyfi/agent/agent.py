@@ -7,6 +7,7 @@ import logging
 # logging.basicConfig(level=logging.DEBUG)
 import multiprocessing
 import os
+import gc
 import platform
 import shutil
 import signal
@@ -312,8 +313,8 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-
-                    self.database.session.refresh(self.agent)
+                    gc.collect()
+                    #self.database.session.refresh(self.agent)
 
                     if self.agent.requested_status == "stop":
                         shutdown()
@@ -361,7 +362,7 @@ class AgentService:
                         # Loop through existing processor references and refresh from database
                         # Check for moved processors
                         for processor in processors:
-                            self.database.session.refresh(processor["processor"])
+                            #self.database.session.refresh(processor["processor"])
 
                             # Check if I already have a deployment
                             found = False
@@ -410,9 +411,9 @@ class AgentService:
                         # Loop through my database processors
                         for mydeployment in mydeployments:
                             myprocessor = mydeployment.processor
-                            self.database.session.refresh(
-                                myprocessor
-                            )  # Might not be needed
+                            #self.database.session.refresh(
+                            #    myprocessor
+                            #)  # Might not be needed
                             if myprocessor.requested_status == "move":
                                 continue
 
