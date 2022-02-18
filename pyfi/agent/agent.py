@@ -638,8 +638,8 @@ class AgentService:
                                 logging.error("Process died!")
 
                             logging.debug("Process worker is %s", processor["worker"])
-                            if processor["processor"].requested_status == "start":
-                                pass
+                            #if processor["processor"].requested_status == "start":
+                            #    pass
                             '''
                             if (
                                     processor["processor"].requested_status == "start"
