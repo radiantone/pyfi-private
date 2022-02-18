@@ -513,7 +513,8 @@ class WorkerService:
         import time
         import json
         import bjoern
-
+        logging.debug("WORKER START: %s", start)
+        
         def do_work():
             # Retrieve workmodels where worker=me and execute them
             pass
@@ -2081,8 +2082,7 @@ class WorkerService:
                 #scheduler.start()
                 logging.info("Starting worker...")
                 worker.start()
-
-            
+  
         if self.worker:
             logging.debug(
                 "Preparing worker %s %s %s %s %s",
