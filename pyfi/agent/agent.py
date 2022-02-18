@@ -610,7 +610,7 @@ class AgentService:
 
                             process_died = False
 
-                            '''
+                            
                             if "worker" in processor:
                                 try:
                                     # process_died = not processor['worker']['wprocess'].is_alive()
@@ -639,7 +639,7 @@ class AgentService:
                                 logging.error("Process died!")
 
                             logging.debug("Process worker is %s", processor["worker"])
-                            
+                            '''
                             if (
                                     processor["processor"].requested_status == "start"
                                     or (
