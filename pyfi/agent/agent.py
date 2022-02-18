@@ -464,14 +464,14 @@ class AgentService:
 
                         
                         # TODO: Memory leak in this block
-                        '''
+                        
                         for processor in processors:
 
                             logging.debug(
                                 "Processor.requested_status START %s",
                                 processor["processor"].requested_status,
                             )
-                            
+                            '''
                             if processor["processor"].requested_status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
@@ -865,7 +865,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                        '''
+                            '''
                     time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
