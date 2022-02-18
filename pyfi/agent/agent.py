@@ -469,8 +469,9 @@ class AgentService:
                                 
                             logging.debug("Looping processors"
                             )
+                            _status = processor["processor"].requested_status
                             '''
-                            if processor["processor"].requested_status == "removed":
+                            if _status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
                                     try:
@@ -499,7 +500,7 @@ class AgentService:
 
                                 continue
 
-                            if processor["processor"].requested_status == "restart":
+                            if _status == "restart":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
                                     try:
@@ -525,7 +526,7 @@ class AgentService:
                                     session.add(processor["deployment"].worker)
                                     session.add(processor["processor"])
 
-                            if processor["processor"].requested_status == "paused":
+                            if _status == "paused":
                                 if processor["worker"] is not None:
                                     logging.info("Pausing worker")
                                     try:
@@ -551,7 +552,7 @@ class AgentService:
 
                                 continue
 
-                            if processor["processor"].requested_status == "resumed":
+                            if _status == "resumed":
                                 if processor["worker"] is not None:
                                     logging.info("Resuming worker")
                                     try:
@@ -577,7 +578,7 @@ class AgentService:
 
                                 continue
 
-                            if processor["processor"].requested_status == "stopped":
+                            if _status == "stopped":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
                                     try:
@@ -602,7 +603,7 @@ class AgentService:
                                     session.add(processor["deployment"].worker)
                                     session.add(processor["processor"])
 
-                            if processor["processor"].requested_status == "started":
+                            if _status == "started":
                                 if processor["worker"] is None:
                                     # Spin up worker if I have CPU's available
                                     # Create a worker, link it to the processor
@@ -641,24 +642,24 @@ class AgentService:
                             logging.debug("Process worker is %s", processor["worker"])
                             
                             if (
-                                    processor["processor"].requested_status == "start"
+                                    _status == "start"
                                     or (
                                     process_died
                                     or (
-                                            processor["processor"].requested_status == "update"
+                                            _status == "update"
                                             or processor["worker"] is None
                                     )
                             )
                                     and (
                                     processor["processor"].status != "stopped"
-                                    and processor["processor"].requested_status != "stopped"
+                                    and _status != "stopped"
                             )
                             ):
                                 
                                 
                                 logging.debug("process_died %s", process_died)
                                 logging.debug("worker %s", processor["worker"])
-                                logging.debug("requested_status %s", processor["processor"].requested_status)
+                                logging.debug("requested_status %s", _status)
                                 logging.debug("status %s", processor["processor"].status)
 
                                 if processor["worker"] is None:
@@ -852,7 +853,7 @@ class AgentService:
                                                     "-------------------------------------------------------"
                                                 )
 
-                                processor["processor"].requested_status = "ready"
+                                _status = "ready"
                                 processor["processor"].status = "running"
                                 
                                 with self.get_session() as session:
