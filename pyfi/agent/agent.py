@@ -862,7 +862,7 @@ class AgentService:
                         '''
                     time.sleep(3)
 
-                    main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
+                    #main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
                     process = psutil.Process(os.getpid())
                     print(process.memory_info().rss)  # in bytes 
                     refresh += 1
