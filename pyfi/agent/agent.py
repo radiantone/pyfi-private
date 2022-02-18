@@ -346,6 +346,7 @@ class AgentService:
                         database.session.commit()
                         #database.session.flush()
                         
+                        '''
                         sm = psutil.virtual_memory()
                         if sm.percent > 90.0:
                             # Send health alert log
@@ -366,7 +367,7 @@ class AgentService:
                         mydeployments = []
 
                         # Gather host information and update node
-                        '''
+                        
                         if refresh == 0:
                             logging.debug("Refreshing...")
                             
