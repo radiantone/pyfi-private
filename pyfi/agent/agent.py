@@ -346,8 +346,9 @@ class AgentService:
                         database.session.commit()
                         #database.session.flush()
                         
-                        #sm = psutil.virtual_memory()
-                        #if sm.percent > 90.0:
+                        '''
+                        sm = psutil.virtual_memory()
+                        if sm.percent > 90.0:
                             # Send health alert log
                             logging.warning("VIRTUAL MEMORY > 90%")
                             for processor in processors:
@@ -360,6 +361,7 @@ class AgentService:
                                     processor["worker"] = None
                                     processor["processor"].status = "stopped"
 
+                        '''
                         #########################################################################
                         # Check deployments for ones assigned to me
                         #########################################################################
