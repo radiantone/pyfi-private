@@ -370,7 +370,7 @@ class AgentService:
                         
                         if refresh == 0:
                             logging.debug("Refreshing...")
-                            '''
+                            
                             mydeployments = (
                                 database.session.query(DeploymentModel)
                                     .filter_by(hostname=HOSTNAME)
@@ -455,7 +455,7 @@ class AgentService:
                                     logging.info("PROCESSORS LENGTH %s",len(processors))
                                     logging.info("Added processor %s", myprocessor)
                                 
-                            '''
+                            
 
                         '''
                         # Loop through my processor cache again and operate on them based
