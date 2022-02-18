@@ -1142,7 +1142,7 @@ class WorkerService:
                 poolclass=QueuePool,
             )
             '''
-            '''
+            
             logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
                 agent_cwd = os.environ["AGENT_CWD"]
@@ -1230,6 +1230,8 @@ class WorkerService:
                     and len(_processor.sockets) > 0
                 ):
                     logging.info("Setting up sockets...")
+
+                    '''
                     for socket in _processor.sockets:
                         logging.info("Socket %s", socket)
                         if socket.queue:
@@ -1395,6 +1397,7 @@ class WorkerService:
                             }
                             """
 
+                    '''
                 @worker_process_init.connect()
                 def prep_db_pool(**kwargs):
                     """
@@ -2078,7 +2081,7 @@ class WorkerService:
                 logging.info("Starting worker...")
                 worker.start()
 
-            '''
+            
         if self.worker:
             logging.debug(
                 "Preparing worker %s %s %s %s %s",
