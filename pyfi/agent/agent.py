@@ -466,9 +466,10 @@ class AgentService:
                         # TODO: Memory leak in this block
                         
                         for processor in processors:
-
+                                
                             logging.debug("Looping processors"
                             )
+                            '''
                             if processor["processor"].requested_status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
@@ -638,9 +639,7 @@ class AgentService:
                                 logging.error("Process died!")
 
                             logging.debug("Process worker is %s", processor["worker"])
-                            #if processor["processor"].requested_status == "start":
-                            #    pass
-                            '''
+                            
                             if (
                                     processor["processor"].requested_status == "start"
                                     or (
