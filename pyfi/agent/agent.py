@@ -313,13 +313,24 @@ class AgentService:
                 # Main Loop
                 #########################################################################
                 while True:
-
-                    def main_loop(refresh, processors, workers):
+                    # All this needs to be redone
+                    def main_loop(agentid, nodeid, database, refresh, processors, workers):
                         
-                        self.database.session.refresh(self.agent)
+                        agent = (
+                            session.query(AgentModel)
+                            .filter_by(id=agentid)
+                            .first()
+                        )
+
+                        node = (
+                            session.query(NodeModel)
+                            .filter_by(id=nodeid)
+                            .first()
+                        )
+
                         logging.debug("Agent looping")
 
-                        if self.agent.requested_status == "stop":
+                        if agent.requested_status == "stop":
                             shutdown()
 
                         #########################################################################
@@ -327,13 +338,13 @@ class AgentService:
                         #########################################################################
                         _vmem = psutil.virtual_memory()
 
-                        self.node.memsize = _vmem.total
-                        self.node.freemem = _vmem.free
-                        self.node.memused = _vmem.percent
+                        node.memsize = _vmem.total
+                        node.freemem = _vmem.free
+                        node.memused = _vmem.percent
 
-                        self.database.session.add(self.node)
-                        self.database.session.commit()
-                        self.database.session.flush()
+                        database.session.add(self.node)
+                        database.session.commit()
+                        database.session.flush()
 
 
                         sm = psutil.virtual_memory()
@@ -361,7 +372,7 @@ class AgentService:
                             logging.debug("Refreshing...")
                             '''
                             mydeployments = (
-                                self.database.session.query(DeploymentModel)
+                                database.session.query(DeploymentModel)
                                     .filter_by(hostname=HOSTNAME)
                                     .all()
                             )
@@ -371,7 +382,7 @@ class AgentService:
                             
                             
                             for processor in processors:
-                                self.database.session.refresh(processor["processor"])
+                                database.session.refresh(processor["processor"])
 
                                 # Check if I already have a deployment
                                 found = False
@@ -421,7 +432,7 @@ class AgentService:
                             # Loop through my database processors
                             for mydeployment in mydeployments:
                                 myprocessor = mydeployment.processor
-                                self.database.session.refresh(
+                                database.session.refresh(
                                     myprocessor
                                 )  # Might not be needed
                                 
@@ -681,7 +692,7 @@ class AgentService:
                                     logging.debug("Querying for worker model")
                                     # TODO: Not sure this is needed since worker now puts worker model row in database
                                     worker_model = (
-                                        self.database.session.query(WorkerModel)
+                                            database.session.query(WorkerModel)
                                             .filter_by(
                                             name=HOSTNAME
                                                 + ".agent."
@@ -716,13 +727,13 @@ class AgentService:
 
                                     
                                     with self.get_session() as session:
-                                        session.add(self.agent)
+                                        session.add(agent)
                                         session.add(worker_model)
                                         logging.info("Worker model is %s", worker_model)
                                         logging.info(
-                                            "Agent worker is %s", self.agent.worker
+                                            "Agent worker is %s", agent.worker
                                         )
-                                        self.agent.workers += [worker_model]
+                                        agent.workers += [worker_model]
 
                                     logging.info("Worker %s created.", worker_model.id)
                                     
@@ -820,7 +831,7 @@ class AgentService:
                                                 deployment.worker.processor_id = processor[
                                                     "processor"
                                                 ].id
-                                                deployment.worker.agent = self.agent
+                                                deployment.worker.agent = agent
 
                                                 logging.info(
                                                     "-----------------------Worker process %s started.",
@@ -855,7 +866,7 @@ class AgentService:
                         
                     time.sleep(3)
 
-                    #main_loop(refresh, processors, workers)
+                    main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
                     process = psutil.Process(os.getpid())
                     print(process.memory_info().rss)  # in bytes 
                     refresh += 1
