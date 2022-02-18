@@ -16,7 +16,7 @@ import sys
 import inspect
 import tracemalloc
 
-tracemalloc.start()
+#tracemalloc.start()
 from inspect import Parameter
 from functools import partial
 from pathlib import Path

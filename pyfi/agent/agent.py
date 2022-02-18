@@ -329,7 +329,8 @@ class AgentService:
                         )
 
                         logging.debug("Agent looping")
-
+                        gc.collect()
+                        
                         if agent.requested_status == "stop":
                             shutdown()
                         
@@ -470,6 +471,7 @@ class AgentService:
                         
                         for processor in processors:
                                 
+                            gc.collect()
                             logging.debug("Looping processors"
                             )
                             _status = processor["processor"].requested_status
@@ -863,7 +865,7 @@ class AgentService:
                                     session.add(processor["processor"])
                         
                         
-                    time.sleep(1)
+                    time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
                     process = psutil.Process(os.getpid())
