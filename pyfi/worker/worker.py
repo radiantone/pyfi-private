@@ -252,7 +252,7 @@ class WorkerService:
         connection = engine.connect()
         logging.info("Creating scoped session")
         db_session = scoped_session(
-            sessionmaker(autocommit=True, autoflush=True, bind=engine)
+            sessionmaker(autocommit=False, autoflush=True, bind=engine)
         )
         logging.info("Yielding session")
         yield db_session
