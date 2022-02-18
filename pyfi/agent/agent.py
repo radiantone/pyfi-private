@@ -457,7 +457,7 @@ class AgentService:
                                 
                             
 
-                        '''
+                        
                         # Loop through my processor cache again and operate on them based
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
@@ -862,7 +862,7 @@ class AgentService:
                                 
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
-                        '''
+                        
                         
                     time.sleep(3)
 
