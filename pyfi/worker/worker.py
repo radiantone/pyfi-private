@@ -1110,7 +1110,7 @@ class WorkerService:
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
         dbactions = threading.Thread(target=database_actions)
-        #dbactions.start()
+        dbactions.start()
 
         def worker_proc(app, _queue, dburi):
             """Main celery worker thread. Configure worker, queues and launch celery worker"""
@@ -1581,7 +1581,7 @@ class WorkerService:
                                                                 "Calling function %s %s",
                                                                 func, args
                                                             )
-                                                            #func(*args)
+                                                            func(*args)
                                                             
                                                             #logging.info(
                                                             #    "Sleeping %s", interval
