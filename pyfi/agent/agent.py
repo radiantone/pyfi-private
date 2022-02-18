@@ -469,7 +469,7 @@ class AgentService:
                                 
                             logging.debug("Looping processors"
                             )
-                            _status = processor["processor"].requested_status
+                            _status = "ready" #processor["processor"].requested_status
                             
                             if _status == "removed":
                                 if processor["worker"] is not None:
