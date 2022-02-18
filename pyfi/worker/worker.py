@@ -1231,7 +1231,6 @@ class WorkerService:
                 ):
                     logging.info("Setting up sockets...")
 
-                    '''
                     for socket in _processor.sockets:
                         logging.info("Socket %s", socket)
                         if socket.queue:
@@ -1397,7 +1396,7 @@ class WorkerService:
                             }
                             """
 
-                    '''
+                    
                 @worker_process_init.connect()
                 def prep_db_pool(**kwargs):
                     """
@@ -2077,9 +2076,9 @@ class WorkerService:
                             logging.info("POSTRUN DONE PUTTING ON main_queue")
 
                 logging.info("Starting scheduler...")
-                scheduler.start()
+                #scheduler.start()
                 logging.info("Starting worker...")
-                worker.start()
+                #worker.start()
 
             
         if self.worker:
