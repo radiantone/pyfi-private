@@ -1133,6 +1133,7 @@ class WorkerService:
             scheduler = BackgroundScheduler(job_defaults=job_defaults, timezone=utc)
 
             queues = []
+            '''
             engine = create_engine(
                 dburi,
                 pool_size=1,
@@ -1140,6 +1141,7 @@ class WorkerService:
                 pool_recycle=3600,
                 poolclass=QueuePool,
             )
+            '''
 
             logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
@@ -2207,7 +2209,7 @@ class WorkerService:
 
         worker_process.app = self.celery
         worker_process.daemon = True
-        worker_process.start()
+        #worker_process.start()
         logging.info("worker_process started...")
 
         self.process = worker_process
