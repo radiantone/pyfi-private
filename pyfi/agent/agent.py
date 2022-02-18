@@ -869,9 +869,12 @@ class AgentService:
                                     session.add(processor["processor"])
                         
                         print("After Processors", process.memory_info().rss)
+
                     time.sleep(3)
-                    gc.collect()
+                    
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
+                    gc.collect()
+                    print("Done with main loop")
                     process = psutil.Process(os.getpid())
                     print(process.memory_info().rss)  # in bytes 
                     refresh += 1
