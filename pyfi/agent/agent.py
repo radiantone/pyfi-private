@@ -638,7 +638,7 @@ class AgentService:
                                 logging.error("Process died!")
 
                             logging.debug("Process worker is %s", processor["worker"])
-                            
+                            '''
                             if (
                                     processor["processor"].requested_status == "start"
                                     or (
@@ -653,8 +653,8 @@ class AgentService:
                                     and processor["processor"].requested_status != "stopped"
                             )
                             ):
-                                pass
-                                '''
+                                
+                                
                                 logging.debug("process_died %s", process_died)
                                 logging.debug("worker %s", processor["worker"])
                                 logging.debug("requested_status %s", processor["processor"].requested_status)
@@ -857,7 +857,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                                '''
+                            '''
                     time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
