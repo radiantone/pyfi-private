@@ -428,7 +428,7 @@ class WorkerService:
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
             logging.info("Attached worker to deployment and processor...")
-            #session.commit()
+            session.commit()
             session.flush()
             session.close()
 
@@ -633,7 +633,7 @@ class WorkerService:
                                 call.events += [event]
 
                                 processor.requested_status = "ready"
-                                session.flush()
+                                session.commit()
                                 logging.info(
                                     "CREATED CALL %s %s", myid, _signal["taskid"]
                                 )
@@ -732,7 +732,7 @@ class WorkerService:
                                     call.events += [event]
                                     session.add(call.socket)
                                     session.add(call)
-                                    session.flush()
+                                    session.commit()
                                 else:
                                     logging.warning(
                                         "No Call found with celeryid=[%s]",
@@ -795,7 +795,7 @@ class WorkerService:
                                 session.add(event)
                                 call.events += [event]
                                 session.add(call)
-                                session.flush()
+                                session.commit()
                             else:
                                 logging.warning(
                                     "No pre-existing Call object for id %s", myid
@@ -1475,7 +1475,7 @@ class WorkerService:
                     self.deployment.worker.hostname = HOSTNAME
                     workerModel.deployment = self.deployment
                     workerModel.port = self.port
-                    session.flush()
+                    session.commit()
 
                 except Exception as ex:
                     logging.error(ex)
@@ -1681,7 +1681,7 @@ class WorkerService:
                         session.add(socket.task)
                         socket.task.source = _source
                         logging.info("Updated source for %s %s %s",  socket.task.id, socket.task, socket.task.source)
-                        session.flush()
+                        session.commit()
                         logging.info("TASK SOURCE:-> %s %s %s",  socket.task.id, socket.task, socket.task.source)
                         
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
