@@ -386,8 +386,9 @@ class AgentService:
                             
                             
                             for processor in processors:
+                                print("Refresh 2a", process.memory_info().rss)
                                 database.session.refresh(processor["processor"])
-
+                                print("Refresh 2b", process.memory_info().rss)
                                 # Check if I already have a deployment
                                 found = False
                                 for deployment in mydeployments:
