@@ -1558,26 +1558,46 @@ class WorkerService:
                                                     )
 
                                                     def schedule_function(
-                                                            func, interval, args
+                                                        func, interval, args
                                                     ):
                                                         import time
+                                                        import sched
 
-                                                        while True:
+                                                        def call_function(scheduler, func, interval, args):
                                                             logging.info(
-                                                                "Calling function %s",
-                                                                func,
+                                                                "Calling function %s %s",
+                                                                func, args
                                                             )
                                                             func(*args)
-                                                            logging.info(
-                                                                "Sleeping %s", interval
+                                                            
+                                                            #logging.info(
+                                                            #    "Sleeping %s", interval
+                                                            #)
+                                                            #time.sleep(interval)
+                                                            
+                                                            scheduler.enter(
+                                                                interval,
+                                                                1,
+                                                                call_function,
+                                                                (scheduler, func, interval, args),
                                                             )
-                                                            time.sleep(interval)
+
+                                                        s = sched.scheduler(time.time, time.sleep)
+                                                        s.enter(
+                                                            interval,
+                                                            1,
+                                                            call_function,
+                                                            (s, func, interval, args)
+                                                        )
+                                                        s.run()
+                                                        logging.debug("Scheduler completed.")
 
                                                     logging.info(
                                                         "Pre-dispatch plug.argument %s",
                                                         plug.argument_id,
                                                     )
-                                                    job = Process(
+                                                    
+                                                    job = Thread(
                                                         target=schedule_function,
                                                         args=(
                                                             dispatcher,
