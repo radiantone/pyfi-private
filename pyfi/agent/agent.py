@@ -332,7 +332,7 @@ class AgentService:
 
                         if agent.requested_status == "stop":
                             shutdown()
-                        '''
+                        
                         #########################################################################
                         # Resource conditions
                         #########################################################################
@@ -342,11 +342,11 @@ class AgentService:
                         node.freemem = _vmem.free
                         node.memused = _vmem.percent
 
-                        database.session.add(self.node)
+                        database.session.add(node)
                         database.session.commit()
                         database.session.flush()
 
-
+                        '''
                         sm = psutil.virtual_memory()
                         if sm.percent > 90.0:
                             # Send health alert log
