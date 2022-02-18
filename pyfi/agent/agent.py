@@ -346,7 +346,6 @@ class AgentService:
                         database.session.commit()
                         #database.session.flush()
 
-                        '''
                         sm = psutil.virtual_memory()
                         if sm.percent > 90.0:
                             # Send health alert log
@@ -463,6 +462,7 @@ class AgentService:
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
 
+                        '''
                         # TODO: Memory leak in this block
                         
                         for processor in processors:
