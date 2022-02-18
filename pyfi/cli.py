@@ -2470,7 +2470,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     dir = "work/" + processor.id
     os.makedirs(dir, exist_ok=True)
     logging.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
-    logging.debug("Creating WorkerService")
+    logging.info("Creating WorkerService")
     workerproc = WorkerService(
         processor,
         workdir=dir,
@@ -2485,8 +2485,8 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         backend=CONFIG.get("backend", "uri"),
         broker=CONFIG.get("broker", "uri"),
     )
-    logging.debug("Creating WorkerService Done")
-    logging.debug("FLOW WORKER START")
+    logging.info("Creating WorkerService Done")
+    logging.info("FLOW WORKER START")
     wprocess = workerproc.start(start=True)
 
     workerModel.requested_status = "ready"
