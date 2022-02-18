@@ -462,7 +462,7 @@ class AgentService:
                         # on requested_status
                         logging.info("Processors[] length %s",len(processors))
 
-                        '''
+                        
                         # TODO: Memory leak in this block
                         
                         for processor in processors:
@@ -864,7 +864,7 @@ class AgentService:
                                 with self.get_session() as session:
                                     session.add(processor["processor"])
                         
-                        '''
+                        
                     time.sleep(3)
 
                     main_loop(self.agent.id, self.node.id, self.database, refresh, processors, workers)
