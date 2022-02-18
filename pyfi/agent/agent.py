@@ -336,6 +336,7 @@ class AgentService:
                         #########################################################################
                         # Resource conditions
                         #########################################################################
+                        '''
                         _vmem = psutil.virtual_memory()
 
                         node.memsize = _vmem.total
@@ -343,10 +344,10 @@ class AgentService:
                         node.memused = _vmem.percent
 
                         #database.session.add(node)
-                        database.session.commit()
+                        #database.session.commit()
                         #database.session.flush()
                         
-                        '''
+                        
                         sm = psutil.virtual_memory()
                         if sm.percent > 90.0:
                             # Send health alert log
