@@ -471,7 +471,7 @@ class AgentService:
                                 "Processor.requested_status START %s",
                                 processor["processor"].requested_status,
                             )
-
+                            '''
                             if processor["processor"].requested_status == "removed":
                                 if processor["worker"] is not None:
                                     logging.info("Killing worker")
@@ -611,6 +611,7 @@ class AgentService:
                                     # Add it to workers list
                                     pass
 
+                            '''
                             """
                             If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
                             Otherwise, if processor requested state is 'update', then restart process
