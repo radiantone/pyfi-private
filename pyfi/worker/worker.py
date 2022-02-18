@@ -1128,9 +1128,9 @@ class WorkerService:
 
             setproctitle("pyfi worker::worker_proc")
 
-            job_defaults = {"coalesce": False, "max_instances": 3}
+            #job_defaults = {"coalesce": False, "max_instances": 3}
 
-            scheduler = BackgroundScheduler(job_defaults=job_defaults, timezone=utc)
+            #scheduler = BackgroundScheduler(job_defaults=job_defaults, timezone=utc)
 
             queues = []
             '''
@@ -1142,7 +1142,7 @@ class WorkerService:
                 poolclass=QueuePool,
             )
             '''
-
+            '''
             logging.info("use_container %s", self.processor.use_container)
             if self.processor.use_container:
                 agent_cwd = os.environ["AGENT_CWD"]
@@ -2078,6 +2078,7 @@ class WorkerService:
                 logging.info("Starting worker...")
                 worker.start()
 
+            '''
         if self.worker:
             logging.debug(
                 "Preparing worker %s %s %s %s %s",
@@ -2209,7 +2210,7 @@ class WorkerService:
 
         worker_process.app = self.celery
         worker_process.daemon = True
-        #worker_process.start()
+        worker_process.start()
         logging.info("worker_process started...")
 
         self.process = worker_process
