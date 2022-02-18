@@ -1865,7 +1865,7 @@ class WorkerService:
                             '.' + socket.task.name, retries=self.processor.retries)
                         """
 
-                        #@task_prerun.connect()
+                        @task_prerun.connect()
                         def pyfi_task_prerun(
                                 sender=None, task=None, task_id=None, *args, **kwargs
                         ):
@@ -1947,7 +1947,7 @@ class WorkerService:
                             # Store task run data
                             pass
 
-                        #@task_received.connect()
+                        @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             logging.info(
                                 "Task RECEIVED REQUEST %s %s %s",
@@ -1999,7 +1999,7 @@ class WorkerService:
                             print("GOT RECEIVED REPLY ", _kwargs)
                             print("New KWARGS ARE:", kwargs)
 
-                        #@task_postrun.connect()
+                        @task_postrun.connect()
                         def pyfi_task_postrun(
                                 sender=None,
                                 task_id=None,
