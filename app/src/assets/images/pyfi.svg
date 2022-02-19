@@ -7,7 +7,7 @@
    viewBox="0 0 52.916663 26.458334"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    sodipodi:docname="pyfi.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,13 +24,13 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="2.1266375"
-     inkscape:cx="117.08625"
-     inkscape:cy="121.31828"
-     inkscape:window-width="2482"
-     inkscape:window-height="1371"
-     inkscape:window-x="1920"
-     inkscape:window-y="32"
-     inkscape:window-maximized="1"
+     inkscape:cx="117.32136"
+     inkscape:cy="121.55339"
+     inkscape:window-width="1495"
+     inkscape:window-height="1082"
+     inkscape:window-x="2975"
+     inkscape:window-y="212"
+     inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
      units="px" />
   <defs
@@ -73,14 +73,14 @@
        d="" />
     <text
        xml:space="preserve"
-       style="font-size:46.2003px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.240627"
+       style="font-size:46.2003px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.241;stroke-miterlimit:4;stroke-dasharray:none;fill:#d0d9dc;fill-opacity:1"
        x="20.706842"
        y="19.956524"
        id="text5363"
        transform="scale(0.94500728,1.0581929)"><tspan
          sodipodi:role="line"
          id="tspan5361"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20.5334px;font-family:Anton;-inkscape-font-specification:'Anton, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#6e8993;fill-opacity:1;stroke-width:0.240627"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20.5334px;font-family:Anton;-inkscape-font-specification:'Anton, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#d0d9dc;fill-opacity:1;stroke-width:0.241;stroke-miterlimit:4;stroke-dasharray:none"
          x="20.706842"
          y="19.956524">flow</tspan></text>
     <path

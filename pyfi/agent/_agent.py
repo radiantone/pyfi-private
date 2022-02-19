@@ -44,16 +44,27 @@ CPUS = multiprocessing.cpu_count()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
+
 HOME = str(Path.home())
 ini = HOME + "/pyfi.ini"
 if os.path.exists(ini):
     CONFIG.read(ini)
+
+engine = create_engine(CONFIG.get("database", "uri"))
+processors = []
 
 @app.route("/")
 def health():
     import json
 
     return json.dumps({"status": "green"})
+
+def import_class(name):
+    components = name.split('.')
+    mod = __import__(components[0])
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 def kill_containers():
     """Kill running containers"""
@@ -97,7 +108,7 @@ class ProcessorMonitor(MonitorPlugin):
         logger.debug("[ProcessorMonitor] Monitor")
 
         if session:
-            _processors = []
+            logging.info("Processors %s",processors)
 
 class DeploymentMonitor(MonitorPlugin):
 
@@ -106,6 +117,14 @@ class DeploymentMonitor(MonitorPlugin):
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
         logger.debug("[DeploymentMonitor] Monitor")
+
+        if CONFIG.has_section("services"):
+
+            worker_class_name = CONFIG.get("services","worker")
+            if worker_class_name:
+                worker_class=import_class(worker_class_name)
+            else:
+                worker_class=WorkerService
 
         if session:
             logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
@@ -252,7 +271,6 @@ class AgentMonitorPlugin:
     @contextmanager
     def get_session(self):
         logger.debug("get_session: Creating session")
-        engine = create_engine(CONFIG.get("database", "uri"))
         session = sessionmaker(bind=engine)()
 
         try:
@@ -274,9 +292,22 @@ class AgentMonitorPlugin:
         logger.debug("[AgentMonitorPlugin] Starting")
         
         logger.debug("[AgentMonitorPlugin] Startup Complete")
+        with self.get_session() as session:
+            agent = (
+                session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+            )
+            if agent is None:
+                agent = AgentModel(
+                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid()
+                )
+
+            agent.pid = os.getpid()
+            agent.requested_status = "starting"
+            agent.status = "starting"
 
         def monitor_processors():
             import sched
+            from datetime import datetime
 
             processor_workers = []
 
@@ -290,21 +321,10 @@ class AgentMonitorPlugin:
                 process = psutil.Process(os.getpid())
                 with self.get_session() as session:
                     logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
-
                     # Get or create Agent
                     agent = (
                         session.query(AgentModel).filter_by(hostname=agent_service.name).first()
                     )
-
-                    if agent is None:
-                        agent = AgentModel(
-                            hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid()
-                        )
-
-                    agent.pid = os.getpid()
-                    agent.requested_status = "starting"
-                    agent.status = "starting"
-
                     # Get or create Node for this agent
                     node = (
                         session.query(NodeModel).filter_by(hostname=agent.name).first()
@@ -318,6 +338,11 @@ class AgentMonitorPlugin:
 
                     agent.node = node
                 
+                    agent.status = "running"
+                    agent.cpus = node.cpus
+                    #agent.port = self.port
+                    agent.updated = datetime.now()
+
                     logger.info("[AgentMonitorPlugin] main_loop agent is %s",agent)
                     logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
                     
@@ -401,6 +426,9 @@ class PluginAgentService(AgentService):
         self.workers = []
         logger.debug("[PluginAgentService] Init")
 
+        with open("agent.pid", "w") as procfile:
+            procfile.write(str(os.getpid()))
+            
     def start(self):
 
         os.environ["AGENT_CWD"] = os.getcwd()

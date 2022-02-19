@@ -1,8 +1,8 @@
 {
-  "name": "pyfi",
+  "name": "flow",
   "version": "0.0.1",
-  "description": "A Python NIFI Clone",
-  "productName": "PYFI",
+  "description": "A Visual Data Flow Editor",
+  "productName": "FLOW",
   "author": "Darren Govoni",
   "private": true,
   "scripts": {
