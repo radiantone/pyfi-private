@@ -5,7 +5,16 @@ import configparser
 import getpass
 import hashlib
 import logging
+logging.basicConfig(filename="flow.log",
+                    level=logging.DEBUG,
+                    format='%(filename)s: '    
+                            '%(levelname)s: '
+                            '%(funcName)s(): '
+                            '%(lineno)d:\t'
+                            '%(message)s')
 
+
+logger = logging.getLogger(__name__)                            
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
@@ -91,6 +100,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
+
 @click.group(invoke_without_command=True)
 @click.option("--debug", is_flag=True, default=False, help="Debug switch")
 @click.option("-d", "--db", help="Database URI")
@@ -109,20 +119,22 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     CLI for creating & managing flow networks
     """
 
+
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
+
     if debug:
         logging.basicConfig(
-            format="%(asctime)s : %(levelname)s : %(message)s", level=logging.DEBUG
+            format="%(asctime)s : %(name)s %(levelname)s : %(message)s", level=logging.DEBUG
         )
     else:
         logging.basicConfig(
-            format="%(asctime)s : %(levelname)s : %(message)s", level=logging.INFO
+            format="%(asctime)s : %(name)s %(levelname)s : %(message)s", level=logging.INFO
         )
 
     context.obj = {}
     # If login section, then query for User and see if token matches and still valid
-
+    logger.info("This is the cli")
     if config:
         if not db:
             db = click.prompt("Database connection URI", type=str, default=POSTGRES)
@@ -237,7 +249,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                     print(f"Unable to log in {username}.")
                     return
 
-                logging.debug(f"{user_m.name} logged in.")
+                logger.debug(f"{user_m.name} logged in.")
 
                 session.expunge(user_m)
             except:
@@ -253,7 +265,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         context.obj["database"].session.close()
 
         def get_checked_permissions(*args, **kwargs):
-            logging.debug("cli: get_checked_permissions")
+            logger.debug("cli: get_checked_permissions")
 
             # engine = create_engine(db)
             # engine.uri = db
@@ -1613,11 +1625,11 @@ def add_argument(context, plug, task, argument):
 
         if param.name == argument and _plug:
             context.obj["database"].session.add(_argument)
-            logging.info("ADDING ARGUMENT")
+            logger.info("ADDING ARGUMENT")
             _plug.argument_id = _argument.id
             _argument.plugs += [_plug]
             # _plug.argument = _argument
-            logging.info(
+            logger.info(
                 "Added argument %s %s to plug %s", _plug.argument, _argument, _plug.name
             )
 
@@ -2456,7 +2468,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     )
 
     for deployment in deployments:
-        logging.info(
+        logger.info(
             "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
         )
         if deployment.worker.id == workerModel.id:
@@ -2473,8 +2485,8 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     dir = "work/" + processor.id
     os.makedirs(dir, exist_ok=True)
-    logging.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
-    logging.info("Creating WorkerService")
+    logger.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
+    logger.info("Creating WorkerService")
     try:
         workerproc = WorkerService(
             processor,
@@ -2491,12 +2503,12 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             broker=CONFIG.get("broker", "uri"),
         )
     except:
-        logging.info("Error creating WorkerService")
+        logger.info("Error creating WorkerService")
         import traceback
         print(traceback.format_exc())
 
-    logging.info("Creating WorkerService Done")
-    logging.info("FLOW WORKER START")
+    logger.info("Creating WorkerService Done")
+    logger.info("FLOW WORKER START")
     wprocess = workerproc.start(start=True)
 
     workerModel.requested_status = "ready"
@@ -2730,11 +2742,11 @@ def ls_call(context, id, name, result, tree, graph, flow):
                     break
 
             def get_call_graph(parent, node, _calls):
-                logging.debug("node is %s", node)
+                logger.debug("node is %s", node)
                 for _child in _calls:
-                    logging.debug("_child %s %s %s %s", _child.name, _child.id, _child.parent, _child.task_id)
+                    logger.debug("_child %s %s %s %s", _child.name, _child.id, _child.parent, _child.task_id)
                     if _child.parent == node.id:
-                        logging.debug("Found child node %s", _child)
+                        logger.debug("Found child node %s", _child)
                         _child_node = Node(_child.name, parent)
                         _child_node = get_call_graph(_child_node, _child, _calls)
 
@@ -2742,7 +2754,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
             _root = [_call for _call in calls if _call.parent is None][0]
             root = Node(_root.name)
-            logging.debug("get_call_graph %s", call.tracking)
+            logger.debug("get_call_graph %s", call.tracking)
             root = get_call_graph(root, _root, calls)
 
             print_tree(root, horizontal=False)
@@ -4316,8 +4328,8 @@ def api_start(context, ip, port):
     import bjoern
     from pyfi.server.api import app as server
 
-    logging.info("Initializing server app....")
-    logging.info("Serving API on {}:{}".format(ip, port))
+    logger.info("Initializing server app....")
+    logger.info("Serving API on {}:{}".format(ip, port))
 
     from pyfi.api import blueprint
 
@@ -4328,7 +4340,7 @@ def api_start(context, ip, port):
         bjoern.run(server, ip, port)
     except Exception as ex:
         logging.error(ex)
-        logging.info("Shutting down...")
+        logger.info("Shutting down...")
 
 
 @agent.command(name="start")
@@ -4385,7 +4397,7 @@ def start_agent(
         os.environ["PYFI_HOSTNAME"] = name
 
     if host is not None:
-        logging.debug("host is %s", host)
+        logger.debug("host is %s", host)
         """
         _ssh = paramiko.SSHClient()
         _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -4399,7 +4411,7 @@ def start_agent(
 
         if CONFIG.has_section("services"):
             agent_class_name = CONFIG.get("services", "agent")
-            logging.debug("Importing agent service class %s",agent_class_name)
+            logger.debug("Importing agent service class %s",agent_class_name)
             try:
                 agent_class = import_class(agent_class_name)
             except Exception as ex:
@@ -4462,4 +4474,4 @@ def web_start(port):
         process.join()
     except Exception as ex:
         logging.error(ex)
-        logging.info("Shutting down...")
+        logger.info("Shutting down...")

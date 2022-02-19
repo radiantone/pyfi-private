@@ -13,6 +13,9 @@ import shutil
 import signal
 import psutil
 
+logger = logging.getLogger(__name__)    
+logger.debug("Agent service")
+
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -61,16 +64,16 @@ def kill_containers():
 
         if os.path.exists(f"{agent_cwd}/containers.pid"):
             client = docker.from_env()
-            logging.info("Found containers.pid")
+            logger.info("Found containers.pid")
             with open(f"{agent_cwd}/containers.pid", "r") as cfile:
                 pids = cfile.readlines()
                 for pid in pids:
                     try:
-                        logging.info("Getting client container %s", pid)
+                        logger.info("Getting client container %s", pid)
                         container = client.containers.get(pid.strip())
-                        logging.info("Killing container...")
+                        logger.info("Killing container...")
                         container.kill()
-                        logging.info("Done")
+                        logger.info("Done")
                     except Exception as ex:
                         logging.error("Error obtaining or killing container %s", pid)
 
@@ -88,10 +91,10 @@ class MonitorPlugin:
 class ProcessorMonitor(MonitorPlugin):
 
     def __init__(self):
-        logging.debug("[ProcessorMonitor] Create")
+        logger.debug("[ProcessorMonitor] Create")
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
-        logging.debug("[ProcessorMonitor] Monitor")
+        logger.debug("[ProcessorMonitor] Monitor")
 
         if session:
             _processors = []
@@ -99,13 +102,13 @@ class ProcessorMonitor(MonitorPlugin):
 class DeploymentMonitor(MonitorPlugin):
 
     def __init__(self):
-        logging.debug("[DeploymentMonitor] Create")
+        logger.debug("[DeploymentMonitor] Create")
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
-        logging.debug("[DeploymentMonitor] Monitor")
+        logger.debug("[DeploymentMonitor] Monitor")
 
         if session:
-            logging.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
                     .filter_by(hostname=agent.hostname)
@@ -113,18 +116,18 @@ class DeploymentMonitor(MonitorPlugin):
             )
 
             for deployment in mydeployments:
-                logging.debug("Deployment %s", deployment)
+                logger.debug("Deployment %s", deployment)
 
 class NodeMonitor(MonitorPlugin):
 
     def __init__(self):
-        logging.debug("[NodeMonitor] Create")
+        logger.debug("[NodeMonitor] Create")
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
         from datetime import datetime
         import psutil
 
-        logging.debug("[NodeMonitor] Monitor")
+        logger.debug("[NodeMonitor] Monitor")
         vmem = psutil.virtual_memory()
 
         node : NodeModel = agent.node
@@ -143,12 +146,12 @@ class NodeMonitor(MonitorPlugin):
 class AgentWebServerPlugin:
 
     def __init__(self):
-        logging.debug("[AgentWebServerPlugin] Creating")
+        logger.debug("[AgentWebServerPlugin] Creating")
         pass
 
     def start(self, agent: AgentService):
 
-        logging.debug("[AgentWebServerPlugin] Starting")
+        logger.debug("[AgentWebServerPlugin] Starting")
         import bjoern
         from billiard.context import Process
         #########################################################################
@@ -159,15 +162,15 @@ class AgentWebServerPlugin:
 
             try:
                 setproctitle("pyfi agent::web_server")
-                logging.info("Starting web server on %s", agent.port)
+                logger.info("Starting web server on %s", agent.port)
                 bjoern.run(app, "0.0.0.0", agent.port)
             except Exception as ex:
                 logging.error(ex)
-                logging.info("web_server: exiting...")
+                logger.info("web_server: exiting...")
 
         self.process = webserver = Process(target=web_server, daemon=True)
         webserver.start()
-        logging.debug("[AgentWebServerPlugin] Startup Complete")
+        logger.debug("[AgentWebServerPlugin] Startup Complete")
 
     def wait(self):
         return self.process.join()
@@ -175,35 +178,35 @@ class AgentWebServerPlugin:
 class AgentShutdownPlugin:
 
     def __init__(self):
-        logging.debug("[AgentShutdownPlugin] Creating")
+        logger.debug("[AgentShutdownPlugin] Creating")
 
     def start(self, agent: AgentService):
-        logging.debug("[AgentShutdownPlugin] Starting")
+        logger.debug("[AgentShutdownPlugin] Starting")
         def shutdown(*args):
             """Shutdown worker"""
             from psutil import Process
 
             kill_containers()
-            logging.info("Shutting down agent...")
+            logger.info("Shutting down agent...")
             process = Process(os.getpid())
 
-            logging.info("    Terminating child processes...")
+            logger.info("    Terminating child processes...")
             for child in process.children(recursive=True):
-                logging.info(
+                logger.info(
                     "         Process pid {}: Killing child {}".format(
                         process.pid, child.pid
                     )
                 )
                 child.kill()
 
-            logging.info("CWD is %s %s", os.getcwd(), os.environ["AGENT_CWD"])
+            logger.info("CWD is %s %s", os.getcwd(), os.environ["AGENT_CWD"])
 
             agent_cwd = os.environ["AGENT_CWD"]
 
-            logging.info("Killing workers")
+            logger.info("Killing workers")
 
             for worker in agent.workers:
-                logging.info("Killing worker %s", worker)
+                logger.info("Killing worker %s", worker)
                 worker.kill()
 
             if os.path.exists(f"{agent_cwd}/agent.pid"):
@@ -215,7 +218,7 @@ class AgentShutdownPlugin:
 
                     for workerpid in workerpids:
                         workerpid = int(workerpid)
-                        logging.info("Killing worker process %s", workerpid)
+                        logger.info("Killing worker process %s", workerpid)
                         try:
                             os.killpg(os.getpgid(workerpid), 15)
                             os.kill(workerpid, signal.SIGKILL)
@@ -232,7 +235,7 @@ class AgentShutdownPlugin:
 
         signal.signal(signal.SIGINT, shutdown)
 
-        logging.debug("[AgentShutdownPlugin] Startup Complete")
+        logger.debug("[AgentShutdownPlugin] Startup Complete")
 
     def wait(self):
         pass
@@ -243,34 +246,34 @@ class AgentMonitorPlugin:
         import sched
         import time
 
-        logging.debug("[AgentMonitorPlugin] Creating")
+        logger.debug("[AgentMonitorPlugin] Creating")
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
     @contextmanager
     def get_session(self):
-        logging.debug("get_session: Creating session")
+        logger.debug("get_session: Creating session")
         engine = create_engine(CONFIG.get("database", "uri"))
         session = sessionmaker(bind=engine)()
 
         try:
-            logging.debug("get_session: Yielding session")
+            logger.debug("get_session: Yielding session")
             yield session
         except:
-            logging.debug("get_session: Rollback session")
+            logger.debug("get_session: Rollback session")
             session.rollback()
             raise
         else:
-            logging.debug("get_session: Commit session")
+            logger.debug("get_session: Commit session")
             session.commit()
         finally:
-            logging.debug("get_session: Closing session")
+            logger.debug("get_session: Closing session")
             session.close()
 
     def start(self, agent_service: AgentService):
         from billiard.context import Process
-        logging.debug("[AgentMonitorPlugin] Starting")
+        logger.debug("[AgentMonitorPlugin] Starting")
         
-        logging.debug("[AgentMonitorPlugin] Startup Complete")
+        logger.debug("[AgentMonitorPlugin] Startup Complete")
 
         def monitor_processors():
             import sched
@@ -281,12 +284,12 @@ class AgentMonitorPlugin:
                 """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
                 as their data objects change state. This includes managing the workers and deployments """
 
-                logging.debug("[AgentMonitorPlugin] main_loop run %s %s", monitors, kwargs)
-                logging.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
+                logger.debug("[AgentMonitorPlugin] main_loop run %s %s", monitors, kwargs)
+                logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
 
                 process = psutil.Process(os.getpid())
                 with self.get_session() as session:
-                    logging.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
+                    logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
 
                     # Get or create Agent
                     agent = (
@@ -315,10 +318,10 @@ class AgentMonitorPlugin:
 
                     agent.node = node
                 
-                    logging.info("[AgentMonitorPlugin] main_loop agent is %s",agent)
-                    logging.info("[AgentMonitorPlugin] main_loop node is %s",node)
+                    logger.info("[AgentMonitorPlugin] main_loop agent is %s",agent)
+                    logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
                     
-                    logging.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
+                    logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
 
                     # Get or create Node for this agent
                     _node = {}
@@ -396,7 +399,7 @@ class PluginAgentService(AgentService):
         self.workerport = workerport
         self.name = name
         self.workers = []
-        logging.debug("[PluginAgentService] Init")
+        logger.debug("[PluginAgentService] Init")
 
     def start(self):
 

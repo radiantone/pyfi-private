@@ -14,6 +14,10 @@ DIRECTORY = "app/dist/spa"
 Handler = functools.partial(SimpleHTTPRequestHandler, directory=DIRECTORY)
 
 
+logger = logging.getLogger(__name__)    
+
+logger.debug("HTTP functions")
+
 def run_http(port):
     """
     Run web server to serve UI
