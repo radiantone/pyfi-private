@@ -13,7 +13,7 @@ import shutil
 import signal
 import psutil
 
-from typing import List
+from typing import List, Literal
 
 logger = logging.getLogger(__name__)    
 logger.debug("Agent service")
@@ -49,7 +49,6 @@ CPUS = multiprocessing.cpu_count()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
-
 HOME = str(Path.home())
 ini = HOME + "/pyfi.ini"
 if os.path.exists(ini):
@@ -71,9 +70,9 @@ def import_class(name):
     return mod
 
 @contextmanager
-def get_session():
+def get_session(**kwargs):
     logger.debug("get_session: Creating session")
-    session = sessionmaker(bind=engine)()
+    session = sessionmaker(bind=engine, **kwargs)() #expire_on_commit=False
 
     try:
         logger.debug("get_session: Yielding session")
@@ -87,6 +86,8 @@ def get_session():
         session.commit()
     finally:
         logger.debug("get_session: Closing session")
+        gc.collect()
+        session.expunge_all()
         session.close()
 
 def kill_containers():
@@ -139,14 +140,79 @@ class MonitorPlugin:
 
 class ProcessorMonitor(MonitorPlugin):
     """ Monitor list of processors assigned to this node """
-    def __init__(self):
+    
+    def __init__(self, agent_service : AgentService):
         logger.debug("[ProcessorMonitor] Create")
+        self.agent_service = agent_service
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
         logger.debug("[ProcessorMonitor] Monitor")
 
-        if session:
-            logging.info("Processors %s",processors)
+        with get_session(expire_on_commit=False) as session:
+
+            logger.info("Processors %s",processors)
+            mydeployments = (
+                session.query(DeploymentModel)
+                    .filter_by(hostname=agent.hostname)
+                    .all()
+            )
+            lock = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].lock
+            logger.debug("[ProcessorMonitor] Acquiring lock ")
+            lock.acquire()
+            logger.debug("[ProcessorMonitor] Got lock ")
+            try:
+                processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].processors
+                # Undeploy processors with no deployments
+                for processor in processors:
+                    #self.database.session.refresh(processor["processor"])
+
+                    # Check if I already have a deployment
+                    found = False
+                    for deployment in mydeployments:
+                        logger.debug("[ProcessorMonitor] Deployment %s %s", deployment, deployment.processor)
+                        if deployment.processor == processor["processor"]:
+                            found = True
+                            break
+
+                    agent_cwd = os.environ["AGENT_CWD"]
+                    # If I have no deployment for the current processor, undeploy it
+                    if not found:
+                        logger.info("Processor no longer deployed")
+
+                        if processor["worker"] is not None:
+                            logging.info(
+                                f"Killing processor {processor['processor'].name}."
+                            )
+                            processor["worker"]["process"].kill()
+                            processor["worker"] = None
+                            processors.remove(processor)
+                            logging.info(
+                                "Removed processor {} from list.".format(
+                                    processor["processor"].name
+                                )
+                            )
+
+                            if os.path.exists(
+                                    f"{agent_cwd}/{processor['processor'].name}.pid"
+                            ):
+                                import docker
+
+                                with open(
+                                        f"{agent_cwd}/{processor['processor'].name}.pid",
+                                        "r",
+                                ) as pidfile:
+                                    container_id = pidfile.read()
+                                    client = docker.from_env()
+                                    container = client.containers.get(
+                                        container_id.strip()
+                                    )
+                                    logging.info(
+                                        f"Killing worker container {container_id}"
+                                    )
+                                    container.kill()
+            finally:
+                lock.release()
+                logger.debug("[ProcessorMonitor] Freed lock ")
 
 class WorkerMonitor(MonitorPlugin):
     """ Monitor list of workers under this agent """
@@ -164,6 +230,7 @@ class DeploymentMonitor(MonitorPlugin):
     agent_service : AgentService
     workers = []
     processors = []
+    lock = Condition()
 
     def __init__(self, agent_service : AgentService):
         logger.debug("[DeploymentMonitor] Create")
@@ -173,7 +240,7 @@ class DeploymentMonitor(MonitorPlugin):
         from datetime import datetime
         from uuid import uuid4
 
-        logger.debug("[DeploymentMonitor] :Monitor")
+        logger.debug("[DeploymentMonitor] Monitor")
 
         if CONFIG.has_section("services"):
             if CONFIG.has_option("services", "worker"):
@@ -182,7 +249,7 @@ class DeploymentMonitor(MonitorPlugin):
             else:
                 worker_class=WorkerService
 
-        if session:
+        with get_session(expire_on_commit=False) as session:
             logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
@@ -190,466 +257,423 @@ class DeploymentMonitor(MonitorPlugin):
                     .all()
             )
 
-            # Undeploy processors with no deployments
-            for processor in self.processors:
-                #self.database.session.refresh(processor["processor"])
-
-                # Check if I already have a deployment
-                found = False
-                for deployment in mydeployments:
-                    if deployment.processor == processor["processor"]:
-                        found = True
-                        break
-
-                agent_cwd = os.environ["AGENT_CWD"]
-                # If I have no deployment for the current processor, undeploy it
-                if not found:
-                    logging.info("Processor no longer deployed")
-
-                    if processor["worker"] is not None:
-                        logging.info(
-                            f"Killing processor {processor['processor'].name}."
-                        )
-                        processor["worker"]["process"].kill()
-                        processor["worker"] = None
-                        processors.remove(processor)
-                        logging.info(
-                            "Removed processor {} from list.".format(
-                                processor["processor"].name
-                            )
-                        )
-
-                        if os.path.exists(
-                                f"{agent_cwd}/{processor['processor'].name}.pid"
-                        ):
-                            import docker
-
-                            with open(
-                                    f"{agent_cwd}/{processor['processor'].name}.pid",
-                                    "r",
-                            ) as pidfile:
-                                container_id = pidfile.read()
-                                client = docker.from_env()
-                                container = client.containers.get(
-                                    container_id.strip()
-                                )
-                                logging.info(
-                                    f"Killing worker container {container_id}"
-                                )
-                                container.kill()
-
             # Deploy new processors
             for mydeployment in mydeployments:
-                myprocessor = mydeployment.processor
-                #self.database.session.refresh(
-                #    myprocessor
-                #)  # Might not be needed
-                if myprocessor.requested_status == "move":
-                    continue
 
-                # If I don't already have this processor deployment
-                found = False
-                for processor in self.processors:
-                    if processor["processor"].id == myprocessor.id:
-                        # If I already have it in my cache, update it
-                        processor["processor"] = myprocessor
-                        found = True
+                self.lock.acquire()
+                try:
+                    myprocessor = mydeployment.processor
+                    #self.database.session.refresh(
+                    #    myprocessor
+                    #)  # Might not be needed
+                    if myprocessor.requested_status == "move":
+                        continue
 
-                if not found:
-                    # If this is a new processor, add it to cache
-                    self.processors += [
-                        {"worker": None, "processor": myprocessor}
-                    ]
-                    logging.info("Added processor %s", myprocessor)
+                    # If I don't already have this processor deployment
+                    found = False
+                    for processor in self.processors:
+                        session.merge(myprocessor)
+                        session.merge(processor["processor"])       
+                        if processor["processor"].id == myprocessor.id:
+                            # If I already have it in my cache, update it
+                            processor["processor"] = myprocessor
+                            found = True
+
+                    if not found:
+                        # If this is a new processor, add it to cache
+                            self.processors += [
+                                {"worker": None, "processor": myprocessor}
+                            ]
+                            logging.info("Added processor %s", myprocessor)
+                finally:
+                    self.lock.release()
 
             # React to processor states
-            for processor in self.processors:
+            self.lock.acquire()
+            try:
+                for processor in self.processors:
 
-                logging.debug(
-                    "Processor.requested_status START %s",
-                    processor["processor"].requested_status,
-                )
+                    logging.debug(
+                        "Processor.requested_status START %s",
+                        processor["processor"].requested_status,
+                    )
 
-                if processor["processor"].requested_status == "removed":
-                    if processor["worker"] is not None:
-                        logging.info("Killing worker")
-                        try:
-                            processor["worker"]["process"].kill()
-                            processor["worker"] = None
-                            logging.info("Killed worker")
-                        except:
-                            import traceback
+                    if processor["processor"].requested_status == "removed":
+                        if processor["worker"] is not None:
+                            logging.info("Killing worker")
+                            try:
+                                processor["worker"]["process"].kill()
+                                processor["worker"] = None
+                                logging.info("Killed worker")
+                            except:
+                                import traceback
 
-                            print(traceback.format_exc())
+                                print(traceback.format_exc())
 
-                    processor["delete"] = True
+                        processor["delete"] = True
 
-                    session.delete(processor["deployment"].worker)
-                    session.delete(processor["deployment"])
+                        session.delete(processor["deployment"].worker)
+                        session.delete(processor["deployment"])
 
-                    if os.path.exists("work/" + processor["processor"].id):
-                        logging.debug(
-                            "Removing work directory %s",
-                            "work/" + processor["processor"],
-                        )
-                        shutil.rmtree("work/" + processor["processor"])
-
-                    logging.info("Processor is removed")
-
-                    continue
-
-                if processor["processor"].requested_status == "restart":
-                    if processor["worker"] is not None:
-                        logging.info("Killing worker")
-                        try:
-                            processor["worker"]["process"].kill()
-                            processor["worker"] = None
-                            logging.info(
-                                "Killed worker %s", worker["worker"].id
+                        if os.path.exists("work/" + processor["processor"].id):
+                            logging.debug(
+                                "Removing work directory %s",
+                                "work/" + processor["processor"],
                             )
-                        except:
-                            import traceback
+                            shutil.rmtree("work/" + processor["processor"])
 
-                            print(traceback.format_exc())
+                        logging.info("Processor is removed")
 
-                    processor["processor"].requested_status = "start"
-                    processor["processor"].status = "stopped"
-                    processor["deployment"].worker.status = "stopped"
-                    processor["deployment"].worker.requested_status = "ready"
-                    processor["status"] = "stopped"
+                        continue
 
-                    logging.info("Processor is stopped")
+                    if processor["processor"].requested_status == "restart":
+                        if processor["worker"] is not None:
+                            logging.info("Killing worker")
+                            try:
+                                processor["worker"]["process"].kill()
+                                processor["worker"] = None
+                                logging.info(
+                                    "Killed worker %s", worker["worker"].id
+                                )
+                            except:
+                                import traceback
 
-                    session.add(processor["deployment"].worker)
-                    session.add(processor["processor"])
+                                print(traceback.format_exc())
 
-                if processor["processor"].requested_status == "paused":
-                    if processor["worker"] is not None:
-                        logging.info("Pausing worker")
-                        try:
-                            processor["worker"]["process"].suspend()
-                            logging.info(
-                                "Paused worker %s", worker["worker"].id
-                            )
-                        except:
-                            import traceback
+                        processor["processor"].requested_status = "start"
+                        processor["processor"].status = "stopped"
+                        processor["deployment"].worker.status = "stopped"
+                        processor["deployment"].worker.requested_status = "ready"
+                        processor["status"] = "stopped"
 
-                            print(traceback.format_exc())
+                        logging.info("Processor is stopped")
 
-                    processor["processor"].requested_status = "ready"
-                    processor["processor"].status = "paused"
-                    processor["deployment"].worker.status = "paused"
-                    processor["deployment"].worker.requested_status = "ready"
+                        session.add(processor["deployment"].worker)
+                        session.add(processor["processor"])
 
-                    logging.info("Processor is paused")
+                    if processor["processor"].requested_status == "paused":
+                        if processor["worker"] is not None:
+                            logging.info("Pausing worker")
+                            try:
+                                processor["worker"]["process"].suspend()
+                                logging.info(
+                                    "Paused worker %s", worker["worker"].id
+                                )
+                            except:
+                                import traceback
 
-                    session.add(processor["deployment"].worker)
-                    session.add(processor["processor"])
+                                print(traceback.format_exc())
 
-                    continue
+                        processor["processor"].requested_status = "ready"
+                        processor["processor"].status = "paused"
+                        processor["deployment"].worker.status = "paused"
+                        processor["deployment"].worker.requested_status = "ready"
 
-                if processor["processor"].requested_status == "resumed":
-                    if processor["worker"] is not None:
-                        logging.info("Resuming worker")
-                        try:
-                            processor["worker"]["process"].resume()
-                            logging.info(
-                                "Paused worker %s", worker["worker"].id
-                            )
-                        except:
-                            import traceback
+                        logging.info("Processor is paused")
 
-                            print(traceback.format_exc())
+                        session.add(processor["deployment"].worker)
+                        session.add(processor["processor"])
 
-                    processor["processor"].requested_status = "ready"
-                    processor["processor"].status = "resumed"
-                    processor["deployment"].worker.status = "resumed"
-                    processor["deployment"].worker.requested_status = "ready"
+                        continue
 
-                    logging.info("Processor is resumed")
+                    if processor["processor"].requested_status == "resumed":
+                        if processor["worker"] is not None:
+                            logging.info("Resuming worker")
+                            try:
+                                processor["worker"]["process"].resume()
+                                logging.info(
+                                    "Paused worker %s", worker["worker"].id
+                                )
+                            except:
+                                import traceback
 
-                    session.add(processor["deployment"].worker)
-                    session.add(processor["processor"])
+                                print(traceback.format_exc())
 
-                    continue
+                        processor["processor"].requested_status = "ready"
+                        processor["processor"].status = "resumed"
+                        processor["deployment"].worker.status = "resumed"
+                        processor["deployment"].worker.requested_status = "ready"
 
-                if processor["processor"].requested_status == "stopped":
-                    if processor["worker"] is not None:
-                        logging.info("Killing worker")
-                        try:
-                            processor["worker"]["process"].kill()
-                            processor["worker"] = None
-                            logging.info(
-                                "Killed worker %s", worker["worker"].id
-                            )
-                        except:
-                            import traceback
+                        logging.info("Processor is resumed")
 
-                            print(traceback.format_exc())
+                        session.add(processor["deployment"].worker)
+                        session.add(processor["processor"])
 
-                    processor["processor"].requested_status = "ready"
-                    processor["processor"].status = "stopped"
-                    processor["deployment"].worker.status = "stopped"
-                    processor["deployment"].worker.requested_status = "ready"
+                        continue
 
-                    logging.info("Processor is stopped")
+                    if processor["processor"].requested_status == "stopped":
+                        if processor["worker"] is not None:
+                            logging.info("Killing worker")
+                            try:
+                                processor["worker"]["process"].kill()
+                                processor["worker"] = None
+                                logging.info(
+                                    "Killed worker %s", worker["worker"].id
+                                )
+                            except:
+                                import traceback
 
-                    session.add(processor["deployment"].worker)
-                    session.add(processor["processor"])
+                                print(traceback.format_exc())
 
-                if processor["processor"].requested_status == "started":
-                    if processor["worker"] is None:
-                        # Spin up worker if I have CPU's available
-                        # Create a worker, link it to the processor
-                        # Add it to workers list
-                        pass
+                        processor["processor"].requested_status = "ready"
+                        processor["processor"].status = "stopped"
+                        processor["deployment"].worker.status = "stopped"
+                        processor["deployment"].worker.requested_status = "ready"
 
-                """
-                If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
-                Otherwise, if processor requested state is 'update', then restart process
-                or if processor worker is None, restart it (e.g. on startup)
-                """
-                process_died = False
-                if "worker" in processor:
-                    try:
-                        # process_died = not processor['worker']['wprocess'].is_alive()
-                        logging.debug(
-                            "Processor.requested_status 0 %s",
-                            processor["processor"].requested_status,
-                        )
-                        logging.debug(
-                            "processor['worker'] is %s", processor["worker"]
-                        )
-                        if (
-                                processor["worker"]
-                                and processor["worker"]["wprocess"]
-                        ):
-                            process_died = (
-                                    processor["worker"]["wprocess"].poll()
-                                    is not None
-                            )
-                        logging.debug("process_died is %s", process_died)
-                    except:
-                        import traceback
+                        logging.info("Processor is stopped")
 
-                        print(traceback.format_exc())
+                        session.add(processor["deployment"].worker)
+                        session.add(processor["processor"])
 
-                if process_died:
-                    logging.error("Process died!")
-
-                logging.debug("Process worker is %s", processor["worker"])
-
-                if (
-                        processor["processor"].requested_status == "start"
-                        or (
-                        process_died
-                        or (
-                                processor["processor"].requested_status == "update"
-                                or processor["worker"] is None
-                        )
-                )
-                        and (
-                        processor["processor"].status != "stopped"
-                        and processor["processor"].requested_status != "stopped"
-                )
-                ):
-
-                    logging.debug("%s", process_died)
-                    logging.debug("%s", processor["worker"])
-                    logging.debug("%s", processor["processor"].requested_status)
-                    logging.debug("%s", processor["processor"].status)
-
-                    if processor["worker"] is None:
-                        logging.info("Worker is none")
-
-                    logging.info("Updating processor")
-
-                    if processor["worker"] is not None:
-                        processor["worker"]["process"].kill()
-                        processor["worker"] = None
+                    if processor["processor"].requested_status == "started":
+                        if processor["worker"] is None:
+                            # Spin up worker if I have CPU's available
+                            # Create a worker, link it to the processor
+                            # Add it to workers list
+                            pass
 
                     """
-                    TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
-                    This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
-                    Once a WorkerModel has been created with all the details, spawn `pyfi worker start` FROM the virtualenv after the gitrepo setup.py has been
-                    installed.
+                    If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
+                    Otherwise, if processor requested state is 'update', then restart process
+                    or if processor worker is None, restart it (e.g. on startup)
                     """
+                    process_died = False
+                    if "worker" in processor:
+                        try:
+                            # process_died = not processor['worker']['wprocess'].is_alive()
+                            logging.debug(
+                                "Processor.requested_status 0 %s",
+                                processor["processor"].requested_status,
+                            )
+                            logging.debug(
+                                "processor['worker'] is %s", processor["worker"]
+                            )
+                            if (
+                                    processor["worker"]
+                                    and processor["worker"]["wprocess"]
+                            ):
+                                process_died = (
+                                        processor["worker"]["wprocess"].poll()
+                                        is not None
+                                )
+                        except:
+                            import traceback
+
+                            print(traceback.format_exc())
+
+                    if process_died:
+                        logging.error("Process died!")
+
                     if (
-                            "deployment" in processor
-                            and processor["deployment"].worker is None
+                            processor["processor"].requested_status == "start"
+                            or (
+                            process_died
+                            or (
+                                    processor["processor"].requested_status == "update"
+                                    or processor["worker"] is None
+                            )
+                    )
+                            and (
+                            processor["processor"].status != "stopped"
+                            and processor["processor"].requested_status != "stopped"
+                    )
                     ):
-                        """If there is no worker model, create one and link to Processor"""
 
-                        # TODO: Not sure this is needed since worker now puts worker model row in database
-                        worker_model = (
-                            session.query(WorkerModel)
-                                .filter_by(
-                                name=HOSTNAME
-                                        + ".agent."
-                                        + processor["processor"].name
-                                        + ".worker"
+                        logging.debug("process_died %s", process_died)
+                        logging.debug("processor[\"worker\"] %s", processor["worker"])
+                        logging.debug("processor[\"processor\"].requested_status %s", processor["processor"].requested_status)
+                        logging.debug("processor[\"processor\"].status %s", processor["processor"].status)
+
+                        if processor["worker"] is None:
+                            logging.info("Worker is none")
+
+                        logging.info("Updating processor")
+
+                        if processor["worker"] is not None:
+                            processor["worker"]["process"].kill()
+                            processor["worker"] = None
+
+                        """
+                        TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
+                        This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
+                        Once a WorkerModel has been created with all the details, spawn `pyfi worker start` FROM the virtualenv after the gitrepo setup.py has been
+                        installed.
+                        """
+                        if (
+                                "deployment" in processor
+                                and processor["deployment"].worker is None
+                        ):
+                            """If there is no worker model, create one and link to Processor"""
+
+                            # TODO: Not sure this is needed since worker now puts worker model row in database
+                            worker_model = (
+                                session.query(WorkerModel)
+                                    .filter_by(
+                                    name=HOSTNAME
+                                            + ".agent."
+                                            + processor["processor"].name
+                                            + ".worker"
+                                )
+                                    .first()
                             )
-                                .first()
-                        )
 
-                        if worker_model is None:
-                            logging.info("Creating worker model...")
-                            worker_model = WorkerModel(
-                                id=str(uuid4()),
-                                name=HOSTNAME
-                                        + ".agent."
-                                        + processor["processor"].name
-                                        + ".worker",
-                                concurrency=processor["deployment"].cpus,
-                                status="ready",
-                                backend=self.agent_service.backend,
-                                broker=self.agent_service.broker,
-                                agent_id=agent.id,
-                                hostname=HOSTNAME,
-                                requested_status="start",
-                            )
-
-                        processor["deployment"].worker = worker_model
-                        worker_model.lastupdated = datetime.now()
-                        worker_model.status = "running"
-                        worker_model.processor = processor["processor"]
-
-                        
-                        session.add(agent)
-                        session.add(worker_model)
-                        logging.info("Worker model is %s", worker_model)
-                        logging.info(
-                            "Agent worker is %s", agent.worker
-                        )
-                        agent.workers += [worker_model]
-
-                        logging.info("Worker %s created.", worker_model.id)
-
-                    if processor["worker"] is None or process_died:
-                        # If there is no worker Process create it
-                        worker = {}
-                        logging.info(
-                            "process_died %s and Worker is %s",
-                            process_died,
-                            processor["worker"],
-                        )
-                        _dir = "work/" + processor["processor"].id
-
-                        os.makedirs(_dir, exist_ok=True)
-
-                        logging.info(
-                            "Agent: Creating Worker() queue size %s", self.agent_service.size
-                        )
-
-                        for deployment in processor["processor"].deployments:
-                            logging.info("Deployment worker %s", deployment)
-                            # Only launch worker if we have a deployment for our host
-                            if deployment.hostname == HOSTNAME:
-                                logging.info(
-                                    "Deployment hostname is {} and HOSTNAME is {}".format(
-                                        deployment.hostname, HOSTNAME
-                                    )
-                                )
-                                processor["deployment"] = deployment
-                                logging.info(
-                                    "-------------------------------------------------------"
-                                )
-                                logging.info(
-                                    f"-----------------------Deploying processor {processor['processor'].name}"
-                                )
-                                logging.info(
-                                    f"-----------------------Agent {agent.id}"
-                                )
-                                workerproc = self.workerproc = WorkerService(
-                                    processor["processor"],
-                                    size=self.agent_service.size,
-                                    workdir=_dir,
-                                    user=self.agent_service.user,
-                                    pool=self.agent_service.pool,
-                                    workerport=self.agent_service.workerport,
-                                    database=self.agent_service.dburi,
-                                    hostname=self.agent_service.name,
-                                    agent=agent,
-                                    deployment=deployment,
-                                    celeryconfig=self.agent_service.config,
+                            if worker_model is None:
+                                logging.info("Creating worker model...")
+                                worker_model = WorkerModel(
+                                    id=str(uuid4()),
+                                    name=HOSTNAME
+                                            + ".agent."
+                                            + processor["processor"].name
+                                            + ".worker",
+                                    concurrency=processor["deployment"].cpus,
+                                    status="ready",
                                     backend=self.agent_service.backend,
                                     broker=self.agent_service.broker,
+                                    agent_id=agent.id,
+                                    hostname=HOSTNAME,
+                                    requested_status="start",
                                 )
-                                # TODO: Add to workerproc list
 
-                                # = workerproc.worker_model
-                                # deployment.worker = workerproc.worker_model
-                                # deployment.worker.processor = processor['processor']
-                                # Setup the virtualenv only
-                                logging.info(
-                                    f"-----------------------Starting {processor['processor'].name}"
-                                )
-                                workerproc.start(start=False)
+                            processor["deployment"].worker = worker_model
+                            worker_model.lastupdated = datetime.now()
+                            worker_model.status = "running"
+                            worker_model.processor = processor["processor"]
 
-                                self.workers += [workerproc]
+                            
+                            session.add(agent)
+                            session.add(worker_model)
+                            logging.info("Worker model is %s", worker_model)
+                            logging.info(
+                                "Agent worker is %s", agent.worker
+                            )
+                            agent.workers += [worker_model]
 
-                                # session.add(workerproc.worker_model)
-                                worker_model = (
-                                    session.query(WorkerModel)
-                                        .filter_by(
-                                        name=HOSTNAME
-                                                + ".agent."
-                                                + processor["processor"].name
-                                                + ".worker"
+                            logging.info("Worker %s created.", worker_model.id)
+
+                        if processor["worker"] is None or process_died:
+                            # If there is no worker Process create it
+                            worker = {}
+                            logging.info(
+                                "process_died %s and Worker is %s",
+                                process_died,
+                                processor["worker"],
+                            )
+                            _dir = "work/" + processor["processor"].id
+
+                            os.makedirs(_dir, exist_ok=True)
+
+                            logging.info(
+                                "Agent: Creating Worker() queue size %s", self.agent_service.size
+                            )
+
+                            for deployment in processor["processor"].deployments:
+                                logging.info("Deployment worker %s", deployment)
+                                # Only launch worker if we have a deployment for our host
+                                if deployment.hostname == HOSTNAME:
+                                    logging.info(
+                                        "Deployment hostname is {} and HOSTNAME is {}".format(
+                                            deployment.hostname, HOSTNAME
+                                        )
                                     )
-                                        .first()
-                                )
-                                # Launch from the virtualenv
-                                logging.info(
-                                    f"-----------------------Launching {processor['processor'].name}"
-                                )
-                                wprocess = workerproc.launch(
-                                    worker_model.name,
-                                    agent.name,
-                                    HOSTNAME,
-                                    self.agent_service.pool,
-                                )
+                                    processor["deployment"] = deployment
+                                    logging.info(
+                                        "-------------------------------------------------------"
+                                    )
+                                    logging.info(
+                                        f"-----------------------Deploying processor {processor['processor'].name}"
+                                    )
+                                    logging.info(
+                                        f"-----------------------Agent {agent.id}"
+                                    )
+                                    workerproc = self.workerproc = WorkerService(
+                                        processor["processor"],
+                                        size=self.agent_service.size,
+                                        workdir=_dir,
+                                        user=self.agent_service.user,
+                                        pool=self.agent_service.pool,
+                                        workerport=self.agent_service.workerport,
+                                        database=self.agent_service.dburi,
+                                        hostname=self.agent_service.name,
+                                        agent=agent,
+                                        deployment=deployment,
+                                        celeryconfig=self.agent_service.config,
+                                        backend=self.agent_service.backend,
+                                        broker=self.agent_service.broker,
+                                    )
+                                    # TODO: Add to workerproc list
 
-                                deployment.requested_status = "ready"
-                                deployment.status = "running"
-                                deployment.worker = worker_model
-                                # session.add(deployment.worker)
-                                deployment.worker.processor_id = processor[
-                                    "processor"
-                                ].id
-                                deployment.worker.agent = agent
+                                    # = workerproc.worker_model
+                                    # deployment.worker = workerproc.worker_model
+                                    # deployment.worker.processor = processor['processor']
+                                    # Setup the virtualenv only
+                                    logging.info(
+                                        f"-----------------------Starting {processor['processor'].name}"
+                                    )
+                                    workerproc.start(start=False)
 
-                                logging.info(
-                                    "-----------------------Worker process %s started.",
-                                    wprocess.pid,
-                                )
+                                    self.workers += [workerproc]
 
-                                worker["worker"] = deployment.worker
-                                worker[
-                                    "worker"
-                                ].process = workerproc.process.pid
-                                worker["process"] = workerproc
-                                worker["wprocess"] = wprocess
+                                    # session.add(workerproc.worker_model)
+                                    worker_model = (
+                                        session.query(WorkerModel)
+                                            .filter_by(
+                                            name=HOSTNAME
+                                                    + ".agent."
+                                                    + processor["processor"].name
+                                                    + ".worker"
+                                        )
+                                            .first()
+                                    )
+                                    # Launch from the virtualenv
+                                    logging.info(
+                                        f"-----------------------Launching {processor['processor'].name}"
+                                    )
+                                    wprocess = workerproc.launch(
+                                        worker_model.name,
+                                        agent.name,
+                                        HOSTNAME,
+                                        self.agent_service.pool,
+                                    )
 
-                                processor["worker"] = worker
-                                logging.info(
-                                    "-----------------------workerproc is %s",
-                                    workerproc,
-                                )
+                                    deployment.requested_status = "ready"
+                                    deployment.status = "running"
+                                    deployment.worker = worker_model
+                                    # session.add(deployment.worker)
+                                    deployment.worker.processor_id = processor[
+                                        "processor"
+                                    ].id
+                                    deployment.worker.agent = agent
 
-                                self.workers += [worker]
+                                    logging.info(
+                                        "-----------------------Worker process %s started.",
+                                        wprocess.pid,
+                                    )
 
-                                logging.info(
-                                    "-------------------------------------------------------"
-                                )
+                                    worker["worker"] = deployment.worker
+                                    worker[
+                                        "worker"
+                                    ].process = workerproc.process.pid
+                                    worker["process"] = workerproc
+                                    worker["wprocess"] = wprocess
 
-                    processor["processor"].requested_status = "ready"
-                    processor["processor"].status = "running"
+                                    processor["worker"] = worker
+                                    logging.info(
+                                        "-----------------------workerproc is %s",
+                                        workerproc,
+                                    )
 
-                    session.add(processor["processor"])
-        else:
-            logger.warning("[DeploymentMonitor] No session")
+                                    self.workers += [worker]
 
+                                    logging.info(
+                                        "-------------------------------------------------------"
+                                    )
+
+                        processor["processor"].requested_status = "ready"
+                        processor["processor"].status = "running"
+
+                        session.add(processor["processor"])
+            finally:
+                self.lock.release()
 
 class NodeMonitor(MonitorPlugin):
     """ Monitor this node and update it as attributes change """
@@ -672,9 +696,6 @@ class NodeMonitor(MonitorPlugin):
         agent.status = "running"
         agent.cpus = node.cpus
         agent.updated = datetime.now()
-
-        if session:
-            pass
 
 class AgentWebServerPlugin(AgentPlugin):
     """ Health check web endpoint """
@@ -793,7 +814,6 @@ class AgentMonitorPlugin(AgentPlugin):
         from billiard.context import Process
         logger.debug("[AgentMonitorPlugin] Starting")
         
-        logger.debug("[AgentMonitorPlugin] Startup Complete")
         with get_session() as session:
             agent = (
                 session.query(AgentModel).filter_by(hostname=agent_service.name).first()
@@ -808,7 +828,7 @@ class AgentMonitorPlugin(AgentPlugin):
             agent.status = "starting"
 
         # Create a list of pluggable "Monitor" objects that perform various independent tasks
-        monitors = [ProcessorMonitor(), DeploymentMonitor(agent_service), NodeMonitor()]
+        monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service), NodeMonitor()]
 
         for monitor in monitors:
             self.monitors[monitor.__class__.__name__] = monitor
@@ -864,7 +884,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     # Get deployments for this host
                     deployments = []
 
-                    [monitor.monitor(agent, processors, deployments, session=session) for monitor in monitors]
+                    [monitor.monitor(agent, processors, deployments) for monitor in monitors]
 
                     gc.collect()
 
@@ -890,6 +910,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
         self.process = process = Process(target=monitor_processors, daemon=True)
         process.start()
+        logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
         return self.process.join()
