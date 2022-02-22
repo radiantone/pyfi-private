@@ -996,7 +996,7 @@ class PluginAgentService(AgentService):
         self.workers = []
         self.plugins = {}
 
-        logger.debug("[PluginAgentService] Init")
+        logger.debug("[PluginAgentService] Init, name %s", name)
 
         with open("agent.pid", "w") as procfile:
             procfile.write(str(os.getpid()))

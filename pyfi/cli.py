@@ -4400,7 +4400,7 @@ def start_agent(
     Start an agent
     """
     from pyfi.agent import AgentService
-
+    logger.debug("start_agent name is %s", name)
     if name:
         os.environ["PYFI_HOSTNAME"] = name
 
