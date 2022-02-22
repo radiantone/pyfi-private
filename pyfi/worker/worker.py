@@ -161,7 +161,9 @@ signal.signal(signal.SIGINT, shutdown)
 def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
     logging.info("Dispatching %s", socket)
-    celery = Celery(include=processor.module)
+    backend = CONFIG.get("backend", "uri")
+    broker = CONFIG.get("broker", "uri")
+    celery = Celery(backend=backend, broker=broker, include=processor.module)
 
     try:
         name = plug.name
