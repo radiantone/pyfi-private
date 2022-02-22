@@ -4403,7 +4403,9 @@ def start_agent(
     logger.debug("start_agent name is %s", name)
     if name:
         os.environ["PYFI_HOSTNAME"] = name
-
+    else:
+        name='localhost'
+        
     if host is not None:
         logger.debug("host is %s", host)
         """
