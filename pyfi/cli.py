@@ -5,8 +5,7 @@ import configparser
 import getpass
 import hashlib
 import logging
-logging.basicConfig(filename="flow.log",
-                    level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(filename)s: '    
                             '%(levelname)s: '
                             '%(funcName)s(): '
@@ -594,6 +593,9 @@ def add_node_to_network(context, name, node):
             .filter_by(name=node)
             .first()
     )
+    if node is None:
+        print(f"Node {node} not found.")
+        return
 
     network.nodes += [node]
 
@@ -1227,13 +1229,19 @@ def update(context, id):
 @scheduler.command(name="start", help="Start the default scheduler")
 @click.option("-n", "--name", default=None, required=True)
 @click.option("-i", "--interval", default=3, required=False)
+@click.option("-c", "--class", 'clazz', default="pyfi.scheduler.BasicScheduler", required=False)
 @click.pass_context
-def start_scheduler(context, name, interval):
+def start_scheduler(context, name, interval, clazz):
     from pyfi.scheduler import BasicScheduler
 
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
-    scheduler = BasicScheduler(name, interval)
-    scheduler.run()
+    try:
+        scheduler_class = import_class(clazz)
+        scheduler = scheduler_class(name, interval)
+        scheduler.run()
+    except Exception as ex:
+        logger.error(ex)
+    #scheduler = BasicScheduler(name, interval)
 
 
 @scheduler.command(name="remove")

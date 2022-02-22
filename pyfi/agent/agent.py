@@ -767,7 +767,7 @@ class AgentService:
                                         )
                                         workerproc.start(start=False)
                                         self.workers += [workerproc]
-
+                                        print("**** PROCESS WORKER 1",processor["worker"])
                                         with self.get_session() as session:
                                             # session.add(workerproc.worker_model)
                                             worker_model = (
@@ -813,6 +813,7 @@ class AgentService:
                                             worker["wprocess"] = wprocess
 
                                             processor["worker"] = worker
+                                            print("**** PROCESS WORKER 2",processor["worker"])
                                             logging.info(
                                                 "-----------------------workerproc is %s",
                                                 workerproc,
