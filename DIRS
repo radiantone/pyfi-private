@@ -1,0 +1,23 @@
+agent2 - Agent work directory
+agent3 - Agent work directory
+app - UI app
+bin - bin scripts
+celery - celery source tree
+conf - Config files
+data - rabbitmq data directory
+docker - Dockerfiles
+docs - RTD docs
+etc - IDE files
+examples - Examples
+git - GIT clones
+grafana - Grafana temp
+logs - Log dir
+migrations - Alembic migrations and configs
+misc - Miscellaneous stuff
+notes - Notes
+pyfi - PYFI python package
+screens - Screenshots
+scripts - Other bash scripts
+venv2 - VirtualEnv
+work - Work directory
+yaml - YAML files
