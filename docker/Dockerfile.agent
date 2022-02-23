@@ -33,8 +33,9 @@ RUN venv/bin/pip install -r requirements.txt
 RUN venv/bin/pip uninstall -y pytz
 RUN venv/bin/python setup.py install
 RUN update-rc.d -f supervisord remove
+RUN mkdir /home/pyfi
 RUN useradd pyfi -d /home/pyfi
-ADD conf/pyfi.ini /home/pyfi/pyfi.ini
+#ADD conf/pyfi.ini /home/pyfi/pyfi.ini
 RUN chown -R pyfi /opt/pyfi /home/pyfi
 ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

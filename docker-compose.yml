@@ -88,50 +88,50 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
 
-  agent2:
-    build: 
-      context: .
-      dockerfile: docker/Dockerfile.agent
-    container_name: agent2
-    hostname: agent2
-    image: agent:latest
+  agent3.docker:
+    container_name: agent3.docker
+    hostname: agent3
+    image: elasticcode/agent:latest
     environment: 
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow -i /opt/pyfi/pyfi.ini agent start --clean --size 20 --user pyfi"
+    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
     ports:
       - 8004:8002
+    profiles: 
+      - agent
     depends_on:
       - redis
       - postgres
-    profiles: 
-      - agent
+      - rabbitmq
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
+      - ./conf/pyfi.polar:/home/pyfi/pyfi.polar
 
-  agent1:
+  agent3:
     build: 
       context: .
       dockerfile: docker/Dockerfile.agent
-    container_name: agent1
-    hostname: agent1
+    container_name: agent3
+    hostname: agent3
     image: agent:latest
     environment: 
-      - TZ=America/New_York
-      - DEBIAN_FRONTEND=noninteractive
       - "EVENTS=events"
       - "GIT_LOGIN=https://radiantone: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@github.com"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow -i /opt/pyfi/pyfi.ini agent start --clean --size 20 --user pyfi"
+    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
     ports:
-      - 8003:8002
+      - 8004:8002
+    profiles: 
+      - agent
     depends_on:
       - redis
       - postgres
-    profiles: 
-      - agent
+      - rabbitmq
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-
+      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
+      - ./conf/pyfi.polar:/home/pyfi/pyfi.polar
 
   # http://localhost:5001
   logs:
