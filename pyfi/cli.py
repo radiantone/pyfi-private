@@ -133,7 +133,6 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
     context.obj = {}
     # If login section, then query for User and see if token matches and still valid
-    logger.info("This is the cli")
     if config:
         if not db:
             db = click.prompt("Database connection URI", type=str, default=POSTGRES)
@@ -581,6 +580,7 @@ def network(context):
 @click.option("-nd", "--node", help="Name of node to add")
 @click.pass_context
 def add_node_to_network(context, name, node):
+    """ Add node to a network """
     network = (
         context.obj["database"]
             .session.query(NetworkModel)
@@ -4405,7 +4405,7 @@ def start_agent(
         os.environ["PYFI_HOSTNAME"] = name
     else:
         name='localhost'
-        
+
     if host is not None:
         logger.debug("host is %s", host)
         """
