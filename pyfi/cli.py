@@ -3416,11 +3416,15 @@ def ls_processor(context, id, name, graph):
 @click.option("-n", "--name", default=None, required=True, help="Name of task")
 @click.option("-s", "--source", is_flag=True, required=False, help="Source of task function")
 @click.option("-c", "--code", is_flag=True, required=False, help="Code override of task")
+@click.option("-p", "--plugs", is_flag=True, default=False, required=False, help="Show plugs")
+@click.option("-so", "--sockets", is_flag=True, default=False, required=False, help="Show sockets")
 @click.pass_context
-def ls_task(context, name, source, code):
+def ls_task(context, name, source, code, plugs, sockets):
     """
     List a task
     """
+    from pptree import print_tree, Node
+
     task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
     x = PrettyTable()
@@ -3475,6 +3479,98 @@ def ls_task(context, name, source, code):
 
     print(x)
 
+    if sockets:
+        print()
+        print("Sockets")
+        x = PrettyTable()
+        names = [
+            "Name",
+            "ID",
+            "Owner",
+            "Module",
+            "Task",
+            "Last Updated",
+            "Status",
+            "Processor",
+            "Queue",
+            "Interval",
+        ]
+
+        x.field_names = names
+
+        for node in task.sockets:
+            x.add_row(
+                [
+                    node.name,
+                    node.id,
+                    node.owner,
+                    node.task.module,
+                    node.task.name,
+                    node.lastupdated,
+                    node.status,
+                    node.processor.name,
+                    node.queue.name,
+                    node.interval,
+                ]
+            )
+
+        print(x)
+
+    if plugs:
+
+        print()
+        print("Plugs")
+
+        x = PrettyTable()
+
+        names = [
+            "Name",
+            "ID",
+            "Type",
+            "Owner",
+            "Last Updated",
+            "Status",
+            "Processor",
+            "Queue",
+            "Source",
+            "Target",
+        ]
+        x.field_names = names
+        plugs = context.obj["database"].session.query(PlugModel).all()
+
+        for socket in task.sockets:
+            for node in socket.sourceplugs:
+                x.add_row(
+                    [
+                        node.name,
+                        node.id,
+                        node.type,
+                        node.owner,
+                        node.lastupdated,
+                        node.status,
+                        node.processor.name,
+                        node.queue.name,
+                        node.source.name,
+                        node.target.name,
+                    ]
+                )
+            for node in socket.targetplugs:
+                x.add_row(
+                    [
+                        node.name,
+                        node.id,
+                        node.type,
+                        node.owner,
+                        node.lastupdated,
+                        node.status,
+                        node.processor.name,
+                        node.queue.name,
+                        node.source.name,
+                        node.target.name,
+                    ]
+                )
+
+        print(x)
 
 @ls.command(name="stats")
 @click.pass_context
