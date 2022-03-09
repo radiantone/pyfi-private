@@ -715,7 +715,7 @@ class NodeMonitor(MonitorPlugin):
         node.memused = vmem.percent
 
         agent.status = "running"
-        agent.cpus = node.cpus
+        #agent.cpus = node.cpus
         agent.updated = datetime.now()
 
 class AgentWebServerPlugin(AgentPlugin):
@@ -724,7 +724,7 @@ class AgentWebServerPlugin(AgentPlugin):
         logger.debug("[AgentWebServerPlugin] Creating")
         pass
 
-    def start(self, agent: AgentService):
+    def start(self, agent: AgentService, **kwargs):
 
         logger.debug("[AgentWebServerPlugin] Starting")
         import bjoern
@@ -755,7 +755,7 @@ class AgentShutdownPlugin(AgentPlugin):
     def __init__(self):
         logger.debug("[AgentShutdownPlugin] Creating")
 
-    def start(self, agent_service: AgentService):
+    def start(self, agent_service: AgentService, **kwargs):
         logger.debug("[AgentShutdownPlugin] Starting")
 
         def shutdown(*args):
@@ -822,7 +822,7 @@ class AgentShutdownPlugin(AgentPlugin):
 
 class AgentMonitorPlugin(AgentPlugin):
     """ Master plugin for all the monitor classes """
-    def __init__(self):
+    def __init__(self,):
         import sched
         import time
 
@@ -831,9 +831,10 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.debug("[AgentMonitorPlugin] Creating")
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
-    def start(self, agent_service: AgentService):
+    def start(self, agent_service: AgentService, **kwargs):
         from billiard.context import Process
-        logger.debug("[AgentMonitorPlugin] Starting")
+        logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
+        self.kwargs = kwargs
         
         with get_session() as session:
             agent = (
@@ -841,13 +842,15 @@ class AgentMonitorPlugin(AgentPlugin):
             )
             if agent is None:
                 agent = AgentModel(
-                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid()
+                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
                 )
 
             agent.pid = os.getpid()
             agent.requested_status = "starting"
             agent.status = "starting"
+            agent.cpus = self.kwargs['cpus']
 
+            logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
         # Create a list of pluggable "Monitor" objects that perform various independent tasks
         monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service), NodeMonitor()]
 
@@ -882,7 +885,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         # agent will report local available resources to database
                         # agent will report # of active processors/CPUs and free CPUs
                         agent = AgentModel(
-                            hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid()
+                            hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **self.kwargs
                         )
 
                     if agent is None:
@@ -904,16 +907,18 @@ class AgentMonitorPlugin(AgentPlugin):
                         node = NodeModel(
                             name=agent.name + ".node", agent=agent, hostname=agent.name
                         )
+                        
                         session.add(node)
 
+                    node.cpus = CPUS
                     agent.node = node
                 
                     agent.status = "running"
-                    agent.cpus = node.cpus
+                    #agent.cpus = node.cpus
                     #agent.port = self.port
                     agent.updated = datetime.now()
 
-                    logger.info("[AgentMonitorPlugin] main_loop agent is %s",agent)
+                    logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
                     logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
                     
                     logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
@@ -996,7 +1001,7 @@ class PluginAgentService(AgentService):
         self.workers = []
         self.plugins = {}
 
-        logger.debug("[PluginAgentService] Init, name %s", name)
+        logger.info("[PluginAgentService] Init, name %s cpus %s", name, cpus)
 
         with open("agent.pid", "w") as procfile:
             procfile.write(str(os.getpid()))
@@ -1010,6 +1015,9 @@ class PluginAgentService(AgentService):
             self.plugins[plugin.__class__.__name__] = plugin
             logging.debug("AgentService: Registered plugin %s",plugin.__class__.__name__)
 
-        [plugin.start(self) for plugin in plugins]
+        kwargs = {
+            'cpus':self.cpus
+        }
+        [plugin.start(self, **kwargs) for plugin in plugins]
 
         [plugin.wait() for plugin in plugins]

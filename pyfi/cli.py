@@ -4496,7 +4496,7 @@ def start_agent(
     Start an agent
     """
     from pyfi.agent import AgentService
-    logger.debug("start_agent name is %s", name)
+    logger.info("start_agent name is %s cpus %s", name, cpus)
     if name:
         os.environ["PYFI_HOSTNAME"] = name
     else:
@@ -4523,7 +4523,7 @@ def start_agent(
             except Exception as ex:
                 logging.error(ex)
                 return
-
+            logging.info("Starting agent_class %s",agent_class)
             agent = agent_class(
                 context.obj["database"],
                 context.obj["dburi"],

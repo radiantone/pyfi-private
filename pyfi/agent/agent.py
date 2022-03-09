@@ -142,6 +142,7 @@ class AgentService:
         import bjoern
         from billiard.context import Process
 
+        logging.info("Starting Agent Class...")
         #########################################################################
         # Store my pid
         #########################################################################
@@ -169,7 +170,7 @@ class AgentService:
             # agent will report local available resources to database
             # agent will report # of active processors/CPUs and free CPUs
             agent = AgentModel(
-                hostname=HOSTNAME, name=HOSTNAME + ".agent", pid=os.getpid()
+                hostname=HOSTNAME, ame=HOSTNAME + ".agent", pid=os.getpid()
             )
 
         agent.pid = os.getpid()
@@ -211,7 +212,9 @@ class AgentService:
 
         if self.cpus == -1:
             node.cpus = CPUS
+            logging.info("node.cpus is %s",CPUS)
         else:
+            logging.info("self.cpus is %s",self.cpus)
             node.cpus = self.cpus
 
         node.memsize = vmem.total
@@ -224,10 +227,11 @@ class AgentService:
         agent.port = self.port
         agent.updated = datetime.now()
 
+        logging.info("agent.cpus %s",agent.cpus)
         with self.get_session() as session:
             session.add(agent)
 
-        session.commit()
+        #session.commit()
 
         #########################################################################
         # Shutdown agent
