@@ -900,12 +900,12 @@ class AgentMonitorPlugin(AgentPlugin):
                         return
 
                     node = (
-                        session.query(NodeModel).filter_by(hostname=agent.name).first()
+                        session.query(NodeModel).filter_by(hostname=agent.hostname).first()
                     )
 
                     if node is None:
                         node = NodeModel(
-                            name=agent.name + ".node", agent=agent, hostname=agent.name
+                            name=agent.name + ".node", agent=agent, hostname=agent.hostname
                         )
                         
                         session.add(node)

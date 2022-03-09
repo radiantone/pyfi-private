@@ -139,12 +139,13 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
             logging.info("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
             logging.info("Fetching processors to be deployed")
+
+            # Get a processor (read locked) that has less deployed CPUs than its concurrency is requesting
             processor = (
-                session.query(ProcessorModel)
-                    # .filter_by(requested_status="deploy")
-                    .with_for_update()
-                    .first()
+                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().first()
             )
+
+            # Try to fulfill its concurrency
             logging.info("Processor is %s", processor)
             if processor:
                 logging.info("Deploying processor %s", processor)
