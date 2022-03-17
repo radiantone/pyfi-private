@@ -172,7 +172,7 @@ class ProcessorMonitor(MonitorPlugin):
                     # Check if I already have a deployment
                     found = False
                     for deployment in mydeployments:
-                        logger.debug("[ProcessorMonitor] Deployment %s %s", processor["processor"], deployment.processor)
+                        logger.info("[ProcessorMonitor] Deployment %s %s %s", processor["processor"].name, processor["processor"], deployment.processor)
                         if deployment.processor.id == processor["processor"].id:
                             found = True
                             break

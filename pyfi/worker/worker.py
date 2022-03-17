@@ -383,6 +383,7 @@ class WorkerService:
             return data
 
         with self.get_session(self.database) as session:
+            logging.info("Retrieving deployment by name %s",deployment.name)
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
             )

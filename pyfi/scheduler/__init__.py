@@ -201,8 +201,10 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                                                   name=processor.name + ".deploy" + str(
                                                                       len(processor.deployments)),
                                                                   hostname=node.hostname)
+                                    processor.deployments += [_deployment]
                                     session.add(_deployment)
-                                    logging.info("Deploying processor to node %s with %s cpus", node, _cpus)
+                                    session.add(processor)
+                                    logging.info("Deploying processor %s to node %s with %s cpus", processor.name, node, _cpus)
                                     session.commit()
                                     needed_cpus -= _cpus
                                 else:
