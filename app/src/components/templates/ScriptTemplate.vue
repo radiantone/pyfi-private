@@ -1568,9 +1568,10 @@ export default {
       this[view] = show;
 
       if (show) {
-        window.toolkit.surface.setZoom(1.0);
+        //window.toolkit.surface.setZoom(1.0);
 
         var node = this.toolkit.getNode(this.obj);
+        /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
           onComplete: function () {
@@ -1578,7 +1579,7 @@ export default {
             console.log(loc);
             window.toolkit.surface.pan(-350, -300);
           },
-        });
+        });*/
       }
     },
     updateDescription(value, initialValue) {
