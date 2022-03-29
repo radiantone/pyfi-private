@@ -133,6 +133,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
     """Enforce, create, move, delete deployments"""
 
     def run(self, *args, **kwargs):
+        import random
 
         session = get_session()
         try:
@@ -140,10 +141,24 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.info("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
             logging.info("Fetching processors to be deployed")
 
-            # Get a processor (read locked) that has less deployed CPUs than its concurrency is requesting
-            processor = (
-                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().first()
+            # Get a random processor that either has less deployments than its concurrency needs or
+            # a random processor without deployments at all
+            processors = (
+                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
+            if len(processors) == 0:
+                processor = None
+            else:
+                processor = random.choice(processors)
+
+            if not processor:
+                processors = (
+                    session.query(ProcessorModel).with_for_update().all()
+                )
+                if len(processors) == 0:
+                    processor = None
+                else:
+                    processor = random.choice(processors)
 
             # Try to fulfill its concurrency
             logging.info("Processor is %s", processor)

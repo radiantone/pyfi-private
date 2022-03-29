@@ -1,6 +1,6 @@
 # Add agent nodes to scheduler
-flow scheduler add -n sched1 -nd agent3.agent.node
-flow scheduler add -n sched1 -nd agent2.agent.node
+flow scheduler -n sched1 add -nd agent3.agent.node
+flow scheduler -n sched1 add -nd agent2.agent.node
 
 # Create deployments manually. This is optional because
 # once nodes are added to a scheduler and the scheduler is running
