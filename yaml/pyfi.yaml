@@ -17,14 +17,14 @@ network:
       expires: 200
       durable: true
   nodes:
-    phoenix:
+    agent3:
       clean: true
       enabled: true
-      hostname: phoenix
+      hostname: agent3
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'
-      path: /home/darren/node1
+      path: /home/darren/agent3/work
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
       agents:
@@ -46,7 +46,7 @@ network:
                 gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
                 commit:
                 module: pyfi.processors.sample
-                beat: true
+                beat: false
                 cpus: 2
                 sockets:
                   pyfi.processors.sample.emit_one:
@@ -77,7 +77,7 @@ network:
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'
-      path: /home/darren/node1
+      path: /home/darren/agent2/work
       agents:
         agent1:
           parameters:
@@ -103,16 +103,16 @@ network:
                       resetonexecute: true
 
   deployments:
-    proc3.d1:
-      hostname: phoenix
-      cpus: 3
-      processor: proc3
+    #proc3.d1:
+    #  hostname: phoenix
+    #  cpus: 3
+    #  processor: proc3
     proc3.d2:
       hostname: agent2
       cpus: 3
       processor: proc3      
     proc4.d1:
-      hostname: agent2
+      hostname: agent3
       cpus: 3
       processor: proc4
 

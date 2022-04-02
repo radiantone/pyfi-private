@@ -8,10 +8,10 @@ network:
     pyfi.queue2:
     pyfi.queue3:
   nodes:
-    phoenix:
+    agent2:
       clean: true
       enabled: true
-      hostname: phoenix
+      hostname: agent2
       ssh:
         key: '/home/darren/.ssh/id_rsa.pub'
         user: 'darren'
@@ -64,9 +64,9 @@ network:
             environment:
               - LISTEN_PROCESSOR=proc1
               - LISTEN_CHANNEL=task
-    agent2:
+    agent3:
       clean: false
-      hostname: agent2
+      hostname: agent3
       ini: /home/darren/pyfi.ini
       polar: /home/darren/pyfi.polar
       ssh:
