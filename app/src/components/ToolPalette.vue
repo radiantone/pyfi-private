@@ -7,6 +7,23 @@
     <q-btn
       flat
       align="left"
+      icon="las la-file"
+      aria-label="Document"
+      size="large"
+      id="documentnode"
+      style="min-height: 56px; font-size:1.4em; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Document
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      align="left"
       icon="icon-processor"
       aria-label="Processor"
       size="large"
@@ -21,6 +38,7 @@
         Processor
       </q-tooltip>
     </q-btn>
+
     <q-btn
       flat
       align="left"
@@ -149,7 +167,7 @@
         Segment
       </q-tooltip>
     </q-btn>
-    <q-btn
+    <!--<q-btn
       flat
       align="left"
       icon="icon-map"
@@ -182,7 +200,7 @@
       >
         Reduce
       </q-tooltip>
-    </q-btn>
+    </q-btn>-->
     <q-btn
       flat
       align="left"
@@ -391,11 +409,14 @@
 }
 </style>
 <script>
-import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
+import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
 
 export default {
-  name: "ToolPalette",
+  name: 'ToolPalette',
   created() {},
+  mounted() {
+    console.log("TOOLPALETTE STORE",this.$store);
+  },
   data() {
     return {
       series: [
@@ -404,9 +425,9 @@ export default {
         },
       ],
       chartOptions: {
-        colors: ["#e3e8ec", "#054848"],
+        colors: ['#e3e8ec', '#054848'],
         chart: {
-          type: "bar",
+          type: 'bar',
           width: 100,
           height: 35,
           sparkline: {
@@ -415,7 +436,7 @@ export default {
         },
         plotOptions: {
           bar: {
-            columnWidth: "50%",
+            columnWidth: '50%',
           },
         },
         labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -434,7 +455,7 @@ export default {
           y: {
             title: {
               formatter: function (seriesName) {
-                return "Value";
+                return 'Value';
               },
             },
           },

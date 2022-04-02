@@ -211,8 +211,8 @@
           indicator-color="primary"
           active-bg-color="accent"
         >
-          <q-tab name="files" class="text-dark" label="Processors" />
-          <q-tab name="network" class="text-dark" label="Network" />
+          <q-tab name="files" class="text-dark" label="Flows" />
+          <q-tab name="network" class="text-dark" label="Database" />
           <q-tab name="queues" class="text-dark" label="Queues" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
         </q-tabs>
@@ -800,6 +800,7 @@ import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
 import ScriptTemplate from "components/templates/ScriptTemplate.vue";
 import GroupTemplate from "components/templates/GroupTemplate.vue";
 
+import DocumentTemplate from "components/templates/DocumentTemplate.vue";
 import PortInTemplate from "components/templates/PortInTemplate.vue";
 import PortOutTemplate from "components/templates/PortOutTemplate.vue";
 import Objects from "components/Objects.vue";
@@ -851,7 +852,8 @@ export default {
 
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
-    console.log("MOUNTED");
+    console.log("MOUNTED DESIGNER: STORE",this.$store);
+    window.store = this.$store;
     jsPlumbToolkit.ready(function () {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
@@ -1314,7 +1316,7 @@ export default {
         autoSaveHandler: function (toolkit) {
           // Notify user about needing save
           console.log("auto save handler");
-          console.log(toolkit.view);
+          //console.log(toolkit.view);
           // toolkit.$root.$emit('flow.shown', toolkit.view)
           toolkit.$root.$emit("status.message", {
             color: "red",
@@ -1505,6 +1507,33 @@ export default {
                       window.root.$emit("node.selected", params.node);
                       window.root.$emit("nodes.selected", nodes);
                     }
+                  }
+                }
+              },
+            },
+          },
+
+          document: {
+            component: DocumentTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName != "i" &&
+                  params.e.srcElement.localName != "td"
+                ) {
+                  toolkit.toggleSelection(params.node);
+                  var elems = document.querySelectorAll(".jtk-node");
+
+                  elems.forEach((el) => {
+                    el.style["z-index"] = 0;
+                  });
+                  params.el.style["z-index"] = 99999;
+                  var nodes = toolkit.getSelection().getAll();
+                  if (nodes.length == 0) {
+                    window.root.$emit("node.selected", null);
+                  } else {
+                    window.root.$emit("node.selected", params.node);
+                    window.root.$emit("nodes.selected", nodes);
                   }
                 }
               },

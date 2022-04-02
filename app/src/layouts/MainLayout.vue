@@ -240,6 +240,7 @@ import { QSpinnerOval } from "quasar";
 import { defineComponent, ref } from "@vue/composition-api";
 import Designer from "src/pages/Designer.vue";
 import ToolPalette from "src/components/ToolPalette.vue";
+import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from 'src/store/Store';
 
 import "assets/css/font-awesome.min.css";
 import "assets/css/flowfont.css";
@@ -312,6 +313,22 @@ export default defineComponent({
           label: "Script",
           description: "A script processor description",
           package: "my.python.package",
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      var documentnode = document.querySelector("#documentnode");
+      documentnode.data = {
+        node: {
+          icon: "las la-file",
+          style: "size:50px",
+          type: "document",
+          name: "Document",
+          label: "Document",
+          description: "A document or spreadsheet",
+          package: "queue name",
           disabled: false,
           columns: [],
           properties: [],
@@ -400,7 +417,7 @@ export default defineComponent({
       };
 
       //, chord, segment, map, reduce
-      var els = [processor, portin, portout, group, parallel, pipeline];
+      var els = [processor, documentnode, portin, portout, group, parallel, pipeline];
 
       els.forEach((el) => {
         var data = el.data;

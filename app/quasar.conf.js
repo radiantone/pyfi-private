@@ -87,6 +87,14 @@ module.exports = configure(function (ctx) {
     devServer: {
       https: false,
       port: 8080,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      before (app) {
+        const cors = require('cors')
+        app.options('*',cors())
+        app.use(cors())
+      },
       open: true // opens browser window automatically
     },
 

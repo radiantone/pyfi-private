@@ -7,6 +7,7 @@
 import { LoadingBar } from "quasar";
 import { defineComponent } from "@vue/composition-api";
 import { JsPlumbToolkitVue2Plugin } from "jsplumbtoolkit-vue2";
+import BetterCounter from "components/BetterCounter.vue";
 
 import Vue from "vue";
 import Vuetify from "vuetify";
@@ -20,7 +21,18 @@ LoadingBar.setDefaults({
   position: "top"
 });
 
-export default defineComponent({
-  name: "App"
+export default Vue.extend({
+  components: {
+  },
+  data() {
+    return {
+      incrementStr: 3,
+    };
+  },
+  computed: {
+    wrapper(this: { incrementStr: string }) {
+      return { increment: +this.incrementStr };
+    },
+  },
 });
 </script>

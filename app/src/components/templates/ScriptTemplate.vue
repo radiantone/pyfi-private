@@ -134,31 +134,125 @@
           margin-right: 5px;
         "
       >
-        <i :class="obj.icon + ' text-secondary'" />
+        <q-btn-dropdown
+          flat
+          content-class="text-dark bg-white"
+          dense
+          color="secondary"
+          :dropdown-icon="obj.icon"
+          padding="0px"
+          size=".6em"
+        >
+          <q-list dense>
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'fas fa-database'"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-database"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Database
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'fab fa-python'">
+              <q-item-section side>
+                <q-icon name="fab fa-python"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Script
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-cloud'">
+              <q-item-section side>
+                <q-icon name="fas fa-cloud"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                API
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-file'">
+              <q-item-section side>
+                <q-icon name="fas fa-file"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Document
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-link'">
+              <q-item-section side>
+                <q-icon name="fas fa-link"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                URL
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-table'">
+              <q-item-section side>
+                <q-icon name="fas fa-table"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Spreadsheet
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </div>
       <span
-        style="position: absolute; left: 50px; font-size: 20px; top: 5px;"
+        style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
       >
-        <span>{{ obj.name }}</span>
+        <span>
+          {{ obj.name }}
+          <i
+            class="fas fa-edit text-secondary"
+            title="Edit Argument"
+            style="margin-right: 5px; font-size: 0.4em;"
+            @click=""
+          >
+            <q-popup-edit
+              style="
+                width: 50%;
+                font-weight: bold;
+                font-size: 25px;
+                font-family: 'Indie Flower', cursive;
+                margin-top: 5px;
+              "
+              v-model="obj.name"
+            >
+              <q-input
+                style="
+                  font-weight: bold;
+                  font-size: 25px;
+                  font-family: 'Indie Flower', cursive;
+                  margin-top: 5px;
+                "
+                v-model="obj.name"
+                dense
+                autofocus
+              />
+            </q-popup-edit>
+          </i>
+        </span>
       </span>
       <span
         class="text-secondary"
-        style="position: absolute; left: 50px; top: 31px; font-size: 14px;"
+        style="position: absolute; left: 55px; top: 31px; font-size: 14px;"
       >
         {{ obj.description }}
       </span>
       <span
         class="text-blue-grey-8"
-        style="position: absolute; left: 50px; top: 51px; font-size: 11px;"
+        style="position: absolute; left: 55px; top: 51px; font-size: 11px;"
       >
         {{ obj.package }}
       </span>
       <span
         class="text-red"
-        style="position: absolute; left: 50px; top: 70px; font-size: 11px;"
+        style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
       >
-        Error messages
+        Error messages {{ delayMs }} {{ count }}
       </span>
       <span
         class="text-blue-grey-8 pull-right"
@@ -167,7 +261,11 @@
         v1.2.2
       </span>
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
-        <div class="text-secondary" @click="" style="margin-right: 10px;">
+        <div
+          class="text-secondary"
+          @click="showPanel('workerview', !workerview)"
+          style="margin-right: 10px;"
+        >
           <i class="fas fa-hard-hat" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
@@ -407,7 +505,9 @@
                 Git
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup 
+            @click="showPanel('historyview', !historyview)"
+            >
               <q-item-section side>
                 <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
@@ -432,7 +532,8 @@
                 Security
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup
+              @click="showPanel('environmentview', !environmentview)">
               <q-item-section side>
                 <q-icon name="far fa-list-alt"></q-icon>
               </q-item-section>
@@ -440,7 +541,8 @@
                 Environment
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup
+              @click="showPanel('scalingview', !scalingview)">
               <q-item-section side>
                 <q-icon name="fas fa-server"></q-icon>
               </q-item-section>
@@ -656,49 +758,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="code" persistent>
-      <q-card style="max-width: 100vw; width: 1500px;">
-        <q-card-section class="row items-center bg-primary text-white">
-          <q-toolbar>
-            <h5 style="margin: 0px;">
-              {{ this.obj.name }} - {{ this.obj.description }}
-            </h5>
-            <q-space />
-            <q-btn
-              flat
-              round
-              dense
-              icon="close"
-              class="text-white"
-              v-close-popup
-            ></q-btn>
-          </q-toolbar>
-        </q-card-section>
-        <q-card-section class="row items-center">
-          <editor
-            v-model="obj.code"
-            @init="editorInit"
-            style="font-size: 25px; min-height: 60vh;"
-            lang="python"
-            theme="chrome"
-            ref="myEditor"
-            width="100%"
-            height="fit"
-          ></editor>
-          <q-btn>Save</q-btn>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Close"
-            class="bg-primary text-white"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
+    <!-- Delete dialog -->
     <q-dialog v-model="deleteConfirm" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -762,6 +822,7 @@
       </q-card>
     </q-dialog>
 
+    <!-- Code dialog -->
     <q-card
       style="
         width: 100%;
@@ -845,6 +906,8 @@
         />
       </q-card-actions>
     </q-card>
+
+    <!-- Git dialog -->
     <q-card
       style="
         width: 100%;
@@ -944,6 +1007,8 @@
         />
       </q-card-actions>
     </q-card>
+
+    <!-- Config dialog -->
     <q-card
       style="
         width: 100%;
@@ -1023,6 +1088,295 @@
         />
       </q-card-actions>
     </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+        height:calc(100%+10px)
+      "
+      v-if="workerview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          
+        "
+      >
+      <q-table
+        dense
+        :columns="workercolumns"
+        :data="workerdata"
+        row-key="name"
+        flat
+        virtual-scroll
+        style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+      >
+      </q-table>
+
+      </q-card-section>
+      <q-card-actions align="right" style="padding-top:20px">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+
+          @click="workerview = false"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="environmentview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        Environment view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="environmentview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="scalingview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        Scaling view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="scalingview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="historyview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        History view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="historyview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <!-- Chart dialog -->
     <q-card
       style="
         width: 100%;
@@ -1055,11 +1409,12 @@
       <q-card-actions align="left"></q-card-actions>
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           label="Close"
-          class="bg-primary text-dark"
-          color="dark"
+          class="bg-secondary text-white"
+          color="primary"
+
           @click="dataview = false"
           v-close-popup
         />
@@ -1089,38 +1444,84 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
-import { v4 as uuidv4 } from "uuid";
-import VueResizable from "vue-resizable";
-import Vuetify from "vuetify";
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
+import { v4 as uuidv4 } from 'uuid';
+import VueResizable from 'vue-resizable';
+import Vuetify from 'vuetify';
+
+// Import the mixin class
+import Processor from '../Processor.vue';
+import BetterCounter from '../BetterCounter';
+// use mixins to mix in methods, data, store for 'Processor' objects.
+// The template thus defers to the mixed in methods for its state
+// The Processor object mixin connects to the vuex store and websocket detail, and api as well.
+// This template simply acts as an input/output layer to t3he mixed in component
+// The mixed in component data fields are fully reactive in this Vue template because it's
+// mixed in.
 
 export default {
-  name: "ScriptTemplate",
-  mixins: [BaseNodeComponent],
+  name: 'ScriptTemplate',
+  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {
-    editor: require("vue2-ace-editor"),
+    editor: require('vue2-ace-editor'),
     VueResizable,
+    BetterCounter,
+  },
+  watch: {
+    // Here we can watch mixed in properties that will update behind the scenes
+    name: function (val) {
+      console.log('NAME IS', this.name);
+    },
+    delayMs: function (val) {
+      console.log('delayMs CHANGED', val);
+    },
   },
   created() {
     var me = this;
 
-    console.log("me.tooltips ", me.tooltips);
-    console.log("start listening for show.tooltips");
-    window.root.$on("show.tooltips", (value) => {
-      console.log("start tooltips:", value);
+    console.log('me.tooltips ', me.tooltips);
+    console.log('start listening for show.tooltips');
+    window.root.$on('show.tooltips', (value) => {
+      console.log('start tooltips:', value);
       me.tooltips = value;
-      console.log("ME:", me);
-      console.log("TOOLTIPS", me.tooltips);
+      console.log('ME:', me);
+      console.log('TOOLTIPS', me.tooltips);
     });
-  },
 
+    // Print some fields from the mixin component
+    console.log(
+      'BetterCounter: ',
+      this.delayMs,
+      this.internalPerformAsyncIncrement
+    );
+    console.log('getcount', this.countLabel);
+    // Changing this.delayMs will cause it to be saved in the vuex store and sync'd with server.
+    // Any changes to the server will arrive through the customer Store via websockets, update the
+    // vuex model and cause any reactive components in this view to change as well.
+    setTimeout(() => {
+      me.delayMs = 500; // Update the reactive mixin data field
+      me.internalPerformAsyncIncrement();
+      me.delayMs += 10;
+      me.count += 10;
+      //me.name = 'MyProcessor 2!';
+    }, 3000);
+  },
+  computed: {
+    readwrite() {
+      return this.obj.readwrite;
+    },
+  },
   mounted() {
     var me = this;
-
+    console.log('MOUNTED STORE', this.$store);
+    // Execute method on mixed in component, which sends to server using socket.io
+    this.sayHello({ name: 'darren', age: 51 });
     function shiftvalues() {
-      console.log("Rotating...");
+      console.log('Rotating...');
       var front = me.data[0].spark.value.shift();
+      me.obj.readwrite += front;
+      me.data[0].bytes = front + ' (' + me.obj.readwrite + ' bytes)';
       me.data[0].spark.value.push(front);
       var front = me.data[1].spark.value.shift();
       me.data[1].spark.value.push(front);
@@ -1130,7 +1531,7 @@ export default {
       me.data[3].spark.value.push(front);
       setTimeout(shiftvalues, 1000);
     }
-    //setTimeout(shiftvalues, 1000);
+    setTimeout(shiftvalues, 500);
   },
   data() {
     return {
@@ -1386,8 +1787,8 @@ export default {
         plotOptions: {
           candlestick: {
             colors: {
-              upward: "#abbcc3",
-              downward: "#6b8791",
+              upward: '#abbcc3',
+              downward: '#6b8791',
             },
             wick: {
               useFillColor: true,
@@ -1396,19 +1797,19 @@ export default {
         },
         candlestick: {
           colors: {
-            upward: "#abbcc3",
-            downward: "#6b8791",
+            upward: '#abbcc3',
+            downward: '#6b8791',
           },
           wick: {
             useFillColor: true,
           },
         },
         chart: {
-          type: "candlestick",
+          type: 'candlestick',
           height: 350,
         },
         xaxis: {
-          type: "datetime",
+          type: 'datetime',
         },
         yaxis: {
           tooltip: {
@@ -1417,100 +1818,282 @@ export default {
         },
       },
       obj: {
-        icon: "fab fa-python",
-        style: "",
+        // Will come from mixed in Script object (vuex state, etc)
+        icon: 'fab fa-python',
+        style: '',
         x: 0,
         y: 0,
-        type: "script",
-        name: "Script Processor",
-        label: "Script",
-        description: "A script processor description",
-        package: "my.python.package",
+        type: 'script',
+        name: 'Script Processor',
+        label: 'Script',
+        description: 'A script processor description',
+        package: 'my.python.package',
         disabled: false,
         columns: [],
+        readwrite: 0,
         properties: [],
       },
-      text: "",
+      text: '',
       configview: false,
+      workerview: false,
+      historyview: false,
+      environmentview: false,
+      scalingview: false,
       dataview: false,
       deleteSpeechID: null,
       sidecode: true,
       bandwidth: true,
+      workercolumns: [
+        {
+          name:'Name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name:'Host',
+          label: 'Host',
+          field: 'host',
+          align: 'left',
+        },
+        {
+          name:'CPU',
+          label: 'CPU',
+          field: 'cpu',
+          align: 'left',
+        },
+        {
+          name:'RAM',
+          label: 'RAM',
+          field: 'ram',
+          align: 'left',
+        },
+        {
+          name:'Disk',
+          label: 'Disk',
+          field: 'disk',
+          align: 'left',
+        },
+        {
+          name:'Tasks',
+          label: 'Tasks',
+          field: 'tasks',
+          align: 'left',
+        }
+      ],  
       columns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
         },
         {
-          name: "bytes",
-          align: "center",
-          label: "Bytes",
-          field: "bytes",
+          name: 'bytes',
+          align: 'center',
+          label: 'Bytes',
+          field: 'bytes',
         },
         {
-          name: "time",
-          align: "right",
-          classes: "text-secondary",
-          label: "Time",
-          field: "time",
+          name: 'time',
+          align: 'right',
+          classes: 'text-secondary',
+          label: 'Time',
+          field: 'time',
         },
         {
-          name: "spark",
-          align: "center",
-          classes: "text-secondary",
-          label: "Spark",
-          field: "spark",
+          name: 'spark',
+          align: 'center',
+          classes: 'text-secondary',
+          label: 'Spark',
+          field: 'spark',
         },
+      ],
+      workerdata: [
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        },
+        {
+          name:'Name1',
+          host:'Host1',
+          cpu:'CPU1',
+          disk:'Disk1',
+          ram:'RAM1',
+          tasks:'Task1'
+        }
       ],
       data: [
         {
-          name: "In",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'In',
+          bytes: '0 (0 bytes)',
+          time: '5 min',
           spark: {
-            name: "in",
-            labels: ["12am", "3am", "6am", "9am", "12pm", "3pm", "6pm", "9pm"],
+            name: 'in',
+            labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
             value: [200, 675, 410, 390, 310, 460, 250, 240],
           },
         },
         {
-          name: "Read/Write",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'Read/Write',
+          bytes: '0 (0 bytes)',
+          time: '5 min',
           spark: {
-            name: "readwrite",
-            labels: ["12am", "3am", "12pm", "3pm", "6pm", "6am", "9am", "9pm"],
+            name: 'readwrite',
+            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
             value: [200, 390, 310, 460, 675, 410, 250, 240],
           },
         },
         {
-          name: "Out",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'Out',
+          bytes: '0 (0 bytes)',
+          time: '5 min',
           spark: {
-            name: "readoutwrite",
-            labels: ["3pm", "6pm", "9pm", "12am", "3am", "6am", "9am", "12pm"],
+            name: 'readoutwrite',
+            labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
             value: [460, 250, 240, 200, 675, 410, 390, 310],
           },
         },
         {
-          name: "Tasks/Time",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'Tasks/Time',
+          bytes: '0 (0 bytes)',
+          time: '5 min',
           spark: {
-            name: "taskstime",
-            labels: ["9am", "12pm", "3pm", "6pm", "9pm", "12am", "3am", "6am"],
+            name: 'taskstime',
+            labels: ['9am', '12pm', '3pm', '6pm', '9pm', '12am', '3am', '6am'],
             value: [390, 310, 460, 250, 240, 200, 675, 410],
           },
         },
       ],
       codeview: false,
       gitview: false,
-      entityName: "",
-      columnName: "",
-      thecode: "",
+      entityName: '',
+      columnName: '',
+      thecode: '',
       tooltips: false,
       tooltip: false,
       code: false,
@@ -1526,20 +2109,20 @@ export default {
       deleteConfirm: false,
       prompt: false,
       contentStyle: {
-        backgroundColor: "rgba(0,0,0,0.02)",
-        color: "#555",
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        color: '#555',
       },
 
       contentActiveStyle: {
-        backgroundColor: "#eee",
-        color: "black",
+        backgroundColor: '#eee',
+        color: 'black',
       },
 
       thumbStyle: {
-        right: "2px",
-        borderRadius: "5px",
-        backgroundColor: "#027be3",
-        width: "5px",
+        right: '2px',
+        borderRadius: '5px',
+        backgroundColor: '#027be3',
+        width: '5px',
         opacity: 0.75,
       },
     };
@@ -1553,11 +2136,11 @@ export default {
       }, 2000);
     },
     getUuid() {
-      return "key_" + uuidv4();
+      return 'key_' + uuidv4();
     },
     rowStripe(row) {
       if (row % 2 == 0) {
-        return "background-color:white";
+        return 'background-color:white';
       }
     },
     showPanel(view, show) {
@@ -1565,6 +2148,10 @@ export default {
       this.codeview = false;
       this.dataview = false;
       this.gitview = false;
+      this.workerview = false;
+      this.historyview = false;
+      this.environmentview = false;
+      this.scalingview = false;
       this[view] = show;
 
       if (show) {
@@ -1583,18 +2170,18 @@ export default {
       }
     },
     updateDescription(value, initialValue) {
-      console.log("updateDesc", value, initialValue);
+      console.log('updateDesc', value, initialValue);
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
     },
     updateName(value, initialValue, column) {
-      console.log("column edited ", column);
-      console.log("updateName", value, initialValue);
+      console.log('column edited ', column);
+      console.log('updateName', value, initialValue);
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
-      var edges = document.querySelectorAll("[data-source=" + column + "]");
+      var edges = document.querySelectorAll('[data-source=' + column + ']');
 
       edges.forEach((edge) => {
         edge.innerText = value;
@@ -1603,13 +2190,13 @@ export default {
     editorInit: function () {
       var me = this;
 
-      require("brace/ext/language_tools"); // language extension prerequsite...
-      require("brace/mode/html");
-      require("brace/mode/python"); // language
-      require("brace/mode/less");
-      require("brace/theme/chrome");
-      require("brace/snippets/javascript"); // snippet
-      console.log("editorInit");
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      console.log('editorInit');
       const editor = this.$refs.myEditor.editor;
 
       editor.setAutoScrollEditorIntoView(true);
@@ -1626,36 +2213,36 @@ export default {
     },
     showSpeakerDialog(tab) {
       // this.$root.$emit("show.speaker.tab",tab);
-      window.root.$emit("new.speaker.dialog", {
-        mode: "edit",
+      window.root.$emit('new.speaker.dialog', {
+        mode: 'edit',
         tab: tab,
         obj: this.obj,
       });
-      console.log("show speaker dialog");
+      console.log('show speaker dialog');
     },
     confirmDeleteSpeech(id) {
       this.deleteSpeechID = id;
       this.deleteItem = true;
     },
     resetToolkit() {
-      console.log("emitting toolkit.dirty");
-      this.$root.$emit("toolkit.dirty", false);
+      console.log('emitting toolkit.dirty');
+      this.$root.$emit('toolkit.dirty', false);
     },
     valueChanged() {
-      console.log("emitting toolkit.dirty");
-      this.$root.$emit("toolkit.dirty", true);
+      console.log('emitting toolkit.dirty');
+      this.$root.$emit('toolkit.dirty', true);
     },
     deleteNode() {
       window.toolkit.removeNode(this.obj);
     },
     removeColumn(column) {
-      console.log("Removing column: ", column);
+      console.log('Removing column: ', column);
 
       for (var i = 0; i < this.obj.columns.length; i++) {
         var col = this.obj.columns[i];
         console.log(col);
         if (col.id == column) {
-          console.log("Deleted column");
+          console.log('Deleted column');
           this.obj.columns.splice(i, 1);
           break;
         }
@@ -1685,15 +2272,15 @@ export default {
       // window.renderer.repaint(this.obj);
     },
     addPort(port) {
-      port.background = "white";
-      port.datatype = "Column";
-      port.id = "port" + uuidv4();
-      port.id = port.id.replace(/-/g, "");
-      port.description = "A description";
-      console.log("Port:", port);
-      window.toolkit.addNewPort(this.obj.id, "column", port);
+      port.background = 'white';
+      port.datatype = 'Column';
+      port.id = 'port' + uuidv4();
+      port.id = port.id.replace(/-/g, '');
+      port.description = 'A description';
+      console.log('Port:', port);
+      window.toolkit.addNewPort(this.obj.id, 'column', port);
       window.renderer.repaint(this.obj);
-      console.log("Firing node updated...");
+      console.log('Firing node updated...');
 
       console.log(this.obj.columns);
     },
@@ -1708,66 +2295,31 @@ export default {
     addErrorPort() {
       if (this.error) {
         this.$q.notify({
-          color: "negative",
+          color: 'negative',
           timeout: 2000,
-          position: "bottom",
-          message: "Error is already created",
-          icon: "fas fa-exclamation",
+          position: 'bottom',
+          message: 'Error is already created',
+          icon: 'fas fa-exclamation',
         });
         return;
       }
       this.addPort({
-        name: "Error",
-        icon: "fas fa-exclamation",
-        type: "Error",
+        name: 'Error',
+        icon: 'fas fa-exclamation',
+        type: 'Error',
       });
       this.error = true;
     },
-    showNewSpeechDialog() {
-      var me = this;
-      this.$refs.speechDialog.showDialog(
-        {
-          name: "Test",
-          icon: "fas fa-cube",
-          display: "Always",
-          description: "A description",
-          package: "A package",
-          grouped: false,
-          type: "Argument",
-          properties: [],
-          conditionals: [],
-          rules: [],
-          notes: [],
-        },
-        "New",
-        function (obj) {
-          me.addPort(obj);
-        }
-      );
-    },
-    showEditSpeechDialog(data) {
-      var me = this;
-      this.$refs.speechDialog.showDialog(data, "Edit", function (obj) {
-        me.addPort(obj);
-      });
-    },
-    showEditEntityDialog() {
-      console.log("show Edit entity");
-      window.root.$emit("new.speaker.dialog", {
-        mode: "edit",
-        obj: this.obj,
-      });
-    },
     selectNode: function () {
-      console.log("selected: ", this.obj.id);
-      window.root.$emit("node.selected", this.obj);
+      console.log('selected: ', this.obj.id);
+      window.root.$emit('node.selected', this.obj);
     },
     deleteEntity: function (name) {
       this.entityName = name;
       this.confirm = true;
     },
     clicked: function () {
-      console.log("clicked");
+      console.log('clicked');
     },
   },
 };
