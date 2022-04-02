@@ -550,15 +550,6 @@ def proc(context, id):
 
 @cli.group()
 @click.pass_context
-def server(context):
-    """
-    Server operations
-    """
-    pass
-
-
-@cli.group()
-@click.pass_context
 def db(context):
     """
     Database operations
@@ -984,16 +975,6 @@ def stop_processor(context, name):
         print("Processor stop requested.")
     else:
         print("Processor not found.")
-
-
-@server.command(name="start")
-@click.option("-p", "--port", default=8000, required=False)
-@click.pass_context
-def start_server(context, port):
-    """ Start elasticcode flow server """
-    from pyfi.server import app
-
-    app.run(host='0.0.0.0', port=port, debug=True)
 
 
 @proc.command(name="start")
@@ -3094,7 +3075,7 @@ def ls_network(context, name, horizontal, vertical, condensed=True):
     for node in network.nodes:
         node_node = Node("node::" + node.name, root)
         if condensed:
-            print("  node::" + node.name)
+            print("  node::" + node.hostname)
         agent = node.agent
         if not agent:
             continue

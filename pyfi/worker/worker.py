@@ -429,6 +429,7 @@ class WorkerService:
             _deployment.worker.processor = _processor
             logging.info("Attached worker to deployment and processor...")
             session.commit()
+            logging.info("Attached worker: Done")
 
         self.process = None
         logging.debug(
@@ -919,7 +920,7 @@ class WorkerService:
 
                             key = processor_plug.target.queue.name
 
-                            msgs = [result]
+                            msgs = [(result,_r)]
 
                             logging.info("msgs %s", msgs)
 
@@ -950,9 +951,20 @@ class WorkerService:
                                 )
                             )
                             """
-                            for msg in msgs:
+                            for msg, _result in msgs:
                                 """We have data in an outbound queue and need to find the associated plug and socket to construct the call
                                 and pass the data along"""
+
+                                if hasattr(_result,'plugs') and processor_plug.name not in list(getattr(_result,'plugs')):
+                                    # This result is select
+                                    continue
+                                elif hasattr(_result,'plugs') and processor_plug.name in list(getattr(_result,'plugs')):
+                                    # Pull the result object out
+                                    msg = getattr(_result,'result')
+                                    try:
+                                        msg = json.dumps(msg, indent=4)
+                                    except:
+                                        msg = str(msg)
 
                                 tkey = (
                                         key
@@ -1767,6 +1779,7 @@ class WorkerService:
 
                             import pickle
 
+                            # TODO: Add sourceplug names to _kwargs
                             if _kwargs:
                                 """If we have kwargs to pass in"""
                                 logging.info("Invoking function %s %s", args, _kwargs)

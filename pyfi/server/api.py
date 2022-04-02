@@ -3,7 +3,6 @@ pyfi API server Flask app
 """
 import logging
 import platform
-import socket
 from flask import Flask, request, send_from_directory, current_app, send_from_directory
 
 from pyfi.blueprints.show import blueprint

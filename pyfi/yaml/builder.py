@@ -368,7 +368,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
     processors = {}
 
     network = detail["network"]["name"]
-    _network = Network(name=network)
+    _network = Network(name=network, user=USER)
 
     if "scheduler" in detail["network"]:
         logging.info("Building scheduler %s", detail["network"]["scheduler"])

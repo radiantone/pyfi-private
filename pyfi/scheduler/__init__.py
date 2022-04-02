@@ -144,7 +144,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
             # Get a random processor that either has less deployments than its concurrency needs or
             # a random processor without deployments at all
             processors = (
-                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
+                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
+                #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
             if len(processors) == 0:
                 processor = None
@@ -153,7 +154,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
             if not processor:
                 processors = (
-                    session.query(ProcessorModel).with_for_update().all()
+                    #session.query(ProcessorModel).with_for_update().all()
+                    session.query(ProcessorModel).all()
                 )
                 if len(processors) == 0:
                     processor = None

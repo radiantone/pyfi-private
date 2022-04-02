@@ -82,13 +82,13 @@ class Work(Base):
 
 
 class Network(Base):
-    def __init__(self, name=None):
+    def __init__(self, name=None, user=None):
         super().__init__()
 
         self.network = self.session.query(NetworkModel).filter_by(name=name).first()
 
         if self.network is None:
-            self.network = NetworkModel(name=name)
+            self.network = NetworkModel(name=name,user=user)
 
         self.session.add(self.network)
         self.session.commit()
