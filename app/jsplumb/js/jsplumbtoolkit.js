@@ -15146,6 +15146,7 @@ if (typeof exports !=='undefined') { exports.jsPlumbUtil = jsPlumbUtil;}
         },
         addToDragSelection: function (spec) {
             var el = this.getElement(spec);
+            console.log("addToDragSelection", el)
             if (el != null && (el._isJsPlumbGroup || el._jsPlumbGroup == null)) {
                 _getDragManager(this).select(spec);
             }
@@ -30673,10 +30674,8 @@ if (typeof exports !== "undefined") {
                     case "Edge":
                         var c = _getConnectionForEdge(info.obj);
                         return c ? c.isVisible() : false;
-                        break;
                     case "Node":
                         return info.el._jtkVisible !== false;
-                        break;
                 }
             });
         };
@@ -37342,9 +37341,10 @@ if (typeof exports !== "undefined") {
             _remove(obj.id);
             return el;
         };
-
+ 
         var _select = function (obj, renderer) {
             var el = _deselect(obj, renderer);
+            console.log("_SELECT",el,obj)
             if (el != null) {
                 var s = _create("div", "jtk-draw-skeleton", el),
                     x = el.getAttribute("jtk-x-resize"), y = el.getAttribute("jtk-y-resize");

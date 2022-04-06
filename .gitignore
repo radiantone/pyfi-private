@@ -1,4 +1,5 @@
 celerybeat*
+node_modules
 agent?
 build
 docker/websockets/node_modules/

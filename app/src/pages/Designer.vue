@@ -12,6 +12,8 @@
           size="md"
           dense
           value="pan"
+          v-model="mode"
+          @input="setMode"
           style="min-height: 45px;"
           toggle-color="primary"
           :options="[
@@ -40,10 +42,11 @@
         </q-btn-toggle>
         <q-btn
           flat
-          style="min-height: 45px;"
+          style="min-height: 45px;font-size:1em"
           size="sm"
           icon="fa fa-home"
           class="q-mr-xs"
+          @click="zoomToFit"
         >
           <q-tooltip
             content-class
@@ -92,6 +95,7 @@
           size="sm"
           icon="fas fa-expand"
           class="q-mr-xs"
+          @click="zoomToSelection" 
         >
           <q-tooltip
             content-class
@@ -101,7 +105,7 @@
             Zoom to Selection
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fa fa-undo">
+        <q-btn flat style="min-height: 45px;" @click="undo" size="sm" icon="fa fa-undo">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -110,7 +114,7 @@
             Undo
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fa fa-redo">
+        <q-btn flat style="min-height: 45px;" @click="redo" size="sm" icon="fa fa-redo">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -119,7 +123,7 @@
             Redo
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fa fa-plus">
+        <q-btn flat style="min-height: 45px;" size="sm" @click="zoomIn" icon="fa fa-plus">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -128,7 +132,7 @@
             Zoom In
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fa fa-minus">
+        <q-btn flat style="min-height: 45px;" size="sm" @click="zoomOut" icon="fa fa-minus">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -165,7 +169,7 @@
           </q-tooltip>
         </q-btn>
 
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-trash-alt">
+        <q-btn flat style="min-height: 45px;" size="sm" @click="confirmDeleteNodes()" icon="fas fa-trash-alt">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -212,8 +216,8 @@
           active-bg-color="accent"
         >
           <q-tab name="files" class="text-dark" label="Flows" />
-          <q-tab name="network" class="text-dark" label="Database" />
-          <q-tab name="queues" class="text-dark" label="Queues" />
+          <q-tab name="network" class="text-dark" label="Networks" />
+          <q-tab name="queues" class="text-dark" label="Patterns" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
         </q-tabs>
 
@@ -226,8 +230,8 @@
           <q-tab-panel
             name="queues"
             ref="queues"
-            style="padding-right: 0px; width: 100%; padding-top: 0px;"
-          ></q-tab-panel>
+            style="padding: 0px; width: 100%; padding-top: 0px;"
+          ><Patterns/></q-tab-panel>
           <q-tab-panel
             name="files"
             ref="files"
@@ -501,7 +505,7 @@
                   autofocus
                 />
               </q-popup-edit>
-              {{ node != null ? node.data.name : "No Selection" }}
+              {{ node != null ? node.data.name : 'No Selection' }}
             </div>
             <div
               class="text-info"
@@ -526,7 +530,7 @@
                   autofocus
                 />
               </q-popup-edit>
-              {{ node != null ? node.data.description : "" }}
+              {{ node != null ? node.data.description : '' }}
             </div>
             <div
               class="text-primary"
@@ -538,7 +542,7 @@
                 left: 45px;
               "
             >
-              {{ node != null ? node.id : "" }}
+              {{ node != null ? node.id : '' }}
             </div>
 
             <img src="~assets/images/droplet.svg" style="width: 30px;" />
@@ -670,6 +674,184 @@
         </q-card>
       </q-expansion-item>
     </div>
+    <q-dialog v-model="clear" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Clear Nodes</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to clear all the nodes?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Clear"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="clearNodes()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="deleteConfirm" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Delete Nodes</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm" v-if="deleteCount > 0">
+            Are you sure you want to delete {{ deleteCount }} {{ deleteText }}?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Delete"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="deleteSelectedNodes()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="selectAlert" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Delete Nodes</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm" >
+            Please select at least one node to delete
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 <style>
@@ -697,7 +879,7 @@
 }
 
 .jtk-surface {
-  background-image: url("~assets/images/Graph-paper.svg");
+  background-image: url('~assets/images/Graph-paper.svg');
   height: 100vh;
   overflow: hidden;
 }
@@ -777,33 +959,37 @@
 .hide {
   display: none;
 }
-@import url("https://fonts.googleapis.com/css?family=Indie+Flower&display=swap");
+@import url('https://fonts.googleapis.com/css?family=Indie+Flower&display=swap');
 
 .q-btn.disabled {
   color: #a9adb1 !important;
 }
 </style>
 <script>
+
 import {
   jsPlumb,
   Dialogs,
   DrawingTools,
   jsTarget,
   jsPlumbUtil,
-} from "jsplumbtoolkit";
+} from 'jsplumbtoolkit';
 
-import { jsPlumbToolkitVue2 } from "jsplumbtoolkit-vue2";
-import { jsPlumbSyntaxHighlighter } from "jsplumbtoolkit-syntax-highlighter";
-import { jsPlumbToolkitUndoRedo } from "jsplumbtoolkit-undo-redo";
-import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
+import { jsPlumbToolkitVue2 } from 'jsplumbtoolkit-vue2';
+import { jsPlumbSyntaxHighlighter } from 'jsplumbtoolkit-syntax-highlighter';
+import { jsPlumbToolkitUndoRedo } from 'jsplumbtoolkit-undo-redo';
+import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
 
-import ScriptTemplate from "components/templates/ScriptTemplate.vue";
-import GroupTemplate from "components/templates/GroupTemplate.vue";
+import ScriptTemplate from 'components/templates/ScriptTemplate.vue';
+import GroupTemplate from 'components/templates/GroupTemplate.vue';
+import PatternTemplate from 'components/templates/PatternTemplate.vue';
 
-import DocumentTemplate from "components/templates/DocumentTemplate.vue";
-import PortInTemplate from "components/templates/PortInTemplate.vue";
-import PortOutTemplate from "components/templates/PortOutTemplate.vue";
-import Objects from "components/Objects.vue";
+import DocumentTemplate from 'components/templates/DocumentTemplate.vue';
+import PortInTemplate from 'components/templates/PortInTemplate.vue';
+import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
+import Objects from 'components/Objects.vue';
+
+var dd = require('drip-drop');
 
 var idFunction = function (n) {
   return n.id;
@@ -814,94 +1000,218 @@ var typeFunction = function (n) {
   return n.type;
 };
 
-var dd = require("drip-drop");
+var dd = require('drip-drop');
 
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
-import "assets/css/jsplumbtoolkit.css";
-import "assets/css/jsplumbtoolkit-editable-connectors.css";
-import "assets/css/jsplumbtoolkit-syntax-highlighter.css";
-import "assets/css/jsplumbtoolkit-defaults.css";
+import 'assets/css/jsplumbtoolkit.css';
+import 'assets/css/jsplumbtoolkit-editable-connectors.css';
+import 'assets/css/jsplumbtoolkit-syntax-highlighter.css';
+import 'assets/css/jsplumbtoolkit-defaults.css';
 
-import Styles from "components/Styles.vue";
+import Styles from 'components/Styles.vue';
+import Patterns from 'components/Patterns.vue';
 
 function htmlToElement(html) {
-  var template = document.createElement("template");
+  var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild;
 }
 
 export default {
-  name: "Designer",
-  props: ["surfaceId", "flowid", "flow", "showtoolbar"],
+  name: 'Designer',
+  props: ['surfaceId', 'flowid', 'flow', 'showtoolbar'],
   components: {
     Styles,
     Objects,
+    Patterns
   },
   computed: {
-    darkStyle: function () {
-      if (this.$q.dark.mode) return "text-grey bg-black";
-      else return "text-black";
+  },
+  methods: {
+    
+    copyNodes () {
+      function findMatch (list, obj) {
+        debugger
+        for (var i = 0; i < list.length; i++) {
+          var o = list[i]
+          if (o.id === obj.id) {
+            return true
+          }
+        }
+        return false
+      }
+      function findEdge (list, edge) {
+        for (var i = 0; i < list.length; i++) {
+          var e = list[i]
+          if (e.source === edge.source || e.target === edge.target) {
+            return true
+          }
+        }
+        return false
+      }
+      function haveAllNodes (nodes, edge) {
+        var source = false
+        var target = false
+        for (var i = 0; i < nodes.length; i++) {
+          var node = nodes[i]
+          if (edge.source.split('.')[0] === node.id) source = true
+          if (edge.target.split('.')[0] === node.id) target = true
+        }
+        return source && target
+      }
+
+      var selection = window.toolkit.getSelection()
+      var nodes = selection.getAll()
+      console.log('DELETE SELECTED NODES:', nodes)
+      var exportData = window.toolkit.exportData()
+      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'))
+      var jsonData = {}
+      jsonData.nodes = []
+      jsonData.edges = []
+      jsonData.ports = []
+      for (var i = 0; i < data.nodes.length; i++) {
+        const n = data.nodes[i]
+        if (findMatch(nodes, n)) {
+          jsonData.nodes.push(n)
+        }
+      }
+      for (var i = 0; i < data.edges.length; i++) {
+        const e = data.edges[i]
+        if (haveAllNodes(jsonData.nodes, e)) { jsonData.edges.push(e) }
+      }
+      for (var i = 0; i < jsonData.nodes.length; i++) {
+        const node = jsonData.nodes[i]
+        for (var p = 0; p < data.ports.length; p++) {
+          var port = data.ports[p]
+          if (port.id.indexOf(node.id) > -1) {
+            jsonData.ports.push(port)
+          }
+        }
+      }
+      console.log('jsonData:', jsonData)
+      /*
+      if (nodes.length > 0) {
+        this.$root.$emit('status.message', {
+          color: 'black',
+          message: 'Copied ' + nodes.length + ' nodes!'
+        })
+      } else {
+        this.$root.$emit('status.message', {
+          color: 'black',
+          message: 'No nodes selected!'
+        })
+      }
+      */
+
+      window.clipboard = jsonData
+    },
+    confirmDeleteNodes() {
+      var selection = window.toolkit.getSelection();
+      this.deleteCount = selection.getAll().length;
+      if (this.deleteCount > 1) {
+        this.deletText = 'nodes'
+        this.deleteConfirm = true;
+      } else if (this.deleteCount == 1) {
+        this.deleteText = 'node'
+        this.deleteConfirm = true;
+      } else if (this.deleteCount == 0) {
+        this.selectAlert = true;
+      }
+    },
+    deleteSelectedNodes () {
+      var selection = window.toolkit.getSelection();
+      console.log("SELECTION",selection)
+      selection.getAll().map(function (node) {
+        console.log('Removing:', node)
+        window.toolkit.removeNode(node)
+      })
+    },
+    undo () {
+      this.undoredo.undo()
+    },
+    redo () {
+      this.undoredo.redo()
+    },
+    zoomIn () {
+      window.toolkit.surface.nudgeZoom(0.25)
+    },
+    zoomOut () {
+      window.toolkit.surface.nudgeZoom(-0.25)
+    },
+    zoomToFit () {
+      window.toolkit.surface.zoomToFit({ fill: 0.75 })
+      this.mode = 'pan'
+    },
+    zoomToSelection () {
+      window.toolkit.surface.animateToSelection({ fill: 0.75 })
+      this.mode = 'pan'
+    },
+    clearNodes () {
+      window.toolkit.clear()
+      window.toolkit.dirty = true
+    },
+    setMode(mode) {
+      console.log('setMode:', mode);
+      window.toolkit.surface.setMode(mode);
     },
   },
-  methods: {},
   created() {},
   mounted() {
     var me = this;
 
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
-    console.log("MOUNTED DESIGNER: STORE",this.$store);
+    console.log('MOUNTED DESIGNER: STORE', this.$store);
     window.store = this.$store;
     jsPlumbToolkit.ready(function () {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
-        console.log("SURFACE ", me.surfaceId, s);
-        s.bind("lasso:end", function () {
+        console.log('SURFACE ', me.surfaceId, s);
+        s.bind('lasso:end', function () {
           me.isdisabled = false;
           me.selectedNodes = me.toolkit.getSelection().getAll().length;
         });
-        s.bind("canvasClick", function () {
+        s.bind('canvasClick', function () {
           me.isdisabled = true;
         });
         window.root = me.$root;
         window.toolkit = me.toolkit;
         window.toolkit.surface = me.surface;
         window.designer = me;
-        me.$root.$on("node.selected", (node) => {
+        me.$root.$on('node.selected', (node) => {
           me.node = node;
-          console.log("Animate node");
+          console.log('Animate node');
           var adhocSelection = toolkit.filter(function (obj) {
-            console.log("OBJ:", obj);
-            console.log("NODE: ", node);
+            console.log('OBJ:', obj);
+            console.log('NODE: ', node);
             return obj == node;
           });
           if (node != null) {
             //me.surface.setZoom(0.001);
-          
           }
         });
         me.toolkit.uuid = uuidv4();
-        console.log("toolkit myUUID: ", me.toolkit.uuid);
+        console.log('toolkit myUUID: ', me.toolkit.uuid);
         me.toolkit.$root = me.$root;
         me.toolkit.renderer = s;
-        var els = me.$el.getElementsByClassName("jtk-surface");
-        console.log("ELS:", els);
+        var els = me.$el.getElementsByClassName('jtk-surface');
+        console.log('ELS:', els);
         for (var i = 0; i < els.length; i++) {
           var el = els[i];
-          console.log("DD:EL:", el);
-          dd.drop(el).on("drop", function (data, event) {
-            console.log("drop:canvas", data, event);
+          console.log('DD:EL:', el);
+          dd.drop(el).on('drop', function (data, event) {
+            console.log('drop:canvas', data, event);
             var number = me.surface.mapLocation(event.clientX, event.clientY);
             if (data.object) {
               var node = JSON.parse(data.object);
-              console.log("NUMBER:", number);
+              console.log('NUMBER:', number);
               node.node.left = number.left - 390 / 2;
               node.node.top = number.top - 135 / 2;
-              console.log("DROP NODE:", node);
+              console.log('DROP NODE:', node);
               var data = JSON.parse(JSON.stringify(node.node));
-              console.log("DROP DATA:", data);
+              console.log('DROP DATA:', data);
               if (data.group) {
                 delete data.group;
                 data.id = uuidv4();
@@ -912,11 +1222,11 @@ export default {
               node.toolkit = window.toolkit;
             }
           });
-          dd.drop(el).on("enter", function (keys, event) {
-            console.log("drop enter:canvas", keys, event);
+          dd.drop(el).on('enter', function (keys, event) {
+            console.log('drop enter:canvas', keys, event);
           });
-          dd.drop(el).on("leave", function (keys, event) {
-            console.log("drop leave:canvas", keys, event);
+          dd.drop(el).on('leave', function (keys, event) {
+            console.log('drop leave:canvas', keys, event);
           });
         }
         new DrawingTools({
@@ -936,7 +1246,10 @@ export default {
   data: () => {
     return {
       value: true,
-      tab: "monitor",
+      tab: 'monitor',
+      clear: false,
+      deleteText: 'nodes',
+      deleteCount: 0,
       series2: [
         {
           data: [
@@ -1187,8 +1500,8 @@ export default {
         plotOptions: {
           candlestick: {
             colors: {
-              upward: "#abbcc3",
-              downward: "#6b8791",
+              upward: '#abbcc3',
+              downward: '#6b8791',
             },
             wick: {
               useFillColor: true,
@@ -1197,19 +1510,19 @@ export default {
         },
         candlestick: {
           colors: {
-            upward: "#abbcc3",
-            downward: "#6b8791",
+            upward: '#abbcc3',
+            downward: '#6b8791',
           },
           wick: {
             useFillColor: true,
           },
         },
         chart: {
-          type: "candlestick",
+          type: 'candlestick',
           height: 350,
         },
         xaxis: {
-          type: "datetime",
+          type: 'datetime',
         },
         yaxis: {
           tooltip: {
@@ -1219,21 +1532,21 @@ export default {
       },
       series: [
         {
-          name: "Submitted",
-          type: "column",
+          name: 'Submitted',
+          type: 'column',
           data: [440, 505, 414, 671, 227, 413, 201, 352, 752, 320, 257, 160],
         },
         {
-          name: "Succeeded",
-          type: "line",
+          name: 'Succeeded',
+          type: 'line',
           data: [23, 42, 35, 27, 43, 22, 17, 31, 22, 22, 12, 16],
         },
       ],
       chartOptions: {
-        colors: ["#abbcc3", "#728e9b"],
+        colors: ['#abbcc3', '#728e9b'],
         chart: {
           height: 350,
-          type: "line",
+          type: 'line',
         },
         stroke: {
           width: [0, 4],
@@ -1244,53 +1557,53 @@ export default {
           enabledOnSeries: [1],
         },
         labels: [
-          "01 Jan 2001",
-          "02 Jan 2001",
-          "03 Jan 2001",
-          "04 Jan 2001",
-          "05 Jan 2001",
-          "06 Jan 2001",
-          "07 Jan 2001",
-          "08 Jan 2001",
-          "09 Jan 2001",
-          "10 Jan 2001",
-          "11 Jan 2001",
-          "12 Jan 2001",
+          '01 Jan 2001',
+          '02 Jan 2001',
+          '03 Jan 2001',
+          '04 Jan 2001',
+          '05 Jan 2001',
+          '06 Jan 2001',
+          '07 Jan 2001',
+          '08 Jan 2001',
+          '09 Jan 2001',
+          '10 Jan 2001',
+          '11 Jan 2001',
+          '12 Jan 2001',
         ],
         xaxis: {
-          type: "datetime",
+          type: 'datetime',
         },
         yaxis: [
           {
             title: {
-              text: "Submitted",
+              text: 'Submitted',
             },
           },
           {
             opposite: true,
             title: {
-              text: "Succeeded",
+              text: 'Succeeded',
             },
           },
         ],
       },
       expanded: true,
       drawer: false,
-      mode: "pan",
+      mode: 'pan',
       console: true,
       toolbar: true,
       node: null,
-      filename: "",
+      filename: '',
       updateGraphConfirm: false,
       deleteCandidate: {},
       isdisabled: true,
-      saveUrl: process.env.APISERVER + "/flow",
+      saveUrl: process.env.APISERVER + '/flow',
       debug: false,
       nodebrowser: false,
-      status: "Ready",
+      status: 'Ready',
       gridLines: true,
       code: false,
-      thecode: "the code",
+      thecode: 'the code',
       plotpoints: [],
       confirm: false,
       tropes: false,
@@ -1298,6 +1611,7 @@ export default {
       renameConfirm: false,
       clear: false,
       edgelabels: true,
+      mode: 'pan',
       selectedNodes: 0,
       syncModal: false,
       tooltips: false,
@@ -1307,7 +1621,8 @@ export default {
       saveTropeDialog: false,
       deleteConfirm: false,
       deleteConfirmNode: false,
-      savecolor: "black",
+      selectAlert: false,
+      savecolor: 'black',
       hotbutton: false,
       toolkitParams: {
         idFunction: idFunction,
@@ -1315,35 +1630,35 @@ export default {
         autoSave: true,
         autoSaveHandler: function (toolkit) {
           // Notify user about needing save
-          console.log("auto save handler");
+          console.log('auto save handler');
           //console.log(toolkit.view);
           // toolkit.$root.$emit('flow.shown', toolkit.view)
-          toolkit.$root.$emit("status.message", {
-            color: "red",
-            type: "unsavedchanges",
-            message: "Your flow has unsaved changes!",
+          toolkit.$root.$emit('status.message', {
+            color: 'red',
+            type: 'unsavedchanges',
+            message: 'Your flow has unsaved changes!',
           });
           toolkit.dirty = true;
         },
         groupFactory: function (type, data, callback) {
-          console.log("Group factory:", type, data);
+          console.log('Group factory:', type, data);
           callback(data);
         },
         nodeFactory: function (type, data, callback) {
-          console.log("Node factory:", type, data);
+          console.log('Node factory:', type, data);
           data.columns = [];
           data.rules = [];
 
-          window.root.$emit("node.added", { data: data });
-          window.root.$emit("drop." + type + ".dialog", {
-            mode: "edit",
+          window.root.$emit('node.added', { data: data });
+          window.root.$emit('drop.' + type + '.dialog', {
+            mode: 'edit',
             obj: data,
           });
           callback(data);
         },
         edgeFactory: function (params, data, callback) {
           // you must hit the callback if you provide the edgeFactory.
-          console.log("EDGE FACTORY:", params, data, callback);
+          console.log('EDGE FACTORY:', params, data, callback);
           if (!data.name) {
             data.name = data.label;
           }
@@ -1353,12 +1668,12 @@ export default {
         // the name of the property in each node's data that is the key for the data for the ports for that node.
         // we used to use portExtractor and portUpdater in this demo, prior to the existence of portDataProperty.
         // for more complex setups, those functions may still be needed.
-        portDataProperty: "columns",
+        portDataProperty: 'columns',
         //
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-          console.log("beforeStartConnect", source, edgetype);
+          console.log('beforeStartConnect', source, edgetype);
           if (!source.data.name) {
             source.data.name = source.data.id;
           }
@@ -1368,7 +1683,7 @@ export default {
           };
         },
         beforeConnect: function (source, target) {
-          console.log("beforeConnect:", source, target);
+          console.log('beforeConnect:', source, target);
           console.log(
             source !== target && source.getNode() !== target.getNode()
           );
@@ -1378,13 +1693,13 @@ export default {
       renderParams: {
         enablePanButtons: false,
         jsPlumb: {
-          Connector: "StateMachine",
-          Endpoint: "Blank",
+          Connector: 'StateMachine',
+          Endpoint: 'Blank',
         },
         // Layout the nodes using a 'Spring' (force directed) layout. This is the best layout in the jsPlumbToolkit
         // for an application such as this.
         layout: {
-          type: "Spring",
+          type: 'Spring',
           parameters: {
             padding: [150, 150],
           },
@@ -1398,16 +1713,16 @@ export default {
           modeChanged: function (mode) {},
           edgeAdded: function (params) {
             // Check here that the edge was not added programmatically, ie. on load.
-            console.log("edgeAdded:", params);
+            console.log('edgeAdded:', params);
             if (params.addedByMouse) {
-              var source = params.sourceId.split(".");
-              var target = params.targetId.split(".");
+              var source = params.sourceId.split('.');
+              var target = params.targetId.split('.');
 
-              var sourceType = params.source.data["type"];
-              var targetType = params.target.data["type"];
+              var sourceType = params.source.data['type'];
+              var targetType = params.target.data['type'];
 
               console.log(sourceType, targetType);
-              if (!(sourceType == "Output" && targetType == "Input")) {
+              if (!(sourceType == 'Output' && targetType == 'Input')) {
                 window.toolkit.removeEdge(params.edge);
               }
 
@@ -1426,25 +1741,25 @@ export default {
                 var sourceNode = sourceEdge.source.getNode();
                 if (sourceNode === params.source.getNode()) {
                   if (sourceEdge.target.getNode() === params.target.getNode()) {
-                    console.log("Existing edge: ", sourceEdge);
+                    console.log('Existing edge: ', sourceEdge);
                     edgeCount += 1;
                   }
                 }
               }
               if (edgeCount > 1) {
                 console.log(
-                  "Cannot add duplicate edge between same source and target!!!!!!"
+                  'Cannot add duplicate edge between same source and target!!!!!!'
                 );
                 console.log(window.toolkit.$q);
                 window.toolkit.removeEdge(params.edge);
               } else {
                 if (
                   source[1] === target[1] &&
-                  params.target.getNode().data.type === "relation"
+                  params.target.getNode().data.type === 'relation'
                 ) {
                   window.toolkit.updateEdge(params.edge, {
                     label: source[1],
-                    type: "1:1",
+                    type: '1:1',
                     etype: source[1],
                   });
                 } else {
@@ -1453,28 +1768,29 @@ export default {
 
               if (edgeCount > 1) {
                 window.toolkit.$q.notify({
-                  color: "secondary",
+                  color: 'secondary',
                   timeout: 2000,
-                  position: "center",
-                  classes: "flat",
+                  position: 'center',
+                  classes: 'flat',
                   message:
-                    "Cannot add duplicate edge between same source and target!",
-                  icon: "",
+                    'Cannot add duplicate edge between same source and target!',
+                  icon: '',
                 });
               }
             }
           },
           canvasClick: function (e) {
-            console.log("Canvas clicked");
-            window.toolkit.$root.$emit("set.mode", "pan");
+            console.log('Canvas clicked');
+            window.toolkit.$root.$emit('set.mode', 'pan');
             window.toolkit.clearSelection();
-            window.root.$emit("node.selected", null);
-            window.root.$emit("nodes.selected", null);
+            window.designer.mode = 'pan';
+            window.root.$emit('node.selected', null);
+            window.root.$emit('nodes.selected', null);
           },
         },
         dragOptions: {
           filter:
-            "i, .view .buttons, .table .buttons, .table-column *, .view-edit, .edit-name",
+            'i, .view .buttons, .table .buttons, .table-column *, .view-edit, .edit-name',
         },
         consumeRightClick: false,
         zoomToFit: true,
@@ -1485,27 +1801,33 @@ export default {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
-                console.log("PARAMS:", params);
+                console.log('PARAMS:', params);
 
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
-                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
-                    var parentId = params.e.srcElement.firstChild.parentNode.id;
-                    var childId = params.e.srcElement.firstChild.id;
-                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
                     toolkit.toggleSelection(params.node);
-                    var elems = document.querySelectorAll(".jtk-node");
+                    var elems = document.querySelectorAll('.jtk-node');
 
                     elems.forEach((el) => {
-                      el.style["z-index"] = 0;
+                      el.style['z-index'] = 0;
                     });
-                    params.el.style["z-index"] = 99999;
+                    params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
                     if (nodes.length == 0) {
-                      window.root.$emit("node.selected", null);
+                      window.root.$emit('node.selected', null);
                     } else {
-                      window.root.$emit("node.selected", params.node);
-                      window.root.$emit("nodes.selected", nodes);
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
                     }
                   }
                 }
@@ -1518,22 +1840,22 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != "i" &&
-                  params.e.srcElement.localName != "td"
+                  params.e.srcElement.localName != 'i' &&
+                  params.e.srcElement.localName != 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
-                  var elems = document.querySelectorAll(".jtk-node");
+                  var elems = document.querySelectorAll('.jtk-node');
 
                   elems.forEach((el) => {
-                    el.style["z-index"] = 0;
+                    el.style['z-index'] = 0;
                   });
-                  params.el.style["z-index"] = 99999;
+                  params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
                   if (nodes.length == 0) {
-                    window.root.$emit("node.selected", null);
+                    window.root.$emit('node.selected', null);
                   } else {
-                    window.root.$emit("node.selected", params.node);
-                    window.root.$emit("nodes.selected", nodes);
+                    window.root.$emit('node.selected', params.node);
+                    window.root.$emit('nodes.selected', nodes);
                   }
                 }
               },
@@ -1544,22 +1866,22 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != "i" &&
-                  params.e.srcElement.localName != "td"
+                  params.e.srcElement.localName != 'i' &&
+                  params.e.srcElement.localName != 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
-                  var elems = document.querySelectorAll(".jtk-node");
+                  var elems = document.querySelectorAll('.jtk-node');
 
                   elems.forEach((el) => {
-                    el.style["z-index"] = 0;
+                    el.style['z-index'] = 0;
                   });
-                  params.el.style["z-index"] = 99999;
+                  params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
                   if (nodes.length == 0) {
-                    window.root.$emit("node.selected", null);
+                    window.root.$emit('node.selected', null);
                   } else {
-                    window.root.$emit("node.selected", params.node);
-                    window.root.$emit("nodes.selected", nodes);
+                    window.root.$emit('node.selected', params.node);
+                    window.root.$emit('nodes.selected', nodes);
                   }
                 }
               },
@@ -1570,22 +1892,22 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != "i" &&
-                  params.e.srcElement.localName != "td"
+                  params.e.srcElement.localName != 'i' &&
+                  params.e.srcElement.localName != 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
-                  var elems = document.querySelectorAll(".jtk-node");
+                  var elems = document.querySelectorAll('.jtk-node');
 
                   elems.forEach((el) => {
-                    el.style["z-index"] = 0;
+                    el.style['z-index'] = 0;
                   });
-                  params.el.style["z-index"] = 99999;
+                  params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
                   if (nodes.length == 0) {
-                    window.root.$emit("node.selected", null);
+                    window.root.$emit('node.selected', null);
                   } else {
-                    window.root.$emit("node.selected", params.node);
-                    window.root.$emit("nodes.selected", nodes);
+                    window.root.$emit('node.selected', params.node);
+                    window.root.$emit('nodes.selected', nodes);
                   }
                 }
               },
@@ -1595,27 +1917,33 @@ export default {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
-                console.log("PARAMS:", params);
+                console.log('PARAMS:', params);
 
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
-                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
-                    var parentId = params.e.srcElement.firstChild.parentNode.id;
-                    var childId = params.e.srcElement.firstChild.id;
-                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
                     toolkit.toggleSelection(params.node);
-                    var elems = document.querySelectorAll(".jtk-node");
+                    var elems = document.querySelectorAll('.jtk-node');
 
                     elems.forEach((el) => {
-                      el.style["z-index"] = 0;
+                      el.style['z-index'] = 0;
                     });
-                    params.el.style["z-index"] = 99999;
+                    params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
                     if (nodes.length == 0) {
-                      window.root.$emit("node.selected", null);
+                      window.root.$emit('node.selected', null);
                     } else {
-                      window.root.$emit("node.selected", params.node);
-                      window.root.$emit("nodes.selected", nodes);
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
                     }
                   }
                 }
@@ -1626,58 +1954,64 @@ export default {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
-                console.log("PARAMS:", params);
+                console.log('PARAMS:', params);
 
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
-                if (params.e.srcElement.localName == "span" || params.e.srcElement.className === "jtk-draw-skeleton") {
-                    var parentId = params.e.srcElement.firstChild.parentNode.id;
-                    var childId = params.e.srcElement.firstChild.id;
-                    if(((childId && childId.indexOf("port") == -1) || !childId) && ((parentId && parentId.indexOf("port") == -1) || !parentId)) {
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
                     toolkit.toggleSelection(params.node);
-                    var elems = document.querySelectorAll(".jtk-node");
+                    var elems = document.querySelectorAll('.jtk-node');
 
                     elems.forEach((el) => {
-                      el.style["z-index"] = 0;
+                      el.style['z-index'] = 0;
                     });
-                    params.el.style["z-index"] = 99999;
+                    params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
                     if (nodes.length == 0) {
-                      window.root.$emit("node.selected", null);
+                      window.root.$emit('node.selected', null);
                     } else {
-                      window.root.$emit("node.selected", params.node);
-                      window.root.$emit("nodes.selected", nodes);
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
                     }
                   }
                 }
               },
             },
-          }
+          },
         },
         // Three edge types  - '1:1', '1:N' and 'N:M',
         // sharing  a common parent, in which the connector type, anchors
         // and appearance is defined.
         edges: {
           flowchart: {
-            endpoint: "Blank",
-            anchor: ["Left", "Right"], // anchors for the endpoints
+            endpoint: 'Blank',
+            anchor: ['Left', 'Right'], // anchors for the endpoints
             // connector: ["Flowchart", { cornerRadius: 10 }], //  StateMachine connector
-            connector: ["Flowchart", { cornerRadius: 10 }], //  StateMachine connector type
-            cssClass: "common-edge",
+            connector: ['Flowchart', { cornerRadius: 10 }], //  StateMachine connector type
+            cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
                 _editEdge(params.edge);
               },
             },
             overlays: [
-              ["Arrow", { location: 1 }],
+              ['Arrow', { location: 1 }],
               [
-                "Label",
+                'Label',
                 {
-                  cssClass: "delete-relationship text-white",
-                  label: "${name}",
-                  event: "${event}",
-                  name: "${name}",
+                  cssClass: 'delete-relationship text-white',
+                  label: '${name}',
+                  event: '${event}',
+                  name: '${name}',
                   events: {
                     tap: function (params) {},
                   },
@@ -1686,38 +2020,40 @@ export default {
             ],
           },
           default: {
-            endpoint: "Blank",
-            anchor: ["Left", "Right"], // anchors for the endpoints
-            connector: ["Straight", { stub: 0 }], //  StateMachine connector
+            endpoint: 'Blank',
+            anchor: ['Left', 'Right'], // anchors for the endpoints
+            connector: ['Straight', { stub: 0 }], //  StateMachine connector
             //connector: ["Bezier", {}], //  StateMachine connector type
-            cssClass: "common-edge",
+            cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
                 _editEdge(params.edge);
               },
             },
             overlays: [
-              ["Arrow", { location: 1 }],
+              ['Arrow', { location: 1 }],
               [
-                "Custom",
+                'Custom',
                 {
-                  label: "${name}",
-                  event: "${event}",
-                  name: "${name}",
+                  label: '${name}',
+                  event: '${event}',
+                  name: '${name}',
                   create: function (component) {
-                    console.log("getData():", component, component.getData());
+                    console.log('getData():', component, component.getData());
                     return htmlToElement(
                       "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
-                        "<span style='font-weight: bold; color: #775351' data-source='"+component.source.attributes['data-port-id'].nodeValue+"'>" +
-                        component.getData()["name"] +
+                        "<span style='font-weight: bold; color: #775351' data-source='" +
+                        component.source.attributes['data-port-id'].nodeValue +
+                        "'>" +
+                        component.getData()['name'] +
                         "</span><i class='pull-right fas fa-cog text-primary'/>" +
                         '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +
                         "<span style='font-weight: bold; color: #775351'>0 (0 bytes)</span>" +
-                        "</div>" +
-                        "</div>"
+                        '</div>' +
+                        '</div>'
                     );
                   },
-                  id: "connector",
+                  id: 'connector',
                   events: {
                     tap: function (params) {},
                   },
@@ -1732,16 +2068,21 @@ export default {
             constrain: false,
             orphan: true,
           },
+          pattern: {
+            component: PatternTemplate,
+            constrain: false,
+            orphan: true,
+          },
         },
         ports: {
           default: {
-            template: "tmplColumn",
-            paintStyle: { fill: "#abbcc3" }, // the endpoint's appearance
-            hoverPaintStyle: { fill: "#434343" }, // appearance when mouse hovering on endpoint or connection
-            edgeType: "default", // the type of edge for connections from this port type
+            template: 'tmplColumn',
+            paintStyle: { fill: '#abbcc3' }, // the endpoint's appearance
+            hoverPaintStyle: { fill: '#434343' }, // appearance when mouse hovering on endpoint or connection
+            edgeType: 'default', // the type of edge for connections from this port type
             maxConnections: -1, // no limit on connections
             dropOptions: {
-              hoverClass: "drop-hover",
+              hoverClass: 'drop-hover',
             },
             events: {
               dblclick: function () {

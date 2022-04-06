@@ -156,7 +156,7 @@ Assigned to tile images in a tiled background
     Assigned to the element used for node select with the mouse ("lasso").
 */
 .jtk-lasso {
-    border: 2px solid rgb(49, 119, 184);
+    border: 2px solid rgb(73, 119, 138);
     background-color: WhiteSmoke;
     opacity: 0.5;
     display: none;

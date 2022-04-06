@@ -26,29 +26,17 @@
     <h4 class="group-title">
       <span style="min-width: 500px;">
         {{ obj.name }} <i class="fas fa-edit text-primary" style="cursor:pointer" >
-                          <q-popup-edit
-                            
-                            style="font-size: 15px; margin-top: 5px;"
-                            v-model="obj.name"
-                          >
-                            <q-input style="" v-model="obj.name" dense autofocus />
-                          </q-popup-edit>
-                          </i>
+              <q-popup-edit
+                
+                style="font-size: 15px; margin-top: 5px;"
+                v-model="obj.name"
+              >
+                <q-input style="" v-model="obj.name" dense autofocus />
+              </q-popup-edit>
+              </i>
       </span>
       <q-toolbar>
         <q-space />
-      <q-btn
-          flat
-          size="xs"
-          class="bg-secondary"
-        >
-          <q-icon name="colorize" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-color no-header  no-footer v-model="color" />
-            </q-popup-proxy>
-          </q-icon>
-      </q-btn>
-
         <q-btn
           flat
           size="xs"
@@ -108,9 +96,9 @@
     <div
       jtk-group-content="true"
       class="aGroupInner"
-      :style="'background-color:'+color+';width:' + obj.w + 'px;height:' + obj.h + 'px;'"
+      :style="'width:' + obj.w + 'px;height:' + obj.h + 'px;'"
     ></div>
-    <q-inner-loading :showing="showing" style="z-index: 999999;">
+        <q-inner-loading :showing="showing" style="z-index: 999999;">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
     
@@ -138,7 +126,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Group</q-item-label>
+              <q-item-label>Delete Pattern</q-item-label>
               <q-space />
               <q-icon class="text-primary" name="fas fa-trash" />
             </q-toolbar>
@@ -151,7 +139,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this group?
+            Are you sure you want to delete this pattern?
           </span>
         </q-card-section>
 
@@ -272,19 +260,21 @@
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 
 export default {
-  name: "GroupTemplate",
+  name: "PatternTemplate",
   mixins: [BaseNodeComponent],
   components: {},
   mounted() {
     var me = this;
     this.toolkit = window.toolkit;
+    setTimeout( () => {
+      me.showing = false;
+    },2000)
   },
   created() {},
   data() {
     return {
-      showing: false,
+      showing: true,
       title: "Chapter 1",
-      color:"",
       dimension: 500,
       deleteGroup: false,
       icon: "fas fa-minus",

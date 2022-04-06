@@ -2,7 +2,6 @@
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
-    id="jtknode"
     :style="
       'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '
     "
@@ -194,6 +193,14 @@
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Spreadsheet
+              </q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = 'alt_route'">
+              <q-item-section side>
+                <q-icon name="alt_route"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Router
               </q-item-section>
             </q-item>
           </q-list>
@@ -484,7 +491,11 @@
             </q-item>
             <q-separator />
 
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('commentsview', !commentsview)"
+            >
               <q-item-section side>
                 <q-icon name="far fa-comments"></q-icon>
               </q-item-section>
@@ -505,8 +516,10 @@
                 Git
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup 
-            @click="showPanel('historyview', !historyview)"
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
                 <q-icon name="fas fa-history"></q-icon>
@@ -515,7 +528,11 @@
                 History
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('logsview', !logsview)"
+            >
               <q-item-section side>
                 <q-icon name="fas fa-glasses"></q-icon>
               </q-item-section>
@@ -524,7 +541,11 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('securityview', !securityview)"
+            >
               <q-item-section side>
                 <q-icon name="fas fa-lock"></q-icon>
               </q-item-section>
@@ -532,8 +553,11 @@
                 Security
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup
-              @click="showPanel('environmentview', !environmentview)">
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('environmentview', !environmentview)"
+            >
               <q-item-section side>
                 <q-icon name="far fa-list-alt"></q-icon>
               </q-item-section>
@@ -541,10 +565,13 @@
                 Environment
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup
-              @click="showPanel('scalingview', !scalingview)">
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('scalingview', !scalingview)"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-server"></q-icon>
+                <q-icon name="fas fa-balance-scale"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Scaling
@@ -841,7 +868,7 @@
         <editor
           v-model="obj.code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 60vh;"
+          style="font-size: 16px; min-height: 600px;"
           lang="python"
           theme="chrome"
           ref="myEditor"
@@ -1026,61 +1053,75 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 400px;
+          height: 550px;
         "
       >
-        Config view
+        <div class="q-pa-md" style="max-width: 100%;">
+          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+            <q-input
+              filled
+              v-model="obj.name"
+              hint="Processor Name"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+
+            <q-input
+              filled
+              v-model="obj.description"
+              hint="Processor Description"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              v-model="obj.package"
+              hint="Processor Package"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              v-model="obj.git"
+              hint="GIT Repository"
+              lazy-rules
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-input
+              filled
+              v-model="obj.api"
+              hint="API Endpoint"
+              lazy-rules
+              :disable="!obj.endpoint"
+              :rules="[
+                (val) => (val && val.length > 0) || 'Please type something',
+              ]"
+            />
+            <q-toolbar>
+              <q-checkbox v-model="obj.enabled" label="Enabled" />
+              <q-checkbox
+                v-model="obj.endpoint"
+                label="Expose Endpoint"
+                style="margin-left: 40px;"
+              />
+            </q-toolbar>
+          </q-form>
+        </div>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="configview = false"
-          v-close-popup
-        />
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
@@ -1098,38 +1139,59 @@
         position: absolute;
         right: -655px;
         top: 0px;
-        height:calc(100%+10px)
+        height: calc(100%+10px);
       "
       v-if="workerview"
     >
+      <q-inner-loading :showing="workersLoading" style="z-index: 9999999;">
+        <q-spinner-gears size="50px" color="primary" />
+      </q-inner-loading>
       <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          
-        "
+        style="padding: 15px; z-index: 999999; padding-bottom: 10px;"
       >
-      <q-table
-        dense
-        :columns="workercolumns"
-        :data="workerdata"
-        row-key="name"
-        flat
-        virtual-scroll
-        style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-      >
-      </q-table>
-
+        <q-table
+          dense
+          :columns="workercolumns"
+          :data="workerdata"
+          row-key="name"
+          flat
+          virtual-scroll
+          :rows-per-page-options="[10]"
+          style="
+            width: 100%;
+            border-top-radius: 0px;
+            border-bottom-radius: 0px;
+          "
+        >
+        </q-table>
       </q-card-section>
-      <q-card-actions align="right" style="padding-top:20px">
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="refresh"
+          class="bg-primary text-white"
+          color="primary"
+          @click="refreshWorkers"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Refresh
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right" style="padding-top: 20px;">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-
           @click="workerview = false"
           v-close-popup
         />
@@ -1376,6 +1438,246 @@
       </q-card-actions>
     </q-card>
 
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="commentsview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        Comments view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="commentsview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="securityview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        Security view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="securityview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="logsview"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 400px;
+        "
+      >
+        Logs view
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          icon="history"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Revert to Last
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          flat
+          icon="published_with_changes"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Publish to Network
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="logsview = false"
+          v-close-popup
+        />
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
     <!-- Chart dialog -->
     <q-card
       style="
@@ -1414,7 +1716,6 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-
           @click="dataview = false"
           v-close-popup
         />
@@ -1531,11 +1832,12 @@ export default {
       me.data[3].spark.value.push(front);
       setTimeout(shiftvalues, 1000);
     }
-    setTimeout(shiftvalues, 500);
+    //setTimeout(shiftvalues, 500);
   },
   data() {
     return {
       refreshing: false,
+      workersLoading: true,
       splitterModel: 50,
       series2: [
         {
@@ -1823,12 +2125,17 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        enabled: true,
+        endpoint: false,
+        api: '/api/processor',
         type: 'script',
         name: 'Script Processor',
         label: 'Script',
         description: 'A script processor description',
         package: 'my.python.package',
         disabled: false,
+        git:
+          'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
         columns: [],
         readwrite: 0,
         properties: [],
@@ -1837,6 +2144,9 @@ export default {
       configview: false,
       workerview: false,
       historyview: false,
+      logsview: false,
+      commentsview: false,
+      securityview: false,
       environmentview: false,
       scalingview: false,
       dataview: false,
@@ -1845,42 +2155,42 @@ export default {
       bandwidth: true,
       workercolumns: [
         {
-          name:'Name',
+          name: 'Name',
           label: 'Name',
           field: 'name',
           align: 'left',
         },
         {
-          name:'Host',
+          name: 'Host',
           label: 'Host',
           field: 'host',
           align: 'left',
         },
         {
-          name:'CPU',
+          name: 'CPU',
           label: 'CPU',
           field: 'cpu',
           align: 'left',
         },
         {
-          name:'RAM',
+          name: 'RAM',
           label: 'RAM',
           field: 'ram',
           align: 'left',
         },
         {
-          name:'Disk',
+          name: 'Disk',
           label: 'Disk',
           field: 'disk',
           align: 'left',
         },
         {
-          name:'Tasks',
+          name: 'Tasks',
           label: 'Tasks',
           field: 'tasks',
           align: 'left',
-        }
-      ],  
+        },
+      ],
       columns: [
         {
           name: 'name',
@@ -1911,141 +2221,141 @@ export default {
       ],
       workerdata: [
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
         },
         {
-          name:'Name1',
-          host:'Host1',
-          cpu:'CPU1',
-          disk:'Disk1',
-          ram:'RAM1',
-          tasks:'Task1'
-        }
+          name: 'Name1',
+          host: 'Host1',
+          cpu: 'CPU1',
+          disk: 'Disk1',
+          ram: 'RAM1',
+          tasks: 'Task1',
+        },
       ],
       data: [
         {
@@ -2128,6 +2438,13 @@ export default {
     };
   },
   methods: {
+    refreshWorkers() {
+      var me = this;
+      this.workersLoading = true;
+      setTimeout(() => {
+        me.workersLoading = false;
+      }, 2000);
+    },
     refreshProcessor() {
       var me = this;
       this.refreshing = true;
@@ -2143,6 +2460,12 @@ export default {
         return 'background-color:white';
       }
     },
+    workerviewSetup() {
+      var me = this;
+      setTimeout(() => {
+        me.workersLoading = false;
+      }, 2000);
+    },
     showPanel(view, show) {
       this.configview = false;
       this.codeview = false;
@@ -2152,7 +2475,13 @@ export default {
       this.historyview = false;
       this.environmentview = false;
       this.scalingview = false;
+      this.commentsview = false;
+      this.logsview = false;
+      this.securityview = false;
       this[view] = show;
+      if (this[view + 'Setup']) {
+        this[view + 'Setup']();
+      }
 
       if (show) {
         //window.toolkit.surface.setZoom(1.0);

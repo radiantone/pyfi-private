@@ -4,23 +4,7 @@
       src="~assets/images/pyfi.svg"
       style="padding-left: 15px; height: 45px; padding-right: 10px;"
     />
-    <q-btn
-      flat
-      align="left"
-      icon="las la-file"
-      aria-label="Document"
-      size="large"
-      id="documentnode"
-      style="min-height: 56px; font-size:1.4em; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Document
-      </q-tooltip>
-    </q-btn>
+   
     <q-btn
       flat
       align="left"

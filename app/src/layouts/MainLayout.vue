@@ -319,22 +319,6 @@ export default defineComponent({
         },
       };
 
-      var documentnode = document.querySelector("#documentnode");
-      documentnode.data = {
-        node: {
-          icon: "las la-file",
-          style: "size:50px",
-          type: "document",
-          name: "Document",
-          label: "Document",
-          description: "A document or spreadsheet",
-          package: "queue name",
-          disabled: false,
-          columns: [],
-          properties: [],
-        },
-      };
-
       var portin = document.querySelector("#portin");
       portin.data = {
         node: {
@@ -417,7 +401,7 @@ export default defineComponent({
       };
 
       //, chord, segment, map, reduce
-      var els = [processor, documentnode, portin, portout, group, parallel, pipeline];
+      var els = [processor, portin, portout, group, parallel, pipeline];
 
       els.forEach((el) => {
         var data = el.data;

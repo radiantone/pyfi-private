@@ -141,12 +141,19 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.info("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
             logging.info("Fetching processors to be deployed")
 
-            # Get a random processor that either has less deployments than its concurrency needs or
-            # a random processor without deployments at all
-            processors = (
-                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
+            # Get a random processor that either has less deployments than its concurrency needs
+            processor = (
+                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().first()
+                #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
+
+            if processor is None:
+                # If we didn't get any processors above, try fetching one without deployments
+                processor = (
+                session.query(ProcessorModel).filter(~ProcessorModel.deployments.any()).with_for_update().first()
+                )
+            '''
             if len(processors) == 0:
                 processor = None
             else:
@@ -161,6 +168,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     processor = None
                 else:
                     processor = random.choice(processors)
+            '''
 
             # Try to fulfill its concurrency
             logging.info("Processor is %s", processor)
