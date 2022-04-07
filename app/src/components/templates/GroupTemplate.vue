@@ -1,7 +1,7 @@
 <template>
   <div
     class="aGroup"
-    style="border: 2px dashed black; min-height: 150px;z-index:-100"
+    style="border: 2px dashed black; min-height: 150px; z-index: -100;"
     id="jtkgroup"
   >
     <q-slider
@@ -25,30 +25,34 @@
     />
     <h4 class="group-title">
       <span style="min-width: 500px;">
-        {{ obj.name }} <i class="fas fa-edit text-primary" style="cursor:pointer" >
-                          <q-popup-edit
-                            
-                            style="font-size: 15px; margin-top: 5px;"
-                            v-model="obj.name"
-                          >
-                            <q-input style="" v-model="obj.name" dense autofocus />
-                          </q-popup-edit>
-                          </i>
+        {{ obj.name }}
+        <i class="fas fa-edit text-primary" style="cursor: pointer;">
+          <q-popup-edit
+            style="font-size: 15px; margin-top: 5px;"
+            v-model="obj.name"
+          >
+            <q-input style="" v-model="obj.name" dense autofocus />
+          </q-popup-edit>
+        </i>
       </span>
       <q-toolbar>
         <q-space />
-      <q-btn
+        <q-btn flat size="xs" icon="colorize" class="bg-secondary">
+            <q-popup-proxy
+              cover
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <q-color no-header no-footer v-model="color" />
+            </q-popup-proxy>
+        </q-btn>
+        <q-btn
           flat
           size="xs"
           class="bg-secondary"
+          icon="fas fa-expand-arrows-alt"
         >
-          <q-icon name="colorize" class="cursor-pointer">
-            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-              <q-color no-header  no-footer v-model="color" />
-            </q-popup-proxy>
-          </q-icon>
-      </q-btn>
-
+        </q-btn>
         <q-btn
           flat
           size="xs"
@@ -56,34 +60,8 @@
           icon="settings"
           @click="groupSettings"
         >
-          <q-tooltip
-            align="top"
-            anchor="top middle"
-            self="bottom middle"
-            content-class="bg-black text-white"
-          >
-            Group Settings
-          </q-tooltip>
         </q-btn>
         <q-btn flat size="xs" :icon="icon" class="bg-secondary" @click="click">
-          <q-tooltip
-            align="top"
-            anchor="top middle"
-            self="bottom middle"
-            v-if="icon === 'fas fa-plus'"
-            content-class="bg-black text-white"
-          >
-            Maximize Group
-          </q-tooltip>
-          <q-tooltip
-            align="top"
-            anchor="top middle"
-            self="bottom middle"
-            v-if="icon === 'fas fa-minus'"
-            content-class="bg-black text-white"
-          >
-            Minimize Group
-          </q-tooltip>
         </q-btn>
         <q-btn
           flat
@@ -92,14 +70,6 @@
           class="bg-secondary"
           @click="deleteGroup = true"
         >
-          <q-tooltip
-            align="top"
-            anchor="top middle"
-            self="bottom middle"
-            content-class="bg-black text-white"
-          >
-            Delete Group & Nodes
-          </q-tooltip>
         </q-btn>
       </q-toolbar>
     </h4>
@@ -108,12 +78,20 @@
     <div
       jtk-group-content="true"
       class="aGroupInner"
-      :style="'background-color:'+color+';width:' + obj.w + 'px;height:' + obj.h + 'px;'"
+      :style="
+        'background-color:' +
+        color +
+        ';width:' +
+        obj.w +
+        'px;height:' +
+        obj.h +
+        'px;'
+      "
     ></div>
     <q-inner-loading :showing="showing" style="z-index: 999999;">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
-    
+
     <q-dialog v-model="deleteGroup" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -155,23 +133,33 @@
           </span>
         </q-card-section>
 
-        <q-card-actions align="right">
+        <q-card-actions align="left">
           <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
             label="Cancel"
             class="bg-accent text-dark"
             color="primary"
             v-close-popup
           />
+          </q-card-actions>
+          <q-card-actions align="right">
           <q-btn
             flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
             label="Delete"
+            class="bg-primary text-white"
+            color="primary"
+            v-close-popup
+            @click="deleteAGroup(false)"
+          /><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Delete All"
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
-            @click="removeColumn(deleteSpeechID)"
+            @click="deleteAGroup(true)"
           />
         </q-card-actions>
       </q-card>
@@ -199,7 +187,7 @@
   background-color: #6b8791;
   color: white;
   font-weight: bold;
-  font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial,
+  font-family: 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
   font-size: 20px;
   letter-spacing: 4px;
@@ -222,7 +210,7 @@
 }
 
 .group-title .group-delete:after {
-  content: "x";
+  content: 'x';
 }
 
 .group-connect {
@@ -269,10 +257,10 @@
 }
 </style>
 <script>
-import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
 
 export default {
-  name: "GroupTemplate",
+  name: 'GroupTemplate',
   mixins: [BaseNodeComponent],
   components: {},
   mounted() {
@@ -283,20 +271,24 @@ export default {
   data() {
     return {
       showing: false,
-      title: "Chapter 1",
-      color:"",
+      title: 'Chapter 1',
+      color: '',
       dimension: 500,
       deleteGroup: false,
-      icon: "fas fa-minus",
+      icon: 'fas fa-minus',
     };
   },
   methods: {
+    deleteAGroup(all) {
+      console.log("Removing group",this.obj);
+      window.toolkit.removeGroup(this.obj,all);
+    },
     resize: function () {},
     saveTrope() {},
     groupSettings: function () {
       var me = this;
-      console.log("new.group.dialog", this.obj);
-      this.$root.$emit("new.group.dialog", {
+      console.log('new.group.dialog', this.obj);
+      this.$root.$emit('new.group.dialog', {
         obj: this.obj,
         callback: (object) => {
           console.log(object);
@@ -312,10 +304,10 @@ export default {
     },
     click: function () {
       this.toolkit.renderer.toggleGroup(this.obj);
-      if (this.icon === "fas fa-minus") {
-        this.icon = "fas fa-plus";
+      if (this.icon === 'fas fa-minus') {
+        this.icon = 'fas fa-plus';
       } else {
-        this.icon = "fas fa-minus";
+        this.icon = 'fas fa-minus';
       }
     },
   },

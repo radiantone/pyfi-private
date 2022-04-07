@@ -200,7 +200,9 @@
         font-weight: bold;
       "
     >
-      <q-item-label class="text-dark" style="">Ready</q-item-label>
+    <q-btn flat dense color="primary">
+    <q-item-label class="text-dark" style="">Connected</q-item-label>
+      </q-btn>
     </q-footer>
   </q-layout>
 </template>

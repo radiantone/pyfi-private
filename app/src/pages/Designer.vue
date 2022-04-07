@@ -42,18 +42,32 @@
         </q-btn-toggle>
         <q-btn
           flat
-          style="min-height: 45px;font-size:1em"
+          style="min-height: 45px;"
           size="sm"
-          icon="fa fa-home"
+          icon="fa fa-stop"
           class="q-mr-xs"
-          @click="zoomToFit"
         >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
             :offset="[10, 10]"
           >
-            Zoom to Fit
+            Stop Nodes
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="fa fa-play"
+          class="q-mr-xs"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Start Nodes
           </q-tooltip>
         </q-btn>
         <q-btn
@@ -89,7 +103,7 @@
             Paste
           </q-tooltip>
         </q-btn>
-        <q-btn
+        <!--<q-btn
           flat
           style="min-height: 45px;"
           size="sm"
@@ -104,8 +118,14 @@
           >
             Zoom to Selection
           </q-tooltip>
-        </q-btn>
-        <q-btn flat style="min-height: 45px;" @click="undo" size="sm" icon="fa fa-undo">
+        </q-btn>-->
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          @click="undo"
+          size="sm"
+          icon="fa fa-undo"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -114,15 +134,21 @@
             Undo
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" @click="redo" size="sm" icon="fa fa-redo">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          @click="redo"
+          size="sm"
+          icon="fa fa-redo"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
             :offset="[10, 10]"
           >
             Redo
-          </q-tooltip>
-        </q-btn>
+          </q-tooltip> </q-btn
+        ><!--
         <q-btn flat style="min-height: 45px;" size="sm" @click="zoomIn" icon="fa fa-plus">
           <q-tooltip
             content-class
@@ -140,7 +166,7 @@
           >
             Zoom Out
           </q-tooltip>
-        </q-btn>
+        </q-btn>-->
         <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-sync">
           <q-tooltip
             content-class
@@ -150,7 +176,7 @@
             Sync
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-code">
+        <q-btn flat style="min-height: 45px;" @click="showCode" size="sm" icon="fas fa-code">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -169,7 +195,13 @@
           </q-tooltip>
         </q-btn>
 
-        <q-btn flat style="min-height: 45px;" size="sm" @click="confirmDeleteNodes()" icon="fas fa-trash-alt">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          @click="confirmDeleteNodes()"
+          icon="fas fa-trash-alt"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -231,7 +263,8 @@
             name="queues"
             ref="queues"
             style="padding: 0px; width: 100%; padding-top: 0px;"
-          ><Patterns/></q-tab-panel>
+            ><Patterns
+          /></q-tab-panel>
           <q-tab-panel
             name="files"
             ref="files"
@@ -429,16 +462,32 @@
                 size="sm"
                 icon="fas fa-search-plus"
                 class="text-dark"
+                @click="zoomIn"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Zoom In
+                </q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
                 size="sm"
                 icon="fas fa-search-minus"
                 class="text-dark"
+                @click="zoomOut"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Zoom Out
+                </q-tooltip></q-btn
+              >
               <q-separator style="margin-right: 8px;" />
               <q-btn
                 dense
@@ -446,16 +495,32 @@
                 size="sm"
                 icon="fas fa-expand"
                 class="text-dark"
+                @click="zoomToSelection"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Zoom to Selection
+                </q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
                 size="sm"
                 icon="fas fa-expand-arrows-alt"
                 class="text-dark"
+                @click="zoomToFit"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Zoom to Fit
+                </q-tooltip></q-btn
+              >
             </q-toolbar>
             <jsplumb-miniview
               style="width: 100%; height: 200px;"
@@ -799,6 +864,72 @@
       </q-card>
     </q-dialog>
 
+
+    <q-dialog v-model="code" transition-show="none" persistent style="height:60vh">
+      <q-card style="max-width: 100vw;width:1500px">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Graph Source</q-item-label>
+              <q-space />
+              <q-item-label name="code" class="text-primary" >{ }</q-item-label>
+
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        
+        <q-card-section class="row items-center" style="padding-top: 45px;padding-bottom: 20px;padding-left: 0px;padding-right: 0px;">
+          <editor
+            v-model="thecode"
+            id="editor"
+            @init="editorInit"
+            style="font-size:25px;height:60vh;"
+            lang="javascript"
+            theme="chrome"
+            ref="myEditor"
+            width="100%"
+            height="60vh"
+          ></editor>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Update"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog v-model="selectAlert" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -835,7 +966,7 @@
             color="primary"
             text-color="white"
           />
-          <span class="q-ml-sm" >
+          <span class="q-ml-sm">
             Please select at least one node to delete
           </span>
         </q-card-section>
@@ -966,7 +1097,6 @@
 }
 </style>
 <script>
-
 import {
   jsPlumb,
   Dialogs,
@@ -1025,72 +1155,90 @@ export default {
   components: {
     Styles,
     Objects,
-    Patterns
+    Patterns,
+    editor: require('vue2-ace-editor')
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    
-    copyNodes () {
-      function findMatch (list, obj) {
-        debugger
+    editorInit: function () {
+      var me = this;
+
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      console.log('editorInit');
+      const editor = this.$refs.myEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+    },
+    showCode () {
+      this.code = true
+      this.thecode = JSON.stringify(window.toolkit.getGraph().serialize(), null, '\t')
+    },
+    copyNodes() {
+      function findMatch(list, obj) {
+        debugger;
         for (var i = 0; i < list.length; i++) {
-          var o = list[i]
+          var o = list[i];
           if (o.id === obj.id) {
-            return true
+            return true;
           }
         }
-        return false
+        return false;
       }
-      function findEdge (list, edge) {
+      function findEdge(list, edge) {
         for (var i = 0; i < list.length; i++) {
-          var e = list[i]
+          var e = list[i];
           if (e.source === edge.source || e.target === edge.target) {
-            return true
+            return true;
           }
         }
-        return false
+        return false;
       }
-      function haveAllNodes (nodes, edge) {
-        var source = false
-        var target = false
+      function haveAllNodes(nodes, edge) {
+        var source = false;
+        var target = false;
         for (var i = 0; i < nodes.length; i++) {
-          var node = nodes[i]
-          if (edge.source.split('.')[0] === node.id) source = true
-          if (edge.target.split('.')[0] === node.id) target = true
+          var node = nodes[i];
+          if (edge.source.split('.')[0] === node.id) source = true;
+          if (edge.target.split('.')[0] === node.id) target = true;
         }
-        return source && target
+        return source && target;
       }
 
-      var selection = window.toolkit.getSelection()
-      var nodes = selection.getAll()
-      console.log('DELETE SELECTED NODES:', nodes)
-      var exportData = window.toolkit.exportData()
-      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'))
-      var jsonData = {}
-      jsonData.nodes = []
-      jsonData.edges = []
-      jsonData.ports = []
+      var selection = window.toolkit.getSelection();
+      var nodes = selection.getAll();
+      console.log('DELETE SELECTED NODES:', nodes);
+      var exportData = window.toolkit.exportData();
+      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'));
+      var jsonData = {};
+      jsonData.nodes = [];
+      jsonData.edges = [];
+      jsonData.ports = [];
       for (var i = 0; i < data.nodes.length; i++) {
-        const n = data.nodes[i]
+        const n = data.nodes[i];
         if (findMatch(nodes, n)) {
-          jsonData.nodes.push(n)
+          jsonData.nodes.push(n);
         }
       }
       for (var i = 0; i < data.edges.length; i++) {
-        const e = data.edges[i]
-        if (haveAllNodes(jsonData.nodes, e)) { jsonData.edges.push(e) }
+        const e = data.edges[i];
+        if (haveAllNodes(jsonData.nodes, e)) {
+          jsonData.edges.push(e);
+        }
       }
       for (var i = 0; i < jsonData.nodes.length; i++) {
-        const node = jsonData.nodes[i]
+        const node = jsonData.nodes[i];
         for (var p = 0; p < data.ports.length; p++) {
-          var port = data.ports[p]
+          var port = data.ports[p];
           if (port.id.indexOf(node.id) > -1) {
-            jsonData.ports.push(port)
+            jsonData.ports.push(port);
           }
         }
       }
-      console.log('jsonData:', jsonData)
+      console.log('jsonData:', jsonData);
       /*
       if (nodes.length > 0) {
         this.$root.$emit('status.message', {
@@ -1105,52 +1253,52 @@ export default {
       }
       */
 
-      window.clipboard = jsonData
+      window.clipboard = jsonData;
     },
     confirmDeleteNodes() {
       var selection = window.toolkit.getSelection();
       this.deleteCount = selection.getAll().length;
       if (this.deleteCount > 1) {
-        this.deletText = 'nodes'
+        this.deletText = 'nodes';
         this.deleteConfirm = true;
       } else if (this.deleteCount == 1) {
-        this.deleteText = 'node'
+        this.deleteText = 'node';
         this.deleteConfirm = true;
       } else if (this.deleteCount == 0) {
         this.selectAlert = true;
       }
     },
-    deleteSelectedNodes () {
+    deleteSelectedNodes() {
       var selection = window.toolkit.getSelection();
-      console.log("SELECTION",selection)
+      console.log('SELECTION', selection);
       selection.getAll().map(function (node) {
-        console.log('Removing:', node)
-        window.toolkit.removeNode(node)
-      })
+        console.log('Removing:', node);
+        window.toolkit.removeNode(node);
+      });
     },
-    undo () {
-      this.undoredo.undo()
+    undo() {
+      this.undoredo.undo();
     },
-    redo () {
-      this.undoredo.redo()
+    redo() {
+      this.undoredo.redo();
     },
-    zoomIn () {
-      window.toolkit.surface.nudgeZoom(0.25)
+    zoomIn() {
+      window.toolkit.surface.nudgeZoom(0.25);
     },
-    zoomOut () {
-      window.toolkit.surface.nudgeZoom(-0.25)
+    zoomOut() {
+      window.toolkit.surface.nudgeZoom(-0.25);
     },
-    zoomToFit () {
-      window.toolkit.surface.zoomToFit({ fill: 0.75 })
-      this.mode = 'pan'
+    zoomToFit() {
+      window.toolkit.surface.zoomToFit({ fill: 0.75 });
+      this.mode = 'pan';
     },
-    zoomToSelection () {
-      window.toolkit.surface.animateToSelection({ fill: 0.75 })
-      this.mode = 'pan'
+    zoomToSelection() {
+      window.toolkit.surface.animateToSelection({ fill: 0.75 });
+      this.mode = 'pan';
     },
-    clearNodes () {
-      window.toolkit.clear()
-      window.toolkit.dirty = true
+    clearNodes() {
+      window.toolkit.clear();
+      window.toolkit.dirty = true;
     },
     setMode(mode) {
       console.log('setMode:', mode);
@@ -2067,11 +2215,13 @@ export default {
             component: GroupTemplate,
             constrain: false,
             orphan: true,
+            autoSize: false
           },
           pattern: {
             component: PatternTemplate,
             constrain: false,
             orphan: true,
+            autoSize: false
           },
         },
         ports: {
