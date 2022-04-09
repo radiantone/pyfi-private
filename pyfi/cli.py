@@ -4403,7 +4403,7 @@ def api():
 
 
 @api.command(name="start")
-@click.option("-ip", default=HOSTNAME, help="IP bind address")
+@click.option("-ip", default="0.0.0.0", help="IP bind address")
 @click.option("-p", "--port", default=8000, help="Listen port")
 @click.pass_context
 def api_start(context, ip, port):
