@@ -24,15 +24,16 @@ interface SocketData {
 
 const options: Partial<ServerOptions> = {
   cors: {
-    origin: "http://localhost:8080"
+    origin: "http://localhost"
   }
 }
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, options);
 
 io.on("connection", (socket) => {
-  socket.on("hello", (data : SocketData) => {
-    console.log("CLIENT SAYS HELLO!",data);
+  console.log("Cient connected",socket);
+  socket.on("hello", (data: SocketData) => {
+    console.log("CLIENT SAYS HELLO!", data);
   });
   socket.emit("noArg");
   //socket.emit("basicEmit", 1, "2", Buffer.from([3]));

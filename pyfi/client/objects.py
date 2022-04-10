@@ -82,6 +82,10 @@ class Work(Base):
 
 
 class Network(Base):
+    """
+    Docstring
+    """
+
     def __init__(self, name=None, user=None):
         super().__init__()
 
@@ -95,6 +99,9 @@ class Network(Base):
 
 
 class Node(Base):
+    """
+    Docstring
+    """
 
     def __init__(self, name=None, hostname=None):
         super().__init__()
@@ -109,6 +116,10 @@ class Node(Base):
 
 
 class Worker(Base):
+    """
+    Docstring
+    """
+
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
@@ -170,6 +181,10 @@ class Task(Base):
 
 
 class Argument(Base):
+    """
+    Docstring
+    """
+
     @classmethod
     def find(cls, name, task):
         return (
@@ -185,6 +200,10 @@ class Argument(Base):
 
 
 class Agent(Base):
+    """
+    Docstring
+    """
+
     @classmethod
     def find(cls, name):
         return cls.session.query(AgentModel).filter_by(name=name).first()
@@ -479,7 +498,9 @@ class Socket(Base):
 
 
 class Plug(Base):
-    """"""
+    """
+    Docstring
+    """
 
     import inspect
 
