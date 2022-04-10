@@ -201,7 +201,7 @@
       "
     >
     <q-btn flat dense color="primary">
-    <q-item-label class="text-dark" style="">Connected</q-item-label>
+    <q-item-label class="text-dark" style="">{{ status }}</q-item-label>
       </q-btn>
     </q-footer>
   </q-layout>
@@ -260,6 +260,9 @@ export default defineComponent({
   },
   created() {},
   computed: {
+    status() {
+      return this.$store.state.designer.message;
+    },
     getSurfaceId() {
       return window.toolkit.surfaceId;
     },
@@ -287,12 +290,16 @@ export default defineComponent({
     },
     tabChanged(tab) {
       console.log("TAB:", tab, this.$refs[tab]);
-      window.toolkit = this.$refs[tab + "designer"].toolkit;
-      window.toolkit.$q = this.$q;
-      window.renderer = window.toolkit.renderer;
+      if(this.$refs[tab + "designer"]) {
+        window.toolkit = this.$refs[tab + "designer"].toolkit;
+        window.toolkit.$q = this.$q;
+        window.renderer = window.toolkit.renderer;
+      }
     },
   },
   mounted() {
+    console.log("MAINLAYOUT MESSAGE",this.$store.state.designer.message)
+    console.log("MAINLAYOUT STORE",this.$store);
     this.$q.loading.show({
       delay: 40,
       spinnerColor: "dark",

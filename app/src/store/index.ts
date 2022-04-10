@@ -3,8 +3,8 @@ import Vuex from 'vuex'
 
 import client from './client'
 import { State } from './Store'
-import { CountStore } from './CountStore'
-
+import { CountState, CountStore } from './CountStore'
+import { DesignerStore, StatusState } from './DesignerStore'
 import state, { UserStateInterface } from './client/state';
 // import example from './module-example';
 // import { ExampleStateInterface } from './module-example/state';
@@ -19,10 +19,12 @@ export interface StateInterface {
   // example: ExampleStateInterface;
   // Declared as unknown to avoid linting issue. Best to strongly type as per the line above.
   client: UserStateInterface,
-  count: State,
+  count: CountState,
+  status: StatusState
 }
 
 let count = CountStore;
+let designer = DesignerStore;
 
 export default store(({ Vue }) => {
   Vue.use(Vuex)
@@ -30,7 +32,8 @@ export default store(({ Vue }) => {
   const Store = new Vuex.Store<StateInterface>({
     modules: {
       client,
-      count
+      count,
+      designer
     },
 
     // enable strict mode (adds overhead!)

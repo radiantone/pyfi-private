@@ -21,7 +21,7 @@ interface SocketData {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:3003'
+  'http://localhost'
 );
 socket.on("basicEmit", (a, b, c) => {
   console.log("SERVER EMIT",a,b,c)

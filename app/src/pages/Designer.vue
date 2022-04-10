@@ -109,7 +109,7 @@
           size="sm"
           icon="fas fa-expand"
           class="q-mr-xs"
-          @click="zoomToSelection" 
+          @click="zoomToSelection"
         >
           <q-tooltip
             content-class
@@ -248,8 +248,8 @@
           active-bg-color="accent"
         >
           <q-tab name="files" class="text-dark" label="Flows" />
+          <q-tab name="patterns" class="text-dark" label="Patterns" />
           <q-tab name="network" class="text-dark" label="Networks" />
-          <q-tab name="queues" class="text-dark" label="Patterns" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
         </q-tabs>
 
@@ -260,8 +260,8 @@
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
           ></q-tab-panel>
           <q-tab-panel
-            name="queues"
-            ref="queues"
+            name="patterns"
+            ref="patterns"
             style="padding: 0px; width: 100%; padding-top: 0px;"
             ><Patterns
           /></q-tab-panel>
@@ -346,6 +346,14 @@
               </q-item-section>
             </q-item>
             <q-separator />
+            <q-item clickable v-close-popup>
+              <q-item-section side>
+                <q-icon name="fas fa-paste"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Paste
+              </q-item-section>
+            </q-item>
             <q-item clickable v-close-popup>
               <q-item-section side>
                 <q-icon name="fas fa-play"></q-icon>
@@ -896,7 +904,7 @@
             </q-toolbar>
           </div>
         </q-card-section>
-        
+
         <q-card-section class="row items-center" style="padding-top: 45px;padding-bottom: 20px;padding-left: 0px;padding-right: 0px;">
           <editor
             v-model="thecode"
@@ -1308,7 +1316,10 @@ export default {
   created() {},
   mounted() {
     var me = this;
-
+    setTimeout(() => {
+      //me.$store.state.designer.message="Connected";
+      me.$store.commit('designer/setMessage','Connected');
+    }, 5000)
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
     console.log('MOUNTED DESIGNER: STORE', this.$store);
@@ -1394,7 +1405,7 @@ export default {
   data: () => {
     return {
       value: true,
-      tab: 'monitor',
+      tab: 'patterns',
       clear: false,
       deleteText: 'nodes',
       deleteCount: 0,
