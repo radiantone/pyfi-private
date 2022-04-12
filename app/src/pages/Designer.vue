@@ -176,7 +176,13 @@
             Sync
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" @click="showCode" size="sm" icon="fas fa-code">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          @click="showCode"
+          size="sm"
+          icon="fas fa-code"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -247,9 +253,9 @@
           indicator-color="primary"
           active-bg-color="accent"
         >
-          <q-tab name="files" class="text-dark" label="Flows" />
+          <q-tab name="flows" class="text-dark" label="Flows" />
           <q-tab name="patterns" class="text-dark" label="Patterns" />
-          <q-tab name="network" class="text-dark" label="Networks" />
+          <q-tab name="network" class="text-dark" label="Processors" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
         </q-tabs>
 
@@ -266,8 +272,8 @@
             ><Patterns
           /></q-tab-panel>
           <q-tab-panel
-            name="files"
-            ref="files"
+            name="flows"
+            ref="flows"
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
           >
             <Objects
@@ -872,9 +878,13 @@
       </q-card>
     </q-dialog>
 
-
-    <q-dialog v-model="code" transition-show="none" persistent style="height:60vh">
-      <q-card style="max-width: 100vw;width:1500px">
+    <q-dialog
+      v-model="code"
+      transition-show="none"
+      persistent
+      style="height: 60vh;"
+    >
+      <q-card style="max-width: 100vw; width: 1500px;">
         <q-card-section
           class="bg-secondary"
           style="
@@ -899,18 +909,25 @@
             <q-toolbar>
               <q-item-label>Graph Source</q-item-label>
               <q-space />
-              <q-item-label name="code" class="text-primary" >{ }</q-item-label>
-
+              <q-item-label name="code" class="text-primary">{ }</q-item-label>
             </q-toolbar>
           </div>
         </q-card-section>
 
-        <q-card-section class="row items-center" style="padding-top: 45px;padding-bottom: 20px;padding-left: 0px;padding-right: 0px;">
+        <q-card-section
+          class="row items-center"
+          style="
+            padding-top: 45px;
+            padding-bottom: 20px;
+            padding-left: 0px;
+            padding-right: 0px;
+          "
+        >
           <editor
             v-model="thecode"
             id="editor"
             @init="editorInit"
-            style="font-size:25px;height:60vh;"
+            style="font-size: 25px; height: 60vh;"
             lang="javascript"
             theme="chrome"
             ref="myEditor"
@@ -1164,7 +1181,7 @@ export default {
     Styles,
     Objects,
     Patterns,
-    editor: require('vue2-ace-editor')
+    editor: require('vue2-ace-editor'),
   },
   computed: {},
   methods: {
@@ -1181,9 +1198,13 @@ export default {
       const editor = this.$refs.myEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
     },
-    showCode () {
-      this.code = true
-      this.thecode = JSON.stringify(window.toolkit.getGraph().serialize(), null, '\t')
+    showCode() {
+      this.code = true;
+      this.thecode = JSON.stringify(
+        window.toolkit.getGraph().serialize(),
+        null,
+        '\t'
+      );
     },
     copyNodes() {
       function findMatch(list, obj) {
@@ -1318,8 +1339,8 @@ export default {
     var me = this;
     setTimeout(() => {
       //me.$store.state.designer.message="Connected";
-      me.$store.commit('designer/setMessage','Connected');
-    }, 5000)
+      me.$store.commit('designer/setMessage', 'Connected');
+    }, 5000);
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
     console.log('MOUNTED DESIGNER: STORE', this.$store);
@@ -1405,7 +1426,7 @@ export default {
   data: () => {
     return {
       value: true,
-      tab: 'patterns',
+      tab: 'flows',
       clear: false,
       deleteText: 'nodes',
       deleteCount: 0,
@@ -2226,13 +2247,13 @@ export default {
             component: GroupTemplate,
             constrain: false,
             orphan: true,
-            autoSize: false
+            autoSize: false,
           },
           pattern: {
             component: PatternTemplate,
             constrain: false,
             orphan: true,
-            autoSize: false
+            autoSize: false,
           },
         },
         ports: {

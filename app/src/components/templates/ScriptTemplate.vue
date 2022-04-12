@@ -247,7 +247,8 @@
         class="text-secondary"
         style="position: absolute; left: 55px; top: 31px; font-size: 14px;"
       >
-        {{ obj.description }}
+        {{ obj.description.substring(0,35)+"..." }}
+
       </span>
       <span
         class="text-blue-grey-8"
@@ -257,9 +258,16 @@
       </span>
       <span
         class="text-red"
+        v-if="error"
         style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
       >
         Error messages {{ delayMs }} {{ count }}
+      </span>
+      <span
+        class="text-secondary pull-right"
+        style="position: absolute; right: 60px; top: 1em; font-weight: bold; font-size: 2em;"
+      >
+        6
       </span>
       <span
         class="text-blue-grey-8 pull-right"
@@ -1836,6 +1844,7 @@ export default {
   },
   data() {
     return {
+      error: false,
       refreshing: false,
       workersLoading: true,
       splitterModel: 50,

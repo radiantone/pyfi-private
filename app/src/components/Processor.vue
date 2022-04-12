@@ -20,12 +20,6 @@ interface SocketData {
   age: number;
 }
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost'
-);
-socket.on("basicEmit", (a, b, c) => {
-  console.log("SERVER EMIT",a,b,c)
-});
 export interface ProcessorState {
     name: string;
 }
@@ -42,21 +36,33 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
     name!: ProcessorState['name'];
 }
 
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+  'http://localhost'
+);
+
 export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
   Computed,
   Props>({
+
   data() {
     return {
         name:"MyProcessor"
     };
   },
   created() {
+    var me = this;
+
+    socket.on("basicEmit", (a, b, c) => {
+      console.log("SERVER EMIT",a,b,c)
+      me.$store.commit('designer/setMessage',b);
+    });
   },
   computed: {
    
   },
   mounted() {
+
   },
   methods: {
     messageReceived(msg) {

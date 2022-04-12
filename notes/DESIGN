@@ -1,3 +1,12 @@
+UI, STREAMING, DATABASE
+------------------------
+
+- Create a new instance of websocket container listening on PYFI_CHANNEL=database for database updates. Database trigger code will push records to redis on 'database' topic for pub/sub. This will trigger a websocket message from the container which browser app will be connected to.
+
+- Postgres database trigger on updates will notify a python docker micro-service that will post the updated records to redis which will trigger the socket.io pub/sub clients forwarding to browsers
+- When UI loads a flow it needs to retrieve the state of all the processors from redis (last known state). This can be done when the flow is first retrieved from the backend which might just use the database values to update the flow JSON and return it. After that, the UI will receive streamed updates. If a refresh occurs it goes back to the API and gets the latest version of the flow JSON.
+
+
 
 Node
   Agent

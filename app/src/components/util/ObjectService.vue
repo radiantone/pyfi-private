@@ -81,65 +81,6 @@ export default {
       })
     }
   },
-  async searchPosts (query, user) {
-    try {
-      const token = user.accessToken
-      const res = await axios.post(process.env.APISERVER + '/search/posts', {
-        query: '"How Do I" ' + query
-      }, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async getHistory (user) {
-    try {
-      const token = user.accessToken
-      const res = await axios.get(process.env.APISERVER + '/history', {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async putHistory (object, user) {
-    try {
-      const token = user.accessToken
-      const res = await axios.post(process.env.APISERVER + '/history', object, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
   async getObjects (collection, query, user) {
     try {
       const res = await axios.get(process.env.APISERVER + '/events')
@@ -204,52 +145,6 @@ export default {
       })
     }
   },
-  async ensureIndex (collection, fields, user) {
-    try {
-      const token = user.accessToken
-      const payload = {
-        collection: collection,
-        operation: 'index',
-        fields: JSON.stringify(fields)
-      }
-      const res = await axios.post(process.env.APISERVER + '/index', payload, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async search (query, user) {
-    try {
-      const token = user.accessToken
-      const payload = {
-        query: query
-      }
-      const res = await axios.post(process.env.APISERVER + '/search', payload, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
   async createObject (collection, directory, object, user) {
     try {
       const token = user.accessToken
@@ -276,93 +171,6 @@ export default {
       })
     }
   },
-  async listLibrary (node, user) {
-    try {
-      const token = user.accessToken
-      console.log('USER:', user)
-      const res = await axios.post(process.env.APISERVER + '/library', node, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async newLibraryNode (parent, node, user) {
-    try {
-      const token = user.accessToken
-      console.log('USER:', user)
-      const res = await axios.post(process.env.APISERVER + '/library/new', {
-        parent: parent,
-        node: node
-      }, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async deleteLibraryNode (node, user) {
-
-  },
-  async getNotices (user) {
-    try {
-      const token = user.accessToken
-      console.log('Notice USER:', user)
-      const res = await axios.get(process.env.APISERVER + '/notices', {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async getVersions (id, user) {
-    try {
-      const token = user.accessToken
-      console.log('USER:', user)
-      const res = await axios.post(process.env.APISERVER + '/versions/' + id, {
-      }, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
   async listFiles (collection, directory, user) {
     try {
       const token = user.accessToken
@@ -374,20 +182,6 @@ export default {
           Authorization: 'Bearer ' + token
         }
       })
-      return res.data
-    } catch (err) {
-      window.global.root.$emit('show.alert', {
-        color: 'negative',
-        timeout: 2000,
-        position: 'top',
-        message: err.response.data.message,
-        icon: 'save'
-      })
-    }
-  },
-  async getEvent (collection, eventId, user) {
-    try {
-      const res = await axios.get(process.env.APISERVER + '/events/' + eventId)
       return res.data
     } catch (err) {
       window.global.root.$emit('show.alert', {

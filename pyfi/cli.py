@@ -56,13 +56,18 @@ HOSTNAME = platform.node()
 
 current_user = getpass.getuser()
 
-POSTGRES_ROOT = "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/"
-POSTGRES = "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/pyfi"
-
 home = str(Path.home())
 
 CONFIG = configparser.ConfigParser()
 
+HOME = str(Path.home())
+ini = HOME + "/pyfi.ini"
+CONFIG.read(ini)
+
+dburi = CONFIG.get("database", "uri")
+
+POSTGRES_ROOT = '/'.join(dburi.rsplit('/')[:-1])+"/" #"postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/"
+POSTGRES = dburi #"postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/pyfi"
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
