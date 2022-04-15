@@ -90,6 +90,28 @@ module.exports = configure(function (ctx) {
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
+      proxy: {
+    // proxy all requests starting with /api to jsonplaceholder
+        '/api': {
+            target: {
+            host: "localhost",
+            protocol: 'http:',
+            port: 8000
+         },
+            changeOrigin: true,
+            pathRewrite: {
+              '^/api': ''
+            }
+        },
+        '/socket.io': {
+            target: {
+            host: "localhost",
+            protocol: 'http:',
+            port: 3003
+         },
+            changeOrigin: true
+        }
+      },
       before (app) {
         const cors = require('cors')
         app.options('*',cors())

@@ -2222,6 +2222,8 @@ class WorkerService:
                         json.dumps(message[1]),
                     )
 
+                    # TODO: Also emit to various other channels like "processors","global", etc
+
                 except Exception as ex:
                     logging.error(ex)
                     time.sleep(3)

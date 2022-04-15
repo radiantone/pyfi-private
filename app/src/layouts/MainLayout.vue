@@ -157,21 +157,21 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow1"
         >
-          <Designer ref="flow1designer" surfaceId="flow1" />
+          <Designer ref="flow1designer" :flowname="this.flow1name" @update-name="updateFlow1" surfaceId="flow1" />
         </q-tab-panel>
         <q-tab-panel
           name="flow2"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow2"
         >
-          <Designer ref="flow2designer" surfaceId="flow2" />
+          <Designer ref="flow2designer" :flowname="this.flow2name" @update-name="updateFlow2" surfaceId="flow2" />
         </q-tab-panel>
         <q-tab-panel
           name="flow3"
           style="height: calc(100vh - 165px); padding: 0px;"
           ref="flow3"
         >
-          <Designer ref="flow3designer" surfaceId="flow3" />
+          <Designer ref="flow3designer" :flowname="this.flow3name" @update-name="updateFlow3" surfaceId="flow3" />
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -185,9 +185,9 @@
         indicator-color="accent"
         active-bg-color="accent"
       >
-        <q-tab name="flow1" class="text-dark" label="Flow #1" />
-        <q-tab name="flow2" class="text-dark" label="Flow #2" />
-        <q-tab name="flow3" class="text-dark" label="Flow #3" />
+        <q-tab name="flow1" class="text-dark" :label="this.flow1name" />
+        <q-tab name="flow2" class="text-dark" :label="this.flow2name" />
+        <q-tab name="flow3" class="text-dark" :label="this.flow3name" />
       </q-tabs>
     </div>
     <q-footer
@@ -268,6 +268,15 @@ export default defineComponent({
     },
   },
   methods: {
+    updateFlow1(name){
+        this.flow1name=name;
+    },
+    updateFlow2(name){
+        this.flow2name=name;
+    },
+    updateFlow3(name){
+        this.flow3name=name;
+    },
     dataGenerator: function (el) {
       // This probably needs to be automated
       return {
@@ -298,6 +307,7 @@ export default defineComponent({
     },
   },
   mounted() {
+    var me = this;
     console.log("MAINLAYOUT MESSAGE",this.$store.state.designer.message)
     console.log("MAINLAYOUT STORE",this.$store);
     this.$q.loading.show({
@@ -431,6 +441,9 @@ export default defineComponent({
   },
   data() {
     return {
+      flow1name: "Flow #1",
+      flow2name: "Flow #2",
+      flow3name: "Flow #3",
       tab: "flow1",
       text: "",
     };

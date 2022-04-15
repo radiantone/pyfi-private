@@ -317,6 +317,17 @@ schedule_types = ["CRON", "INTERVAL"]
 strategies = ["BALANCED", "EFFICIENT"]
 
 
+class FileModel(BaseModel):
+
+    __tablename__ = "file"
+    collection = Column(String(80))
+    path = Column(String(120))
+
+    def __repr__(self):
+        return "{}:{}:{}:{}:{}".format(
+            self.name, self.collection, self.path
+        )
+
 class FlowModel(BaseModel):
     """
     Docstring
@@ -326,7 +337,9 @@ class FlowModel(BaseModel):
     processors = relationship("ProcessorModel", backref="flow", lazy=True)
 
     def __repr__(self):
-        return "<Name %r>" % self.name
+        return "{}:{}:{}:{}:{}".format(
+            self.id, self.cpus, self.status, self.name, self.hostname
+        )
 
 
 class AgentModel(BaseModel):

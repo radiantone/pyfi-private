@@ -1,5 +1,6 @@
 <template>
   <div style="height:fit">
+
     <div
       class="q-pa-md q-gutter-md bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden; "
@@ -59,16 +60,17 @@
         </q-btn>
       </q-breadcrumbs>
     </div>
-    <q-scroll-area class=" fit">
-      <q-list bordered separator class="fit">
+    <!--<q-scroll-area class=" fit">-->
+      <q-scroll-area style="height:75vh">
+      <q-list separator class="fit">
         <q-item v-for="item in items" :key="item.id" :id="item._id">
           <q-item-section avatar>
             <q-icon :name="item.icon" :class="darkStyle" />
           </q-item-section>
           <q-item-section
             ><a
-              class="text-primary"
-              style="z-index:99999;cursor:pointer;width:100%;min-width:250px"
+              class="text-secondary"
+              style="z-index:99999;cursor:pointer;width:100%;min-width:250px;font-size:1.3em"
               @click="selectFileOrFolder(item)"
               >{{ item.name }}</a
             >
@@ -77,19 +79,7 @@
           <q-toolbar>
             <q-space />
 
-            <q-btn
-              v-if="item.type === objecttype"
-              flat
-              dense
-              rounded
-              icon="library_books"
-              @click="addToLibrary(item)"
-              :class="darkStyle"
-            >
-              <q-tooltip content-style="font-size: 16px" :offset="[10, 10]">
-                Add to Library
-              </q-tooltip>
-            </q-btn>
+            
             <q-btn
               v-if="item.type === objecttype"
               flat
@@ -123,35 +113,70 @@
             </q-btn>
           </q-toolbar>
         </q-item>
-      </q-list>
-    </q-scroll-area>
 
-    <q-inner-loading :showing="visible">
-      <q-spinner-gears size="50px" color="primary" />
-    </q-inner-loading>
+      </q-list>
+    <!--</q-scroll-area>-->
+</q-scroll-area>
+
 
     <q-dialog v-model="deleteobject" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Delete {{deleteobjectname}}</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
             text-color="white"
           />
-          <span class="q-ml-sm"
-            >Are you sure you want to delete the {{ deleteobjecttype }}
-            {{ deleteobjectname }}?</span
-          >
+          <span class="q-ml-sm" >
+            Are you sure you want to delete {{deleteobjectname}}?
+          </span>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
           <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
             flat
-            label="Delete"
+            label="Cancel"
+            class="bg-accent text-dark"
             color="primary"
             v-close-popup
-            @click="deleteObject(deleteobjectid)"
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Delete"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="deleteObject"
           />
         </q-card-actions>
       </q-card>
@@ -178,19 +203,23 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-inner-loading :showing="visible">
+      <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
   </div>
 </template>
 <style>
-.text-primary > .q-link {
+a.text-secondary:hover {
   cursor: pointer;
-}
-
-.text-primary > .q-link:hover {
   text-decoration: underline;
 }
+
 </style>
 <script>
 import ObjectService from "components/util/ObjectService";
+import DataService from "components/util/DataService";
+
 var dd = require("drip-drop");
 
 export default {
@@ -268,11 +297,9 @@ export default {
       this.visible = true;
       var me = this;
       try {
-        console.log("token ", this.security.auth.user, this.security.token());
-        var files = ObjectService.listFiles(
-          this.collection,
-          this.foldername,
-          this.security.auth.user
+        var files = DataService.getObjects(
+          this.objecttype,
+          this.foldername
         );
         files
           .then(function(result) {
@@ -280,6 +307,7 @@ export default {
               me.visible = false;
             }, 100);
             console.log("LIST FILES:", result);
+            result = result.data;
             me.items = result;
 
             setTimeout(() => {
@@ -321,12 +349,6 @@ export default {
         obj: object,
         mode: "edit",
         folder: this.foldername
-      });
-    },
-    addToLibrary(item) {
-      this.$root.$emit("add.library.dialog", {
-        collection: this.collection,
-        object: item
       });
     },
     newObject() {

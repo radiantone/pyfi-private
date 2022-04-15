@@ -6,12 +6,15 @@ import http from 'src/http-common'
 
 class DataService {
 
+    getObjects (collection: string, folder: string): Promise<any> {
+        return http.get('/api/files/'+collection+'/'+folder);
+    }
     login (data: any): Promise<any> {
-        return http.post('/login', data);
+        return http.post('/api/login', data);
     }
 
     logout (): Promise<any> {
-        return http.get('/logout');
+        return http.get('/api/logout');
     }
 
 }

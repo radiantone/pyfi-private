@@ -31,7 +31,7 @@ interface SocketData {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:3003'
+  'http://localhost'
 );
 
 export default mixins(CountComponentBase).extend<

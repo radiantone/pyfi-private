@@ -11,6 +11,7 @@ redisClient.on('message', function(channel, message){
   console.log(message);
 });
 
+
 console.log("Subscribing to channel ",process.env.PYFI_CHANNEL)
 redisClient.subscribe(process.env.PYFI_CHANNEL);
 // sqlalchemy get all the stored processors and subscribe to them

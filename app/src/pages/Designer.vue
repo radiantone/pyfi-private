@@ -200,7 +200,15 @@
             Manual Save
           </q-tooltip>
         </q-btn>
-
+<q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload">
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px;"
+            :offset="[10, 10]"
+          >
+            Publish
+          </q-tooltip>
+        </q-btn>
         <q-btn
           flat
           style="min-height: 45px;"
@@ -217,6 +225,30 @@
           </q-tooltip>
         </q-btn>
         <q-space />
+        <div
+                style="
+                  font-size: 2em;
+                  font-family: 'Indie Flower', cursive;
+                  margin-top: 5px;
+                  margin-right: 1em"
+            >
+              <q-popup-edit
+                v-model="fname"
+              >
+                <q-input
+                  type="string"
+                  v-model="fname"
+                  dense
+                  autofocus
+                  style="
+                    font-size: 2em;
+                    font-family: 'Indie Flower', cursive;
+                    margin-top: 5px;
+                  "
+                />
+              </q-popup-edit>
+              {{ fname }}
+            </div>
         <q-btn
           flat
           dense
@@ -255,16 +287,21 @@
         >
           <q-tab name="flows" class="text-dark" label="Flows" />
           <q-tab name="patterns" class="text-dark" label="Patterns" />
-          <q-tab name="network" class="text-dark" label="Processors" />
+          <q-tab name="processors" class="text-dark" label="Processors" />
           <q-tab name="monitor" class="text-dark" label="Monitor" />
         </q-tabs>
 
         <q-tab-panels v-model="tab" keep-alive>
           <q-tab-panel
-            name="network"
-            ref="network"
+            name="processors"
+            ref="processors"
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
-          ></q-tab-panel>
+          >            <Objects
+              :objecttype="'processor'"
+              :icon="'fas fa-wrench'"
+              :collection="'items'"
+              style="width: 100%;"
+            /></q-tab-panel>
           <q-tab-panel
             name="patterns"
             ref="patterns"
@@ -277,7 +314,7 @@
             style="padding-right: 0px; width: 100%; padding-top: 0px;"
           >
             <Objects
-              :objecttype="'item'"
+              :objecttype="'flow'"
               :icon="'fas fa-wrench'"
               :collection="'items'"
               style="width: 100%;"
@@ -1176,14 +1213,24 @@ function htmlToElement(html) {
 
 export default {
   name: 'Designer',
-  props: ['surfaceId', 'flowid', 'flow', 'showtoolbar'],
+  props: ['surfaceId', 'flowid', 'flow', 'showtoolbar','flowname'],
   components: {
     Styles,
     Objects,
     Patterns,
     editor: require('vue2-ace-editor'),
   },
-  computed: {},
+  computed: {
+    fname: {
+      get () {
+        return this.flowname
+      },
+      set (name) {
+        //this.flowname = val
+        this.$emit("update-name",name)
+      }
+    }
+  },
   methods: {
     editorInit: function () {
       var me = this;

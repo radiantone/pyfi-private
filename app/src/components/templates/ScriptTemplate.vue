@@ -212,35 +212,6 @@
       >
         <span>
           {{ obj.name }}
-          <i
-            class="fas fa-edit text-secondary"
-            title="Edit Argument"
-            style="margin-right: 5px; font-size: 0.4em;"
-            @click=""
-          >
-            <q-popup-edit
-              style="
-                width: 50%;
-                font-weight: bold;
-                font-size: 25px;
-                font-family: 'Indie Flower', cursive;
-                margin-top: 5px;
-              "
-              v-model="obj.name"
-            >
-              <q-input
-                style="
-                  font-weight: bold;
-                  font-size: 25px;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                "
-                v-model="obj.name"
-                dense
-                autofocus
-              />
-            </q-popup-edit>
-          </i>
         </span>
       </span>
       <span
@@ -264,10 +235,18 @@
         Error messages {{ delayMs }} {{ count }}
       </span>
       <span
-        class="text-secondary pull-right"
+        class="text-secondary pull-right table-column-edit"
         style="position: absolute; right: 60px; top: 1em; font-weight: bold; font-size: 2em;"
       >
-        6
+        {{ obj.concurrency }}
+        <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Concurrency
+          </q-tooltip>
       </span>
       <span
         class="text-blue-grey-8 pull-right"
@@ -612,7 +591,7 @@
         <div class="table-column-edit text-primary">
           <i
             class="fas fa-edit"
-            title="Edit Argument"
+            title="Edit Name"
             style="margin-right: 5px;"
             @click=""
           />
@@ -1061,7 +1040,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 550px;
+          height: 600px;
         "
       >
         <div class="q-pa-md" style="max-width: 100%;">
@@ -1113,12 +1092,15 @@
                 (val) => (val && val.length > 0) || 'Please type something',
               ]"
             />
+
             <q-toolbar>
+              <q-input style="width:100px" hint="Concurrency" type="number" v-model.number="obj.concurrency"  />
+              <q-space/>
               <q-checkbox v-model="obj.enabled" label="Enabled" />
               <q-checkbox
                 v-model="obj.endpoint"
                 label="Expose Endpoint"
-                style="margin-left: 40px;"
+                style="margin-left: 40px;margin-right:50px"
               />
             </q-toolbar>
           </q-form>
@@ -1132,8 +1114,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="configview = false"
         />
       </q-card-actions>
     </q-card>
@@ -2142,6 +2123,7 @@ export default {
         label: 'Script',
         description: 'A script processor description',
         package: 'my.python.package',
+        concurrency: 3,
         disabled: false,
         git:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
@@ -2447,6 +2429,12 @@ export default {
     };
   },
   methods: {
+    onSubmit() {
+
+    },
+    onReset() {
+
+    },
     refreshWorkers() {
       var me = this;
       this.workersLoading = true;
