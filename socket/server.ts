@@ -24,7 +24,7 @@ interface SocketData {
 
 const options: Partial<ServerOptions> = {
   cors: {
-    origin: "http://localhost"
+    origin: "*"
   }
 }
 
