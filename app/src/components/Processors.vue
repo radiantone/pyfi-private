@@ -60,7 +60,7 @@
         </q-btn>
       </q-breadcrumbs>
     </div>
-      <q-table style="height:calc(100vh - 300px);width:100%" 
+       <q-table style="height:calc(100vh - 300px);width:100%" 
         :data="this.items"
         :columns="columns"
         row-key="property"

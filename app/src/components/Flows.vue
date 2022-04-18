@@ -2,14 +2,16 @@
   <div style="height:fit">
 
     <div
-      class="q-pa-md q-gutter-md bg-accent text-secondary"
+      class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden; "
     >
+    
       <q-breadcrumbs>
+        <div style="padding: 16px">
         <q-breadcrumbs-el
           v-for="path in paths"
           @click="breadcrumbClick(path)"
-          v-if="path.icon"
+          v-if="path.icon && showpath"
           :icon="path.icon"
           :key="path.id"
           :label="path.text"
@@ -17,10 +19,20 @@
         <q-breadcrumbs-el
           v-for="path in paths"
           @click="breadcrumbClick(path)"
-          v-if="!path.icon"
+          v-if="!path.icon && showpath"
           :key="path.id"
           :label="path.text"
         />
+        </div>
+        <div v-if="showaddfolder" style="margin-left:-20px;padding:5px;margin-top:-16px;margin-bottom:0px">
+        <q-toolbar style="margin-top:20px;margin-bottom:0px">
+            <q-input dense flat class="bg-white text-primary"></q-input>
+            <q-btn dense flat label="Add" @click="addFolder"/>
+            <q-space/>
+            <q-btn dense flat size="xs" icon="cancel" @click="showaddfolder=false; showpath=true" />
+        </q-toolbar>
+        
+        </div>
         <q-space />
         <q-btn
           flat
@@ -48,7 +60,7 @@
           color="primary"
           class="q-mr-xs"
           style="padding: 0"
-          @click="synchronize"
+          @click="showpath=false; showaddfolder=true"
         >
           <q-tooltip
             content-class=""
@@ -60,7 +72,8 @@
         </q-btn>
       </q-breadcrumbs>
     </div>
-      <q-table style="height:calc(100vh - 300px);width:100%" 
+    <!--
+       <q-table style="height:calc(100vh - 300px);width:100%" 
         :data="this.items"
         :columns="columns"
         row-key="property"
@@ -81,13 +94,10 @@
           </q-td>
           </q-tr>
       </template>
-      </q-table>
-    <!--<q-scroll-area class=" fit">-->
-
-      <!--
-      <q-scroll-area style="height:75vh">
-      <q-list separator class="fit">
-        <q-item v-for="item in items" :key="item.id" :id="item._id">
+      </q-table>-->
+    <q-scroll-area style="height:calc(100vh - 300px);width:100%">
+      <q-list separator >
+        <q-item v-for="item in items" :key="item.id" :id="'row'+item.id" class="dragrow" >
           <q-item-section avatar>
             <q-icon :name="item.icon" :class="darkStyle" />
           </q-item-section>
@@ -103,21 +113,6 @@
           <q-toolbar>
             <q-space />
 
-            
-            <q-btn
-              v-if="item.type === objecttype"
-              flat
-              dense
-              rounded
-              icon="settings"
-              @click="editObject(item)"
-              :class="darkStyle"
-            >
-              <q-tooltip content-style="font-size: 16px" :offset="[10, 10]">
-                Edit
-                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
-              </q-tooltip></q-btn
-            >
             <q-btn
               flat
               dense
@@ -139,8 +134,70 @@
         </q-item>
 
       </q-list>
-</q-scroll-area>-->
+</q-scroll-area>
 
+    <q-dialog v-model="saveflow" persistent>
+      <q-card style="padding: 10px; padding-top: 30px; width:500px;height:200px">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Save Flow</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-save" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm" >
+            Save flow to folder {{foldername}}?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Save"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="saveFlow"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="deleteobject" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
@@ -216,6 +273,7 @@
             dense
             v-model="newfolder"
             autofocus
+            class="bg-white"
             @keyup.enter="folderprompt = false"
           />
         </q-card-section>
@@ -227,7 +285,7 @@
       </q-card>
     </q-dialog>
 
-    <q-inner-loading :showing="visible">
+    <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
   </div>
@@ -257,8 +315,23 @@ export default {
   mounted() {
     this.synchronize();
     this.$root.$on("update." + this.collection, this.synchronize);
+    this.$root.$on("save.flow",this.saveFlowEvent);
   },
   methods: {
+    saveFlow() {
+      this.loading = true;
+
+      //DataService call to create or save flow in foldername
+      //with flowcode as the code
+    },
+    saveFlowEvent(flow) {
+      this.saveflow = true;
+      this.flowcode = flow
+    },
+    addFolder() {
+      this.loading = true;
+
+    },
     breadcrumbClick(crumb) {
       console.log("CRUMB:", crumb.path);
       var path = crumb.path;
@@ -317,7 +390,7 @@ export default {
       });
     },
     synchronize() {
-      this.visible = true;
+      this.loading = true;
       var me = this;
       try {
         var files = DataService.getObjects(
@@ -327,7 +400,7 @@ export default {
         files
           .then(function(result) {
             setTimeout(function() {
-              me.visible = false;
+              me.loading = false;
             }, 100);
             console.log("LIST FILES:", result);
             result = result.data;
@@ -355,7 +428,7 @@ export default {
           })
           .catch(function(error) {
             console.log(error);
-            me.visible = false;
+            me.loading = false;
             me.notifyMessage(
               "dark",
               "error",
@@ -363,7 +436,7 @@ export default {
             );
           });
       } catch (error) {
-        me.visible = false;
+        me.loading = false;
         me.notifyMessage(
           "dark",
           "error",
@@ -406,7 +479,7 @@ export default {
           { _id: objectid },
           this.security.auth.user
         );
-        me.visible = false;
+        me.loading = false;
         console.log(res);
         if (res.status === "error") {
           me.notifyMessage(
@@ -427,7 +500,7 @@ export default {
         }
       } catch (error) {
         console.log(error);
-        me.visible = false;
+        me.loading = false;
         me.notifyMessage(
           "negative",
           "error",
@@ -450,7 +523,7 @@ export default {
           this.newfolder,
           this.security.auth.user
         );
-        me.visible = false;
+        me.loading = false;
         console.log(res);
         if (res.status === "error") {
           me.notifyMessage(
@@ -470,7 +543,7 @@ export default {
         }
       } catch (error) {
         console.log(error);
-        me.visible = false;
+        me.loading = false;
         me.notifyMessage(
           "negative",
           "error",
@@ -481,6 +554,9 @@ export default {
   },
   data() {
     return {
+      saveflow: false,
+      showpath: true,
+      showaddfolder: false,
       columns: [
         { name: 'type', align: 'left', label: 'Type', field: 'type' },
         {
@@ -496,7 +572,7 @@ export default {
       folderprompt: false,
       foldername: "Home",
       newfolder: "",
-      visible: false,
+      loading: false,
       deleteobject: false,
       deleteobjectname: null,
       deleteobjectid: null,

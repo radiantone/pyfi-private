@@ -528,18 +528,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('securityview', !securityview)"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-lock"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Security
-              </q-item-section>
-            </q-item>
+            
             <q-item
               clickable
               v-close-popup
@@ -550,18 +539,6 @@
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Environment
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('scalingview', !scalingview)"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-balance-scale"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Scaling
               </q-item-section>
             </q-item>
           </q-list>
@@ -1023,6 +1000,7 @@
     </q-card>
 
     <!-- Config dialog -->
+
     <q-card
       style="
         width: 100%;
@@ -1040,9 +1018,32 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 600px;
+          height: 615px;
         "
       >
+      <q-tabs
+        v-model="tab"
+          dense
+          class="bg-accent"
+          align="left"
+          narrow-indicator
+          active-color="dark"
+          indicator-color="accent"
+          active-bg-color="white"
+      >
+        <q-tab name="settings"  label="Settings" />
+        <q-tab name="concurrency"  label="Concurrency" />
+        <q-tab name="schedule" label="Schedule" />
+        <q-tab name="security" label="Security" />
+        <q-tab name="scaling" label="Scaling" />
+      </q-tabs>
+       <q-tab-panels v-model="tab" keep-alive>
+        <q-tab-panel
+          name="settings"
+          style="padding: 0px;"
+          ref="settings"
+        >
+
         <div class="q-pa-md" style="max-width: 100%;">
           <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
             <q-input
@@ -1094,7 +1095,7 @@
             />
 
             <q-toolbar>
-              <q-input style="width:100px" hint="Concurrency" type="number" v-model.number="obj.concurrency"  />
+              
               <q-space/>
               <q-checkbox v-model="obj.enabled" label="Enabled" />
               <q-checkbox
@@ -1105,6 +1106,36 @@
             </q-toolbar>
           </q-form>
         </div>
+        </q-tab-panel>
+        <q-tab-panel
+          name="concurrency"
+          style="padding: 20px;"
+          ref="concurrency"
+        >
+        <q-input style="width:100px" hint="Number of CPUs" type="number" v-model.number="obj.concurrency"  />
+        </q-tab-panel>
+        <q-tab-panel
+          name="schedule"
+          style="padding: 20px;"
+          ref="schedule"
+        >
+        <q-input hint="Enter CRON Expression" placeholder="* * * * *" v-model.number="obj.cron"  />
+
+        <q-checkbox v-model="obj.useschedule" style="margin-top:30px" label="Use Schedule" />
+        </q-tab-panel>
+        <q-tab-panel
+          name="security"
+          style="padding: 20px;"
+          ref="security"
+        >
+        </q-tab-panel>
+        <q-tab-panel
+          name="scaling"
+          style="padding: 20px;"
+          ref="scaling"
+        >
+        </q-tab-panel>
+        </q-tab-panels>
       </q-card-section>
 
       <q-card-actions align="right">
@@ -1825,7 +1856,8 @@ export default {
   },
   data() {
     return {
-      error: false,
+      tab:'settings',
+      error: true,
       refreshing: false,
       workersLoading: true,
       splitterModel: 50,
@@ -2124,6 +2156,8 @@ export default {
         description: 'A script processor description',
         package: 'my.python.package',
         concurrency: 3,
+        cron:"* * * * *",
+        useschedule: false,
         disabled: false,
         git:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',

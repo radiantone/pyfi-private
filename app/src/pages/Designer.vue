@@ -191,7 +191,7 @@
             View Code
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-save">
+        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-save" @click="saveFlow">
           <q-tooltip
             content-class
             content-style="font-size: 16px;"
@@ -200,7 +200,7 @@
             Manual Save
           </q-tooltip>
         </q-btn>
-<q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload">
+        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload">
           <q-tooltip
             content-class
             content-style="font-size: 16px;"
@@ -225,8 +225,7 @@
           </q-tooltip>
         </q-btn>
         <q-space />
-        <div
-                style="
+        <div style="
                   font-size: 2em;
                   font-family: 'Indie Flower', cursive;
                   margin-top: 5px;
@@ -295,8 +294,9 @@
           <q-tab-panel
             name="processors"
             ref="processors"
-            style="padding-right: 0px; width: 100%; padding-top: 0px;"
-          >            <Objects
+            style="padding: 0px; width: 100%; padding-top: 0px;"
+          >            
+          <Processors
               :objecttype="'processor'"
               :icon="'fas fa-wrench'"
               :collection="'items'"
@@ -311,9 +311,9 @@
           <q-tab-panel
             name="flows"
             ref="flows"
-            style="padding-right: 0px; width: 100%; padding-top: 0px;"
+            style="padding: 0px; width: 100%; padding-top: 0px;"
           >
-            <Objects
+            <Flows
               :objecttype="'flow'"
               :icon="'fas fa-wrench'"
               :collection="'items'"
@@ -1179,7 +1179,8 @@ import PatternTemplate from 'components/templates/PatternTemplate.vue';
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue';
 import PortInTemplate from 'components/templates/PortInTemplate.vue';
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
-import Objects from 'components/Objects.vue';
+import Flows from 'components/Flows.vue';
+import Processors from 'components/Processors.vue';
 
 var dd = require('drip-drop');
 
@@ -1216,7 +1217,8 @@ export default {
   props: ['surfaceId', 'flowid', 'flow', 'showtoolbar','flowname'],
   components: {
     Styles,
-    Objects,
+    Processors,
+    Flows,
     Patterns,
     editor: require('vue2-ace-editor'),
   },
@@ -1244,6 +1246,14 @@ export default {
       console.log('editorInit');
       const editor = this.$refs.myEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
+    },
+    saveFlow() {
+      var thecode = JSON.stringify(
+        window.toolkit.getGraph().serialize(),
+        null,
+        '\t'
+      );
+      this.$root.$emit("save.flow",thecode)
     },
     showCode() {
       this.code = true;
