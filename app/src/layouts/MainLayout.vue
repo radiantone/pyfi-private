@@ -151,27 +151,13 @@
     </q-header>
 
     <div style="height: 100vh; width: 100%; position: relative; top: 95px;">
-      <q-tab-panels v-model="tab" keep-alive>
+      <q-tab-panels v-model="tab" keep-alive v-for="flow in flows" :key="flow.id">
         <q-tab-panel
-          name="flow1"
+          :name="'flow'+flow.id"
           style="height: calc(100vh - 165px); padding: 0px;"
-          ref="flow1"
+          :ref="'flow'+flow.id"
         >
-          <Designer ref="flow1designer" :flowname="this.flow1name" @update-name="updateFlow1" surfaceId="flow1" />
-        </q-tab-panel>
-        <q-tab-panel
-          name="flow2"
-          style="height: calc(100vh - 165px); padding: 0px;"
-          ref="flow2"
-        >
-          <Designer ref="flow2designer" :flowname="this.flow2name" @update-name="updateFlow2" surfaceId="flow2" />
-        </q-tab-panel>
-        <q-tab-panel
-          name="flow3"
-          style="height: calc(100vh - 165px); padding: 0px;"
-          ref="flow3"
-        >
-          <Designer ref="flow3designer" :flowname="this.flow3name" @update-name="updateFlow3" surfaceId="flow3" />
+          <Designer :ref="'flow'+flow.id+'designer'" :flowname="flow.name" @update-name="updateFlow" :surfaceId="'flow'+flow.id"/>
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -184,10 +170,10 @@
         active-color="dark"
         indicator-color="accent"
         active-bg-color="accent"
+        
+        
       >
-        <q-tab name="flow1" class="text-dark" :label="this.flow1name" />
-        <q-tab name="flow2" class="text-dark" :label="this.flow2name" />
-        <q-tab name="flow3" class="text-dark" :label="this.flow3name" />
+        <q-tab v-for="flow in flows" :key="flow.id" :name="'flow'+flow.id" class="text-dark" :label="flow.name" />
       </q-tabs>
     </div>
     <q-footer
@@ -258,7 +244,9 @@ export default defineComponent({
   setup() {
     return {};
   },
-  created() {},
+  created() {
+    this.tab = 'flow'+this.flows[0].id;
+  },
   computed: {
     status() {
       return this.$store.state.designer.message;
@@ -268,14 +256,8 @@ export default defineComponent({
     },
   },
   methods: {
-    updateFlow1(name){
-        this.flow1name=name;
-    },
-    updateFlow2(name){
-        this.flow2name=name;
-    },
-    updateFlow3(name){
-        this.flow3name=name;
+    updateFlow(name){
+        this.flow.name=name;
     },
     dataGenerator: function (el) {
       // This probably needs to be automated
@@ -299,6 +281,12 @@ export default defineComponent({
     },
     tabChanged(tab) {
       console.log("TAB:", tab, this.$refs[tab]);
+      for(var i=0;i<this.flows.length;i++) {
+        var flow = this.flows[i];
+        if(tab == 'flow'+flow.id) {
+          this.flow = flow;
+        }
+      }
       if(this.$refs[tab + "designer"]) {
         window.toolkit = this.$refs[tab + "designer"].toolkit;
         window.toolkit.$q = this.$q;
@@ -317,7 +305,8 @@ export default defineComponent({
       spinnerThickness: 1,
     });
     console.log("Mounting....");
-    window.toolkit = this.$refs["flow1designer"].toolkit;
+    console.log("REFS",this.$refs);
+    window.toolkit = this.$refs["flow1designer"][0].toolkit;
     window.toolkit.$q = this.$q;
     window.renderer = window.toolkit.renderer;
     setTimeout(() => {
@@ -441,10 +430,21 @@ export default defineComponent({
   },
   data() {
     return {
-      flow1name: "Flow #1",
-      flow2name: "Flow #2",
-      flow3name: "Flow #3",
-      tab: "flow1",
+      flows: [
+        {
+          name:'Flow #1',
+          id: 1
+        },
+        {
+          name:'Flow #2',
+          id: 2
+        },
+        {
+          name:'Flow #3',
+          id: 3
+        }
+      ],
+      tab: null,
       text: "",
     };
   },

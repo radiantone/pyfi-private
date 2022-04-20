@@ -1,3 +1,16 @@
+UI DESIGN NOTES
+---------------
+
+- Vuex app scope reactive data. Check
+   - All UI metrics, processor state, etc will be stored in vuex from incoming message updates
+- DataService will access the API backend returning Promises. All UI components will use this
+- Events will be sent across components to trigger actions along with passed data
+   - For example, saving a flow from the designer, received by the Flows component and saved, updated there.
+   - Typically, events will originate from some user action
+- 
+
+
+
 UI, STREAMING, DATABASE
 ------------------------
 

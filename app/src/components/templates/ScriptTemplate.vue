@@ -527,6 +527,18 @@
                 Logs
               </q-item-section>
             </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('requirementsview', !requirementsview)"
+            >
+              <q-item-section side>
+                <q-icon name="fab fa-python"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Requirements
+              </q-item-section>
+            </q-item>
             <q-separator />
             
             <q-item
@@ -898,6 +910,58 @@
       </q-card-actions>
     </q-card>
 
+    <q-card
+      style="
+        width: 100%;
+        width: 650px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -655px;
+        top: 0px;
+      "
+      v-if="requirementsview"
+    >
+      <q-card-section
+        style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
+      >
+        <editor
+          v-model="obj.requirements"
+          @init="editorInit"
+          style="font-size: 16px; min-height: 600px;"
+          lang="python"
+          theme="chrome"
+          ref="myEditor"
+          width="100%"
+          height="fit"
+        ></editor>
+      </q-card-section>
+      <q-card-actions align="left">
+       
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          label="Close"
+          class="bg-accent text-dark"
+          color="primary"
+          @click="requirementsview = false"
+          v-close-popup
+        >
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Save"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="removeColumn(deleteSpeechID)"
+        />
+      </q-card-actions>
+    </q-card>
+
     <!-- Git dialog -->
     <q-card
       style="
@@ -1097,7 +1161,8 @@
             <q-toolbar>
               
               <q-space/>
-              <q-checkbox v-model="obj.enabled" label="Enabled" />
+              <q-checkbox v-model="obj.container" label="Containerized" />
+              <q-checkbox v-model="obj.enabled" label="Enabled" style="margin-left: 40px;"/>
               <q-checkbox
                 v-model="obj.endpoint"
                 label="Expose Endpoint"
@@ -2147,6 +2212,8 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        requirements:'',
+        container: false,
         enabled: true,
         endpoint: false,
         api: '/api/processor',
@@ -2170,6 +2237,7 @@ export default {
       workerview: false,
       historyview: false,
       logsview: false,
+      requirementsview: false,
       commentsview: false,
       securityview: false,
       environmentview: false,
@@ -2507,6 +2575,7 @@ export default {
       this.environmentview = false;
       this.scalingview = false;
       this.commentsview = false;
+      this.requirementsview = false;
       this.logsview = false;
       this.securityview = false;
       this[view] = show;

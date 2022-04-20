@@ -1,5 +1,22 @@
 
+- Flows file browser (click to add)
+- Patterns browser
+- Processors file browser (drag and drop)
+
 - Drag and drop processors & primitives
 - Primitives like: parallel, pipeline, map, chord, chunk
 - Add rows to the primitive to connect to sockets
 
+
+Working with Flows
+------------------
+
+- Creating and editing flows is done offline. Changes are made in the UI to the flow.
+    The flow can be saved, loaded and edited multiple times. When the flow is Published to the database,
+    the backend will create all the changes required by the flow inside a single transaction that either succeeds or fails.
+    For example, if the flow violates any constraints.
+
+    The UI is made aware of the status of the flow publish and if the transaction failed, why it failed.
+    
+    Then, all the agents participating in the networks affected by the changes will respond. Those status'
+    can also be viewed from the UI to see how complete the Flow "deployment" is.

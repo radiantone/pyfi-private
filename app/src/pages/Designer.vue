@@ -316,7 +316,7 @@
             <Flows
               :objecttype="'flow'"
               :icon="'fas fa-wrench'"
-              :collection="'items'"
+              :collection="'flows'"
               style="width: 100%;"
             />
           </q-tab-panel>
@@ -1253,7 +1253,7 @@ export default {
         null,
         '\t'
       );
-      this.$root.$emit("save.flow",thecode)
+      this.$root.$emit("save.flow",this.flowname, thecode)
     },
     showCode() {
       this.code = true;

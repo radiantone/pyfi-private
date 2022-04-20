@@ -6,9 +6,16 @@ import http from 'src/http-common'
 
 class DataService {
 
-    getObjects (collection: string, folder: string): Promise<any> {
+    getFiles (collection: string, folder: string): Promise<any> {
         return http.get('/api/files/'+collection+'/'+folder);
     }
+    newFile (collection: string, folder: string, name: string, type: string, icon:string, file: string): Promise<any> {
+        var path = encodeURI('/api/files/' + collection + '/' + folder);
+        console.log("newFile", path);
+
+        return http.post(path, { 'name': name, 'file': file, 'type':type, 'icon':icon});
+    }
+
     login (data: any): Promise<any> {
         return http.post('/api/login', data);
     }

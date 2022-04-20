@@ -112,7 +112,21 @@
           <q-space />
           <q-toolbar>
             <q-space />
-
+            <q-btn
+              flat
+              dense
+              rounded
+              icon="edit"
+              :class="darkStyle"
+            >
+              <q-tooltip
+                v-if="item.type === objecttype"
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Rename
+              </q-tooltip>
+            </q-btn>
             <q-btn
               flat
               dense
@@ -319,14 +333,20 @@ export default {
   },
   methods: {
     saveFlow() {
+      var me = this;
       this.loading = true;
-
+      console.log('flow',this.foldername,this.flowname, this.flowcode)
+      DataService.newFile('flows',this.foldername,this.flowname, 'flow', 'fas fa-file', this.flowcode).then(() => {
+        me.synchronize();
+      })
       //DataService call to create or save flow in foldername
       //with flowcode as the code
     },
-    saveFlowEvent(flow) {
+    saveFlowEvent(name, flow) {
       this.saveflow = true;
-      this.flowcode = flow
+      this.flowcode = flow;
+      this.flowname = name;
+
     },
     addFolder() {
       this.loading = true;
@@ -393,8 +413,8 @@ export default {
       this.loading = true;
       var me = this;
       try {
-        var files = DataService.getObjects(
-          this.objecttype,
+        var files = DataService.getFiles(
+          this.collection,
           this.foldername
         );
         files
