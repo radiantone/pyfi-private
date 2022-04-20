@@ -322,9 +322,12 @@ class FileModel(BaseModel):
     __tablename__ = "file"
     collection = Column(String(80))
     path = Column(String(120))
+    code = Column(Text)
+    type = Column(String(40))
+    icon = Column(String(40))
 
     def __repr__(self):
-        return "{}:{}:{}:{}:{}".format(
+        return "{}:{}:{}".format(
             self.name, self.collection, self.path
         )
 
