@@ -313,7 +313,7 @@ export default defineComponent({
         return value.id != flowid;
       });
       flowid -= 1;
-      this.tab = 'flow'+me.flows[flowid].id;
+      this.tab = 'flow'+me.flows[flowid-1].id;
       console.log("AFTER DELETE",me.flows)
     });
     this.$root.$on("new.flow",() => {
