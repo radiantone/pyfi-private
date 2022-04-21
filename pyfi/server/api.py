@@ -70,6 +70,12 @@ def get_files(collection, path):
     return jsonify(files)
 
 
+@app.route('/files/<fid>', methods=['GET'])
+def get_file(fid):
+    file = session.query(FileModel).filter_by(id=fid).first()
+    return file.code, 200
+
+
 @app.route('/files/<collection>/<path:path>', methods=['POST'])
 def post_files(collection, path):
     print("POST",collection, path)

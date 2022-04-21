@@ -157,7 +157,7 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           :ref="'flow'+flow.id"
         >
-          <Designer :ref="'flow'+flow.id+'designer'" :flowname="flow.name" @update-name="updateFlow" :surfaceId="'flow'+flow.id"/>
+          <Designer :ref="'flow'+flow.id+'designer'" :flowcode="flow.code" :flowname="flow.name" @update-name="updateFlow" :flowid="flow.id" :surfaceId="'flow'+flow.id"/>
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -170,10 +170,16 @@
         active-color="dark"
         indicator-color="accent"
         active-bg-color="accent"
-        
-        
       >
-        <q-tab v-for="flow in flows" :key="flow.id" :name="'flow'+flow.id" class="text-dark" :label="flow.name" />
+        <q-tab v-for="flow in flows" :key="flow.id" :name="'flow'+flow.id" class="text-dark" :label="flow.name">
+        <!--<q-btn
+            flat
+            dense
+            size="xs"
+            icon="close"
+            style="position: absolute; right:-15px;top:5px"
+          />-->
+        </q-tab>
       </q-tabs>
     </div>
     <q-footer
@@ -280,6 +286,7 @@ export default defineComponent({
       };
     },
     tabChanged(tab) {
+      console.log("REFS:", this.$refs);
       console.log("TAB:", tab, this.$refs[tab]);
       for(var i=0;i<this.flows.length;i++) {
         var flow = this.flows[i];
@@ -288,7 +295,7 @@ export default defineComponent({
         }
       }
       if(this.$refs[tab + "designer"]) {
-        window.toolkit = this.$refs[tab + "designer"].toolkit;
+        window.toolkit = this.$refs[tab + "designer"][0].toolkit;
         window.toolkit.$q = this.$q;
         window.renderer = window.toolkit.renderer;
       }
@@ -298,6 +305,39 @@ export default defineComponent({
     var me = this;
     console.log("MAINLAYOUT MESSAGE",this.$store.state.designer.message)
     console.log("MAINLAYOUT STORE",this.$store);
+    this.$root.$on("close.flow",(flowid) => {
+      console.log("DELETING FLOWID",flowid)
+      console.log("BEFORE DELETE",me.flows)
+      me.flows = me.flows.filter(function(value, index, arr){ 
+        console.log(value.id,flowid)
+        return value.id != flowid;
+      });
+      flowid -= 1;
+      this.tab = 'flow'+me.flows[flowid].id;
+      console.log("AFTER DELETE",me.flows)
+    });
+    this.$root.$on("new.flow",() => {
+      var id = me.flows.length+1;
+      me.flows.push({
+        'name':'New Flow',
+        'id': id,
+        'code': null
+      })
+      for(var i=0;i<me.flows.length;i++) {
+        var flow = me.flows[i];
+        if(flow.id == id) {
+          me.flow = flow;
+        }
+      }
+      me.tab='flow'+id
+    });
+    this.$root.$on("load.flow",(flow) => {
+      var id = me.flows.length+1;
+      flow._id = flow.id;
+      flow.id = id;
+      me.flows.push(flow)
+      me.tab='flow'+id
+    });
     this.$q.loading.show({
       delay: 40,
       spinnerColor: "dark",
@@ -432,16 +472,8 @@ export default defineComponent({
     return {
       flows: [
         {
-          name:'Flow #1',
+          name:'Scratch Flow',
           id: 1
-        },
-        {
-          name:'Flow #2',
-          id: 2
-        },
-        {
-          name:'Flow #3',
-          id: 3
         }
       ],
       tab: null,

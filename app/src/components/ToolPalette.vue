@@ -280,6 +280,16 @@
     >
       <q-menu>
         <q-list dense>
+
+          <q-item clickable v-close-popup @click="newFlow">
+            <q-item-section side>
+              <q-icon name="fas fa-plus"></q-icon>
+            </q-item-section>
+            <q-item-section side class="text-blue-grey-8">
+              New Flow
+            </q-item-section>
+          </q-item>
+          <q-separator />
           <q-item clickable v-close-popup>
             <q-item-section side>
               <q-icon name="fas fa-table"></q-icon>
@@ -400,6 +410,11 @@ export default {
   created() {},
   mounted() {
     console.log("TOOLPALETTE STORE",this.$store);
+  },
+  methods: {
+    newFlow () {
+      this.$root.$emit("new.flow")
+    }
   },
   data() {
     return {

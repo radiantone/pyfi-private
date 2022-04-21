@@ -15,6 +15,9 @@ class DataService {
 
         return http.post(path, { 'name': name, 'file': file, 'type':type, 'icon':icon});
     }
+    getFile (id: string): Promise<any> {
+        return http.get('/api/files/' + id);
+    }
 
     login (data: any): Promise<any> {
         return http.post('/api/login', data);

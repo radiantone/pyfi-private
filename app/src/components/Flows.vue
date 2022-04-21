@@ -374,7 +374,14 @@ export default {
       this.navigate(path);
     },
     selectFileOrFolder(item) {
+      var me = this;
+
       console.log("selectFileOrFolder ", item, this.objecttype);
+      DataService.getFile(item.id).then( (code) => {
+        item.code = code.data;
+        console.log("FLOW CODE",item);
+        me.$root.$emit("load.flow",item);
+      })
       if (item.type === this.objecttype) {
         console.log();
         this.$root.$emit("new." + this.objecttype + ".tab", {

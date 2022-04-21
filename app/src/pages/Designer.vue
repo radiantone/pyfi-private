@@ -224,6 +224,21 @@
             Delete Nodes
           </q-tooltip>
         </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="fas fa-close"
+          @click="showconfirmclose=true"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Close Flow
+          </q-tooltip>
+        </q-btn>
         <q-space />
         <div style="
                   font-size: 2em;
@@ -790,6 +805,70 @@
         </q-card>
       </q-expansion-item>
     </div>
+
+    <q-dialog v-model="showconfirmclose" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Close Flow</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-close" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to close this flow?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="closeFlow()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="clear" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -1214,7 +1293,7 @@ function htmlToElement(html) {
 
 export default {
   name: 'Designer',
-  props: ['surfaceId', 'flowid', 'flow', 'showtoolbar','flowname'],
+  props: ['surfaceId', 'flowcode', 'flowid', 'flow', 'showtoolbar','flowname'],
   components: {
     Styles,
     Processors,
@@ -1228,7 +1307,6 @@ export default {
         return this.flowname
       },
       set (name) {
-        //this.flowname = val
         this.$emit("update-name",name)
       }
     }
@@ -1325,21 +1403,10 @@ export default {
         }
       }
       console.log('jsonData:', jsonData);
-      /*
-      if (nodes.length > 0) {
-        this.$root.$emit('status.message', {
-          color: 'black',
-          message: 'Copied ' + nodes.length + ' nodes!'
-        })
-      } else {
-        this.$root.$emit('status.message', {
-          color: 'black',
-          message: 'No nodes selected!'
-        })
-      }
-      */
-
       window.clipboard = jsonData;
+    },
+    closeFlow() {
+      this.$root.$emit("close.flow",this.flowid)
     },
     confirmDeleteNodes() {
       var selection = window.toolkit.getSelection();
@@ -1398,8 +1465,11 @@ export default {
       //me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected');
     }, 5000);
+
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
+
+
     console.log('MOUNTED DESIGNER: STORE', this.$store);
     window.store = this.$store;
     jsPlumbToolkit.ready(function () {
@@ -1433,6 +1503,20 @@ export default {
         console.log('toolkit myUUID: ', me.toolkit.uuid);
         me.toolkit.$root = me.$root;
         me.toolkit.renderer = s;
+
+
+        if(me.flowcode) {
+          me.toolkit.load({
+            type: 'json',
+            data: me.flowcode,
+            onload:function() {                
+              // called after the data has loaded. 
+              me.toolkit.surface.zoomToFit({ fill: 0.75 });   
+            }
+          })
+
+        }
+
         var els = me.$el.getElementsByClassName('jtk-surface');
         console.log('ELS:', els);
         for (var i = 0; i < els.length; i++) {
@@ -1485,6 +1569,7 @@ export default {
       value: true,
       tab: 'flows',
       clear: false,
+      showconfirmclose: false,
       deleteText: 'nodes',
       deleteCount: 0,
       series2: [
