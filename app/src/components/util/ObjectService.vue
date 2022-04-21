@@ -25,7 +25,6 @@ export default {
   async getUserSettings (user) {
     const token = user.accessToken
     try {
-      debugger
       const res = await axios.get(process.env.APISERVER + '/usersettings', {
         headers: {
           Authorization: 'Bearer ' + token
@@ -45,7 +44,6 @@ export default {
   async updateUserSettings (settings, user) {
     const token = user.accessToken
     try {
-      debugger
       const res = await axios.post(process.env.APISERVER + '/usersettings', settings, {
         headers: {
           Authorization: 'Bearer ' + token

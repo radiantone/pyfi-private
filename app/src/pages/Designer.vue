@@ -1343,7 +1343,6 @@ export default {
     },
     copyNodes() {
       function findMatch(list, obj) {
-        debugger;
         for (var i = 0; i < list.length; i++) {
           var o = list[i];
           if (o.id === obj.id) {
@@ -2058,7 +2057,6 @@ export default {
               var edgeCount = 0;
               for (var i = 0; i < sourceEdges.length; i++) {
                 var sourceEdge = sourceEdges[i];
-                debugger;
                 var sourceId = sourceEdge.data.id;
                 var sourceNode = sourceEdge.source.getNode();
                 if (sourceNode === params.source.getNode()) {
