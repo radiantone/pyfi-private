@@ -276,6 +276,70 @@
       </q-card>
     </q-dialog>
 
+
+    <q-dialog v-model="overwriteflow" persistent>
+      <q-card style="padding: 10px; padding-top: 30px; width:500px;height:200px">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Filename Exists</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm" >
+            Overwrite existing flow {{this.flowname}}?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Yes"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="doOverwriteFlow"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="folderprompt" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
@@ -332,12 +396,22 @@ export default {
     this.$root.$on("save.flow",this.saveFlowEvent);
   },
   methods: {
+    doOverwriteFlow() {
+
+    },
     saveFlow() {
       var me = this;
       this.loading = true;
       console.log('flow',this.foldername,this.flowname, this.flowcode)
       DataService.newFile('flows',this.foldername,this.flowname, 'flow', 'fas fa-file', this.flowcode).then(() => {
         me.synchronize();
+      }).catch(({request}) => {
+        console.log(request)
+        this.loading = false;
+        if(request.status === 409) {
+          console.log("File name exists")
+          me.overwriteflow=true;
+        }
       })
       //DataService call to create or save flow in foldername
       //with flowcode as the code
@@ -502,19 +576,9 @@ export default {
       var me = this;
       try {
         var res = await ObjectService.deleteObject(
-          this.collection,
-          { _id: objectid },
-          this.security.auth.user
-        );
-        me.loading = false;
-        console.log(res);
-        if (res.status === "error") {
-          me.notifyMessage(
-            "negative",
-            "error",
-            "There was an error deleting the object."
-          );
-        } else {
+          objectid 
+        ).then((result) => {
+          me.loading = false;
           me.$q.notify({
             color: "primary",
             timeout: 2000,
@@ -522,9 +586,16 @@ export default {
             message: "Delete Succeeded",
             icon: "folder"
           });
-          this.synchronize();
-          this.$root.$emit("delete." + this.objecttype, { _id: objectid });
-        }
+          me.synchronize();
+          me.$root.$emit("delete." + me.objecttype, { _id: objectid });
+        }).catch( (error) => {
+          me.loading = false;
+          me.notifyMessage(
+            "negative",
+            "error",
+            "There was an error deleting the object."
+          );
+        })
       } catch (error) {
         console.log(error);
         me.loading = false;
@@ -601,6 +672,8 @@ export default {
       newfolder: "",
       loading: false,
       deleteobject: false,
+      flowname: null,
+      overwriteflow: false,
       deleteobjectname: null,
       deleteobjectid: null,
       deleteobjecttype: null,

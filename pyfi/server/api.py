@@ -76,15 +76,27 @@ def get_file(fid):
     return file.code, 200
 
 
+@app.route('/files/<fid>', methods=['DELETE'])
+def delete_file(fid):
+    status = {'status':'ok'}
+    return jsonify(status), 200
+
 @app.route('/files/<collection>/<path:path>', methods=['POST'])
 def post_files(collection, path):
     print("POST",collection, path)
     data = request.get_json(silent=True)
     print("POST_FILE",data)
+    file = session.query(FileModel).filter_by(name=data['name'], collection=collection, type=data['type']).first()
+    if file:
+        error = {'status':'error','message':'File name exists'}
+        return jsonify(error), 409
+
     file = FileModel(name=data['name'], collection=collection, type=data['type'], icon=data['icon'], path=path, code=data['file'])
     session.add(file)
     session.commit()
-    return "Ok", 200
+
+    status = {'status':'ok'}
+    return jsonify(status), 200
 
 
 @app.route('/assets/<path:path>')
