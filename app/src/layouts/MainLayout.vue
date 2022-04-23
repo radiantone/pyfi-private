@@ -157,7 +157,7 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           :ref="'flow'+flow.id"
         >
-          <Designer :ref="'flow'+flow.id+'designer'" :flowcode="flow.code" :flowname="flow.name" @update-name="updateFlow" :flowid="flow.id" :surfaceId="'flow'+flow.id"/>
+          <Designer :ref="'flow'+flow.id+'designer'" :flowcode="flow.code" :flowname="flow.name" @update-name="updateFlow" :flowuuid="flow._id" :flowid="flow.id" :surfaceId="'flow'+flow.id"/>
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -298,6 +298,8 @@ export default defineComponent({
         window.toolkit = this.$refs[tab + "designer"][0].toolkit;
         window.toolkit.$q = this.$q;
         window.renderer = window.toolkit.renderer;
+        console.log("Refreshing designer");
+        this.$refs[tab + "designer"][0].refresh();
       }
     },
   },
@@ -305,15 +307,33 @@ export default defineComponent({
     var me = this;
     console.log("MAINLAYOUT MESSAGE",this.$store.state.designer.message)
     console.log("MAINLAYOUT STORE",this.$store);
+    this.$root.$on("flow.uuid", (flowid, flowuuid) => {
+      for(var i=0;i<me.flows.length;i++) {
+        var flow = me.flows[i];
+        if(flow.id == flowid) {
+          flow._id = flowuuid;
+          console.log("Updated flow",flow," with uuid",flowuuid);
+        }
+      }
+    });
+
     this.$root.$on("close.flow",(flowid) => {
       console.log("DELETING FLOWID",flowid)
       console.log("BEFORE DELETE",me.flows)
+      var index = -1;
+      for(var i=0;i<me.flows.length;i++) {
+        var flow = me.flows[i];
+        if(flow.id == flowid) {
+          index = i;
+          break;
+        }
+      }
       me.flows = me.flows.filter(function(value, index, arr){ 
         console.log(value.id,flowid)
         return value.id != flowid;
       });
-      flowid -= 1;
-      this.tab = 'flow'+me.flows[flowid-1].id;
+      this.tab = 'flow'+me.flows[index-1].id;
+      this.$refs[this.tab+'designer'][0].refresh();
       console.log("AFTER DELETE",me.flows)
     });
     this.$root.$on("new.flow",() => {
@@ -332,8 +352,9 @@ export default defineComponent({
       me.tab='flow'+id
     });
     this.$root.$on("load.flow",(flow) => {
+      console.log("load.flow",flow);
       var id = me.flows.length+1;
-      flow._id = flow.id;
+      flow._id = flow._id;
       flow.id = id;
       me.flows.push(flow)
       me.tab='flow'+id

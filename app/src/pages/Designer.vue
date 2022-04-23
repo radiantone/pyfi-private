@@ -333,6 +333,7 @@
               :icon="'fas fa-wrench'"
               :collection="'flows'"
               style="width: 100%;"
+              ref="_flows"
             />
           </q-tab-panel>
           <q-tab-panel name="monitor" ref="monitor">
@@ -1293,7 +1294,7 @@ function htmlToElement(html) {
 
 export default {
   name: 'Designer',
-  props: ['surfaceId', 'flowcode', 'flowid', 'flow', 'showtoolbar','flowname'],
+  props: ['surfaceId', 'flowcode', 'flowid', 'flowuuid', 'flow', 'showtoolbar','flowname'],
   components: {
     Styles,
     Processors,
@@ -1312,6 +1313,10 @@ export default {
     }
   },
   methods: {
+    refresh() {
+      console.log("Synchronizing flows");
+      this.$refs['_flows'].synchronize();
+    },
     editorInit: function () {
       var me = this;
 
@@ -1331,7 +1336,7 @@ export default {
         null,
         '\t'
       );
-      this.$root.$emit("save.flow",this.flowname, thecode)
+      this.$root.$emit("save.flow",this.flowname, this.flowuuid, this.flowid, thecode)
     },
     showCode() {
       this.code = true;
@@ -1468,7 +1473,7 @@ export default {
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
 
-
+    console.log("FLOW UUID",this.flowuuid);
     console.log('MOUNTED DESIGNER: STORE', this.$store);
     window.store = this.$store;
     jsPlumbToolkit.ready(function () {
@@ -1486,6 +1491,13 @@ export default {
         window.toolkit = me.toolkit;
         window.toolkit.surface = me.surface;
         window.designer = me;
+        me.$root.$on("flow.uuid", (flowid, flowuuid) => {
+          if(flowid == me.flowid) {
+            me.flowuuid = flowuuid;
+          }
+        });
+
+
         me.$root.$on('node.selected', (node) => {
           me.node = node;
           console.log('Animate node');
