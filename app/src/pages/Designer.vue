@@ -494,10 +494,13 @@
         >
           {{ filename }}
         </q-item-label>
+        
       </div>
     </q-page-container>
 
     <q-footer></q-footer>
+    <q-item-label class="text-secondary" style="position: absolute; top:60px;right:40px">
+        Zoom: {{zoom}}</q-item-label>
     <div
       elevated
       class="q-pa-md"
@@ -523,6 +526,22 @@
         <q-card style="padding: 0px;">
           <q-card-section>
             <q-toolbar>
+              <q-btn
+                dense
+                flat
+                size="sm"
+                icon="fas fa-home"
+                class="text-dark"
+                @click="zoomToOne"
+                style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Zoom Level 1.0
+                </q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
@@ -588,6 +607,7 @@
                   Zoom to Fit
                 </q-tooltip></q-btn
               >
+              
             </q-toolbar>
             <jsplumb-miniview
               style="width: 100%; height: 200px;"
@@ -1313,6 +1333,9 @@ export default {
     }
   },
   methods: {
+    zoomToOne() {
+      window.toolkit.surface.setZoom(1.0);
+    },
     refresh() {
       console.log("Synchronizing flows");
       this.$refs['_flows'].synchronize();
@@ -1479,6 +1502,13 @@ export default {
     jsPlumbToolkit.ready(function () {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
+        me.surface.bind("lasso:end", function() {
+          console.log("lasso:end");
+          me.mode="pan";
+        });
+        me.surface.bind("zoom", function() {
+          me.zoom = me.surface.getZoom().toFixed(2);
+        });
         console.log('SURFACE ', me.surfaceId, s);
         s.bind('lasso:end', function () {
           me.isdisabled = false;
@@ -1502,8 +1532,6 @@ export default {
           me.node = node;
           console.log('Animate node');
           var adhocSelection = toolkit.filter(function (obj) {
-            console.log('OBJ:', obj);
-            console.log('NODE: ', node);
             return obj == node;
           });
           if (node != null) {
@@ -1577,6 +1605,7 @@ export default {
   },
   data: () => {
     return {
+      zoom: 1.0,
       value: true,
       tab: 'flows',
       clear: false,
