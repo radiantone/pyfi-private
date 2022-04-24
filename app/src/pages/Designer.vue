@@ -499,6 +499,8 @@
     </q-page-container>
 
     <q-footer></q-footer>
+    <q-item-label class="text-secondary" style="position: absolute; top:65px;right:150px">
+        x,y: {{position[0]}},{{position[1]}}</q-item-label>
     <q-item-label class="text-secondary" style="position: absolute; top:60px;right:40px">
         Zoom: {{zoom}}</q-item-label>
     <div
@@ -526,6 +528,22 @@
         <q-card style="padding: 0px;">
           <q-card-section>
             <q-toolbar>
+              <q-btn
+                dense
+                flat
+                size="sm"
+                icon="fas fa-crosshairs"
+                class="text-dark"
+                @click="panToZero"
+                style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                ><q-tooltip
+                  content-class
+                  content-style="font-size: 16px"
+                  :offset="[10, 10]"
+                >
+                  Pan to 0,0
+                </q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
@@ -1336,6 +1354,9 @@ export default {
     zoomToOne() {
       window.toolkit.surface.setZoom(1.0);
     },
+    panToZero() {
+      window.toolkit.surface.setPan(0,0,true);
+    },
     refresh() {
       console.log("Synchronizing flows");
       this.$refs['_flows'].synchronize();
@@ -1503,9 +1524,17 @@ export default {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
         me.surface.bind("lasso:end", function() {
-          console.log("lasso:end");
           me.mode="pan";
         });
+        me.surface.setPan(0,0);
+        me.surface.setPan(0,0);
+        console.log("PAN",me.surface.getPan());
+        me.surface.setZoom(1.0);
+        function getpan() {
+           me.position=me.surface.getPan();
+           setTimeout(getpan,1000);
+        }
+        getpan();
         me.surface.bind("zoom", function() {
           me.zoom = me.surface.getZoom().toFixed(2);
         });
@@ -1609,6 +1638,7 @@ export default {
       value: true,
       tab: 'flows',
       clear: false,
+      position: [-20,-20],
       showconfirmclose: false,
       deleteText: 'nodes',
       deleteCount: 0,

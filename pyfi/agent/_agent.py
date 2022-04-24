@@ -27,7 +27,7 @@ from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import WorkerModel, AgentModel, NodeModel, DeploymentModel
+from pyfi.db.model import WorkerModel, AgentModel, NodeModel, DeploymentModel, ProcessorModel
 from pyfi.worker import WorkerService
 
 lock = Condition()
@@ -168,6 +168,15 @@ class ProcessorMonitor(MonitorPlugin):
                 
                 for processor in processors:
                     session.merge(processor["processor"])
+                    
+                    processor["processor"] = (
+                        session.query(ProcessorModel)
+                            .filter_by(
+                            id=processor["processor"].id
+                        )
+                            .first()
+                    )
+                    #session.add(processor["processor"])
                     #session.refresh(processor["processor"])
                     # Check if I already have a deployment
                     found = False
