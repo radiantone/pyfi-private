@@ -139,12 +139,13 @@ def delete_file(fid):
         status = {'status':'error', 'message':str(ex)}
         return jsonify(status), 500
 
+
 @app.route('/files/<collection>/<path:path>', methods=['POST'])
 def post_files(collection, path):
     print("POST",collection, path)
     data = request.get_json(silent=True)
     print("POST_FILE",data)
-    file = session.query(FileModel).filter_by(name=data['name'], collection=collection, type=data['type']).first()
+    file = session.query(FileModel).filter_by(name=data['name'], path=path, collection=collection, type=data['type']).first()
     if file:
         if 'id' in data and data['id'] == file.id:
             # overwrite file

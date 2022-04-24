@@ -1525,9 +1525,6 @@ def update_processor(
                 .first()
         )
 
-    if not hostname:
-        _hostname = click.prompt("Hostname", type=str, default=processor.hostname)
-
         # Update deployment
 
     if not module:
@@ -1696,7 +1693,7 @@ def add_task(context, name, module, code, repo):
     prompt=True,
     required=True,
     default=None,
-    help="Name of this processor",
+    help="Name of a processor",
 )
 @click.option(
     "-d",
@@ -1735,6 +1732,7 @@ def add_deployment(context, name, deploy, hostname, cpus):
         context.obj["database"].session.add(deployment)
         processor.deployments += [deployment]
         context.obj["database"].session.commit()
+        print("Committed deployment")
 
     print("Deployment {}:{}:{} added.".format(deploy, hostname, cpus))
 
