@@ -286,8 +286,9 @@ class DeploymentMonitor(MonitorPlugin):
 
                 self.lock.acquire()
                 try:
-                    '''
                     myprocessor = mydeployment.processor
+                    logging.info("MYPROCESSOR %s",myprocessor)
+                    '''
                     #self.database.session.refresh(
                     #    myprocessor
                     #)  # Might not be needed
