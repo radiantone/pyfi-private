@@ -261,7 +261,7 @@ class AgentMonitorPlugin(AgentPlugin):
             print("DEPLOYMENT.WORKER",mydeployment.worker)
             try:
                 myprocessor = mydeployment.processor
-                logging.info("MYPROCESSOR %s",myprocessor)
+                logging.debug("MYPROCESSOR %s",myprocessor)
                 #self.database.session.refresh(
                 #    myprocessor
                 #)  # Might not be needed
@@ -802,7 +802,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 # Put all the work here
                 agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
                 # DeploymentMonitor
-                logging.info("Invoking deployment_monitor")
+                logging.debug("Invoking deployment_monitor")
                 self.deployment_monitor(agent, _session)
 
 
