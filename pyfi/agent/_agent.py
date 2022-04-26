@@ -254,13 +254,14 @@ class DeploymentMonitor(MonitorPlugin):
     def __init__(self, agent_service : AgentService):
         logger.debug("[DeploymentMonitor] Create")
         self.agent_service = agent_service
+        self.agent = None
 
     def get_processors(self):
         processors = []
         with get_session(expire_on_commit=False) as session:
             if not self.agent:
                 return processors
-                
+
             logger.debug("[DeploymentMonitor] Getting deployments %s",self.agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
