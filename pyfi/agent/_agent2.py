@@ -330,7 +330,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     '''
 
                     if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
-                        session.merge(processor["worker"]["model"], load=True)
+                        session.add(processor["worker"]["model"])
                         session.refresh(processor["worker"]["model"])
 
                     print("WORKER",processor["worker"])
