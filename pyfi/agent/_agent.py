@@ -168,7 +168,7 @@ class ProcessorMonitor(MonitorPlugin):
                 logger.debug("[ProcessorMonitor] Got lock ")
                 try:
                     processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].processors
-                    
+                    logging.info("GOT PROCESSORS %s",processors)
                     for processor in processors:
 
                         logging.info("GOT PROCESSOR %s",processor)
@@ -887,7 +887,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
             logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
         # Create a list of pluggable "Monitor" objects that perform various independent tasks
-        monitors = [ProcessorMonitor(agent_service)] #, DeploymentMonitor(agent_service), NodeMonitor()] #, DeploymentMonitor(agent_service), NodeMonitor()]
+        monitors = [ProcessorMonitor(agent_service)], DeploymentMonitor(agent_service), NodeMonitor()] #, DeploymentMonitor(agent_service), NodeMonitor()]
 
         for monitor in monitors:
             self.monitors[monitor.__class__.__name__] = monitor
