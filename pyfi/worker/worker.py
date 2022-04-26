@@ -4,7 +4,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 import configparser
 import logging
 
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import gc
 import platform
@@ -1564,7 +1564,7 @@ class WorkerService:
                                             logging.error("Job plug is NONE")
                                         else:
                                             # execute sql to get jobs
-                                            found = False
+                                            found = False or socket.interval <= 0
 
                                             if not found:
                                                 # Ensure job id matches socket so it can be related

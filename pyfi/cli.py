@@ -2111,7 +2111,7 @@ def update_task(context, name, module, code):
 
 @update.command(name="socket")
 @click.option("-n", "--name", required=True)
-@click.option("-q", "--queue", required=True, help="Queue name")
+@click.option("-q", "--queue", default=None, help="Queue name")
 @click.option("-i", "--interval", default=None, required=False)
 @click.option("-pi", "--procid", default=None, required=False, help="Processor id")
 @click.option("-pn", "--procname", default=None, required=False, help="Processor name")
@@ -2146,6 +2146,11 @@ def update_socket(context, name, queue, interval, procid, procname, task):
         socket.interval = click.prompt("Interval", type=int, default=socket.interval)
         processor.requested_status = "update"
 
+    if interval is not None:
+        socket.interval = int(interval)
+
+    context.obj["database"].session.commit()
+    
     return
 
 
