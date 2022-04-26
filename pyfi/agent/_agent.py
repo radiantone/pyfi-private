@@ -81,8 +81,9 @@ def get_session(**kwargs):
         session.rollback()
         raise
     else:
-        logger.debug("get_session: Commit session")
-        session.commit()
+        pass
+        #logger.debug("get_session: Commit session")
+        #session.commit()
     finally:
         logger.debug("get_session: Closing session")
         session.expunge_all()
