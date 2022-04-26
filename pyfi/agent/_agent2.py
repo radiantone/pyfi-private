@@ -328,11 +328,11 @@ class AgentMonitorPlugin(AgentPlugin):
                             ).first()
                         )
                     '''
-                    print("WORKER",processor["worker"])
 
                     if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
                         session.refresh(processor["worker"]["model"])
 
+                    print("WORKER",processor["worker"])
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     #
