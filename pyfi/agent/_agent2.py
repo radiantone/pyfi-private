@@ -300,13 +300,8 @@ class AgentMonitorPlugin(AgentPlugin):
                             id=pid
                         ).first()
                     )
-                    processor["worker"]["model"] = (
-                        session.query(WorkerModel)
-                            .filter_by(
-                            id=processor["worker.id"]
-                        ).first()
-                    )
-                    logging.debug(
+
+                    logging.info(
                         "Processor.requested_status START %s",
                         processor["processor"].requested_status,
                     )
