@@ -523,10 +523,8 @@ class WorkerService:
             from uuid import uuid4
             from datetime import datetime
 
-            with self.get_session(self.database) as session:
-
-
-                while True:
+            while True:
+                with self.get_session(self.database) as session:
                     processor = (
                         session.query(ProcessorModel)
                             .filter_by(id=self.processor.id)
