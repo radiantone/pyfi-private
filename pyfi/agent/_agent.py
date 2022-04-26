@@ -186,6 +186,9 @@ class ProcessorMonitor(MonitorPlugin):
                         if deployment.processor.id == processor["processor"].id:
                             found = True
                             break
+                        import time
+                        print("Sleeping")
+                        time.sleep(10)
 
                     agent_cwd = os.environ["AGENT_CWD"]
 
