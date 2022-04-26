@@ -247,6 +247,7 @@ class AgentMonitorPlugin(AgentPlugin):
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.processors = []
         self.agent_service = None
+        self.workers = []
 
     def deployment_monitor(self, agent, session):
         logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
@@ -712,7 +713,7 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
         self.kwargs = kwargs
         self.agent_service = agent_service
-        
+
         with get_session() as session:
             agent = (
                 session.query(AgentModel).filter_by(hostname=agent_service.name).first()
