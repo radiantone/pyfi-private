@@ -724,7 +724,7 @@ class DeploymentMonitor(MonitorPlugin):
                         processor["processor"].status = "running"
 
                         session.add(processor["processor"])
-                        session.refresh(processor["processor"])
+                        #session.refresh(processor["processor"])
             
             finally:
                 self.lock.release()
