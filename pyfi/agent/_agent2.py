@@ -304,7 +304,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         "Processor.requested_status START %s %s",
                         processor["processor"].requested_status, processor["processor"]
                     )
-                    logger.info("[PROCESSOR] is %s",processor)
+                    logger.info("[PROCESSOR KEYS] is %s",processor.keys())
                     if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
                         session.add(processor["worker"]["model"])
                         
