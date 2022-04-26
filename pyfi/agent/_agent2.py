@@ -82,7 +82,6 @@ def get_session(**kwargs):
         session.rollback()
         raise
     else:
-        pass
         logger.debug("get_session: Commit session")
         session.commit()
     finally:
@@ -744,10 +743,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     process = psutil.Process(os.getpid())
                    
-                    # Put all the work here
-                    agent = (session.query(AgentModel).filter_by(hostname=agent_service.name).first())
-                    # DeploymentMonitor
-                    self.deployment_monitor(agent, session)
+                    with get_session() as _session:
+                        # Put all the work here
+                        agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
+                        # DeploymentMonitor
+                        self.deployment_monitor(agent, _session)
 
 
                     # ProcessorMonitor
