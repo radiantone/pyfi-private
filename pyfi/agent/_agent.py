@@ -889,130 +889,132 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.debug("[AgentMonitorPlugin] Creating")
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
-    def start(self, session: sessionmaker, agent_service: AgentService, **kwargs):
+    def start(self, agent_service: AgentService, **kwargs):
         from billiard.context import Process
         logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
         self.kwargs = kwargs
     
-        agent = (
-            session.query(AgentModel).filter_by(hostname=agent_service.name).first()
-        )
-        if agent is None:
-            agent = AgentModel(
-                hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
+
+        with get_session() as session:
+            agent = (
+                session.query(AgentModel).filter_by(hostname=agent_service.name).first()
             )
+            if agent is None:
+                agent = AgentModel(
+                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
+                )
 
-        agent.pid = os.getpid()
-        agent.requested_status = "starting"
-        agent.status = "starting"
-        agent.cpus = self.kwargs['cpus']
+            agent.pid = os.getpid()
+            agent.requested_status = "starting"
+            agent.status = "starting"
+            agent.cpus = self.kwargs['cpus']
 
-        logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
-        # Create a list of pluggable "Monitor" objects that perform various independent tasks
-        monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service), NodeMonitor()] #, DeploymentMonitor(agent_service), NodeMonitor()]
+            logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
+            # Create a list of pluggable "Monitor" objects that perform various independent tasks
+            monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service), NodeMonitor()] #, DeploymentMonitor(agent_service), NodeMonitor()]
 
-        for monitor in monitors:
-            self.monitors[monitor.__class__.__name__] = monitor
-            logging.debug("AgentMonitorPlugin: Registered monitor %s",monitor.__class__.__name__)
+            for monitor in monitors:
+                self.monitors[monitor.__class__.__name__] = monitor
+                logging.debug("AgentMonitorPlugin: Registered monitor %s",monitor.__class__.__name__)
 
-        def monitor_processors():
-            import sched
-            from datetime import datetime
+            def monitor_processors():
+                import sched
+                from datetime import datetime
 
-            processor_workers = []
+                processor_workers = []
 
-            def main_loop(monitors, **kwargs):
-                """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
-                as their data objects change state. This includes managing the workers and deployments """
+                def main_loop(monitors, **kwargs):
+                    """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
+                    as their data objects change state. This includes managing the workers and deployments """
 
-                logger.debug("[AgentMonitorPlugin] main_loop run %s %s", monitors, kwargs)
-                logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
+                    logger.debug("[AgentMonitorPlugin] main_loop run %s %s", monitors, kwargs)
+                    logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
 
-                process = psutil.Process(os.getpid())
-                with get_session() as session:
-                    logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
-                    # Get or create Agent
-                    agent = (
-                        session.query(AgentModel).filter_by(hostname=agent_service.name).first()
-                    )
-                    # Get or create Node for this agent
-                    if agent is None:
-                        # Create database ping process to notify pyfi that I'm here and active
-                        # agent process will monitor database and manage worker process pool
-                        # agent will report local available resources to database
-                        # agent will report # of active processors/CPUs and free CPUs
-                        agent = AgentModel(
-                            hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **self.kwargs
+                    process = psutil.Process(os.getpid())
+                    with get_session() as session:
+                        logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
+                        # Get or create Agent
+                        agent = (
+                            session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+                        )
+                        # Get or create Node for this agent
+                        if agent is None:
+                            # Create database ping process to notify pyfi that I'm here and active
+                            # agent process will monitor database and manage worker process pool
+                            # agent will report local available resources to database
+                            # agent will report # of active processors/CPUs and free CPUs
+                            agent = AgentModel(
+                                hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **self.kwargs
+                            )
+
+                        if agent is None:
+                            logger.error("No agent present.")
+                            self.scheduler.enter(
+                                3,
+                                1,
+                                main_loop,
+                                argument=(monitors,),
+                                kwargs=kwargs
+                            )
+                            return
+
+                        node = (
+                            session.query(NodeModel).filter_by(hostname=agent.hostname).first()
                         )
 
-                    if agent is None:
-                        logger.error("No agent present.")
-                        self.scheduler.enter(
-                            3,
-                            1,
-                            main_loop,
-                            argument=(monitors,),
-                            kwargs=kwargs
-                        )
-                        return
+                        if node is None:
+                            node = NodeModel(
+                                name=agent.name + ".node", agent=agent, hostname=agent.hostname
+                            )
+                            
+                            session.add(node)
 
-                    node = (
-                        session.query(NodeModel).filter_by(hostname=agent.hostname).first()
-                    )
-
-                    if node is None:
-                        node = NodeModel(
-                            name=agent.name + ".node", agent=agent, hostname=agent.hostname
-                        )
-                        
-                        session.add(node)
-
-                    node.cpus = CPUS
-                    agent.node = node
-                
-                    agent.status = "running"
-                    #agent.cpus = node.cpus
-                    #agent.port = self.port
-                    agent.updated = datetime.now()
-
-                    logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
-                    logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
+                        node.cpus = CPUS
+                        agent.node = node
                     
-                    logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
+                        agent.status = "running"
+                        #agent.cpus = node.cpus
+                        #agent.port = self.port
+                        agent.updated = datetime.now()
 
-                    # Get or create Node for this agent
-                    _node = {}
-                    # Get Processors for this agent
-                    processors = []
-                    # Get deployments for this host
-                    deployments = []
+                        logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
+                        logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
+                        
+                        logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
 
-                    [monitor.monitor(session, agent, processors, deployments) for monitor in monitors]
+                        # Get or create Node for this agent
+                        _node = {}
+                        # Get Processors for this agent
+                        processors = []
+                        # Get deployments for this host
+                        deployments = []
 
-                    gc.collect()
+                        [monitor.monitor(session, agent, processors, deployments) for monitor in monitors]
+
+                        gc.collect()
+
+                    self.scheduler.enter(
+                        3,
+                        1,
+                        main_loop,
+                        argument=(monitors,),
+                        kwargs=kwargs
+                    )
+
 
                 self.scheduler.enter(
                     3,
                     1,
                     main_loop,
                     argument=(monitors,),
-                    kwargs=kwargs
+                    kwargs={}
                 )
 
+                self.scheduler.run()
 
-            self.scheduler.enter(
-                3,
-                1,
-                main_loop,
-                argument=(monitors,),
-                kwargs={}
-            )
-
-            self.scheduler.run()
-
-        self.process = process = Process(target=monitor_processors, daemon=True)
-        process.start()
-        logger.debug("[AgentMonitorPlugin] Startup Complete")
+            self.process = process = Process(target=monitor_processors, daemon=True)
+            process.start()
+            logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
         return self.process.join()
