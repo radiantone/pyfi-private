@@ -343,7 +343,7 @@ class DeploymentMonitor(MonitorPlugin):
 
                     
                     # This block looks at the processors and creates a worker if needed
-                    '''
+                    
                     for processor in self.processors:
                         pid = processor["processor"].id
                         processor["processor"] = (
@@ -750,7 +750,7 @@ class DeploymentMonitor(MonitorPlugin):
 
                             session.add(processor["processor"])
                             session.refresh(processor["processor"])
-                    '''
+                    
                 finally:
                     self.lock.release()
 
