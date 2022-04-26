@@ -311,7 +311,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         logger.info("[PROCESSOR KEYS] is %s %s",processor["model"], processor.keys())
                         
                     process_died = False
-                    '''
+
                     if "worker.id" in processor:
                         processor["worker"]["model"] = (
                             session.query(ProcessorModel)
@@ -491,7 +491,6 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if process_died:
                         logging.error("Process died!")
-                    '''
 
                     if (
                             processor["processor"].requested_status == "start"
@@ -729,6 +728,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         session.refresh(processor["processor"])
 
                         session.commit()
+                
                 '''
             finally:
                 pass
