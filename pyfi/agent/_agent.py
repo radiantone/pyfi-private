@@ -146,7 +146,7 @@ class ProcessorMonitor(MonitorPlugin):
         logger.debug("[ProcessorMonitor] Create")
         self.agent_service = agent_service
 
-    def monitor(self, session: sessionmaker,  agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker,  agent: AgentModel, processors: list, deployments: list):
         from datetime import datetime
         from uuid import uuid4
 
@@ -236,7 +236,7 @@ class WorkerMonitor(MonitorPlugin):
     def __init__(self):
         logger.debug("[WorkerMonitor] Create")
 
-    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list):
         logger.debug("[WorkerMonitor] Monitor")
 
         if session:
@@ -759,7 +759,7 @@ class NodeMonitor(MonitorPlugin):
     def __init__(self):
         logger.debug("[NodeMonitor] Create")
 
-    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list):
         from datetime import datetime
         import psutil
 
