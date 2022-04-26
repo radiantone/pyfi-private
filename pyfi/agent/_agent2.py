@@ -521,7 +521,8 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"] = None
 
                         if "deployment" in processor:
-                            print(processor["deployment"])
+                            print("DEPLOYMENT",processor["deployment"])
+                            print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
                         """
                         TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
