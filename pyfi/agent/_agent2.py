@@ -301,8 +301,8 @@ class AgentMonitorPlugin(AgentPlugin):
                     )
 
                     logging.info(
-                        "Processor.requested_status START %s",
-                        processor["processor"].requested_status,
+                        "Processor.requested_status START %s %s",
+                        processor["processor"].requested_status, processor["processor"]
                     )
                     logger.info("[PROCESSOR] is %s",processor)
                     if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
