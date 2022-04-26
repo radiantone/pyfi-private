@@ -245,7 +245,7 @@ class WorkerService:
     container = None
 
     @contextmanager
-    def get_session(engine, **kwargs):
+    def get_session(self, engine, **kwargs):
         logging.debug("get_session: Creating session")
         session = sessionmaker(bind=engine, **kwargs)() #expire_on_commit=False
 
