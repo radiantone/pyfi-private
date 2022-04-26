@@ -4,7 +4,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 import configparser
 import logging
 
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import gc
 import platform
