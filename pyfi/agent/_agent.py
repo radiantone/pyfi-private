@@ -289,7 +289,6 @@ class DeploymentMonitor(MonitorPlugin):
                     myprocessor = mydeployment.processor
                     logging.info("MYPROCESSOR %s",myprocessor)
                     logging.info("PROCESSORS %s",self.processors)
-                    '''
                     #self.database.session.refresh(
                     #    myprocessor
                     #)  # Might not be needed
@@ -322,6 +321,7 @@ class DeploymentMonitor(MonitorPlugin):
                             logging.info("Added processor %s", myprocessor)
 
                     
+                    '''
                     for processor in self.processors:
                         pid = processor["processor"].id
                         processor["processor"] = (
