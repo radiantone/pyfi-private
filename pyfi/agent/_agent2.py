@@ -339,7 +339,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                 pass
 
                     
-                    worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     #
                     # Processor state events
@@ -381,7 +380,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
                                 logging.info(
-                                    "Killed worker %s", worker_id
+                                    "Killed worker"
                                 )
                             except:
                                 import traceback
@@ -405,7 +404,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             try:
                                 processor["worker"]["process"].suspend()
                                 logging.info(
-                                    "Paused worker %s", worker_id
+                                    "Paused worker"
                                 )
                             except:
                                 import traceback
@@ -430,7 +429,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             try:
                                 processor["worker"]["process"].resume()
                                 logging.info(
-                                    "Paused worker %s", worker_id
+                                    "Paused worker"
                                 )
                             except:
                                 import traceback
@@ -456,7 +455,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
                                 logging.info(
-                                    "Killed worker %s", worker_id
+                                    "Killed worker"
                                 )
                             except:
                                 import traceback
