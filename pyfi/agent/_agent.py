@@ -298,10 +298,10 @@ class DeploymentMonitor(MonitorPlugin):
                     # If I don't already have this processor deployment
                     found = False
                     for processor in self.processors:
-                        session.merge(myprocessor)
-                        session.merge(processor["processor"])
-                        session.add(myprocessor)
-                        session.refresh(myprocessor)
+                        #session.merge(myprocessor)
+                        #session.merge(processor["processor"])
+                        #session.add(myprocessor)
+                        #session.refresh(myprocessor)
                         processor["processor"] = (
                             session.query(ProcessorModel)
                                 .filter_by(
@@ -321,6 +321,7 @@ class DeploymentMonitor(MonitorPlugin):
                             logging.info("Added processor %s", myprocessor)
 
                     
+                    # This block looks at the processors and creates a worker if needed
                     '''
                     for processor in self.processors:
                         pid = processor["processor"].id
