@@ -526,9 +526,9 @@ class WorkerService:
             while True:
                 with self.get_session(self.database) as session:
                     processor = (
-                        session.query(ProcessorModel)
+                        session.query(ProcessorModel).with_for_update()
                             .filter_by(id=self.processor.id)
-                            .with_for_update().first()
+                            .first()
                     )
                     # snapshot=tracemalloc.take_snapshot()
                     # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
