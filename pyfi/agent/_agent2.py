@@ -545,6 +545,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     hostname=self.agent_service.name,
                                     requested_status="start",
                                 )
+                                session.add(worker_model)
 
                             processor["deployment"].worker = worker_model
                             worker_model.lastupdated = datetime.now()
