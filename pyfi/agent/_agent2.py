@@ -724,45 +724,45 @@ class AgentMonitorPlugin(AgentPlugin):
 
             logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
 
-            def monitor_processors():
-                import sched
-                from datetime import datetime
+        def monitor_processors():
+            import sched
+            from datetime import datetime
 
-                processor_workers = []
+            processor_workers = []
 
-                """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
-                as their data objects change state. This includes managing the workers and deployments """
+            """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
+            as their data objects change state. This includes managing the workers and deployments """
 
-                logger.info("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
+            logger.info("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
 
-                process = psutil.Process(os.getpid())
-                
-                with get_session() as _session:
-                    # Put all the work here
-                    agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
-                    # DeploymentMonitor
-                    logging.info("Invoking deployment_monitor")
-                    self.deployment_monitor(agent, _session)
-
-
-                # ProcessorMonitor
+            process = psutil.Process(os.getpid())
+            
+            with get_session() as _session:
+                # Put all the work here
+                agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
+                # DeploymentMonitor
+                logging.info("Invoking deployment_monitor")
+                self.deployment_monitor(agent, _session)
 
 
-
-                # NodeMonitor
-
-
-                gc.collect()
+            # ProcessorMonitor
 
 
-            #self.process = process = Process(target=monitor_processors, daemon=True)
-            #process.start()
-            while True:
-                import time
-                monitor_processors()
-                time.sleep(3)
 
-            logger.debug("[AgentMonitorPlugin] Startup Complete")
+            # NodeMonitor
+
+
+            gc.collect()
+
+
+        #self.process = process = Process(target=monitor_processors, daemon=True)
+        #process.start()
+        while True:
+            import time
+            monitor_processors()
+            time.sleep(3)
+
+        logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
         return self.process.join()
