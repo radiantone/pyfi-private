@@ -169,13 +169,14 @@ class ProcessorMonitor(MonitorPlugin):
                 for processor in processors:
                     session.merge(processor["processor"])
                     
+                    logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
                     processor["processor"] = (
                         session.query(ProcessorModel)
                             .filter_by(
                             id=processor["processor"].id
-                        )
-                            .first()
+                        ).first()
                     )
+                    logging.info("GOT PROCESSOR %s",processor["processor"])
                     #session.add(processor["processor"])
                     #session.refresh(processor["processor"])
                     # Check if I already have a deployment
