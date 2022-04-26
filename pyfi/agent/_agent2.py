@@ -768,15 +768,13 @@ class AgentMonitorPlugin(AgentPlugin):
 
             process = psutil.Process(os.getpid())
             
-            _session = sessionmaker(bind=engine)()
-            # Put all the work here
-            agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
-            # DeploymentMonitor
-            logging.info("Invoking deployment_monitor")
-            self.deployment_monitor(agent, _session)
-            session.commit()
-            session.expunge_all()
-            session.close()
+            with get_session() as _session:
+                # Put all the work here
+                agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
+                # DeploymentMonitor
+                logging.info("Invoking deployment_monitor")
+                self.deployment_monitor(agent, _session)
+
 
 
             # ProcessorMonitor
