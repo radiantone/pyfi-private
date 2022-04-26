@@ -247,8 +247,6 @@ class WorkerMonitor(MonitorPlugin):
 class DeploymentMonitor(MonitorPlugin):
     """ Monitor deployment records for this agent and deploy workers as needed """
     agent_service : AgentService
-    processors = []
-    workers = []
 
     lock = Condition()
 
@@ -257,6 +255,9 @@ class DeploymentMonitor(MonitorPlugin):
         self.agent_service = agent_service
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
+
+        processors = []
+        workers = []
 
         logger.debug("[DeploymentMonitor] Monitor")
 
@@ -288,7 +289,7 @@ class DeploymentMonitor(MonitorPlugin):
                 try:
                     myprocessor = mydeployment.processor
                     logging.info("MYPROCESSOR %s",myprocessor)
-                    logging.info("PROCESSORS %s",self.processors)
+                    logging.info("PROCESSORS %s",processors)
                     #self.database.session.refresh(
                     #    myprocessor
                     #)  # Might not be needed
@@ -297,7 +298,7 @@ class DeploymentMonitor(MonitorPlugin):
 
                     # If I don't already have this processor deployment
                     found = False
-                    for processor in self.processors:
+                    for processor in processors:
                         session.merge(myprocessor)
                         session.merge(processor["processor"], load=True)
                         #session.add(myprocessor)
@@ -316,7 +317,7 @@ class DeploymentMonitor(MonitorPlugin):
 
                     if not found:
                         # If this is a new processor, add it to cache
-                            self.processors += [
+                            processors += [
                                 {"worker": None, "processor": myprocessor}
                             ]
                             logging.info("Added processor %s", myprocessor)
