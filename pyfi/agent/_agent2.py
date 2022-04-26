@@ -271,14 +271,10 @@ class AgentMonitorPlugin(AgentPlugin):
                 # If I don't already have this processor deployment
                 found = False
                 for processor in self.processors:
-                    session.merge(myprocessor)
-                    session.merge(processor["processor"], load=True)
-                    #session.add(myprocessor)
-                    #session.refresh(myprocessor)
                     processor["processor"] = (
                         session.query(ProcessorModel)
                             .filter_by(
-                            id=processor["processor"].id
+                            id=processor["id"]
                         ).first()
                     )
                     session.refresh(processor["processor"])
@@ -290,7 +286,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 if not found:
                     # If this is a new processor, add it to cache
                         self.processors += [
-                            {"worker": None, "processor": myprocessor}
+                            {"worker": None, "processor": myprocessor, "id": myprocessor.id}
                         ]
                         logging.info("Added processor %s", myprocessor)
 
@@ -298,7 +294,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 # This block looks at the processors and creates a worker if needed
                 
                 for processor in self.processors:
-                    pid = processor["processor"].id
+                    pid = processor["id"]
                     processor["processor"] = (
                         session.query(ProcessorModel)
                             .filter_by(
@@ -766,7 +762,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 import time
                 monitor_processors()
                 time.sleep(3)
-                
+
             logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
