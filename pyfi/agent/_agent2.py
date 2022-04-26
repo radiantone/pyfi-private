@@ -304,7 +304,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         "Processor.requested_status START %s",
                         processor["processor"].requested_status,
                     )
-                    logger.debug("[WORKER] is %s",processor["worker"])
+                    logger.info("[WORKER] is %s",processor["worker"])
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     if processor["processor"].requested_status == "removed":
@@ -546,6 +546,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     requested_status="start",
                                 )
                                 session.add(worker_model)
+                                session.commit()
 
                             processor["deployment"].worker = worker_model
                             worker_model.lastupdated = datetime.now()
