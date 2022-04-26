@@ -146,99 +146,97 @@ class ProcessorMonitor(MonitorPlugin):
         logger.debug("[ProcessorMonitor] Create")
         self.agent_service = agent_service
 
-    def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker,  agent: AgentModel, processors: list, deployments: list, session=None):
         from datetime import datetime
         from uuid import uuid4
 
         logger.debug("[ProcessorMonitor] Monitor")
 
-        with get_session(expire_on_commit=False) as session:
+        logger.info("Processors %s",processors)
+        mydeployments = (
+            session.query(DeploymentModel)
+                .filter_by(hostname=agent.hostname)
+                .all()
+        )
+        if 'AgentMonitorPlugin' in self.agent_service.plugins and \
+        'DeploymentMonitor' in self.agent_service.plugins['AgentMonitorPlugin'].monitors:
+            lock = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].lock
+            logger.debug("[ProcessorMonitor] Acquiring lock ")
+            lock.acquire()
+            logger.debug("[ProcessorMonitor] Got lock ")
+            try:
+                processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].get_processors()
+                
+                for processor in processors:
+                    session.merge(processor["processor"], load=True)
+                    '''
+                    logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
+                    processor["processor"] = (
+                        session.query(ProcessorModel)
+                            .filter_by(
+                            id=processor["processor"].id
+                        ).first()
+                    )
+                    logging.info("GOT PROCESSOR %s",processor["processor"])
+                    '''
+                    #session.add(processor["processor"])
+                    #session.refresh(processor["processor"])
+                    # Check if I already have a deployment
+                    found = False
+                    for deployment in mydeployments:
+                        logger.info("[ProcessorMonitor] Deployment %s %s %s", processor["processor"].name, processor["processor"], deployment.processor)
+                        if deployment.processor.id == processor["processor"].id:
+                            found = True
+                            break
 
-            logger.info("Processors %s",processors)
-            mydeployments = (
-                session.query(DeploymentModel)
-                    .filter_by(hostname=agent.hostname)
-                    .all()
-            )
-            if 'AgentMonitorPlugin' in self.agent_service.plugins and \
-            'DeploymentMonitor' in self.agent_service.plugins['AgentMonitorPlugin'].monitors:
-                lock = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].lock
-                logger.debug("[ProcessorMonitor] Acquiring lock ")
-                lock.acquire()
-                logger.debug("[ProcessorMonitor] Got lock ")
-                try:
-                    processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].get_processors()
-                    
-                    for processor in processors:
-                        session.merge(processor["processor"], load=True)
-                        '''
-                        logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
-                        processor["processor"] = (
-                            session.query(ProcessorModel)
-                                .filter_by(
-                                id=processor["processor"].id
-                            ).first()
-                        )
-                        logging.info("GOT PROCESSOR %s",processor["processor"])
-                        '''
-                        #session.add(processor["processor"])
-                        #session.refresh(processor["processor"])
-                        # Check if I already have a deployment
-                        found = False
-                        for deployment in mydeployments:
-                            logger.info("[ProcessorMonitor] Deployment %s %s %s", processor["processor"].name, processor["processor"], deployment.processor)
-                            if deployment.processor.id == processor["processor"].id:
-                                found = True
-                                break
+                    agent_cwd = os.environ["AGENT_CWD"]
 
-                        agent_cwd = os.environ["AGENT_CWD"]
+                    # If I have no deployment for the current processor, undeploy it
+                    if not found:
+                        logger.info("Processor no longer deployed")
 
-                        # If I have no deployment for the current processor, undeploy it
-                        if not found:
-                            logger.info("Processor no longer deployed")
-
-                            if processor["worker"] is not None:
-                                logging.info(
-                                    f"Killing processor {processor['processor'].name}."
+                        if processor["worker"] is not None:
+                            logging.info(
+                                f"Killing processor {processor['processor'].name}."
+                            )
+                            processor["worker"]["process"].kill()
+                            processor["worker"] = None
+                            processors.remove(processor)
+                            logging.info(
+                                "Removed processor {} from list.".format(
+                                    processor["processor"].name
                                 )
-                                processor["worker"]["process"].kill()
-                                processor["worker"] = None
-                                processors.remove(processor)
-                                logging.info(
-                                    "Removed processor {} from list.".format(
-                                        processor["processor"].name
+                            )
+
+                            if os.path.exists(
+                                    f"{agent_cwd}/{processor['processor'].name}.pid"
+                            ):
+                                import docker
+
+                                with open(
+                                        f"{agent_cwd}/{processor['processor'].name}.pid",
+                                        "r",
+                                ) as pidfile:
+                                    container_id = pidfile.read()
+                                    client = docker.from_env()
+                                    container = client.containers.get(
+                                        container_id.strip()
                                     )
-                                )
+                                    logging.info(
+                                        f"Killing worker container {container_id}"
+                                    )
+                                    container.kill()
 
-                                if os.path.exists(
-                                        f"{agent_cwd}/{processor['processor'].name}.pid"
-                                ):
-                                    import docker
-
-                                    with open(
-                                            f"{agent_cwd}/{processor['processor'].name}.pid",
-                                            "r",
-                                    ) as pidfile:
-                                        container_id = pidfile.read()
-                                        client = docker.from_env()
-                                        container = client.containers.get(
-                                            container_id.strip()
-                                        )
-                                        logging.info(
-                                            f"Killing worker container {container_id}"
-                                        )
-                                        container.kill()
-
-                finally:
-                    lock.release()
-                    logger.debug("[ProcessorMonitor] Freed lock ")
+            finally:
+                lock.release()
+                logger.debug("[ProcessorMonitor] Freed lock ")
 
 class WorkerMonitor(MonitorPlugin):
     """ Monitor list of workers under this agent """
     def __init__(self):
         logger.debug("[WorkerMonitor] Create")
 
-    def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list, session=None):
         logger.debug("[WorkerMonitor] Monitor")
 
         if session:
@@ -274,7 +272,7 @@ class DeploymentMonitor(MonitorPlugin):
 
         return processors
 
-    def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list):
 
         self.hostname = agent.hostname
         processors = []
@@ -761,7 +759,7 @@ class NodeMonitor(MonitorPlugin):
     def __init__(self):
         logger.debug("[NodeMonitor] Create")
 
-    def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
+    def monitor(self, session: sessionmaker, agent: AgentModel, processors: list, deployments: list, session=None):
         from datetime import datetime
         import psutil
 
@@ -891,26 +889,25 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.debug("[AgentMonitorPlugin] Creating")
         self.scheduler = sched.scheduler(time.time, time.sleep)
 
-    def start(self, agent_service: AgentService, **kwargs):
+    def start(self, session: sessionmaker, agent_service: AgentService, **kwargs):
         from billiard.context import Process
         logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
         self.kwargs = kwargs
-        
-        with get_session() as session:
-            agent = (
-                session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+    
+        agent = (
+            session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+        )
+        if agent is None:
+            agent = AgentModel(
+                hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
             )
-            if agent is None:
-                agent = AgentModel(
-                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
-                )
 
-            agent.pid = os.getpid()
-            agent.requested_status = "starting"
-            agent.status = "starting"
-            agent.cpus = self.kwargs['cpus']
+        agent.pid = os.getpid()
+        agent.requested_status = "starting"
+        agent.status = "starting"
+        agent.cpus = self.kwargs['cpus']
 
-            logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
+        logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
         # Create a list of pluggable "Monitor" objects that perform various independent tasks
         monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service), NodeMonitor()] #, DeploymentMonitor(agent_service), NodeMonitor()]
 
@@ -990,7 +987,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     # Get deployments for this host
                     deployments = []
 
-                    [monitor.monitor(agent, processors, deployments) for monitor in monitors]
+                    [monitor.monitor(session, agent, processors, deployments) for monitor in monitors]
 
                     gc.collect()
 
@@ -1001,7 +998,6 @@ class AgentMonitorPlugin(AgentPlugin):
                     argument=(monitors,),
                     kwargs=kwargs
                 )
-
 
 
             self.scheduler.enter(
