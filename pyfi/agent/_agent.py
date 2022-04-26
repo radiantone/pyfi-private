@@ -298,8 +298,8 @@ class DeploymentMonitor(MonitorPlugin):
                 for processor in self.processors:
                     session.merge(myprocessor)
                     session.merge(processor["processor"])
-                    session.add(myprocessor)
-                    session.refresh(myprocessor)
+                    #session.add(myprocessor)
+                    #session.refresh(myprocessor)
                     processor["processor"] = (
                         session.query(ProcessorModel)
                             .filter_by(
