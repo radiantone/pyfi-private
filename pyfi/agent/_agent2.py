@@ -246,6 +246,7 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.debug("[AgentMonitorPlugin] Creating")
         self.scheduler = sched.scheduler(time.time, time.sleep)
         self.processors = []
+        self.agent_service = None
 
     def deployment_monitor(self, agent, session):
         logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
@@ -710,7 +711,8 @@ class AgentMonitorPlugin(AgentPlugin):
         from billiard.context import Process
         logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
         self.kwargs = kwargs
-    
+        self.agent_service = agent_service
+        
         with get_session() as session:
             agent = (
                 session.query(AgentModel).filter_by(hostname=agent_service.name).first()
