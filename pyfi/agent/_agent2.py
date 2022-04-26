@@ -747,7 +747,8 @@ class AgentMonitorPlugin(AgentPlugin):
                         # Put all the work here
                         agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
                         # DeploymentMonitor
-                        self.deployment_monitor(agent, _session)
+                        logging.info("Invoking deployment_monitor")
+                        #self.deployment_monitor(agent, _session)
 
 
                     # ProcessorMonitor
