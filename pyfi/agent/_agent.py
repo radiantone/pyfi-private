@@ -167,7 +167,7 @@ class ProcessorMonitor(MonitorPlugin):
                 lock.acquire()
                 logger.debug("[ProcessorMonitor] Got lock ")
                 try:
-                    processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].processors
+                    processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].get_processors()
                     
                     for processor in processors:
                         session.merge(processor["processor"], load=True)
@@ -253,6 +253,21 @@ class DeploymentMonitor(MonitorPlugin):
     def __init__(self, agent_service : AgentService):
         logger.debug("[DeploymentMonitor] Create")
         self.agent_service = agent_service
+
+    def get_processors():
+        processors = []
+        with get_session(expire_on_commit=False) as session:
+            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            mydeployments = (
+                session.query(DeploymentModel)
+                    .filter_by(hostname=agent.hostname)
+                    .all()
+            )
+
+            for deployment in mydeployments:
+                processors += [{'processor':deployment.processor}]
+
+        return processors
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
 
