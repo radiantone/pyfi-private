@@ -560,6 +560,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             agent.workers += [worker_model]
 
                             logging.info("Worker %s created.", worker_model.id)
+                            session.commit()
 
                         if processor["worker"] is None or process_died:
                             # If there is no worker Process create it
@@ -687,7 +688,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         workerproc,
                                     )
 
-                                    #self.workers += [worker]
+                                    self.workers += [worker]
 
                                     logging.info(
                                         "-------------------------------------------------------"
@@ -698,6 +699,8 @@ class AgentMonitorPlugin(AgentPlugin):
 
                         session.add(processor["processor"])
                         session.refresh(processor["processor"])
+
+                        session.commit()
                 
             finally:
                 pass
