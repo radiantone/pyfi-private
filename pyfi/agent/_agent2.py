@@ -276,7 +276,6 @@ class AgentMonitorPlugin(AgentPlugin):
                     """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
                     as their data objects change state. This includes managing the workers and deployments """
 
-                    logger.debug("[AgentMonitorPlugin] main_loop run %s %s", monitors, kwargs)
                     logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
 
                     process = psutil.Process(os.getpid())
