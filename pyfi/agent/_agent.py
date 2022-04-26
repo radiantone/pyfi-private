@@ -82,8 +82,8 @@ def get_session(**kwargs):
         raise
     else:
         pass
-        #logger.debug("get_session: Commit session")
-        #session.commit()
+        logger.debug("get_session: Commit session")
+        session.commit()
     finally:
         logger.debug("get_session: Closing session")
         session.expunge_all()
