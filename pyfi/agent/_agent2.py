@@ -292,8 +292,12 @@ class AgentMonitorPlugin(AgentPlugin):
                         logging.info("Added processor %s", myprocessor)
 
                 # This block looks at the processors and creates a worker if needed
-                '''
+                
                 for processor in self.processors:
+
+                    #
+                    # Update processor
+                    #
                     pid = processor["id"]
                     processor["processor"] = (
                         session.query(ProcessorModel)
@@ -312,6 +316,9 @@ class AgentMonitorPlugin(AgentPlugin):
                         
                     process_died = False
 
+                    #
+                    # Update worker model
+                    #
                     if "worker.id" in processor:
                         processor["worker"]["model"] = (
                             session.query(ProcessorModel)
@@ -324,6 +331,10 @@ class AgentMonitorPlugin(AgentPlugin):
                         session.add(processor["worker"]["model"])
                         
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
+
+                    #
+                    # Processor state events
+                    #
 
                     if processor["processor"].requested_status == "removed":
                         if processor["worker"] is not None:
@@ -466,6 +477,9 @@ class AgentMonitorPlugin(AgentPlugin):
                     or if processor worker is None, restart it (e.g. on startup)
                     """
                     
+                    #
+                    # Check if worker is alive
+                    #
                     if "worker" in processor:
                         try:
                             # process_died = not processor['worker']['wprocess'].is_alive()
@@ -492,6 +506,9 @@ class AgentMonitorPlugin(AgentPlugin):
                     if process_died:
                         logging.error("Process died!")
 
+                    #
+                    # If no worker or the process died, (re)start it
+                    #
                     if (
                             processor["processor"].requested_status == "start"
                             or (
@@ -506,7 +523,6 @@ class AgentMonitorPlugin(AgentPlugin):
                             and processor["processor"].requested_status != "stopped"
                     )
                     ):
-
                         logging.debug("process_died %s", process_died)
                         logging.debug("processor[\"worker\"] %s", processor["worker"])
                         logging.debug("processor[\"processor\"].requested_status %s", processor["processor"].requested_status)
@@ -527,12 +543,9 @@ class AgentMonitorPlugin(AgentPlugin):
                             session.refresh(processor["deployment"])
                             print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
-                        """
-                        TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
-                        This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
-                        Once a WorkerModel has been created with all the details, spawn `pyfi worker start` FROM the virtualenv after the gitrepo setup.py has been
-                        installed.
-                        """
+                        #
+                        # If there is a deployment, but no worker
+                        #
                         if (
                                 "deployment" in processor
                                 and processor["deployment"].worker is None
@@ -540,7 +553,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             """If there is no worker model, create one and link to Processor"""
 
                             logging.info("WORKER IS NONE. CORRECTING")
-                            # TODO: Not sure this is needed since worker now puts worker model row in database
+                            
                             worker_model = (
                                 session.query(WorkerModel)
                                     .filter_by(
@@ -573,6 +586,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 session.add(worker_model)
                                 session.commit()
 
+                            # Attach worker model to deployment
                             processor["deployment"].worker = worker_model
                             worker_model.lastupdated = datetime.now()
                             worker_model.status = "running"
@@ -580,10 +594,15 @@ class AgentMonitorPlugin(AgentPlugin):
                             
                             session.add(agent)
                             session.add(worker_model)
+
                             logging.info("Worker model is %s", worker_model)
                             logging.info(
                                 "Agent worker is %s", agent.worker
                             )
+
+                            #
+                            # Attach worker to agent
+                            #
                             agent.workers += [worker_model]
 
                             logging.info("Worker %s created.", worker_model.id)
@@ -610,6 +629,9 @@ class AgentMonitorPlugin(AgentPlugin):
                             except:
                                 pass
                             
+                            #
+                            # For all my deployments, update processor deployment and create WorkerService
+                            #
                             for deployment in processor["processor"].deployments:
                                 logger.info("Worker is none %s and died %s",processor["worker"] is None, process_died)
                                 logging.info("Deployment worker %s", deployment)
@@ -724,12 +746,12 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["processor"].requested_status = "ready"
                         processor["processor"].status = "running"
 
-                        session.add(processor["processor"])
-                        session.refresh(processor["processor"])
+                        #session.add(processor["processor"])
+                        #session.refresh(processor["processor"])
 
-                        session.commit()
+                        #session.commit()
                 
-                '''
+                
             finally:
                 pass
 
