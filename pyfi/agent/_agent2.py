@@ -319,6 +319,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     #
                     # Update worker model
                     #
+                    '''
                     if "worker.id" in processor:
                         processor["worker"]["model"] = (
                             session.query(ProcessorModel)
@@ -326,7 +327,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 id=processor["worker.id"]
                             ).first()
                         )
-
+                    '''
                         
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
