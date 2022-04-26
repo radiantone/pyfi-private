@@ -522,6 +522,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                         if "deployment" in processor:
                             print("DEPLOYMENT",processor["deployment"])
+                            session.refresh(processor["deployment"])
                             print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
                         """
@@ -765,6 +766,7 @@ class AgentMonitorPlugin(AgentPlugin):
             process = psutil.Process(os.getpid())
             
             with get_session() as _session:
+                _session.expunge_all()
                 # Put all the work here
                 agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
                 # DeploymentMonitor
