@@ -333,7 +333,10 @@ class AgentMonitorPlugin(AgentPlugin):
                         try:
                             session.refresh(processor["worker"]["model"])
                         except:
-                            session.add(processor["worker"]["model"])
+                            try:
+                                session.add(processor["worker"]["model"])
+                            except:
+                                pass
 
                     print("WORKER",processor["worker"])
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
