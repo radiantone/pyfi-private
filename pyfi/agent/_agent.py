@@ -170,6 +170,8 @@ class ProcessorMonitor(MonitorPlugin):
                     processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].processors
                     
                     for processor in processors:
+
+                        logging.info("GOT PROCESSOR %s",processor)
                         session.merge(processor["processor"])
                         session.merge(processor["processor"])
                         
@@ -179,7 +181,6 @@ class ProcessorMonitor(MonitorPlugin):
                                 id=processor["processor"].id
                             ).first()
                         )
-                        logging.info("GOT PROCESSOR %s",processor["processor"])
                         #session.add(processor["processor"])
                         #session.refresh(processor["processor"])
                         # Check if I already have a deployment
