@@ -304,7 +304,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         "Processor.requested_status START %s",
                         processor["processor"].requested_status,
                     )
-                    logger.info("[WORKER] is %s",processor["worker"])
+                    logger.info("[PROCESSOR] is %s",processor)
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     if processor["processor"].requested_status == "removed":
