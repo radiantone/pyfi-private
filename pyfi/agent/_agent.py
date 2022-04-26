@@ -883,7 +883,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
             logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
         # Create a list of pluggable "Monitor" objects that perform various independent tasks
-        monitors = [ProcessorMonitor(agent_service)] #, DeploymentMonitor(agent_service), NodeMonitor()]
+        monitors = [ProcessorMonitor(agent_service), DeploymentMonitor(agent_service)] #, DeploymentMonitor(agent_service), NodeMonitor()]
 
         for monitor in monitors:
             self.monitors[monitor.__class__.__name__] = monitor
