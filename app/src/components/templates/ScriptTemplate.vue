@@ -1082,7 +1082,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 615px;
+          height: 700px;
         "
       >
       <q-tabs
@@ -1142,10 +1142,12 @@
               filled
               v-model="obj.git"
               hint="GIT Repository"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
+            />
+
+            <q-input
+              filled
+              v-model="obj.commit"
+              hint="Commit Hash"
             />
             <q-input
               filled
@@ -2226,6 +2228,7 @@ export default {
         cron:"* * * * *",
         useschedule: false,
         disabled: false,
+        commit: "",
         git:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
         columns: [],
