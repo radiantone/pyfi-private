@@ -308,6 +308,7 @@ class DeploymentMonitor(MonitorPlugin):
                                 id=processor["processor"].id
                             ).first()
                         )
+                        session.refresh(processor["processor"])
                         if processor["processor"].id == myprocessor.id:
                             # If I already have it in my cache, update it
                             processor["processor"] = myprocessor
