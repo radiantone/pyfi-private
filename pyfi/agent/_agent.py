@@ -168,6 +168,7 @@ class ProcessorMonitor(MonitorPlugin):
                 
                 for processor in processors:
                     session.merge(processor["processor"])
+                    session.refresh(processor["processor"])
                     
                     logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
                     processor["processor"] = (
@@ -186,9 +187,6 @@ class ProcessorMonitor(MonitorPlugin):
                         if deployment.processor.id == processor["processor"].id:
                             found = True
                             break
-                        import time
-                        print("Sleeping")
-                        time.sleep(10)
 
                     agent_cwd = os.environ["AGENT_CWD"]
 
@@ -297,6 +295,8 @@ class DeploymentMonitor(MonitorPlugin):
                     for processor in self.processors:
                         session.merge(myprocessor)
                         session.merge(processor["processor"])
+                        session.refresh(myprocessor)
+                        session.refresh(processor["processor"])
                         if processor["processor"].id == myprocessor.id:
                             # If I already have it in my cache, update it
                             processor["processor"] = myprocessor

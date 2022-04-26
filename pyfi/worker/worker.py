@@ -544,9 +544,6 @@ class WorkerService:
                     _plugs = {}
 
                     logging.info("DBACTION: Processor %s", processor)
-                    import time
-                    logging.info("Sleeping...")
-                    time.sleep(10)
                     logging.info(
                         "Checking main_queue[%s] with %s items",
                         self.size,
