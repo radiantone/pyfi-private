@@ -299,8 +299,12 @@ class DeploymentMonitor(MonitorPlugin):
                         session.merge(processor["processor"])
                         session.add(myprocessor)
                         session.refresh(myprocessor)
-                        session.merge(processor["processor"])
-                        session.refresh(processor["processor"])
+                        processor["processor"] = (
+                            session.query(ProcessorModel)
+                                .filter_by(
+                                id=processor["processor"].id
+                            ).first()
+                        )
                         if processor["processor"].id == myprocessor.id:
                             # If I already have it in my cache, update it
                             processor["processor"] = myprocessor
