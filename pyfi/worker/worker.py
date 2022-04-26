@@ -245,7 +245,27 @@ class WorkerService:
     container = None
 
     @contextmanager
-    def get_session(self, engine):
+    def get_session(engine, **kwargs):
+        logging.debug("get_session: Creating session")
+        session = sessionmaker(bind=engine, **kwargs)() #expire_on_commit=False
+
+        try:
+            logging.debug("get_session: Yielding session")
+            yield session
+        except:
+            logging.debug("get_session: Rollback session")
+            session.rollback()
+            raise
+        else:
+            logging.debug("get_session: Commit session")
+            session.commit()
+        finally:
+            logging.debug("get_session: Closing session")
+            session.expunge_all()
+            session.close()
+            gc.collect()
+
+    def get_session2(self, engine):
         """Creates a context with an open SQLAlchemy session."""
         logging.info("Connecting DB")
         connection = engine.connect()
