@@ -329,8 +329,9 @@ class AgentMonitorPlugin(AgentPlugin):
                         )
                     '''
                     if processor["worker"]["model"]:
+                        print("WORKER MODEL",processor["worker"]["model"])
                         session.refresh(processor["worker"]["model"])
-                        
+
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     #
