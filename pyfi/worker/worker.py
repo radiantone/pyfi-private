@@ -427,7 +427,8 @@ class WorkerService:
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
-            logging.info("Attached worker to deployment and processor...")
+            session.refresh(_processor)
+            logging.info("Attached worker to deployment and processor...%s",_processor)
             session.commit()
             logging.info("Attached worker: Done")
 
