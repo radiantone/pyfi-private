@@ -257,10 +257,10 @@ class DeploymentMonitor(MonitorPlugin):
     def get_processors(self):
         processors = []
         with get_session(expire_on_commit=False) as session:
-            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            logger.debug("[DeploymentMonitor] Getting deployments %s",self.agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
-                    .filter_by(hostname=agent.hostname)
+                    .filter_by(hostname=self.agent.hostname)
                     .all()
             )
 
@@ -271,6 +271,7 @@ class DeploymentMonitor(MonitorPlugin):
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
 
+        self.agent = agent
         processors = []
         workers = []
 
