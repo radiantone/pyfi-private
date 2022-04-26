@@ -307,7 +307,8 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if "model" in processor:
                         logger.info("[PROCESSOR KEYS] is %s %s",processor["model"], processor.keys())
-
+                        
+                    process_died = False
                     '''
                     if "worker.id" in processor:
                         processor["worker"]["model"] = (
@@ -316,7 +317,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 id=processor["worker.id"]
                             ).first()
                         )
-                    '''
+                    
                     if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
                         session.add(processor["worker"]["model"])
                         
@@ -462,7 +463,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     Otherwise, if processor requested state is 'update', then restart process
                     or if processor worker is None, restart it (e.g. on startup)
                     """
-                    process_died = False
+                    
                     if "worker" in processor:
                         try:
                             # process_died = not processor['worker']['wprocess'].is_alive()
@@ -488,6 +489,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if process_died:
                         logging.error("Process died!")
+                    '''
 
                     if (
                             processor["processor"].requested_status == "start"
@@ -518,6 +520,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"]["process"].kill()
                             processor["worker"] = None
 
+                        session.add(processor["deployment"])
                         """
                         TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
                         This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
@@ -530,6 +533,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         ):
                             """If there is no worker model, create one and link to Processor"""
 
+                            logging.info("WORKER IS NONE. CORRECTING")
                             # TODO: Not sure this is needed since worker now puts worker model row in database
                             worker_model = (
                                 session.query(WorkerModel)
