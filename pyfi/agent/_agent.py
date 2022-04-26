@@ -288,6 +288,7 @@ class DeploymentMonitor(MonitorPlugin):
                 try:
                     myprocessor = mydeployment.processor
                     logging.info("MYPROCESSOR %s",myprocessor)
+                    logging.info("PROCESSORS %s",self.processors)
                     '''
                     #self.database.session.refresh(
                     #    myprocessor
