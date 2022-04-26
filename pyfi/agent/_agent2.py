@@ -326,9 +326,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 id=processor["worker.id"]
                             ).first()
                         )
-                    
-                    if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
-                        session.add(processor["worker"]["model"])
+
                         
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
