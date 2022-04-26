@@ -261,7 +261,7 @@ class DeploymentMonitor(MonitorPlugin):
         with get_session(expire_on_commit=False) as session:
             if not self.agent:
                 return processors
-            session.merge(self.agent)
+            session.merge(self.agent, load=True)
             logger.debug("[DeploymentMonitor] Getting deployments %s",self.agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
