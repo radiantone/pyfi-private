@@ -338,7 +338,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             except:
                                 pass
 
-                    print("WORKER",processor["worker"])
+                    
                     worker_id = processor["worker"]["model"].id if "worker" in processor and processor["worker"] else None
 
                     #
