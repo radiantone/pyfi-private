@@ -290,7 +290,6 @@ class AgentMonitorPlugin(AgentPlugin):
                         ]
                         logging.info("Added processor %s", myprocessor)
 
-                
                 # This block looks at the processors and creates a worker if needed
                 
                 for processor in self.processors:
@@ -301,7 +300,12 @@ class AgentMonitorPlugin(AgentPlugin):
                             id=pid
                         ).first()
                     )
-
+                    processor["worker"]["model"] = (
+                        session.query(WorkerModel)
+                            .filter_by(
+                            id=processor["worker.id"]
+                        ).first()
+                    )
                     logging.debug(
                         "Processor.requested_status START %s",
                         processor["processor"].requested_status,
@@ -682,6 +686,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     worker["wprocess"] = wprocess
 
                                     processor["worker"] = worker
+                                    processor["worker.id"] = worker["model"].id
                                     print("**** PROCESS WORKER 2",processor["worker"])
                                     logging.info(
                                         "-----------------------workerproc is %s",
