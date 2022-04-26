@@ -776,8 +776,9 @@ class AgentMonitorPlugin(AgentPlugin):
 
                 self.scheduler.run()
 
-            self.process = process = Process(target=monitor_processors, daemon=True)
-            process.start()
+            #self.process = process = Process(target=monitor_processors, daemon=True)
+            #process.start()
+            monitor_processors()
             logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
