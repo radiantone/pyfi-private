@@ -171,7 +171,7 @@ class ProcessorMonitor(MonitorPlugin):
                     
                     for processor in processors:
                         session.merge(processor["processor"])
-                        session.merge(processor["processor"])
+                        session.add(processor["processor"])
                         session.refresh(processor["processor"])
                         '''
                         logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
@@ -300,8 +300,8 @@ class DeploymentMonitor(MonitorPlugin):
                     # If I don't already have this processor deployment
                     found = False
                     for processor in self.processors:
-                        #session.merge(myprocessor)
-                        #session.merge(processor["processor"])
+                        session.merge(myprocessor)
+                        session.merge(processor["processor"], load=True)
                         #session.add(myprocessor)
                         #session.refresh(myprocessor)
                         processor["processor"] = (
