@@ -526,7 +526,7 @@ class WorkerService:
             while True:
                 with self.get_session(self.database) as session:
                     processor = (
-                        session.query(ProcessorModel).with_for_update()
+                        session.query(ProcessorModel)
                             .filter_by(id=self.processor.id)
                             .first()
                     )
