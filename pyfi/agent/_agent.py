@@ -170,9 +170,7 @@ class ProcessorMonitor(MonitorPlugin):
                     processors = self.agent_service.plugins['AgentMonitorPlugin'].monitors['DeploymentMonitor'].processors
                     
                     for processor in processors:
-                        session.merge(processor["processor"])
-                        session.add(processor["processor"])
-                        session.refresh(processor["processor"])
+                        session.merge(processor["processor"], load=True)
                         '''
                         logging.info("QUERYING PROCESSOR ID %s",processor["processor"].id)
                         processor["processor"] = (
