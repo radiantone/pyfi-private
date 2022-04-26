@@ -247,7 +247,8 @@ class WorkerMonitor(MonitorPlugin):
 class DeploymentMonitor(MonitorPlugin):
     """ Monitor deployment records for this agent and deploy workers as needed """
     agent_service : AgentService
-
+    agent : AgentModel
+    
     lock = Condition()
 
     def __init__(self, agent_service : AgentService):
