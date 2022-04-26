@@ -258,6 +258,7 @@ class AgentMonitorPlugin(AgentPlugin):
         # Deploy new processors
         for mydeployment in mydeployments:
 
+            print("DEPLOYMENT.WORKER",mydeployment.worker)
             try:
                 myprocessor = mydeployment.processor
                 logging.info("MYPROCESSOR %s",myprocessor)
@@ -270,6 +271,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 # If I don't already have this processor deployment
                 found = False
                 for processor in self.processors:
+                    processor["deployment"] = mydeployment
                     processor["processor"] = (
                         session.query(ProcessorModel)
                             .filter_by(
@@ -520,9 +522,9 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"]["process"].kill()
                             processor["worker"] = None
 
+
                         if "deployment" in processor:
                             print("DEPLOYMENT",processor["deployment"])
-                            #session.add(processor["deployment"])
                             session.refresh(processor["deployment"])
                             print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
