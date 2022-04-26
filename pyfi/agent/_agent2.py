@@ -522,6 +522,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                         if "deployment" in processor:
                             print("DEPLOYMENT",processor["deployment"])
+                            session.merge(processor["deployment"])
                             print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
                         """
