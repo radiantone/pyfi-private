@@ -520,7 +520,9 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"]["process"].kill()
                             processor["worker"] = None
 
-                        session.add(processor["deployment"])
+                        if "deployment" in processor:
+                            session.add(processor["deployment"])
+                            
                         """
                         TODO: Separate out the worker process into `pyfi worker start --name <name>` so it can be run in its own virtualenv as a child process here
                         This will allow the gitrepo to be installed in the virtualenv for that processor and kept separate from this agent environment
