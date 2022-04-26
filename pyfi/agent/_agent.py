@@ -247,7 +247,6 @@ class WorkerMonitor(MonitorPlugin):
 class DeploymentMonitor(MonitorPlugin):
     """ Monitor deployment records for this agent and deploy workers as needed """
     agent_service : AgentService
-    hostname : string
 
     lock = Condition()
 
@@ -266,7 +265,7 @@ class DeploymentMonitor(MonitorPlugin):
             logger.debug("[DeploymentMonitor] Getting deployments %s",self.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
-                    .filter_by(hostname=hostname)
+                    .filter_by(hostname=self.hostname)
                     .all()
             )
 
