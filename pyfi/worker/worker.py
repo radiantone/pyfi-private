@@ -1214,7 +1214,7 @@ class WorkerService:
 
             with self.get_session(self.database) as session:
                 logging.info("Worker got session....")
-                session.refresh(self.processor)
+                #session.refresh(self.processor)
                 logging.info("Getting processor {}".format(self.processor.id))
                 task_queues = []
                 task_routes = {}

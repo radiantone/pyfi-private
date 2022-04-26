@@ -306,7 +306,14 @@ class DeploymentMonitor(MonitorPlugin):
                             logging.info("Added processor %s", myprocessor)
 
                     for processor in self.processors:
-                
+                        pid = processor["processor"].id
+                        processor["processor"] = (
+                            session.query(ProcessorModel)
+                                .filter_by(
+                                id=pid
+                            ).first()
+                        )
+
                         logging.debug(
                             "Processor.requested_status START %s",
                             processor["processor"].requested_status,
@@ -535,6 +542,8 @@ class DeploymentMonitor(MonitorPlugin):
                                 )
 
                                 if worker_model is None:
+                                    from uuid import uuid4
+
                                     logging.info("Creating worker model...")
                                     worker_model = WorkerModel(
                                         id=str(uuid4()),
