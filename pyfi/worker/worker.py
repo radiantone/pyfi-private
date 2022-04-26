@@ -524,13 +524,14 @@ class WorkerService:
             from datetime import datetime
 
             with self.get_session(self.database) as session:
-                processor = (
-                    session.query(ProcessorModel)
-                        .filter_by(id=self.processor.id)
-                        .first()
-                )
+
 
                 while True:
+                    processor = (
+                        session.query(ProcessorModel)
+                            .filter_by(id=self.processor.id)
+                            .with_for_update().first()
+                    )
                     # snapshot=tracemalloc.take_snapshot()
                     # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.info("top_current %s %s", i, stat)
