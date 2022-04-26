@@ -522,7 +522,6 @@ class AgentMonitorPlugin(AgentPlugin):
 
                         if "deployment" in processor:
                             print("DEPLOYMENT",processor["deployment"])
-                            session.add(processor["deployment"])
                             print("DEPLOYMENT.WORKER",processor["deployment"].worker)
 
                         """
