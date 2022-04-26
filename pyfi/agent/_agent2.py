@@ -292,7 +292,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         logging.info("Added processor %s", myprocessor)
 
                 # This block looks at the processors and creates a worker if needed
-                
+                '''
                 for processor in self.processors:
                     pid = processor["id"]
                     processor["processor"] = (
@@ -729,7 +729,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         session.refresh(processor["processor"])
 
                         session.commit()
-                
+                '''
             finally:
                 pass
 
