@@ -766,7 +766,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
             process = psutil.Process(os.getpid())
             
-            _session = sessionmaker(bind=engine, **kwargs)()
+            _session = sessionmaker(bind=engine)()
             # Put all the work here
             agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
             # DeploymentMonitor
