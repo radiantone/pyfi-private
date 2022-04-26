@@ -247,25 +247,26 @@ class WorkerMonitor(MonitorPlugin):
 class DeploymentMonitor(MonitorPlugin):
     """ Monitor deployment records for this agent and deploy workers as needed """
     agent_service : AgentService
-    agent : AgentModel
+    hostname : string
 
     lock = Condition()
 
     def __init__(self, agent_service : AgentService):
         logger.debug("[DeploymentMonitor] Create")
         self.agent_service = agent_service
-        self.agent = None
+        self.hostname = None
 
     def get_processors(self):
         processors = []
         with get_session(expire_on_commit=False) as session:
-            if not self.agent:
+
+            if not self.hostname:
                 return processors
-            session.merge(self.agent, load=True)
-            logger.debug("[DeploymentMonitor] Getting deployments %s",self.agent.hostname)
+
+            logger.debug("[DeploymentMonitor] Getting deployments %s",self.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
-                    .filter_by(hostname=self.agent.hostname)
+                    .filter_by(hostname=hostname)
                     .all()
             )
 
@@ -276,7 +277,7 @@ class DeploymentMonitor(MonitorPlugin):
 
     def monitor(self, agent: AgentModel, processors: list, deployments: list, session=None):
 
-        self.agent = agent
+        self.hostname = agent.hostname
         processors = []
         workers = []
 
