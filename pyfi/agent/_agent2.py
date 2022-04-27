@@ -116,6 +116,7 @@ def kill_containers():
                 os.remove(f"{agent_cwd}/containers.pid")
             except Exception as ex:
                 pass
+
 class AgentPlugin:
     pass
 
