@@ -415,7 +415,6 @@ export default {
     this.$root.$on('save.flow', this.saveFlowEvent);
   },
   methods: {
-    doOverwriteFlow() {},
     async saveFlow() {
       var me = this;
       this.loading = true;
@@ -603,28 +602,6 @@ export default {
           'There was an error synchronizing this view.'
         );
       }
-    },
-    editObject(object) {
-      this.$root.$emit('new.' + this.objecttype + '.dialog', {
-        obj: object,
-        mode: 'edit',
-        folder: this.foldername,
-      });
-    },
-    newObject() {
-      console.log('new.' + this.objecttype + '.dialog');
-      this.$root.$emit('new.' + this.objecttype + '.dialog', {
-        obj: {
-          name: '',
-          icon: this.icon,
-          description: '',
-          grouped: false,
-          type: this.objecttype,
-          notes: [],
-          properties: [],
-        },
-        folder: this.foldername,
-      });
     },
     navigate(folder) {
       this.foldername = folder;

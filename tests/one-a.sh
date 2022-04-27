@@ -11,3 +11,5 @@ bin/agents.sh
 # Add agents to scheduler
 # Create deployments
 bin/deploy.sh
+
+flow ls network -n network-1

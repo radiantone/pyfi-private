@@ -1082,7 +1082,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 700px;
+          height: 600px;
         "
       >
       <q-tabs
@@ -1113,6 +1113,7 @@
             <q-input
               filled
               v-model="obj.name"
+              dense
               hint="Processor Name"
               lazy-rules
               :rules="[
@@ -1123,6 +1124,7 @@
             <q-input
               filled
               v-model="obj.description"
+              dense
               hint="Processor Description"
               lazy-rules
               :rules="[
@@ -1132,6 +1134,7 @@
             <q-input
               filled
               v-model="obj.package"
+              dense
               hint="Processor Package"
               lazy-rules
               :rules="[
@@ -1140,18 +1143,23 @@
             />
             <q-input
               filled
+              dense
+              :disable="!obj.usegit"
               v-model="obj.git"
               hint="GIT Repository"
             />
 
             <q-input
               filled
+              dense
+              :disable="!obj.usegit"
               v-model="obj.commit"
               hint="Commit Hash"
             />
             <q-input
               filled
               v-model="obj.api"
+              dense
               hint="API Endpoint"
               lazy-rules
               :disable="!obj.endpoint"
@@ -1163,7 +1171,8 @@
             <q-toolbar>
               
               <q-space/>
-              <q-checkbox v-model="obj.container" label="Containerized" />
+              <q-checkbox v-model="obj.usegit" label="Use GIT" />
+              <q-checkbox v-model="obj.container" label="Containerized" style="margin-left: 40px;"/>
               <q-checkbox v-model="obj.enabled" label="Enabled" style="margin-left: 40px;"/>
               <q-checkbox
                 v-model="obj.endpoint"
@@ -2216,6 +2225,7 @@ export default {
         y: 0,
         requirements:'',
         container: false,
+        usegit: true,
         enabled: true,
         endpoint: false,
         api: '/api/processor',
