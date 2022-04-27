@@ -190,11 +190,13 @@ class AgentService:
         )
 
         if node is None:
+            logging.info("Creating NODE %s",HOSTNAME + ".node")
             node = NodeModel(
                 name=HOSTNAME + ".node", agent=self.agent, hostname=HOSTNAME
             )
             with self.get_session() as session:
                 session.add(node)
+                session.commit()
 
             self.database.session.refresh(node)
         else:

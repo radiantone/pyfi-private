@@ -119,7 +119,6 @@ def kill_containers():
 class AgentPlugin:
     pass
 
-
 class AgentService:
     dburi : str = "postgresql://postgres:postgres@" + HOSTNAME + ":5432/pyfi"
     port : int = 8003,
@@ -723,7 +722,10 @@ class AgentMonitorPlugin(AgentPlugin):
                                     deployment.worker.processor_id = processor[
                                         "processor"
                                     ].id
-                                    deployment.worker.agent = agent
+                                    try:
+                                        deployment.worker.agent = agent
+                                    except:
+                                        logging.info("deployment.worker.agent %s",deployment.worker.agent)
 
                                     logging.info(
                                         "-----------------------Worker process %s started.",
@@ -770,20 +772,27 @@ class AgentMonitorPlugin(AgentPlugin):
         self.agent_service = agent_service
 
         with get_session() as session:
-            agent = (
-                session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+            node = (
+                session.query(NodeModel).filter_by(name=agent_service.name+".agent.node").first()
             )
-            if agent is None:
-                agent = AgentModel(
-                    hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
+            if not node:
+                logging.error("No NODE by name %s",agent_service.name+".agent.node")
+            else:
+                agent = (
+                    session.query(AgentModel).filter_by(hostname=agent_service.name).first()
                 )
+                if agent is None:
+                    agent = AgentModel(
+                        hostname=agent_service.name, node_id=node.id, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
+                    )
+                    session.add(agent)
 
-            agent.pid = os.getpid()
-            agent.requested_status = "starting"
-            agent.status = "starting"
-            agent.cpus = self.kwargs['cpus']
+                agent.pid = os.getpid()
+                agent.requested_status = "starting"
+                agent.status = "starting"
+                agent.cpus = self.kwargs['cpus']
 
-            logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
+                logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
 
         def monitor_processors():
             import sched
@@ -800,7 +809,48 @@ class AgentMonitorPlugin(AgentPlugin):
             
             with get_session() as _session:
                 # Put all the work here
-                agent = (_session.query(AgentModel).filter_by(hostname=agent_service.name).first())
+                logging.info("Agent Service Name %s",agent_service.name)
+                logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
+                # Get or create Agent
+                agent = (
+                    session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+                )
+                # Get or create Node for this agent
+                if agent is None:
+                    agent = AgentModel(
+                        hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **self.kwargs
+                    )
+
+                if agent is None:
+                    logger.error("No agent present.")
+                    
+                    return
+
+                node = (
+                    session.query(NodeModel).filter_by(hostname=agent.hostname).first()
+                )
+                logging.info("NODE IS %s",node)
+                if node is None:
+                    node = NodeModel(
+                        name=agent.name + ".node", agent=agent, hostname=agent.hostname
+                    )
+                    
+                    session.add(node)
+                    session.commit()
+
+                node.cpus = CPUS
+                agent.node = node
+            
+                agent.status = "running"
+                #agent.cpus = node.cpus
+                #agent.port = self.port
+                agent.updated = datetime.now()
+
+                logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
+                logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
+                
+                logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
+
                 # DeploymentMonitor
                 logging.debug("Invoking deployment_monitor")
                 self.deployment_monitor(agent, _session)

@@ -2150,7 +2150,7 @@ def update_socket(context, name, queue, interval, procid, procname, task):
         socket.interval = int(interval)
 
     context.obj["database"].session.commit()
-    
+
     return
 
 
@@ -3072,14 +3072,14 @@ def ls_network(context, name, horizontal, vertical, condensed=True):
     if horizontal or vertical:
         condensed = False
 
-    network = (
-        context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
-    )
+    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
 
     _root = Node("PYFI")
     root = Node(name, _root)
+    print("NETWORK",network)
     if condensed:
         print("network::" + name)
+
     for node in network.nodes:
         node_node = Node("node::" + node.name, root)
         if condensed:
