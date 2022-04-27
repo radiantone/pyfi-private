@@ -855,8 +855,8 @@ class AgentMonitorPlugin(AgentPlugin):
                 logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
 
                 # DeploymentMonitor
-            logging.debug("Invoking deployment_monitor")
-            self.deployment_monitor(agent)
+                logging.debug("Invoking deployment_monitor")
+                self.deployment_monitor(agent)
 
 
 
