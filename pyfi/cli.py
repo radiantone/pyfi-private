@@ -3076,7 +3076,6 @@ def ls_network(context, name, horizontal, vertical, condensed=True):
 
     _root = Node("PYFI")
     root = Node(name, _root)
-    print("NETWORK",network)
     if condensed:
         print("network::" + name)
 
