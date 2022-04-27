@@ -867,13 +867,14 @@ class AgentMonitorPlugin(AgentPlugin):
             gc.collect()
 
 
-        #self.process = process = Process(target=monitor_processors, daemon=True)
-        #process.start()
-        while True:
-            import time
-            monitor_processors()
-            time.sleep(3)
 
+        def thread_loop():
+            while True:
+                import time
+                monitor_processors()
+                time.sleep(3)
+        self.process = process = Process(target=thread_loop, daemon=True)
+        process.start()
         logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
