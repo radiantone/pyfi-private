@@ -583,19 +583,23 @@ def add_node_to_network(context, name, node):
             .filter_by(name=name)
             .first()
     )
+    logging.debug("network is %s",network)
     node = (
         context.obj["database"]
             .session.query(NodeModel)
             .filter_by(name=node)
             .first()
     )
+    logging.debug("node is %s",node)
     if node is None:
         print(f"Node {node} not found.")
         return
 
     network.nodes += [node]
 
+    logging.debug("committing")
     context.obj["database"].session.commit()
+    logging.debug("committed")
     print(f"Node {node.name} added to network {network.name}")
 
 
