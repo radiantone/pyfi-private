@@ -810,7 +810,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
             process = psutil.Process(os.getpid())
             
-            with get_session() as _session:
+            with get_session() as session:
                 # Put all the work here
                 logging.info("Agent Service Name %s",agent_service.name)
                 logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
