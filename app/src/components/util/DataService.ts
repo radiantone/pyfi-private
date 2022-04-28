@@ -10,10 +10,10 @@ class DataService {
         return http.get('/api/files/'+collection+'/'+folder);
     }
 
-    newFile (collection: string, folder: string, fid: string, name: string, type: string, icon:string, file: string): Promise<any> {
+    newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string): Promise<any> {
         var path = encodeURI('/api/files/' + collection + '/' + folder);
 
-        var promise = http.post(path, { 'name': name, 'id': fid, 'file': file, 'type': type, 'icon': icon });
+        var promise = http.post(path, { 'saveas': saveas, 'name': name, 'id': fid, 'file': file, 'type': type, 'icon': icon });
         console.log(promise);
         return promise;
     }

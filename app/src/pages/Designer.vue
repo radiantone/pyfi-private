@@ -197,7 +197,16 @@
             content-style="font-size: 16px;"
             :offset="[10, 10]"
           >
-            Manual Save
+            Save Flow
+          </q-tooltip>
+        </q-btn>
+        <q-btn flat style="min-height: 45px;font-size:.8em" size="sm" :icon="this.saveAsIcon" @click="saveToFolder">
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px;"
+            :offset="[10, 10]"
+          >
+            Save to Current Folder
           </q-tooltip>
         </q-btn>
         <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload">
@@ -302,7 +311,7 @@
           <q-tab name="flows" class="text-dark" label="Flows" />
           <q-tab name="patterns" class="text-dark" label="Patterns" />
           <q-tab name="processors" class="text-dark" label="Processors" />
-          <q-tab name="monitor" class="text-dark" label="Monitor" />
+          <q-tab name="network" class="text-dark" label="Network" />
         </q-tabs>
 
         <q-tab-panels v-model="tab" keep-alive>
@@ -334,10 +343,12 @@
               :collection="'flows'"
               style="width: 100%;"
               ref="_flows"
+              :flowid="flowid"
             />
           </q-tab-panel>
-          <q-tab-panel name="monitor" ref="monitor">
-            <q-scroll-area style="height: calc(100vh - 250px);">
+          <q-tab-panel name="network" ref="network" style="padding:0px">
+            <LibraryTree/>
+            <!--
               <div id="chart">
                 <apexchart
                   type="line"
@@ -355,7 +366,7 @@
                   ></apexchart>
                 </div>
               </div>
-            </q-scroll-area>
+              -->
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -1299,6 +1310,7 @@ import PortInTemplate from 'components/templates/PortInTemplate.vue';
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
 import Flows from 'components/Flows.vue';
 import Processors from 'components/Processors.vue';
+import LibraryTree from 'components/LibraryTree.vue';
 
 var dd = require('drip-drop');
 
@@ -1322,6 +1334,8 @@ import 'assets/css/jsplumbtoolkit-defaults.css';
 
 import Styles from 'components/Styles.vue';
 import Patterns from 'components/Patterns.vue';
+import { mdiContentSaveMove } from '@mdi/js';
+
 
 function htmlToElement(html) {
   var template = document.createElement('template');
@@ -1338,6 +1352,7 @@ export default {
     Processors,
     Flows,
     Patterns,
+    LibraryTree,
     editor: require('vue2-ace-editor'),
   },
   computed: {
@@ -1351,6 +1366,10 @@ export default {
     }
   },
   methods: {
+    resetView() {
+      window.toolkit.surface.setZoom(1.0);
+      window.toolkit.surface.setPan(0,0,true);
+    },
     zoomToOne() {
       window.toolkit.surface.setZoom(1.0);
     },
@@ -1374,13 +1393,21 @@ export default {
       const editor = this.$refs.myEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
     },
+    saveToFolder() {
+      var thecode = JSON.stringify(
+        window.toolkit.getGraph().serialize(),
+        null,
+        '\t'
+      );
+      this.$root.$emit("save.flow.to.folder."+this.flowid,this.flowname, this.flowuuid, this.flowid, thecode)
+    },
     saveFlow() {
       var thecode = JSON.stringify(
         window.toolkit.getGraph().serialize(),
         null,
         '\t'
       );
-      this.$root.$emit("save.flow",this.flowname, this.flowuuid, this.flowid, thecode)
+      this.$root.$emit("save.flow."+this.flowid,this.flowname, this.flowuuid, this.flowid, thecode)
     },
     showCode() {
       this.code = true;
@@ -1506,7 +1533,9 @@ export default {
       window.toolkit.surface.setMode(mode);
     },
   },
-  created() {},
+  created() {
+    this.saveAsIcon = mdiContentSaveMove;
+  },
   mounted() {
     var me = this;
     setTimeout(() => {
@@ -1579,6 +1608,7 @@ export default {
             data: me.flowcode,
             onload:function() {                
               // called after the data has loaded. 
+              window.toolkit.surface.setZoom(1.0);
               me.toolkit.surface.zoomToFit({ fill: 0.75 });   
             }
           })

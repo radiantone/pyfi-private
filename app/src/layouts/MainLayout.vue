@@ -157,7 +157,7 @@
           style="height: calc(100vh - 165px); padding: 0px;"
           :ref="'flow'+flow.id"
         >
-          <Designer :ref="'flow'+flow.id+'designer'" :flowcode="flow.code" :flowname="flow.name" @update-name="updateFlow" :flowuuid="flow._id" :flowid="flow.id" :surfaceId="'flow'+flow.id"/>
+          <Designer :ref="'flow'+flow.id+'designer'" :flowcode="flow.code" :flowname="flow.filename" @update-name="updateFlow" :flowuuid="flow._id" :flowid="flow.id" :surfaceId="'flow'+flow.id"/>
         </q-tab-panel>
       </q-tab-panels>
       <q-tabs
@@ -171,7 +171,7 @@
         indicator-color="accent"
         active-bg-color="accent"
       >
-        <q-tab v-for="flow in flows" :key="flow.id" :name="'flow'+flow.id" class="text-dark" :label="flow.name">
+        <q-tab v-for="flow in flows" :key="flow.id" :name="'flow'+flow.id" class="text-dark" :label="flow.filename">
         <!--<q-btn
             flat
             dense
@@ -263,7 +263,7 @@ export default defineComponent({
   },
   methods: {
     updateFlow(name){
-        this.flow.name=name;
+        this.flow.filename=name;
     },
     dataGenerator: function (el) {
       // This probably needs to be automated
@@ -339,7 +339,7 @@ export default defineComponent({
     this.$root.$on("new.flow",() => {
       var id = me.flows.length+1;
       me.flows.push({
-        'name':'New Flow',
+        'filename':'New Flow',
         'id': id,
         'code': null
       })
@@ -493,7 +493,7 @@ export default defineComponent({
     return {
       flows: [
         {
-          name:'Scratch Flow',
+          filename:'Scratch Flow',
           id: 1
         }
       ],

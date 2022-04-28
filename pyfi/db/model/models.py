@@ -20,6 +20,7 @@ from sqlalchemy import (
     Sequence,
     INTEGER,
     literal_column,
+    UniqueConstraint,
     select,
     column,
 )
@@ -320,8 +321,10 @@ strategies = ["BALANCED", "EFFICIENT"]
 class FileModel(BaseModel):
 
     __tablename__ = "file"
-    collection = Column(String(80))
+    
     path = Column(String(120))
+    filename = Column(String(80))
+    collection = Column(String(80))
     code = Column(Text)
     type = Column(String(40))
     icon = Column(String(40))

@@ -37,6 +37,21 @@
       </span>
       <q-toolbar>
         <q-space />
+        <q-btn
+          flat
+          size="xs"
+          class="bg-secondary"
+          icon="fas fa-save"
+          @click="savePatternDialog = true"
+        >
+          <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Save as Pattern
+          </q-tooltip>
+        </q-btn>
         <q-btn flat size="xs" icon="colorize" class="bg-secondary">
             <q-popup-proxy
               cover
@@ -45,6 +60,13 @@
             >
               <q-color no-header no-footer v-model="color" />
             </q-popup-proxy>
+            <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Background Color
+          </q-tooltip>
         </q-btn>
         <q-btn
           flat
@@ -59,17 +81,36 @@
           class="bg-secondary"
           icon="settings"
           @click="groupSettings"
-        >
+        ><q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Settings
+          </q-tooltip>
         </q-btn>
         <q-btn flat size="xs" :icon="icon" class="bg-secondary" @click="click">
+        <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Collapse/Expand
+          </q-tooltip>
         </q-btn>
         <q-btn
           flat
           size="xs"
-          icon="close"
+          icon="fas fa-close"
           class="bg-secondary"
           @click="deleteGroup = true"
-        >
+        ><q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Delete Group
+          </q-tooltip>
         </q-btn>
       </q-toolbar>
     </h4>
@@ -92,6 +133,70 @@
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
 
+    <q-dialog v-model="savePatternDialog" persistent >
+      <q-card style="width:400px; height:200px padding: 10px; padding-left:30px;padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Save Pattern</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-save" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            
+            <q-input dense v-model="patternName" autofocus @keyup.enter="savePatternDialog = false"/>
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          </q-card-actions>
+          <q-card-actions align="right"><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Save"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="savePattern"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog v-model="deleteGroup" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -272,6 +377,8 @@ export default {
     return {
       showing: false,
       title: 'Chapter 1',
+      savePatternDialog: false,
+      patternName: '',
       color: '',
       dimension: 500,
       deleteGroup: false,
@@ -279,6 +386,9 @@ export default {
     };
   },
   methods: {
+    savePattern() {
+
+    },
     deleteAGroup(all) {
       console.log("Removing group",this.obj);
       window.toolkit.removeGroup(this.obj,all);
@@ -313,3 +423,4 @@ export default {
   },
 };
 </script>
+saveTrope

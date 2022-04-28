@@ -147,7 +147,7 @@ module.exports = configure(function (ctx) {
         'QBreadcrumbs',
         'Dialog',
         'QDrawer',
-        //'LoadingBar',
+        'LoadingBar',
         'QTree',
         'QBtnToggle',
         'QSpinnerOval',
@@ -176,8 +176,8 @@ module.exports = configure(function (ctx) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: 'PYFI',
-        short_name: 'PYFI',
+        name: 'Lambda Flow',
+        short_name: 'Flow',
         description: 'A Quasar Framework app',
         display: 'standalone',
         orientation: 'portrait',
@@ -243,7 +243,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'pyfi'
+        appId: 'flow'
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
