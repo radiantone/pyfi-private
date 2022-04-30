@@ -100,9 +100,8 @@
               class="text-secondary network-node"
               :id="prop.node.id"
               style="font-size: 1.2em;"
-            >
-              
-                  {{ prop.node.label }}
+              @mouseover="updateCard(prop.node)"
+            >{{ prop.node.label }}
               <q-tooltip
                 content-class=""
                 content-style="font-size: 16px"
@@ -231,6 +230,10 @@ export default {
     this.cardOutline = mdiCardTextOutline;
   },
   methods: {
+    updateCard(node) {
+      console.log("object.card",node)
+      this.$root.$emit("object.card",node);
+    },
     expandAllNodes() {
       this.$refs['tree'].expandAll();
     },

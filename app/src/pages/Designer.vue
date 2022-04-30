@@ -378,7 +378,7 @@
                   font-family: 'Indie Flower', cursive;
                   margin-top: 5px;
                   margin-right: 1em">
-                  Object Name
+                  {{ card.label }}
                   </q-item-label>
                   <q-space/>
                   <q-btn flat dense size="sm" icon="close" style="padding-right:10px" color="primary" @click="showCard=false"></q-btn>
@@ -1624,8 +1624,8 @@ export default {
           }
         });
 
-        me.$root.$on("object.card", (object) => {
-          
+        me.$root.$on("object.card", (card) => {
+          me.card = card
         })
         me.$root.$on("toggle.card", () => {
           me.showCard = !me.showCard;
@@ -1710,6 +1710,9 @@ export default {
     return {
       zoom: 1.0,
       value: true,
+      card: {
+        name:'Object Name'
+      },
       showCard: false,
       tab: 'flows',
       clear: false,
