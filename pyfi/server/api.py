@@ -83,22 +83,24 @@ app.json_encoder = AlchemyEncoder
 
 @app.route('/files/<collection>/<path:path>', methods=['GET'])
 def get_files(collection, path):
-    files = session.query(FileModel).all()
 
-    try:
-        files = session.query(FileModel).filter_by(collection=collection, path=path).all()
-    except:
-        session.rollback()
-        files = session.query(FileModel).filter_by(collection=collection, path=path).all()
+    with get_session() as session:
+        files = session.query(FileModel).all()
 
-    print(files)
-    def cmp_func(x):
-        if x.type == 'folder':
-            return 0
-        else:
-            return 1
-    files = sorted(files, key=cmp_func)
-    return jsonify(files)
+        try:
+            files = session.query(FileModel).filter_by(collection=collection, path=path).all()
+        except:
+            session.rollback()
+            files = session.query(FileModel).filter_by(collection=collection, path=path).all()
+
+        print(files)
+        def cmp_func(x):
+            if x.type == 'folder':
+                return 0
+            else:
+                return 1
+        files = sorted(files, key=cmp_func)
+        return jsonify(files)
 
 
 @app.route('/folder/<collection>/<path:path>', methods=['GET'])
@@ -125,9 +127,19 @@ def new_folder(collection, path):
 
 @app.route('/files/<fid>', methods=['GET'])
 def get_file(fid):
-    file = session.query(FileModel).filter_by(id=fid).first()
-    return file.code, 200
+    with get_session() as session:
+        file = session.query(FileModel).filter_by(id=fid).first()
+        return file.code, 200
 
+@app.route('/networks', methods=['GET'])
+def get_networks():
+    with get_session() as session:
+        networks = []
+        nodes = session.query(NetworkModel).all()
+        for node in nodes:
+            networks += [{'label':node.name, 'id':node.id, 'icon':'fas fa-home'}]
+            
+        return jsonify({'networks':networks})
 
 @app.route('/files/<fid>', methods=['DELETE'])
 def delete_file(fid):
@@ -150,6 +162,7 @@ def delete_file(fid):
         else:
             status = {'status':'error', 'message':'Object not found '+fid}
             return jsonify(status), 404
+
     except Exception as ex:
         print(ex)
         status = {'status':'error', 'message':str(ex)}
