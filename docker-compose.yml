@@ -82,6 +82,8 @@ services:
       - "GIT_LOGIN=https://radiantone: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@github.com"
     ports:
       - 8014:8003
+    profiles: 
+      - api
     depends_on:
       - redis
       - postgres

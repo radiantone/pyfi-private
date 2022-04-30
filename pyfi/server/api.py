@@ -139,28 +139,28 @@ def get_networks():
         _networks = session.query(NetworkModel).all()
 
         for network in _networks:
-            _network = {'label':network.name, 'id':network.id, 'icon':'fas fa-home'}
+            _network = {'label':network.name, 'tooltip':'Network', 'id':network.id, 'icon':'fas fa-home'}
             networks += [_network]
             _network['children'] = []
             for node in network.nodes:
-                _node = {'label':node.name, 'id':node.id, 'icon':'fas fa-home'}
-                _agent = {'label':node.agent.name, 'id':node.agent.id, 'icon':'fas fa-user'}
+                _node = {'label':node.name, 'tooltip':'Node', 'id':node.id, 'icon':'fas fa-cube'}
+                _agent = {'label':node.agent.name, 'tooltip':'Agent', 'id':node.agent.id, 'icon':'fas fa-user'}
                 _node['children'] = [_agent]
 
                 workers = []
                 for worker in node.agent.workers:
-                    _worker = {'label':worker.name, 'id':worker.id, 'icon':'fas fa-cog'}
-                    _processor = {'label':worker.processor.name, 'id':worker.processor.id, 'icon':'fas fa-microchip'}
+                    _worker = {'label':worker.name, 'tooltip':'Worker', 'id':worker.id, 'icon':'fas fa-hard-hat'}
+                    _processor = {'label':worker.processor.name, 'tooltip':'Processor', 'id':worker.processor.id, 'icon':'fas fa-microchip'}
 
                     _worker['children'] = [_processor]
                     _processor['children'] = []
                     for socket in worker.processor.sockets:
-                        _socket= {'label':socket.name, 'id':socket.id, 'icon':'outlet'}
+                        _socket= {'label':socket.name, 'tooltip':'Socket', 'id':socket.id, 'icon':'outlet'}
                         _processor['children'] += [_socket]
 
-                        _task = {'label':socket.task.name, 'id':socket.task.id, 'icon':'fas fa-check'}
-                        _module = {'label':socket.task.module, 'id':socket.task.id+'module', 'icon':'fas fa-box'}
-                        _function = {'label':socket.task.name, 'id':socket.task.id+'function', 'icon':'fab fa-python'}
+                        _task = {'label':socket.task.name, 'tooltip':'Task', 'id':socket.task.id, 'icon':'fas fa-check'}
+                        _module = {'label':socket.task.module, 'tooltip':'Module', 'id':socket.task.id+'module', 'icon':'fas fa-box'}
+                        _function = {'label':socket.task.name, 'tooltip':'Function', 'id':socket.task.id+'function', 'icon':'fab fa-python'}
                         _task['children'] = [_module]
                         _module['children'] = [_function]
                         _socket['children'] = [_task]

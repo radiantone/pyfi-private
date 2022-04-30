@@ -347,7 +347,7 @@
             />
           </q-tab-panel>
           <q-tab-panel name="network" ref="network" style="padding:0px">
-            <LibraryTree/>
+            <Networks/>
             <!--
               <div id="chart">
                 <apexchart
@@ -370,8 +370,21 @@
           </q-tab-panel>
         </q-tab-panels>
       </div>
-    </q-drawer>
 
+    <q-card class=" " v-if="showCard" style="background-color:white;width:450px;height:500px;position:absolute; left:-465px;top:5px">
+      <q-toolbar class="bg-accent" style="padding:0px;padding-left:10px">
+          <q-item-label style="
+                  font-size: 1.5em;
+                  font-family: 'Indie Flower', cursive;
+                  margin-top: 5px;
+                  margin-right: 1em">
+                  Object Name
+                  </q-item-label>
+                  <q-space/>
+                  <q-btn flat dense size="sm" icon="close" style="padding-right:10px" color="primary" @click="showCard=false"></q-btn>
+      </q-toolbar>
+    </q-card>
+    </q-drawer>
     <q-page-container style="overflow: hidden;">
       <div class="full-height" style="overflow: hidden;">
         <jsplumb-toolkit
@@ -1073,7 +1086,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Graph Source</q-item-label>
+              <q-item-label>Flow Source</q-item-label>
               <q-space />
               <q-item-label name="code" class="text-primary">{ }</q-item-label>
             </q-toolbar>
@@ -1310,7 +1323,7 @@ import PortInTemplate from 'components/templates/PortInTemplate.vue';
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
 import Flows from 'components/Flows.vue';
 import Processors from 'components/Processors.vue';
-import LibraryTree from 'components/LibraryTree.vue';
+import Networks from 'components/Networks.vue';
 
 var dd = require('drip-drop');
 
@@ -1352,7 +1365,7 @@ export default {
     Processors,
     Flows,
     Patterns,
-    LibraryTree,
+    Networks,
     editor: require('vue2-ace-editor'),
   },
   computed: {
@@ -1611,7 +1624,12 @@ export default {
           }
         });
 
-
+        me.$root.$on("object.card", (object) => {
+          
+        })
+        me.$root.$on("toggle.card", () => {
+          me.showCard = !me.showCard;
+        })
         me.$root.$on('node.selected', (node) => {
           me.node = node;
           console.log('Animate node');
@@ -1692,6 +1710,7 @@ export default {
     return {
       zoom: 1.0,
       value: true,
+      showCard: false,
       tab: 'flows',
       clear: false,
       position: [-20,-20],
