@@ -85,7 +85,7 @@
             Clear Nodes
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="far fa-copy">
+        <q-btn flat style="min-height: 45px;" size="sm" icon="far fa-copy" @click="copyNodes">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -94,7 +94,7 @@
             Copy
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-paste">
+        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-paste" @click="pasteNodes">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -1449,7 +1449,7 @@ export default {
 
       var selection = window.toolkit.getSelection();
       var nodes = selection.getAll();
-      console.log('DELETE SELECTED NODES:', nodes);
+      console.log('COPY SELECTED NODES:', nodes);
       var exportData = window.toolkit.exportData();
       var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'));
       var jsonData = {};
@@ -1477,8 +1477,34 @@ export default {
           }
         }
       }
-      console.log('jsonData:', jsonData);
+
       window.clipboard = jsonData;
+      var nodes = []
+      for (var i = 0; i < window.clipboard.nodes.length; i++) {
+        nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
+      }
+      window.nodes = nodes;
+      console.log('jsonData:', jsonData);
+    },
+    pasteNodes () {
+      console.log('pasteNodes: ', window.clipboard)
+
+      var data = []
+
+      window.toolkit.load({ type: 'json', data: window.clipboard,
+            onload:function() { 
+
+              window.toolkit.setSelection(window.nodes)
+                window.toolkit.surface.zoomToSelection({doNotZoomIfVisible: true});
+            }
+      
+      })
+
+      this.$root.$emit('status.message', {
+        color: 'black',
+        message: 'Pasted ' + nodes.length + ' nodes!'
+      })
+      //window.setDirty(true)
     },
     closeFlow() {
       this.$root.$emit("close.flow",this.flowid)

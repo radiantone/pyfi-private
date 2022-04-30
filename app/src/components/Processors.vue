@@ -415,6 +415,11 @@ export default {
     this.$root.$on('save.flow', this.saveFlowEvent);
   },
   methods: {
+
+    async doOverwriteFlow() {
+      console.log('doOverwriteFlow');
+      this.saveFlow();
+    },
     async saveFlow() {
       var me = this;
       this.loading = true;

@@ -1,24 +1,18 @@
 <template>
   <div class=" fit" style="padding:0;height:100vh" >
     <q-scroll-area style="height: calc(100vh - 260px); ">
-        <q-tree ref="tree"
-                :nodes="nodes"
-                default-expand-all
-                :selected.sync="selected"
-                node-key="id"
-                selected-color="primary"
-                @update:selected="updateSelected"
-                @after-show="afterShow"
-                @lazy-load="onLazyLoad"
-        >
-          <template v-slot:default-header="prop">
-            <div class="row items-center rapidquestnode" :id="prop.node.id" :collection="prop.node.collection">
-              <q-icon :name="prop.node.icon || 'share'" size="24px" class="q-mr-sm text-secondary" />
-              <div class="text-secondary" :id="prop.node.id" :collection="prop.node.collection">{{ prop.node.label }}</div>
+      <q-tree
+      :nodes="nodes"
+      dense
+      ref="tree"
+      node-key="id"
+      class="text-secondary"
+      >          <template v-slot:default-header="prop">
+            <div class="row items-center rapidquestnode" :id="prop.node.id" >
+              <q-icon :name="prop.node.icon || 'share'" size="18px" class="q-mr-sm text-dark" />
+              <div class="text-secondary" :id="prop.node.id" style="font-size:1.2em">{{ prop.node.label }}</div>
             </div>
-          </template>
-
-        </q-tree>
+          </template></q-tree>
       </q-scroll-area>
     <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary"/>
@@ -61,22 +55,6 @@
         <q-tooltip  content-style="font-size: 16px" :offset="[10, 10]">Delete</q-tooltip>
       </q-btn>
     </q-toolbar>
-    <q-dialog v-model="folderprompt" persistent>
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">New Folder</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input dense v-model="newfolder" autofocus @keyup.enter="folderprompt = false"/>
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Create" v-close-popup @click="newFolder"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 <style>
@@ -86,7 +64,8 @@
 </style>
 <script>
 var dd = require('drip-drop')
-import ObjectService from 'components/util/ObjectService'
+import DataService from 'components/util/DataService'
+import { mdiPowerSocketUs } from '@mdi/js';
 
 function addClass (el, classNameToAdd) {
   if (el.className.indexOf(classNameToAdd) === -1) {
@@ -150,50 +129,6 @@ export default {
         }
       }
       console.log(this.nodes)
-    },
-    async newFolder () {
-      var me = this
-
-      try {
-        const node = this.$refs.tree.getNodeByKey(this.selected)
-
-        console.log('newFolder:', node, this.selected, {
-          parent: this.selected._id,
-          label: this.newfolder
-        })
-        var res = await ObjectService.newLibraryNode(node, {
-          parent: this.selected._id,
-          icon: 'folder',
-          root: node.root,
-          explandable: true,
-          lazy: true,
-          label: this.newfolder
-        }, this.security.auth.user)
-        if (res.status === 'error') {
-          me.notifyMessage('negative', 'error', 'There was an error creating the new folder.')
-        } else {
-          me.$q.notify({
-            color: 'primary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Create Folder Succeeded',
-            icon: 'folder'
-          })
-
-          this.$refs.tree.lazy = {}
-          console.log(node)
-          this.$refs.tree.setExpanded(node.id, true)
-        }
-      } catch (error) {
-        console.log(error)
-        me.$q.notify({
-          color: 'negative',
-          timeout: 2000,
-          position: 'top',
-          message: 'There was an error synchronizing this view',
-          icon: 'error'
-        })
-      }
     },
     onLazyLoad ({ node, key, done, fail }) {
       // call fail() if any error occurs
@@ -274,11 +209,15 @@ export default {
       this.loading = true
       var me = this
 
-      this.$refs.tree.lazy = {}
-      this.$refs.tree.collapseAll()
-      setTimeout(function () {
-        me.loading = false
-      }, 500)
+      DataService.getNetworks().then((nodes) => {
+        console.log("NETWORKS",nodes)
+        me.nodes = nodes.data.networks;
+        this.$refs.tree.lazy = {}
+        this.$refs.tree.collapseAll()
+        setTimeout(function () {
+          me.loading = false
+        }, 500)
+      })
     },
     unselectNode () {
       this.selected = null
@@ -289,6 +228,7 @@ export default {
     }
   },
   mounted () {
+    this.synchronize();
     this.initializeDrag()
     console.log('CHANNEL:', this.channel)
   },
@@ -319,73 +259,33 @@ export default {
       showToolbar: true,
       nodes: [
         {
-          label: 'Storyboards',
-          icon: 'dashboard',
-          id: 'storyboards',
-          lazy: true,
-          expandable: true,
+          label: 'Satisfied customers',
           children: [
+            {
+              label: 'Good food',
+              children: [
+                { label: 'Quality ingredients' },
+                { label: 'Good recipe' }
+              ]
+            },
+            {
+              label: 'Good service (disabled node)',
+              disabled: true,
+              children: [
+                { label: 'Prompt attention' },
+                { label: 'Professional waiter' }
+              ]
+            },
+            {
+              label: 'Pleasant surroundings',
+              children: [
+                { label: 'Happy atmosphere (*)' },
+                { label: 'Good table presentation' },
+                { label: 'Pleasing decor (*)' }
+              ]
+            }
           ]
-        },
-        {
-          label: 'Quests',
-          lazy: true,
-          id: 'quests',
-          expandable: true,
-          icon: 'fab fa-fort-awesome'
-        },
-        {
-          label: 'Locations',
-          lazy: true,
-          id: 'locations',
-          root: 'locations',
-          expandable: true,
-          icon: 'location_on'
-        },
-        {
-          label: 'NPCs',
-          lazy: true,
-          expandable: true,
-          id: 'npcs',
-          root: 'npcs',
-          icon: 'person'
-        },
-        {
-          label: 'Players',
-          lazy: true,
-          expandable: true,
-          id: 'players',
-          icon: 'people'
-        },
-        {
-          label: 'Objects',
-          lazy: true,
-          expandable: true,
-          id: 'objects',
-          icon: 'fas fa-cubes'
-        },
-        {
-          label: 'Skills',
-          lazy: true,
-          expandable: true,
-          id: 'skills',
-          icon: 'fas fa-running'
-        },
-        {
-          label: 'Abilities',
-          lazy: true,
-          expandable: true,
-          id: 'abilities',
-          icon: 'accessibility_new'
-        },
-        {
-          label: 'Feats',
-          lazy: true,
-          expandable: true,
-          id: 'feats',
-          icon: 'fas fa-dumbbell'
         }
-
       ]
     }
   }

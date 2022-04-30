@@ -195,6 +195,14 @@
                 Spreadsheet
               </q-item-section>
             </q-item>
+            <q-item clickable v-close-popup @click="obj.icon = lambdaIcon">
+              <q-item-section side>
+                <q-icon :name="this.lambdaIcon" style="font-weight: bold;font-size:1.2em"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Lambda
+              </q-item-section>
+            </q-item>
             <q-item clickable v-close-popup @click="obj.icon = 'alt_route'">
               <q-item-section side>
                 <q-icon name="alt_route"></q-icon>
@@ -1845,6 +1853,7 @@ import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
 import { v4 as uuidv4 } from 'uuid';
 import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
+import { mdiLambda } from '@mdi/js';
 
 // Import the mixin class
 import Processor from '../Processor.vue';
@@ -1877,6 +1886,7 @@ export default {
   created() {
     var me = this;
 
+    this.lambdaIcon = mdiLambda;
     console.log('me.tooltips ', me.tooltips);
     console.log('start listening for show.tooltips');
     window.root.$on('show.tooltips', (value) => {

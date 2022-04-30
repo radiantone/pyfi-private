@@ -23,6 +23,10 @@ class DataService {
         return http.get('/api/folder/' + collection + '/' + folder);
     }
 
+    getNetworks (): Promise<any> {
+        return http.get('/api/networks');
+    }
+
     getFile (id: string): Promise<any> {
         return http.get('/api/files/' + id);
     }

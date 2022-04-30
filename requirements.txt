@@ -60,14 +60,13 @@ mypy==0.930
 mypy-extensions==0.4.3
 networkx==2.6.3
 numpy==1.21.2
-oso==0.20.1
+oso==0.26.0
 packaging==20.9
 pandas==1.3.3
 paramiko==2.7.2
 pep8==1.7.1
 pika==0.13.0
 pipe==1.6.0
-pkg_resources==0.0.0
 platformdirs==2.3.0
 pluggy==1.0.0
 pptree==3.1
@@ -79,7 +78,7 @@ psycopg2==2.9.1
 PuLP==2.5.0
 py==1.11.0
 PyAMQP==0.1.0.7
-pycodestyle==2.7.0
+pycodestyle==2.8.0
 pycparser==2.20
 pydash==5.1.0
 -e git+https://radiantone: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@github.com/radiantone/pyfi-processors@b2c1b24fb1120be2ac89380ead5eb9a02cc02875#egg=pyfi_processor

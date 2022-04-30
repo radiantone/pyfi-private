@@ -105,24 +105,25 @@ def get_files(collection, path):
 
 @app.route('/folder/<collection>/<path:path>', methods=['GET'])
 def new_folder(collection, path):
-    _session = sessionmaker(bind=engine)()
+    #_session = sessionmaker(bind=engine)()
 
-    folder = _session.query(FileModel).filter_by(collection=collection, path=path, type="folder").first()
-    print("FOLDER",folder)
-    if not folder:
-        name = path.rsplit('/')[-1:]
-        _path = "/".join(path.rsplit('/')[:-1])
-        if len(name) == 1:
-            name = name[0]
-        else:
-            name = path
-        print("NAME",name)
+    with get_session() as _session:
+        folder = _session.query(FileModel).filter_by(collection=collection, path=path, type="folder").first()
+        print("FOLDER",folder)
+        if not folder:
+            name = path.rsplit('/')[-1:]
+            _path = "/".join(path.rsplit('/')[:-1])
+            if len(name) == 1:
+                name = name[0]
+            else:
+                name = path
+            print("NAME",name)
 
-        folder = FileModel(name=path, filename=name, collection=collection, type="folder", icon="fas fa-folder", path=_path, code="")
-        _session.add(folder)
-        _session.commit()
+            folder = FileModel(name=path, filename=name, collection=collection, type="folder", icon="fas fa-folder", path=_path, code="")
+            _session.add(folder)
+            _session.commit()
 
-    return jsonify(folder)
+        return jsonify(folder)
 
 
 @app.route('/files/<fid>', methods=['GET'])
@@ -135,38 +136,69 @@ def get_file(fid):
 def get_networks():
     with get_session() as session:
         networks = []
-        nodes = session.query(NetworkModel).all()
-        for node in nodes:
-            networks += [{'label':node.name, 'id':node.id, 'icon':'fas fa-home'}]
-            
+        _networks = session.query(NetworkModel).all()
+
+        for network in _networks:
+            _network = {'label':network.name, 'id':network.id, 'icon':'fas fa-home'}
+            networks += [_network]
+            _network['children'] = []
+            for node in network.nodes:
+                _node = {'label':node.name, 'id':node.id, 'icon':'fas fa-home'}
+                _agent = {'label':node.agent.name, 'id':node.agent.id, 'icon':'fas fa-user'}
+                _node['children'] = [_agent]
+
+                workers = []
+                for worker in node.agent.workers:
+                    _worker = {'label':worker.name, 'id':worker.id, 'icon':'fas fa-cog'}
+                    _processor = {'label':worker.processor.name, 'id':worker.processor.id, 'icon':'fas fa-microchip'}
+
+                    _worker['children'] = [_processor]
+                    _processor['children'] = []
+                    for socket in worker.processor.sockets:
+                        _socket= {'label':socket.name, 'id':socket.id, 'icon':'outlet'}
+                        _processor['children'] += [_socket]
+
+                        _task = {'label':socket.task.name, 'id':socket.task.id, 'icon':'fas fa-check'}
+                        _module = {'label':socket.task.module, 'id':socket.task.id+'module', 'icon':'fas fa-box'}
+                        _function = {'label':socket.task.name, 'id':socket.task.id+'function', 'icon':'fab fa-python'}
+                        _task['children'] = [_module]
+                        _module['children'] = [_function]
+                        _socket['children'] = [_task]
+
+                    workers += [_worker]
+                _agent['children'] = workers
+                
+                _network['children'] += [_node]
+
         return jsonify({'networks':networks})
 
 @app.route('/files/<fid>', methods=['DELETE'])
 def delete_file(fid):
     print("Deleting file",fid)
-    try:
-        file = session.query(FileModel).filter_by(id=fid).first()
+    with get_session() as session:
+        try:
+            file = session.query(FileModel).filter_by(id=fid).first()
 
-        if file.type == 'folder':
-            files = session.query(FileModel).filter_by(collection=file.collection, path=file.name).all()
-            print("DELETE FOLDER PATH:",file.name," # FILES:",files)
-            if len(files) > 0:
-                status = {'status':'error', 'message':'Folder not empty'}
-                print(status)
-                return jsonify(status), 500
-        if file:
-            session.delete(file)
-            session.commit()
-            status = {'status':'ok'}
-            return jsonify(status), 200
-        else:
-            status = {'status':'error', 'message':'Object not found '+fid}
-            return jsonify(status), 404
+            if file.type == 'folder':
+                files = session.query(FileModel).filter_by(collection=file.collection, path=file.name).all()
+                print("DELETE FOLDER PATH:",file.name," # FILES:",files)
+                if len(files) > 0:
+                    status = {'status':'error', 'message':'Folder not empty'}
+                    print(status)
+                    return jsonify(status), 500
+            if file:
+                session.delete(file)
+                session.commit()
+                status = {'status':'ok'}
+                return jsonify(status), 200
+            else:
+                status = {'status':'error', 'message':'Object not found '+fid}
+                return jsonify(status), 404
 
-    except Exception as ex:
-        print(ex)
-        status = {'status':'error', 'message':str(ex)}
-        return jsonify(status), 500
+        except Exception as ex:
+            print(ex)
+            status = {'status':'error', 'message':str(ex)}
+            return jsonify(status), 500
 
 
 @app.route('/files/<collection>/<path:path>', methods=['POST'])

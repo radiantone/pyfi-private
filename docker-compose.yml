@@ -198,8 +198,8 @@ services:
       - ./app/dist/spa:/var/share/html
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
-    depends_on:
-      - api
+    #depends_on:
+    #  - api
     ports:
       - 80:80
       - 443:443
