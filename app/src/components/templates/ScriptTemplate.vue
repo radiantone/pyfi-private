@@ -146,7 +146,7 @@
             <q-item
               clickable
               v-close-popup
-              @click="obj.icon = 'fas fa-database'"
+              @click="obj.icon = 'fas fa-database'; settingstab='database'"
             >
               <q-item-section side>
                 <q-icon name="fas fa-database"></q-icon>
@@ -155,7 +155,7 @@
                 Database
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fab fa-python'">
+            <q-item clickable v-close-popup @click="obj.icon = 'fab fa-python'; settingstab='settings'">
               <q-item-section side>
                 <q-icon name="fab fa-python"></q-icon>
               </q-item-section>
@@ -195,9 +195,12 @@
                 Spreadsheet
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = lambdaIcon">
+            <q-item clickable v-close-popup @click="obj.icon = lambdaIcon; settingstab='lambda'">
               <q-item-section side>
-                <q-icon :name="this.lambdaIcon" style="font-weight: bold;font-size:1.2em"></q-icon>
+                <q-icon
+                  :name="this.lambdaIcon"
+                  style="font-weight: bold; font-size: 1.2em;"
+                ></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Lambda
@@ -226,8 +229,7 @@
         class="text-secondary"
         style="position: absolute; left: 55px; top: 31px; font-size: 14px;"
       >
-        {{ obj.description.substring(0,35)+"..." }}
-
+        {{ obj.description.substring(0, 35) + '...' }}
       </span>
       <span
         class="text-blue-grey-8"
@@ -244,17 +246,23 @@
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
-        style="position: absolute; right: 60px; top: 1em; font-weight: bold; font-size: 2em;"
+        style="
+          position: absolute;
+          right: 60px;
+          top: 1em;
+          font-weight: bold;
+          font-size: 2em;
+        "
       >
         {{ obj.concurrency }}
         <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Concurrency
-          </q-tooltip>
+          anchor="top middle"
+          :offset="[-30, 40]"
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Concurrency
+        </q-tooltip>
       </span>
       <span
         class="text-blue-grey-8 pull-right"
@@ -548,7 +556,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            
+
             <q-item
               clickable
               v-close-popup
@@ -565,7 +573,93 @@
         </q-btn-dropdown>
       </div>
     </div>
-    <ul class="table-columns" v-for="column in obj.columns" :key="column.id">
+    <ul v-if="obj.icon == 'fas fa-database'" class="table-columns" v-for="column in obj.columns" :key="column.id">
+      <li
+        :class="
+          'table-column jtk-droppable table-column-type-' + column.datatype
+        "
+        :style="
+          'background:' +
+          column.background +
+          ';border-top: 1px dashed lightgrey'
+        "
+        :primary-key="column.primaryKey"
+        :data-port-id="column.id"
+      >
+        <div class="table-column-edit text-primary">
+          <i
+            class="fa fa-times table-column-delete-icon"
+            title="Delete Port"
+            @click="confirmDeleteSpeech(column.id)"
+          />
+        </div>
+        <div>
+          <div class="float-left text-secondary">
+            <i
+              :class="column.icon"
+              :title="column.name"
+              style="margin-right: 5px;"
+            />
+          </div>
+          <span>
+            <span :id="column.id">
+              
+        <q-btn-dropdown
+          flat
+          content-class="text-dark bg-white"
+          dense
+          color="secondary"
+          label="Query"
+          padding="0px"
+          size=".8em"
+        >
+          <q-list dense>
+            <q-item
+              clickable
+              v-close-popup
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-question"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Query 1
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-question"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Query 2
+              </q-item-section>
+            </q-item>
+            </q-list>
+            </q-btn-dropdown>   
+            </span>
+            : {{ column.description }}
+          </span>
+        </div>
+
+        <jtk-source
+          name="source"
+          :port-id="column.id"
+          :scope="column.datatype"
+          filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
+          filter-exclude="true"
+        />
+
+        <jtk-target
+          name="target"
+          :port-id="column.id"
+          :scope="column.datatype"
+        />
+      </li>
+    </ul>
+
+    <ul v-if="obj.icon == 'fab fa-python'" class="table-columns" v-for="column in obj.columns" :key="column.id">
       <li
         :class="
           'table-column jtk-droppable table-column-type-' + column.datatype
@@ -945,7 +1039,6 @@
         ></editor>
       </q-card-section>
       <q-card-actions align="left">
-       
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
@@ -1090,11 +1183,11 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 600px;
+          height: 650px;
         "
       >
-      <q-tabs
-        v-model="tab"
+        <q-tabs
+          v-model="tab"
           dense
           class="bg-accent"
           align="left"
@@ -1102,123 +1195,200 @@
           active-color="dark"
           indicator-color="accent"
           active-bg-color="white"
-      >
-        <q-tab name="settings"  label="Settings" />
-        <q-tab name="concurrency"  label="Concurrency" />
-        <q-tab name="schedule" label="Schedule" />
-        <q-tab name="security" label="Security" />
-        <q-tab name="scaling" label="Scaling" />
-      </q-tabs>
-       <q-tab-panels v-model="tab" keep-alive>
-        <q-tab-panel
-          name="settings"
-          style="padding: 0px;"
-          ref="settings"
         >
+          <q-tab name="settings" label="Settings" />
+          <q-tab name="concurrency" label="Concurrency" />
+          <q-tab name="schedule" label="Schedule" />
+          <q-tab name="security" label="Security" />
+          <q-tab name="scaling" label="Scaling" />
+        </q-tabs>
 
-        <div class="q-pa-md" style="max-width: 100%;">
-          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-            <q-input
-              filled
-              v-model="obj.name"
+        <q-tab-panels v-model="tab" keep-alive>
+          <q-tab-panel name="settings" style="padding: 0px;" ref="settings">
+            <q-tabs
+              v-model="settingstab"
+              class="text-primary"
+              align="center"
               dense
-              hint="Processor Name"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-
-            <q-input
-              filled
-              v-model="obj.description"
-              dense
-              hint="Processor Description"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-            <q-input
-              filled
-              v-model="obj.package"
-              dense
-              hint="Processor Package"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-            <q-input
-              filled
-              dense
-              :disable="!obj.usegit"
-              v-model="obj.git"
-              hint="GIT Repository"
-            />
-
-            <q-input
-              filled
-              dense
-              :disable="!obj.usegit"
-              v-model="obj.commit"
-              hint="Commit Hash"
-            />
-            <q-input
-              filled
-              v-model="obj.api"
-              dense
-              hint="API Endpoint"
-              lazy-rules
-              :disable="!obj.endpoint"
-              :rules="[
-                (val) => (val && val.length > 0) || 'Please type something',
-              ]"
-            />
-
-            <q-toolbar>
-              
-              <q-space/>
-              <q-checkbox v-model="obj.usegit" label="Use GIT" />
-              <q-checkbox v-model="obj.container" label="Containerized" style="margin-left: 40px;"/>
-              <q-checkbox v-model="obj.enabled" label="Enabled" style="margin-left: 40px;"/>
-              <q-checkbox
-                v-model="obj.endpoint"
-                label="Expose Endpoint"
-                style="margin-left: 40px;margin-right:50px"
+            >
+              <q-tab name="settings" label="Processor" />
+              <q-tab
+                v-if="obj.icon == lambdaIcon"
+                name="lambda"
+                label="Lambda"
+              /><q-tab
+                v-if="obj.icon == 'fas fa-database'"
+                name="database"
+                label="Database"
               />
-            </q-toolbar>
-          </q-form>
-        </div>
-        </q-tab-panel>
-        <q-tab-panel
-          name="concurrency"
-          style="padding: 20px;"
-          ref="concurrency"
-        >
-        <q-input style="width:100px" hint="Number of CPUs" type="number" v-model.number="obj.concurrency"  />
-        </q-tab-panel>
-        <q-tab-panel
-          name="schedule"
-          style="padding: 20px;"
-          ref="schedule"
-        >
-        <q-input hint="Enter CRON Expression" placeholder="* * * * *" v-model.number="obj.cron"  />
+            </q-tabs>
+            <q-tab-panels v-model="settingstab">
+              <q-tab-panel name="settings" style="padding-top: 0px;">
+                <div class="q-pa-md" style="max-width: 100%;">
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.name"
+                      dense
+                      hint="Processor Name"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
 
-        <q-checkbox v-model="obj.useschedule" style="margin-top:30px" label="Use Schedule" />
-        </q-tab-panel>
-        <q-tab-panel
-          name="security"
-          style="padding: 20px;"
-          ref="security"
-        >
-        </q-tab-panel>
-        <q-tab-panel
-          name="scaling"
-          style="padding: 20px;"
-          ref="scaling"
-        >
-        </q-tab-panel>
+                    <q-input
+                      filled
+                      v-model="obj.description"
+                      dense
+                      hint="Processor Description"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.package"
+                      dense
+                      hint="Processor Package"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.git"
+                      hint="GIT Repository"
+                    />
+
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.commit"
+                      hint="Commit Hash"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.api"
+                      dense
+                      hint="API Endpoint"
+                      lazy-rules
+                      :disable="!obj.endpoint"
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
+
+                    <q-toolbar>
+                      <q-space />
+                      <q-checkbox v-model="obj.usegit" label="Use GIT" />
+                      <q-checkbox
+                        v-model="obj.container"
+                        label="Containerized"
+                        style="margin-left: 40px;"
+                      />
+                      <q-checkbox
+                        v-model="obj.enabled"
+                        label="Enabled"
+                        style="margin-left: 40px;"
+                      />
+                      <q-checkbox
+                        v-model="obj.endpoint"
+                        label="Expose Endpoint"
+                        style="margin-left: 40px; margin-right: 50px;"
+                      />
+                    </q-toolbar>
+                  </q-form>
+                </div>
+              </q-tab-panel>
+              <q-tab-panel name="lambda" v-if="obj.icon == lambdaIcon" style="padding-top: 0px;">
+                                <div class="q-pa-md" style="max-width: 100%;">
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.lamdaurl"
+                      dense
+                      hint="Lambda URL"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
+
+                  </q-form>
+                </div>
+              </q-tab-panel>
+              <q-tab-panel name="database" v-if="obj.icon == 'fas fa-database'" style="padding-top: 0px;">
+                                <div class="q-pa-md" style="max-width: 100%;">
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.databasestring"
+                      dense
+                      hint="Connection String"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
+                    />
+
+                  </q-form>
+                </div>
+              </q-tab-panel>              
+            </q-tab-panels>
+          </q-tab-panel>
+          <q-tab-panel
+            name="concurrency"
+            style="padding: 20px;"
+            ref="concurrency"
+          >
+            <q-input
+              style="width: 100px;"
+              hint="Number of CPUs"
+              type="number"
+              v-model.number="obj.concurrency"
+            />
+          </q-tab-panel>
+          <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
+            <q-input
+              hint="Enter CRON Expression"
+              placeholder="* * * * *"
+              v-model.number="obj.cron"
+            />
+
+            <q-checkbox
+              v-model="obj.useschedule"
+              style="margin-top: 30px;"
+              label="Use Schedule"
+            />
+          </q-tab-panel>
+          <q-tab-panel name="security" style="padding: 20px;" ref="security">
+          </q-tab-panel>
+          <q-tab-panel name="scaling" style="padding: 20px;" ref="scaling">
+          </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
 
@@ -1942,8 +2112,9 @@ export default {
   },
   data() {
     return {
-      tab:'settings',
+      tab: 'settings',
       error: true,
+      settingstab: 'settings',
       refreshing: false,
       workersLoading: true,
       splitterModel: 50,
@@ -2233,7 +2404,7 @@ export default {
         style: '',
         x: 0,
         y: 0,
-        requirements:'',
+        requirements: '',
         container: false,
         usegit: true,
         enabled: true,
@@ -2245,10 +2416,10 @@ export default {
         description: 'A script processor description',
         package: 'my.python.package',
         concurrency: 3,
-        cron:"* * * * *",
+        cron: '* * * * *',
         useschedule: false,
         disabled: false,
-        commit: "",
+        commit: '',
         git:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
         columns: [],
@@ -2554,12 +2725,8 @@ export default {
     };
   },
   methods: {
-    onSubmit() {
-
-    },
-    onReset() {
-
-    },
+    onSubmit() {},
+    onReset() {},
     refreshWorkers() {
       var me = this;
       this.workersLoading = true;

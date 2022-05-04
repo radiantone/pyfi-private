@@ -7,6 +7,7 @@
             data-node-type="pattern"
             :data-node-name="item.name"
             :data-node-label="item.name"
+            :data-node-pattern="item.pattern"
             data-node-description="A processor group description"
             data-node-package="my.python.package"
             data-node-id="pattern"
@@ -72,6 +73,7 @@ export default {
         el.data = {
             node: {
                 pattern: true,
+                patternid: el.getAttribute('data-node-pattern'),
                 icon: "far fa-object-group",
                 style: "size:50px",
                 type: "pattern",
@@ -105,12 +107,15 @@ export default {
               {
                   id: 1,
                   name:'Pattern A',
+                  pattern: 'patternA',
                   icon:'fa fas-home',
                   image:'images/pattern1.png'
+                  
               },
               {
                   id: 2,
                   name:'Pattern B',
+                  pattern: 'patternB',
                   icon:'fa fas-home',
                   image:'images/pattern2.png'
               }

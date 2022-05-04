@@ -23,6 +23,10 @@ class DataService {
         return http.get('/api/folder/' + collection + '/' + folder);
     }
 
+    getPattern (name: string): Promise<any> {
+        return http.get('/api/pattern/'+name);
+    }
+
     getNetworks (): Promise<any> {
         return http.get('/api/networks');
     }

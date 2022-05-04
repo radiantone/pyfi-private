@@ -85,7 +85,13 @@
             Clear Nodes
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="far fa-copy" @click="copyNodes">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="far fa-copy"
+          @click="copyNodes"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -94,7 +100,13 @@
             Copy
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-paste" @click="pasteNodes">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="fas fa-paste"
+          @click="pasteNodes"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -191,7 +203,13 @@
             View Code
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-save" @click="saveFlow">
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="fas fa-save"
+          @click="saveFlow"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px;"
@@ -200,7 +218,13 @@
             Save Flow
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;font-size:.8em" size="sm" :icon="this.saveAsIcon" @click="saveToFolder">
+        <q-btn
+          flat
+          style="min-height: 45px; font-size: 0.8em;"
+          size="sm"
+          :icon="this.saveAsIcon"
+          @click="saveToFolder"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px;"
@@ -238,7 +262,7 @@
           style="min-height: 45px;"
           size="sm"
           icon="fas fa-close"
-          @click="showconfirmclose=true"
+          @click="showconfirmclose = true"
         >
           <q-tooltip
             content-class
@@ -249,29 +273,38 @@
           </q-tooltip>
         </q-btn>
         <q-space />
-        <div style="
-                  font-size: 2em;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                  margin-right: 1em"
+
+        <div key="div"
+          style="
+            font-size: 2em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 5px;
+            margin-right: 1em;
+          "
+        >
+          <q-popup-edit v-model="fname" key="popup">
+            <q-input
+            key="input"
+              type="string"
+              v-model="fname"
+              dense
+              autofocus
+              style="
+                font-size: 2em;
+                font-family: 'Indie Flower', cursive;
+                margin-top: 5px;
+              "
+            />
+          </q-popup-edit>
+          <transition
+              appear
+              enter-active-class="animated bounceInDown"
+              leave-active-class="animated fadeOut"
+              v-if="showName"
             >
-              <q-popup-edit
-                v-model="fname"
-              >
-                <q-input
-                  type="string"
-                  v-model="fname"
-                  dense
-                  autofocus
-                  style="
-                    font-size: 2em;
-                    font-family: 'Indie Flower', cursive;
-                    margin-top: 5px;
-                  "
-                />
-              </q-popup-edit>
-              {{ fname }}
-            </div>
+            <q-item-label>{{ fname }}</q-item-label>
+            </transition>
+        </div>
         <q-btn
           flat
           dense
@@ -319,13 +352,13 @@
             name="processors"
             ref="processors"
             style="padding: 0px; width: 100%; padding-top: 0px;"
-          >            
-          <Processors
+          >
+            <Processors
               :objecttype="'processor'"
               :icon="'fas fa-wrench'"
               :collection="'items'"
               style="width: 100%;"
-            /></q-tab-panel>
+          /></q-tab-panel>
           <q-tab-panel
             name="patterns"
             ref="patterns"
@@ -346,8 +379,8 @@
               :flowid="flowid"
             />
           </q-tab-panel>
-          <q-tab-panel name="network" ref="network" style="padding:0px">
-            <Networks/>
+          <q-tab-panel name="network" ref="network" style="padding: 0px;">
+            <Networks />
             <!--
               <div id="chart">
                 <apexchart
@@ -371,19 +404,55 @@
         </q-tab-panels>
       </div>
 
-    <q-card class=" " v-if="showCard" style="background-color:white;width:450px;height:500px;position:absolute; left:-465px;top:5px">
-      <q-toolbar class="bg-accent" style="padding:0px;padding-left:10px">
-          <q-item-label style="
-                  font-size: 1.5em;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                  margin-right: 1em">
-                  {{ card.label }}
-                  </q-item-label>
-                  <q-space/>
-                  <q-btn flat dense size="sm" icon="close" style="padding-right:10px" color="primary" @click="showCard=false"></q-btn>
-      </q-toolbar>
-    </q-card>
+      <q-card
+        class=" "
+        v-if="showCard"
+        style="
+          background-color: white;
+          width: 450px;
+          height: 500px;
+          position: absolute;
+          left: -465px;
+          top: 5px;
+        "
+      >
+        <q-toolbar class="bg-accent" style="padding: 0px; padding-left: 10px;">
+          <q-item-label
+            style="
+              font-size: 1.5em;
+              font-family: 'Indie Flower', cursive;
+              margin-top: 5px;
+              margin-right: 1em;
+            "
+          >
+            {{ card.label }}
+          </q-item-label>
+          <q-space />
+          <q-btn
+            flat
+            dense
+            size="sm"
+            icon="close"
+            style="padding-right: 10px;"
+            color="primary"
+            @click="showCard = false"
+          ></q-btn>
+        </q-toolbar>
+
+        <div
+          style="
+            padding-left: 10px;
+            position: absolute;
+            bottom: -20px;
+            height: 20px;
+            left: 0px;
+            width: 100%;
+          "
+          class="bg-primary text-accent"
+        >
+          {{ card.id }}
+        </div>
+      </q-card>
     </q-drawer>
     <q-page-container style="overflow: hidden;">
       <div class="full-height" style="overflow: hidden;">
@@ -518,15 +587,22 @@
         >
           {{ filename }}
         </q-item-label>
-        
       </div>
     </q-page-container>
 
     <q-footer></q-footer>
-    <q-item-label class="text-secondary" style="position: absolute; top:65px;right:150px">
-        x,y: {{position[0]}},{{position[1]}}</q-item-label>
-    <q-item-label class="text-secondary" style="position: absolute; top:60px;right:40px">
-        Zoom: {{zoom}}</q-item-label>
+    <q-item-label
+      class="text-secondary"
+      style="position: absolute; top: 65px; right: 150px;"
+    >
+      x,y: {{ position[0] }},{{ position[1] }}</q-item-label
+    >
+    <q-item-label
+      class="text-secondary"
+      style="position: absolute; top: 60px; right: 40px;"
+    >
+      Zoom: {{ zoom }}</q-item-label
+    >
     <div
       elevated
       class="q-pa-md"
@@ -649,7 +725,6 @@
                   Zoom to Fit
                 </q-tooltip></q-btn
               >
-              
             </q-toolbar>
             <jsplumb-miniview
               style="width: 100%; height: 200px;"
@@ -1348,7 +1423,7 @@ import 'assets/css/jsplumbtoolkit-defaults.css';
 import Styles from 'components/Styles.vue';
 import Patterns from 'components/Patterns.vue';
 import { mdiContentSaveMove } from '@mdi/js';
-
+import DataService from 'src/components/util/DataService';
 
 function htmlToElement(html) {
   var template = document.createElement('template');
@@ -1359,7 +1434,15 @@ function htmlToElement(html) {
 
 export default {
   name: 'Designer',
-  props: ['surfaceId', 'flowcode', 'flowid', 'flowuuid', 'flow', 'showtoolbar','flowname'],
+  props: [
+    'surfaceId',
+    'flowcode',
+    'flowid',
+    'flowuuid',
+    'flow',
+    'showtoolbar',
+    'flowname',
+  ],
   components: {
     Styles,
     Processors,
@@ -1370,27 +1453,27 @@ export default {
   },
   computed: {
     fname: {
-      get () {
-        return this.flowname
+      get() {
+        return this.flowname;
       },
-      set (name) {
-        this.$emit("update-name",name)
-      }
-    }
+      set(name) {
+        this.$emit('update-name', name);
+      },
+    },
   },
   methods: {
     resetView() {
       window.toolkit.surface.setZoom(1.0);
-      window.toolkit.surface.setPan(0,0,true);
+      window.toolkit.surface.setPan(0, 0, true);
     },
     zoomToOne() {
       window.toolkit.surface.setZoom(1.0);
     },
     panToZero() {
-      window.toolkit.surface.setPan(0,0,true);
+      window.toolkit.surface.setPan(0, 0, true);
     },
     refresh() {
-      console.log("Synchronizing flows");
+      console.log('Synchronizing flows');
       this.$refs['_flows'].synchronize();
     },
     editorInit: function () {
@@ -1412,7 +1495,13 @@ export default {
         null,
         '\t'
       );
-      this.$root.$emit("save.flow.to.folder."+this.flowid,this.flowname, this.flowuuid, this.flowid, thecode)
+      this.$root.$emit(
+        'save.flow.to.folder.' + this.flowid,
+        this.flowname,
+        this.flowuuid,
+        this.flowid,
+        thecode
+      );
     },
     saveFlow() {
       var thecode = JSON.stringify(
@@ -1420,7 +1509,13 @@ export default {
         null,
         '\t'
       );
-      this.$root.$emit("save.flow."+this.flowid,this.flowname, this.flowuuid, this.flowid, thecode)
+      this.$root.$emit(
+        'save.flow.' + this.flowid,
+        this.flowname,
+        this.flowuuid,
+        this.flowid,
+        thecode
+      );
     },
     showCode() {
       this.code = true;
@@ -1492,35 +1587,35 @@ export default {
       }
 
       window.clipboard = jsonData;
-      var nodes = []
+      var nodes = [];
       for (var i = 0; i < window.clipboard.nodes.length; i++) {
-        nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
+        nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id));
       }
       window.nodes = nodes;
       console.log('jsonData:', jsonData);
     },
-    pasteNodes () {
-      console.log('pasteNodes: ', window.clipboard)
+    pasteNodes() {
+      console.log('pasteNodes: ', window.clipboard);
 
-      var data = []
+      var data = [];
 
-      window.toolkit.load({ type: 'json', data: window.clipboard,
-            onload:function() { 
-
-              window.toolkit.setSelection(window.nodes)
-                window.toolkit.surface.zoomToSelection({doNotZoomIfVisible: true});
-            }
-      
-      })
+      window.toolkit.load({
+        type: 'json',
+        data: window.clipboard,
+        onload: function () {
+          window.toolkit.setSelection(window.nodes);
+          window.toolkit.surface.zoomToSelection({ doNotZoomIfVisible: true });
+        },
+      });
 
       this.$root.$emit('status.message', {
         color: 'black',
-        message: 'Pasted ' + nodes.length + ' nodes!'
-      })
+        message: 'Pasted ' + nodes.length + ' nodes!',
+      });
       //window.setDirty(true)
     },
     closeFlow() {
-      this.$root.$emit("close.flow",this.flowid)
+      this.$root.$emit('close.flow', this.flowid);
     },
     confirmDeleteNodes() {
       var selection = window.toolkit.getSelection();
@@ -1582,28 +1677,32 @@ export default {
       me.$store.commit('designer/setMessage', 'Connected');
     }, 5000);
 
+    setTimeout(() => {
+      me.showName = true;
+    },1000);
+
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
 
-    console.log("FLOW UUID",this.flowuuid);
+    console.log('FLOW UUID', this.flowuuid);
     console.log('MOUNTED DESIGNER: STORE', this.$store);
     window.store = this.$store;
     jsPlumbToolkit.ready(function () {
       jsPlumbToolkitVue2.getSurface(me.surfaceId, (s) => {
         me.surface = s;
-        me.surface.bind("lasso:end", function() {
-          me.mode="pan";
+        me.surface.bind('lasso:end', function () {
+          me.mode = 'pan';
         });
-        me.surface.setPan(0,0);
-        me.surface.setPan(0,0);
-        console.log("PAN",me.surface.getPan());
+        me.surface.setPan(0, 0);
+        me.surface.setPan(0, 0);
+        console.log('PAN', me.surface.getPan());
         me.surface.setZoom(1.0);
         function getpan() {
-           me.position=me.surface.getPan();
-           setTimeout(getpan,1000);
+          me.position = me.surface.getPan();
+          setTimeout(getpan, 1000);
         }
         getpan();
-        me.surface.bind("zoom", function() {
+        me.surface.bind('zoom', function () {
           me.zoom = me.surface.getZoom().toFixed(2);
         });
         console.log('SURFACE ', me.surfaceId, s);
@@ -1618,18 +1717,18 @@ export default {
         window.toolkit = me.toolkit;
         window.toolkit.surface = me.surface;
         window.designer = me;
-        me.$root.$on("flow.uuid", (flowid, flowuuid) => {
-          if(flowid == me.flowid) {
+        me.$root.$on('flow.uuid', (flowid, flowuuid) => {
+          if (flowid == me.flowid) {
             me.flowuuid = flowuuid;
           }
         });
 
-        me.$root.$on("object.card", (card) => {
-          me.card = card
-        })
-        me.$root.$on("toggle.card", () => {
+        me.$root.$on('object.card', (card) => {
+          me.card = card;
+        });
+        me.$root.$on('toggle.card', () => {
           me.showCard = !me.showCard;
-        })
+        });
         me.$root.$on('node.selected', (node) => {
           me.node = node;
           console.log('Animate node');
@@ -1645,18 +1744,16 @@ export default {
         me.toolkit.$root = me.$root;
         me.toolkit.renderer = s;
 
-
-        if(me.flowcode) {
+        if (me.flowcode) {
           me.toolkit.load({
             type: 'json',
             data: me.flowcode,
-            onload:function() {                
-              // called after the data has loaded. 
+            onload: function () {
+              // called after the data has loaded.
               window.toolkit.surface.setZoom(1.0);
-              me.toolkit.surface.zoomToFit({ fill: 0.75 });   
-            }
-          })
-
+              me.toolkit.surface.zoomToFit({ fill: 0.75 });
+            },
+          });
         }
 
         var els = me.$el.getElementsByClassName('jtk-surface');
@@ -1675,6 +1772,34 @@ export default {
               console.log('DROP NODE:', node);
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
+              if (data.type == 'pattern') {
+                console.log('DROP PATTERN');
+                DataService.getPattern(data.patternid)
+                  .then((pattern) => {
+                    me.showing = false;
+                    window.toolkit.load({
+                      type: 'json',
+                      data: pattern.data,
+                      onload: function () {
+                        console.log('DONE LOADING');
+                        setTimeout(() => {
+                          //window.toolkit.zoomToOne();
+                          //window.toolkit.zoomToFit();
+                        }, 500);
+                      },
+                    });
+                  })
+                  .catch((error) => {
+                    me.$q.notify({
+                      color: 'negative',
+                      timeout: 2000,
+                      position: 'top',
+                      message: 'An error occurred loading the pattern!',
+                      icon: 'error',
+                    });
+                  });
+                return;
+              }
               if (data.group) {
                 delete data.group;
                 data.id = uuidv4();
@@ -1710,13 +1835,14 @@ export default {
     return {
       zoom: 1.0,
       value: true,
+      showName: false,
       card: {
-        name:'Object Name'
+        name: 'Object Name',
       },
       showCard: false,
       tab: 'flows',
       clear: false,
-      position: [-20,-20],
+      position: [-20, -20],
       showconfirmclose: false,
       deleteText: 'nodes',
       deleteCount: 0,

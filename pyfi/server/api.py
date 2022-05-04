@@ -132,6 +132,15 @@ def get_file(fid):
         file = session.query(FileModel).filter_by(id=fid).first()
         return file.code, 200
 
+
+@app.route('/pattern/<pid>', methods=['GET'])
+def get_pattern(pid):
+    with open('pyfi/server/patterns/'+pid+'.json','r') as pattern:
+
+        _pattern = json.loads(pattern.read())
+        
+        return jsonify(_pattern)
+
 @app.route('/networks', methods=['GET'])
 def get_networks():
     with get_session() as session:
@@ -139,26 +148,26 @@ def get_networks():
         _networks = session.query(NetworkModel).all()
 
         for network in _networks:
-            _network = {'label':network.name, 'tooltip':'Network', 'id':network.id, 'icon':'fas fa-home'}
+            _network = {'label':network.name, 'tooltip':'Network', 'id':network.id, 'icon':'fas fa-home', 'data':json.loads(json.dumps(network, cls=AlchemyEncoder))}
             networks += [_network]
             _network['children'] = []
             for node in network.nodes:
-                _node = {'label':node.name, 'tooltip':'Node', 'id':node.id, 'icon':'fas fa-cube'}
+                _node = {'label':node.name, 'tooltip':'Node', 'id':node.id, 'icon':'fas fa-cube', 'data':json.loads(json.dumps(node, cls=AlchemyEncoder))}
                 _agent = {'label':node.agent.name, 'tooltip':'Agent', 'id':node.agent.id, 'icon':'fas fa-user'}
                 _node['children'] = [_agent]
 
                 workers = []
                 for worker in node.agent.workers:
-                    _worker = {'label':worker.name, 'tooltip':'Worker', 'id':worker.id, 'icon':'fas fa-hard-hat'}
-                    _processor = {'label':worker.processor.name, 'tooltip':'Processor', 'id':worker.processor.id, 'icon':'fas fa-microchip'}
+                    _worker = {'label':worker.name, 'tooltip':'Worker', 'id':worker.id, 'icon':'fas fa-hard-hat', 'data':json.loads(json.dumps(worker, cls=AlchemyEncoder))}
+                    _processor = {'label':worker.processor.name, 'tooltip':'Processor', 'id':worker.processor.id, 'icon':'fas fa-microchip', 'data':json.loads(json.dumps(worker.processor, cls=AlchemyEncoder))}
 
                     _worker['children'] = [_processor]
                     _processor['children'] = []
                     for socket in worker.processor.sockets:
-                        _socket= {'label':socket.name, 'tooltip':'Socket', 'id':socket.id, 'icon':'outlet'}
+                        _socket= {'label':socket.name, 'tooltip':'Socket', 'id':socket.id, 'icon':'outlet', 'data':json.loads(json.dumps(socket, cls=AlchemyEncoder))}
                         _processor['children'] += [_socket]
 
-                        _task = {'label':socket.task.name, 'tooltip':'Task', 'id':socket.task.id, 'icon':'fas fa-check'}
+                        _task = {'label':socket.task.name, 'tooltip':'Task', 'id':socket.task.id, 'icon':'fas fa-check', 'data':json.loads(json.dumps(socket.task, cls=AlchemyEncoder))}
                         _module = {'label':socket.task.module, 'tooltip':'Module', 'id':socket.task.id+'module', 'icon':'fas fa-box'}
                         _function = {'label':socket.task.name, 'tooltip':'Function', 'id':socket.task.id+'function', 'icon':'fab fa-python'}
                         _task['children'] = [_module]
@@ -170,6 +179,7 @@ def get_networks():
                 
                 _network['children'] += [_node]
 
+        print(networks)
         return jsonify({'networks':networks})
 
 @app.route('/files/<fid>', methods=['DELETE'])

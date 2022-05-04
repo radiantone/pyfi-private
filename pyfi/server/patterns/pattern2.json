@@ -1,0 +1,192 @@
+{
+	"nodes": [
+		{
+			"icon": "fab fa-python",
+			"style": "",
+			"type": "processor",
+			"name": "Script Processor",
+			"label": "Script",
+			"description": "A script processor description",
+			"package": "my.python.package",
+			"disabled": false,
+			"columns": [
+				{
+					"name": "Output",
+					"icon": "fas fa-plug",
+					"type": "Output",
+					"background": "white",
+					"datatype": "Column",
+					"id": "port0942152583bd4cbda9197e2066756091",
+					"description": "A description"
+				}
+			],
+			"properties": [],
+			"left": 226,
+			"top": 113,
+			"id": "f1ede256-6f12-473c-86d0-6229c7225b76",
+			"x": 0,
+			"y": 0,
+			"requirements": "",
+			"container": false,
+			"usegit": true,
+			"enabled": true,
+			"endpoint": false,
+			"api": "/api/processor",
+			"concurrency": 3,
+			"cron": "* * * * *",
+			"useschedule": false,
+			"commit": "",
+			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"readwrite": 0,
+			"group": "221d9bdc-ada4-4678-b2f9-fcb2a277b97e"
+		},
+		{
+			"icon": "fab fa-python",
+			"style": "",
+			"type": "processor",
+			"name": "Script Processor",
+			"label": "Script",
+			"description": "A script processor description",
+			"package": "my.python.package",
+			"disabled": false,
+			"columns": [
+				{
+					"name": "Input",
+					"icon": "outlet-icon",
+					"type": "Input",
+					"background": "white",
+					"datatype": "Column",
+					"id": "portf77013e931354df9b0e0f6a93ba8b57e",
+					"description": "A description"
+				}
+			],
+			"properties": [],
+			"left": 1001,
+			"top": 4,
+			"id": "72e45d68-c447-4042-a3e9-0adb07ec9d9d",
+			"x": 0,
+			"y": 0,
+			"requirements": "",
+			"container": false,
+			"usegit": true,
+			"enabled": true,
+			"endpoint": false,
+			"api": "/api/processor",
+			"concurrency": 3,
+			"cron": "* * * * *",
+			"useschedule": false,
+			"commit": "",
+			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"readwrite": 0,
+			"group": "221d9bdc-ada4-4678-b2f9-fcb2a277b97e"
+		},
+		{
+			"icon": "fab fa-python",
+			"style": "",
+			"type": "processor",
+			"name": "Script Processor",
+			"label": "Script",
+			"description": "A script processor description",
+			"package": "my.python.package",
+			"disabled": false,
+			"columns": [
+				{
+					"name": "Input",
+					"icon": "outlet-icon",
+					"type": "Input",
+					"background": "white",
+					"datatype": "Column",
+					"id": "port71aaee252841451481ef3da6e81840b1",
+					"description": "A description"
+				}
+			],
+			"properties": [],
+			"left": 792,
+			"top": 411,
+			"id": "5eaab74e-5628-4a70-a424-f60cc52d839f",
+			"x": 0,
+			"y": 0,
+			"requirements": "",
+			"container": false,
+			"usegit": true,
+			"enabled": true,
+			"endpoint": false,
+			"api": "/api/processor",
+			"concurrency": 3,
+			"cron": "* * * * *",
+			"useschedule": false,
+			"commit": "",
+			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"readwrite": 0,
+			"group": "221d9bdc-ada4-4678-b2f9-fcb2a277b97e"
+		}
+	],
+	"edges": [
+		{
+			"source": "f1ede256-6f12-473c-86d0-6229c7225b76.port0942152583bd4cbda9197e2066756091",
+			"target": "72e45d68-c447-4042-a3e9-0adb07ec9d9d.portf77013e931354df9b0e0f6a93ba8b57e",
+			"data": {
+				"label": "port0942152583bd4cbda9197e2066756091",
+				"name": "Output",
+				"event": "port0942152583bd4cbda9197e2066756091"
+			}
+		},
+		{
+			"source": "f1ede256-6f12-473c-86d0-6229c7225b76.port0942152583bd4cbda9197e2066756091",
+			"target": "5eaab74e-5628-4a70-a424-f60cc52d839f.port71aaee252841451481ef3da6e81840b1",
+			"data": {
+				"label": "port0942152583bd4cbda9197e2066756091",
+				"name": "Output",
+				"event": "port0942152583bd4cbda9197e2066756091"
+			}
+		}
+	],
+	"ports": [
+		{
+			"name": "Output",
+			"icon": "fas fa-plug",
+			"type": "Output",
+			"background": "white",
+			"datatype": "Column",
+			"id": "f1ede256-6f12-473c-86d0-6229c7225b76.port0942152583bd4cbda9197e2066756091",
+			"description": "A description"
+		},
+		{
+			"name": "Input",
+			"icon": "outlet-icon",
+			"type": "Input",
+			"background": "white",
+			"datatype": "Column",
+			"id": "72e45d68-c447-4042-a3e9-0adb07ec9d9d.portf77013e931354df9b0e0f6a93ba8b57e",
+			"description": "A description"
+		},
+		{
+			"name": "Input",
+			"icon": "outlet-icon",
+			"type": "Input",
+			"background": "white",
+			"datatype": "Column",
+			"id": "5eaab74e-5628-4a70-a424-f60cc52d839f.port71aaee252841451481ef3da6e81840b1",
+			"description": "A description"
+		}
+	],
+	"groups": [
+		{
+			"icon": "far fa-object-group",
+			"style": "size:50px",
+			"type": "group",
+			"name": "Group",
+			"label": "Group",
+			"description": "A processor group description",
+			"package": "my.python.package",
+			"disabled": false,
+			"columns": [],
+			"properties": [],
+			"left": 98,
+			"top": 251,
+			"id": "221d9bdc-ada4-4678-b2f9-fcb2a277b97e",
+			"h": 720,
+			"w": 1790
+		}
+	]
+}

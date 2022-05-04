@@ -1,7 +1,12 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <ToolPalette
+      <ToolPalette v-if="tools == 'code'"
+        v-bind:data-generator="dataGenerator"
+        surfaceId="flow1"
+        selector="[data-node-type]"
+      />
+      <ModelToolPalette v-if="tools == 'model'"
         v-bind:data-generator="dataGenerator"
         surfaceId="flow1"
         selector="[data-node-type]"
@@ -115,6 +120,7 @@
           icon="fa fa-question"
           label="0"
         />
+      
         <q-btn
           color="secondary"
           flat
@@ -124,6 +130,34 @@
           icon="fa fa-refresh"
           label="12:36:17 EDT"
         />
+
+      <q-btn-toggle
+        v-model="tools"
+        class="my-custom-toggle"
+        no-caps
+        flat
+        dense
+        size="sm"
+        padding="1em"
+        unelevated
+        :ripple="false"
+        toggle-color="dark"
+        color="white"
+        text-color="secondary"
+        :options="[
+          {icon: 'fa fa-database', value: 'model'},
+          {icon: 'fab fa-python', value: 'code'}
+        ]"
+      >
+        <template v-slot:one>
+          <div style="font-size:.5em;margin-left:20px">
+          </div>
+        </template>
+        <template v-slot:two>
+          <div style="font-size:.5em;margin-left:20px">
+          </div>
+        </template>
+        </q-btn-toggle>
         <q-space />
         <q-input
           dark
@@ -234,6 +268,7 @@ import { QSpinnerOval } from "quasar";
 import { defineComponent, ref } from "@vue/composition-api";
 import Designer from "src/pages/Designer.vue";
 import ToolPalette from "src/components/ToolPalette.vue";
+import ModelToolPalette from "src/components/ModelToolPalette.vue";
 import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from 'src/store/Store';
 
 import "assets/css/font-awesome.min.css";
@@ -246,7 +281,7 @@ import "assets/fonts/flowfont2.woff2";
 
 export default defineComponent({
   name: "MainLayout",
-  components: { Designer, ToolPalette },
+  components: { Designer, ToolPalette, ModelToolPalette },
   setup() {
     return {};
   },
@@ -498,6 +533,7 @@ export default defineComponent({
         }
       ],
       tab: null,
+      tools: 'code',
       text: "",
     };
   },

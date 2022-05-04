@@ -258,6 +258,7 @@
 </style>
 <script>
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
+import DataService from "../util/DataService";
 
 export default {
   name: "PatternTemplate",
@@ -266,9 +267,31 @@ export default {
   mounted() {
     var me = this;
     this.toolkit = window.toolkit;
-    setTimeout( () => {
+    var group = this.toolkit.getObjectInfo(this.obj);
+    console.log("PATTERN GROUP",group);
+    DataService.getPattern('pattern2').then( (pattern) => {
+        me.showing = false;
+        console.log("PATTERN NODES",pattern)
+        window.toolkit.load({type: 'json', data: pattern.data})
+        /*
+        pattern.data['nodes'].forEach( (node) => {
+          console.log("Adding node",node)
+          me.toolkit.addNode(node)
+          group.obj.addNode(node)
+        });
+        pattern.data['ports'].forEach( (port) => {
+          console.log("Adding port",port)
+          me.toolkit.addPort(port)
+          group.obj.addPort(port)
+        })
+        pattern.data['edges'].forEach( (edge) => {
+          console.log("Adding edge",edge)
+          
+          group.obj.addEdge(edge)
+        })*/
+    }).catch( (error) => {
       me.showing = false;
-    },2000)
+    })
   },
   created() {},
   data() {

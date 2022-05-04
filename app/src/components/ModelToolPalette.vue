@@ -8,7 +8,7 @@
     <q-btn
       flat
       align="left"
-      icon="icon-processor"
+      icon="format_list_bulleted"
       aria-label="Processor"
       size="large"
       id="processor"
@@ -19,221 +19,10 @@
         content-style="font-size: 16px"
         content-class="bg-black text-white"
       >
-        Processor
+        Class
       </q-tooltip>
     </q-btn>
 
-    <q-btn
-      flat
-      align="left"
-      icon="icon-port-in"
-      aria-label="Port In"
-      size="large"
-      id="portin"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Port In
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-port-out"
-      aria-label="Port Out"
-      id="portout"
-      size="large"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Port Out
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-group"
-      aria-label="Group"
-      size="large"
-      data-node-icon="far fa-object-group"
-      data-node-type="group"
-      data-node-name="Group"
-      data-node-label="Group"
-      data-node-description="A processor group description"
-      data-node-package="my.python.package"
-      data-node-id="group"
-      jtk-is-group="true"
-      id="processorgroup"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold sidebar-item"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Process Group
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="segment"
-      aria-label="Parallel Node"
-      id="parallel"
-      size="large"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Parallel
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="fas fa-long-arrow-alt-right"
-      aria-label="Pipeline Node"
-      size="large"
-      id="pipeline"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Pipeline
-      </q-tooltip>
-    </q-btn>
-
-    <q-btn
-      flat
-      align="left"
-      icon="low_priority"
-      aria-label="Chord Node"
-      size="large"
-      id="chord"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Chord
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="grid_view"
-      aria-label="Segment Node"
-      size="large"
-      id="segment"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Segment
-      </q-tooltip>
-    </q-btn>
-    <!--<q-btn
-      flat
-      align="left"
-      icon="icon-map"
-      aria-label="Map Node"
-      size="large"
-      id="map"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Map
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-funnel"
-      aria-label="Reduce Node"
-      size="large"
-      id="reduce"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Reduce
-      </q-tooltip>
-    </q-btn>-->
-    <q-btn
-      flat
-      align="left"
-      icon="alt_route"
-      aria-label="Router"
-      size="large"
-      id="router"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Router
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-template"
-      aria-label="Template"
-      size="large"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Template
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-label"
-      aria-label="Label"
-      size="large"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Label
-      </q-tooltip>
-    </q-btn>
     <q-space />
 
     <q-item-label
@@ -408,7 +197,7 @@
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
 
 export default {
-  name: 'ToolPalette',
+  name: 'ModelToolPalette',
   created() {},
   mounted() {
     console.log('TOOLPALETTE STORE', this.$store);
