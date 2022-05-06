@@ -684,7 +684,7 @@
             class="fas fa-edit"
             title="Edit Name"
             style="margin-right: 5px;"
-            @click=""
+            @click="editPort=!editPort"
           />
         </div>
         <div>
@@ -1160,6 +1160,41 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+
+
+    <q-card
+      style="
+        width: 400px;
+        z-index: 999;
+        display: block;
+        position: absolute;
+        right: -405px;
+        height: 400px;
+        top: 0px;
+      "
+      v-if="editPort"
+    >
+      <q-card-section
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          height: 650px;
+        "
+      >
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="editPort = false"
         />
       </q-card-actions>
     </q-card>
@@ -2114,6 +2149,7 @@ export default {
     return {
       tab: 'settings',
       error: true,
+      editPort: false,
       settingstab: 'settings',
       refreshing: false,
       workersLoading: true,

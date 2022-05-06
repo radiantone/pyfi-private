@@ -9,6 +9,10 @@ class DataService {
     getFiles (collection: string, folder: string): Promise<any> {
         return http.get('/api/files/'+collection+'/'+folder);
     }
+    
+    getProcessors (): Promise<any> {
+        return http.get('/api/processors');
+    }
 
     newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string): Promise<any> {
         var path = encodeURI('/api/files/' + collection + '/' + folder);

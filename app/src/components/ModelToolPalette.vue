@@ -11,7 +11,7 @@
       icon="format_list_bulleted"
       aria-label="Processor"
       size="large"
-      id="processor"
+      id="class"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >

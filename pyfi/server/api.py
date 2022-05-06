@@ -80,6 +80,14 @@ class AlchemyEncoder(json.JSONEncoder):
 
 app.json_encoder = AlchemyEncoder
 
+@app.route('/processors', methods=['GET'])
+def get_processors():
+
+    with get_session() as session:
+        processors = session.query(ProcessorModel).all()
+
+        return jsonify(processors)
+
 
 @app.route('/files/<collection>/<path:path>', methods=['GET'])
 def get_files(collection, path):
@@ -105,7 +113,6 @@ def get_files(collection, path):
 
 @app.route('/folder/<collection>/<path:path>', methods=['GET'])
 def new_folder(collection, path):
-    #_session = sessionmaker(bind=engine)()
 
     with get_session() as _session:
         folder = _session.query(FileModel).filter_by(collection=collection, path=path, type="folder").first()
@@ -128,6 +135,7 @@ def new_folder(collection, path):
 
 @app.route('/files/<fid>', methods=['GET'])
 def get_file(fid):
+    
     with get_session() as session:
         file = session.query(FileModel).filter_by(id=fid).first()
         return file.code, 200
@@ -143,6 +151,7 @@ def get_pattern(pid):
 
 @app.route('/networks', methods=['GET'])
 def get_networks():
+
     with get_session() as session:
         networks = []
         _networks = session.query(NetworkModel).all()
@@ -264,9 +273,17 @@ def post_files(collection, path):
                 return jsonify(error), 409
 
         else:
+            file = session.query(FileModel).filter_by(name=path+"/"+data['name'], path=path, collection=collection, type=data['type']).first()
+
+            if file:
+                error = {'status':'error','message':'File name exists', 'id':file.id}
+                return jsonify(error), 409
+
             file = FileModel(name=path+"/"+data['name'], filename=data['name'], collection=collection, type=data['type'], icon=data['icon'], path=path, code=data['file'])
+            
             if 'saveas' in data:
                 print("SAVEAS",file)
+
             session.add(file)
             session.commit()
 

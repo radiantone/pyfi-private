@@ -115,22 +115,7 @@
             Paste
           </q-tooltip>
         </q-btn>
-        <!--<q-btn
-          flat
-          style="min-height: 45px;"
-          size="sm"
-          icon="fas fa-expand"
-          class="q-mr-xs"
-          @click="zoomToSelection"
-        >
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Zoom to Selection
-          </q-tooltip>
-        </q-btn>-->
+        
         <q-btn
           flat
           style="min-height: 45px;"
@@ -160,26 +145,8 @@
           >
             Redo
           </q-tooltip> </q-btn
-        ><!--
-        <q-btn flat style="min-height: 45px;" size="sm" @click="zoomIn" icon="fa fa-plus">
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Zoom In
-          </q-tooltip>
-        </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" @click="zoomOut" icon="fa fa-minus">
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Zoom Out
-          </q-tooltip>
-        </q-btn>-->
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-sync">
+        >
+        <q-btn flat style="min-height: 45px;" @click="refresh" size="sm" icon="fas fa-sync">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -272,6 +239,15 @@
             Close Flow
           </q-tooltip>
         </q-btn>
+                <q-btn flat style="min-height: 45px;" @click="redraw" size="sm" icon="fas fa-sync">
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Sync
+          </q-tooltip>
+        </q-btn>
         <q-space />
 
         <div key="div"
@@ -356,7 +332,7 @@
             <Processors
               :objecttype="'processor'"
               :icon="'fas fa-wrench'"
-              :collection="'items'"
+              :collection="'processors'"
               style="width: 100%;"
           /></q-tab-panel>
           <q-tab-panel
@@ -381,25 +357,6 @@
           </q-tab-panel>
           <q-tab-panel name="network" ref="network" style="padding: 0px;">
             <Networks />
-            <!--
-              <div id="chart">
-                <apexchart
-                  type="line"
-                  v-if="value"
-                  height="250"
-                  :options="chartOptions"
-                  :series="series"
-                ></apexchart>
-                <div id="chart">
-                  <apexchart
-                    type="candlestick"
-                    height="250"
-                    :options="chartOptions2"
-                    :series="series2"
-                  ></apexchart>
-                </div>
-              </div>
-              -->
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -1462,6 +1419,9 @@ export default {
     },
   },
   methods: {
+    redraw() {
+      window.toolkit.surface.refresh();
+    },
     resetView() {
       window.toolkit.surface.setZoom(1.0);
       window.toolkit.surface.setPan(0, 0, true);

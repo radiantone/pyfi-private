@@ -2,7 +2,7 @@
   <div
     class="aGroup"
     style="border: 2px dashed black; min-height: 150px; z-index: -100;"
-    id="jtkgroup"
+    :id="obj.id"
   >
     <q-slider
       v-model="obj.w"
@@ -116,7 +116,7 @@
     </h4>
     <jtk-source filter=".group-connect, .group-connect *" />
     <jtk-target />
-    <div
+    <div :id="obj.id+'inner'"
       jtk-group-content="true"
       class="aGroupInner"
       :style="
@@ -363,6 +363,10 @@
 </style>
 <script>
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
+import * as htmlToImage from 'html-to-image';
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
+
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: 'GroupTemplate',
@@ -387,7 +391,22 @@ export default {
   },
   methods: {
     savePattern() {
-
+      var me = this;
+      this.savePatternDialog = false;
+      var el = document.getElementById(this.obj.id+'inner');
+      this.showing = true;
+      htmlToImage.toPng(el)
+      .then(function (dataUrl) {
+        var img = new Image();
+        img.src = dataUrl;
+        window.root.$emit("save.pattern",uuidv4(), me.patternName, img.src);
+        console.log("IMAGE2",me.patternName, img)
+        me.showing = false;
+      })
+      .catch(function (error) {
+        me.showing = false;
+        console.error('oops, something went wrong!', error);
+      });
     },
     deleteAGroup(all) {
       console.log("Removing group",this.obj);

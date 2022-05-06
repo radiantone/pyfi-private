@@ -82,27 +82,7 @@
             Refresh
           </q-tooltip>
         </q-btn>
-        <q-btn
-          flat
-          round
-          icon="fas fa-plus"
-          size="xs"
-          color="primary"
-          class="q-mr-xs"
-          style="padding: 0;"
-          @click="
-            showpath = false;
-            showaddfolder = true;
-          "
-        >
-          <q-tooltip
-            content-class=""
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Add Folder
-          </q-tooltip>
-        </q-btn>
+       
       </q-breadcrumbs>
     </div>
     <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
@@ -114,8 +94,7 @@
           class="dragrow"
         >
           <q-item-section avatar>
-            <q-icon :name="item.icon" color="secondary" v-if="item.type == 'folder'" :class="darkStyle" />
-            <q-icon :name="item.icon"  v-if="item.type != 'folder'" :class="darkStyle" />
+            <q-icon name="fas fa-microchip"   class="text-secondary" />
           </q-item-section>
           <q-item-section
             ><a
@@ -127,257 +106,14 @@
                 min-width: 250px;
                 font-size: 1.3em;
               "
-              @click="selectFileOrFolder(item)"
               >{{ item.name }}</a
             >
           </q-item-section>
           <q-space />
-          <q-toolbar>
-            <q-space />
-            <q-btn flat dense rounded icon="edit" :class="darkStyle">
-              <q-tooltip
-                v-if="item.type === objecttype"
-                content-style="font-size: 16px"
-                :offset="[10, 10]"
-              >
-                Rename
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              flat
-              dense
-              rounded
-              icon="delete"
-              :class="darkStyle"
-              @click="showDeleteObject(item)"
-            >
-              <q-tooltip
-                v-if="item.type === objecttype"
-                content-style="font-size: 16px"
-                :offset="[10, 10]"
-              >
-                Delete
-                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
-              </q-tooltip>
-            </q-btn>
-          </q-toolbar>
         </q-item>
       </q-list>
     </q-scroll-area>
 
-    <q-dialog v-model="saveflow" persistent>
-      <q-card
-        style="padding: 10px; padding-top: 30px; width: 500px; height: 200px;"
-      >
-        <q-card-section
-          class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              color: white;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-item-label>Save Flow</q-item-label>
-              <q-space />
-              <q-icon class="text-primary" name="fas fa-save" />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
-          <span class="q-ml-sm"> Save flow to folder {{ foldername }}? </span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-            flat
-            label="Cancel"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
-          />
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Save"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-            @click="saveFlow"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="deleteobject" persistent>
-      <q-card style="padding: 10px; padding-top: 30px;">
-        <q-card-section
-          class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              color: white;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-item-label>Delete {{ deleteobjectname }}</q-item-label>
-              <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
-          <span class="q-ml-sm">
-            Are you sure you want to delete {{ deleteobjectname }}?
-          </span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-            flat
-            label="Cancel"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
-          />
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Delete"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-            @click="deleteObject"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="overwriteflow" persistent>
-      <q-card
-        style="padding: 10px; padding-top: 30px; width: 500px; height: 200px;"
-      >
-        <q-card-section
-          class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              color: white;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-item-label>Filename Exists</q-item-label>
-              <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
-          <span class="q-ml-sm">
-            Overwrite existing flow {{ this.flowname }}?
-          </span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-            flat
-            label="Cancel"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
-          />
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Yes"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-            @click="doOverwriteFlow"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="folderprompt" persistent>
-      <q-card style="min-width: 350px;">
-        <q-card-section>
-          <div class="text-h6">New Folder</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input
-            dense
-            v-model="newfolder"
-            autofocus
-            class="bg-white"
-            @keyup.enter="folderprompt = false"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Create" v-close-popup @click="newFolder" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
@@ -412,85 +148,9 @@ export default {
   mounted() {
     this.synchronize();
     this.$root.$on('update.' + this.collection, this.synchronize);
-    this.$root.$on('save.flow', this.saveFlowEvent);
   },
   methods: {
 
-    async doOverwriteFlow() {
-      console.log('doOverwriteFlow');
-      this.saveFlow();
-    },
-    async saveFlow() {
-      var me = this;
-      this.loading = true;
-      console.log(
-        'processor',
-        this.flowuuid,
-        this.foldername,
-        this.flowname,
-        this.flowcode
-      );
-      await DataService.newFile(
-        'processors',
-        this.foldername,
-        this.flowuuid,
-        this.flowname,
-        'processor',
-        'fas fa-file',
-        this.flowcode
-      )
-        .then((response) => {
-          me.synchronize();
-          console.log(response.data.id);
-          me.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Save flow ' + this.flowname + ' succeeded!',
-            icon: 'save',
-          });
-          this.flowuuid = response.data.id;
-          console.log('this.flowuuid is', this.flowuuid);
-          this.$root.$emit('flow.uuid', this.flowid, this.flowuuid);
-        })
-        .catch(({ request }) => {
-          console.log(request);
-          this.loading = false;
-          if (request.status === 409) {
-            console.log('File name exists');
-            me.overwriteflow = true;
-            me.notifyMessage('dark', 'error', 'The file name already exists.');
-          }
-        });
-      //DataService call to create or save flow in foldername
-      //with flowcode as the code
-    },
-    saveFlowEvent(name, uuid, id, flow) {
-      this.saveflow = true;
-      this.flowcode = flow;
-      this.flowname = name;
-      this.flowid = id;
-      this.flowuuid = uuid;
-      console.log('saveFlowEvent', uuid, id);
-    },
-    addFolder() {
-      var me = this;
-      this.showaddfolder = false;
-      this.showpath = true;
-      this.loading = true;
-      console.log('FOLDERNAME', this.foldername+"/"+this.newfolder);
-      DataService.newFolder('flows', this.foldername+"/"+this.newfolder).then(() => {
-        me.synchronize();
-      }).catch(function (error) {
-            console.log(error);
-            me.loading = false;
-            me.notifyMessage(
-              'dark',
-              'error',
-              'There was an error creating the folder.'
-            );
-          });
-    },
     breadcrumbClick(crumb) {
       console.log('CRUMB:', crumb.path);
       var path = crumb.path;
@@ -558,7 +218,7 @@ export default {
       this.loading = true;
       var me = this;
       try {
-        var files = DataService.getFiles(this.collection, this.foldername);
+        var files = DataService.getProcessors();
         files
           .then(function (result) {
             setTimeout(function () {
@@ -570,13 +230,17 @@ export default {
 
             setTimeout(() => {
               for (let i = 0; i < result.length; i++) {
+                console.log("result",result[i])
                 if (result[i].type === 'folder') continue;
                 //var el = document.querySelector("[id='" + result[i]._id + "']");
                 var el = document.querySelector(
                   "[id='row" + result[i].id + "']"
                 );
                 if (el) {
-                  console.log(result[i]._id, el);
+                  console.log(result[i], el);
+                  el.data = result[i];
+                  el.data.type = "processor";
+                  el.data.icon = "fas fa-microchip";
 
                   var draghandle = dd.drag(el, {
                     image: true, // default drag image
@@ -607,82 +271,10 @@ export default {
           'There was an error synchronizing this view.'
         );
       }
-    },
-    navigate(folder) {
-      this.foldername = folder;
-      this.synchronize();
-    },
-    async deleteObject() {
-      console.log('DELETE: ', this.deleteobjectid);
-      var me = this;
-      var res = await DataService.deleteFile(this.deleteobjectid)
-        .then((result) => {
-          me.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Delete flow ' + this.deleteobjectname + ' succeeded!',
-            icon: 'folder',
-          });
-          me.synchronize();
-        })
-        .catch((error) => {
-          console.log(error);
-          me.loading = false;
-          me.notifyMessage(
-            'negative',
-            'error',
-            'There was an error deleting flow ' + this.deleteobjectname + '.'
-          );
-        });
-    },
-    showDeleteObject(item) {
-      this.deleteobjectname = item.name;
-      this.deleteobjectid = item.id;
-      this.deleteobjecttype = item.type;
-      this.deleteobject = true;
-    },
-    async newFolder() {
-      var me = this;
-      try {
-        var res = await ObjectService.makeDirectory(
-          this.collection,
-          this.foldername,
-          this.newfolder,
-          this.security.auth.user
-        );
-        me.loading = false;
-        console.log(res);
-        if (res.status === 'error') {
-          me.notifyMessage(
-            'negative',
-            'error',
-            'There was an error creating the new folder.'
-          );
-        } else {
-          me.$q.notify({
-            color: 'primary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Create Folder Succeeded',
-            icon: 'folder',
-          });
-          this.synchronize();
-        }
-      } catch (error) {
-        console.log(error);
-        me.loading = false;
-        me.notifyMessage(
-          'negative',
-          'error',
-          'There was an error creating the new folder.'
-        );
-      }
-    },
+    }
   },
   data() {
     return {
-      saveflow: false,
       showpath: true,
       showaddfolder: false,
       columns: [

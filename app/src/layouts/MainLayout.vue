@@ -151,11 +151,24 @@
       >
         <template v-slot:one>
           <div style="font-size:.5em;margin-left:20px">
+                <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Database Tools
+      </q-tooltip>
           </div>
         </template>
         <template v-slot:two>
           <div style="font-size:.5em;margin-left:20px">
           </div>
+
+                <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Python Tools
+      </q-tooltip>
         </template>
         </q-btn-toggle>
         <q-space />
