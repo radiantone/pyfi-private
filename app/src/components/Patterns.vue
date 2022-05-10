@@ -97,7 +97,7 @@
           jtk-is-group="true"
         >
           <q-item-section avatar>
-            <q-icon :name="item.icon" class="text-secondary" />
+            <q-icon name="fas fa-project-diagram" class="text-secondary" />
           </q-item-section>
           <q-item-section>
             <table border="0" width="400px">
@@ -187,7 +187,8 @@ export default {
           console.log('PATTERNS', result);
           console.log('ITEMS', me.items);
           result.data.forEach((pattern) => {
-            pattern.image = pattern.code;
+            pattern.image = JSON.parse(pattern.code)['image'];
+            console.log('PATTERN CODE',JSON.parse(pattern.code)['code'])
           });
           me.items = me.items.concat(result.data);
           setTimeout(() => {
@@ -252,8 +253,9 @@ export default {
         pattern.name,
         false,
         'pattern',
-        'fas fa-microchip',
-        pattern.image
+        'fas fa-project-diagram',
+        JSON.stringify({'image':pattern.image,'code':''})
+
       )
         .then((response) => {
           me.synchronize();

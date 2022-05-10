@@ -14630,7 +14630,11 @@ if (typeof exports !=='undefined') { exports.jsPlumbUtil = jsPlumbUtil;}
 
             atts = atts || {};
             for (i in atts) {
-                e.setAttribute(i, "" + atts[i]);
+                try {
+                    e.setAttribute(i, "" + atts[i]);
+                } catch (error) {
+                    console.log(error)
+                }
             }
 
             return e;
@@ -22752,6 +22756,14 @@ if (typeof exports !=='undefined') { exports.jsPlumbUtil = jsPlumbUtil;}
                 group = info.obj;
                 var nodes = [];
                 Array.prototype.push.apply(nodes, group.getNodes());
+                nodes.forEach((node) => {
+                    var edges = node.getEdges();
+
+                    edges.forEach((edge) => {
+                        node.removeEdge(edge);    
+                    });
+                    
+                });
                 var g = _graph.deleteGroup(group, removeChildNodes);
                 if (g) {
                     if (!_dataLoading && !doNotUpdateOriginalData)

@@ -115,7 +115,7 @@
             Paste
           </q-tooltip>
         </q-btn>
-        
+
         <q-btn
           flat
           style="min-height: 45px;"
@@ -144,15 +144,21 @@
             :offset="[10, 10]"
           >
             Redo
-          </q-tooltip> </q-btn
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px; font-size: 1em;"
+          @click="refresh"
+          size="sm"
+          icon="update"
         >
-        <q-btn flat style="min-height: 45px;" @click="refresh" size="sm" icon="fas fa-sync">
           <q-tooltip
             content-class
             content-style="font-size: 16px"
             :offset="[10, 10]"
           >
-            Sync
+            Update
           </q-tooltip>
         </q-btn>
         <q-btn
@@ -227,6 +233,37 @@
         <q-btn
           flat
           style="min-height: 45px;"
+          @click="redraw"
+          size="sm"
+          icon="fas fa-refresh"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Refresh
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          @click="bandwidthToggle"
+          size="sm"
+          icon="fas fa-tachometer-alt"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Toggle Bandwidth Display
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
           size="sm"
           icon="fas fa-close"
           @click="showconfirmclose = true"
@@ -239,18 +276,11 @@
             Close Flow
           </q-tooltip>
         </q-btn>
-                <q-btn flat style="min-height: 45px;" @click="redraw" size="sm" icon="fas fa-sync">
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Sync
-          </q-tooltip>
-        </q-btn>
+
         <q-space />
 
-        <div key="div"
+        <div
+          key="div"
           style="
             font-size: 2em;
             font-family: 'Indie Flower', cursive;
@@ -260,7 +290,7 @@
         >
           <q-popup-edit v-model="fname" key="popup">
             <q-input
-            key="input"
+              key="input"
               type="string"
               v-model="fname"
               dense
@@ -273,13 +303,13 @@
             />
           </q-popup-edit>
           <transition
-              appear
-              enter-active-class="animated bounceInDown"
-              leave-active-class="animated fadeOut"
-              v-if="showName"
-            >
+            appear
+            enter-active-class="animated bounceInDown"
+            leave-active-class="animated fadeOut"
+            v-if="showName"
+          >
             <q-item-label>{{ fname }}</q-item-label>
-            </transition>
+          </transition>
         </div>
         <q-btn
           flat
@@ -1353,6 +1383,7 @@ import PatternTemplate from 'components/templates/PatternTemplate.vue';
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue';
 import PortInTemplate from 'components/templates/PortInTemplate.vue';
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
+import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue';
 import Flows from 'components/Flows.vue';
 import Processors from 'components/Processors.vue';
 import Networks from 'components/Networks.vue';
@@ -1381,6 +1412,7 @@ import Styles from 'components/Styles.vue';
 import Patterns from 'components/Patterns.vue';
 import { mdiContentSaveMove } from '@mdi/js';
 import DataService from 'src/components/util/DataService';
+import ParallelTemplateVue from 'src/components/templates/ParallelTemplate.vue';
 
 function htmlToElement(html) {
   var template = document.createElement('template');
@@ -1419,6 +1451,10 @@ export default {
     },
   },
   methods: {
+    bandwidthToggle() {
+      console.log('bandwidthToggle');
+      this.$emit('toggle.bandwith', this.showBandwidth);
+    },
     redraw() {
       window.toolkit.surface.refresh();
     },
@@ -1484,6 +1520,7 @@ export default {
         null,
         '\t'
       );
+      console.log('NODE', window.toolkit.getNodes());
     },
     copyNodes() {
       function findMatch(list, obj) {
@@ -1639,7 +1676,7 @@ export default {
 
     setTimeout(() => {
       me.showName = true;
-    },1000);
+    }, 1000);
 
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
@@ -1729,35 +1766,47 @@ export default {
               console.log('NUMBER:', number);
               node.node.left = number.left - 390 / 2;
               node.node.top = number.top - 135 / 2;
+              node.node.x = number.left - 390 / 2;
+              node.node.y = number.top - 135 / 2;
               console.log('DROP NODE:', node);
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
               if (data.type == 'pattern') {
                 console.log('DROP PATTERN');
-                DataService.getPattern(data.patternid)
-                  .then((pattern) => {
-                    me.showing = false;
+                if (data.code) {
+                  me.showing = false;
                     window.toolkit.load({
                       type: 'json',
-                      data: pattern.data,
+                      data: data.code,
                       onload: function () {
-                        console.log('DONE LOADING');
-                        setTimeout(() => {
-                          //window.toolkit.zoomToOne();
-                          //window.toolkit.zoomToFit();
-                        }, 500);
                       },
                     });
-                  })
-                  .catch((error) => {
-                    me.$q.notify({
-                      color: 'negative',
-                      timeout: 2000,
-                      position: 'top',
-                      message: 'An error occurred loading the pattern!',
-                      icon: 'error',
+                } else {
+                  DataService.getPattern(data.patternid)
+                    .then((pattern) => {
+                      me.showing = false;
+                      window.toolkit.load({
+                        type: 'json',
+                        data: pattern.data,
+                        onload: function () {
+                          console.log('DONE LOADING');
+                          setTimeout(() => {
+                            //window.toolkit.zoomToOne();
+                            //window.toolkit.zoomToFit();
+                          }, 500);
+                        },
+                      });
+                    })
+                    .catch((error) => {
+                      me.$q.notify({
+                        color: 'negative',
+                        timeout: 2000,
+                        position: 'top',
+                        message: 'An error occurred loading the pattern!',
+                        icon: 'error',
+                      });
                     });
-                  });
+                }
                 return;
               }
               if (data.group) {
@@ -1795,6 +1844,7 @@ export default {
     return {
       zoom: 1.0,
       value: true,
+      showBandwidth: true,
       showName: false,
       card: {
         name: 'Object Name',
@@ -2357,12 +2407,10 @@ export default {
             events: {
               tap: function (params) {
                 console.log('PARAMS:', params);
-
-                // params.e.srcElement.localName != "i" &&
-                // params.e.srcElement.localName != "td"
+                
                 if (
-                  params.e.srcElement.localName == 'span' ||
-                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                  params.e.srcElement.localName == 'span' &&
+                  params.e.srcElement.className === 'proc-title'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
@@ -2469,7 +2517,7 @@ export default {
             },
           },
           parallel: {
-            component: ScriptTemplate,
+            component: ParallelTemplate,
             events: {
               tap: function (params) {
                 console.log('PARAMS:', params);

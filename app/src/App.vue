@@ -12,7 +12,9 @@ import StreamPlugin from "./plugins/stream-plugin";
 
 import Vue from "vue";
 import Vuetify from "vuetify";
+//import VueD3 from 'vue2-d3';
 
+//Vue.use(VueD3)
 Vue.use(StreamPlugin);
 Vue.use(Vuetify);
 Vue.use(JsPlumbToolkitVue2Plugin);

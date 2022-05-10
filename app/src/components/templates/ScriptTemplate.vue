@@ -221,7 +221,7 @@
         style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
       >
-        <span>
+        <span class="proc-title">
           {{ obj.name }}
         </span>
       </span>
@@ -288,7 +288,7 @@
         </div>
         <div
           class="text-secondary"
-          @click="bandwidth = !bandwidth"
+          @click="obj.bandwidth = !obj.bandwidth"
           style="margin-right: 10px;"
         >
           <i class="fas fa-tachometer-alt" style="cursor: pointer;" />
@@ -746,7 +746,7 @@
     </ul>
 
     <q-separator />
-    <div class="row" id="bandwidth" v-if="bandwidth">
+    <div class="row" id="bandwidth" v-if="obj.bandwidth">
       <q-table
         dense
         hide-header
@@ -2127,8 +2127,17 @@ export default {
   mounted() {
     var me = this;
     console.log('MOUNTED STORE', this.$store);
+    d3.selectAll('p').style('color', 'white');
+    console.log("D3 ran")
     // Execute method on mixed in component, which sends to server using socket.io
     this.sayHello({ name: 'darren', age: 51 });
+
+    window.designer.$on('toggle.bandwidth', (bandwidth) => {
+      console.log("toggle bandwidth",bandwidth);
+      me.obj.bandwidth = bandwidth;
+    })
+
+
     function shiftvalues() {
       console.log('Rotating...');
       var front = me.data[0].spark.value.shift();
@@ -2440,6 +2449,7 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        bandwidth: true,
         requirements: '',
         container: false,
         usegit: true,
