@@ -1195,6 +1195,9 @@ class WorkerService:
                         "Installing repo inside container...%s",
                         self.processor.gitrepo.strip(),
                     )
+
+                    # TODO: Only install repo if processor has one
+                    # TODO: Install requirements.txt if processor has one
                     # Install the repo inside the container
                     res = self.container.exec_run(
                         "pip install -e git+" + self.processor.gitrepo.strip()
@@ -1802,6 +1805,7 @@ class WorkerService:
                                         # Run new non-detached container for task
                                         raise NotImplementedError
                                 else:
+                                    # Execute the function inside this celery worker
                                     return _func(*args, **_kwargs)
                             else:
                                 """If we only have args to pass in"""

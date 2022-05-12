@@ -465,6 +465,8 @@ class ProcessorModel(HasLogs, BaseModel):
     ackslate = Column(Boolean)
     trackstarted = Column(Boolean)
     retrydelay = Column(Integer)
+    password = Column(Boolean)
+    requirements = Column(Text)
 
     description = Column(Text(), nullable=True, default="Some description")
     container_image = Column(String(60))
@@ -510,6 +512,14 @@ class JobModel(Base):
     id = Column(String(200), primary_key=True)
     next_run_time = Column(DOUBLE_PRECISION)
     job_state = Column(LargeBinary)
+
+
+class PasswordModel(Base):
+    __tablename__ = "passwords"
+
+    id = Column(String(200), primary_key=True)
+    password = Column(String(60), nullable=False)
+    processor_id = Column(String, nullable=False)
 
 
 class NetworkModel(BaseModel):
