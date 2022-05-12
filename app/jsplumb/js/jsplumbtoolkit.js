@@ -37356,7 +37356,6 @@ if (typeof exports !== "undefined") {
  
         var _select = function (obj, renderer) {
             var el = _deselect(obj, renderer);
-            console.log("_SELECT",el,obj)
             if (el != null) {
                 var s = _create("div", "jtk-draw-skeleton", el),
                     x = el.getAttribute("jtk-x-resize"), y = el.getAttribute("jtk-y-resize");

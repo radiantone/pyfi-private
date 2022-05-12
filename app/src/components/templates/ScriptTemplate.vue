@@ -2132,6 +2132,12 @@ export default {
     // Execute method on mixed in component, which sends to server using socket.io
     this.sayHello({ name: 'darren', age: 51 });
 
+    setTimeout(() => {
+
+      console.log("ME.getNode()",me.getNode())
+      me.getNode().component = this;
+    }, 3000)
+    this.$el.component = this;
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
       console.log("toggle bandwidth",bandwidth);
       me.obj.bandwidth = bandwidth;
@@ -2771,6 +2777,10 @@ export default {
     };
   },
   methods: {
+    setBandwidth(value) {
+      console.log("SET BANDWIDTH",value);
+      this.obj.bandwidth = value
+    },
     onSubmit() {},
     onReset() {},
     refreshWorkers() {

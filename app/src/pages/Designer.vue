@@ -1453,6 +1453,32 @@ export default {
   methods: {
     bandwidthToggle() {
       console.log('bandwidthToggle');
+      this.showBandwidth = !this.showBandwidth;
+      var selection = window.toolkit.getSelection();
+      var nodes = selection.getAll();
+
+      if(nodes.length > 0) {
+        nodes.forEach( (node) => {
+         setTimeout(() => {
+            console.log("BANDWIDTH NODE",node.component,node)
+            if (node.component && node.component.setBandwidth) {
+              node.component.setBandwidth(this.showBandwidth);
+            }
+          })
+        })
+
+      } else {
+
+        window.toolkit.getNodes().forEach( (node) => {
+          setTimeout(() => {
+            console.log("BANDWIDTH NODE",node.component,node)
+            if (node.component && node.component.setBandwidth) {
+              node.component.setBandwidth(this.showBandwidth);
+            }
+          })
+          
+        })
+      }
       this.$emit('toggle.bandwith', this.showBandwidth);
     },
     redraw() {
@@ -1616,6 +1642,11 @@ export default {
     },
     confirmDeleteNodes() {
       var selection = window.toolkit.getSelection();
+      console.log("DELETE NODES",selection.getAll())
+
+      selection.getAll().forEach( (node) => {
+        console.log("NODE EL",node.nodeEl);
+      })
       this.deleteCount = selection.getAll().length;
       if (this.deleteCount > 1) {
         this.deletText = 'nodes';
@@ -1690,6 +1721,8 @@ export default {
         me.surface.bind('lasso:end', function () {
           me.mode = 'pan';
         });
+
+        console.log("SURFACE EL",me.surface.$el);
         me.surface.setPan(0, 0);
         me.surface.setPan(0, 0);
         console.log('PAN', me.surface.getPan());
@@ -1771,20 +1804,23 @@ export default {
               console.log('DROP NODE:', node);
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
+              console.log("SURFACE",me.surface)
               if (data.type == 'pattern') {
-                console.log('DROP PATTERN');
+                console.log('DROP PATTERN', data.code);
                 if (data.code) {
                   me.showing = false;
                     window.toolkit.load({
                       type: 'json',
-                      data: data.code,
+                      data: JSON.parse(data.code),
                       onload: function () {
+                        console.log("FINISHED LOADING PATTERN", JSON.parse(data.code))
                       },
                     });
                 } else {
                   DataService.getPattern(data.patternid)
                     .then((pattern) => {
                       me.showing = false;
+                      console.log("LOADED PATTERN",pattern)
                       window.toolkit.load({
                         type: 'json',
                         data: pattern.data,
@@ -1817,6 +1853,7 @@ export default {
                 window.toolkit.addNode(node.node, data);
               }
               node.toolkit = window.toolkit;
+              console.log("NODES",me.surface.getNodes())
             }
           });
           dd.drop(el).on('enter', function (keys, event) {

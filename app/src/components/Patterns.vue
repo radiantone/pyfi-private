@@ -90,6 +90,7 @@
           data-node-type="pattern"
           :data-node-name="item.name"
           :data-node-label="item.name"
+          :data-node-code="item.code"
           :data-node-pattern="item.pattern"
           data-node-description="A processor group description"
           data-node-package="my.python.package"
@@ -188,7 +189,7 @@ export default {
           console.log('ITEMS', me.items);
           result.data.forEach((pattern) => {
             pattern.image = JSON.parse(pattern.code)['image'];
-            console.log('PATTERN CODE',JSON.parse(pattern.code)['code'])
+            pattern.code = JSON.parse(pattern.code)['code'];
           });
           me.items = me.items.concat(result.data);
           setTimeout(() => {
@@ -203,6 +204,7 @@ export default {
                   type: 'pattern',
                   name: el.getAttribute('data-node-name'),
                   label: el.getAttribute('data-node-label'),
+                  code: el.getAttribute('data-node-code'),
                   description: 'A processor group description',
                   package: 'my.python.package',
                   disabled: false,
@@ -219,6 +221,7 @@ export default {
               });
               draghandle.on('start', function (setData, e) {
                 console.log('drag:start:', el, e);
+                console.log('DRAG PATTERN DATA', JSON.stringify(data))
                 setData('object', JSON.stringify(data));
               });
             });
@@ -246,6 +249,10 @@ export default {
     async savePattern(pattern) {
       var me = this;
 
+      // Get JSON of flow
+      // Get ID of pattern group object
+      // Pull out all the nodes with that group, and their ports and edges
+      // Save that
       await DataService.newFile(
         'patterns',
         'Home',
@@ -254,7 +261,7 @@ export default {
         false,
         'pattern',
         'fas fa-project-diagram',
-        JSON.stringify({'image':pattern.image,'code':''})
+        JSON.stringify({'image':pattern.image,'code':pattern.code})
 
       )
         .then((response) => {
@@ -286,15 +293,20 @@ export default {
   mounted() {
     var me = this;
     me.synchronize();
-    window.root.$on('save.pattern', (id, name, image) => {
+    window.root.$on('save.pattern', (id, name, image, objects) => {
+      console.log("PATTERNS SAVING",objects)
+      var code = JSON.stringify(objects)
       var pattern = {
         id: id,
         name: name,
         pattern: name,
         icon: 'fa fas-home',
+        code: code,
         image: image,
       };
-      me.savePattern(pattern);
+      me.savePattern(pattern).then(() => {
+        me.synchronize();
+      })
     });
   },
   data() {

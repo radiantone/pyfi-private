@@ -362,7 +362,7 @@
 }
 </style>
 <script>
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
+import { BaseGroupComponent } from 'jsplumbtoolkit-vue2';
 import * as htmlToImage from 'html-to-image';
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 
@@ -370,7 +370,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: 'GroupTemplate',
-  mixins: [BaseNodeComponent],
+  mixins: [BaseGroupComponent],
   components: {},
   mounted() {
     var me = this;
@@ -395,11 +395,46 @@ export default {
       this.savePatternDialog = false;
       var el = document.getElementById(this.obj.id+'inner');
       this.showing = true;
+
+      var code = JSON.parse(JSON.stringify(
+        window.toolkit.getGraph().serialize(),
+        null,
+        '\t'
+      ));
+
+      // Got to find the id of this group
+      var gid = this.getGroup().id;
+
+      var edges = [];
+      var ports = [];
+      var nodes = [];
+
+      code['nodes'].forEach( (node) => {
+          if(node.group && node.group == gid) {
+            nodes.push(node);
+
+            code['edges'].forEach( (edge) => {
+              if(edge['source'].indexOf(node.id) == 0) {
+                edges.push(edge);
+              }
+            });
+            code['ports'].forEach( (port) => {
+              if(port['id'].indexOf(node.id) == 0) {
+                ports.push(port);
+              } 
+            });
+          }
+      });
+      var pattern = { 'groups':[this.getGroup().data], 'edges':edges, 'ports':ports, 'nodes':nodes}
+
+      console.log("SAVE PATTERN CODE",code);
+      console.log("SAVE PATTERN", pattern)
+
       htmlToImage.toPng(el)
       .then(function (dataUrl) {
         var img = new Image();
         img.src = dataUrl;
-        window.root.$emit("save.pattern",uuidv4(), me.patternName, img.src);
+        window.root.$emit("save.pattern",uuidv4(), me.patternName, img.src, pattern);
         console.log("IMAGE2",me.patternName, img)
         me.showing = false;
       })
@@ -409,6 +444,7 @@ export default {
       });
     },
     deleteAGroup(all) {
+      debugger;
       console.log("Removing group",this.obj);
       window.toolkit.removeGroup(this.obj,all);
     },
