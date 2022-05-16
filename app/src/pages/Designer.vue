@@ -1403,6 +1403,7 @@ var dd = require('drip-drop');
 
 import { v4 as uuidv4 } from 'uuid';
 
+
 import 'assets/css/jsplumbtoolkit.css';
 import 'assets/css/jsplumbtoolkit-editable-connectors.css';
 import 'assets/css/jsplumbtoolkit-syntax-highlighter.css';
@@ -1413,6 +1414,7 @@ import Patterns from 'components/Patterns.vue';
 import { mdiContentSaveMove } from '@mdi/js';
 import DataService from 'src/components/util/DataService';
 import ParallelTemplateVue from 'src/components/templates/ParallelTemplate.vue';
+import 'floating-vue/dist/style.css'
 
 function htmlToElement(html) {
   var template = document.createElement('template');

@@ -6,6 +6,7 @@ const httpServer = createServer();
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
+  global: (data: any) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
 }
 

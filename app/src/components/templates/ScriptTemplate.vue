@@ -7,6 +7,9 @@
     "
     @touchstart.stop
     @contextmenu.stop
+    @mousemove1="mouseMove"
+    @mouseover1="mouseEnter"
+    @mouseleave1="mouseExit"
   >
     <q-inner-loading :showing="refreshing" style="z-index: 999999;">
       <q-spinner-gears size="50px" color="primary" />
@@ -803,7 +806,7 @@
     <q-dialog v-model="deleteItem" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
-          class="bg-secondary"
+          class="bg-primary"
           style="
             position: absolute;
             left: 0px;
@@ -1218,7 +1221,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 650px;
+          height: 570px;
         "
       >
         <q-tabs
@@ -1247,6 +1250,8 @@
               dense
             >
               <q-tab name="settings" label="Processor" />
+              <q-tab name="containersettings" label="Container" />
+              <q-tab name="apisettings" label="API" />
               <q-tab
                 v-if="obj.icon == lambdaIcon"
                 name="lambda"
@@ -1258,8 +1263,8 @@
               />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
-              <q-tab-panel name="settings" style="padding-top: 0px;">
-                <div class="q-pa-md" style="max-width: 100%;">
+              <q-tab-panel name="settings" style="padding-top: 0px;padding-bottom:0px">
+                <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1314,19 +1319,7 @@
                       v-model="obj.commit"
                       hint="Commit Hash"
                     />
-                    <q-input
-                      filled
-                      v-model="obj.api"
-                      dense
-                      hint="API Endpoint"
-                      lazy-rules
-                      :disable="!obj.endpoint"
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
-                    />
-
+                    
                     <q-toolbar>
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="Use GIT" />
@@ -1342,12 +1335,66 @@
                       />
                       <q-checkbox
                         v-model="obj.endpoint"
-                        label="Expose Endpoint"
+                        label="API"
                         style="margin-left: 40px; margin-right: 50px;"
+                      />
+                      <q-checkbox
+                        v-model="obj.streaming"
+                        label="Streaming"
+                        style=""
                       />
                     </q-toolbar>
                   </q-form>
                 </div>
+              </q-tab-panel>
+              <q-tab-panel name="containersettings" style="padding-top: 0px;padding-bottom:0px">
+              <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
+              <q-form
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.imagerepository"
+                      dense
+                      hint="Image Repository"
+                      lazy-rules
+                      :disable="!obj.container"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.containerimage"
+                      dense
+                      hint="Container Image"
+                      lazy-rules
+                      :disable="!obj.container"
+                    />
+                    </q-form>
+                    </div>
+              </q-tab-panel>
+              <q-tab-panel name="apisettings" style="padding-top: 0px;padding-bottom:0px">
+              
+              <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
+              <q-form
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.api"
+                      dense
+                      hint="API Endpoint"
+                      lazy-rules
+                      :disable="!obj.endpoint"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.websocket"
+                      dense
+                      hint="Websocket"
+                      lazy-rules
+                      :disable="!obj.streaming"
+                    />
+                    </q-form>
+                    </div>
               </q-tab-panel>
               <q-tab-panel name="lambda" v-if="obj.icon == lambdaIcon" style="padding-top: 0px;">
                                 <div class="q-pa-md" style="max-width: 100%;">
@@ -1747,6 +1794,9 @@
       </q-card-actions>
     </q-card>
 
+    <q-card v-if="mousecard" class="bg-secondary" :style="'width:200px;height:300px;z-index:9999;position:absolute;top:'+cardY+'px;left:'+cardX+'px'">
+    
+    </q-card>
     <q-card
       style="
         width: 100%;
@@ -2162,6 +2212,9 @@ export default {
   },
   data() {
     return {
+      cardX:0,
+      cardY:0,
+      mousecard: false,
       tab: 'settings',
       error: true,
       editPort: false,
@@ -2455,12 +2508,15 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        websocket:'',
         bandwidth: true,
         requirements: '',
-        container: false,
+        container: true,
+        streaming: true,
         usegit: true,
         enabled: true,
         endpoint: false,
+        streaming: true,
         api: '/api/processor',
         type: 'script',
         name: 'Script Processor',
@@ -2777,6 +2833,20 @@ export default {
     };
   },
   methods: {
+    mouseEnter(event) {
+      this.cardX = event.clientX;
+      this.cardY = event.clientY;
+      this.mousecard = true;
+    },
+    mouseExit(event) {
+      console.log("mouseExit");
+      //this.mousecard = false;
+    },
+    mouseMove(event) {
+      this.cardX = event.clientX;
+      this.cardY = event.clientY;
+      console.log(this.cardX,this.cardY)
+    },
     setBandwidth(value) {
       console.log("SET BANDWIDTH",value);
       this.obj.bandwidth = value

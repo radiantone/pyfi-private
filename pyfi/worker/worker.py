@@ -2225,7 +2225,10 @@ class WorkerService:
                         message[1]["room"] + "." + message[1]["channel"],
                         json.dumps(message[1]),
                     )
-
+                    redisclient.publish(
+                        "global",
+                        json.dumps(message[1]),
+                    )
                     # TODO: Also emit to various other channels like "processors","global", etc
 
                 except Exception as ex:

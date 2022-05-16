@@ -8,6 +8,7 @@ import { io, Socket } from 'socket.io-client';
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
+  global: (data: any) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
 }
 
@@ -56,6 +57,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     socket.on("basicEmit", (a, b, c) => {
       console.log("SERVER EMIT",a,b,c)
       me.$store.commit('designer/setMessage',b);
+    });
+    socket.on("global", (data) => {
+      console.log("SERVER EMIT GLOBAL",data)
     });
   },
   computed: {

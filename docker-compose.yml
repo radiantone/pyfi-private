@@ -2,6 +2,17 @@ version: '3.9'
 
 services:
 
+  globalsocket:
+    build: 
+      context: docker/websockets
+      dockerfile: Dockerfile
+    image: pyfi/websockets:latest
+    container_name: websockets2
+    environment:
+      - PYFI_CHANNEL=global
+    ports:
+      - 3009:3000
+
   websockets2:
     build: 
       context: docker/websockets
