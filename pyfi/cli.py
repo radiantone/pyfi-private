@@ -1848,7 +1848,7 @@ def add_processor(
     )
 
     if password:
-        _password = PasswordModel(password=password)
+        _password = PasswordModel(name=name+".password", password=password)
         processor.password = _password
         
         context.obj["database"].session.add(_password)
