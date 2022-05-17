@@ -527,7 +527,6 @@ class PasswordModel(Base):
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
     processor = relationship("ProcessorModel", lazy=True)
-    processor_id = Column(String, ForeignKey("processor.id"),nullable=False)
 
 
 class NetworkModel(BaseModel):
