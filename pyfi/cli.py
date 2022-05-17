@@ -2534,7 +2534,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
 @ls.command(name="passwords")
 @click.pass_context
-def ls_passwords(context, id, name, task):
+def ls_passwords(context):
 
     x = PrettyTable()
 
