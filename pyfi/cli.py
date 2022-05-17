@@ -2563,6 +2563,7 @@ def ls_passwords(context):
     passwords = context.obj["database"].session.query(PasswordModel).all()
 
     for node in passwords:
+        print("PROC",node.processor)
         x.add_row(
             [
                 node.processor.name,
