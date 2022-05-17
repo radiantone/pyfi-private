@@ -1848,10 +1848,10 @@ def add_processor(
     )
 
     if password:
-        _password = Password(password=password)
+        _password = PasswordModel(password=password)
         _password.processor = processor
         context.obj["database"].session.add(_password)
-        
+
     if hostname:
         deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=0)
         processor.deployments += [deployment]
