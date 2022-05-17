@@ -2556,9 +2556,9 @@ def ls_passwords(context):
     x = PrettyTable()
 
     names = [
-        "ID",
         "Processor",
         "Password",
+        "Owner",
         "Last Updated",
     ]
     x.field_names = names
