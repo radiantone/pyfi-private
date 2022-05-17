@@ -1560,7 +1560,9 @@ def update_processor(
         _password = click.prompt("Password", type=str, default=None)
 
         if _password:
-            __password = PasswordModel(password=_password)
+            # Does password object exist first?
+
+            __password = PasswordModel(name=processor.name+".password", password=_password)
             context.obj["database"].session.add(__password)
             __password.processor = processor
 
@@ -1849,7 +1851,7 @@ def add_processor(
     )
 
     if password:
-        _password = PasswordModel(name=name+".password", password=password)
+        _password = PasswordModel(name=name+".password", password=hashlib.md5(password.encode()).hexdigest())
         processor.password = _password
         
         context.obj["database"].session.add(_password)
