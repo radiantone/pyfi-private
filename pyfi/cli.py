@@ -290,6 +290,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 TaskModel: "read",
                 QueueModel: "read",
                 SocketModel: "read",
+                PasswordModel: "read",
                 PlugModel: "read",
                 WorkerModel: "read",
                 LogModel: "read",
