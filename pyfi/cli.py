@@ -1560,7 +1560,8 @@ def update_processor(
 
         if _password:
             __password = PasswordModel(password=_password)
-            __password.processor_id = processor.id
+            context.obj["database"].session.add(__password)
+            __password.processor = processor
 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
