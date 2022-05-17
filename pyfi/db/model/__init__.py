@@ -24,6 +24,7 @@ from .models import (
     SettingsModel,
     NodeModel,
     Base,
+    PasswordModel,
     DeploymentModel,
     NetworkModel,
 )
@@ -55,5 +56,6 @@ __all__ = (
     "SchedulerModel",
     "Base",
     "DeploymentModel",
+    "PasswordModel",
     "NetworkModel",
 )

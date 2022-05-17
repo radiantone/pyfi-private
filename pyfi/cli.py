@@ -48,6 +48,7 @@ from pyfi.db.model import (
     TaskModel,
     LogModel,
     DeploymentModel,
+    PasswordModel,
     NetworkModel,
 )
 from pyfi.db.model.models import PrivilegeModel
@@ -1494,6 +1495,7 @@ def update_object(obj, locals):
 @click.option("-b", "--beat", default=None, is_flag=True, required=False)
 @click.option("-r", "--requested_status", default=None, required=False)
 @click.option("-br", "--branch", default=None, required=False)
+@click.option("-p", "--password", default=None, required=False)
 @click.pass_context
 def update_processor(
         context,
@@ -1506,6 +1508,7 @@ def update_processor(
         beat,
         requested_status,
         branch,
+        password
 ):
     """
     Update a processor in the database
@@ -1551,6 +1554,13 @@ def update_processor(
 
     if not beat:
         processor.beat = click.prompt("Beat", type=bool, default=processor.beat)
+
+    if not password:
+        _password = click.prompt("Password", type=str, default=None)
+
+        if _password:
+            __password = PasswordModel(password=_password)
+            __password.processor_id = processor.id
 
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals

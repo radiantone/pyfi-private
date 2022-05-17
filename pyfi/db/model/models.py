@@ -519,6 +519,8 @@ class PasswordModel(Base):
 
     id = Column(String(200), primary_key=True)
     password = Column(String(60), nullable=False)
+
+    processor = relationship("ProcessorModel")
     processor_id = Column(String, nullable=False)
 
 
