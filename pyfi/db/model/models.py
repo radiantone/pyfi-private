@@ -517,7 +517,7 @@ class JobModel(Base):
     job_state = Column(LargeBinary)
 
 
-class PasswordModel(Base):
+class PasswordModel(BaseModel):
     __tablename__ = "passwords"
 
     id = Column(
