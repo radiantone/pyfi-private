@@ -1801,6 +1801,13 @@ def add_deployment(context, name, deploy, hostname, cpus):
     required=False,
     help="Git branch to be used for checkouts",
 )
+@click.option(
+    "-p",
+    "--password",
+    default=None,
+    required=False,
+    help="Password to access this processor",
+)
 @click.pass_context
 def add_processor(
         context,
@@ -1814,6 +1821,7 @@ def add_processor(
         requested_status,
         beat,
         branch,
+        password
 ):
     """
     Add processor to the database
@@ -1839,6 +1847,11 @@ def add_processor(
         module=module,
     )
 
+    if password:
+        _password = Password(password=password)
+        _password.processor = processor
+        context.obj["database"].session.add(_password)
+        
     if hostname:
         deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=0)
         processor.deployments += [deployment]
