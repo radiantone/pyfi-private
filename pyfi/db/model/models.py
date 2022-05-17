@@ -529,7 +529,7 @@ class PasswordModel(BaseModel):
     )
     password = Column(String(60), nullable=False)
 
-    processor = relationship("ProcessorModel", lazy=True)
+    processor = relationship("ProcessorModel", lazy=True, uselist=False)
 
 
 class NetworkModel(BaseModel):
