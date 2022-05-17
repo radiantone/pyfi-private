@@ -2532,6 +2532,33 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     wprocess.join()
 
 
+@ls.command(name="passwords")
+@click.pass_context
+def ls_passwords(context, id, name, task):
+
+    x = PrettyTable()
+
+    names = [
+        "ID",
+        "Processor",
+        "Password",
+        "Last Updated",
+    ]
+    x.field_names = names
+    passwords = context.obj["database"].session.query(PasswordModel).all()
+
+    for node in passwords:
+        x.add_row(
+            [
+                node.processor.name,
+                node.password,
+                node.owner,
+                node.lastupdated
+            ]
+        )
+
+    print(x)
+
 @ls.command(name="queue")
 @click.option("--id", default=None, help="ID of call")
 @click.option("-n", "--name", default=None, required=False, help="Name of queue")
