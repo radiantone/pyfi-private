@@ -1389,10 +1389,11 @@
                       filled
                       v-model="obj.websocket"
                       dense
-                      hint="Websocket"
+                      hint="Websocket URL"
                       lazy-rules
                       :disable="!obj.streaming"
                     />
+                    
                     </q-form>
                     </div>
               </q-tab-panel>
@@ -2151,6 +2152,9 @@ export default {
       console.log('TOOLTIPS', me.tooltips);
     });
 
+    this.$on("message.received",(msg)  => {
+      console.log("MESSAGE RECEIVED",msg);
+    })
     // Print some fields from the mixin component
     console.log(
       'BetterCounter: ',
@@ -2508,7 +2512,7 @@ export default {
         style: '',
         x: 0,
         y: 0,
-        websocket:'',
+        websocket:'ws://localhost:3003',
         bandwidth: true,
         requirements: '',
         container: true,

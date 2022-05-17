@@ -87,6 +87,7 @@
         dense
         ref="tree"
         node-key="id"
+        no-nodes-label="No networks available"
         class="text-secondary"
       >
         <template v-slot:default-header="prop">

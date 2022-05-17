@@ -1414,7 +1414,7 @@ import Patterns from 'components/Patterns.vue';
 import { mdiContentSaveMove } from '@mdi/js';
 import DataService from 'src/components/util/DataService';
 import ParallelTemplateVue from 'src/components/templates/ParallelTemplate.vue';
-import 'floating-vue/dist/style.css'
+//import 'floating-vue/dist/style.css'
 
 function htmlToElement(html) {
   var template = document.createElement('template');

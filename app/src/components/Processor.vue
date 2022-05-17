@@ -59,7 +59,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       me.$store.commit('designer/setMessage',b);
     });
     socket.on("global", (data) => {
-      console.log("SERVER EMIT GLOBAL",data)
+      console.log("SERVER GLOBAL MESSAGE",data);
+      me.messageReceived(data);
     });
   },
   computed: {
@@ -70,7 +71,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
   },
   methods: {
     messageReceived(msg) {
-
+      this.$emit("message.received",msg)
     },
     messageSend(msg) {
         const person = <SocketData>msg;
