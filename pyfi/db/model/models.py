@@ -480,7 +480,7 @@ class ProcessorModel(HasLogs, BaseModel):
 
     flow_id = Column(String(40), ForeignKey("flow.id"), nullable=True)
 
-    #password = relationship("PasswordModel", lazy=True)
+    password = relationship("PasswordModel", lazy=True)
     password_id = Column(String, ForeignKey("passwords.id"), nullable=True)
 
     plugs = relationship(
