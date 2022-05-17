@@ -2557,7 +2557,7 @@ def ls_passwords(context):
 
     names = [
         "Processor",
-        "Password",
+        "Hash",
         "Owner",
         "Last Updated",
     ]
