@@ -286,7 +286,6 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 AgentModel: "read",
                 NodeModel: "read",
                 EventModel: "read",
-                PasswordModel: "read",
                 CallModel: "read",
                 TaskModel: "read",
                 QueueModel: "read",
