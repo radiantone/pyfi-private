@@ -921,6 +921,7 @@ class LoginModel(Base):
 
 
 oso.register_class(BaseModel)
+oso.register_class(PasswordModel)
 oso.register_class(UserModel)
 oso.register_class(LogModel)
 oso.register_class(ProcessorModel)
