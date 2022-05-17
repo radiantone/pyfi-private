@@ -480,6 +480,8 @@ class ProcessorModel(HasLogs, BaseModel):
 
     flow_id = Column(String(40), ForeignKey("flow.id"), nullable=True)
 
+    password = relationship("PasswordModel", lazy=True)
+    
     plugs = relationship(
         "PlugModel", backref="processor", lazy=True, cascade="all, delete-orphan"
     )
