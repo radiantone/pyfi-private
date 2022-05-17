@@ -520,7 +520,13 @@ class JobModel(Base):
 class PasswordModel(Base):
     __tablename__ = "passwords"
 
-    id = Column(String(200), primary_key=True)
+    id = Column(
+        String(40),
+        autoincrement=False,
+        default=literal_column("uuid_generate_v4()"),
+        unique=True,
+        primary_key=True,
+    )
     password = Column(String(60), nullable=False)
 
     lastupdated = Column(
