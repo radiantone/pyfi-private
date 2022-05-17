@@ -2,12 +2,21 @@ version: '3.9'
 
 services:
 
+  clientsocket:
+    build: 
+      context: socket
+      dockerfile: Dockerfile
+    image: pyfi/clientsocket:latest
+    container_name: clientsocket
+    ports:
+      - 3003:3003
+
   globalsocket:
     build: 
       context: docker/websockets
       dockerfile: Dockerfile
     image: pyfi/websockets:latest
-    container_name: websockets2
+    container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
     ports:

@@ -1,5 +1,7 @@
 import { createServer } from "http";
 import { Server, Socket, ServerOptions } from "socket.io";
+const WebSocket = require('ws');
+
 
 const httpServer = createServer();
 
@@ -32,7 +34,6 @@ const options: Partial<ServerOptions> = {
 const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, options);
 
 io.on("connection", (socket) => {
-  console.log("Cient connected",socket);
   socket.on("hello", (data: SocketData) => {
     console.log("CLIENT SAYS HELLO!", data);
   setTimeout( () => {
@@ -53,7 +54,15 @@ io.on("connection", (socket) => {
 
   // works when broadcast to all
   io.emit("noArg");
+  const ws = new WebSocket('ws://globalsocket:3000');
 
+  ws.on('message', function message (data: any) {
+    var json = JSON.parse(data);
+    console.log('global socketreceived: %s', json);
+    console.log("global room:", json.room);
+    socket.emit(json.room, json);
+    socket.emit("global", json);
+  });
 });
 
 
