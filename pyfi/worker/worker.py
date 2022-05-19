@@ -1793,6 +1793,7 @@ class WorkerService:
                                 logging.info("Invoking function %s %s", args, _kwargs)
 
                                 if self.container and _processor.use_container:
+                                    logging.info("CONTAINER INIT: ")
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
                                         pfile.write(source + "\n")
@@ -1803,6 +1804,7 @@ class WorkerService:
                                         pythoncmd = "python /tmp/" + taskid + ".py"
                                         logging.info("Invoking %s", pythoncmd)
 
+                                        logging.info("CONTAINER RUN: ",pythoncmd)
                                         self.container.exec_run(pythoncmd)
 
                                         # Unpickle output and return it
