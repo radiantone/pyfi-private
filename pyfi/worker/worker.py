@@ -561,6 +561,7 @@ class WorkerService:
 
                         for _socket in processor.sockets:
                             if _socket.task.name == _signal["sender"]:
+                                logging.info("RECEIVED SIGNAL: FOUND TASK %s", _socket.task)
                                 parent = None
 
                                 received = datetime.now()
