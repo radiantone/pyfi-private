@@ -1792,7 +1792,7 @@ class WorkerService:
                                 """If we have kwargs to pass in"""
                                 logging.info("Invoking function %s %s", args, _kwargs)
 
-                                logging.info("CONTAINER INIT: ",self.container,_processor.use_container)
+                                logging.info("CONTAINER INIT: %s %s",self.container,_processor.use_container)
                                 if self.container and _processor.use_container:
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
@@ -1804,7 +1804,7 @@ class WorkerService:
                                         pythoncmd = "python /tmp/" + taskid + ".py"
                                         logging.info("Invoking %s", pythoncmd)
 
-                                        logging.info("CONTAINER RUN: ",pythoncmd)
+                                        logging.info("CONTAINER RUN: %s",pythoncmd)
                                         self.container.exec_run(pythoncmd)
 
                                         # Unpickle output and return it
@@ -1818,7 +1818,7 @@ class WorkerService:
                                 """If we only have args to pass in"""
                                 logging.info("Invoking function %s", args)
 
-                                logging.info("CONTAINER INIT: ",self.container,_processor.use_container)
+                                logging.info("CONTAINER INIT: %s %s",self.container,_processor.use_container)
                                 if self.container and _processor.use_container:
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
@@ -1839,7 +1839,7 @@ class WorkerService:
                                         pythoncmd = "python /tmp/" + taskid + ".py"
                                         logging.info("Invoking %s", pythoncmd)
 
-                                        logging.info("CONTAINER RUN: ",pythoncmd)
+                                        logging.info("CONTAINER RUN: %s",pythoncmd)
                                         res = self.container.exec_run(pythoncmd)
 
                                         logging.info("OUTPUT: %s", res.output)
