@@ -666,6 +666,8 @@ class WorkerService:
                                     {
                                         "channel": "task",
                                         "state": "running",
+                                        "task": _socket.task.name,
+                                        "module": _socket.task.module,
                                         "date": str(started),
                                         "room": processor.name,
                                     },
