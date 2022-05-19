@@ -1792,8 +1792,8 @@ class WorkerService:
                                 """If we have kwargs to pass in"""
                                 logging.info("Invoking function %s %s", args, _kwargs)
 
+                                logging.info("CONTAINER INIT: ",self.container,_processor.use_container)
                                 if self.container and _processor.use_container:
-                                    logging.info("CONTAINER INIT: ")
                                     # Run function in container and get result
                                     with open("out/" + taskid + ".py", "w") as pfile:
                                         pfile.write(source + "\n")
