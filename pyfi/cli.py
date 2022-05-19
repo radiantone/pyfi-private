@@ -1497,6 +1497,7 @@ def update_object(obj, locals):
 @click.option("-r", "--requested_status", default=None, required=False)
 @click.option("-br", "--branch", default=None, required=False)
 @click.option("-p", "--password", default=None, required=False)
+@click.option("-co", "--container", default=None, is_flag=True, required=False)
 @click.pass_context
 def update_processor(
         context,
@@ -1509,7 +1510,8 @@ def update_processor(
         beat,
         requested_status,
         branch,
-        password
+        password,
+        container
 ):
     """
     Update a processor in the database
@@ -1539,6 +1541,9 @@ def update_processor(
     if not module:
         processor.module = click.prompt("Module", type=str, default=processor.module)
 
+    if not container:
+        processor.container = click.prompt("Container", type=bool, default=processor.container)
+        
     if not workers:
         processor.concurrency = click.prompt(
             "Workers", type=int, default=processor.concurrency
