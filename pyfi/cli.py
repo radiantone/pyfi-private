@@ -1542,8 +1542,8 @@ def update_processor(
         processor.module = click.prompt("Module", type=str, default=processor.module)
 
     if not container:
-        processor.container = click.prompt("Container", type=bool, default=processor.container)
-        
+        processor.use_container = click.prompt("Container", type=bool, default=processor.use_container)
+
     if not workers:
         processor.concurrency = click.prompt(
             "Workers", type=int, default=processor.concurrency
