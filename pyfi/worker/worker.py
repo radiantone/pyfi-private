@@ -1928,8 +1928,7 @@ class WorkerService:
                                         "args": args,
                                     },
                                 )
-
-                                run_times[task_id] = time()
+                                run_times[task_id] = time.time()
                                 self.main_queue.put(
                                     {
                                         "signal": "prerun",
