@@ -17,6 +17,7 @@ import inspect
 import tracemalloc
 
 tracemalloc.start()
+from time import time
 from inspect import Parameter
 from functools import partial
 from pathlib import Path
@@ -1928,7 +1929,7 @@ class WorkerService:
                                     },
                                 )
 
-                                run_times[task_id] = 
+                                run_times[task_id] = time()
                                 self.main_queue.put(
                                     {
                                         "signal": "prerun",
@@ -2044,7 +2045,6 @@ class WorkerService:
                             from datetime import datetime
                             from uuid import uuid4
                             import datetime
-                            from time import time
                             import traceback
 
                             if sender.__name__ == "enqueue":
