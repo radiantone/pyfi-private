@@ -157,6 +157,7 @@ def shutdown(*args):
 
 signal.signal(signal.SIGINT, shutdown)
 
+run_times = {}
 
 def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
@@ -1926,6 +1927,8 @@ class WorkerService:
                                         "args": args,
                                     },
                                 )
+
+                                run_times[task_id] = 
                                 self.main_queue.put(
                                     {
                                         "signal": "prerun",
@@ -2040,6 +2043,8 @@ class WorkerService:
                         ):
                             from datetime import datetime
                             from uuid import uuid4
+                            import datetime
+                            from time import time
                             import traceback
 
                             if sender.__name__ == "enqueue":
@@ -2064,10 +2069,13 @@ class WorkerService:
                                 },
                             )
 
+                            start_time = run_times[task_id]
+                            duration = datetime.timedelta(seconds=time()-start_time)
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
                                 {
                                     "signal": "postrun",
+                                    "duration": duration,
                                     "result": retval,
                                     "sender": _function_name,
                                     "type": _type,
