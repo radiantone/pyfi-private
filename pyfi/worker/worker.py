@@ -2069,7 +2069,7 @@ class WorkerService:
                             )
 
                             start_time = run_times[task_id]
-                            duration = datetime.timedelta(seconds=time()-start_time)
+                            duration = datetime.timedelta(seconds=time.time()-start_time)
                             logging.info("POSTRUN PUTTING ON main_queue")
                             self.main_queue.put(
                                 {
