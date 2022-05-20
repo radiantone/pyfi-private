@@ -1157,7 +1157,7 @@ class WorkerService:
                 agent_cwd = os.environ["AGENT_CWD"]
 
                 client = docker.from_env()
-                logging.info("Working starting container....")
+                logging.info("Worker: Checking processor.detached....%s",self.processor.detached)
                 if self.processor.detached:
                     logging.info(
                         "Running container %s:%s....",
@@ -1188,7 +1188,7 @@ class WorkerService:
                     # TODO: Create or Update ContainerModel
                     # Add ContainerModel to self.deployment.container
 
-                    logging.info("Working starting container....")
+                    logging.info("Working starting container....%s", self.container)
                     logging.info(
                         "Container started %s:%s....%s",
                         self.processor.container_image,
