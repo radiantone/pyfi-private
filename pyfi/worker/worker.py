@@ -858,6 +858,7 @@ class WorkerService:
                         except:
                             result = str(_r)
 
+                        data["duration"] = _signal['duration']
                         data["message"] = json.dumps(result)
                         data["message"] = json.dumps(data)
                         data["error"] = False
@@ -2074,7 +2075,7 @@ class WorkerService:
                             self.main_queue.put(
                                 {
                                     "signal": "postrun",
-                                    "duration": duration,
+                                    "duration": str(duration),
                                     "result": retval,
                                     "sender": _function_name,
                                     "type": _type,
