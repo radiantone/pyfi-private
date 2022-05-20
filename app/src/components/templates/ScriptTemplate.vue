@@ -149,7 +149,10 @@
             <q-item
               clickable
               v-close-popup
-              @click="obj.icon = 'fas fa-database'; settingstab='database'"
+              @click="
+                obj.icon = 'fas fa-database';
+                settingstab = 'database';
+              "
             >
               <q-item-section side>
                 <q-icon name="fas fa-database"></q-icon>
@@ -158,7 +161,14 @@
                 Database
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fab fa-python'; settingstab='settings'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="
+                obj.icon = 'fab fa-python';
+                settingstab = 'settings';
+              "
+            >
               <q-item-section side>
                 <q-icon name="fab fa-python"></q-icon>
               </q-item-section>
@@ -198,7 +208,14 @@
                 Spreadsheet
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = lambdaIcon; settingstab='lambda'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="
+                obj.icon = lambdaIcon;
+                settingstab = 'lambda';
+              "
+            >
               <q-item-section side>
                 <q-icon
                   :name="this.lambdaIcon"
@@ -576,7 +593,12 @@
         </q-btn-dropdown>
       </div>
     </div>
-    <ul v-if="obj.icon == 'fas fa-database'" class="table-columns" v-for="column in obj.columns" :key="column.id">
+    <ul
+      v-if="obj.icon == 'fas fa-database'"
+      class="table-columns"
+      v-for="column in obj.columns"
+      :key="column.id"
+    >
       <li
         :class="
           'table-column jtk-droppable table-column-type-' + column.datatype
@@ -606,41 +628,34 @@
           </div>
           <span>
             <span :id="column.id">
-              
-        <q-btn-dropdown
-          flat
-          content-class="text-dark bg-white"
-          dense
-          color="secondary"
-          label="Query"
-          padding="0px"
-          size=".8em"
-        >
-          <q-list dense>
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-question"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Query 1
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-question"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Query 2
-              </q-item-section>
-            </q-item>
-            </q-list>
-            </q-btn-dropdown>   
+              <q-btn-dropdown
+                flat
+                content-class="text-dark bg-white"
+                dense
+                color="secondary"
+                label="Query"
+                padding="0px"
+                size=".8em"
+              >
+                <q-list dense>
+                  <q-item clickable v-close-popup>
+                    <q-item-section side>
+                      <q-icon name="fas fa-question"></q-icon>
+                    </q-item-section>
+                    <q-item-section side class="text-blue-grey-8">
+                      Query 1
+                    </q-item-section>
+                  </q-item>
+                  <q-item clickable v-close-popup>
+                    <q-item-section side>
+                      <q-icon name="fas fa-question"></q-icon>
+                    </q-item-section>
+                    <q-item-section side class="text-blue-grey-8">
+                      Query 2
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </span>
             : {{ column.description }}
           </span>
@@ -662,7 +677,12 @@
       </li>
     </ul>
 
-    <ul v-if="obj.icon == 'fab fa-python'" class="table-columns" v-for="column in obj.columns" :key="column.id">
+    <ul
+      v-if="obj.icon == 'fab fa-python'"
+      class="table-columns"
+      v-for="column in obj.columns"
+      :key="column.id"
+    >
       <li
         :class="
           'table-column jtk-droppable table-column-type-' + column.datatype
@@ -687,7 +707,7 @@
             class="fas fa-edit"
             title="Edit Name"
             style="margin-right: 5px;"
-            @click="editPort=!editPort"
+            @click="editPort = !editPort"
           />
         </div>
         <div>
@@ -776,17 +796,49 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
+              v-if="props.cols[1].value == 'inBytes'"
             >
-              {{ props.cols[1].value }}
+              {{ inBytes }}
+            </q-td>
+            <q-td
+              :key="props.cols[1].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+              v-if="props.cols[1].value == 'totalBytes'"
+            >
+              {{ totalBytes }}
+            </q-td>
+            <q-td
+              :key="props.cols[1].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+              v-if="props.cols[1].value == 'outBytes'"
+            >
+              {{ outBytes }}
+            </q-td>
+            <q-td
+              :key="props.cols[1].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+              v-if="props.cols[1].value == 'taskTime'"
+            >
+              {{ taskTime }}
             </q-td>
             <q-td
               :key="props.cols[3].name"
               :props="props"
               :style="rowStripe(props.row.index) + ';width:80px'"
             >
-              <v-sparkline
+              <v-sparkline v-if="props.cols[1].value == 'inBytes'"
                 :labels="props.row.spark.labels"
-                :value="props.row.spark.value"
+                :value="bytes_in_5min"
+                color="white"
+                line-width="2"
+                padding="0"
+              ></v-sparkline>
+              <v-sparkline v-if="props.cols[1].value == 'outBytes'"
+                :labels="props.row.spark.labels"
+                :value="bytes_out_5min"
                 color="white"
                 line-width="2"
                 padding="0"
@@ -1167,7 +1219,6 @@
       </q-card-actions>
     </q-card>
 
-
     <q-card
       style="
         width: 400px;
@@ -1263,8 +1314,14 @@
               />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
-              <q-tab-panel name="settings" style="padding-top: 0px;padding-bottom:0px">
-                <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
+              <q-tab-panel
+                name="settings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1319,7 +1376,7 @@
                       v-model="obj.commit"
                       hint="Commit Hash"
                     />
-                    
+
                     <q-toolbar>
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="Use GIT" />
@@ -1347,11 +1404,15 @@
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel name="containersettings" style="padding-top: 0px;padding-bottom:0px">
-              <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
-              <q-form
-                    class="q-gutter-md"
-                  >
+              <q-tab-panel
+                name="containersettings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form class="q-gutter-md">
                     <q-input
                       filled
                       v-model="obj.imagerepository"
@@ -1368,15 +1429,18 @@
                       lazy-rules
                       :disable="!obj.container"
                     />
-                    </q-form>
-                    </div>
+                  </q-form>
+                </div>
               </q-tab-panel>
-              <q-tab-panel name="apisettings" style="padding-top: 0px;padding-bottom:0px">
-              
-              <div class="q-pa-md" style="max-width: 100%;padding-bottom:0px">
-              <q-form
-                    class="q-gutter-md"
-                  >
+              <q-tab-panel
+                name="apisettings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form class="q-gutter-md">
                     <q-input
                       filled
                       v-model="obj.api"
@@ -1393,12 +1457,15 @@
                       lazy-rules
                       :disable="!obj.streaming"
                     />
-                    
-                    </q-form>
-                    </div>
+                  </q-form>
+                </div>
               </q-tab-panel>
-              <q-tab-panel name="lambda" v-if="obj.icon == lambdaIcon" style="padding-top: 0px;">
-                                <div class="q-pa-md" style="max-width: 100%;">
+              <q-tab-panel
+                name="lambda"
+                v-if="obj.icon == lambdaIcon"
+                style="padding-top: 0px;"
+              >
+                <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1415,12 +1482,15 @@
                           (val && val.length > 0) || 'Please type something',
                       ]"
                     />
-
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel name="database" v-if="obj.icon == 'fas fa-database'" style="padding-top: 0px;">
-                                <div class="q-pa-md" style="max-width: 100%;">
+              <q-tab-panel
+                name="database"
+                v-if="obj.icon == 'fas fa-database'"
+                style="padding-top: 0px;"
+              >
+                <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1437,10 +1507,9 @@
                           (val && val.length > 0) || 'Please type something',
                       ]"
                     />
-
                   </q-form>
                 </div>
-              </q-tab-panel>              
+              </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
           <q-tab-panel
@@ -1795,8 +1864,17 @@
       </q-card-actions>
     </q-card>
 
-    <q-card v-if="mousecard" class="bg-secondary" :style="'width:200px;height:300px;z-index:9999;position:absolute;top:'+cardY+'px;left:'+cardX+'px'">
-    
+    <q-card
+      v-if="mousecard"
+      class="bg-secondary"
+      :style="
+        'width:200px;height:300px;z-index:9999;position:absolute;top:' +
+        cardY +
+        'px;left:' +
+        cardX +
+        'px'
+      "
+    >
     </q-card>
     <q-card
       style="
@@ -1970,70 +2048,72 @@
       "
       v-if="logsview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
-        Logs view
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
+      <q-tabs v-model="logtab" class="text-primary" align="center" dense>
+        <q-tab name="tasklog" label="Task" />
+        <q-tab name="resultlog" label="Result" />
+        <q-tab name="msglog" label="Log" />
+      </q-tabs>
+      <q-tab-panels v-model="logtab" keep-alive>
+        <q-tab-panel name="tasklog" style="padding: 0px;" ref="tasklog">
+          <q-card-section
+            style="
+              padding: 5px;
+              z-index: 999999;
+              padding-bottom: 10px;
+              height: 450px;
+            "
           >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
+            <q-scroll-area style="height:425px;width::auto">
+              <div v-for="log in tasklogs">
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['state'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['duration'] }}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
+        <q-tab-panel name="resultlog" style="padding: 0px;" ref="tasklog">
+          <q-card-section
+            style="
+              padding: 5px;
+              z-index: 999999;
+              padding-bottom: 10px;
+              height: 450px;
+            "
           >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+            <q-scroll-area style="height:425px;width::auto">
+              <div v-for="log in resultlogs">
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}
+                {{ JSON.parse(log['message'])}}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
+        <q-tab-panel name="msglog" style="padding: 0px;" ref="msglog">
+          <q-card-section
+            style="
+              padding: 5px;
+              z-index: 999999;
+              padding-bottom: 10px;
+              height: 450px;
+            "
+          >
+            <q-scroll-area style="height:425px;width::auto">
+              <div v-for="log in msglogs">
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;     {{ log['message'] }}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
+      </q-tab-panels>
+
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           flat
           label="Close"
-          class="bg-accent text-dark"
-          color="primary"
+          class="bg-secondary text-dark"
+          color="accent"
           @click="logsview = false"
           v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deleteSpeechID)"
         />
       </q-card-actions>
     </q-card>
@@ -2110,6 +2190,9 @@ import { v4 as uuidv4 } from 'uuid';
 import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
 import { mdiLambda } from '@mdi/js';
+import { TSDB } from "uts";
+
+const tsdb = new TSDB();
 
 // Import the mixin class
 import Processor from '../Processor.vue';
@@ -2138,6 +2221,9 @@ export default {
     delayMs: function (val) {
       console.log('delayMs CHANGED', val);
     },
+    inBytes: function (val) {
+      console.log("inBytes",val)
+    }
   },
   created() {
     var me = this;
@@ -2152,9 +2238,67 @@ export default {
       console.log('TOOLTIPS', me.tooltips);
     });
 
-    this.$on("message.received",(msg)  => {
-      console.log("MESSAGE RECEIVED",msg);
-    })
+    this.$on('message.received', (msg) => {
+      console.log('MESSAGE RECEIVED', msg);
+
+      if (msg['channel'] == 'task' && msg['state']) {
+        var bytes = JSON.stringify(msg).length;
+
+        tsdb.series('inBytes').insert(
+          {
+            bytes: bytes
+          },
+          Date.now()
+        );
+
+        var timedata = tsdb.series('inBytes').query({
+          metrics: { data: TSDB.map('bytes') },
+          where: {
+              time: { is: '<', than: Date.now() - 5 * 60}
+          }
+        });
+        
+        console.log("TIMEDATA",timedata);
+
+        console.log("BYTES_IN_5MIN",me.bytes_in_5min)
+        console.log("COMPUTED BYTES_IN_5MIN",timedata[0]['results'].data)
+
+        var averaged_data = [];
+
+        var array = timedata[0]['results'].data;
+        const chunkSize = array.length / 8;
+        for (let i = 0; i < array.length; i += chunkSize) {
+            const chunk = array.slice(i, i + chunkSize);
+            console.log("CHUNK",chunkSize, chunk);
+            const sum = chunk.reduce((a,c) => a + c, 0);
+            const avg = sum / chunk.length;
+            averaged_data.push(avg);
+        }
+        console.log("AVERAGED_DATA",averaged_data)
+        me.bytes_in_5min = averaged_data
+        me.bytes_in += bytes;
+        me.calls_in += 1;
+        me.tasklogs.unshift(msg);
+        me.tasklogs = me.tasklogs.slice(0, 100);
+      }
+      if (msg['channel'] == 'task' && msg['message']) {
+        var json = JSON.parse(msg['message']);
+        me.bytes_out += msg['message'].length;
+        me.bytes_out_5min.push(msg['message'].length);
+        me.bytes_out_5min.slice(0, 8);
+        me.task_time = json.duration;
+        me.calls_out += 1;
+        me.resultlogs.unshift(json);
+        me.resultlogs = me.resultlogs.slice(0, 100);
+      }
+      if (msg['channel'] == 'log' && msg['message']) {
+        
+        me.msglogs.unshift(msg);
+        me.msglogs = me.msglogs.slice(0, 100);
+      }
+      console.log('TASKLOGS', me.tasklogs);
+      console.log('MSGLOGS', me.msglogs);
+    });
     // Print some fields from the mixin component
     console.log(
       'BetterCounter: ',
@@ -2174,6 +2318,24 @@ export default {
     }, 3000);
   },
   computed: {
+    taskTime() {
+      return this.task_time;
+    },
+    inBytes() {
+      return this.calls_in+' ('+this.bytes_in_human+' bytes)'
+    },
+    outBytes() {
+      return this.calls_out+' ('+this.bytes_out_human+' bytes)'
+    },
+    totalBytes() {
+      return this.calls_out+this.calls_in+' ('+this.sizeOf(this.bytes_out+this.bytes_in)+' bytes)'
+    },
+    bytes_in_human() {
+      return this.sizeOf(this.bytes_in)
+    },
+    bytes_out_human() {
+      return this.sizeOf(this.bytes_out)
+    },
     readwrite() {
       return this.obj.readwrite;
     },
@@ -2181,22 +2343,22 @@ export default {
   mounted() {
     var me = this;
     console.log('MOUNTED STORE', this.$store);
+    console.log('BYTES_IN',this['bytes_in'])
+
     d3.selectAll('p').style('color', 'white');
-    console.log("D3 ran")
+    console.log('D3 ran');
     // Execute method on mixed in component, which sends to server using socket.io
     this.sayHello({ name: 'darren', age: 51 });
 
     setTimeout(() => {
-
-      console.log("ME.getNode()",me.getNode())
+      console.log('ME.getNode()', me.getNode());
       me.getNode().component = this;
-    }, 3000)
+    }, 3000);
     this.$el.component = this;
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
-      console.log("toggle bandwidth",bandwidth);
+      console.log('toggle bandwidth', bandwidth);
       me.obj.bandwidth = bandwidth;
-    })
-
+    });
 
     function shiftvalues() {
       console.log('Rotating...');
@@ -2216,11 +2378,22 @@ export default {
   },
   data() {
     return {
-      cardX:0,
-      cardY:0,
+      bytes_in_5min: [0,0,0,0,0,0,0,0],
+      bytes_out_5min: [0,0,0,0,0,0,0,0],
+      bytes_in: 0,
+      bytes_out: 0,
+      calls_in: 0,
+      calls_out: 0,
+      task_time: 0,
+      logtab: 'tasklog',
+      cardX: 0,
+      cardY: 0,
       mousecard: false,
       tab: 'settings',
-      error: true,
+      error: false,
+      tasklogs: [],
+      resultlogs: [],
+      msglogs: [],
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
@@ -2512,7 +2685,7 @@ export default {
         style: '',
         x: 0,
         y: 0,
-        websocket:'ws://localhost:3003',
+        websocket: 'ws://localhost:3003',
         bandwidth: true,
         requirements: '',
         container: true,
@@ -2759,7 +2932,7 @@ export default {
       data: [
         {
           name: 'In',
-          bytes: '0 (0 bytes)',
+          bytes: 'inBytes',
           time: '5 min',
           spark: {
             name: 'in',
@@ -2769,7 +2942,7 @@ export default {
         },
         {
           name: 'Read/Write',
-          bytes: '0 (0 bytes)',
+          bytes: 'totalBytes',
           time: '5 min',
           spark: {
             name: 'readwrite',
@@ -2779,7 +2952,7 @@ export default {
         },
         {
           name: 'Out',
-          bytes: '0 (0 bytes)',
+          bytes: 'outBytes',
           time: '5 min',
           spark: {
             name: 'readoutwrite',
@@ -2788,8 +2961,8 @@ export default {
           },
         },
         {
-          name: 'Tasks/Time',
-          bytes: '0 (0 bytes)',
+          name: 'Task/Time',
+          bytes: 'taskTime',
           time: '5 min',
           spark: {
             name: 'taskstime',
@@ -2837,23 +3010,29 @@ export default {
     };
   },
   methods: {
+
+    sizeOf(bytes) {
+      if (bytes == 0) { return "0.00 B"; }
+      var e = Math.floor(Math.log(bytes) / Math.log(1024));
+      return (bytes/Math.pow(1024, e)).toFixed(2)+' '+' KMGTP'.charAt(e)+'B';
+    },
     mouseEnter(event) {
       this.cardX = event.clientX;
       this.cardY = event.clientY;
       this.mousecard = true;
     },
     mouseExit(event) {
-      console.log("mouseExit");
+      console.log('mouseExit');
       //this.mousecard = false;
     },
     mouseMove(event) {
       this.cardX = event.clientX;
       this.cardY = event.clientY;
-      console.log(this.cardX,this.cardY)
+      console.log(this.cardX, this.cardY);
     },
     setBandwidth(value) {
-      console.log("SET BANDWIDTH",value);
-      this.obj.bandwidth = value
+      console.log('SET BANDWIDTH', value);
+      this.obj.bandwidth = value;
     },
     onSubmit() {},
     onReset() {},
