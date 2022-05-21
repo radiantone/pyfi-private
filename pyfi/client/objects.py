@@ -49,6 +49,12 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
+class Registry(dict):
+    """ Singleton that holds all the in-memory references during network creation """
+    pass
+
+
+registry = Registry()
 
 # serialization.register_pickle()
 # serialization.enable_insecure_serializers()
@@ -123,6 +129,7 @@ class Worker(Base):
     def __init__(self, name=None, hostname=None, processor=None, agent=None):
         super().__init__()
 
+        print("HOSTNAME,PROCNAME", hostname, processor)
         name = hostname + ".agent." + processor.name + ".worker"
         self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
 
@@ -752,6 +759,8 @@ class Processor(Base):
 
         self.app.config_from_object(config)
         self.database.session.commit()
+        registry[self.id] = self   # Add myself to the memory registry
+
 
     def get(self):
         self.database.session.add(self.processor)

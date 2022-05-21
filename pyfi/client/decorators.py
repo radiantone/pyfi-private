@@ -146,7 +146,7 @@ def worker(*args, **kwargs):
 
     kwargs['user'] = USER
     agent = stack.pop()
-    _worker = Worker(hostname=agent.hostname, user=USER)
+    _worker = Worker(hostname=agent.hostname) # , user=USER
     agent.worker = _worker
     stack.append(_worker)
 
