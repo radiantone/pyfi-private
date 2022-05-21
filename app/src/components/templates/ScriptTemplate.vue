@@ -2258,7 +2258,10 @@ export default {
 
     this.$on('message.received', (msg) => {
       console.log('MESSAGE RECEIVED', msg);
-
+      if(msg['room'] && msg['room'] != me.obj.name) {
+        console.log("MESSAGE NOT FOR ME");
+        return
+      }
       if (msg['channel'] == 'task' && msg['state'] && msg['state'] != 'postrun') {
         console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;

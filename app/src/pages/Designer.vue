@@ -1370,11 +1370,14 @@ import {
   jsTarget,
   jsPlumbUtil,
 } from 'jsplumbtoolkit';
+import Vue from 'vue';
 
 import { jsPlumbToolkitVue2 } from 'jsplumbtoolkit-vue2';
 import { jsPlumbSyntaxHighlighter } from 'jsplumbtoolkit-syntax-highlighter';
 import { jsPlumbToolkitUndoRedo } from 'jsplumbtoolkit-undo-redo';
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
+
+import Button from 'components/Button.vue';
 
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue';
 import GroupTemplate from 'components/templates/GroupTemplate.vue';
@@ -1402,7 +1405,6 @@ var typeFunction = function (n) {
 var dd = require('drip-drop');
 
 import { v4 as uuidv4 } from 'uuid';
-
 
 import 'assets/css/jsplumbtoolkit.css';
 import 'assets/css/jsplumbtoolkit-editable-connectors.css';
@@ -1439,10 +1441,39 @@ export default {
     Processors,
     Flows,
     Patterns,
+    Button,
     Networks,
     editor: require('vue2-ace-editor'),
   },
   computed: {
+    htmlDataComponent() {
+      console.log('htmlDataComponent');
+      return {
+        template:
+          "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
+          "<span style='font-weight: bold; color: #775351' data-source=''>Queue</span><i class='pull-right fas fa-cog text-primary'/>" +
+          '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +
+          "<span style='font-weight: bold; color: #775351'>0 (0 bytes)</span>" +
+          '</div>' +
+          '</div>',
+
+        data() {
+          return {
+            name: 'component',
+            value: '',
+          };
+        },
+        created() {
+          // value of "this" is formComponent
+          console.log(this.name + ' created');
+        },
+        methods: {
+          // proxy components method to parent method,
+          // actually you done have to
+          onInputProxy: this.onInput,
+        },
+      };
+    },
     fname: {
       get() {
         return this.flowname;
@@ -1459,27 +1490,24 @@ export default {
       var selection = window.toolkit.getSelection();
       var nodes = selection.getAll();
 
-      if(nodes.length > 0) {
-        nodes.forEach( (node) => {
-         setTimeout(() => {
-            console.log("BANDWIDTH NODE",node.component,node)
-            if (node.component && node.component.setBandwidth) {
-              node.component.setBandwidth(this.showBandwidth);
-            }
-          })
-        })
-
-      } else {
-
-        window.toolkit.getNodes().forEach( (node) => {
+      if (nodes.length > 0) {
+        nodes.forEach((node) => {
           setTimeout(() => {
-            console.log("BANDWIDTH NODE",node.component,node)
+            console.log('BANDWIDTH NODE', node.component, node);
             if (node.component && node.component.setBandwidth) {
               node.component.setBandwidth(this.showBandwidth);
             }
-          })
-          
-        })
+          });
+        });
+      } else {
+        window.toolkit.getNodes().forEach((node) => {
+          setTimeout(() => {
+            console.log('BANDWIDTH NODE', node.component, node);
+            if (node.component && node.component.setBandwidth) {
+              node.component.setBandwidth(this.showBandwidth);
+            }
+          });
+        });
       }
       this.$emit('toggle.bandwith', this.showBandwidth);
     },
@@ -1644,11 +1672,11 @@ export default {
     },
     confirmDeleteNodes() {
       var selection = window.toolkit.getSelection();
-      console.log("DELETE NODES",selection.getAll())
+      console.log('DELETE NODES', selection.getAll());
 
-      selection.getAll().forEach( (node) => {
-        console.log("NODE EL",node.nodeEl);
-      })
+      selection.getAll().forEach((node) => {
+        console.log('NODE EL', node.nodeEl);
+      });
       this.deleteCount = selection.getAll().length;
       if (this.deleteCount > 1) {
         this.deletText = 'nodes';
@@ -1724,7 +1752,7 @@ export default {
           me.mode = 'pan';
         });
 
-        console.log("SURFACE EL",me.surface.$el);
+        console.log('SURFACE EL', me.surface.$el);
         me.surface.setPan(0, 0);
         me.surface.setPan(0, 0);
         console.log('PAN', me.surface.getPan());
@@ -1806,23 +1834,26 @@ export default {
               console.log('DROP NODE:', node);
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
-              console.log("SURFACE",me.surface)
+              console.log('SURFACE', me.surface);
               if (data.type == 'pattern') {
                 console.log('DROP PATTERN', data.code);
                 if (data.code) {
                   me.showing = false;
-                    window.toolkit.load({
-                      type: 'json',
-                      data: JSON.parse(data.code),
-                      onload: function () {
-                        console.log("FINISHED LOADING PATTERN", JSON.parse(data.code))
-                      },
-                    });
+                  window.toolkit.load({
+                    type: 'json',
+                    data: JSON.parse(data.code),
+                    onload: function () {
+                      console.log(
+                        'FINISHED LOADING PATTERN',
+                        JSON.parse(data.code)
+                      );
+                    },
+                  });
                 } else {
                   DataService.getPattern(data.patternid)
                     .then((pattern) => {
                       me.showing = false;
-                      console.log("LOADED PATTERN",pattern)
+                      console.log('LOADED PATTERN', pattern);
                       window.toolkit.load({
                         type: 'json',
                         data: pattern.data,
@@ -1855,7 +1886,7 @@ export default {
                 window.toolkit.addNode(node.node, data);
               }
               node.toolkit = window.toolkit;
-              console.log("NODES",me.surface.getNodes())
+              console.log('NODES', me.surface.getNodes());
             }
           });
           dd.drop(el).on('enter', function (keys, event) {
@@ -2446,7 +2477,7 @@ export default {
             events: {
               tap: function (params) {
                 console.log('PARAMS:', params);
-                
+
                 if (
                   params.e.srcElement.localName == 'span' &&
                   params.e.srcElement.className === 'proc-title'
@@ -2681,19 +2712,18 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    console.log('getData():', component, component.getData());
-                    return htmlToElement(
-                      "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
-                        "<span style='font-weight: bold; color: #775351' data-source='" +
-                        component.source.attributes['data-port-id'].nodeValue +
-                        "'>" +
-                        component.getData()['name'] +
-                        "</span><i class='pull-right fas fa-cog text-primary'/>" +
-                        '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +
-                        "<span style='font-weight: bold; color: #775351'>0 (0 bytes)</span>" +
-                        '</div>' +
-                        '</div>'
-                    );
+                    let ButtonClass = Vue.extend(Button);
+                    debugger;
+                    let instance = new ButtonClass({
+                      propsData: {
+                        node:
+                          component.source.attributes['data-port-id'].nodeValue,
+                        name: component.getData()['name'],
+                      },
+                    });
+                    instance.$mount();
+                    return instance.$el;
+
                   },
                   id: 'connector',
                   events: {
