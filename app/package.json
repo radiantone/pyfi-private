@@ -30,6 +30,7 @@
     "jsplumbtoolkit-undo-redo": "file:jsplumb/jsplumbtoolkit-undo-redo.tgz",
     "jsplumbtoolkit-vue2": "file:jsplumb/jsplumbtoolkit-vue2.tgz",
     "jsplumbtoolkit-vue2-drop": "file:jsplumb/jsplumbtoolkit-vue2-drop.tgz",
+    "moment": "^2.29.3",
     "quasar": "^1.15.15",
     "raphael": "^2.3.0",
     "socket.io-client": "^4.4.1",

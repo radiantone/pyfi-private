@@ -230,7 +230,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
-    image: rabbitmq:3.9-management
+    image: rabbitmq:management
     restart: always
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
@@ -246,7 +246,7 @@ services:
   rabbitmq2:
     container_name: rabbitmq2
     hostname: rabbitmq2
-    image: rabbitmq:3.9-management
+    image: rabbitmq:management
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
     links:

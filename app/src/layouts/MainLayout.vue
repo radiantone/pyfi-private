@@ -228,6 +228,16 @@
           />-->
         </q-tab>
       </q-tabs>
+      <q-btn
+          flat
+          dense
+          size="md"
+          color="primary"
+          icon="menu"
+          aria-label="Menu"
+          style="z-index: 9999;position:absolute;right:0px;"
+          @click="drawer = !drawer"
+        />
     </div>
     <q-footer
       elevated

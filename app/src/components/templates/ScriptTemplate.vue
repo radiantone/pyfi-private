@@ -843,13 +843,20 @@
                 line-width="2"
                 padding="0"
               ></v-sparkline>
-            </q-td>
-            <q-td
-              :key="props.cols[2].name"
-              :props="props"
-              :style="rowStripe(props.row.index)"
-            >
-              {{ props.cols[2].value }}
+              <v-sparkline v-if="props.cols[1].value == 'totalBytes'"
+                :labels="props.row.spark.labels"
+                :value="totalbytes_5min"
+                color="white"
+                line-width="2"
+                padding="0"
+              ></v-sparkline>
+            <v-sparkline v-if="props.cols[1].value == 'taskTime'"
+                :labels="props.row.spark.labels"
+                :value="tasktime_out_5min"
+                color="white"
+                line-width="2"
+                padding="0"
+              ></v-sparkline>
             </q-td>
           </q-tr>
         </template>
@@ -1530,11 +1537,21 @@
               placeholder="* * * * *"
               v-model.number="obj.cron"
             />
-
+            <q-input
+              style="width: 100px;"
+              hint="Beat Interval"
+              type="number"
+              v-model.number="obj.interval"
+            />
+            <q-checkbox
+              v-model="obj.beat"
+              style="margin-top: 30px;"
+              label="Beat"
+            />
             <q-checkbox
               v-model="obj.useschedule"
               style="margin-top: 30px;"
-              label="Use Schedule"
+              label="Use CRON"
             />
           </q-tab-panel>
           <q-tab-panel name="security" style="padding: 20px;" ref="security">
@@ -2191,6 +2208,7 @@ import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
 import { mdiLambda } from '@mdi/js';
 import { TSDB } from "uts";
+var Moment = require('moment'); // require
 
 const tsdb = new TSDB();
 
@@ -2241,7 +2259,8 @@ export default {
     this.$on('message.received', (msg) => {
       console.log('MESSAGE RECEIVED', msg);
 
-      if (msg['channel'] == 'task' && msg['state']) {
+      if (msg['channel'] == 'task' && msg['state'] && msg['state'] != 'postrun') {
+        console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
 
         tsdb.series('inBytes').insert(
@@ -2258,36 +2277,45 @@ export default {
           }
         });
         
-        console.log("TIMEDATA",timedata);
-
-        console.log("BYTES_IN_5MIN",me.bytes_in_5min)
-        console.log("COMPUTED BYTES_IN_5MIN",timedata[0]['results'].data)
-
-        var averaged_data = [];
-
-        var array = timedata[0]['results'].data;
-        const chunkSize = array.length / 8;
-        for (let i = 0; i < array.length; i += chunkSize) {
-            const chunk = array.slice(i, i + chunkSize);
-            console.log("CHUNK",chunkSize, chunk);
-            const sum = chunk.reduce((a,c) => a + c, 0);
-            const avg = sum / chunk.length;
-            averaged_data.push(avg);
-        }
-        console.log("AVERAGED_DATA",averaged_data)
-        me.bytes_in_5min = averaged_data
+        
+        //me.bytes_in_5min = averaged_data
+        me.bytes_in_5min.unshift(bytes); // + (Math.random()*100)
+        console.log("BYTE_IN_5MIN",me.bytes_in_5min)
+        me.bytes_in_5min = me.bytes_in_5min.slice(0, 8);
+        console.log("BYTE_IN_5MIN SLICED",me.bytes_in_5min.slice(0, 8))
         me.bytes_in += bytes;
-        me.calls_in += 1;
+        
+        me.calls_in = timedata[0]['results'].data.length;
         me.tasklogs.unshift(msg);
         me.tasklogs = me.tasklogs.slice(0, 100);
       }
       if (msg['channel'] == 'task' && msg['message']) {
+        var timedata = tsdb.series('outBytes').query({
+          metrics: { data: TSDB.map('bytes') },
+          where: {
+              time: { is: '<', than: Date.now() - 5 * 60}
+          }
+        });
+        tsdb.series('outBytes').insert(
+          {
+            bytes: bytes
+          },
+          Date.now()
+        );
         var json = JSON.parse(msg['message']);
         me.bytes_out += msg['message'].length;
-        me.bytes_out_5min.push(msg['message'].length);
-        me.bytes_out_5min.slice(0, 8);
-        me.task_time = json.duration;
-        me.calls_out += 1;
+        me.bytes_out_5min.unshift(msg['message'].length);
+        if(msg['state'] == 'postrun' && msg['duration']) {
+          const moment = Moment(msg['duration'], 'H:mm:ss.SSS')
+          console.log("MOMENT",moment);
+          me.tasktime_out_5min.unshift(moment.seconds()+moment.milliseconds());
+          me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8);
+
+          me.task_time = json.duration;
+        }
+        console.log('TASKTIME_OUT_5MIN',me.tasktime_out_5min)
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8);
+        me.calls_out = timedata[0]['results'].data.length;
         me.resultlogs.unshift(json);
         me.resultlogs = me.resultlogs.slice(0, 100);
       }
@@ -2296,6 +2324,8 @@ export default {
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 100);
       }
+      me.totalbytes_5min.unshift(me.bytes_in+me.bytes_out);
+      me.totalbytes_5min = me.totalbytes_5min.slice(0, 8);
       console.log('TASKLOGS', me.tasklogs);
       console.log('MSGLOGS', me.msglogs);
     });
@@ -2378,6 +2408,8 @@ export default {
   },
   data() {
     return {
+      tasktime_out_5min: [0,0,0,0,0,0,0,0],
+      totalbytes_5min: [0,0,0,0,0,0,0,0],
       bytes_in_5min: [0,0,0,0,0,0,0,0],
       bytes_out_5min: [0,0,0,0,0,0,0,0],
       bytes_in: 0,
@@ -2693,6 +2725,7 @@ export default {
         usegit: true,
         enabled: true,
         endpoint: false,
+        beat: false,
         streaming: true,
         api: '/api/processor',
         type: 'script',
@@ -2702,6 +2735,7 @@ export default {
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
+        interval: 5,
         useschedule: false,
         disabled: false,
         commit: '',
