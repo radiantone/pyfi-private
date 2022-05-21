@@ -1377,7 +1377,7 @@ import { jsPlumbSyntaxHighlighter } from 'jsplumbtoolkit-syntax-highlighter';
 import { jsPlumbToolkitUndoRedo } from 'jsplumbtoolkit-undo-redo';
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
 
-import Button from 'components/Button.vue';
+import Queue from 'components/Queue.vue';
 
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue';
 import GroupTemplate from 'components/templates/GroupTemplate.vue';
@@ -1441,7 +1441,7 @@ export default {
     Processors,
     Flows,
     Patterns,
-    Button,
+    Queue,
     Networks,
     editor: require('vue2-ace-editor'),
   },
@@ -2712,9 +2712,9 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    let ButtonClass = Vue.extend(Button);
+                    let QueueClass = Vue.extend(Queue);
                     debugger;
-                    let instance = new ButtonClass({
+                    let instance = new QueueClass({
                       propsData: {
                         node:
                           component.source.attributes['data-port-id'].nodeValue,
