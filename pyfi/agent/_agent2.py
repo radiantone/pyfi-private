@@ -875,6 +875,9 @@ class AgentMonitorPlugin(AgentPlugin):
         def thread_loop():
             while True:
                 import time
+                from pyfi.util import get_queues
+                queues = get_queues()
+                logging.info("QUEUES %s",queues)
                 monitor_processors()
                 time.sleep(3)
         self.process = process = Process(target=thread_loop, daemon=True)
