@@ -798,6 +798,24 @@ class AgentMonitorPlugin(AgentPlugin):
 
                 logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
 
+        def update_queues():
+            from pyfi.util.rabbit import get_queues
+            import redis
+            import json
+
+            queues = get_queues()
+            logging.info("QUEUES %s",queues)
+            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+
+            redisclient.publish(
+                "global",
+                json.dumps(queues),
+            )
+            redisclient.publish(
+                "queues",
+                json.dumps(queues),
+            )
+
         def monitor_processors():
             import sched
             from datetime import datetime
@@ -870,18 +888,18 @@ class AgentMonitorPlugin(AgentPlugin):
 
             gc.collect()
 
-
-
         def thread_loop():
             while True:
                 import time
-                from pyfi.util.rabbit import get_queues
-                queues = get_queues()
-                logging.info("QUEUES %s",queues)
+
+                update_queues()
                 monitor_processors()
+
                 time.sleep(3)
+
         self.process = process = Process(target=thread_loop, daemon=True)
         process.start()
+
         logger.debug("[AgentMonitorPlugin] Startup Complete")
         
     def wait(self):
