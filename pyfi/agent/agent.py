@@ -841,6 +841,7 @@ class AgentService:
                             with self.get_session() as session:
                                 session.add(processor["processor"])
 
+            logging.info("AGENT: manage_processors")
             manage_processors(workers, processors)
 
         #########################################################################
