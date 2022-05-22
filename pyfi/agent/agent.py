@@ -13,6 +13,8 @@ import shutil
 import signal
 from contextlib import contextmanager
 from pathlib import Path
+from pyfi.util.rabbit import get_queues
+
 
 import psutil
 from flask import Flask
@@ -442,6 +444,8 @@ class AgentService:
                     if refresh >= 3:  # 3 cycle interval
                         refresh = 0
 
+                    queues = get_queues()
+                    logging.info("QUEUES %s",queues)
                     # Loop through my processor cache again and operate on them based
                     # on requested_status
                     for processor in processors:
