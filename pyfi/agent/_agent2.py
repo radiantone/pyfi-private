@@ -809,11 +809,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
             redisclient.publish(
                 "global",
-                json.dumps(queues),
+                json.dumps({'type':'queues','queues':queues}),
             )
             redisclient.publish(
                 "queues",
-                json.dumps(queues),
+                json.dumps({'type':'queues','queues':queues}),
             )
 
         def monitor_processors():
