@@ -14,6 +14,31 @@
     <q-inner-loading :showing="refreshing" style="z-index: 999999;">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
+
+    <q-inner-loading :showing="login" style="z-index: 9999999;">
+      <q-spinner-gears size="0px" color="primary" />
+      <div class="text-center">
+        <q-toolbar>
+          <q-input
+            filled
+            outlined
+            square
+            bottom-slots
+            v-model="loginname"
+            counter
+            maxlength="20"
+            dense
+          >
+            <template v-slot:before>
+              <i class="fas fa-lock text-secondary" style="font-size: 0.8em;" />
+            </template>
+            <template v-slot:after>
+              <q-btn dense flat label="Unlock" color="secondary" />
+            </template>
+          </q-input>
+        </q-toolbar>
+      </div>
+    </q-inner-loading>
     <q-menu context-menu style="border: 1px solid black;">
       <q-list dense>
         <q-item clickable v-close-popup>
@@ -526,6 +551,14 @@
                 Comments
               </q-item-section>
             </q-item>
+            <q-item clickable v-close-popup @click="loginProcessor">
+              <q-item-section side>
+                <q-icon name="fas fa-lock"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Lock
+              </q-item-section>
+            </q-item>
             <q-separator />
             <q-item
               clickable
@@ -829,34 +862,45 @@
               :props="props"
               :style="rowStripe(props.row.index) + ';width:80px'"
             >
-              <v-sparkline v-if="props.cols[1].value == 'inBytes'"
+              <v-sparkline
+                v-if="props.cols[1].value == 'inBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_in_5min"
                 color="white"
                 line-width="2"
                 padding="0"
               ></v-sparkline>
-              <v-sparkline v-if="props.cols[1].value == 'outBytes'"
+              <v-sparkline
+                v-if="props.cols[1].value == 'outBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_out_5min"
                 color="white"
                 line-width="2"
                 padding="0"
               ></v-sparkline>
-              <v-sparkline v-if="props.cols[1].value == 'totalBytes'"
+              <v-sparkline
+                v-if="props.cols[1].value == 'totalBytes'"
                 :labels="props.row.spark.labels"
                 :value="totalbytes_5min"
                 color="white"
                 line-width="2"
                 padding="0"
               ></v-sparkline>
-            <v-sparkline v-if="props.cols[1].value == 'taskTime'"
+              <v-sparkline
+                v-if="props.cols[1].value == 'taskTime'"
                 :labels="props.row.spark.labels"
                 :value="tasktime_out_5min"
                 color="white"
                 line-width="2"
                 padding="0"
               ></v-sparkline>
+            </q-td>
+            <q-td
+              :key="props.cols[1].name"
+              :props="props"
+              :style="rowStripe(props.row.index)"
+            >
+              5 min
             </q-td>
           </q-tr>
         </template>
@@ -1589,6 +1633,7 @@
       <q-inner-loading :showing="workersLoading" style="z-index: 9999999;">
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
+
       <q-card-section
         style="padding: 15px; z-index: 999999; padding-bottom: 10px;"
       >
@@ -2082,7 +2127,12 @@
           >
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in tasklogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['state'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['duration'] }}
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
+                  log['state']
+                }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp;
+                --&nbsp;&nbsp;{{ log['task'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
+                  log['duration']
+                }}
               </div>
             </q-scroll-area>
           </q-card-section>
@@ -2098,8 +2148,10 @@
           >
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in resultlogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}
-                {{ JSON.parse(log['message'])}}
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
+                  log['module']
+                }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}
+                {{ JSON.parse(log['message']) }}
               </div>
             </q-scroll-area>
           </q-card-section>
@@ -2115,7 +2167,8 @@
           >
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in msglogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;     {{ log['message'] }}
+                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
+                {{ log['message'] }}
               </div>
             </q-scroll-area>
           </q-card-section>
@@ -2207,7 +2260,7 @@ import { v4 as uuidv4 } from 'uuid';
 import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
 import { mdiLambda } from '@mdi/js';
-import { TSDB } from "uts";
+import { TSDB } from 'uts';
 var Moment = require('moment'); // require
 
 const tsdb = new TSDB();
@@ -2240,8 +2293,8 @@ export default {
       console.log('delayMs CHANGED', val);
     },
     inBytes: function (val) {
-      console.log("inBytes",val)
-    }
+      console.log('inBytes', val);
+    },
   },
   created() {
     var me = this;
@@ -2258,17 +2311,17 @@ export default {
 
     this.$on('message.received', (msg) => {
       console.log('MESSAGE RECEIVED', msg);
-      if(msg['room'] && msg['room'] != me.obj.name) {
-        console.log("MESSAGE NOT FOR ME");
-        return
+      if (msg['room'] && msg['room'] != me.obj.name) {
+        console.log('MESSAGE NOT FOR ME');
+        return;
       }
-      if (msg['channel'] == 'task' && msg['state'] && msg['state'] != 'postrun') {
+      if (msg['channel'] == 'task' && msg['state']) {
         console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
 
         tsdb.series('inBytes').insert(
           {
-            bytes: bytes
+            bytes: bytes,
           },
           Date.now()
         );
@@ -2276,18 +2329,17 @@ export default {
         var timedata = tsdb.series('inBytes').query({
           metrics: { data: TSDB.map('bytes') },
           where: {
-              time: { is: '<', than: Date.now() - 5 * 60}
-          }
+            time: { is: '<', than: Date.now() - 5 * 60 },
+          },
         });
-        
-        
+
         //me.bytes_in_5min = averaged_data
         me.bytes_in_5min.unshift(bytes); // + (Math.random()*100)
-        console.log("BYTE_IN_5MIN",me.bytes_in_5min)
+        console.log('BYTE_IN_5MIN', me.bytes_in_5min);
         me.bytes_in_5min = me.bytes_in_5min.slice(0, 8);
-        console.log("BYTE_IN_5MIN SLICED",me.bytes_in_5min.slice(0, 8))
+        console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
         me.bytes_in += bytes;
-        
+
         me.calls_in = timedata[0]['results'].data.length;
         me.tasklogs.unshift(msg);
         me.tasklogs = me.tasklogs.slice(0, 100);
@@ -2296,38 +2348,39 @@ export default {
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes') },
           where: {
-              time: { is: '<', than: Date.now() - 5 * 60}
-          }
+            time: { is: '<', than: Date.now() - 5 * 60 },
+          },
         });
         tsdb.series('outBytes').insert(
           {
-            bytes: bytes
+            bytes: bytes,
           },
           Date.now()
         );
         var json = JSON.parse(msg['message']);
         me.bytes_out += msg['message'].length;
         me.bytes_out_5min.unshift(msg['message'].length);
-        if(msg['state'] == 'postrun' && msg['duration']) {
-          const moment = Moment(msg['duration'], 'H:mm:ss.SSS')
-          console.log("MOMENT",moment);
-          me.tasktime_out_5min.unshift(moment.seconds()+moment.milliseconds());
+        if (msg['state'] == 'postrun' && msg['duration']) {
+          const moment = Moment(msg['duration'], 'H:mm:ss.SSS');
+          console.log('MOMENT', moment);
+          me.tasktime_out_5min.unshift(
+            moment.seconds() + moment.milliseconds()
+          );
           me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8);
 
           me.task_time = json.duration;
         }
-        console.log('TASKTIME_OUT_5MIN',me.tasktime_out_5min)
+        console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8);
         me.calls_out = timedata[0]['results'].data.length;
         me.resultlogs.unshift(json);
         me.resultlogs = me.resultlogs.slice(0, 100);
       }
       if (msg['channel'] == 'log' && msg['message']) {
-        
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 100);
       }
-      me.totalbytes_5min.unshift(me.bytes_in+me.bytes_out);
+      me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out);
       me.totalbytes_5min = me.totalbytes_5min.slice(0, 8);
       console.log('TASKLOGS', me.tasklogs);
       console.log('MSGLOGS', me.msglogs);
@@ -2355,19 +2408,25 @@ export default {
       return this.task_time;
     },
     inBytes() {
-      return this.calls_in+' ('+this.bytes_in_human+' bytes)'
+      return this.calls_in + ' (' + this.bytes_in_human + ' bytes)';
     },
     outBytes() {
-      return this.calls_out+' ('+this.bytes_out_human+' bytes)'
+      return this.calls_out + ' (' + this.bytes_out_human + ' bytes)';
     },
     totalBytes() {
-      return this.calls_out+this.calls_in+' ('+this.sizeOf(this.bytes_out+this.bytes_in)+' bytes)'
+      return (
+        this.calls_out +
+        this.calls_in +
+        ' (' +
+        this.sizeOf(this.bytes_out + this.bytes_in) +
+        ' bytes)'
+      );
     },
     bytes_in_human() {
-      return this.sizeOf(this.bytes_in)
+      return this.sizeOf(this.bytes_in);
     },
     bytes_out_human() {
-      return this.sizeOf(this.bytes_out)
+      return this.sizeOf(this.bytes_out);
     },
     readwrite() {
       return this.obj.readwrite;
@@ -2376,7 +2435,7 @@ export default {
   mounted() {
     var me = this;
     console.log('MOUNTED STORE', this.$store);
-    console.log('BYTES_IN',this['bytes_in'])
+    console.log('BYTES_IN', this['bytes_in']);
 
     d3.selectAll('p').style('color', 'white');
     console.log('D3 ran');
@@ -2411,15 +2470,17 @@ export default {
   },
   data() {
     return {
-      tasktime_out_5min: [0,0,0,0,0,0,0,0],
-      totalbytes_5min: [0,0,0,0,0,0,0,0],
-      bytes_in_5min: [0,0,0,0,0,0,0,0],
-      bytes_out_5min: [0,0,0,0,0,0,0,0],
+      loginname: '',
+      tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
+      totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
+      bytes_in_5min: [0, 0, 0, 0, 0, 0, 0, 0],
+      bytes_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       bytes_in: 0,
       bytes_out: 0,
       calls_in: 0,
       calls_out: 0,
       task_time: 0,
+      login: false,
       logtab: 'tasklog',
       cardX: 0,
       cardY: 0,
@@ -3047,11 +3108,14 @@ export default {
     };
   },
   methods: {
-
     sizeOf(bytes) {
-      if (bytes == 0) { return "0.00 B"; }
+      if (bytes == 0) {
+        return '0.00 B';
+      }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
-      return (bytes/Math.pow(1024, e)).toFixed(2)+' '+' KMGTP'.charAt(e)+'B';
+      return (
+        (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
+      );
     },
     mouseEnter(event) {
       this.cardX = event.clientX;
@@ -3079,6 +3143,9 @@ export default {
       setTimeout(() => {
         me.workersLoading = false;
       }, 2000);
+    },
+    loginProcessor() {
+      this.login = true;
     },
     refreshProcessor() {
       var me = this;

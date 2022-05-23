@@ -10,7 +10,10 @@ const routes: RouteConfig[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/Designer.vue') }],
   },
-
+  {
+    path: '/app',
+    component: () => import('layouts/AppLayout.vue')
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

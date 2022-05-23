@@ -202,22 +202,7 @@
         Router
       </q-tooltip>
     </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-template"
-      aria-label="Template"
-      size="large"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Template
-      </q-tooltip>
-    </q-btn>
+    
     <q-btn
       flat
       align="left"
@@ -232,6 +217,23 @@
         content-class="bg-black text-white"
       >
         Label
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      align="left"
+      icon="las la-window-maximize"
+      aria-label="App"
+      size="xl"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+      @click="$router.push('/app')"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        App
       </q-tooltip>
     </q-btn>
     <q-space />

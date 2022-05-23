@@ -15,11 +15,10 @@
         style="margin-left: 5px; font-weight: bold; color: #775351;"
         :data-source="node"
         >{{ name }}
-                    <q-popup-edit v-model="name" title="Queue Name" buttons >
-              <q-input type="string" v-model="name" dense autofocus />
-            </q-popup-edit>
-        </q-item-label
-      >
+        <q-popup-edit v-model="name" title="Queue Name" buttons>
+          <q-input type="string" v-model="name" dense autofocus />
+        </q-popup-edit>
+      </q-item-label>
       <q-space />
       <q-btn-dropdown
         flat
@@ -27,7 +26,7 @@
         dense
         color="secondary"
         dropdown-icon="fas fa-cog"
-        style="margin-right:5px"
+        style="margin-right: 5px;"
         padding="0px"
         size=".6em"
         no-icon-animation
@@ -81,7 +80,7 @@
       "
     >
       Queued
-      <span style="font-weight: bold; color: #775351;">0 (0 bytes)</span>
+      <span style="font-weight: bold; color: #775351;">{{messages}} ({{bytes}} bytes)</span>
     </div>
     <q-card
       style="
@@ -95,7 +94,7 @@
       "
       v-if="queueconfig"
     >
-              <q-card-actions align="left">
+      <q-card-actions align="left">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; left: 0px;"
@@ -107,7 +106,7 @@
           @click="queueconfig = false"
         />
       </q-card-actions>
-          <q-card-actions align="right">
+      <q-card-actions align="right">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px;"
@@ -122,7 +121,7 @@
     </q-card>
   </div>
 </template>
-<script >
+<script>
 import { io, Socket } from 'socket.io-client';
 
 let socket = io('http://localhost');
@@ -134,14 +133,30 @@ export default {
     var me = this;
     socket.on('global', (data) => {
       console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      me.messageReceived(data);
+      if(data['type'] && data['type'] == 'queues') {
+        me.messageReceived(data);
+      }
     });
     this.$on('message.received', (msg) => {
       console.log('QUEUE MESSAGE RECEIVED', msg);
-    }); 
+    });
   },
   methods: {
+    sizeOf(bytes) {
+      if (bytes == 0) { return "0.00 B"; }
+      var e = Math.floor(Math.log(bytes) / Math.log(1024));
+      return (bytes/Math.pow(1024, e)).toFixed(2)+' '+' KMGTP'.charAt(e)+'B';
+    },
     messageReceived(msg) {
+      console.log("QUEUES RECEIVED",msg);
+      msg['queues'].forEach( (queue) => {
+        console.log("QUEUE NAME",queue['name'],this.name)
+        if(queue['name'] == this.name) {
+          console.log("FOUND MY QUEUE",queue['messages'])
+          this.messages = queue['messages']
+          this.bytes = this.sizeOf(queue['message_bytes'])
+        }
+      })
       this.$emit('message.received', msg);
     },
     clickMe() {
@@ -150,8 +165,10 @@ export default {
   },
   data() {
     return {
-      queueconfig: false
-    }
-  }
+      messages: 0,
+      bytes: 0,
+      queueconfig: false,
+    };
+  },
 };
 </script>

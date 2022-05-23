@@ -2718,7 +2718,7 @@ export default {
                       propsData: {
                         node:
                           component.source.attributes['data-port-id'].nodeValue,
-                        name: component.getData()['name'],
+                        name: 'sockq2.proc2.do_this' //component.getData()['name'],
                       },
                     });
                     instance.$mount();

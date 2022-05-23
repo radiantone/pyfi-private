@@ -279,7 +279,7 @@ services:
   redis:
     container_name: redis
     hostname: redis
-    image: redis:6.2.6
+    image: redislabs/redismod  #redis:6.2.6
     restart: always
     ports:
       - 6379:6379

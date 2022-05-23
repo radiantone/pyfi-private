@@ -320,7 +320,7 @@ export default defineComponent({
     },
   },
   methods: {
-    updateFlow(name){
+    updateFlow(name) {
         this.flow.filename=name;
     },
     dataGenerator: function (el) {
