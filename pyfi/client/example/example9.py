@@ -14,10 +14,10 @@ print("USER", USER)
 do_something = Task(
     name="do_something",
     module="pyfi.processors.sample",
-    queue={"name": "pyfi.queue1.topic", "type": "fanout"},
+    queue={"name": "sockq1.topic", "type": "fanout"},
 )
 
 # Send a message to all task sockets listening on pyfi.queue1
 result = do_something("Hello World !")
 
-print("RESULT", result)
+print("RESULT", result.get())
