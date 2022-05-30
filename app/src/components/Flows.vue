@@ -605,7 +605,7 @@ export default {
                   "[id='row" + result[i].id + "']"
                 );
                 if (el) {
-                  console.log(result[i]._id, el);
+                  //console.log(result[i]._id, el);
 
                   var draghandle = dd.drag(el, {
                     image: true, // default drag image

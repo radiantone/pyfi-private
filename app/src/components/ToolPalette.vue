@@ -202,13 +202,30 @@
         Router
       </q-tooltip>
     </q-btn>
-    
+    <q-btn
+      flat
+      align="left"
+      icon="las la-chart-area"
+      aria-label="Chart"
+      size="large"
+      id="router"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Chart
+      </q-tooltip>
+    </q-btn>
     <q-btn
       flat
       align="left"
       icon="icon-label"
       aria-label="Label"
       size="large"
+      id="label"
       style="min-height: 56px; cursor: grabbing;"
       class="text-dark text-bold"
     >

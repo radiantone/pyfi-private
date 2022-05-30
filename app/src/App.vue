@@ -1,6 +1,9 @@
 <template>
   <div id="q-app">
+     <keep-alive>
+
     <router-view />
+    </keep-alive>
   </div>
 </template>
 <script lang="ts">
@@ -14,12 +17,12 @@ import StreamPlugin from "./plugins/stream-plugin";
 import Vue from "vue";
 import Vuetify from "vuetify";
 //import VueD3 from 'vue2-d3';
-
 //Vue.use(VueD3)
 //Vue.use(FloatingVue);
 Vue.use(StreamPlugin);
 Vue.use(Vuetify);
 Vue.use(JsPlumbToolkitVue2Plugin);
+Vue.config.silent = true;
 
 LoadingBar.setDefaults({
   color: "dark",

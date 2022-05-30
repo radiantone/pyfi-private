@@ -2285,15 +2285,8 @@ export default {
     BetterCounter,
   },
   watch: {
-    // Here we can watch mixed in properties that will update behind the scenes
-    name: function (val) {
-      console.log('NAME IS', this.name);
-    },
-    delayMs: function (val) {
-      console.log('delayMs CHANGED', val);
-    },
     inBytes: function (val) {
-      console.log('inBytes', val);
+      //console.log('inBytes', val);
     },
   },
   created() {
@@ -2310,13 +2303,13 @@ export default {
     });
 
     this.$on('message.received', (msg) => {
-      console.log('MESSAGE RECEIVED', msg);
+      //console.log('MESSAGE RECEIVED', msg);
       if (msg['room'] && msg['room'] != me.obj.name) {
-        console.log('MESSAGE NOT FOR ME');
+        //console.log('MESSAGE NOT FOR ME');
         return;
       }
       if (msg['channel'] == 'task' && msg['state']) {
-        console.log('MESSAGE STATUS received', msg);
+        //console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
 
         tsdb.series('inBytes').insert(
@@ -2335,9 +2328,9 @@ export default {
 
         //me.bytes_in_5min = averaged_data
         me.bytes_in_5min.unshift(bytes); // + (Math.random()*100)
-        console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+        //console.log('BYTE_IN_5MIN', me.bytes_in_5min);
         me.bytes_in_5min = me.bytes_in_5min.slice(0, 8);
-        console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+        //console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
         me.bytes_in += bytes;
 
         me.calls_in = timedata[0]['results'].data.length;
@@ -2362,7 +2355,7 @@ export default {
         me.bytes_out_5min.unshift(msg['message'].length);
         if (msg['state'] == 'postrun' && msg['duration']) {
           const moment = Moment(msg['duration'], 'H:mm:ss.SSS');
-          console.log('MOMENT', moment);
+          //console.log('MOMENT', moment);
           me.tasktime_out_5min.unshift(
             moment.seconds() + moment.milliseconds()
           );
@@ -2370,7 +2363,7 @@ export default {
 
           me.task_time = json.duration;
         }
-        console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
+        //console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8);
         me.calls_out = timedata[0]['results'].data.length;
         me.resultlogs.unshift(json);
@@ -2382,8 +2375,8 @@ export default {
       }
       me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out);
       me.totalbytes_5min = me.totalbytes_5min.slice(0, 8);
-      console.log('TASKLOGS', me.tasklogs);
-      console.log('MSGLOGS', me.msglogs);
+      //console.log('TASKLOGS', me.tasklogs);
+      //console.log('MSGLOGS', me.msglogs);
     });
     // Print some fields from the mixin component
     console.log(

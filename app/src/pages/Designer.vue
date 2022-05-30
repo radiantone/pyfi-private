@@ -1376,6 +1376,7 @@ import { jsPlumbToolkitVue2 } from 'jsplumbtoolkit-vue2';
 import { jsPlumbSyntaxHighlighter } from 'jsplumbtoolkit-syntax-highlighter';
 import { jsPlumbToolkitUndoRedo } from 'jsplumbtoolkit-undo-redo';
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
+import NoteTemplate from 'components/templates/NoteTemplate.vue';
 
 import Queue from 'components/Queue.vue';
 
@@ -2472,6 +2473,14 @@ export default {
       },
       view: {
         nodes: {
+          note: {
+            component: NoteTemplate,
+            events: {
+              tap: function (params) {
+                // toolkit.toggleSelection(params.node);
+              }
+            }
+          },
           processor: {
             component: ScriptTemplate,
             events: {

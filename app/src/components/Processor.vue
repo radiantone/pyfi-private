@@ -59,7 +59,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       me.$store.commit('designer/setMessage',b);
     });
     socket.on("global", (data) => {
-      console.log("SERVER GLOBAL MESSAGE",data);
+      //console.log("SERVER GLOBAL MESSAGE",data);
       me.messageReceived(data);
     });
   },

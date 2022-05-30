@@ -25,7 +25,7 @@
         content-class="text-dark bg-white"
         dense
         color="secondary"
-        dropdown-icon="fas fa-cog"
+        dropdown-icon="menu"
         style="margin-right: 5px;"
         padding="0px"
         size=".6em"
@@ -42,12 +42,13 @@
           </q-item>
           <q-item clickable v-close-popup @click="queueconfig = !queueconfig">
             <q-item-section side>
-              <q-icon name="fas fa-eye"></q-icon>
+              <q-icon name="fas fa-cog"></q-icon>
             </q-item-section>
             <q-item-section side class="text-blue-grey-8">
-              View
+              Configure
             </q-item-section>
           </q-item>
+          <q-separator/>
           <q-item clickable v-close-popup>
             <q-item-section side>
               <q-icon name="delete"></q-icon>
@@ -132,13 +133,13 @@ export default {
   created() {
     var me = this;
     socket.on('global', (data) => {
-      console.log('QUEUE SERVER GLOBAL MESSAGE', data);
+      //console.log('QUEUE SERVER GLOBAL MESSAGE', data);
       if(data['type'] && data['type'] == 'queues') {
         me.messageReceived(data);
       }
     });
     this.$on('message.received', (msg) => {
-      console.log('QUEUE MESSAGE RECEIVED', msg);
+      //console.log('QUEUE MESSAGE RECEIVED', msg);
     });
   },
   methods: {
@@ -148,11 +149,11 @@ export default {
       return (bytes/Math.pow(1024, e)).toFixed(2)+' '+' KMGTP'.charAt(e)+'B';
     },
     messageReceived(msg) {
-      console.log("QUEUES RECEIVED",msg);
+      //console.log("QUEUES RECEIVED",msg);
       msg['queues'].forEach( (queue) => {
-        console.log("QUEUE NAME",queue['name'],this.name)
+        //console.log("QUEUE NAME",queue['name'],this.name)
         if(queue['name'] == this.name) {
-          console.log("FOUND MY QUEUE",queue['messages'])
+          //console.log("FOUND MY QUEUE",queue['messages'])
           this.messages = queue['messages']
           this.bytes = this.sizeOf(queue['message_bytes'])
         }
