@@ -34,6 +34,7 @@ from pyfi.db.model import (
     NetworkModel,
 )
 from pyfi.client.user import USER, engine, session, sessionmaker
+from flask_restx import Api, Resource, fields
 
 logging.basicConfig(level=logging.INFO)
 
@@ -41,6 +42,12 @@ hostname = platform.node()
 
 app = Flask(__name__)
 app.register_blueprint(blueprint)
+
+api = Api(app, version='1.0', title='LambdaFLOW API',
+    description='LambdaFLOW Backend API',
+)
+
+hello = api.namespace('hello', description='Hello operations')
 
 @contextmanager
 def get_session(**kwargs):
@@ -297,7 +304,8 @@ def send_js(path):
     return send_from_directory('static/assets', path)
 
 
-@app.route("/")
-def hello():
-    logging.debug("Invoking hello")
-    return "Hi!"
+@hello.route('/<string:message>')
+class HelloService(Resource):
+    def get(self, message):
+        return f"Hello {message}"
+
