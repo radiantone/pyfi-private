@@ -135,7 +135,7 @@
 
     <q-dialog v-model="savePatternDialog" persistent>
       <q-card
-        style="width:400px; height:200px padding: 10px; padding-left:30px;padding-top: 30px;"
+        style="width:400px; height:200px; padding: 10px; padding-left:30px;padding-top: 30px;"
       >
         <q-card-section
           class="bg-secondary"
@@ -204,6 +204,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
     <q-dialog v-model="deleteGroup" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section

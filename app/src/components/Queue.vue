@@ -20,6 +20,8 @@
         </q-popup-edit>
       </q-item-label>
       <q-space />
+      <q-btn flat dense round icon="fas fa-cog" size="xs" @click="viewQueueDialog=true" color="primary" style="cursor:pointer;font-size:.7em;margin-right:5px"/>
+      <!--
       <q-btn-dropdown
         flat
         content-class="text-dark bg-white"
@@ -58,7 +60,7 @@
             </q-item-section>
           </q-item>
         </q-list>
-      </q-btn-dropdown>
+      </q-btn-dropdown>-->
     </q-toolbar>
 
     <div
@@ -120,6 +122,63 @@
         />
       </q-card-actions>
     </q-card>
+
+
+    <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
+      <q-card
+        style="width:70vw; max-width: 70vw; height:80vh; padding: 10px; padding-left:30px;padding-top: 30px;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Queue {{name}}</q-item-label>
+              <q-space />
+              <q-btn class="text-primary" flat dense round size="sm" icon="fas fa-close" @click="viewQueueDialog=false"/>
+            </q-toolbar>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Close"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right"
+          ><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Save"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 <script>
@@ -166,6 +225,7 @@ export default {
   },
   data() {
     return {
+      viewQueueDialog: false,
       messages: 0,
       bytes: 0,
       queueconfig: false,

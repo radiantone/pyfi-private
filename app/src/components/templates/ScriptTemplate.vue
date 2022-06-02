@@ -529,6 +529,14 @@
                 Save
               </q-item-section>
             </q-item>
+            <q-item clickable v-close-popup>
+              <q-item-section side>
+                <q-icon name="fas fa-list"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Results
+              </q-item-section>
+            </q-item>
             <q-item clickable v-close-popup @click="refreshProcessor">
               <q-item-section side>
                 <q-icon name="fas fa-refresh"></q-icon>
@@ -1568,6 +1576,21 @@
             style="padding: 20px;"
             ref="concurrency"
           >
+            <q-table
+              dense
+              :columns="deploycolumns"
+              :data="deploydata"
+              row-key="name"
+              flat
+              virtual-scroll
+              :rows-per-page-options="[10]"
+              style="
+                width: 100%;
+                border-top-radius: 0px;
+                border-bottom-radius: 0px;
+              "
+            >
+            </q-table>
             <q-input
               style="width: 100px;"
               hint="Number of CPUs"
@@ -2816,6 +2839,51 @@ export default {
       deleteSpeechID: null,
       sidecode: true,
       bandwidth: true,
+      deploydata: [{
+          name: 'Name1',
+          owner: 'postgres',
+          hostname: 'agent2',
+          processor: 'proc1',
+          cpus: 5,
+          status: 'running',
+        },],
+      deploycolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left',
+        },{
+          name: 'hostname',
+          label: 'Hostname',
+          field: 'hostname',
+          align: 'left',
+        },
+        {
+          name: 'processor',
+          label: 'Processor',
+          field: 'processor',
+          align: 'left',
+        },
+        {
+          name: 'cpus',
+          label: 'CPUS',
+          field: 'cpus',
+          align: 'left',
+        },
+        {
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left',
+        },
+      ],
       workercolumns: [
         {
           name: 'Name',

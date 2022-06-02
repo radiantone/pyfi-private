@@ -354,7 +354,18 @@
                 <template v-slot:body="props">
                   <q-tr :props="props">
                     <q-td key="name" :props="props" :width="150">
-                      {{ props.row.name }}
+                    <a
+              class="text-secondary"
+              style="
+                z-index: 99999;
+                cursor: pointer;
+                width: 100%;
+                min-width: 250px;
+                font-size: 1.3em;
+              "
+              @click="queuename = props.row.name; viewQueueDialog=true"
+              >{{ props.row.name }}</a>
+                      
                     </q-td>
                     <q-td key="messages" :props="props">
                       {{ props.row.messages }}
@@ -447,9 +458,68 @@
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
     </q-drawer>
+        <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
+      <q-card
+        style="width:70vw; max-width: 70vw; height:80vh; padding: 10px; padding-left:30px;padding-top: 30px;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Queue {{queuename}}</q-item-label>
+              <q-space />
+              <q-btn class="text-primary" flat dense round size="sm" icon="fas fa-close" @click="viewQueueDialog=false"/>
+            </q-toolbar>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Close"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right"
+          ><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Save"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 <style>
+a.text-secondary:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 .q-splitter__before {
   overflow: hidden;
 }
@@ -565,9 +635,10 @@ export default defineComponent({
   methods: {
     toggleSplitter() {
       if (this.splitterModel < 100) {
+        this.splitterSave = this.splitterModel;
         this.splitterModel = 100;
       } else {
-        this.splitterModel = 80;
+        this.splitterModel = this.splitterSave;
       }
     },
     updateFlow(name) {
@@ -811,7 +882,9 @@ export default defineComponent({
   },
   data() {
     return {
+      viewQueueDialog: false,
       splitterModel: 100,
+      splitterSave: 80,
       columns: [
         {
           name: 'name',
