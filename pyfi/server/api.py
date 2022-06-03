@@ -87,22 +87,31 @@ def create_endpoint(modulename, taskname):
 
         def wrapper(cls, *args, **kwargs):
             
-            cls.func = func
-            return
+            cls.funcs[task] = func
+            return cls
 
 
         return wrapper
 
-    ns = api.namespace(modulename+'.'+taskname, description=taskname)
-    route = ns.route('/'+modulename+'/'+taskname+'/<string:message>')
+    ns = api.namespace(modulename+'/'+taskname, description=taskname)
+    route = ns.route('/<string:message>')
 
     @decorator(module=modulename, task=taskname)
-    class FlowDelegate:
-        func = None
+    class FlowDelegate(Resource):
+        funcs = {}
 
-        def post(self, message):
+        def post(self, *args, **kwargs):
+            print("ARGS",args,"KWARGS",kwargs)
+            # Fetch the socket and invoke that
+            from pyfi.client.user import USER
+            from pyfi.client.api import Socket
 
-            return self.func(message)
+            socket = Socket(name=modulename+'.'+taskname, user=USER)
+            if socket:
+                logging.info("Invoking socket %s",socket)
+                return socket(kwargs['message']).get()
+            else:
+                return self.funcs[taskname](kwargs['message'])
 
     return route(FlowDelegate)    
 
