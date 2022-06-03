@@ -108,8 +108,8 @@ def create_endpoint(modulename, taskname):
 
             socket = Socket(name=modulename+'.'+taskname, user=USER)
             if socket:
-                logging.info("Invoking socket %s",socket)
-                return socket(kwargs['message']).get()
+                logging.info("Invoking socket %s %s",modulename+'.'+taskname, socket)
+                return socket(kwargs['message'])
             else:
                 return self.funcs[taskname](kwargs['message'])
 
