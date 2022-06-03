@@ -167,6 +167,8 @@ def socket(*args, **kwargs):
     kwargs['user'] = USER
 
     def decorator(task):
+        import inspect
+
         logging.debug("socket:task %s ", task)
         logging.debug("task:name %s ", task.__name__)
         # procname = task.__qualname__.rsplit('.')[0]
@@ -175,6 +177,7 @@ def socket(*args, **kwargs):
         logging.debug("socket:processor %s ", _proc)
         kwargs['processor'] = _proc
         kwargs['task'] = task.__name__
+        kwargs['code'] = str(inspect.getsource(task))
         _socket = Socket(**kwargs)
         sockets[_socket.name] = _socket
 

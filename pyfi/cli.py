@@ -1816,6 +1816,27 @@ def add_deployment(context, name, deploy, hostname, cpus):
     required=False,
     help="Password to access this processor",
 )
+@click.option(
+    "-rq",
+    "--requirements",
+    default=None,
+    required=False,
+    help="requirements.txt file",
+)
+@click.option(
+    "-e",
+    "--endpoint",
+    default=None,
+    required=False,
+    help="API endpoint path",
+)
+@click.option(
+    "-a",
+    "--api",
+    default=True,
+    required=False,
+    help="Has an API endpoint",
+)
 @click.pass_context
 def add_processor(
         context,
@@ -1829,7 +1850,10 @@ def add_processor(
         requested_status,
         beat,
         branch,
-        password
+        password,
+        requirements,
+        endpoint,
+        api
 ):
     """
     Add processor to the database
@@ -1839,6 +1863,9 @@ def add_processor(
     user = context.obj["user"]
 
     #  hostname=hostname,
+    if endpoint is None:
+        endpoint = '/'+module+'/'+name
+        
     processor = ProcessorModel(
         id=id,
         status="ready",
@@ -1853,6 +1880,9 @@ def add_processor(
         requested_status=requested_status,
         name=name,
         module=module,
+        endpoint=endpoint,
+        hasapi=api,
+        requirements=requirements
     )
 
     if password:

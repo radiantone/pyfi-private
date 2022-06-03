@@ -47,7 +47,16 @@ api = Api(app, version='1.0', title='LambdaFLOW API',
     description='LambdaFLOW Backend API',
 )
 
-hello = api.namespace('hello', description='Hello operations')
+def create_endpoints():
+    # Query all processors with hasapi=True
+    # for each proc
+    # create namespace with proc.endpoint
+    # Add wrapper class to dispatch call to processor task socket
+    # Use decorator over class post method with parameters to the socket task
+    # So it will invoke the class method with the correct runtime parameters
+
+    return
+
 
 @contextmanager
 def get_session(**kwargs):
@@ -304,8 +313,14 @@ def send_js(path):
     return send_from_directory('static/assets', path)
 
 
-@hello.route('/<string:message>')
 class HelloService(Resource):
     def get(self, message):
         return f"Hello {message}"
 
+
+hello = api.namespace('hello', description='Hello operations')
+route = hello.route('/<string:message>')
+route(HelloService)
+
+''' Iterate over all the processors, tasks and for the ones where endpoint=True, add them as 
+service routes. Perhaps monitor the database and update accordingly '''

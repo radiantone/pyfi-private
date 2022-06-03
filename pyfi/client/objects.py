@@ -328,6 +328,9 @@ class Socket(Base):
                 if self.task is None:
                     self.task = TaskModel(name=taskname)
 
+                if "code" in kwargs:
+                    self.task.code = kwargs['code']
+
             if type(taskname) is TaskModel:
                 self.task = taskname
 
@@ -759,7 +762,7 @@ class Processor(Base):
 
         self.app.config_from_object(config)
         self.database.session.commit()
-        registry[self.id] = self   # Add myself to the memory registry
+        registry[self.processor.id] = self   # Add myself to the memory registry
 
 
     def get(self):

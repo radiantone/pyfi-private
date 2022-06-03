@@ -467,6 +467,8 @@ class ProcessorModel(HasLogs, BaseModel):
     retrydelay = Column(Integer)
     password = Column(Boolean)
     requirements = Column(Text)
+    endpoint = Column(Text)
+    hasapi = Column(Boolean)
 
     description = Column(Text(), nullable=True, default="Some description")
     container_image = Column(String(60))
