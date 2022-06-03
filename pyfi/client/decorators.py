@@ -177,7 +177,9 @@ def socket(*args, **kwargs):
         logging.debug("socket:processor %s ", _proc)
         kwargs['processor'] = _proc
         kwargs['task'] = task.__name__
-        kwargs['code'] = str(inspect.getsource(task))
+        lines = inspect.getsource(task)
+        _lines = [line for line in lines if line.find('@socket') == -1]
+        kwargs['code'] = str(_lines)
         _socket = Socket(**kwargs)
         sockets[_socket.name] = _socket
 
