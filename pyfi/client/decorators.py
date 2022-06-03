@@ -168,6 +168,9 @@ def socket(*args, **kwargs):
 
     def decorator(task):
         import inspect
+        import re
+        from textwrap import dedent
+        from types import ModuleType
 
         logging.debug("socket:task %s ", task)
         logging.debug("task:name %s ", task.__name__)
@@ -178,8 +181,11 @@ def socket(*args, **kwargs):
         kwargs['processor'] = _proc
         kwargs['task'] = task.__name__
         lines = inspect.getsource(task)
-        _lines = [line for line in lines if line.find('@socket') == -1]
-        kwargs['code'] = str(_lines)
+        regex = r"@socket\(.*\)"
+        code = re.sub("@socket\\(.*\\)",'',str(lines))
+        code = dedent(code)
+
+        kwargs['code'] = code
         _socket = Socket(**kwargs)
         sockets[_socket.name] = _socket
 

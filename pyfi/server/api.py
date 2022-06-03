@@ -47,16 +47,6 @@ api = Api(app, version='1.0', title='LambdaFLOW API',
     description='LambdaFLOW Backend API',
 )
 
-def create_endpoints():
-    # Query all processors with hasapi=True
-    # for each proc
-    # create namespace with proc.endpoint
-    # Add wrapper class to dispatch call to processor task socket
-    # Use decorator over class post method with parameters to the socket task
-    # So it will invoke the class method with the correct runtime parameters
-
-    return
-
 
 @contextmanager
 def get_session(**kwargs):
@@ -73,6 +63,49 @@ def get_session(**kwargs):
         session.expunge_all()
         session.close()
         gc.collect()
+
+def create_endpoint(modulename, taskname):
+    # Query all processors with hasapi=True
+    # for each proc
+    # create namespace with proc.endpoint
+    # Add wrapper class to dispatch call to processor task socket
+    # Use decorator over class post method with parameters to the socket task
+    # So it will invoke the class method with the correct runtime parameters
+
+
+    def decorator(module="", task=""):
+        from types import ModuleType
+
+        with get_session() as session:
+            _task = session.query(TaskModel).filter_by(name=task).first()
+            code = _task.code
+
+        print(code)
+        mod = ModuleType(module, 'doc string here')
+        exec(code, mod.__dict__)
+        func = getattr(mod,task)
+
+        def wrapper(cls, *args, **kwargs):
+            
+            cls.func = func
+            return
+
+
+        return wrapper
+
+    ns = api.namespace(modulename+'.'+taskname, description=taskname)
+    route = ns.route('/'+modulename+'/'+taskname+'/<string:message>')
+
+    @decorator(module=modulename, task=taskname)
+    class FlowDelegate:
+        func = None
+
+        def post(self, message):
+
+            return self.func(message)
+
+    return route(FlowDelegate)    
+
 
 class AlchemyEncoder(json.JSONEncoder):
     def default(self, obj):

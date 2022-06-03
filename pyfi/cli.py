@@ -4514,7 +4514,7 @@ def api_start(context, ip, port):
     Run pyfi API server
     """
     import bjoern
-    from pyfi.server.api import app as server
+    from pyfi.server.api import create_endpoint, app as server
 
     logger.info("Initializing server app....")
     logger.info("Serving API on {}:{}".format(ip, port))
@@ -4523,6 +4523,8 @@ def api_start(context, ip, port):
 
     server.register_blueprint(blueprint)
 
+    create_endpoint('pyfi.processors.sample','do_this')
+    
     server.app_context().push()
     try:
         bjoern.run(server, ip, port)
