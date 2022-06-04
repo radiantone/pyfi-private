@@ -329,7 +329,9 @@ class Socket(Base):
                     self.task = TaskModel(name=taskname)
 
                 if "code" in kwargs:
-                    self.task.code = kwargs['code']
+                    self.task.source = kwargs['source']
+                if "source" in kwargs:
+                    self.task.source = kwargs['source']
 
             if type(taskname) is TaskModel:
                 self.task = taskname

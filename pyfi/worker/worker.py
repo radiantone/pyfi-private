@@ -1660,7 +1660,7 @@ class WorkerService:
                                 )
 
                         logging.info("Socket task %s", socket.task)
-                        if socket.task.code:
+                        if socket.task.code and not socket.task.endpoint:
                             # We have custom code for this task
                             # Add the task.code to the loaded module
                             # The task.code must have the named function

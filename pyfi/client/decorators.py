@@ -185,7 +185,7 @@ def socket(*args, **kwargs):
         code = re.sub("@socket\\(.*\\)",'',str(lines))
         code = dedent(code)
 
-        kwargs['code'] = code
+        kwargs['source'] = code
         _socket = Socket(**kwargs)
         sockets[_socket.name] = _socket
 
