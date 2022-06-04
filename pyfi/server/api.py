@@ -78,7 +78,7 @@ def create_endpoint(modulename, taskname):
 
         with get_session() as session:
             _task = session.query(TaskModel).filter_by(name=task).first()
-            code = _task.code
+            code = _task.source
 
         print(code)
         mod = ModuleType(module, 'doc string here')
