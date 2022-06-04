@@ -34,7 +34,9 @@ from pyfi.db.model import (
     NetworkModel,
 )
 from pyfi.client.user import USER, engine, session, sessionmaker
-from flask_restx import Api, Resource, fields
+from flask_restx import Api, Resource, fields, reqparse
+
+request_parser = reqparse.RequestParser(bundle_errors=True)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -94,24 +96,30 @@ def create_endpoint(modulename, taskname):
         return wrapper
 
     ns = api.namespace(modulename+'/'+taskname, description=taskname)
-    route = ns.route('/<string:message>')
+    route = ns.route('/')
+
+    model = api.model('Message', {
+        'name': fields.String,
+    })
 
     @decorator(module=modulename, task=taskname)
     class FlowDelegate(Resource):
         funcs = {}
-
-        def post(self, *args, **kwargs):
-            print("ARGS",args,"KWARGS",kwargs)
+        
+        @ns.expect(model)
+        def post(self):
             # Fetch the socket and invoke that
             from pyfi.client.user import USER
             from pyfi.client.api import Socket
-
+            logging.info("PAYLOAD",api.payload)
             socket = Socket(name=modulename+'.'+taskname, user=USER)
             if socket:
                 logging.info("Invoking socket %s %s",modulename+'.'+taskname, socket)
-                return socket(kwargs['message'])
+                result = socket(api.payload)
+                logging.info("Result %s",result)
+                return result
             else:
-                return self.funcs[taskname](kwargs['message'])
+                return self.funcs[taskname](api.payload)
 
     return route(FlowDelegate)    
 

@@ -4523,8 +4523,8 @@ def api_start(context, ip, port):
 
     server.register_blueprint(blueprint)
 
-    create_endpoint('pyfi.processors.sample','do_this')
-    
+    create_endpoint('pyfi.processors.sample','do_something')
+
     server.app_context().push()
     try:
         bjoern.run(server, ip, port)
