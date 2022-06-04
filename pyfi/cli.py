@@ -4524,6 +4524,7 @@ def api_start(context, ip, port):
     server.register_blueprint(blueprint)
 
     create_endpoint('pyfi.processors.sample','do_something')
+    create_endpoint('pyfi.processors.sample','do_this')
 
     server.app_context().push()
     try:

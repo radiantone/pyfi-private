@@ -99,7 +99,7 @@ def create_endpoint(modulename, taskname):
     route = ns.route('/')
 
     model = api.model('Message', {
-        'name': fields.String,
+        'message': fields.String,
     })
 
     @decorator(module=modulename, task=taskname)
@@ -115,7 +115,7 @@ def create_endpoint(modulename, taskname):
             socket = Socket(name=modulename+'.'+taskname, user=USER)
             if socket:
                 logging.info("Invoking socket %s %s",modulename+'.'+taskname, socket)
-                result = socket(api.payload)
+                result = socket(api.payload['message'])
                 logging.info("Result %s",result)
                 return result
             else:
