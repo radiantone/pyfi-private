@@ -1,3 +1,24 @@
+UI Objectives
+
+- Stream processor results in real-time: CHECK
+- Stream queues and queue metrics: CHECK
+- Processor config dialogs: CHECK
+- Auto deploy/undeploy processors based on concurrency setting: TBD
+- Retrieve workers for processor: TBD
+- Show current system queues: CHECK
+- Show queue status (active, etc): TBD
+- Stream processor task state, results and logs: CHECK
+- System level streaming logs: CHECK
+- Group coloring: CHECK
+- Drag and drop group patterns: CHECK
+- Save group as pattern: CHECK
+- View flow files, pattern files, processors, and network: CHECK
+- Metacards for network objects: TBD
+- Real-time data metrics for processors: CHECK
+- Chart plot for processor metrics: TBD
+- Search components bar: TBD
+- Convert system messages log to table: TBD
+
 
 Overall Objectives
 

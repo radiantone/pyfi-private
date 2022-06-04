@@ -1438,7 +1438,7 @@
 
                     <q-toolbar>
                       <q-space />
-                      <q-checkbox v-model="obj.usegit" label="Use GIT" />
+                      <q-checkbox v-model="obj.usegit" label="GIT" />
                       <q-checkbox
                         v-model="obj.container"
                         label="Containerized"
@@ -1590,6 +1590,12 @@
                 border-bottom-radius: 0px;
               "
             >
+                    <template v-slot:loading>
+
+              <q-inner-loading :showing="true" style="z-index: 9999999;">
+                <q-spinner-gears size="50px" color="primary" />
+              </q-inner-loading>
+              </template>
             </q-table>
             <q-input
               style="width: 100px;"
@@ -1597,6 +1603,9 @@
               type="number"
               v-model.number="obj.concurrency"
             />
+              <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
+                <q-spinner-gears size="50px" color="primary" />
+              </q-inner-loading>
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
             <q-input
@@ -2291,6 +2300,7 @@ const tsdb = new TSDB();
 // Import the mixin class
 import Processor from '../Processor.vue';
 import BetterCounter from '../BetterCounter';
+import DataService from 'components/util/DataService';
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -2468,24 +2478,20 @@ export default {
       me.obj.bandwidth = bandwidth;
     });
 
-    function shiftvalues() {
-      console.log('Rotating...');
-      var front = me.data[0].spark.value.shift();
-      me.obj.readwrite += front;
-      me.data[0].bytes = front + ' (' + me.obj.readwrite + ' bytes)';
-      me.data[0].spark.value.push(front);
-      var front = me.data[1].spark.value.shift();
-      me.data[1].spark.value.push(front);
-      var front = me.data[2].spark.value.shift();
-      me.data[2].spark.value.push(front);
-      var front = me.data[3].spark.value.shift();
-      me.data[3].spark.value.push(front);
-      setTimeout(shiftvalues, 1000);
-    }
-    //setTimeout(shiftvalues, 500);
+    this.deployLoading = true;
+    DataService.getDeployments(this.obj.name).then( (deployments) => {
+      console.log("DEPLOYMENTS",deployments);
+      this.deployLoading = false;
+      this.deploydata = deployments.data;
+    }).catch( (err) => {
+      console.log("DEPLOYMENTS ERROR",err);
+      this.deployLoading = false;
+    })
+
   },
   data() {
     return {
+      deployLoading: false,
       loginname: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],

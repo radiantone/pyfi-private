@@ -1332,10 +1332,10 @@
 }
 
 .jtk-overlay {
-  z-index: 9 !important;
+  z-index: -10 !important;
 }
 .common-edge {
-  z-index: 0;
+  z-index: -10;
 }
 .jtk-miniview-collapse {
   font-size: 0px;

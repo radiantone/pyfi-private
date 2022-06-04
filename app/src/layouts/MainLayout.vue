@@ -320,6 +320,23 @@
                   height: calc(100vh - 200px);
                 "
               >
+            <q-table
+              dense
+              :columns="messageColumns"
+              :data="msglogs"
+              row-key="name"
+              flat
+              virtual-scroll
+              :pagination="initialPagination"
+              style="
+              height:100%;
+                width: 100%;
+                border-top-radius: 0px;
+                border-bottom-radius: 0px;
+              "
+            >
+            </q-table>
+              <!--
                 <q-scroll-area style="height:calc(100vh - 200px);width::auto">
                   <div v-for="log in msglogs">
                     {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
@@ -329,7 +346,8 @@
                       log['duration']
                     }}
                   </div>
-                </q-scroll-area>
+                </q-scroll-area>-->
+
               </q-card-section>
             </q-tab-panel>
             <q-tab-panel
@@ -882,9 +900,54 @@ export default defineComponent({
   },
   data() {
     return {
+      initialPagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 50
+        // rowsNumber: xx if getting data from a server
+      },
       viewQueueDialog: false,
       splitterModel: 100,
-      splitterSave: 80,
+      splitterSave: 70,
+      messageColumns: [
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          align: 'left',
+        },{
+          name: 'channel',
+          label: 'Channel',
+          field: 'channel',
+          align: 'left',
+        },{
+          name: 'module',
+          label: 'Module',
+          field: 'module',
+          align: 'left',
+        },{
+          name: 'task',
+          label: 'Task',
+          field: 'task',
+          align: 'left',
+        },{
+          name: 'room',
+          label: 'Room',
+          field: 'room',
+          align: 'left',
+        },{
+          name: 'state',
+          label: 'State',
+          field: 'state',
+          align: 'left',
+        },{
+          name: 'duration',
+          label: 'Duration',
+          field: 'duration',
+          align: 'left',
+        }
+      ],
       columns: [
         {
           name: 'name',

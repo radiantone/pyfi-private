@@ -207,6 +207,18 @@ def get_file(fid):
         return file.code, 200
 
 
+@app.route('/deployments/<processor>', methods=['GET'])
+def get_deployments(processor):
+
+    return jsonify([{
+          name: 'Name1',
+          owner: 'postgres',
+          hostname: 'agent2',
+          processor: 'proc1',
+          cpus: 5,
+          status: 'running',
+        }])
+
 @app.route('/pattern/<pid>', methods=['GET'])
 def get_pattern(pid):
     with open('pyfi/server/patterns/'+pid+'.json','r') as pattern:

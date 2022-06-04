@@ -10,6 +10,10 @@ class DataService {
         return http.get('/api/files/'+collection+'/'+folder);
     }
     
+    getDeployments (processor: string): Promise<any> {
+        return http.get('/api/deployments/' + processor);
+    }
+    
     getProcessors (): Promise<any> {
         return http.get('/api/processors');
     }
