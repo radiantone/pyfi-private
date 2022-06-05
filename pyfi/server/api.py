@@ -224,12 +224,12 @@ def get_queue_messages(queue):
 def get_deployments(processor):
 
     return jsonify([{
-          name: 'Name1',
-          owner: 'postgres',
-          hostname: 'agent2',
-          processor: 'proc1',
-          cpus: 5,
-          status: 'running',
+          'name': 'Name1',
+          'owner': 'postgres',
+          'hostname': 'agent2',
+          'processor': 'proc1',
+          'cpus': 5,
+          'status': 'running',
         }])
 
 @app.route('/pattern/<pid>', methods=['GET'])
