@@ -320,23 +320,23 @@
                   height: calc(100vh - 200px);
                 "
               >
-            <q-table
-              dense
-              :columns="messageColumns"
-              :data="msglogs"
-              row-key="name"
-              flat
-              virtual-scroll
-              :pagination="initialPagination"
-              style="
-              height:100%;
-                width: 100%;
-                border-top-radius: 0px;
-                border-bottom-radius: 0px;
-              "
-            >
-            </q-table>
-              <!--
+                <q-table
+                  dense
+                  :columns="messageColumns"
+                  :data="msglogs"
+                  row-key="name"
+                  flat
+                  virtual-scroll
+                  :pagination="initialPagination"
+                  style="
+                    height: 100%;
+                    width: 100%;
+                    border-top-radius: 0px;
+                    border-bottom-radius: 0px;
+                  "
+                >
+                </q-table>
+                <!--
                 <q-scroll-area style="height:calc(100vh - 200px);width::auto">
                   <div v-for="log in msglogs">
                     {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
@@ -347,7 +347,6 @@
                     }}
                   </div>
                 </q-scroll-area>-->
-
               </q-card-section>
             </q-tab-panel>
             <q-tab-panel
@@ -372,18 +371,21 @@
                 <template v-slot:body="props">
                   <q-tr :props="props">
                     <q-td key="name" :props="props" :width="150">
-                    <a
-              class="text-secondary"
-              style="
-                z-index: 99999;
-                cursor: pointer;
-                width: 100%;
-                min-width: 250px;
-                font-size: 1.3em;
-              "
-              @click="queuename = props.row.name; viewQueueDialog=true"
-              >{{ props.row.name }}</a>
-                      
+                      <a
+                        class="text-secondary"
+                        style="
+                          z-index: 99999;
+                          cursor: pointer;
+                          width: 100%;
+                          min-width: 250px;
+                          font-size: 1.3em;
+                        "
+                        @click="
+                          queuename = props.row.name;
+                          viewQueueDialog = true;
+                        "
+                        >{{ props.row.name }}</a
+                      >
                     </q-td>
                     <q-td key="messages" :props="props">
                       {{ props.row.messages }}
@@ -392,7 +394,7 @@
                       {{ props.row.bytes }}
                     </q-td>
                     <q-td key="actions" :props="props" style="width: 25px;">
-                    <q-btn
+                      <q-btn
                         flat
                         round
                         dense
@@ -402,7 +404,7 @@
                         width="100"
                         icon="remove_circle"
                       />
-                    <q-btn
+                      <q-btn
                         flat
                         round
                         dense
@@ -476,9 +478,16 @@
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
     </q-drawer>
-        <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
+    <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
       <q-card
-        style="width:70vw; max-width: 70vw; height:80vh; padding: 10px; padding-left:30px;padding-top: 30px;"
+        style="
+          width: 70vw;
+          max-width: 70vw;
+          height: 80vh;
+          padding: 10px;
+          padding-left: 30px;
+          padding-top: 40px;
+        "
       >
         <q-card-section
           class="bg-secondary"
@@ -502,14 +511,48 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Queue {{queuename}}</q-item-label>
+              <q-item-label>Queue {{ queuename }}</q-item-label>
               <q-space />
-              <q-btn class="text-primary" flat dense round size="sm" icon="fas fa-close" @click="viewQueueDialog=false"/>
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="viewQueueDialog = false"
+                style="z-index: 10"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
 
+        <q-table
+          dense
+          :columns="queuecolumns"
+          :data="queuedata"
+          row-key="name"
+          flat
+          virtual-scroll
+          :rows-per-page-options="[30]"
+          :pagination="queuePagination"
+          style="
+            height: calc(100% - 40px);
+            width: 100%;
+            border-top-radius: 0px;
+            border-bottom-radius: 0px;
+          "
+        >
+        </q-table>
         <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            icon="refresh"
+            class="bg-secondary text-dark"
+            color="primary"
+            @click="refreshQueues"
+          />
           <q-btn
             style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
             flat
@@ -529,6 +572,9 @@
             v-close-popup
           />
         </q-card-actions>
+        <q-inner-loading :showing="queueloading" style="z-index: 0;">
+          <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
       </q-card>
     </q-dialog>
   </q-layout>
@@ -580,6 +626,9 @@ import { defineComponent, ref } from '@vue/composition-api';
 import Designer from 'src/pages/Designer.vue';
 import ToolPalette from 'src/components/ToolPalette.vue';
 import ModelToolPalette from 'src/components/ModelToolPalette.vue';
+
+import DataService from 'components/util/DataService';
+
 import {
   mappedGetters,
   mappedActions,
@@ -619,13 +668,13 @@ export default defineComponent({
         var qs = [];
         if (msg['type'] && msg['type'] == 'queues') {
           msg['queues'].forEach((queue) => {
-            if(queue['name'].indexOf('celery') == -1) {
+            if (queue['name'].indexOf('celery') == -1) {
               qs.push({
                 name: queue['name'],
                 messages: queue['messages'],
                 bytes: queue['message_bytes'],
-                action: ''
-            });
+                action: '',
+              });
             }
           });
           me.queues = qs;
@@ -634,6 +683,18 @@ export default defineComponent({
     });
   },
   watch: {
+    viewQueueDialog: function (val) {
+      if (val) {
+        this.queueloading = true;
+        DataService.getMessages(this.queuename).then((messages) => {
+          this.queueloading = false;
+          this.queuedata = messages.data;
+        }).catch( (err) => {
+          this.queueloading = false;
+          // show error message
+        });
+      }
+    },
     text: function (val) {
       if (this.text.length > 0) {
         this.searchdrawer = true;
@@ -651,6 +712,9 @@ export default defineComponent({
     },
   },
   methods: {
+    refreshQueues() {
+      this.queueloading = true;
+    },
     toggleSplitter() {
       if (this.splitterModel < 100) {
         this.splitterSave = this.splitterModel;
@@ -900,11 +964,53 @@ export default defineComponent({
   },
   data() {
     return {
+      queueloading: false,
+      queuecolumns: [
+        {
+          name: 'task',
+          label: 'Task',
+          field: 'task',
+          align: 'left',
+        },
+        {
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left',
+        },
+        {
+          name: 'tracking',
+          label: 'Tracking',
+          field: 'tracking',
+          align: 'left',
+        },
+        {
+          name: 'parent',
+          label: 'Parent',
+          field: 'parent',
+          align: 'left',
+        },
+        {
+          name: 'routing_key',
+          label: 'Routing Key',
+          field: 'routing_key',
+          align: 'left',
+        },
+      ],
+      queuedata: [],
       initialPagination: {
         sortBy: 'desc',
         descending: false,
         page: 1,
-        rowsPerPage: 50
+        rowsPerPage: 50,
+        // rowsNumber: xx if getting data from a server
+      },
+
+      queuePagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 50,
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,
@@ -916,37 +1022,43 @@ export default defineComponent({
           label: 'Date',
           field: 'date',
           align: 'left',
-        },{
+        },
+        {
           name: 'channel',
           label: 'Channel',
           field: 'channel',
           align: 'left',
-        },{
+        },
+        {
           name: 'module',
           label: 'Module',
           field: 'module',
           align: 'left',
-        },{
+        },
+        {
           name: 'task',
           label: 'Task',
           field: 'task',
           align: 'left',
-        },{
+        },
+        {
           name: 'room',
           label: 'Room',
           field: 'room',
           align: 'left',
-        },{
+        },
+        {
           name: 'state',
           label: 'State',
           field: 'state',
           align: 'left',
-        },{
+        },
+        {
           name: 'duration',
           label: 'Duration',
           field: 'duration',
           align: 'left',
-        }
+        },
       ],
       columns: [
         {
@@ -973,8 +1085,8 @@ export default defineComponent({
           align: 'center',
           style: 'min-width:150px',
           classes: 'text-secondary',
-          label: 'Actions'
-        }
+          label: 'Actions',
+        },
       ],
       queues: [],
       jsondata: {},

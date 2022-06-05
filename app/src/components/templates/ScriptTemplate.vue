@@ -1590,11 +1590,10 @@
                 border-bottom-radius: 0px;
               "
             >
-                    <template v-slot:loading>
-
-              <q-inner-loading :showing="true" style="z-index: 9999999;">
-                <q-spinner-gears size="50px" color="primary" />
-              </q-inner-loading>
+              <template v-slot:loading>
+                <q-inner-loading :showing="true" style="z-index: 9999999;">
+                  <q-spinner-gears size="50px" color="primary" />
+                </q-inner-loading>
               </template>
             </q-table>
             <q-input
@@ -1603,9 +1602,9 @@
               type="number"
               v-model.number="obj.concurrency"
             />
-              <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
-                <q-spinner-gears size="50px" color="primary" />
-              </q-inner-loading>
+            <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
+              <q-spinner-gears size="50px" color="primary" />
+            </q-inner-loading>
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
             <q-input
@@ -2479,15 +2478,16 @@ export default {
     });
 
     this.deployLoading = true;
-    DataService.getDeployments(this.obj.name).then( (deployments) => {
-      console.log("DEPLOYMENTS",deployments);
-      this.deployLoading = false;
-      this.deploydata = deployments.data;
-    }).catch( (err) => {
-      console.log("DEPLOYMENTS ERROR",err);
-      this.deployLoading = false;
-    })
-
+    DataService.getDeployments(this.obj.name)
+      .then((deployments) => {
+        console.log('DEPLOYMENTS', deployments);
+        this.deployLoading = false;
+        this.deploydata = deployments.data;
+      })
+      .catch((err) => {
+        console.log('DEPLOYMENTS ERROR', err);
+        this.deployLoading = false;
+      });
   },
   data() {
     return {
@@ -2845,14 +2845,16 @@ export default {
       deleteSpeechID: null,
       sidecode: true,
       bandwidth: true,
-      deploydata: [{
+      deploydata: [
+        {
           name: 'Name1',
           owner: 'postgres',
           hostname: 'agent2',
           processor: 'proc1',
           cpus: 5,
           status: 'running',
-        },],
+        },
+      ],
       deploycolumns: [
         {
           name: 'name',
@@ -2865,7 +2867,8 @@ export default {
           label: 'Owner',
           field: 'owner',
           align: 'left',
-        },{
+        },
+        {
           name: 'hostname',
           label: 'Hostname',
           field: 'hostname',

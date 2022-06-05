@@ -211,12 +211,26 @@ def get_file(fid):
 @app.route('/queue/messages/<queue>', methods=['GET'])
 def get_queue_messages(queue):
     from pyfi.util.rabbit import get_messages
+    import json
 
     messages = get_messages(queue, 100)
 
     # Extract messages for queue
 
-    return jsonify(messages)
+    _message = []
+
+    for message in messages:
+        msg = {}
+        print(json.dumps(message, indent=4))
+        msg['routing_key'] = message['routing_key']
+        msg['id'] = message['properties']['headers']['id']
+        kwargs = json.loads(message['properties']['headers']['kwargsrepr'].replace("'",'"'))
+        msg['parent'] = kwargs['parent']
+        msg['tracking'] = kwargs['tracking']
+        msg['task'] = message['properties']['headers']['task']
+        _message += [msg]
+
+    return jsonify(_message)
 
 
 

@@ -28,5 +28,5 @@ def get_messages(queue, count):
     session.auth = (user,password)
 
     auth = session.post(base)
-    response = session.post(f"{api}/queues/%2F/{queue}/get", data='{"vhost":"/","name":"'+queue+'","truncate":"50000","ackmode":"ack_requeue_true","encoding":"auto","count":"'+count+'"}')
+    response = session.post(f"{api}/queues/%2F/{queue}/get", data='{"vhost":"/","name":"'+queue+'","truncate":"50000","ackmode":"ack_requeue_true","encoding":"auto","count":"'+str(count)+'"}')
     return json.loads(response.content)
