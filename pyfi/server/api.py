@@ -207,6 +207,19 @@ def get_file(fid):
         return file.code, 200
 
 
+
+@app.route('/queue/messages/<queue>', methods=['GET'])
+def get_queue_messages(queue):
+    from pyfi.util.rabbit import get_messages
+
+    messages = get_messages(queue, 100)
+
+    # Extract messages for queue
+
+    return jsonify(messages)
+
+
+
 @app.route('/deployments/<processor>', methods=['GET'])
 def get_deployments(processor):
 
