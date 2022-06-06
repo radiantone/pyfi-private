@@ -587,6 +587,7 @@ class WorkerService:
                                 if "tracking" not in _signal["kwargs"]:
                                     _signal["kwargs"]["tracking"] = str(uuid4())
 
+                                _signal["kwargs"]["received"] = str(received)
                                 processor_path = (
                                         _socket.queue.name
                                         + "."
@@ -774,6 +775,7 @@ class WorkerService:
                             logging.info("SETTING PARENT: %s", pass_kwargs)
 
                         myid = task_kwargs["myid"]
+                        pass_kwargs["postrun"] = str(datetime.now())
 
                         try:
                             # Is there a call already associated with this task? There should be!
@@ -1918,6 +1920,8 @@ class WorkerService:
                                 if "tracking" not in kwargs["kwargs"]:
                                     tracking = str(uuid4())
                                     kwargs["kwargs"]["tracking"] = tracking
+
+                                kwargs["kwargs"]["prerun"] = str(datetime.now())
                                 print(
                                     "KWARGS:",
                                     {
