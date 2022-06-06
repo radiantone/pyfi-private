@@ -228,6 +228,11 @@ def get_queue_messages(queue):
         msg['parent'] = kwargs['parent']
         msg['tracking'] = kwargs['tracking']
         msg['task'] = message['properties']['headers']['task']
+
+        if 'postrun' in kwargs:
+            msg['time'] = kwargs['postrun']
+        else:
+            msg['time'] = ''
         _message += [msg]
 
     return jsonify(_message)

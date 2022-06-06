@@ -553,20 +553,12 @@
             color="primary"
             @click="refreshQueues"
           />
-          <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-            flat
-            label="Close"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
-          />
         </q-card-actions>
         <q-card-actions align="right"
           ><q-btn
             flat
             style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Save"
+            label="Close"
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
@@ -714,6 +706,13 @@ export default defineComponent({
   methods: {
     refreshQueues() {
       this.queueloading = true;
+      DataService.getMessages(this.queuename).then((messages) => {
+          this.queueloading = false;
+          this.queuedata = messages.data;
+        }).catch( (err) => {
+          this.queueloading = false;
+          // show error message
+        });
     },
     toggleSplitter() {
       if (this.splitterModel < 100) {
@@ -976,6 +975,12 @@ export default defineComponent({
           name: 'id',
           label: 'ID',
           field: 'id',
+          align: 'left',
+        },
+        {
+          name: 'time',
+          label: 'Time',
+          field: 'time',
           align: 'left',
         },
         {
