@@ -3,8 +3,8 @@
 #
 
 # Create alias' for the run task commands
-alias pyfi.processors.sample.do_something="pyfi task run -s pyfi.processors.sample.do_something"
-alias pyfi.processors.sample.do_this="pyfi task run -s pyfi.processors.sample.do_this"
+alias pyfi.processors.sample.do_something="flow task run -s pyfi.processors.sample.do_something"
+alias pyfi.processors.sample.do_this="flow task run -s pyfi.processors.sample.do_this"
 
 echo "HI THERE!" | pyfi.processors.sample.do_something 
 

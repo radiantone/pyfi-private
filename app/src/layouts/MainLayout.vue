@@ -521,29 +521,64 @@
                 size="sm"
                 icon="fas fa-close"
                 @click="viewQueueDialog = false"
-                style="z-index: 10"
+                style="z-index: 10;"
               />
             </q-toolbar>
           </div>
         </q-card-section>
-
-        <q-table
-          dense
-          :columns="queuecolumns"
-          :data="queuedata"
-          row-key="name"
-          flat
-          virtual-scroll
-          :rows-per-page-options="[30]"
-          :pagination="queuePagination"
-          style="
-            height: calc(100% - 40px);
-            width: 100%;
-            border-top-radius: 0px;
-            border-bottom-radius: 0px;
-          "
+        <q-splitter
+          v-model="messageSplitter"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: calc(100% - 40px);"
         >
-        </q-table>
+          <template v-slot:before>
+            <q-table
+              dense
+              :columns="queuecolumns"
+              :data="queuedata"
+              row-key="name"
+              flat
+              :pagination="queuePagination"
+              style="
+                height: calc(100% - 0px);
+                width: 100%;
+                border-top-radius: 0px;
+                border-bottom-radius: 0px;
+              "
+            >
+              <template v-slot:body="props">
+                <q-tr :props="props" :key="getUuid">
+                  <q-td :key="props.cols[0].name" :props="props">
+                    {{ props.cols[0].value }}
+                  </q-td>
+                  <q-td :key="props.cols[1].name" :props="props">
+                    <a
+                      class="text-secondary"
+                      @click="messagedrawer = !messagedrawer"
+                      >{{ props.cols[1].value }}</a
+                    >
+                  </q-td>
+                  <q-td :key="props.cols[2].name" :props="props">
+                    {{ props.cols[2].value }}
+                  </q-td>
+                  <q-td :key="props.cols[3].name" :props="props">
+                    {{ props.cols[3].value }}
+                  </q-td>
+                  <q-td :key="props.cols[4].name" :props="props">
+                    {{ props.cols[4].value }}
+                  </q-td>
+                  <q-td :key="props.cols[5].name" :props="props">
+                    {{ props.cols[5].value }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </template>
+          <template v-slot:after
+            ><div style="height: 100%; width: 100%;"></div
+          ></template>
+        </q-splitter>
         <q-card-actions align="left">
           <q-btn
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -678,13 +713,15 @@ export default defineComponent({
     viewQueueDialog: function (val) {
       if (val) {
         this.queueloading = true;
-        DataService.getMessages(this.queuename).then((messages) => {
-          this.queueloading = false;
-          this.queuedata = messages.data;
-        }).catch( (err) => {
-          this.queueloading = false;
-          // show error message
-        });
+        DataService.getMessages(this.queuename)
+          .then((messages) => {
+            this.queueloading = false;
+            this.queuedata = messages.data;
+          })
+          .catch((err) => {
+            this.queueloading = false;
+            // show error message
+          });
       }
     },
     text: function (val) {
@@ -704,12 +741,17 @@ export default defineComponent({
     },
   },
   methods: {
+    getUuid() {
+      return 'key_' + uuidv4();
+    },
     refreshQueues() {
       this.queueloading = true;
-      DataService.getMessages(this.queuename).then((messages) => {
+      DataService.getMessages(this.queuename)
+        .then((messages) => {
           this.queueloading = false;
           this.queuedata = messages.data;
-        }).catch( (err) => {
+        })
+        .catch((err) => {
           this.queueloading = false;
           // show error message
         });
@@ -775,6 +817,10 @@ export default defineComponent({
           console.log('Updated flow', flow, ' with uuid', flowuuid);
         }
       }
+    });
+    window.root.$on('view.queue', (queue) => {
+      this.queuename = queue;
+      this.viewQueueDialog = true;
     });
 
     this.$root.$on('close.flow', (flowid) => {
@@ -963,12 +1009,20 @@ export default defineComponent({
   },
   data() {
     return {
+      messagedrawer: false,
       queueloading: false,
+      messageSplitter: 70,
       queuecolumns: [
         {
           name: 'task',
           label: 'Task',
           field: 'task',
+          align: 'left',
+        },
+        {
+          name: 'tracking',
+          label: 'Tracking',
+          field: 'tracking',
           align: 'left',
         },
         {
@@ -981,12 +1035,6 @@ export default defineComponent({
           name: 'time',
           label: 'Time',
           field: 'time',
-          align: 'left',
-        },
-        {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
           align: 'left',
         },
         {
@@ -1015,7 +1063,7 @@ export default defineComponent({
         sortBy: 'desc',
         descending: false,
         page: 1,
-        rowsPerPage: 50,
+        rowsPerPage: 20,
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,

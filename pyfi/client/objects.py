@@ -276,6 +276,7 @@ class Socket(Base):
     """
     Docstring
     """
+    synchronzied = False
 
     def __init__(self, *args, **kwargs):
         import inspect
@@ -308,6 +309,9 @@ class Socket(Base):
         if "processor" in kwargs:
             self.processor = kwargs["processor"]
             self.session.add(self.processor.processor)
+
+        if "sync" in kwargs:
+            self.synchronized = kwargs['sync']
 
         self.loadbalanced = False
         if "loadbalanced" in kwargs:
@@ -490,23 +494,29 @@ class Socket(Base):
         self.session.add(self.socket)
         self.session.refresh(self.socket)
 
-        task_sig = (
-            self.processor.app.signature(
-                self.processor.processor.module + "." + self.socket.task.name,
-                args=args,
-                queue=self.queue,
-                kwargs=kwargs,
+        if not self.synchronized:
+            task_sig = (
+                self.processor.app.signature(
+                    self.processor.processor.module + "." + self.socket.task.name,
+                    args=args,
+                    queue=self.queue,
+                    kwargs=kwargs,
+                )
+                    .delay()
+                    .get()
             )
-                .delay()
-                .get()
-        )
 
-        # argument = {'name':'message','kind':3,'position':0}
-        # task_sig_wait = self.processor.app.signature(
-        #    self.processor.processor.module+'.'+self.socket.task.name+'.wait', args=(argument, args), queue=self.queue, kwargs=kwargs).delay().get()
+            # argument = {'name':'message','kind':3,'position':0}
+            # task_sig_wait = self.processor.app.signature(
+            #    self.processor.processor.module+'.'+self.socket.task.name+'.wait', args=(argument, args), queue=self.queue, kwargs=kwargs).delay().get()
 
-        _task_sig = task_sig
-        return _task_sig
+            _task_sig = task_sig
+            return _task_sig
+        else:
+            # Follow paths from socket and build parallel/pipeline/chain/chord from aggregate sockets found
+            # Then execute the parallel() object and wait for value, return that.
+
+            return
 
 
 class Plug(Base):

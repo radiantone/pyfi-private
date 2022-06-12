@@ -80,6 +80,10 @@ def create_endpoint(modulename, taskname):
 
         with get_session() as session:
             _task = session.query(TaskModel).filter_by(name=task).first()
+            
+            if not _task:
+                return
+
             code = _task.source
 
         print(code)

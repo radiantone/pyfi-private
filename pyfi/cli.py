@@ -1382,15 +1382,23 @@ def show_task(context, name, gitrepo):
 @click.option(
     "-a", "--argument", required=False, default=None, help="Name of argument to pass"
 )
+@click.option("-sy", "--synchronized", is_flag=True, default=False, help="Execute full data flow from this task, wait for result.")
 @click.pass_context
-def run_task(context, name, format, socket, data, nodata, argument):
+def run_task(context, name, format, socket, data, nodata, argument, synchronized):
     """
     Run a task
     """
     import sys
     import imp
+    from pyfi.client.api import parallel, pipeline
+    from pyfi.client.user import USER
 
     from pyfi.client.api import Socket
+    if socket is None:
+        click.echo("No socket name was provided.")
+        return
+
+    _task = None
 
     if name:
 
@@ -1411,13 +1419,45 @@ def run_task(context, name, format, socket, data, nodata, argument):
             return
 
     user = context.obj["user"]
-    socket = Socket(name=socket, user=user)
+    socket = Socket(name=socket, user=user, sync=synchronized)
 
     if socket is None:
         print("Task must have code or socket connected.")
         return
 
     kwargs = {}
+   
+    if synchronized:
+        _data = None
+        if data:
+            if not argument:
+                _args = eval(data)
+                if type(_args) is list or type(_args) is tuple:
+                    _data = [*eval(data)]
+                else:
+                    _data = eval(data)
+
+        def build_pipeline(socket):
+        
+            sources = []
+            for plug in socket.socket.sourceplugs:
+                target_socket = plug.target
+                _socket = Socket(name=target_socket.name, user=USER)
+                pip = build_pipeline(_socket)
+                if len(pip):
+                    sources += [pipeline(_socket.p(),pip)]
+                else:
+                    sources += [_socket.p()]
+
+            if len(sources):
+                return parallel(sources)
+            else:
+                return []
+
+        p_calls = build_pipeline(socket)
+        p = pipeline([socket.p(_data), p_calls])
+        print(p().get())
+        return
 
     if argument:
         found = False
@@ -1837,6 +1877,13 @@ def add_deployment(context, name, deploy, hostname, cpus):
     required=False,
     help="Has an API endpoint",
 )
+@click.option(
+    "-cs",
+    "--cpus",
+    default=-1,
+    required=False,
+    help="Number of CPUs for default deployment",
+)
 @click.pass_context
 def add_processor(
         context,
@@ -1853,7 +1900,8 @@ def add_processor(
         password,
         requirements,
         endpoint,
-        api
+        api,
+        cpus
 ):
     """
     Add processor to the database
@@ -1891,8 +1939,8 @@ def add_processor(
         
         context.obj["database"].session.add(_password)
 
-    if hostname:
-        deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=0)
+    if hostname and cpus > 0:
+        deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=cpus)
         processor.deployments += [deployment]
         context.obj["database"].session.add(deployment)
 
@@ -2587,7 +2635,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 @ls.command(name="passwords")
 @click.pass_context
 def ls_passwords(context):
-
+    """ List hashed passwords """
     x = PrettyTable()
 
     names = [
@@ -4114,7 +4162,7 @@ def ls_processors(context, gitrepo, commit, module, owner):
 @click.pass_context
 def ls_tasks(context, gitrepo):
     """
-    List agents
+    List tasks
     """
     x = PrettyTable()
 
@@ -4404,7 +4452,7 @@ def ls_plug(context, name):
 @click.pass_context
 def ls_plugs(context):
     """
-    List agents
+    List plugs
     """
     x = PrettyTable()
 
@@ -4522,9 +4570,15 @@ def api_start(context, ip, port):
     from pyfi.api import blueprint
 
     server.register_blueprint(blueprint)
+    
+    do_something = context.obj["database"].session.query(TaskModel).filter_by(name='do_something').first()
+    do_this = context.obj["database"].session.query(TaskModel).filter_by(name='do_this').first()
 
-    create_endpoint('pyfi.processors.sample','do_something')
-    create_endpoint('pyfi.processors.sample','do_this')
+    if do_something:
+        create_endpoint('pyfi.processors.sample','do_something')
+
+    if do_this:
+        create_endpoint('pyfi.processors.sample','do_this')
 
     server.app_context().push()
     try:
