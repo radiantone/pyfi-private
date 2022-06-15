@@ -303,6 +303,7 @@
           >
             <q-tab name="messages" class="text-dark" label="Messages" />
             <q-tab name="queues" class="text-dark" label="Queues" />
+            <q-tab name="servers" class="text-dark" label="Servers" />
             <q-tab name="monitor" class="text-dark" label="Monitor" />
             <q-tab name="error" class="text-dark" label="Errors" />
           </q-tabs>
@@ -429,6 +430,16 @@
                 </template>
               </q-table>
             </q-tab-panel>
+                        <q-tab-panel
+              name="servers"
+              ref="servers"
+              style="
+                padding: 0px;
+                width: 100%;
+                padding-top: 0px;
+                height: calc(100vh - 170px);
+              "
+            ></q-tab-panel>
             <q-tab-panel
               name="monitor"
               ref="monitor"

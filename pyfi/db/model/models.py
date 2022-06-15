@@ -122,6 +122,8 @@ class BaseModel(Base):
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
 
+    def __repr__(self):
+        return json.dumps(self, cls=AlchemyEncoder)
 
 class LogModel(Base):
     """
@@ -149,7 +151,7 @@ class LogModel(Base):
     source = Column(String(40), nullable=False)
 
     def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.source, self.text)
+        return json.dumps(self, cls=AlchemyEncoder)
 
 
 rights = [
@@ -234,8 +236,6 @@ class PrivilegeModel(BaseModel):
 
     right = Column("right", Enum(*rights, name="right"))
 
-    def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.name, self.lastupdated)
 
 
 role_privileges = Table(
@@ -257,8 +257,6 @@ class RoleModel(BaseModel):
         "PrivilegeModel", secondary=role_privileges, lazy="subquery"
     )
 
-    def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.name, self.lastupdated)
 
 
 user_privileges_revoked = Table(
@@ -303,10 +301,6 @@ class UserModel(HasLogins, BaseModel):
 
     roles = relationship("RoleModel", secondary=user_roles, lazy="subquery")
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}".format(
-            self.id, self.name, self.email, self.roles, self.lastupdated
-        )
 
 
 socket_types = ["RESULT", "ERROR"]
@@ -329,11 +323,6 @@ class FileModel(BaseModel):
     type = Column(String(40))
     icon = Column(String(40))
 
-    def __repr__(self):
-        return "{}:{}:{}".format(
-            self.name, self.collection, self.path
-        )
-
 class FlowModel(BaseModel):
     """
     Docstring
@@ -342,10 +331,6 @@ class FlowModel(BaseModel):
     __tablename__ = "flow"
     processors = relationship("ProcessorModel", backref="flow", lazy=True)
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}".format(
-            self.id, self.cpus, self.status, self.name, self.hostname
-        )
 
 
 class AgentModel(BaseModel):
@@ -365,10 +350,6 @@ class AgentModel(BaseModel):
 
     node_id = Column(String(40), ForeignKey("node.id"), nullable=False)
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}".format(
-            self.id, self.cpus, self.status, self.name, self.hostname
-        )
 
 
 class ActionModel(BaseModel):
@@ -382,8 +363,6 @@ class ActionModel(BaseModel):
     # host, worker, processor, queue, or all
     target = Column(String(20), nullable=False)
 
-    def __repr__(self):
-        return "<Name %r>" % self.name
 
 
 class WorkerModel(BaseModel):
@@ -411,17 +390,6 @@ class WorkerModel(BaseModel):
     agent_id = Column(String(40), ForeignKey("agent.id"), nullable=False)
 
     # agent = relationship("AgentModel", back_populates="worker")
-
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}:{}:{}".format(
-            self.id,
-            self.name,
-            self.status,
-            self.requested_status,
-            self.concurrency,
-            self.process,
-            self.workerdir,
-        )
 
 
 class ContainerModel(BaseModel):
@@ -496,19 +464,6 @@ class ProcessorModel(HasLogs, BaseModel):
     sockets = relationship(
         "SocketModel", backref="processor", lazy=True, cascade="all, delete-orphan"
     )
-
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}:{}:{} Plugs:{} Sockets:{}".format(
-            self.id,
-            self.name,
-            self.beat,
-            self.lastupdated,
-            self.concurrency,
-            self.requested_status,
-            self.status,
-            self.plugs,
-            self.sockets,
-        )
 
 
 class JobModel(Base):
@@ -597,10 +552,6 @@ class CallModel(BaseModel):
 
     events = relationship("EventModel", secondary=calls_events, lazy=True, cascade="all, delete")
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}".format(
-            self.id, self.name, self.lastupdated, self.started, self.finished
-        )
 
 
 class SchedulerModel(BaseModel):
@@ -615,8 +566,6 @@ class SchedulerModel(BaseModel):
 
     network_id = Column(String(40), ForeignKey("network.id"))
 
-    def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.name, self.lastupdated)
 
 
 class SettingsModel(BaseModel):
@@ -627,8 +576,6 @@ class SettingsModel(BaseModel):
     __tablename__ = "settings"
     value = Column(String(80), nullable=False)
 
-    def __repr__(self):
-        return "<Name %r>" % self.name
 
 
 class NodeModel(BaseModel):
@@ -655,8 +602,6 @@ class NodeModel(BaseModel):
         "AgentModel", backref="node", uselist=False, cascade="all, delete-orphan"
     )
 
-    def __repr__(self):
-        return "{}:{}:{}".format(self.id, self.name, self.hostname)
 
 
 plugs_arguments = Table(
@@ -703,8 +648,6 @@ class TaskModel(BaseModel):
 
     arguments = relationship("ArgumentModel", backref="task")
 
-    def __repr__(self):
-        return "<Name %r>" % self.name
 
 
 class EventModel(BaseModel):
@@ -724,8 +667,6 @@ class EventModel(BaseModel):
         cascade="all, delete-orphan",
     )
 
-    def __repr__(self):
-        return "<id %r>" % self.id
 
 
 sockets_queues = Table(
@@ -795,17 +736,6 @@ class SocketModel(BaseModel):
         "CallModel", back_populates="socket", cascade="all, delete-orphan"
     )
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:Task:{}:Queue:{} - Processor:{}".format(
-            self.id,
-            self.requested_status,
-            self.status,
-            self.name,
-            self.task.name,
-            self.queue.name,
-            self.processor_id,
-        )
-
 
 plugs_queues = Table(
     "plugs_queues",
@@ -847,16 +777,6 @@ class PlugModel(BaseModel):
     description = Column(Text(), nullable=True, default="Some description")
     queue = relationship("QueueModel", secondary=plugs_queues, uselist=False)
 
-    def __repr__(self):
-        return "{}:{}:{}:{}:Queue:{} - Processor:{}".format(
-            self.id,
-            self.requested_status,
-            self.status,
-            self.name,
-            self.queue.name,
-            self.processor_id,
-        )
-
 
 class QueueModel(BaseModel):
     """
@@ -874,23 +794,6 @@ class QueueModel(BaseModel):
     expires = Column(Integer, default=3000)
 
     network_id = Column(String(40), ForeignKey("network.id"))
-
-    def __repr__(self):
-        return "{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}:{}".format(
-            self.id,
-            self.qtype,
-            self.requested_status,
-            self.status,
-            self.name,
-            self.lastupdated,
-            self.durable,
-            self.reliable,
-            self.auto_delete,
-            self.max_length,
-            self.max_length_bytes,
-            self.message_ttl,
-            self.expires,
-        )
 
 
 class LoginModel(Base):

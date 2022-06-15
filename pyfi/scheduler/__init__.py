@@ -4,11 +4,10 @@ import platform
 import time
 import sched
 import signal
-import sys
 
 from multiprocessing import Process
 
-from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel, DeploymentModel
+from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel, DeploymentModel, AgentModel
 from pyfi.db import get_session
 
 HOSTNAME = platform.node()
@@ -143,6 +142,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
             # Get a random processor that either has less deployments than its concurrency needs
             processor = (
+                # Read lock the processor so others cannot change it while we're looking at it
                 session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().first()
                 #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
@@ -171,7 +171,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
             '''
 
             # Try to fulfill its concurrency
-            logging.info("Processor is %s", processor)
+            logging.info("Processor is %s", processor if processor else "No processor found")
             if processor:
                 logging.info("Deploying processor %s", processor)
                 if len(processor.deployments) == 0:
@@ -260,7 +260,42 @@ class WorkPlugin(SchedulerPlugin):
             session.close()
 
 
-_plugins = [NodePlugin, DeployProcessorPlugin, WorkPlugin]
+class WatchPlugin(SchedulerPlugin):
+    """Monitor reachable objects"""
+
+    def run(self, *args, **kwargs):
+        import requests
+
+        session = get_session()
+        try:
+
+            logging.info("WatchPlugin: Schedule run %s %s", args, kwargs)
+            logging.info("WatchPlugin: Checking nodes")
+            logging.info("WatchPlugin: Checking agents")
+            agents = session.query(AgentModel).all()
+            for agent in agents:
+                try:
+                    logging.info("Contacting agent %s at http://%s:%s", agent.name, agent.hostname, str(agent.port))
+                    response = requests.get('http://'+agent.hostname+':'+str(agent.port))
+                    status = response.json()
+                    if status['status'] == 'green':
+                        agent.status = 'running'
+                except Exception as ex:
+                    agent.status = 'unreachable'
+                    session.add(agent)
+                    session.commit()
+                    session.flush()
+                    logging.info("AGENT %s",agent.status)
+                    logging.error(ex)
+            logging.info("WatchPlugin: Checking workers")
+            logging.info("WatchPlugin: Checking processors")
+            logging.info("WatchPlugin: Checking plugs")
+
+        finally:
+            session.close()
+
+
+_plugins = [NodePlugin, DeployProcessorPlugin, WorkPlugin, WatchPlugin]
 
 
 class BasicScheduler:

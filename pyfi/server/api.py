@@ -186,7 +186,6 @@ def new_folder(collection, path):
 
     with get_session() as _session:
         folder = _session.query(FileModel).filter_by(collection=collection, path=path, type="folder").first()
-        print("FOLDER",folder)
         if not folder:
             name = path.rsplit('/')[-1:]
             _path = "/".join(path.rsplit('/')[:-1])

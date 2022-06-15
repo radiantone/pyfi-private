@@ -237,7 +237,7 @@ class AgentShutdownPlugin(AgentPlugin):
 class AgentMonitorPlugin(AgentPlugin):
     """ Master plugin for all the monitor classes """
 
-    def __init__(self,):
+    def __init__(self, *args, **kwargs):
         import sched
         import time
 
@@ -341,7 +341,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                 except:
                                     pass
 
-                        
 
                         #
                         # Processor state events
@@ -775,6 +774,8 @@ class AgentMonitorPlugin(AgentPlugin):
         self.kwargs = kwargs
         self.agent_service = agent_service
 
+        self.port = agent_service.port
+
         with get_session() as session:
             node = (
                 session.query(NodeModel).filter_by(name=agent_service.name+".agent.node").first()
@@ -795,7 +796,6 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent.requested_status = "starting"
                 agent.status = "starting"
                 agent.cpus = self.kwargs['cpus']
-
                 logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
 
         def update_queues():
@@ -865,7 +865,7 @@ class AgentMonitorPlugin(AgentPlugin):
             
                 agent.status = "running"
                 #agent.cpus = node.cpus
-                #agent.port = self.port
+                agent.port = self.port
                 agent.updated = datetime.now()
 
                 logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)

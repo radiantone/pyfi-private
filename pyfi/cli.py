@@ -1134,6 +1134,20 @@ def delete_socket(context, name):
     context.obj["database"].session.commit()
 
 
+@delete.command(name="plug", help="Delete a plug from the database")
+@click.option(
+    "-n", "--name", default=None, required=True, help="Name of plug being deleted"
+)
+@click.pass_context
+def delete_plug(context, name):
+    model = (
+        context.obj["database"].session.query(PlugModel).filter_by(name=name).first()
+    )
+
+    context.obj["database"].session.delete(model)
+    context.obj["database"].session.commit()
+
+
 @delete.command(name="task", help="Delete a task from the database")
 @click.option(
     "-n", "--name", default=None, required=True, help="Name of task being deleted"
@@ -1884,6 +1898,14 @@ def add_deployment(context, name, deploy, hostname, cpus):
     required=False,
     help="Number of CPUs for default deployment",
 )
+@click.option(
+    "-d",
+    "--deploy",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="Enable the beat scheduler",
+)
 @click.pass_context
 def add_processor(
         context,
@@ -1901,7 +1923,8 @@ def add_processor(
         requirements,
         endpoint,
         api,
-        cpus
+        cpus,
+        deploy
 ):
     """
     Add processor to the database
@@ -1939,10 +1962,14 @@ def add_processor(
         
         context.obj["database"].session.add(_password)
 
-    if hostname and cpus > 0:
-        deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=cpus)
-        processor.deployments += [deployment]
-        context.obj["database"].session.add(deployment)
+    if deploy:
+        if hostname and cpus > 0:
+            deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=cpus)
+            processor.deployments += [deployment]
+            context.obj["database"].session.add(deployment)
+        else:
+            click.echo("Must provide hostname and CPUs > 0")
+            return
 
     log1 = LogModel(
         oid=id,
@@ -4232,13 +4259,6 @@ def ls_agents(context):
         warnings.simplefilter("ignore", category=sa_exc.SAWarning)
         for node in agents:
             # worker_name = node.worker.name if node.worker else 'None'
-            status = "unreachable"
-            try:
-                res = requests.get("http://" + node.hostname + ":" + str(node.port))
-                if res.status_code == 200:
-                    status = "running"
-            except:
-                pass
             x.add_row(
                 [
                     node.name,
@@ -4249,7 +4269,7 @@ def ls_agents(context):
                     node.owner,
                     node.lastupdated,
                     node.requested_status,
-                    status,
+                    node.status,
                     node.node.name,
                     node.pid,
                 ]
@@ -4561,13 +4581,37 @@ def api_start(context, ip, port):
     """
     Run pyfi API server
     """
+    import multiprocessing
+    import gunicorn.app.base
     import bjoern
+
     from pyfi.server.api import create_endpoint, app as server
+    from pyfi.api import blueprint
+
+    cpus = multiprocessing.cpu_count()
+
+    """ Spawn this as a managed sub process. """
+
+    class StandaloneApplication(gunicorn.app.base.BaseApplication):
+
+        def __init__(self, app, options=None):
+            self.options = options or {}
+            self.application = app
+            super().__init__()
+            print("GUNICORN APP START")
+
+        def load_config(self):
+            config = {key: value for key, value in self.options.items()
+                    if key in self.cfg.settings and value is not None}
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+
+        def load(self):
+            return self.application
+
 
     logger.info("Initializing server app....")
     logger.info("Serving API on {}:{}".format(ip, port))
-
-    from pyfi.api import blueprint
 
     server.register_blueprint(blueprint)
     
@@ -4582,7 +4626,14 @@ def api_start(context, ip, port):
 
     server.app_context().push()
     try:
-        bjoern.run(server, ip, port)
+        options = {
+            'bind': '%s:%s' % ('0.0.0.0', str(port)),
+            'workers': cpus,
+            # 'threads': number_of_workers(),
+            'timeout': 120,
+        }
+        StandaloneApplication(server, options).run()
+        #bjoern.run(server, ip, port)
     except Exception as ex:
         logging.error(ex)
         logger.info("Shutting down...")
