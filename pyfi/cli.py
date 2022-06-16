@@ -3752,6 +3752,7 @@ def ls_deployments(context):
         "Name",
         "ID",
         "Owner",
+        "Worker",
         "Last Updated",
         "Hostname",
         "Processor",
@@ -3768,6 +3769,7 @@ def ls_deployments(context):
                 node.name,
                 node.id,
                 node.owner,
+                node.worker.name,
                 node.lastupdated,
                 node.hostname,
                 node.processor.name,
@@ -4588,56 +4590,69 @@ def api_start(context, ip, port):
     from pyfi.server.api import create_endpoint, app as server
     from pyfi.api import blueprint
 
-    cpus = multiprocessing.cpu_count()
-
-    """ Spawn this as a managed sub process. """
-
-    class StandaloneApplication(gunicorn.app.base.BaseApplication):
-
-        def __init__(self, app, options=None):
-            self.options = options or {}
-            self.application = app
-            super().__init__()
-            print("GUNICORN APP START")
-
-        def load_config(self):
-            config = {key: value for key, value in self.options.items()
-                    if key in self.cfg.settings and value is not None}
-            for key, value in config.items():
-                self.cfg.set(key.lower(), value)
-
-        def load(self):
-            return self.application
-
-
-    logger.info("Initializing server app....")
-    logger.info("Serving API on {}:{}".format(ip, port))
-
-    server.register_blueprint(blueprint)
     
-    do_something = context.obj["database"].session.query(TaskModel).filter_by(name='do_something').first()
-    do_this = context.obj["database"].session.query(TaskModel).filter_by(name='do_this').first()
+    """ Spawn this as a managed sub process. """
+    def start_api():
+        cpus = multiprocessing.cpu_count()
 
-    if do_something:
-        create_endpoint('pyfi.processors.sample','do_something')
+        class StandaloneApplication(gunicorn.app.base.BaseApplication):
 
-    if do_this:
-        create_endpoint('pyfi.processors.sample','do_this')
+            def __init__(self, app, options=None):
+                self.options = options or {}
+                self.application = app
+                super().__init__()
+                print("GUNICORN APP START")
 
-    server.app_context().push()
-    try:
-        options = {
-            'bind': '%s:%s' % ('0.0.0.0', str(port)),
-            'workers': cpus,
-            # 'threads': number_of_workers(),
-            'timeout': 120,
-        }
-        StandaloneApplication(server, options).run()
-        #bjoern.run(server, ip, port)
-    except Exception as ex:
-        logging.error(ex)
-        logger.info("Shutting down...")
+            def load_config(self):
+                config = {key: value for key, value in self.options.items()
+                        if key in self.cfg.settings and value is not None}
+                for key, value in config.items():
+                    self.cfg.set(key.lower(), value)
 
+            def load(self):
+                return self.application
+
+        logger.info("Initializing server app....")
+        logger.info("Serving API on {}:{}".format(ip, port))
+
+        server.register_blueprint(blueprint)
+        
+        do_something = context.obj["database"].session.query(TaskModel).filter_by(name='do_something').first()
+        do_this = context.obj["database"].session.query(TaskModel).filter_by(name='do_this').first()
+
+        if do_something:
+            create_endpoint('pyfi.processors.sample','do_something')
+
+        if do_this:
+            create_endpoint('pyfi.processors.sample','do_this')
+
+        server.app_context().push()
+        try:
+            options = {
+                'bind': '%s:%s' % ('0.0.0.0', str(port)),
+                'workers': cpus,
+                # 'threads': number_of_workers(),
+                'timeout': 120,
+            }
+            StandaloneApplication(server, options).run()
+            #bjoern.run(server, ip, port)
+        except Exception as ex:
+            logging.error(ex)
+            logger.info("Shutting down...")
+
+    process = multiprocessing.Process(target=start_api)
+    click.echo("Starting API process.")
+    process.start()
+    click.echo("API process started.")
+    #process.join()
+    import time
+    time.sleep(5)
+    process.terminate()
+
+    process = multiprocessing.Process(target=start_api)
+    process.start()
+    process.join()
+    click.echo("API process exited.")
 
 @agent.command(name="start")
 @click.option("-p", "--port", default=8001, help="Healthcheck port")

@@ -7,7 +7,13 @@ import signal
 
 from multiprocessing import Process
 
-from pyfi.db.model import SchedulerModel, WorkModel, ProcessorModel, DeploymentModel, AgentModel
+from pyfi.db.model import (
+    SchedulerModel,
+    WorkModel,
+    ProcessorModel,
+    DeploymentModel,
+    AgentModel,
+)
 from pyfi.db import get_session
 
 HOSTNAME = platform.node()
@@ -73,15 +79,12 @@ class NodePlugin(SchedulerPlugin):
 
     def run(self, *args, **kwargs):
         import requests
+
         session = get_session()
         try:
             logging.info("NodePlugin: Schedule run %s %s", args, kwargs)
 
-            scheduler = (
-                session.query(SchedulerModel)
-                    .filter_by(name=self.name)
-                    .first()
-            )
+            scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
 
             # These are my nodes to manage
             if scheduler.nodes:
@@ -112,7 +115,9 @@ class NodePlugin(SchedulerPlugin):
                     for worker in agent.workers:
                         processor = worker.processor
                         logging.info(
-                            "Processor %s %s CPU workers", processor.name, processor.concurrency
+                            "Processor %s %s CPU workers",
+                            processor.name,
+                            processor.concurrency,
                         )
 
                     # Look at all the processors for this node, if the total CPUs exceeds the nodes CPUs
@@ -143,17 +148,27 @@ class DeployProcessorPlugin(SchedulerPlugin):
             # Get a random processor that either has less deployments than its concurrency needs
             processor = (
                 # Read lock the processor so others cannot change it while we're looking at it
-                session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().first()
-                #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
-                #session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
+                session.query(ProcessorModel)
+                .filter(
+                    ProcessorModel.deployments.any(
+                        DeploymentModel.cpus < ProcessorModel.concurrency
+                    )
+                )
+                .with_for_update()
+                .first()
+                # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
+                # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
 
             if processor is None:
                 # If we didn't get any processors above, try fetching one without deployments
                 processor = (
-                session.query(ProcessorModel).filter(~ProcessorModel.deployments.any()).with_for_update().first()
+                    session.query(ProcessorModel)
+                    .filter(~ProcessorModel.deployments.any())
+                    .with_for_update()
+                    .first()
                 )
-            '''
+            """
             if len(processors) == 0:
                 processor = None
             else:
@@ -168,10 +183,12 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     processor = None
                 else:
                     processor = random.choice(processors)
-            '''
+            """
 
             # Try to fulfill its concurrency
-            logging.info("Processor is %s", processor if processor else "No processor found")
+            logging.info(
+                "Processor is %s", processor if processor else "No processor found"
+            )
             if processor:
                 logging.info("Deploying processor %s", processor)
                 if len(processor.deployments) == 0:
@@ -184,9 +201,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     pass
 
                 scheduler = (
-                    session.query(SchedulerModel)
-                        .filter_by(name=self.name)
-                        .first()
+                    session.query(SchedulerModel).filter_by(name=self.name).first()
                 )
 
                 # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
@@ -206,30 +221,52 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     if scheduler.nodes:
                         for node in scheduler.nodes:
                             agent = node.agent
-                            logging.info("Agent for node %s has %s cpus", node.hostname, agent.cpus)
+                            logging.info(
+                                "Agent for node %s has %s cpus",
+                                node.hostname,
+                                agent.cpus,
+                            )
 
                             worker_cpus = 0
                             for worker in agent.workers:
-                                logging.info("Agent worker with %s cpus", worker.concurrency)
+                                logging.info(
+                                    "Agent worker with %s cpus", worker.concurrency
+                                )
                                 if worker.deployment:
                                     worker_cpus += worker.deployment.cpus
 
-                            logging.info("Agent %s is using %s of its %s cpus", agent.name, worker_cpus, agent.cpus)
+                            logging.info(
+                                "Agent %s is using %s of its %s cpus",
+                                agent.name,
+                                worker_cpus,
+                                agent.cpus,
+                            )
 
                             if agent.cpus - worker_cpus >= 1:
                                 _cpus = agent.cpus - worker_cpus
                                 if _cpus > needed_cpus:
                                     _cpus = needed_cpus
                                 if _cpus > 0:
-                                    logging.info("Creating new deployment for %s CPUS", _cpus)
-                                    _deployment = DeploymentModel(cpus=_cpus, processor=processor,
-                                                                  name=processor.name + ".deploy" + str(
-                                                                      len(processor.deployments)),
-                                                                  hostname=node.hostname)
+                                    logging.info(
+                                        "Creating new deployment for %s CPUS", _cpus
+                                    )
+                                    _deployment = DeploymentModel(
+                                        cpus=_cpus,
+                                        processor=processor,
+                                        name=processor.name
+                                        + ".deploy"
+                                        + str(len(processor.deployments)),
+                                        hostname=node.hostname,
+                                    )
                                     processor.deployments += [_deployment]
                                     session.add(_deployment)
                                     session.add(processor)
-                                    logging.info("Deploying processor %s to node %s with %s cpus", processor.name, node, _cpus)
+                                    logging.info(
+                                        "Deploying processor %s to node %s with %s cpus",
+                                        processor.name,
+                                        node,
+                                        _cpus,
+                                    )
                                     session.commit()
                                     needed_cpus -= _cpus
                                 else:
@@ -275,18 +312,47 @@ class WatchPlugin(SchedulerPlugin):
             agents = session.query(AgentModel).all()
             for agent in agents:
                 try:
-                    logging.info("Contacting agent %s at http://%s:%s", agent.name, agent.hostname, str(agent.port))
-                    response = requests.get('http://'+agent.hostname+':'+str(agent.port))
+                    logging.info(
+                        "Contacting agent %s at http://%s:%s",
+                        agent.name,
+                        agent.hostname,
+                        str(agent.port),
+                    )
+                    response = requests.get(
+                        "http://" + agent.hostname + ":" + str(agent.port)
+                    )
                     status = response.json()
-                    if status['status'] == 'green':
-                        agent.status = 'running'
+                    if status["status"] == "green":
+                        agent.status = "running"
+
                 except Exception as ex:
-                    agent.status = 'unreachable'
+                    agent.status = "unreachable"
                     session.add(agent)
                     session.commit()
                     session.flush()
-                    logging.info("AGENT %s",agent.status)
+                    logging.info("AGENT %s", agent.status)
                     logging.error(ex)
+                    
+                for worker in agent.workers:
+                    logging.info(
+                        "Contacting agent worker %s at http://%s:%s",
+                        worker.name,
+                        worker.hostname,
+                        str(worker.port),
+                    )
+                    try:
+                        worker.status = "pending"
+                        response = requests.get(
+                            "http://" + worker.hostname + ":" + str(worker.port)
+                        )
+                        status = response.json()
+                        if status["status"] == "green":
+                            worker.status = "running"
+                    except Exception as ex:
+                        worker.status = "unreachable"
+                        session.add(worker)
+                        session.commit()
+
             logging.info("WatchPlugin: Checking workers")
             logging.info("WatchPlugin: Checking processors")
             logging.info("WatchPlugin: Checking plugs")
@@ -317,10 +383,7 @@ class BasicScheduler:
         logging.info("Stopped")
 
     def run(self):
-        [
-            plugin.start(self.name, self.interval)
-            for plugin in self.plugins
-        ]
+        [plugin.start(self.name, self.interval) for plugin in self.plugins]
         logging.info("Started")
 
     def start(self):
