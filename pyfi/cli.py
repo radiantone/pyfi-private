@@ -2528,11 +2528,16 @@ def kill_agent(context, name):
     """Kill an agent"""
     import os
 
-    # Send SIGINT to agent.pid
+    agent = (
+        context.obj["database"].session.query(AgentModel).filter_by(name=name).first()
+    )
 
-    with open("agent.pid", "r") as procfile:
-        _pid = procfile.read()
-        os.system("/usr/bin/kill -SIGINT " + _pid)
+    if not agent:
+        print("Agent does not exist.")
+        return
+
+    agent.requested_status = 'kill'
+    context.obj["database"].session.commit()
 
 
 @agent.command(name="stop")
