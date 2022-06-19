@@ -326,13 +326,13 @@ class WatchPlugin(SchedulerPlugin):
                         agent.status = "running"
 
                 except Exception as ex:
-                    agent.status = "unreachable"
+                    agent.status = "down"
                     session.add(agent)
                     session.commit()
                     session.flush()
                     logging.info("AGENT %s", agent.status)
                     logging.error(ex)
-                    
+
                 for worker in agent.workers:
                     logging.info(
                         "Contacting agent worker %s at http://%s:%s",
@@ -349,7 +349,7 @@ class WatchPlugin(SchedulerPlugin):
                         if status["status"] == "green":
                             worker.status = "running"
                     except Exception as ex:
-                        worker.status = "unreachable"
+                        worker.status = "down"
                         session.add(worker)
                         session.commit()
 
