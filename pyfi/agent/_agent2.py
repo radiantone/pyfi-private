@@ -837,6 +837,16 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent = (
                     session.query(AgentModel).filter_by(hostname=agent_service.name).first()
                 )
+                if agent and agent.requested_status == 'kill':
+                    import sys
+                    logger.info("Killing agent process %s", agent.pid)
+                    agent.requested_status = 'ready'
+                    agent.status = 'killed'
+                    session.commit()
+                    os.kill(agent.pid, signal.SIGINT)
+                    os.kill(os.getpid(), signal.SIGINT)
+                    sys.exit(0)
+
                 # Get or create Node for this agent
                 if agent is None:
                     agent = AgentModel(
