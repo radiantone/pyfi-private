@@ -929,6 +929,66 @@
           </q-card-section>
         </q-card>
       </q-expansion-item>
+      <q-expansion-item
+        default-closed
+        style="
+          margin-top: 5px;
+          box-shadow: 0 0 5px 0px lightgrey;
+          border: 1px solid #abbcc3;
+          background-color: white;
+          font-size: 14px;
+          min-width: 300px;
+        "
+        class="text-dark"
+        dense
+        expand-icon="far fa-plus-square text-blue-grey-5"
+        expanded-icon="far fa-minus-square text-blue-grey-5"
+        icon="mail_outline"
+        label="Messages"
+      >
+        <q-card style="padding: 5px;height:400px">
+         <q-scroll-area style="height: 395px; width: 100%;">
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         This is a log line.<br>
+         </q-scroll-area>
+        </q-card>
+        </q-expansion-item>
+
     </div>
 
     <q-dialog v-model="showconfirmclose" persistent>
@@ -1380,6 +1440,9 @@ import NoteTemplate from 'components/templates/NoteTemplate.vue';
 
 import Queue from 'components/Queue.vue';
 
+import PipelineTemplate from 'components/templates/PipelineTemplate.vue';
+import SegmentTemplate from 'components/templates/SegmentTemplate.vue';
+import ChordTemplate from 'components/templates/ChordTemplate.vue';
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue';
 import GroupTemplate from 'components/templates/GroupTemplate.vue';
 import PatternTemplate from 'components/templates/PatternTemplate.vue';
@@ -2633,7 +2696,81 @@ export default {
             },
           },
           pipeline: {
-            component: ScriptTemplate,
+            component: PipelineTemplate,
+            events: {
+              tap: function (params) {
+                console.log('PARAMS:', params);
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll('.jtk-node');
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0;
+                    });
+                    params.el.style['z-index'] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit('node.selected', null);
+                    } else {
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
+                    }
+                  }
+                }
+              },
+            },
+          },
+          segment: {
+            component: SegmentTemplate,
+            events: {
+              tap: function (params) {
+                console.log('PARAMS:', params);
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll('.jtk-node');
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0;
+                    });
+                    params.el.style['z-index'] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit('node.selected', null);
+                    } else {
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
+                    }
+                  }
+                }
+              },
+            },
+          },
+          chord: {
+            component: ChordTemplate,
             events: {
               tap: function (params) {
                 console.log('PARAMS:', params);

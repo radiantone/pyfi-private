@@ -985,6 +985,39 @@ export default defineComponent({
           properties: [],
         },
       };
+
+      var segment = document.querySelector('#segment');
+      segment.data = {
+        node: {
+          icon: 'grid_view',
+          style: 'size:50px',
+          type: 'segment',
+          name: 'Segment',
+          label: 'Segment',
+          description: 'A segment tool description',
+          package: 'my.python.package',
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      var chord = document.querySelector('#chord');
+      chord.data = {
+        node: {
+          icon: 'low_priority',
+          style: 'size:50px',
+          type: 'chord',
+          name: 'Chord',
+          label: 'Chord',
+          description: 'A chord tool description',
+          package: 'my.python.package',
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
       var label = document.querySelector('#label');
       label.data = {
         node: {
@@ -999,7 +1032,7 @@ export default defineComponent({
         },
       };
       //, chord, segment, map, reduce
-      var els = [processor, portin, portout, group, parallel, pipeline, label];
+      var els = [processor, portin, portout, group, parallel, segment, chord, pipeline, label];
 
       els.forEach((el) => {
         var data = el.data;

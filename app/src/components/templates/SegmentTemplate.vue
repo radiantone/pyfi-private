@@ -2320,7 +2320,7 @@ tbody tr:nth-child(odd) {
 import ScriptTemplate from 'components/templates/ScriptTemplate';
 
 export default {
-  name: 'ParallelTemplate',
+  name: 'SegmentTemplate',
   mixins: [ScriptTemplate]
 };
 </script>

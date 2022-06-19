@@ -7,11 +7,11 @@
     <q-btn
       flat
       align="left"
-      :icon="braces"
+      icon="las la-file-alt"
       aria-label="Data"
       size="large"
       id="braces"
-      style="min-height: 56px; cursor: grabbing;"
+      style="min-height: 56px; cursor: grabbing;font-size:1.5em"
       class="text-dark text-bold"
     >
       <q-tooltip
@@ -21,7 +21,23 @@
         Data
       </q-tooltip>
     </q-btn>
-
+    <q-btn
+      flat
+      align="left"
+      :icon="braces"
+      aria-label="Data"
+      size="large"
+      id="schema"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Schema
+      </q-tooltip>
+    </q-btn>
     <q-btn
       flat
       align="left"
