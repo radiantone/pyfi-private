@@ -360,29 +360,6 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="folderprompt" persistent>
-      <q-card style="min-width: 350px;">
-        <q-card-section>
-          <div class="text-h6">New Folder</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input
-            dense
-            v-model="newfolder"
-            autofocus
-            class="bg-white"
-            @keyup.enter="folderprompt = false"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Create" v-close-popup @click="newFolder" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
     <q-inner-loading :showing="loading">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
@@ -399,7 +376,6 @@ a.text-secondary:hover {
 }
 </style>
 <script>
-import ObjectService from 'components/util/ObjectService';
 import DataService from 'components/util/DataService';
 
 var dd = require('drip-drop');
@@ -666,43 +642,6 @@ export default {
       this.deleteobjectid = item.id;
       this.deleteobjecttype = item.type;
       this.deleteobject = true;
-    },
-    async newFolder() {
-      var me = this;
-      try {
-        var res = await ObjectService.makeDirectory(
-          this.collection,
-          this.foldername,
-          this.newfolder,
-          this.security.auth.user
-        );
-        me.loading = false;
-        console.log(res);
-        if (res.status === 'error') {
-          me.notifyMessage(
-            'negative',
-            'error',
-            'There was an error creating the new folder.'
-          );
-        } else {
-          me.$q.notify({
-            color: 'primary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Create Folder Succeeded',
-            icon: 'folder',
-          });
-          this.synchronize();
-        }
-      } catch (error) {
-        console.log(error);
-        me.loading = false;
-        me.notifyMessage(
-          'negative',
-          'error',
-          'There was an error creating the new folder.'
-        );
-      }
     },
   },
   data() {

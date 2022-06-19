@@ -273,42 +273,6 @@ export default {
       }
       console.log(this.nodes);
     },
-    onLazyLoad({ node, key, done, fail }) {
-      // call fail() if any error occurs
-      var me = this;
-      console.log('Lazy load ', node, key, this.highlight);
-
-      var files = ObjectService.listLibrary(node, this.security.auth.user);
-      files
-        .then(function (result) {
-          setTimeout(function () {
-            if (me.highlight) {
-              for (var i = 0; i < result.length; i++) {
-                var node = result[i];
-                if (node.id.indexOf(me.highlight) === 0) {
-                  node.disabled = false;
-                } else {
-                  node.disabled = true;
-                }
-              }
-            }
-            done(result);
-            me.initializeDrag();
-          }, 100);
-        })
-        .catch(function (error) {
-          console.log(error);
-          me.$q.notify({
-            color: 'negative',
-            timeout: 2000,
-            position: 'top',
-            message: 'There was an error synchronizing this view',
-            icon: 'error',
-          });
-
-          fail([]);
-        });
-    },
     updateSelected(key) {
       console.log('selected: ', this.selected);
       console.log('key: ', key);

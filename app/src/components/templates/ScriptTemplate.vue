@@ -1605,6 +1605,15 @@
             <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
               <q-spinner-gears size="50px" color="primary" />
             </q-inner-loading>
+                    <q-btn
+          style="position: absolute; bottom: 0px; right: 0px; margin-right:20px"
+          flat
+          icon="refresh"
+          class="bg-primary text-white"
+          color="primary"
+          @click="refreshDeployments"
+          v-close-popup
+        />
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
             <q-input
@@ -1635,7 +1644,25 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          label="Save"
+          class="bg-primary text-white"
+          color="primary"
+          @click="saveProcessor"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Save
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -1646,6 +1673,9 @@
           @click="configview = false"
         />
       </q-card-actions>
+          <q-inner-loading :showing="saving" style="z-index: 999999;">
+      <q-spinner-gears size="50px" color="primary" />
+    </q-inner-loading>
     </q-card>
 
     <q-card
@@ -2515,6 +2545,7 @@ export default {
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
+      saving: false,
       workersLoading: true,
       splitterModel: 50,
       series2: [
@@ -2875,9 +2906,9 @@ export default {
           align: 'left',
         },
         {
-          name: 'processor',
-          label: 'Processor',
-          field: 'processor',
+          name: 'worker',
+          label: 'Worker',
+          field: 'worker',
           align: 'left',
         },
         {
@@ -3178,6 +3209,23 @@ export default {
     };
   },
   methods: {
+    saveProcessor () {
+      this.saving = true;
+      
+    },
+    refreshDeployments () {
+      this.deployLoading = true;
+      DataService.getDeployments(this.obj.name)
+        .then((deployments) => {
+          console.log('DEPLOYMENTS', deployments);
+          this.deployLoading = false;
+          this.deploydata = deployments.data;
+        })
+        .catch((err) => {
+          console.log('DEPLOYMENTS ERROR', err);
+          this.deployLoading = false;
+        });
+    },
     sizeOf(bytes) {
       if (bytes == 0) {
         return '0.00 B';

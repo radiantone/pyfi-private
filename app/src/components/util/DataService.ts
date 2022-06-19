@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { Dictionary } from 'jsplumbtoolkit';
 import http from 'src/http-common'
 
 class DataService {
@@ -18,6 +16,14 @@ class DataService {
         return http.get('/api/queue/messages/' + queue);
     }
     
+    saveProcessor (processor: any): Promise<any> {
+        return http.post('/api/processor/'+processor.id, processor)
+    }
+
+    getProcessor (id: string): Promise<any> {
+        return http.get('/api/processor/' + id)
+    }
+
     getProcessors (): Promise<any> {
         return http.get('/api/processors');
     }
@@ -25,13 +31,10 @@ class DataService {
     newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string): Promise<any> {
         var path = encodeURI('/api/files/' + collection + '/' + folder);
 
-        var promise = http.post(path, { 'saveas': saveas, 'name': name, 'id': fid, 'file': file, 'type': type, 'icon': icon });
-        console.log(promise);
-        return promise;
+        return http.post(path, { 'saveas': saveas, 'name': name, 'id': fid, 'file': file, 'type': type, 'icon': icon });
     }
 
     newFolder (collection: string, folder: string): Promise<any> {
-        console.log("newFolder", folder);
         return http.get('/api/folder/' + collection + '/' + folder);
     }
 

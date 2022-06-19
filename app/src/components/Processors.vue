@@ -131,8 +131,8 @@ a.text-secondary:hover {
 }
 </style>
 <script>
-import ObjectService from 'components/util/ObjectService';
 import DataService from 'components/util/DataService';
+
 
 var dd = require('drip-drop');
 

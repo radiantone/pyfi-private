@@ -4,6 +4,23 @@
       src="~assets/images/pyfi.svg"
       style="padding-left: 15px; height: 45px; padding-right: 10px;"
     />
+    <q-btn
+      flat
+      align="left"
+      :icon="braces"
+      aria-label="Data"
+      size="large"
+      id="braces"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Data
+      </q-tooltip>
+    </q-btn>
 
     <q-btn
       flat
@@ -425,10 +442,14 @@
 </style>
 <script>
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
+import { mdiCodeBraces } from '@mdi/js';
 
 export default {
   name: 'ToolPalette',
-  created() {},
+  created () {
+    
+    this.braces = mdiCodeBraces;
+  },
   mounted() {
     console.log('TOOLPALETTE STORE', this.$store);
   },
