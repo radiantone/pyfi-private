@@ -2620,8 +2620,12 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             logging.info("Assigning deployment worker")
             deployment.worker = workerModel
             workerModel.deployment = deployment
+            logging.info("Adding deployment worker to session")
             context.obj["database"].session.add(deployment)
+            context.obj["database"].session.add(workerModel)
             context.obj["database"].session.commit()
+            context.obj["database"].session.flush()
+            logging.info("Committed session")
             logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
             break
         elif deployment.worker.id == workerModel.id:
