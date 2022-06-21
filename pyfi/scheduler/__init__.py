@@ -324,6 +324,9 @@ class WatchPlugin(SchedulerPlugin):
                     status = response.json()
                     if status["status"] == "green":
                         agent.status = "running"
+                        session.add(agent)
+                        session.commit()
+                        session.flush()
 
                 except Exception as ex:
                     agent.status = "down"
@@ -348,6 +351,8 @@ class WatchPlugin(SchedulerPlugin):
                         status = response.json()
                         if status["status"] == "green":
                             worker.status = "running"
+                            session.add(worker)
+                            session.commit()
                     except Exception as ex:
                         worker.status = "down"
                         session.add(worker)

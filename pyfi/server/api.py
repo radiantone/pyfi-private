@@ -302,17 +302,18 @@ def get_deployments(processor):
         )
         deps = []
 
-        for dep in _processor.deployments:
-            worker = dep.worker.name if dep.worker else 'None'
+        if _processor:
+            for dep in _processor.deployments:
+                worker = dep.worker.name if dep.worker else 'None'
 
-            deps += [{
-                'name':dep.name,
-                'owner':dep.owner,
-                'hostname':dep.hostname,
-                'cpus':dep.cpus,
-                'status':dep.worker.status,
-                'worker':dep.worker.name
-            }]
+                deps += [{
+                    'name':dep.name,
+                    'owner':dep.owner,
+                    'hostname':dep.hostname,
+                    'cpus':dep.cpus,
+                    'status':dep.worker.status,
+                    'worker':dep.worker.name
+                }]
 
         return jsonify(deps)
 

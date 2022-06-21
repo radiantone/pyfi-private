@@ -2613,6 +2613,8 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     )
 
     for deployment in deployments:
+        logging.info("deployment.worker %s", deployment.worker)
+        logging.info("workerModel %s", workerModel)
         logger.info(
             "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
         )
@@ -3774,7 +3776,7 @@ def ls_deployments(context):
                 node.name,
                 node.id,
                 node.owner,
-                node.worker.name,
+                node.worker.name if node.worker else 'pending',
                 node.lastupdated,
                 node.hostname,
                 node.processor.name,
@@ -4639,8 +4641,8 @@ def api_start(context, ip, port):
                 # 'threads': number_of_workers(),
                 'timeout': 120,
             }
-            StandaloneApplication(server, options).run()
-            #bjoern.run(server, ip, port)
+            #StandaloneApplication(server, options).run()
+            bjoern.run(server, ip, port)
         except Exception as ex:
             logging.error(ex)
             logger.info("Shutting down...")

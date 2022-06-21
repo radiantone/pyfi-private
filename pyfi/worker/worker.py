@@ -426,12 +426,16 @@ class WorkerService:
 
             workerModel.workerdir = self.workdir
             workerModel.port = self.port
+
+            logging.info("Adding deployment %s to worker model", _deployment)
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
-            session.refresh(_processor)
-            logging.info("Attached worker to deployment and processor...%s",_processor)
-            session.commit()
+            logging.info("Refreshing processor")
+            #session.refresh(_processor)
+            #logging.info("Printing processor")
+            #logging.info("Attached worker to deployment and processor...%s",_processor)
+            #session.commit()
             logging.info("Attached worker: Done")
 
         self.process = None
@@ -2153,7 +2157,12 @@ class WorkerService:
                     count = 1
                     logging.info("cwd is %s", os.getcwd())
                     logging.info("workdir is %s", self.workdir)
-                    os.chdir(self.workdir)
+
+                    if not os.path.exists(self.workdir):
+                        os.makedirs(self.workdir)
+                    else:
+                        os.chdir(self.workdir)
+
                     while True:
                         """Try 5 times to clone repo successfully"""
                         if count >= 5:
