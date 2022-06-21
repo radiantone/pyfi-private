@@ -2617,11 +2617,15 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         logging.info("workerModel %s", workerModel)
 
         if deployment.worker is None:
+            logging.info("Assigning deployment worker")
             deployment.worker = workerModel
             workerModel.deployment = deployment
+            context.obj["database"].session.add(deployment)
+            context.obj["database"].session.commit()
             logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
             break
         elif deployment.worker.id == workerModel.id:
+            logging.info("Assigning worker deployment based on ID %s",deployment.worker)
             workerModel.deployment = deployment
             break
 
