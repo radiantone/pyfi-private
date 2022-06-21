@@ -2615,9 +2615,6 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     for deployment in deployments:
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
-        logger.info(
-            "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
-        )
 
         if deployment.worker is None:
             deployment.worker = workerModel
@@ -2627,6 +2624,10 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             workerModel.deployment = deployment
             break
 
+        logger.info(
+            "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
+        )
+        
     worker = {}
     processor = (
         context.obj["database"]
