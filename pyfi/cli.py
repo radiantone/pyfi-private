@@ -2618,7 +2618,12 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         logger.info(
             "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
         )
-        if deployment.worker.id == workerModel.id:
+
+        if deployment.worker is None:
+            deployment.worker = workerModel
+            workerModel.deployment = deployment
+            break
+        elif deployment.worker.id == workerModel.id:
             workerModel.deployment = deployment
             break
 
