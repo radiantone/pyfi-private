@@ -2619,6 +2619,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         if deployment.worker is None:
             deployment.worker = workerModel
             workerModel.deployment = deployment
+            logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
             break
         elif deployment.worker.id == workerModel.id:
             workerModel.deployment = deployment
@@ -2627,7 +2628,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         logger.info(
             "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
         )
-        
+
     worker = {}
     processor = (
         context.obj["database"]
