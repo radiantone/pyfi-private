@@ -2617,7 +2617,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
 
-        if deployment.worker is None:
+        if deployment.worker is None and workerModel.deployment is None:
             logging.info("Assigning deployment worker")
             deployment.worker = workerModel
             workerModel.deployment = deployment
@@ -2655,6 +2655,11 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     dir = "work/" + processor.id
     os.makedirs(dir, exist_ok=True)
     logger.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
+
+    if workerModel.deployment is None:
+        logger.warning("This worker has no eligible deployments: %s", workerModel)
+        return
+        
     logger.info("Creating WorkerService")
     try:
         workerproc = WorkerService(
