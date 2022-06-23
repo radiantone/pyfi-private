@@ -737,7 +737,7 @@ class AgentService:
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == HOSTNAME:
                                         logging.info(
-                                            "Deployment hostname is {} and HOSTNAME is {}".format(
+                                            "Deployment hostname is {} and HOSTNAME3 is {}".format(
                                                 deployment.hostname, HOSTNAME
                                             )
                                         )
