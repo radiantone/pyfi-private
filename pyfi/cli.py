@@ -2611,7 +2611,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             .filter_by(hostname=hostname)
             .all()
     )
-
+    logging.info("DEPLOYMENTS for %s are %s", hostname, deployments)
     
     for deployment in deployments:
         logging.info("deployment.worker %s", deployment.worker)
