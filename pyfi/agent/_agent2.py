@@ -715,7 +715,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         wprocess = workerproc.launch(
                                             worker_model.name,
                                             agent.name,
-                                            HOSTNAME,
+                                            agent.hostname,
                                             self.agent_service.pool,
                                         )
 
