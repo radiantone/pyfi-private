@@ -427,6 +427,7 @@ class WorkerService:
                     broker=self.broker,
                     processor=_processor,
                     agent_id=self.agent.id,
+                    deployment=_deployment,
                     workerdir=self.workdir,
                     hostname=HOSTNAME,
                     requested_status="start",
@@ -1462,6 +1463,7 @@ class WorkerService:
                         hostname=self.hostname
                                  + "."
                                  + _processor.name
+                                 + "."
                                  + str(uuid4())
                                  + "@"
                                  + self.agent.hostname,
