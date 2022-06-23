@@ -426,6 +426,7 @@ class WorkerService:
                     backend=self.backend,
                     broker=self.broker,
                     processor=_processor,
+                    agent_id=self.agent.id,
                     workerdir=self.workdir,
                     hostname=HOSTNAME,
                     requested_status="start",
@@ -1500,6 +1501,7 @@ class WorkerService:
                             processor=_processor,
                             broker=self.broker,
                             workerdir=self.workdir,
+                            agent_id=self.agent.id,
                             hostname=HOSTNAME,
                             requested_status="start",
                         )
