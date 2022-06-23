@@ -599,7 +599,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                 # Attach worker model to deployment
                                 processor["deployment"].worker = worker_model
-                                worker_model.lastupdated = datetime.now()
+                                worker_model.lastupdated = datetime.datetime.now()
                                 worker_model.status = "running"
                                 worker_model.processor = processor["processor"]
                                 
