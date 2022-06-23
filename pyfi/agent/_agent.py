@@ -592,6 +592,7 @@ class DeploymentMonitor(MonitorPlugin):
                                                 + ".worker",
                                         concurrency=processor["deployment"].cpus,
                                         status="ready",
+                                        processor=processor["processor"],
                                         backend=self.agent_service.backend,
                                         broker=self.agent_service.broker,
                                         agent_id=agent.id,
