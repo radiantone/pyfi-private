@@ -1156,11 +1156,11 @@ class WorkerService:
             import sys
             import json
             import time
-
+            
             from billiard.pool import Pool
             from docker.types import Mount
             import docker
-
+            from uuid import uuid4
             from setproctitle import setproctitle
 
             setproctitle("pyfi worker::worker_proc")
@@ -1462,8 +1462,9 @@ class WorkerService:
                         hostname=self.hostname
                                  + "."
                                  + _processor.name
+                                 + str(uuid4())
                                  + "@"
-                                 + HOSTNAME,
+                                 + self.agent.hostname,
                         backend=self.backend,
                         broker=self.broker,
                         beat=_processor.beat,
