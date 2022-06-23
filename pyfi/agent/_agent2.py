@@ -603,7 +603,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 worker_model.status = "running"
                                 worker_model.processor = processor["processor"]
                                 
-                                session.add(agent)
+                                #session.add(agent)
                                 session.add(worker_model)
 
                                 logging.info("Worker model is %s", worker_model)
