@@ -252,7 +252,7 @@ class AgentMonitorPlugin(AgentPlugin):
     def deployment_monitor(self, agent):
 
         with get_session() as session:
-            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            logger.info("[DeploymentMonitor] Getting deployments %s",agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
                     .filter_by(hostname=agent.hostname)
@@ -261,7 +261,7 @@ class AgentMonitorPlugin(AgentPlugin):
             # Deploy new processors
             for mydeployment in mydeployments:
 
-                print("DEPLOYMENT.WORKER",mydeployment.worker)
+                logger.info("GOT DEPLOYMENT %s WORKER %s",mydeployment, mydeployment.worker)
                 try:
                     myprocessor = mydeployment.processor
                     logging.debug("MYPROCESSOR %s",myprocessor)
@@ -289,10 +289,10 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if not found:
                         # If this is a new processor, add it to cache
-                            self.processors += [
-                                {"worker": None, "processor": myprocessor, "id": myprocessor.id}
-                            ]
-                            logging.info("Added processor %s", myprocessor)
+                        self.processors += [
+                            {"worker": None, "processor": myprocessor, "id": myprocessor.id}
+                        ]
+                        logging.info("Added processor %s", myprocessor)
 
                     # This block looks at the processors and creates a worker if needed
                     

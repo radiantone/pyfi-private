@@ -2612,6 +2612,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             .all()
     )
 
+    '''
     for deployment in deployments:
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
@@ -2627,8 +2628,14 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             context.obj["database"].session.flush()
             logging.info("Committed session")
             logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
-            break
-        elif deployment.worker.id == workerModel.id:
+    '''
+    
+    for deployment in deployments:
+        """ Just finding the the deployment for the current worker name """
+        logging.info("deployment.worker %s", deployment.worker)
+        logging.info("workerModel %s", workerModel)
+
+        if deployment.worker.id == workerModel.id:
             logging.info("Assigning worker deployment based on ID %s",deployment.worker)
             workerModel.deployment = deployment
             break

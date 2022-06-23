@@ -398,19 +398,34 @@ class WorkerService:
                     .filter_by(name=hostname + ".agent." + self.processor.name + ".worker")
                     .first()
             )
+            workers = (
+                        session.query(WorkerModel)
+                            .filter_by(hostname=hostname)
+                            .all()
+                    )
 
             logging.info("Found worker {}".format(workerModel))
 
+            workerModel = None
+
+            for worker in workers:
+                if worker.deployment and worker.deployment.name == _deployment.name:
+                    workerModel = worker
+                    break
+
             if workerModel is not None:
                 logging.info("Worker deployment is {}".format(workerModel.deployment))
+                logging.info("Found %s workers for %s", len(workers), hostname)
 
             if workerModel is None:
+                logging.info("Creating new worker for %s",_deployment)
                 workerModel = self.workerModel = WorkerModel(
-                    name=HOSTNAME + ".agent." + self.processor.name + ".worker",
+                    name=HOSTNAME + ".agent." + self.processor.name + ".worker."+str(len(workers)+1),
                     concurrency=int(_deployment.cpus),
                     status="ready",
                     backend=self.backend,
                     broker=self.broker,
+                    processor=_processor,
                     workerdir=self.workdir,
                     hostname=HOSTNAME,
                     requested_status="start",
@@ -422,12 +437,13 @@ class WorkerService:
                     workerModel.agent_id = self.agent.id
 
                 session.add(workerModel)
-                logging.info("Added workerModel to session")
+                logging.info("Added workerModel to session %s", workerModel)
+                session.commit()
 
             workerModel.workerdir = self.workdir
             workerModel.port = self.port
 
-            logging.info("Adding deployment %s to worker model", _deployment)
+            #logging.info("Adding deployment %s to worker model", _deployment)
             workerModel.deployment = _deployment
             _deployment.worker = workerModel
             _deployment.worker.processor = _processor
