@@ -1497,6 +1497,7 @@ class WorkerService:
                             concurrency=int(self.deployment.cpus),
                             status="ready",
                             backend=self.backend,
+                            processor=_processor,
                             broker=self.broker,
                             workerdir=self.workdir,
                             hostname=HOSTNAME,
