@@ -649,8 +649,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == self.agent_service.name:
                                         logging.info(
-                                            "Deployment hostname is {} and HOSTNAME is {}".format(
-                                                deployment.hostname, HOSTNAME
+                                            "Deployment hostname is {} and HOSTNAME2 is {}".format(
+                                                deployment.hostname, self.agent_service.name
                                             )
                                         )
                                         processor["deployment"] = deployment
@@ -691,7 +691,6 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                         self.workers += [workerproc]
 
-                                        print("**** PROCESS WORKER 1",processor["worker"])
                                         # session.add(workerproc.worker_model)
                                         worker_model = (
                                             session.query(WorkerModel)
