@@ -1464,7 +1464,7 @@ class WorkerService:
                                  + "."
                                  + _processor.name
                                  + "."
-                                 + str(uuid4())
+                                 + self.deployment.name
                                  + "@"
                                  + self.agent.hostname,
                         backend=self.backend,
