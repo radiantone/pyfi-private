@@ -589,6 +589,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         status="ready",
                                         backend=self.agent_service.backend,
                                         broker=self.agent_service.broker,
+                                        processor=processor["processor"],
                                         agent_id=agent.id,
                                         hostname=self.agent_service.name,
                                         requested_status="start",
