@@ -255,13 +255,14 @@ class WorkerService:
 
         if not self._session:
             logging.info("Creating scoped session")
-            self._session = scoped_session(
-                sessionmaker(autocommit=False, autoflush=True, bind=engine)
-            )
+            self._session = scoped_session(self.sm)
+            #self._session = scoped_session(
+            #    sessionmaker(autocommit=False, autoflush=True, bind=engine)
+            #)
         logging.info("Yielding session")
-        yield self.sm
-        self.sm.commit()
-        self.sm.flush()
+        yield self._session
+        self._session.commit()
+        self._session.flush()
         '''
         logging.info("Closing session")
         db_session.close()
