@@ -259,9 +259,9 @@ class WorkerService:
                 sessionmaker(autocommit=False, autoflush=True, bind=engine)
             )
         logging.info("Yielding session")
-        yield self._session
-        self._session.commit()
-        self._session.flush()
+        yield self.sm
+        self.sm.commit()
+        self.sm.flush()
         '''
         logging.info("Closing session")
         db_session.close()
@@ -307,7 +307,7 @@ class WorkerService:
         self.size = size
         self.agent = agent
         self.port = workerport
-        
+
         database.connect()
 
 
