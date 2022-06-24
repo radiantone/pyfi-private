@@ -608,7 +608,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                 logging.info("Worker model is %s", worker_model)
                                 logging.info(
-                                    "Agent worker is %s", agent.worker
+                                    "Agent workers is %s", agent.workers
                                 )
 
                                 #
