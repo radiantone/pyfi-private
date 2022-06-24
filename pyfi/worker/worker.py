@@ -245,23 +245,30 @@ class WorkerService:
     from contextlib import contextmanager
 
     container = None
+    _session = None
+    _connection = None
 
     @contextmanager
     def get_session(self, engine):
         """Creates a context with an open SQLAlchemy session."""
         logging.info("Connecting DB")
-        connection = engine.connect()
-        logging.info("Creating scoped session")
-        db_session = scoped_session(
-            sessionmaker(autocommit=False, autoflush=True, bind=engine)
-        )
+
+        if not self._session:
+            self._connection = engine.connect()
+            logging.info("Creating scoped session")
+            self._session = scoped_session(
+                sessionmaker(autocommit=False, autoflush=True, bind=engine)
+            )
         logging.info("Yielding session")
-        yield db_session
+        yield self._session
+        self._session.commit()
+        self._session.flush()
+        '''
         logging.info("Closing session")
         db_session.close()
         logging.info("Closing connection")
         connection.close()
-
+        '''
     def __init__(
             self,
             processor: ProcessorModel,
