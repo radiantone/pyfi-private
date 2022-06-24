@@ -308,8 +308,6 @@ class WorkerService:
         self.agent = agent
         self.port = workerport
 
-        database.connect()
-
 
         if hostname:
             HOSTNAME = hostname
