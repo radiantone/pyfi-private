@@ -695,10 +695,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         worker_model = (
                                             session.query(WorkerModel)
                                                 .filter_by(
-                                                name=self.agent_service.name
-                                                        + ".agent."
-                                                        + processor["processor"].name
-                                                        + ".worker"
+                                                deployment=deployment
                                             )
                                                 .first()
                                         )
