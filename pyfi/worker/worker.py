@@ -254,7 +254,6 @@ class WorkerService:
         logging.info("Connecting DB")
 
         if not self._session:
-            self._connection = engine.connect()
             logging.info("Creating scoped session")
             self._session = scoped_session(
                 sessionmaker(autocommit=False, autoflush=True, bind=engine)
@@ -308,6 +307,9 @@ class WorkerService:
         self.size = size
         self.agent = agent
         self.port = workerport
+        
+        database.connect()
+
 
         if hostname:
             HOSTNAME = hostname
