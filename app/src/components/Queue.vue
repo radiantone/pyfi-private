@@ -4,7 +4,7 @@
       box-shadow: 0 0 5px grey;
       background-color: rgb(244, 246, 247);
       z-index: 999999;
-      width: 200px;
+      width: 300px;
       height: 40px;
       padding: 3px;
       font-size: 12px;
@@ -14,10 +14,14 @@
       <q-item-label
         style="margin-left: 5px; font-weight: bold; color: #775351;"
         :data-source="node"
-        >{{ name }}
+        >
+        <q-select style="width:275px" v-model="model" :options="options" :dense="true" :options-dense="true">
+
+        </q-select>
+        <!--{{ name }}
         <q-popup-edit v-model="name" title="Queue Name" buttons>
           <q-input type="string" v-model="name" dense autofocus />
-        </q-popup-edit>
+        </q-popup-edit>-->
       </q-item-label>
       <q-space />
       <q-btn flat dense round icon="fas fa-cog" size="xs" @click="showQueue" color="primary" style="cursor:pointer;font-size:.7em;margin-right:5px"/>
@@ -71,7 +75,7 @@
           Arial, sans-serif;
         background-color: white;
         border-top: 1px solid #abbcc3;
-        width: 200px;
+        width: 300px;
         height: 20px;
         position: absolute;
         top: 20px;
@@ -172,6 +176,10 @@ export default {
   },
   data() {
     return {
+      model: 'sockq2.proc2.do_this',
+      options: [
+        'sockq2.proc2.do_this', 'sockq1.proc1.do_something', 'queue1', 'pyfi.processors.sample.do_this', 'pyfi.processors.sample.do_something	'
+      ],
       messages: 0,
       bytes: 0,
       queueconfig: false,

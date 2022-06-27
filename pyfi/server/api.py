@@ -6,6 +6,8 @@ import platform
 import json
 import gc
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from typing import Any
+
 
 from contextlib import contextmanager
 from flask import (
@@ -167,15 +169,21 @@ class AlchemyEncoder(json.JSONEncoder):
 app.json_encoder = AlchemyEncoder
 
 
-
 @app.route("/processor/<id>", methods=["POST","GET","DELETE"])
 def do_processor(id):
 
     if request.method == 'POST':
-        processor = request.get_json()
+        processor : Any = request.get_json()
         logging.info("POSTING processor: %s",processor)
+        _processor = session.query(ProcessorModel).filter_by(name=processor['name']).first()
+        if not _processor:
+            return f"Processor {processor['id']} not found", 404
+        else:
+            logging.info("Updating processor %s with %s",_processor, processor)
+            return ""
 
     return
+
 
 @app.route("/processors", methods=["GET"])
 def get_processors():

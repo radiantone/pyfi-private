@@ -2659,7 +2659,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     if workerModel.deployment is None:
         logger.warning("This worker has no eligible deployments: %s", workerModel)
         return
-        
+
     logger.info("Creating WorkerService")
     try:
         workerproc = WorkerService(
@@ -4090,8 +4090,9 @@ def ls_user(context, name):
 
 
 @ls.command(name="workers")
+@click.option("-n", "--name", default=False, is_flag=True, required=False, help="List worker names")
 @click.pass_context
-def ls_workers(context):
+def ls_workers(context, name):
     """
     List workers
     """
@@ -4126,6 +4127,9 @@ def ls_workers(context):
         hostname = node.deployment.hostname if node.deployment else "None"
         name = node.deployment.name if node.deployment else "None"
 
+        if name:
+            click.echo(node.name)
+
         x.add_row(
             [
                 node.name,
@@ -4147,7 +4151,8 @@ def ls_workers(context):
             ]
         )
 
-    print(x)
+    if not name:
+        print(x)
 
 
 @ls.command(name="processors")

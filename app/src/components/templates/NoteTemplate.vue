@@ -61,6 +61,7 @@ export default {
     var me = this;
     console.log('me.tooltips ', me.tooltips);
     console.log('start listening for show.tooltips');
+    /*
     window.global.root.$on('show.tooltips', (value) => {
       console.log('start tooltips:', value);
       me.tooltips = value;
@@ -71,7 +72,7 @@ export default {
       }
       console.log('ME:', me);
       console.log('TOOLTIPS', me.tooltips);
-    });
+    });*/
   },
   data() {
     return {

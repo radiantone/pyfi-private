@@ -311,16 +311,8 @@
             <q-tab-panel
               name="messages"
               ref="messages"
-              style="padding: 0px; width: 100%; padding-top: 0px;"
+              style="padding: 0px; width: 100%; padding-top: 0px;height: calc(100vh - 170px);"
             >
-              <q-card-section
-                style="
-                  padding: 5px;
-                  z-index: 999999;
-                  padding-bottom: 10px;
-                  height: calc(100vh - 200px);
-                "
-              >
                 <q-table
                   dense
                   :columns="messageColumns"
@@ -348,7 +340,6 @@
                     }}
                   </div>
                 </q-scroll-area>-->
-              </q-card-section>
             </q-tab-panel>
             <q-tab-panel
               name="queues"
@@ -684,6 +675,7 @@ import 'assets/fonts/fontawesome-webfont.woff2';
 import 'assets/fonts/fontawesome-webfont.woff';
 import 'assets/fonts/flowfont2.woff2';
 
+import { mdiCodeBraces } from '@mdi/js';
 import { io, Socket } from 'socket.io-client';
 const socket = io('http://localhost');
 
@@ -693,7 +685,8 @@ export default defineComponent({
   setup() {
     return {};
   },
-  created() {
+  created () {
+    this.schemaIcon = mdiCodeBraces;
     var me = this;
     this.tab = 'flow' + this.flows[0].id;
     window.layout = this;
@@ -1031,8 +1024,50 @@ export default defineComponent({
           properties: [],
         },
       };
+
+      var data = document.querySelector('#data');
+      data.data = {
+        node: {
+          icon: 'las la-file-alt',
+          style: 'size:50px',
+          type: 'data',
+          name: 'Data',
+          label: 'Data',
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      var schema = document.querySelector('#schema');
+      schema.data = {
+        node: {
+          icon: this.schemaIcon,
+          style: 'size:50px',
+          type: 'schema',
+          name: 'Schema',
+          label: 'Schema',
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
+
+      var router = document.querySelector('#router');
+      router.data = {
+        node: {
+          icon: 'alt_route',
+          style: 'size:50px',
+          type: 'router',
+          name: 'Router',
+          label: 'Router',
+          disabled: false,
+          columns: [],
+          properties: [],
+        },
+      };
       //, chord, segment, map, reduce
-      var els = [processor, portin, portout, group, parallel, segment, chord, pipeline, label];
+      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema];
 
       els.forEach((el) => {
         var data = el.data;

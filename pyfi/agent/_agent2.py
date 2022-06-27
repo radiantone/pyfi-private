@@ -271,6 +271,23 @@ class AgentMonitorPlugin(AgentPlugin):
                     if myprocessor.requested_status == "move":
                         continue
 
+                    for processor in self.processors:
+                        if processor["processor"].id == myprocessor.id:
+                            logging.info("Deployment %s has changed for processor %s", mydeployment, myprocessor)
+                            if mydeployment.requested_status == 'update':
+                                logging.info("Updating deployment %s",mydeployment)
+                                mydeployment.status = "updating"
+                                session.commit()
+                                # Restart the worker, which will pull the assigned deployment
+                                # from database and restart with new configs
+                                logging.info("Killing worker %s",processor["worker"])
+                                processor["worker"]["process"].kill()
+                                processor["worker"] = None
+                                mydeployment.requested_status = 'ready'
+                                mydeployment.status = 'running'
+                                mydeployment.status = "updating"
+                                session.commit()
+
                     # If I don't already have this processor deployment
                     found = False
                     for processor in self.processors:

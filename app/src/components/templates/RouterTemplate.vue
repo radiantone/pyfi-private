@@ -521,7 +521,7 @@
           "
         >
           <q-list dense>
-            <q-item clickable v-close-popup  @click="saveProcessor">
+            <q-item clickable v-close-popup>
               <q-item-section side>
                 <q-icon name="fas fa-save"></q-icon>
               </q-item-section>
@@ -1605,15 +1605,20 @@
             <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
               <q-spinner-gears size="50px" color="primary" />
             </q-inner-loading>
-                    <q-btn
-          style="position: absolute; bottom: 0px; right: 0px; margin-right:20px"
-          flat
-          icon="refresh"
-          class="bg-primary text-white"
-          color="primary"
-          @click="refreshDeployments"
-          v-close-popup
-        />
+            <q-btn
+              style="
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                margin-right: 20px;
+              "
+              flat
+              icon="refresh"
+              class="bg-primary text-white"
+              color="primary"
+              @click="refreshDeployments"
+              v-close-popup
+            />
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
             <q-input
@@ -1673,9 +1678,9 @@
           @click="configview = false"
         />
       </q-card-actions>
-          <q-inner-loading :showing="saving" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
-    </q-inner-loading>
+      <q-inner-loading :showing="saving" style="z-index: 999999;">
+        <q-spinner-gears size="50px" color="primary" />
+      </q-inner-loading>
     </q-card>
 
     <q-card
@@ -2338,7 +2343,7 @@ import DataService from 'components/util/DataService';
 // mixed in.
 
 export default {
-  name: 'ScriptTemplate',
+  name: 'RouterTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {
@@ -3209,16 +3214,10 @@ export default {
     };
   },
   methods: {
-    saveProcessor () {
-      this.refreshing = true;
-      DataService.saveProcessor(this.obj).then(() => {
-        this.refreshing = false;
-      }).catch(() => {
-        this.refreshing = false;
-      });
-
+    saveProcessor() {
+      this.saving = true;
     },
-    refreshDeployments () {
+    refreshDeployments() {
       this.deployLoading = true;
       DataService.getDeployments(this.obj.name)
         .then((deployments) => {

@@ -259,17 +259,36 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:latest
+    image: edoburu/pgbouncer
     hostname: postgres
-    restart: always
+    environment:
+       - DB_USER=postgres
+       - DB_PASSWORD=pyfi101
+       - DB_HOST=172.18.0.11
+       - DB_NAME=pyfi 
+       - LISTEN_PORT=6432
+       - POOL_MODE=transaction
+       - AUTH_TYPE=trust
+       - ADMIN_USERS=postgres
     ports:
-      - 5432:5432
+      - "6432:6432"
+    depends_on:
+      - postgresdb
+
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:latest
+    hostname: postgresdb
+    #restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pyfi101
       POSTGRES_DB: pyfi
+    ports:
+      - "5434:5432"
     volumes:
       - "pgdata:/var/lib/postgresql/data"
+      - ./conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

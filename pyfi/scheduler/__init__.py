@@ -5,6 +5,10 @@ import time
 import sched
 import signal
 
+from pathlib import Path
+
+import configparser
+
 from multiprocessing import Process
 
 from pyfi.db.model import (
@@ -21,6 +25,13 @@ HOSTNAME = platform.node()
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
 
+
+HOME = str(Path.home())
+CONFIG = configparser.ConfigParser()
+
+# Load the config
+if os.path.exists(HOME + "/pyfi.ini"):
+    CONFIG.read(HOME + "/pyfi.ini")
 
 class SchedulerPlugin:
     """Base scheduler plugin class"""
@@ -138,6 +149,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
     def run(self, *args, **kwargs):
         import random
+        import redis
+
+        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
 
         session = get_session()
         try:
@@ -268,11 +282,23 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                         _cpus,
                                     )
                                     session.commit()
+                                    redisclient.publish("global", {"processor": processor.id, "deployment":str(_deployment), "action":"add"})
                                     needed_cpus -= _cpus
                                 else:
                                     logging.warning("_cpus is zero")
 
-                else:
+                elif deployed_cpus > processor.concurrency:
+                    # Downsize deployments
+                    '''
+                    reduce_by = deployed_cpus - processor.concurrency
+
+                    for deployment in processor.deployments:
+                        if deployment.cpus > reduce_by:
+                            deployment.cpus -= reduce_by
+                            deployment.requested_status = "update"
+                    '''
+                    pass
+                elif deployed_cpus == processor.concurrency:
                     logging.info("Processor concurrency needs are met.")
         finally:
             session.close()

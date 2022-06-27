@@ -1443,6 +1443,7 @@ import Queue from 'components/Queue.vue';
 import PipelineTemplate from 'components/templates/PipelineTemplate.vue';
 import SegmentTemplate from 'components/templates/SegmentTemplate.vue';
 import ChordTemplate from 'components/templates/ChordTemplate.vue';
+import DataTemplate from 'components/templates/DataTemplate.vue';
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue';
 import GroupTemplate from 'components/templates/GroupTemplate.vue';
 import PatternTemplate from 'components/templates/PatternTemplate.vue';
@@ -1450,7 +1451,9 @@ import PatternTemplate from 'components/templates/PatternTemplate.vue';
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue';
 import PortInTemplate from 'components/templates/PortInTemplate.vue';
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue';
+import RouterTemplate from 'src/components/templates/RouterTemplate.vue';
 import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue';
+import SchemaTemplate from 'src/components/templates/SchemaTemplate.vue';
 import Flows from 'components/Flows.vue';
 import Processors from 'components/Processors.vue';
 import Networks from 'components/Networks.vue';
@@ -2653,6 +2656,50 @@ export default {
                   } else {
                     window.root.$emit('node.selected', params.node);
                     window.root.$emit('nodes.selected', nodes);
+                  }
+                }
+              },
+            },
+          },
+          data: {
+            component: DataTemplate
+          },
+          schema: {
+            component: SchemaTemplate
+          },
+
+          router: {
+            component: RouterTemplate,
+            events: {
+              tap: function (params) {
+                console.log('PARAMS:', params);
+
+                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName != "td"
+                if (
+                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.className === 'jtk-draw-skeleton'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id;
+                  var childId = params.e.srcElement.firstChild.id;
+                  if (
+                    ((childId && childId.indexOf('port') == -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node);
+                    var elems = document.querySelectorAll('.jtk-node');
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0;
+                    });
+                    params.el.style['z-index'] = 99999;
+                    var nodes = toolkit.getSelection().getAll();
+                    if (nodes.length == 0) {
+                      window.root.$emit('node.selected', null);
+                    } else {
+                      window.root.$emit('node.selected', params.node);
+                      window.root.$emit('nodes.selected', nodes);
+                    }
                   }
                 }
               },
