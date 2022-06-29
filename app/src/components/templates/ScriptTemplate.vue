@@ -362,12 +362,51 @@
             Add Complete Plug
           </q-tooltip>
         </div>-->
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-          @click="addNewPort('Error', 'fas fa-exclamation')"
-        >
-          <i class="fas fa-exclamation" style="cursor: pointer;" />
+ <div class="text-secondary" style="margin-right: 10px;">
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="fas fa-exclamation"
+            color="secondary"
+            padding="0px"
+            size=".6em"
+            style="margin-right: 0px;"
+          >
+            <q-list dense>
+              <q-item
+                clickable
+                v-close-popup
+                @click="
+                  addNewPort({'function':'function: one_func','args':[]}, 'Error', 'fas fa-exclamation')
+                "
+              >
+                <q-item-section side>
+                  <q-icon name="fab fa-python"></q-icon>
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  function: one_func
+                </q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-close-popup
+                @click="
+                  addNewPort({'function':'function: two_func','args':[]}, 'Error', 'fas fa-exclamation')
+                "
+              >
+                <q-item-section side>
+                  <q-icon name="fab fa-python"></q-icon>
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  function: two_func
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -377,12 +416,51 @@
             Add Error Plug
           </q-tooltip>
         </div>
-        <div
-          class="text-secondary"
-          @click="addNewPort('Input', 'outlet-icon')"
-          style="margin-right: 10px;"
-        >
-          <i class="outlet-icon" style="cursor: pointer;" />
+        <div class="text-secondary" style="margin-right: 10px;">
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            :dropdown-icon="plugIcon"
+            color="secondary"
+            padding="0px"
+            size=".8em"
+            style="margin-right: 0px;"
+          >
+            <q-list dense>
+              <q-item
+                clickable
+                v-close-popup
+                @click="
+                  addNewPort({'function':'function: one_func','args':['arg1','arg2']}, 'Output', 'outlet-icon')
+                "
+              >
+                <q-item-section side>
+                  <q-icon name="fab fa-python"></q-icon>
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  function: one_func
+                </q-item-section>
+              </q-item>
+              <q-item
+                clickable
+                v-close-popup
+                @click="
+                  addNewPort({'function':'function: two_func','args':['arg1','arg2']}, 'Output', 'outlet-icon')
+                "
+              >
+                <q-item-section side>
+                  <q-icon name="fab fa-python"></q-icon>
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  function: two_func
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -392,10 +470,11 @@
             Add Socket
           </q-tooltip>
         </div>
+        <!--
         <div
           class="text-secondary"
           style="margin-right: 10px;"
-          @click="addNewPort('Output', 'fas fa-plug')"
+          @click="addNewPort('Output', 'Output', 'fas fa-plug')"
         >
           <i class="fas fa-plug" style="cursor: pointer;"></i>
           <q-tooltip
@@ -406,7 +485,7 @@
           >
             Add Plug
           </q-tooltip>
-        </div>
+        </div>-->
 
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
@@ -521,7 +600,7 @@
           "
         >
           <q-list dense>
-            <q-item clickable v-close-popup  @click="saveProcessor">
+            <q-item clickable v-close-popup @click="saveProcessor">
               <q-item-section side>
                 <q-icon name="fas fa-save"></q-icon>
               </q-item-section>
@@ -656,7 +735,7 @@
           <i
             class="fa fa-times table-column-delete-icon"
             title="Delete Port"
-            @click="confirmDeleteSpeech(column.id)"
+            @click="confirmDeletePort(column.id)"
           />
         </div>
         <div>
@@ -698,7 +777,7 @@
                 </q-list>
               </q-btn-dropdown>
             </span>
-            : {{ column.description }}
+            : <span class="text-secondary">{{ column.description }}</span>
           </span>
         </div>
 
@@ -713,6 +792,7 @@
         <jtk-target
           name="target"
           :port-id="column.id"
+          type="Input"
           :scope="column.datatype"
         />
       </li>
@@ -740,19 +820,46 @@
           <i
             class="fa fa-times table-column-delete-icon"
             title="Delete Port"
-            @click="confirmDeleteSpeech(column.id)"
+            @click="confirmDeletePort(column.id)"
           />
         </div>
-        <div class="table-column-edit text-primary">
-          <i
-            class="fas fa-edit"
-            title="Edit Name"
-            style="margin-right: 5px;"
-            @click="editPort = !editPort"
-          />
+        <div class="table-column-edit text-primary" style="max-height:15px;
+    position: absolute;
+    right: 20px;
+    margin-top: -10px;">
+          <!--
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white"
+            dense
+            color="secondary"
+            label="Schema"
+            v-model="column.schema"
+            size=".8em"
+          >
+            <q-list dense>
+              <q-item clickable v-close-popup>
+                <q-item-section side>
+                  {}
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  Schema 1
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup>
+                <q-item-section side>
+                  {}
+                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">
+                  Schema 2
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>-->
+          <q-select dense borderless :options-dense="true" style="font-size:1em" label-color="orange" v-model="column.schema" :options="types" value="string"/>
         </div>
-        <div>
-          <div class="float-left text-secondary">
+        <div v-if="column.type != 'Input'">
+          <div class="float-left text-secondary" >
             <i
               :class="column.icon"
               :title="column.name"
@@ -762,48 +869,38 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
-              <q-popup-edit
-                style="
-                  width: 50%;
-                  font-weight: bold;
-                  font-size: 25px;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                "
-                v-model="column.name"
-                @save="
-                  (val, initialValue) =>
-                    updateName(val, initialValue, column.id)
-                "
-              >
-                <q-input
-                  style="
-                    font-weight: bold;
-                    font-size: 25px;
-                    font-family: 'Indie Flower', cursive;
-                    margin-top: 5px;
-                  "
-                  v-model="column.name"
-                  dense
-                  autofocus
-                />
-              </q-popup-edit>
             </span>
-            : {{ column.description }}
           </span>
         </div>
-
+        <div v-if="column.type == 'Input'" style="margin-left:30px">
+          <div class="float-left text-secondary" >
+            <i
+              :class="column.icon"
+              :title="column.name"
+              style="margin-right: 5px;"
+            />
+          </div>
+          <span>
+            <span :id="column.id">
+              {{ column.name }}
+            </span>
+          </span>
+        </div>
         <jtk-source
+        v-if="column.type != 'Input'"
           name="source"
           :port-id="column.id"
           :scope="column.datatype"
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
-        />
+          type="Output"
+        /> 
 
         <jtk-target
+          v-if="column.type == 'Input'"
           name="target"
-          :port-id="column.id"
+          :port-id="column.id "
+          type="Input"
           :scope="column.datatype"
         />
       </li>
@@ -917,7 +1014,7 @@
     <q-dialog v-model="deleteItem" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
-          class="bg-primary"
+          class="bg-secondary"
           style="
             position: absolute;
             left: 0px;
@@ -938,7 +1035,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Item</q-item-label>
+              <q-item-label>Delete Socket</q-item-label>
               <q-space />
               <q-icon class="text-primary" name="fas fa-trash" />
             </q-toolbar>
@@ -951,7 +1048,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this item?
+            Are you sure you want to delete this socket?
           </span>
         </q-card-section>
 
@@ -971,7 +1068,7 @@
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
-            @click="removeColumn(deleteSpeechID)"
+            @click="removeColumn(deletePortID)"
           />
         </q-card-actions>
       </q-card>
@@ -1002,7 +1099,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Item</q-item-label>
+              <q-item-label>Delete Processor</q-item-label>
               <q-space />
               <q-icon class="text-primary" name="fas fa-trash" />
             </q-toolbar>
@@ -1015,7 +1112,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this item?
+            Are you sure you want to delete this processor?
           </span>
         </q-card-section>
 
@@ -1121,7 +1218,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -1172,7 +1269,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -1307,7 +1404,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          @click="editPort = false"
+          @click="closePortEdit()"
         />
       </q-card-actions>
     </q-card>
@@ -1605,15 +1702,20 @@
             <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
               <q-spinner-gears size="50px" color="primary" />
             </q-inner-loading>
-                    <q-btn
-          style="position: absolute; bottom: 0px; right: 0px; margin-right:20px"
-          flat
-          icon="refresh"
-          class="bg-primary text-white"
-          color="primary"
-          @click="refreshDeployments"
-          v-close-popup
-        />
+            <q-btn
+              style="
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                margin-right: 20px;
+              "
+              flat
+              icon="refresh"
+              class="bg-primary text-white"
+              color="primary"
+              @click="refreshDeployments"
+              v-close-popup
+            />
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
             <q-input
@@ -1673,9 +1775,9 @@
           @click="configview = false"
         />
       </q-card-actions>
-          <q-inner-loading :showing="saving" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
-    </q-inner-loading>
+      <q-inner-loading :showing="saving" style="z-index: 999999;">
+        <q-spinner-gears size="50px" color="primary" />
+      </q-inner-loading>
     </q-card>
 
     <q-card
@@ -1822,7 +1924,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -1902,7 +2004,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -1982,7 +2084,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -2074,7 +2176,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -2154,7 +2256,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deleteSpeechID)"
+          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -2330,6 +2432,8 @@ const tsdb = new TSDB();
 import Processor from '../Processor.vue';
 import BetterCounter from '../BetterCounter';
 import DataService from 'components/util/DataService';
+import { mdiPowerSocketUs } from '@mdi/js';
+import { mdiCodeBraces } from '@mdi/js';
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -2353,7 +2457,8 @@ export default {
   },
   created() {
     var me = this;
-
+    this.plugIcon = mdiPowerSocketUs;
+    this.braces = mdiCodeBraces;
     this.lambdaIcon = mdiLambda;
     console.log('me.tooltips ', me.tooltips);
     console.log('start listening for show.tooltips');
@@ -2489,6 +2594,7 @@ export default {
   },
   mounted() {
     var me = this;
+
     console.log('MOUNTED STORE', this.$store);
     console.log('BYTES_IN', this['bytes_in']);
 
@@ -2521,6 +2627,10 @@ export default {
   },
   data() {
     return {
+      types: [
+        'Schema 1',
+        'Schema 2'
+      ],
       deployLoading: false,
       loginname: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2873,7 +2983,7 @@ export default {
       environmentview: false,
       scalingview: false,
       dataview: false,
-      deleteSpeechID: null,
+      deletePortID: null,
       sidecode: true,
       bandwidth: true,
       deploydata: [
@@ -3209,16 +3319,20 @@ export default {
     };
   },
   methods: {
-    saveProcessor () {
-      this.refreshing = true;
-      DataService.saveProcessor(this.obj).then(() => {
-        this.refreshing = false;
-      }).catch(() => {
-        this.refreshing = false;
-      });
-
+    closePortEdit() {
+      editPort = false;
     },
-    refreshDeployments () {
+    saveProcessor() {
+      this.refreshing = true;
+      DataService.saveProcessor(this.obj)
+        .then(() => {
+          this.refreshing = false;
+        })
+        .catch(() => {
+          this.refreshing = false;
+        });
+    },
+    refreshDeployments() {
       this.deployLoading = true;
       DataService.getDeployments(this.obj.name)
         .then((deployments) => {
@@ -3375,8 +3489,8 @@ export default {
       });
       console.log('show speaker dialog');
     },
-    confirmDeleteSpeech(id) {
-      this.deleteSpeechID = id;
+    confirmDeletePort(id) {
+      this.deletePortID = id;
       this.deleteItem = true;
     },
     resetToolkit() {
@@ -3390,7 +3504,8 @@ export default {
     deleteNode() {
       window.toolkit.removeNode(this.obj);
     },
-    removeColumn(column) {
+    removeColumn (column) {
+      // Delete all argument columns too 
       console.log('Removing column: ', column);
 
       for (var i = 0; i < this.obj.columns.length; i++) {
@@ -3429,6 +3544,7 @@ export default {
     addPort(port) {
       port.background = 'white';
       port.datatype = 'Column';
+      port.schema = 'Schema 1';
       port.id = 'port' + uuidv4();
       port.id = port.id.replace(/-/g, '');
       port.description = 'A description';
@@ -3439,13 +3555,23 @@ export default {
 
       console.log(this.obj.columns);
     },
-    addNewPort(name, icon) {
+    addNewPort (func, type, icon) {
+      
       this.addPort({
-        name: name,
+        name: func['function'],
         icon: icon,
-        type: name,
+        type: type,
       });
-      this.ports[name] = true;
+      this.ports[func['function']] = true;
+
+      func['args'].forEach((arg) => {
+        this.addPort({
+          name: arg,
+          icon: 'fab fa-python',
+          type: 'Input',
+        });
+        this.ports[arg] = true;
+      })
     },
     addErrorPort() {
       if (this.error) {

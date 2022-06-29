@@ -286,6 +286,24 @@
         App
       </q-tooltip>
     </q-btn>
+    <q-btn
+      flat
+      align="left"
+      icon="las la-book"
+      aria-label="App"
+      size="xl"
+      id="library"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+      @click="openLibrary"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Library
+      </q-tooltip>
+    </q-btn>
     <q-space />
 
     <q-item-label
@@ -338,6 +356,15 @@
             </q-item-section>
             <q-item-section side class="text-blue-grey-8">
               New Flow
+            </q-item-section>
+          </q-item>
+          <q-separator />
+          <q-item clickable v-close-popup @click="newQueue">
+            <q-item-section side>
+              <q-icon name="far fa-envelope"></q-icon>
+            </q-item-section>
+            <q-item-section side class="text-blue-grey-8">
+              New Queue
             </q-item-section>
           </q-item>
           <q-separator />
@@ -470,8 +497,14 @@ export default {
     console.log('TOOLPALETTE STORE', this.$store);
   },
   methods: {
+    openLibrary () {
+      this.$root.$emit('open.library');
+    },
     newFlow() {
       this.$root.$emit('new.flow');
+    },
+    newQueue() {
+      this.$root.$emit('new.queue');
     },
   },
   data() {

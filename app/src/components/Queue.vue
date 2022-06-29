@@ -13,10 +13,12 @@
     <q-toolbar style="position: absolute; left: 0px; top: -13px;">
       <q-item-label
         style="margin-left: 5px; font-weight: bold; color: #775351;"
-        :data-source="node"
+        :data-source="node" class="fas fa-email"
         >
         <q-select style="width:275px" v-model="model" :options="options" :dense="true" :options-dense="true">
-
+<template v-slot:prepend>
+          <q-icon name="email" />
+        </template>
         </q-select>
         <!--{{ name }}
         <q-popup-edit v-model="name" title="Queue Name" buttons>
@@ -24,7 +26,8 @@
         </q-popup-edit>-->
       </q-item-label>
       <q-space />
-      <q-btn flat dense round icon="fas fa-cog" size="xs" @click="showQueue" color="primary" style="cursor:pointer;font-size:.7em;margin-right:5px"/>
+      <q-btn flat dense size="xs" icon="close" color="primary" style="cursor:pointer;font-size:.7em;position:absolute;right:5px"></q-btn>
+
       <!--
       <q-btn-dropdown
         flat
@@ -75,7 +78,7 @@
           Arial, sans-serif;
         background-color: white;
         border-top: 1px solid #abbcc3;
-        width: 300px;
+        width: 100%;
         height: 20px;
         position: absolute;
         top: 20px;
@@ -88,6 +91,8 @@
     >
       Queued
       <span style="font-weight: bold; color: #775351;">{{messages}} ({{bytes}} bytes)</span>
+      <q-btn flat dense icon="menu" size="xs" @click="showQueue" color="primary" style="cursor:pointer;font-size:.7em;position:absolute;right:5px"/>
+      
     </div>
     <q-card
       style="

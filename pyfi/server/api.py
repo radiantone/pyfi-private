@@ -275,9 +275,12 @@ def get_queue_messages(queue):
     messages = get_messages(queue, 100)
 
     # Extract messages for queue
+    
+    if type(messages) is dict and 'error' in messages:
+        return f"Queue {queue} not found", 404
 
     _message = []
-
+    print("MESSAGES",messages)
     for message in messages:
         msg = {}
         print(json.dumps(message, indent=4))
@@ -334,6 +337,16 @@ def get_pattern(pid):
 
         return jsonify(_pattern)
 
+
+@app.route("/code/extract", methods=["POST"])
+def code_extract():
+
+    data = request.get_json(silent=True)
+    code = data['code']
+
+    _funcs = {}
+
+    return jsonify(_funcs)
 
 @app.route("/networks", methods=["GET"])
 def get_networks():

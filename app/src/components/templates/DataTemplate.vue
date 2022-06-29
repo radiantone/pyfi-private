@@ -41,21 +41,6 @@
     </q-inner-loading>
 
     <div class="name" style="background: white; height: 90px;">
-        <div
-        title="Data"
-        style="
-          margin-top: -15px;
-          padding: 10px;
-          font-weight: normal;
-          padding-left: 2px;
-          font-size: 40px;
-          margin-right: 5px;
-        "
-      >
-        <i
-          class="las la-file-alt text-secondary"
-        />
-      </div>
       <div
         title="Data"
         style="
@@ -67,7 +52,19 @@
           margin-right: 5px;
         "
       >
+        <i class="las la-file-alt text-secondary" />
       </div>
+      <div
+        title="Data"
+        style="
+          margin-top: -15px;
+          padding: 10px;
+          font-weight: normal;
+          padding-left: 2px;
+          font-size: 40px;
+          margin-right: 5px;
+        "
+      ></div>
       <span
         style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
@@ -75,27 +72,27 @@
         <span class="proc-title">
           {{ obj.name }}
           <q-popup-edit
-                style="
-                  width: 50%;
-                  font-weight: bold;
-                  font-size: 25px;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                "
-                v-model="obj.name"
-              >
-                <q-input
-                  style="
-                    font-weight: bold;
-                    font-size: 25px;
-                    font-family: 'Indie Flower', cursive;
-                    margin-top: 5px;
-                  "
-                  v-model="obj.name"
-                  dense
-                  autofocus
-                />
-              </q-popup-edit>
+            style="
+              width: 50%;
+              font-weight: bold;
+              font-size: 25px;
+              font-family: 'Indie Flower', cursive;
+              margin-top: 5px;
+            "
+            v-model="obj.name"
+          >
+            <q-input
+              style="
+                font-weight: bold;
+                font-size: 25px;
+                font-family: 'Indie Flower', cursive;
+                margin-top: 5px;
+              "
+              v-model="obj.name"
+              dense
+              autofocus
+            />
+          </q-popup-edit>
         </span>
       </span>
       <span
@@ -104,27 +101,27 @@
       >
         {{ obj.description.substring(0, 35) + '...' }}
         <q-popup-edit
-                style="
-                  width: 300px;
-                  font-weight: bold;
-                  font-size: 20px;
-                  font-family: 'Indie Flower', cursive;
-                  margin-top: 5px;
-                "
-                v-model="obj.description"
-              >
-                <q-input
-                  style="
-                    font-weight: bold;
-                    font-size: 20px;
-                    font-family: 'Indie Flower', cursive;
-                    margin-top: 5px;
-                  "
-                  v-model="obj.description"
-                  dense
-                  autofocus
-                />
-              </q-popup-edit>
+          style="
+            width: 300px;
+            font-weight: bold;
+            font-size: 20px;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 5px;
+          "
+          v-model="obj.description"
+        >
+          <q-input
+            style="
+              font-weight: bold;
+              font-size: 20px;
+              font-family: 'Indie Flower', cursive;
+              margin-top: 5px;
+            "
+            v-model="obj.description"
+            dense
+            autofocus
+          />
+        </q-popup-edit>
       </span>
       <span
         class="text-blue-grey-8 pull-right"
@@ -134,7 +131,7 @@
       </span>
 
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
-              <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -183,7 +180,7 @@
               Run
             </q-tooltip>
           </q-btn>
-          
+
           <q-btn
             icon="fas fa-times"
             size="xs"
@@ -209,29 +206,24 @@
             </q-tooltip>
           </q-btn>
         </div>
-        </div>
+      </div>
     </div>
-    <ul
-      class="table-columns"
-    >
+    <ul class="table-columns">
       <li
-        :class="
-          'table-column jtk-droppable table-column-type-Column'
-        "
-        :style="
-          'background:' +
-          ';border-top: 1px dashed lightgrey'
-        "
-        data-port-id="port-id"
+        :class="'table-column jtk-droppable table-column-type-Column'"
+        :style="'background:rgb(244, 246, 247) !important;border-top: 1px dashed lightgrey'"
+        data-port-id="portid"
+        data-port-type="Output"
       >
         <jtk-source
           name="source"
           port-id="portid"
           scope="Column"
+          port-type="Output"
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
-          style="height:50px;width:100%"
-        >Output
+          style="height: 50px; width: 100%;"
+          >Output
         </jtk-source>
       </li>
     </ul>
@@ -447,7 +439,6 @@
         />
       </q-card-actions>
     </q-card>
-
   </div>
 </template>
 <style>
@@ -1365,11 +1356,10 @@ export default {
     };
   },
   methods: {
-    saveProcessor () {
+    saveProcessor() {
       this.saving = true;
-      
     },
-    refreshDeployments () {
+    refreshDeployments() {
       this.deployLoading = true;
       DataService.getDeployments(this.obj.name)
         .then((deployments) => {

@@ -311,25 +311,30 @@
             <q-tab-panel
               name="messages"
               ref="messages"
-              style="padding: 0px; width: 100%; padding-top: 0px;height: calc(100vh - 170px);"
+              style="
+                padding: 0px;
+                width: 100%;
+                padding-top: 0px;
+                height: calc(100vh - 170px);
+              "
             >
-                <q-table
-                  dense
-                  :columns="messageColumns"
-                  :data="msglogs"
-                  row-key="name"
-                  flat
-                  virtual-scroll
-                  :pagination="initialPagination"
-                  style="
-                    height: 100%;
-                    width: 100%;
-                    border-top-radius: 0px;
-                    border-bottom-radius: 0px;
-                  "
-                >
-                </q-table>
-                <!--
+              <q-table
+                dense
+                :columns="messageColumns"
+                :data="msglogs"
+                row-key="name"
+                flat
+                virtual-scroll
+                :pagination="initialPagination"
+                style="
+                  height: 100%;
+                  width: 100%;
+                  border-top-radius: 0px;
+                  border-bottom-radius: 0px;
+                "
+              >
+              </q-table>
+              <!--
                 <q-scroll-area style="height:calc(100vh - 200px);width::auto">
                   <div v-for="log in msglogs">
                     {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
@@ -421,7 +426,7 @@
                 </template>
               </q-table>
             </q-tab-panel>
-                        <q-tab-panel
+            <q-tab-panel
               name="servers"
               ref="servers"
               style="
@@ -606,6 +611,65 @@
         </q-inner-loading>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="newQueueDialog" persistent>
+      <q-card
+        style="padding: 10px; padding-top: 30px; width: 50%; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>New Queue</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="far fa-envelope" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <span class="q-ml-sm"> Create queue form here </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Create"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="newQueue"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-layout>
 </template>
 <style>
@@ -685,7 +749,7 @@ export default defineComponent({
   setup() {
     return {};
   },
-  created () {
+  created() {
     this.schemaIcon = mdiCodeBraces;
     var me = this;
     this.tab = 'flow' + this.flows[0].id;
@@ -825,6 +889,11 @@ export default defineComponent({
     window.root.$on('view.queue', (queue) => {
       this.queuename = queue;
       this.viewQueueDialog = true;
+    });
+
+    this.$root.$on('new.queue', () => {
+      console.log("NEW.QUEUE")
+      this.newQueueDialog = true;
     });
 
     this.$root.$on('close.flow', (flowid) => {
@@ -1066,8 +1135,22 @@ export default defineComponent({
           properties: [],
         },
       };
+
       //, chord, segment, map, reduce
-      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema];
+      var els = [
+        processor,
+        portin,
+        router,
+        portout,
+        group,
+        parallel,
+        segment,
+        chord,
+        pipeline,
+        label,
+        data,
+        schema,
+      ];
 
       els.forEach((el) => {
         var data = el.data;
@@ -1088,6 +1171,7 @@ export default defineComponent({
   },
   data() {
     return {
+      newQueueDialog: false,
       messagedrawer: false,
       queueloading: false,
       messageSplitter: 70,
