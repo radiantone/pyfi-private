@@ -275,7 +275,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["processor"] = (
                             session.query(ProcessorModel)
                                 .filter_by(id=processor["id"])
-                                .all()
+                                .first()
                         )
                         logging.info(processor["processor"])
                         logging.info(myprocessor)
@@ -334,7 +334,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             ).first()
                         )
                         '''
-                        
+
                         logging.info(
                             "Processor.requested_status START %s %s",
                             processor["processor"].requested_status, processor["processor"]
