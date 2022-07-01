@@ -3001,7 +3001,15 @@ def ls_call(context, id, name, result, tree, graph, flow):
     print(x)
     x = PrettyTable()
     print()
+    print("Function")
+    names = ["ID","Module","Name"]
+    x.field_names = names
 
+    x.add_row([node.socket.task.id,node.socket.task.module,node.socket.task.name])
+    print(x)
+    
+    x = PrettyTable()
+    print()
     print("Provenance")
     names = ["Task", "Task Parent", "Flow Parent"]
     x.field_names = names
@@ -3112,8 +3120,11 @@ def ls_job(context, name, id):
 @click.option("-r", "--rows", default=10, required=False)
 @click.option("-u", "--unfinished", is_flag=True, default=False, required=False)
 @click.option("-a", "--ascend", default=False, is_flag=True, required=False)
+@click.option("-i", "--id", is_flag=True, default=False, required=False)
+@click.option("-t", "--tracking", is_flag=True, default=False, required=False)
+@click.option("-tk", "--task", is_flag=True, default=False, required=False)
 @click.pass_context
-def ls_calls(context, page, rows, unfinished, ascend):
+def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
     """
     List calls
     """
@@ -3122,10 +3133,17 @@ def ls_calls(context, page, rows, unfinished, ascend):
     names = [
         "Page",
         "Row",
-        "Name",
-        "ID",
-        "Task ID",
-        "Tracking",
+        "Name"
+    ]
+
+    if id:
+        names += ["ID"]
+
+    names += [
+        "Queue",
+        "Function",
+        #"Task ID",
+        #"Tracking",
         "Owner",
         "Last Updated",
         "Socket",
@@ -3219,10 +3237,17 @@ def ls_calls(context, page, rows, unfinished, ascend):
         cols = [
             page,
             row,
-            node.name,
-            node.id,
-            node.resultid,
-            node.tracking,
+            node.name
+        ]
+
+        if id:
+            cols += [node.id]
+
+        cols += [
+            node.socket.queue.name,
+            node.socket.task.name,
+            #node.resultid,
+            #node.tracking,
             node.owner,
             node.lastupdated,
             node.socket.name,

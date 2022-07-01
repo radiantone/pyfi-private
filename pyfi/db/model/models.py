@@ -125,6 +125,7 @@ class BaseModel(Base):
     def __repr__(self):
         return json.dumps(self, cls=AlchemyEncoder)
 
+
 class LogModel(Base):
     """
     Docstring
@@ -237,7 +238,6 @@ class PrivilegeModel(BaseModel):
     right = Column("right", Enum(*rights, name="right"))
 
 
-
 role_privileges = Table(
     "role_privileges",
     Base.metadata,
@@ -256,7 +256,6 @@ class RoleModel(BaseModel):
     privileges = relationship(
         "PrivilegeModel", secondary=role_privileges, lazy="subquery"
     )
-
 
 
 user_privileges_revoked = Table(
@@ -302,7 +301,6 @@ class UserModel(HasLogins, BaseModel):
     roles = relationship("RoleModel", secondary=user_roles, lazy="subquery")
 
 
-
 socket_types = ["RESULT", "ERROR"]
 
 plug_types = ["RESULT", "ERROR"]
@@ -315,13 +313,14 @@ strategies = ["BALANCED", "EFFICIENT"]
 class FileModel(BaseModel):
 
     __tablename__ = "file"
-    
+
     path = Column(String(120))
     filename = Column(String(80))
     collection = Column(String(80))
     code = Column(Text)
     type = Column(String(40))
     icon = Column(String(40))
+
 
 class FlowModel(BaseModel):
     """
@@ -330,7 +329,6 @@ class FlowModel(BaseModel):
 
     __tablename__ = "flow"
     processors = relationship("ProcessorModel", backref="flow", lazy=True)
-
 
 
 class AgentModel(BaseModel):
@@ -351,7 +349,6 @@ class AgentModel(BaseModel):
     node_id = Column(String(40), ForeignKey("node.id"), nullable=False)
 
 
-
 class ActionModel(BaseModel):
     """
     Docstring
@@ -362,7 +359,6 @@ class ActionModel(BaseModel):
 
     # host, worker, processor, queue, or all
     target = Column(String(20), nullable=False)
-
 
 
 class WorkerModel(BaseModel):
@@ -550,8 +546,9 @@ class CallModel(BaseModel):
         "SocketModel", back_populates="call", lazy=True, uselist=False
     )
 
-    events = relationship("EventModel", secondary=calls_events, lazy=True, cascade="all, delete")
-
+    events = relationship(
+        "EventModel", secondary=calls_events, lazy=True, cascade="all, delete"
+    )
 
 
 class SchedulerModel(BaseModel):
@@ -567,7 +564,6 @@ class SchedulerModel(BaseModel):
     network_id = Column(String(40), ForeignKey("network.id"))
 
 
-
 class SettingsModel(BaseModel):
     """
     Docstring
@@ -575,7 +571,6 @@ class SettingsModel(BaseModel):
 
     __tablename__ = "settings"
     value = Column(String(80), nullable=False)
-
 
 
 class NodeModel(BaseModel):
@@ -601,7 +596,6 @@ class NodeModel(BaseModel):
     agent = relationship(
         "AgentModel", backref="node", uselist=False, cascade="all, delete-orphan"
     )
-
 
 
 plugs_arguments = Table(
@@ -649,7 +643,6 @@ class TaskModel(BaseModel):
     arguments = relationship("ArgumentModel", backref="task")
 
 
-
 class EventModel(BaseModel):
     """
     Events are linked to call objects: received, prerun, postrun
@@ -666,7 +659,6 @@ class EventModel(BaseModel):
         single_parent=True,
         cascade="all, delete-orphan",
     )
-
 
 
 sockets_queues = Table(
