@@ -272,6 +272,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         continue
 
                     for processor in self.processors:
+                        session.merge(processor["processor"])
                         if processor["processor"].id == myprocessor.id:
                             logging.info("Deployment %s has changed for processor %s", mydeployment, myprocessor)
                             if mydeployment.requested_status == 'update':
