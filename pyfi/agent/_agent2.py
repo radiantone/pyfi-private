@@ -272,10 +272,13 @@ class AgentMonitorPlugin(AgentPlugin):
                         continue
 
                     for processor in self.processors:
-
+                        processor["processor"] = (
+                            session.query(ProcessorModel)
+                                .filter_by(id=processor["id"])
+                                .all()
+                        )
                         logging.info(processor["processor"])
                         logging.info(myprocessor)
-                        session.merge(processor["processor"])
                         if processor["processor"].id == myprocessor.id:
                             logging.info("Deployment %s has changed for processor %s", mydeployment, myprocessor)
                             if mydeployment.requested_status == 'update':
@@ -322,6 +325,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         #
                         # Update processor
                         #
+                        '''
                         pid = processor["id"]
                         processor["processor"] = (
                             session.query(ProcessorModel)
@@ -329,7 +333,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                 id=pid
                             ).first()
                         )
-
+                        '''
+                        
                         logging.info(
                             "Processor.requested_status START %s %s",
                             processor["processor"].requested_status, processor["processor"]
