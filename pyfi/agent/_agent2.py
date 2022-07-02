@@ -261,7 +261,7 @@ class AgentMonitorPlugin(AgentPlugin):
             # Deploy new processors
             for mydeployment in mydeployments:
 
-                logger.info("GOT DEPLOYMENT %s WORKER %s",mydeployment, mydeployment.worker)
+                logger.debug("GOT DEPLOYMENT %s WORKER %s",mydeployment, mydeployment.worker)
                 try:
                     myprocessor = mydeployment.processor
                     logging.debug("MYPROCESSOR %s",myprocessor)
@@ -280,9 +280,10 @@ class AgentMonitorPlugin(AgentPlugin):
                         logging.info(processor["processor"])
                         logging.info(myprocessor)
                         if processor["processor"].id == myprocessor.id:
-                            logging.info("Deployment %s has changed for processor %s", mydeployment, myprocessor)
+                            
                             if mydeployment.requested_status == 'update':
-                                logging.info("Updating deployment %s",mydeployment)
+                                logging.debug("Deployment %s has changed for processor %s", mydeployment, myprocessor)
+                                logging.debug("Updating deployment %s",mydeployment)
                                 mydeployment.status = "updating"
                                 session.commit()
                                 # Restart the worker, which will pull the assigned deployment
@@ -335,13 +336,13 @@ class AgentMonitorPlugin(AgentPlugin):
                         )
                         '''
 
-                        logging.info(
+                        logging.debug(
                             "Processor.requested_status START %s %s",
                             processor["processor"].requested_status, processor["processor"]
                         )
 
                         if "model" in processor:
-                            logger.info("[PROCESSOR KEYS] is %s %s",processor["model"], processor.keys())
+                            logger.debug("[PROCESSOR KEYS] is %s %s",processor["model"], processor.keys())
                             
                         process_died = False
 
@@ -670,17 +671,17 @@ class AgentMonitorPlugin(AgentPlugin):
                                 # For all my deployments, update processor deployment and create WorkerService
                                 #
                                 for deployment in processor["processor"].deployments:
-                                    logger.info("Worker is none %s and died %s",processor["worker"] is None, process_died)
-                                    logging.info("Deployment worker %s", deployment)
+                                    logger.debug("Worker is none %s and died %s",processor["worker"] is None, process_died)
+                                    logging.debug("Deployment worker %s", deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == self.agent_service.name:
-                                        logging.info(
+                                        logging.debug(
                                             "Deployment hostname is {} and HOSTNAME2 is {}".format(
                                                 deployment.hostname, self.agent_service.name
                                             )
                                         )
                                         processor["deployment"] = deployment
-                                        logging.info(
+                                        logging.debug(
                                             "-------------------------------------------------------"
                                         )
                                         logging.info(
@@ -827,7 +828,7 @@ class AgentMonitorPlugin(AgentPlugin):
             import json
 
             queues = get_queues()
-            logging.info("QUEUES %s",queues)
+            logging.debug("QUEUES %s",queues)
             redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
 
             redisclient.publish(

@@ -5,6 +5,8 @@ import configparser
 import getpass
 import hashlib
 import logging
+
+from pyfi.client.objects import SocketNotFoundException
 logging.basicConfig(level=logging.INFO,
                     format='%(filename)s: '    
                             '%(levelname)s: '
@@ -1406,6 +1408,7 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
     import imp
     from pyfi.client.api import parallel, pipeline
     from pyfi.client.user import USER
+    from pyfi.client.objects import SocketNotFoundException
 
     from pyfi.client.api import Socket
     if socket is None:
@@ -1433,10 +1436,15 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
             return
 
     user = context.obj["user"]
-    socket = Socket(name=socket, user=user, sync=synchronized)
+    socketname = socket
+    try:
+        socket = Socket(name=socketname, user=user, sync=synchronized)
 
-    if socket is None:
-        print("Task must have code or socket connected.")
+        if socket is None:
+            click.echo("Task must have code or socket connected.")
+            return
+    except SocketNotFoundException:
+        click.echo(f"Socket {socketname} does not exist.")
         return
 
     kwargs = {}
@@ -1803,7 +1811,7 @@ def add_deployment(context, name, deploy, hostname, cpus):
     )
 
     if deployment is not None:
-        print("Deployment {} exists.".format(deploy))
+        logger.debug("Deployment {} exists.".format(deploy))
         return
     else:
         deployment = DeploymentModel(
@@ -1812,9 +1820,9 @@ def add_deployment(context, name, deploy, hostname, cpus):
         context.obj["database"].session.add(deployment)
         processor.deployments += [deployment]
         context.obj["database"].session.commit()
-        print("Committed deployment")
+        logger.debug("Committed deployment")
 
-    print("Deployment {}:{}:{} added.".format(deploy, hostname, cpus))
+    logger.debug("Deployment {}:{}:{} added.".format(deploy, hostname, cpus))
 
 
 @add.command(name="processor")

@@ -60,6 +60,9 @@ registry = Registry()
 # serialization.enable_insecure_serializers()
 
 
+class SocketNotFoundException(Exception):
+    pass
+
 class Base:
     """
     Docstring

@@ -308,6 +308,7 @@ def compose_agent(node, agent, deploy, _agent):
                     arguments = socket["task"]["function"]
                 else:
                     arguments = False
+                
                 _socket = Socket(
                     name=socketname,
                     user=USER,
