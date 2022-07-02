@@ -1471,6 +1471,7 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
         p_calls = build_pipeline(socket)
         print("P_CALLS",p_calls)
         p = pipeline([socket.p(_data), p_calls])
+        print("PIPELINE",p)
         print(p().get())
         return
 
