@@ -133,6 +133,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     print("RESULT: ", result)
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
         pickle.dump(result, rfile)
+        print("DUMPED OUT:","/tmp/" + taskid + ".out")
 
     return result
 
@@ -1845,7 +1846,7 @@ class WorkerService:
 
                                         logging.info("CONTAINER RUN: %s",pythoncmd)
                                         self.container.exec_run(pythoncmd)
-
+                                        logging.info("OUT PATH %s","out/" + taskid)
                                         # Unpickle output and return it
                                     else:
                                         # Run new non-detached container for task
@@ -1885,15 +1886,15 @@ class WorkerService:
 
                                         result = None
                                         with open(
-                                                "/tmp/out/" + taskid + ".out", "rb"
+                                                "out/" + taskid + ".out", "rb"
                                         ) as outfile:
                                             result = pickle.load(outfile)
 
                                         try:
                                             """Remove state files"""
-                                            os.remove("/tmp/out/" + taskid + ".kwargs")
-                                            os.remove("/tmp/out/" + taskid + ".args")
-                                            os.remove("/tmp/out/" + taskid + ".out")
+                                            os.remove("out/" + taskid + ".kwargs")
+                                            os.remove("out/" + taskid + ".args")
+                                            os.remove("out/" + taskid + ".out")
                                         except Exception as ex:
                                             logging.warning(ex)
                                         finally:
