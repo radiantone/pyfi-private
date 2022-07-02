@@ -1885,15 +1885,15 @@ class WorkerService:
 
                                         result = None
                                         with open(
-                                                "out/" + taskid + ".out", "rb"
+                                                "/tmp/out/" + taskid + ".out", "rb"
                                         ) as outfile:
                                             result = pickle.load(outfile)
 
                                         try:
                                             """Remove state files"""
-                                            os.remove("out/" + taskid + ".kwargs")
-                                            os.remove("out/" + taskid + ".args")
-                                            os.remove("out/" + taskid + ".out")
+                                            os.remove("/tmp/out/" + taskid + ".kwargs")
+                                            os.remove("/tmp/out/" + taskid + ".args")
+                                            os.remove("/tmp/out/" + taskid + ".out")
                                         except Exception as ex:
                                             logging.warning(ex)
                                         finally:
