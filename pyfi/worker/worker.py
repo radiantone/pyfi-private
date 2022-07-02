@@ -1201,7 +1201,8 @@ class WorkerService:
                         self.processor.container_version,
                     )
 
-                    os.mkdir("out")
+                    if not os.path.exists("out"):
+                        os.mkdir("out")
                     try:
                         self.container = client.containers.get(
                             HOSTNAME + "." + self.processor.module
