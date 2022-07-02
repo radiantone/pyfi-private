@@ -100,7 +100,7 @@ def kill_containers():
 
         if os.path.exists(f"{agent_cwd}/containers.pid"):
             client = docker.from_env()
-            logger.info("Found containers.pid")
+            logger.debug("Found containers.pid")
             with open(f"{agent_cwd}/containers.pid", "r") as cfile:
                 pids = cfile.readlines()
                 for pid in pids:
@@ -277,8 +277,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                 .filter_by(id=processor["id"])
                                 .first()
                         )
-                        logging.info(processor["processor"])
-                        logging.info(myprocessor)
+                        logging.debug(processor["processor"])
+                        logging.debug(myprocessor)
                         if processor["processor"].id == myprocessor.id:
                             
                             if mydeployment.requested_status == 'update':
@@ -885,7 +885,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 node = (
                     session.query(NodeModel).filter_by(hostname=agent.hostname).first()
                 )
-                logging.info("NODE IS %s",node)
+                logging.debug("NODE IS %s",node)
                 if node is None:
                     node = NodeModel(
                         name=agent.name + ".node", agent=agent, hostname=agent.hostname
