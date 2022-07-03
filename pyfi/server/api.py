@@ -301,6 +301,35 @@ def get_queue_messages(queue):
 
     return jsonify(_message)
 
+@app.route("/workers/<processor>", methods=["GET"])
+def get_workers(processor):
+    with get_session() as session:
+        _processor = (
+            session.query(ProcessorModel)
+                .filter_by(name=processor)
+                .first()
+        )
+        if not _processor:
+            return f"Processor {processor} not found", 404
+
+        workers = (
+            session.query(WorkerModel)
+                .filter_by(processor_id=_processor.id)
+                .all()
+        )
+
+        _workers = []
+
+        for worker in workers:
+            _workers += [{
+                'name':worker.name,
+                'host':worker.agent.hostname,
+                'cpus':'None' if not worker.deployment else worker.deployment.cpus,
+                'deployment':'None' if not worker.deployment else worker.deployment.name,
+                'status':worker.status
+            }]
+        return jsonify(_workers)
+
 
 @app.route("/deployments/<processor>", methods=["GET"])
 def get_deployments(processor):

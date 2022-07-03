@@ -1496,15 +1496,18 @@ class WorkerService:
                     logging.info(
                         "Creating workerModel with worker dir %s", self.workdir
                     )
-                    workerModel = (
-                        session.query(WorkerModel)
-                            .filter_by(
-                            name=HOSTNAME + ".agent." + _processor.name + ".worker"
-                        )
-                            .first()
-                    )
 
-                    logging.info("Created workerModel")
+                    if self.deployment.worker:
+                        workerModel = self.deployment.worker    
+                    else:
+                        workerModel = (
+                            session.query(WorkerModel)
+                                .filter_by(
+                                name=HOSTNAME + ".agent." + _processor.name + ".worker"
+                            )
+                                .first()
+                        )
+
                     if workerModel is None:
                         workerModel = WorkerModel(
                             name=HOSTNAME + ".agent." + _processor.name + ".worker",
@@ -1519,6 +1522,7 @@ class WorkerService:
                             requested_status="start",
                         )
 
+                        logging.info("Created workerModel")
                         session.add(workerModel)
 
                     workerModel.workerdir = self.workdir

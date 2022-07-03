@@ -1471,7 +1471,9 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
                 else:
                     sources += [_socket.p()]
 
-            if len(sources):
+            if len(sources) == 1:
+                return sources[0]
+            elif len(sources) > 1:
                 return parallel(sources)
             else:
                 return []
@@ -1479,7 +1481,8 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
         p_calls = build_pipeline(socket)
 
         print("P_CALLS",p_calls)
-        print("socket.p(_data).get() ",socket.p(_data)().get())
+        print("socket.p(_data).get() ",[socket.p(_data), p_calls])
+        print(socket.p(_data)())
         p = pipeline([socket.p(_data), p_calls])
         print("PIPELINE",p)
         print(p().get())
@@ -4162,7 +4165,7 @@ def ls_workers(context, name):
             pname = node.processor.name
 
         hostname = node.deployment.hostname if node.deployment else "None"
-        name = node.deployment.name if node.deployment else "None"
+        _name = node.deployment.name if node.deployment else "None"
 
         if name:
             click.echo(node.name)
@@ -4183,7 +4186,7 @@ def ls_workers(context, name):
                 pname,
                 node.concurrency,
 
-                name,
+                _name,
                 node.workerdir,
             ]
         )
