@@ -17,7 +17,7 @@
         >
         <q-select style="width:275px" v-model="model" :options="options" :dense="true" :options-dense="true">
 <template v-slot:prepend>
-          <q-icon name="email" />
+          <q-icon name="far fa-envelope" />
         </template>
         </q-select>
         <!--{{ name }}

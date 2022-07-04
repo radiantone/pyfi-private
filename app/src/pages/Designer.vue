@@ -815,17 +815,17 @@
                 icon="fas fa-cog"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Configure</q-tooltip></q-btn>
               <q-separator style="margin-right: 8px;" />
               <q-btn
                 dense
                 flat
                 size="sm"
                 :disable="node == null"
-                icon="fas fa-bolt"
+                icon="fas fa-book"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Save to Library</q-tooltip></q-btn>
               <q-btn
                 dense
                 flat
@@ -844,7 +844,7 @@
                 icon="fas fa-play"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Run Processor</q-tooltip></q-btn>
               <q-btn
                 dense
                 flat
@@ -853,7 +853,7 @@
                 icon="fas fa-stop"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Stop Processor</q-tooltip></q-btn>
               <q-separator style="margin-right: 8px;" />
               <q-btn
                 dense
@@ -863,7 +863,7 @@
                 icon="fas fa-save"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Save Processor</q-tooltip></q-btn>
               <q-btn
                 dense
                 flat
@@ -872,7 +872,7 @@
                 icon="fas fa-upload"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Publish Processor</q-tooltip></q-btn>
             </q-toolbar>
             <q-toolbar style="margin-top: 0px; min-height: 20px;">
               <q-btn
@@ -883,17 +883,9 @@
                 icon="fas fa-copy"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Copy Processor</q-tooltip></q-btn>
               <q-separator style="margin-right: 8px;" />
-              <q-btn
-                dense
-                flat
-                size="sm"
-                :disable="node == null"
-                icon="fas fa-paste"
-                class="text-dark"
-                style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              
               <q-separator />
               <q-separator style="margin-right: 8px;" />
               <q-btn
@@ -924,7 +916,7 @@
                 icon="far fa-trash-alt"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ></q-btn>
+              ><q-tooltip>Delete Processor</q-tooltip></q-btn>
             </q-toolbar>
           </q-card-section>
         </q-card>

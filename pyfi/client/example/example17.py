@@ -40,7 +40,7 @@ class ProcessorA(ProcessorBase):
             "expires": 200,
         }
     )
-    @socket(name="pyfi.processors.sample.do_something", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"})
+    @socket(name="pyfi.processors.sample.do_something", processor="proc1", beat=False, interval=5, queue={"name": "sockq1"})
     def do_something(message):
         """do_something"""
         from random import randrange

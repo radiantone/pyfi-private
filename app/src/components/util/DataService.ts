@@ -12,6 +12,10 @@ class DataService {
         return http.get('/api/deployments/' + processor);
     }
 
+    getWorkers (processor: string): Promise<any> {
+        return http.get('/api/workers/' + processor);
+    }
+
     getMessages (queue: string): Promise<any> {
         return http.get('/api/queue/messages/' + queue);
     }

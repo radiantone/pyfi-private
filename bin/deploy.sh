@@ -9,4 +9,4 @@ flow scheduler -n sched1 add -nd agent2.agent.node
 
 flow add deployment -n proc1 -d deploy1.proc1 -h agent3 -c 5
 flow add deployment -n proc1 -d deploy2.proc1 -h agent2 -c 1
-#flow add deployment -n proc2 -d deploy1.proc2 -h agent2 -c 1
+flow add deployment -n proc2 -d deploy1.proc2 -h agent2 -c 1

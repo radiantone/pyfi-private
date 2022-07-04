@@ -287,7 +287,7 @@
         v-if="error"
         style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
       >
-        Error messages {{ delayMs }} {{ count }}
+        {{ errorMsg }}
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
@@ -318,17 +318,17 @@
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
         <div
           class="text-secondary"
-          @click="showPanel('workerview', !workerview)"
+          @click="refreshProcessor"
           style="margin-right: 10px;"
         >
-          <i class="fas fa-hard-hat" style="cursor: pointer;" />
+          <i class="fas fa-refresh" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Workers
+            Refresh
           </q-tooltip>
         </div>
         <div
@@ -362,7 +362,7 @@
             Add Complete Plug
           </q-tooltip>
         </div>-->
- <div class="text-secondary" style="margin-right: 10px;">
+        <div class="text-secondary" style="margin-right: 10px;">
           <!--<i class="outlet-icon" style="cursor: pointer;" />-->
 
           <q-btn-dropdown
@@ -381,7 +381,11 @@
                 clickable
                 v-close-popup
                 @click="
-                  addNewPort({'function':'function: one_func','args':[]}, 'Error', 'fas fa-exclamation')
+                  addNewPort(
+                    { function: 'function: one_func', args: [] },
+                    'Error',
+                    'fas fa-exclamation'
+                  )
                 "
               >
                 <q-item-section side>
@@ -395,7 +399,11 @@
                 clickable
                 v-close-popup
                 @click="
-                  addNewPort({'function':'function: two_func','args':[]}, 'Error', 'fas fa-exclamation')
+                  addNewPort(
+                    { function: 'function: two_func', args: [] },
+                    'Error',
+                    'fas fa-exclamation'
+                  )
                 "
               >
                 <q-item-section side>
@@ -435,7 +443,11 @@
                 clickable
                 v-close-popup
                 @click="
-                  addNewPort({'function':'function: one_func','args':['arg1','arg2']}, 'Output', 'outlet-icon')
+                  addNewPort(
+                    { function: 'function: one_func', args: ['arg1', 'arg2'] },
+                    'Output',
+                    'outlet-icon'
+                  )
                 "
               >
                 <q-item-section side>
@@ -449,7 +461,11 @@
                 clickable
                 v-close-popup
                 @click="
-                  addNewPort({'function':'function: two_func','args':['arg1','arg2']}, 'Output', 'outlet-icon')
+                  addNewPort(
+                    { function: 'function: two_func', args: ['arg1', 'arg2'] },
+                    'Output',
+                    'outlet-icon'
+                  )
                 "
               >
                 <q-item-section side>
@@ -608,7 +624,7 @@
                 Save
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="viewResultsDialog = true">
               <q-item-section side>
                 <q-icon name="fas fa-list"></q-icon>
               </q-item-section>
@@ -616,12 +632,13 @@
                 Results
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="refreshProcessor">
+            <q-separator />
+            <q-item clickable v-close-popup @click="showPanel('workerview', !workerview)">
               <q-item-section side>
-                <q-icon name="fas fa-refresh"></q-icon>
+                <q-icon name="fas fa-hard-hat"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Refresh
+                Workers
               </q-item-section>
             </q-item>
             <q-separator />
@@ -823,10 +840,15 @@
             @click="confirmDeletePort(column.id)"
           />
         </div>
-        <div class="table-column-edit text-primary" style="max-height:15px;
-    position: absolute;
-    right: 20px;
-    margin-top: -10px;">
+        <div
+          class="table-column-edit text-primary"
+          style="
+            max-height: 15px;
+            position: absolute;
+            right: 20px;
+            margin-top: -10px;
+          "
+        >
           <!--
           <q-btn-dropdown
             flat
@@ -856,10 +878,19 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>-->
-          <q-select dense borderless :options-dense="true" style="font-size:1em" label-color="orange" v-model="column.schema" :options="types" value="string"/>
+          <q-select
+            dense
+            borderless
+            :options-dense="true"
+            style="font-size: 1em;"
+            label-color="orange"
+            v-model="column.schema"
+            :options="types"
+            value="string"
+          />
         </div>
         <div v-if="column.type != 'Input'">
-          <div class="float-left text-secondary" >
+          <div class="float-left text-secondary">
             <i
               :class="column.icon"
               :title="column.name"
@@ -872,8 +903,8 @@
             </span>
           </span>
         </div>
-        <div v-if="column.type == 'Input'" style="margin-left:30px">
-          <div class="float-left text-secondary" >
+        <div v-if="column.type == 'Input'" style="margin-left: 30px;">
+          <div class="float-left text-secondary">
             <i
               :class="column.icon"
               :title="column.name"
@@ -887,19 +918,19 @@
           </span>
         </div>
         <jtk-source
-        v-if="column.type != 'Input'"
+          v-if="column.type != 'Input'"
           name="source"
           :port-id="column.id"
           :scope="column.datatype"
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
           type="Output"
-        /> 
+        />
 
         <jtk-target
           v-if="column.type == 'Input'"
           name="target"
-          :port-id="column.id "
+          :port-id="column.id"
           type="Input"
           :scope="column.datatype"
         />
@@ -1459,6 +1490,7 @@
               <q-tab name="settings" label="Processor" />
               <q-tab name="containersettings" label="Container" />
               <q-tab name="apisettings" label="API" />
+              <q-tab name="throttling" label="Throttling" />
               <q-tab
                 v-if="obj.icon == lambdaIcon"
                 name="lambda"
@@ -1616,6 +1648,12 @@
                   </q-form>
                 </div>
               </q-tab-panel>
+              <q-tab-panel
+                name="throttling"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+              </q-tab-panel>
+
               <q-tab-panel
                 name="lambda"
                 v-if="obj.icon == lambdaIcon"
@@ -2394,6 +2432,134 @@
         />
       </q-card-actions>
     </q-card>
+
+    <q-dialog v-model="viewResultsDialog" transition-show="none" persistent>
+      <q-card
+        style="
+          width: 70vw;
+          max-width: 70vw;
+          height: 80vh;
+          padding: 10px;
+          padding-left: 30px;
+          padding-top: 40px;
+        "
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>{{ obj.name }}</q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="viewResultsDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-splitter
+          v-model="messageSplitter"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: calc(100% - 40px);"
+        >
+          <template v-slot:before>
+            <q-table
+              dense
+              :columns="queuecolumns"
+              :data="queuedata"
+              row-key="name"
+              flat
+              :pagination="queuePagination"
+              style="
+                height: calc(100% - 0px);
+                width: 100%;
+                border-top-radius: 0px;
+                border-bottom-radius: 0px;
+              "
+            >
+              <template v-slot:body="props">
+                <q-tr :props="props" :key="getUuid">
+                  <q-td :key="props.cols[0].name" :props="props">
+                    {{ props.cols[0].value }}
+                  </q-td>
+                  <q-td :key="props.cols[1].name" :props="props">
+                    <a
+                      class="text-secondary"
+                      @click="messagedrawer = !messagedrawer"
+                      >{{ props.cols[1].value }}</a
+                    >
+                  </q-td>
+                  <q-td :key="props.cols[2].name" :props="props">
+                    {{ props.cols[2].value }}
+                  </q-td>
+                  <q-td :key="props.cols[3].name" :props="props">
+                    {{ props.cols[3].value }}
+                  </q-td>
+                  <q-td :key="props.cols[4].name" :props="props">
+                    {{ props.cols[4].value }}
+                  </q-td>
+                  <q-td :key="props.cols[5].name" :props="props">
+                    {{ props.cols[5].value }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </template>
+          <template v-slot:after
+            ><div style="height: 100%; width: 100%;"></div
+          ></template>
+        </q-splitter>
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            icon="refresh"
+            class="bg-secondary text-dark"
+            color="primary"
+            @click="refreshQueues"
+          />
+        </q-card-actions>
+        <q-card-actions align="right"
+          ><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-inner-loading :showing="queueloading" style="z-index: 0;">
+          <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 <style>
@@ -2627,11 +2793,56 @@ export default {
   },
   data() {
     return {
-      types: [
-        'Schema 1',
-        'Schema 2'
+      queuecolumns: [
+        {
+          name: 'task',
+          label: 'Task',
+          field: 'task',
+          align: 'left',
+        },
+        {
+          name: 'tracking',
+          label: 'Tracking',
+          field: 'tracking',
+          align: 'left',
+        },
+        {
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left',
+        },
+        {
+          name: 'time',
+          label: 'Time',
+          field: 'time',
+          align: 'left',
+        },
+        {
+          name: 'parent',
+          label: 'Parent',
+          field: 'parent',
+          align: 'left',
+        },
+        {
+          name: 'routing_key',
+          label: 'Routing Key',
+          field: 'routing_key',
+          align: 'left',
+        },
       ],
+      queuePagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 20,
+        // rowsNumber: xx if getting data from a server
+      },
+      viewResultsDialog: false,
+      messageSplitter: 70,
+      types: ['Schema 1', 'Schema 2'],
       deployLoading: false,
+      errorMsg: '',
       loginname: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2656,7 +2867,7 @@ export default {
       settingstab: 'settings',
       refreshing: false,
       saving: false,
-      workersLoading: true,
+      workersLoading: false,
       splitterModel: 50,
       series2: [
         {
@@ -3036,39 +3247,33 @@ export default {
       ],
       workercolumns: [
         {
-          name: 'Name',
+          name: 'name',
           label: 'Name',
           field: 'name',
           align: 'left',
         },
         {
-          name: 'Host',
+          name: 'host',
           label: 'Host',
           field: 'host',
           align: 'left',
         },
         {
-          name: 'CPU',
-          label: 'CPU',
-          field: 'cpu',
+          name: 'cpus',
+          label: 'CPUs',
+          field: 'cpus',
           align: 'left',
         },
         {
-          name: 'RAM',
-          label: 'RAM',
-          field: 'ram',
+          name: 'deployment',
+          label: 'Deployment',
+          field: 'deployment',
           align: 'left',
         },
         {
-          name: 'Disk',
-          label: 'Disk',
-          field: 'disk',
-          align: 'left',
-        },
-        {
-          name: 'Tasks',
-          label: 'Tasks',
-          field: 'tasks',
+          name: 'status',
+          label: 'Status',
+          field: 'status',
           align: 'left',
         },
       ],
@@ -3100,144 +3305,7 @@ export default {
           field: 'spark',
         },
       ],
-      workerdata: [
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-        {
-          name: 'Name1',
-          host: 'Host1',
-          cpu: 'CPU1',
-          disk: 'Disk1',
-          ram: 'RAM1',
-          tasks: 'Task1',
-        },
-      ],
+      workerdata: [],
       data: [
         {
           name: 'In',
@@ -3327,8 +3395,12 @@ export default {
       DataService.saveProcessor(this.obj)
         .then(() => {
           this.refreshing = false;
+          this.error = false
+          this.errorMsg = ''
         })
         .catch(() => {
+          this.error = true
+          this.errorMsg = 'Error saving processor'
           this.refreshing = false;
         });
     },
@@ -3377,9 +3449,15 @@ export default {
     refreshWorkers() {
       var me = this;
       this.workersLoading = true;
-      setTimeout(() => {
-        me.workersLoading = false;
-      }, 2000);
+
+      DataService.getWorkers(this.obj.name)
+        .then((workers) => {
+          this.workerdata = workers.data;
+          me.workersLoading = false;
+        })
+        .catch((err) => {
+          me.workersLoading = false;
+        });
     },
     loginProcessor() {
       this.login = true;
@@ -3504,8 +3582,8 @@ export default {
     deleteNode() {
       window.toolkit.removeNode(this.obj);
     },
-    removeColumn (column) {
-      // Delete all argument columns too 
+    removeColumn(column) {
+      // Delete all argument columns too
       console.log('Removing column: ', column);
 
       for (var i = 0; i < this.obj.columns.length; i++) {
@@ -3555,8 +3633,7 @@ export default {
 
       console.log(this.obj.columns);
     },
-    addNewPort (func, type, icon) {
-      
+    addNewPort(func, type, icon) {
       this.addPort({
         name: func['function'],
         icon: icon,
@@ -3571,7 +3648,7 @@ export default {
           type: 'Input',
         });
         this.ports[arg] = true;
-      })
+      });
     },
     addErrorPort() {
       if (this.error) {

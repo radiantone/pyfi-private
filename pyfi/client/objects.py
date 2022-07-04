@@ -8,6 +8,8 @@ proc1.sockets += [socket]
 """
 import logging
 
+logger = logging.getLogger(__name__)    
+
 import configparser
 import os
 import platform
@@ -279,7 +281,7 @@ class Socket(Base):
     """
     Docstring
     """
-    synchronzied = False
+    synchronized = False
 
     def __init__(self, *args, **kwargs):
         import inspect
@@ -289,6 +291,7 @@ class Socket(Base):
 
         backend = CONFIG.get("backend", "uri")
         broker = CONFIG.get("broker", "uri")
+        logging.debug("Socket: %s %s",backend, broker)
         self.app = Celery(backend=backend, broker=broker)
 
         from pyfi.celery import config
@@ -402,7 +405,7 @@ class Socket(Base):
                 status="ready",
             )
 
-            logging.debug("Creating new socket %s", self.name)
+            logger.debug("Creating new socket %s", self.name)
             self.session.add(self.task)
             self.socket.task = self.task
             self.socket.queue = self.queue.queue
@@ -466,15 +469,20 @@ class Socket(Base):
 
     def p(self, *args, **kwargs):
         """Partial method signature (not executed)"""
-        return self.processor.app.signature(
-            self.processor.processor.module + "." + self.socket.task.name,
-            app=self.processor.app,
-            args=args,
-            serializer="pickle",
-            queue=self.queue,
-            kwargs=kwargs,
-        )
-
+        logger.debug("socket signature: %s",self.processor.processor.module + "." + self.socket.task.name)
+        try:
+            return self.processor.app.signature(
+                self.processor.processor.module + "." + self.socket.task.name,
+                app=self.processor.app,
+                args=args,
+                serializer="pickle",
+                queue=self.queue,
+                kwargs=kwargs,
+            )
+        finally:
+            self.processor.app.autodiscover_tasks(self.processor.processor.module + "." + self.socket.task.name)
+            logger.debug("Autodiscover tasks")
+            
     def delay(self, *args, **kwargs):
         """Execute this socket's task on the network"""
         # socket.queue.message_ttl
@@ -498,6 +506,7 @@ class Socket(Base):
         self.session.refresh(self.socket)
 
         if not self.synchronized:
+            logging.info("Invoking task %s",self.processor.processor.module + "." + self.socket.task.name)
             task_sig = (
                 self.processor.app.signature(
                     self.processor.processor.module + "." + self.socket.task.name,
@@ -516,8 +525,11 @@ class Socket(Base):
             _task_sig = task_sig
             return _task_sig
         else:
+            logger.debug("Invoking synchronized")
             # Follow paths from socket and build parallel/pipeline/chain/chord from aggregate sockets found
             # Then execute the parallel() object and wait for value, return that.
+            self.processor.app.autodiscover_tasks(self.processor.processor.module + "." + self.socket.task.name)
+            logger.debug("Autodiscover tasks")
 
             return
 
@@ -741,14 +753,14 @@ class Processor(Base):
         """
         if self.processor.worker is None:
             _name = hostname + ".agent." + self.processor.name + '.worker'
-            logging.info("Creating worker %s on %s",
+            logger.info("Creating worker %s on %s",
                          _name, self.processor.name)
             _worker = WorkerModel(
                 name=_name, backend=self.backend, agent=agent, broker=self.broker, hostname=hostname)
             self.processor.worker = _worker
             self.database.session.add(_worker)
             self.database.session.commit()
-            logging.info("   Worker: %s", self.processor.worker.name)
+            logger.info("   Worker: %s", self.processor.worker.name)
         """
 
         if concurrency is not None:
