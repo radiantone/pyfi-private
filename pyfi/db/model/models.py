@@ -421,7 +421,8 @@ class ProcessorModel(HasLogs, BaseModel):
     commit = Column(String(50))
     retries = Column(Integer)
     concurrency = Column(Integer)
-    ratelimit = Column(String(10))
+    ratelimit = Column(String(10), default="60/m")
+    perworker = Column(Boolean, default=True)
     timelimit = Column(Integer)
     ignoreresult = Column(Boolean)
     serializer = Column(String(10))
@@ -432,6 +433,7 @@ class ProcessorModel(HasLogs, BaseModel):
     password = Column(Boolean)
     requirements = Column(Text)
     endpoint = Column(Text)
+    modulepath = Column(Text)
     hasapi = Column(Boolean)
 
     description = Column(Text(), nullable=True, default="Some description")

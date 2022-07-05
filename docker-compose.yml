@@ -264,7 +264,7 @@ services:
     environment:
        - DB_USER=postgres
        - DB_PASSWORD=pyfi101
-       - DB_HOST=172.18.0.11
+       - DB_HOST=postgresdb
        - DB_NAME=pyfi 
        - LISTEN_PORT=6432
        - POOL_MODE=transaction

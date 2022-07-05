@@ -881,6 +881,7 @@
           <q-select
             dense
             borderless
+            v-if="column.type == 'Input'"
             :options-dense="true"
             style="font-size: 1em;"
             label-color="orange"
@@ -1459,7 +1460,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 570px;
+          height: 610px;
         "
       >
         <q-tabs
@@ -1555,6 +1556,14 @@
                       :disable="!obj.usegit"
                       v-model="obj.git"
                       hint="GIT Repository"
+                    />
+                    
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.modulepath"
+                      hint="Module Path"
                     />
 
                     <q-input
@@ -1652,6 +1661,16 @@
                 name="throttling"
                 style="padding-top: 0px; padding-bottom: 0px;"
               >
+              
+              <q-toolbar> <q-input
+              style="width: 200px;"
+              hint="Rate Limit"
+              type="string"
+              v-model.number="obj.ratelimit"
+            />
+
+              <q-checkbox v-model="obj.perworker" label="Per Worker" />
+              </q-toolbar>
               </q-tab-panel>
 
               <q-tab-panel
@@ -2730,6 +2749,9 @@ export default {
     }, 3000);
   },
   computed: {
+    rateLimit(val) {
+
+    },
     taskTime() {
       return this.task_time;
     },
@@ -3155,6 +3177,8 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        perworker: true,
+        ratelimit: '60/m',
         websocket: 'ws://localhost:3003',
         bandwidth: true,
         requirements: '',

@@ -137,6 +137,7 @@ class Worker(Base):
         print("HOSTNAME,PROCNAME", hostname, processor)
         name = hostname + ".agent." + processor.name + ".worker"
         self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
+        self.app = Celery(backend=self.backend, broker=self.broker)
 
         if self.worker is None:
             self.worker = _worker = WorkerModel(
@@ -482,7 +483,7 @@ class Socket(Base):
         finally:
             self.processor.app.autodiscover_tasks(self.processor.processor.module + "." + self.socket.task.name)
             logger.debug("Autodiscover tasks")
-            
+
     def delay(self, *args, **kwargs):
         """Execute this socket's task on the network"""
         # socket.queue.message_ttl

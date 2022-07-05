@@ -4,8 +4,10 @@ import platform
 import time
 import sched
 import signal
+import json
 
 from pathlib import Path
+from celery import Celery
 
 import configparser
 
@@ -32,6 +34,11 @@ CONFIG = configparser.ConfigParser()
 # Load the config
 if os.path.exists(HOME + "/pyfi.ini"):
     CONFIG.read(HOME + "/pyfi.ini")
+
+backend = CONFIG.get("backend", "uri")
+broker = CONFIG.get("broker", "uri")
+
+celery = Celery(backend=backend, broker=broker)
 
 class SchedulerPlugin:
     """Base scheduler plugin class"""
@@ -160,7 +167,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.info("Fetching processors to be deployed")
 
             # Get a random processor that either has less deployments than its concurrency needs
-            processor = (
+            processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
                 session.query(ProcessorModel)
                 .filter(
@@ -169,20 +176,20 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     )
                 )
                 .with_for_update()
-                .first()
+                .all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
 
+            """
             if processor is None:
                 # If we didn't get any processors above, try fetching one without deployments
-                processor = (
+                processors = (
                     session.query(ProcessorModel)
                     .filter(~ProcessorModel.deployments.any())
                     .with_for_update()
-                    .first()
+                    .all()
                 )
-            """
             if len(processors) == 0:
                 processor = None
             else:
@@ -200,11 +207,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
             """
 
             # Try to fulfill its concurrency
-            logging.info(
-                "Processor is %s", processor if processor else "No processor found"
-            )
-            if processor:
-                logging.info("Deploying processor %s", processor)
+
+            for processor in processors:
+                logging.info("Checking processor %s", processor)
                 if len(processor.deployments) == 0:
                     # I need to add deployments for this processor
 
@@ -224,9 +229,37 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 logging.info("Processor concurrency is %s", processor.concurrency)
 
                 deployed_cpus = 0
+
+                worker_names = []
+
+
                 for deployment in processor.deployments:
                     logging.info("   Deployment: CPU %s", deployment.cpus)
                     deployed_cpus += deployment.cpus
+
+                    if deployment.worker and deployment.worker.status == 'running':
+                        worker_names += [deployment.worker]
+
+                try:
+                    units = '/'+processor.ratelimit.split('/')[1]
+                    rate_limit = int(processor.ratelimit.split('/')[0])
+                finally:
+                    rate_limit = 60
+                    units = "/m"
+
+                if len(worker_names):
+                    rate_per_worker = rate_limit / len(worker_names)
+                    
+                    for socket in processor.sockets:
+                        """ For each socket task, set the rate limit based on the processor and active workers """
+                        _taskp = socket.task.module+'.'+socket.task.name
+                        if processor.perworker:
+                            logging.info("Setting rate limit per worker for task %s to %s",_taskp, processor.ratelimit+units )
+                            celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
+                        else:
+                            logging.info("Setting rate limit global for task %s to %s",_taskp, processor.ratelimit+units )
+                            celery.control.rate_limit(_taskp, processor.ratelimit+units)
+
 
                 if deployed_cpus < processor.concurrency:
                     needed_cpus = processor.concurrency - deployed_cpus
@@ -282,7 +315,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                         _cpus,
                                     )
                                     session.commit()
-                                    redisclient.publish("global", {"processor": processor.id, "deployment":str(_deployment), "action":"add"})
+                                    redisclient.publish("global", json.dumps({"processor": processor.id, "deployment":str(_deployment), "action":"add"}))
                                     needed_cpus -= _cpus
                                 else:
                                     logging.warning("_cpus is zero")
