@@ -252,7 +252,7 @@ class AgentMonitorPlugin(AgentPlugin):
     def deployment_monitor(self, agent):
 
         with get_session() as session:
-            logger.info("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
             mydeployments = (
                 session.query(DeploymentModel)
                     .filter_by(hostname=agent.hostname)
@@ -849,13 +849,13 @@ class AgentMonitorPlugin(AgentPlugin):
             """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
             as their data objects change state. This includes managing the workers and deployments """
 
-            logger.info("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
+            logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
 
             process = psutil.Process(os.getpid())
             
             with get_session() as session:
                 # Put all the work here
-                logging.info("Agent Service Name %s",agent_service.name)
+                logging.debug("Agent Service Name %s",agent_service.name)
                 logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
                 # Get or create Agent
                 agent = (
@@ -902,8 +902,8 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent.port = self.port
                 agent.updated = datetime.now()
 
-                logger.info("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
-                logger.info("[AgentMonitorPlugin] main_loop node is %s",node)
+                logger.debug("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
+                logger.debug("[AgentMonitorPlugin] main_loop node is %s",node)
                 
                 logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
 

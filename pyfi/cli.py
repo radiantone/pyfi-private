@@ -30,6 +30,7 @@ from sqlalchemy import create_engine, MetaData, literal_column
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
+from sqlalchemy import event
 
 from pyfi.db.model import (
     oso,
@@ -328,7 +329,25 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         session.add(user_m2)
         context.obj["user"] = user_m2
         context.obj["database"].session = session  # context.obj['session']
+
         # Load the base policy file into OSO
+        @event.listens_for(session, 'before_commit')
+        def receive_after_commit(session):
+            import redis
+            import json
+
+            logging.debug("commit UPDATED",session)
+            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+
+            for obj in session:
+                logging.debug("OBJ IN SESSION",type(obj), obj)
+
+                if isinstance(obj, ProcessorModel):
+                    # Publish to redis, pubsub, which gets sent to browser
+                    redisclient.publish(
+                        "global",
+                        json.dumps({'type':'processor','processor':str(obj)}),
+                    )
 
         # Generate OSO user policy file based on roles and privileges in the database
         # Then load the policy file into oso
@@ -1571,6 +1590,7 @@ def update_object(obj, locals):
 @click.option("-br", "--branch", default=None, required=False)
 @click.option("-p", "--password", default=None, required=False)
 @click.option("-co", "--container", default=None, is_flag=True, required=False)
+@click.option("-mp", "--modulepath", default=None, required=False)
 @click.pass_context
 def update_processor(
         context,
@@ -1584,7 +1604,8 @@ def update_processor(
         requested_status,
         branch,
         password,
-        container
+        container,
+        modulepath
 ):
     """
     Update a processor in the database
@@ -1643,7 +1664,10 @@ def update_processor(
             __password = PasswordModel(name=processor.name+".password", password=_password)
             context.obj["database"].session.add(__password)
             __password.processor = processor
-
+    if not modulepath:
+        processor.modulepath = click.prompt(
+            "Module Path", type=str, default=processor.modulepath
+        )
     argspec = inspect.getargvalues(inspect.currentframe())
     _locals = argspec.locals
     processor = update_object(processor, _locals)
@@ -1925,6 +1949,13 @@ def add_deployment(context, name, deploy, hostname, cpus):
     required=False,
     help="Enable the beat scheduler",
 )
+@click.option(
+    "-mp",
+    "--modulepath",
+    default=None,
+    required=False,
+    help="Relative repo path to python module file",
+)
 @click.pass_context
 def add_processor(
         context,
@@ -1943,7 +1974,8 @@ def add_processor(
         endpoint,
         api,
         cpus,
-        deploy
+        deploy,
+        modulepath
 ):
     """
     Add processor to the database
@@ -1972,7 +2004,8 @@ def add_processor(
         module=module,
         endpoint=endpoint,
         hasapi=api,
-        requirements=requirements
+        requirements=requirements,
+        modulepath=modulepath
     )
 
     if password:
@@ -3069,11 +3102,11 @@ def ls_roles(context, page, rows, ascend):
     total = context.obj["database"].session.query(RoleModel).count()
 
     if total == 0:
-        print("No data yet.")
+        print(x)
         return
 
     if total > rows and page > round(total / rows):
-        print("Only {} pages exist.".format(round(total / rows)))
+        click.echo("Only {} pages exist.".format(round(total / rows)))
         return
 
     if not ascend:
@@ -3109,11 +3142,11 @@ def ls_roles(context, page, rows, ascend):
     print(x)
 
     if total > 0:
-        print(
+        click.echo(
             "Page {} of {} of {} total records".format(page, round(total / rows), total)
         )
     else:
-        print("No rows")
+        click.echo("No rows")
 
 
 @ls.command(name="jobs")
@@ -3184,11 +3217,11 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
         total = context.obj["database"].session.query(CallModel).count()
 
     if total == 0:
-        print("No data yet.")
+        print(x)
         return
 
     if total > rows and page > round(total / rows):
-        print("Only {} pages exist.".format(round(total / rows)))
+        click.echo("Only {} pages exist.".format(round(total / rows)))
         return
 
     if not ascend:
@@ -3285,13 +3318,13 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
     print(x)
 
     if total > 0:
-        print(
+        click.echo(
             "Page {} of {} of {} total records".format(
                 page, max(1, round(total / rows)), total
             )
         )
     else:
-        print("No rows")
+        click.echo("No rows")
 
 
 @ls.command(name="network")
@@ -4700,14 +4733,21 @@ def api_start(context, ip, port):
 
         server.register_blueprint(blueprint)
         
+        '''
         do_something = context.obj["database"].session.query(TaskModel).filter_by(name='do_something').first()
         do_this = context.obj["database"].session.query(TaskModel).filter_by(name='do_this').first()
 
         if do_something:
-            create_endpoint('pyfi.processors.sample','do_something')
+            create_endpoint(do_something.module,do_something.name)
 
         if do_this:
-            create_endpoint('pyfi.processors.sample','do_this')
+            create_endpoint(do_this.module,do_this.name)
+        '''
+
+        tasks = context.obj["database"].session.query(TaskModel).all()
+
+        for task in tasks:
+            create_endpoint(task.module,task.name)
 
         server.app_context().push()
         try:
@@ -4727,7 +4767,8 @@ def api_start(context, ip, port):
     click.echo("Starting API process.")
     process.start()
     click.echo("API process started.")
-    #process.join()
+    process.join()
+    '''
     import time
     time.sleep(5)
     process.terminate()
@@ -4735,6 +4776,7 @@ def api_start(context, ip, port):
     process = multiprocessing.Process(target=start_api)
     process.start()
     process.join()
+    '''
     click.echo("API process exited.")
 
 @agent.command(name="start")

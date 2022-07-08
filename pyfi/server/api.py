@@ -5,6 +5,8 @@ import logging
 import platform
 import json
 import gc
+import configparser
+
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from typing import Any
 
@@ -45,6 +47,15 @@ from pyfi.db.model import (
 from pyfi.client.user import USER, engine, session, sessionmaker
 from flask_restx import Api, Resource, fields, reqparse
 
+CONFIG = configparser.ConfigParser()
+
+from pathlib import Path
+HOME = str(Path.home())
+
+ini = HOME + "/pyfi.ini"
+
+CONFIG.read(ini)
+
 request_parser = reqparse.RequestParser(bundle_errors=True)
 
 logging.basicConfig(level=logging.INFO)
@@ -60,11 +71,31 @@ api = Api(
     title="LambdaFLOW API",
     description="LambdaFLOW Backend API",
 )
+from sqlalchemy import event
 
 
 @contextmanager
 def get_session(**kwargs):
     session = sessionmaker(bind=engine, **kwargs)()
+
+    @event.listens_for(session, 'before_commit')
+    def receive_after_commit(session):
+        import redis
+        import json
+
+        logging.debug("commit UPDATED",session)
+        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+
+        for obj in session:
+            logging.debug("OBJ IN SESSION",type(obj), obj)
+
+            if isinstance(obj, ProcessorModel):
+                # Publish to redis, pubsub, which gets sent to browser
+                redisclient.publish(
+                    "global",
+                    json.dumps({'type':'processor','processor':obj}),
+                )
+
 
     try:
         yield session
@@ -89,6 +120,7 @@ def create_endpoint(modulename, taskname):
 
     def decorator(module="", task=""):
         from types import ModuleType
+        import io
 
         with get_session() as session:
             _task = session.query(TaskModel).filter_by(name=task).first()
@@ -98,7 +130,20 @@ def create_endpoint(modulename, taskname):
 
             code = _task.source
 
-        print(code)
+        code_lines = []
+        inside_dec = False
+        lines = io.StringIO(code).readlines()
+
+        for line in lines:
+            if line[0] == '@':
+                inside_dec = True
+            if inside_dec and line.find("def") != 0:
+                continue
+            else:
+                code_lines += [line]
+                inside_dec = False
+
+        code = "".join(code_lines)
         mod = ModuleType(module, "doc string here")
         exec(code, mod.__dict__)
         func = getattr(mod, task)
@@ -174,15 +219,31 @@ def do_processor(id):
 
     if request.method == 'POST':
         processor : Any = request.get_json()
-        logging.info("POSTING processor: %s",processor)
-        _processor = session.query(ProcessorModel).filter_by(name=processor['name']).first()
-        if not _processor:
-            return f"Processor {processor['id']} not found", 404
-        else:
-            logging.info("Updating processor %s with %s",_processor, processor)
-            return ""
 
-    return
+        with get_session() as session:
+            logging.info("POSTING processor: %s",processor)
+            _processor = session.query(ProcessorModel).filter_by(name=processor['name']).first()
+            if not _processor:
+
+                props = {
+                    'name':processor['name'],
+                    'description':processor['description'],
+                    'gitrepo':processor['gitrepo'],
+                    'modulepath':processor['modulepath'],
+                    'concurrency':processor['concurrency'],
+                    'use_container':processor['container'],
+                    'module':processor['package'],
+                    'ratelimit':processor['ratelimit'],
+                    'perworker':processor['perworker']
+                }
+                _processor = ProcessorModel(**props, user=USER)
+                session.add(_processor)
+                return jsonify({'status':'ok'})
+            else:
+                logging.info("Updating processor %s with %s",_processor, processor)
+                _processor.update(processor)
+                session.add(_processor)
+                return jsonify({'status':'ok'})
 
 
 @app.route("/processors", methods=["GET"])
@@ -303,6 +364,7 @@ def get_queue_messages(queue):
 
 @app.route("/workers/<processor>", methods=["GET"])
 def get_workers(processor):
+
     with get_session() as session:
         _processor = (
             session.query(ProcessorModel)
@@ -360,6 +422,7 @@ def get_deployments(processor):
 
 @app.route("/pattern/<pid>", methods=["GET"])
 def get_pattern(pid):
+
     with open("pyfi/server/patterns/" + pid + ".json", "r") as pattern:
 
         _pattern = json.loads(pattern.read())
@@ -477,6 +540,7 @@ def get_networks():
 
 @app.route("/files/<fid>", methods=["DELETE"])
 def delete_file(fid):
+
     print("Deleting file", fid)
     with get_session() as session:
         try:

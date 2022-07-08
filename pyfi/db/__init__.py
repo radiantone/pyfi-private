@@ -19,9 +19,10 @@ from .postgres import _compile_drop_table
 
 
 def get_session():
+    import configparser
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    import configparser
+    from sqlalchemy import event
 
     CONFIG = configparser.ConfigParser()
 
@@ -34,6 +35,21 @@ def get_session():
 
     _engine = create_engine(CONFIG.get("database", "uri"))
     _session = sessionmaker(bind=_engine)()
+
+    @event.listens_for(_session, 'before_commit')
+    def receive_after_commit(session):
+        import redis
+        import json
+
+        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+
+        for obj in session:
+            if isinstance(obj, Processor):
+                # Publish to redis, pubsub, which gets sent to browser
+                redisclient.publish(
+                    "global",
+                    json.dumps({'type':'processor','processor':obj}),
+                )
 
     return _session
 

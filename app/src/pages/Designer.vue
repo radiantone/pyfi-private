@@ -1891,6 +1891,8 @@ export default {
               node.node.x = number.left - 390 / 2;
               node.node.y = number.top - 135 / 2;
               console.log('DROP NODE:', node);
+
+              window.toolkit.$root.$emit('node.added', { data: node });
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
               console.log('SURFACE', me.surface);
@@ -1944,6 +1946,7 @@ export default {
               } else {
                 window.toolkit.addNode(node.node, data);
               }
+
               node.toolkit = window.toolkit;
               console.log('NODES', me.surface.getNodes());
             }
@@ -2374,6 +2377,8 @@ export default {
             message: 'Your flow has unsaved changes!',
           });
           toolkit.dirty = true;
+
+          window.toolkit.$root.$emit('toolkit.dirty', true);
         },
         groupFactory: function (type, data, callback) {
           console.log('Group factory:', type, data);

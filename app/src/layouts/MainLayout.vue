@@ -197,7 +197,7 @@
         </q-input>
       </q-toolbar>
     </q-header>
-
+ 
     <q-splitter
       v-model="splitterModel"
       vertical
@@ -485,6 +485,20 @@
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
     </q-drawer>
+    <q-drawer
+      v-model="librarydrawer"
+      side="right"
+      bordered
+      :width="512"
+      style="overflow: hidden;"
+    >
+    <Processors
+              :objecttype="'processor'"
+              :icon="'fas fa-wrench'"
+              :collection="'processors'"
+              style="width: 100%;"
+          />
+    </q-drawer>
     <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
       <q-card
         style="
@@ -720,6 +734,7 @@ import Designer from 'src/pages/Designer.vue';
 import ToolPalette from 'src/components/ToolPalette.vue';
 import ModelToolPalette from 'src/components/ModelToolPalette.vue';
 
+import Processors from 'components/Processors.vue';
 import DataService from 'components/util/DataService';
 
 import {
@@ -745,7 +760,7 @@ const socket = io('http://localhost');
 
 export default defineComponent({
   name: 'MainLayout',
-  components: { Designer, ToolPalette, ModelToolPalette },
+  components: { Designer, ToolPalette, ModelToolPalette, Processors },
   setup() {
     return {};
   },
@@ -891,6 +906,10 @@ export default defineComponent({
       this.viewQueueDialog = true;
     });
 
+    this.$root.$on('open.library', () => {
+      console.log('open.library');
+      this.librarydrawer = !this.librarydrawer;
+    });
     this.$root.$on('new.queue', () => {
       console.log("NEW.QUEUE")
       this.newQueueDialog = true;
@@ -1171,6 +1190,7 @@ export default defineComponent({
   },
   data() {
     return {
+      librarydrawer: false,
       newQueueDialog: false,
       messagedrawer: false,
       queueloading: false,

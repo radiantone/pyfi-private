@@ -429,12 +429,17 @@ class ProcessorModel(HasLogs, BaseModel):
     backend = Column(String(80))
     ackslate = Column(Boolean)
     trackstarted = Column(Boolean)
+    disabled = Column(Boolean)
     retrydelay = Column(Integer)
     password = Column(Boolean)
     requirements = Column(Text)
     endpoint = Column(Text)
     modulepath = Column(Text)
+    icon = Column(Text)
+    cron = Column(Text)
     hasapi = Column(Boolean)
+    uistate = Column(Text)
+
 
     description = Column(Text(), nullable=True, default="Some description")
     container_image = Column(String(60))

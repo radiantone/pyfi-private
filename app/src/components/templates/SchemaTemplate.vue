@@ -92,6 +92,7 @@
                   v-model="obj.name"
                   dense
                   autofocus
+                @keyup.enter="notifyChange"
                 />
               </q-popup-edit>
         </span>
@@ -1317,6 +1318,10 @@ export default {
     };
   },
   methods: {
+    notifyChange () {
+      console.log("notifyChange")
+      window.designer.$root.$emit('node.added', this.obj)
+    },
     saveProcessor () {
       this.saving = true;
       

@@ -52,19 +52,11 @@
         <q-separator />
         <q-item clickable v-close-popup>
           <q-item-section side>
-            <q-icon name="far fa-times-circle"></q-icon>
+            <q-icon name="fas fa-stop"></q-icon>
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Disable</q-item-section>
+          <q-item-section side class="text-blue-grey-8">Stop</q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="fas fa-database"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
-            View Provenance Data
-          </q-item-section>
-        </q-item>
         <q-item clickable v-close-popup>
           <q-item-section side>
             <q-icon name="fa fa-area-chart"></q-icon>
@@ -123,17 +115,7 @@
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="fas fa-project-diagram"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
-            Create Template
-          </q-item-section>
-        </q-item>
-        <q-separator />
-
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup @click="copyNode">
           <q-item-section side>
             <q-icon name="fas fa-copy"></q-icon>
           </q-item-section>
@@ -313,9 +295,10 @@
         class="text-blue-grey-8 pull-right"
         style="position: absolute; right: 10px; top: 50px; font-size: 11px;"
       >
-        v1.2.2
+        {{obj.version}}
       </span>
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
+      <q-item-label class="text-primary" style="margin-right:30px">{{obj.ratelimit}}</q-item-label>
         <div
           class="text-secondary"
           @click="refreshProcessor"
@@ -376,13 +359,13 @@
             size=".6em"
             style="margin-right: 0px;"
           >
-            <q-list dense>
+            <q-list dense v-for="func in funcs" :key="func.name">
               <q-item
                 clickable
                 v-close-popup
                 @click="
                   addNewPort(
-                    { function: 'function: one_func', args: [] },
+                    { function: 'function: '+func.name, args: [] },
                     'Error',
                     'fas fa-exclamation'
                   )
@@ -392,27 +375,9 @@
                   <q-icon name="fab fa-python"></q-icon>
                 </q-item-section>
                 <q-item-section side class="text-blue-grey-8">
-                  function: one_func
+                  function: {{ func.name }}
                 </q-item-section>
-              </q-item>
-              <q-item
-                clickable
-                v-close-popup
-                @click="
-                  addNewPort(
-                    { function: 'function: two_func', args: [] },
-                    'Error',
-                    'fas fa-exclamation'
-                  )
-                "
-              >
-                <q-item-section side>
-                  <q-icon name="fab fa-python"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  function: two_func
-                </q-item-section>
-              </q-item>
+              </q-item>              
             </q-list>
           </q-btn-dropdown>
           <q-tooltip
@@ -438,13 +403,13 @@
             size=".8em"
             style="margin-right: 0px;"
           >
-            <q-list dense>
+            <q-list dense v-for="func in funcs" :key="func.name">
               <q-item
                 clickable
                 v-close-popup
                 @click="
                   addNewPort(
-                    { function: 'function: one_func', args: ['arg1', 'arg2'] },
+                    { function: 'function: '+func.name, args: func.args },
                     'Output',
                     'outlet-icon'
                   )
@@ -454,27 +419,10 @@
                   <q-icon name="fab fa-python"></q-icon>
                 </q-item-section>
                 <q-item-section side class="text-blue-grey-8">
-                  function: one_func
+                  function: {{ func.name }}
                 </q-item-section>
               </q-item>
-              <q-item
-                clickable
-                v-close-popup
-                @click="
-                  addNewPort(
-                    { function: 'function: two_func', args: ['arg1', 'arg2'] },
-                    'Output',
-                    'outlet-icon'
-                  )
-                "
-              >
-                <q-item-section side>
-                  <q-icon name="fab fa-python"></q-icon>
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  function: two_func
-                </q-item-section>
-              </q-item>
+            
             </q-list>
           </q-btn-dropdown>
           <q-tooltip
@@ -1172,15 +1120,7 @@
 
     <!-- Code dialog -->
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      :style="'width: '+codewidth+'px;z-index: 999;display: block;position: absolute;right: -'+(codewidth+5)+'px;top: 0px;'"
       v-if="codeview"
     >
       <q-card-section
@@ -1199,12 +1139,13 @@
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
           flat
-          icon="history"
+          icon="far fa-arrow-alt-circle-left"
           class="bg-primary text-white"
           color="primary"
           v-close-popup
+          @click="codewidth -= 50"
         >
           <q-tooltip
             anchor="top middle"
@@ -1212,16 +1153,17 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Revert to Last
+            Shrink
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px;margin:0px"
           flat
-          icon="published_with_changes"
+          icon="far fa-arrow-alt-circle-right"
           class="bg-accent text-dark"
           color="primary"
           v-close-popup
+          @click="codewidth += 50"
         >
           <q-tooltip
             anchor="top middle"
@@ -1229,7 +1171,25 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Publish To Network
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px;margin:0px"
+          flat
+          icon="published_with_changes"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="fetchCode"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Fetch Code
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -1250,7 +1210,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="removeColumn(deletePortID)"
+          @click=""
         />
       </q-card-actions>
     </q-card>
@@ -1492,6 +1452,7 @@
               <q-tab name="containersettings" label="Container" />
               <q-tab name="apisettings" label="API" />
               <q-tab name="throttling" label="Throttling" />
+              <q-tab name="versions" label="Versions" />
               <q-tab
                 v-if="obj.icon == lambdaIcon"
                 name="lambda"
@@ -1554,7 +1515,7 @@
                       filled
                       dense
                       :disable="!obj.usegit"
-                      v-model="obj.git"
+                      v-model="obj.gitrepo"
                       hint="GIT Repository"
                     />
                     
@@ -1612,7 +1573,7 @@
                   <q-form class="q-gutter-md">
                     <q-input
                       filled
-                      v-model="obj.imagerepository"
+                      v-model="obj.imagerepo"
                       dense
                       hint="Image Repository"
                       lazy-rules
@@ -1673,6 +1634,21 @@
               </q-toolbar>
               </q-tab-panel>
 
+
+          <q-tab-panel
+                name="versions"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+              
+              <q-toolbar> <q-input
+              style="width: 200px;"
+              hint="Version"
+              type="string"
+              v-model.number="obj.version"
+            />
+
+              </q-toolbar>
+              </q-tab-panel>
               <q-tab-panel
                 name="lambda"
                 v-if="obj.icon == lambdaIcon"
@@ -1805,10 +1781,10 @@
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           flat
           label="Save"
-          class="bg-primary text-white"
+          class="bg-secondary text-white"
           color="primary"
           @click="saveProcessor"
         >
@@ -1821,13 +1797,14 @@
             Save
           </q-tooltip>
         </q-btn>
+
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
           flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           label="Close"
-          class="bg-secondary text-white"
+          class="bg-accent text-primary"
           color="primary"
           @click="configview = false"
         />
@@ -2619,6 +2596,9 @@ import BetterCounter from '../BetterCounter';
 import DataService from 'components/util/DataService';
 import { mdiPowerSocketUs } from '@mdi/js';
 import { mdiCodeBraces } from '@mdi/js';
+import { urlencoded } from 'body-parser';
+import http from 'src/http-common'
+
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -2626,6 +2606,22 @@ import { mdiCodeBraces } from '@mdi/js';
 // The mixed in component data fields are fully reactive in this Vue template because it's
 // mixed in.
 
+/*
+Context menu
+
+Configure
+Stop
+View Status History - Show list of logs with change in status
+View State - Any persistent state/env variables set by the processor
+View Usage - Docs
+View Connections - Table showing source and target plugs
+Center in View 
+Change Color
+Group
+Copy
+Delete
+
+*/
 export default {
   name: 'ScriptTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
@@ -2800,7 +2796,14 @@ export default {
       console.log('toggle bandwidth', bandwidth);
       me.obj.bandwidth = bandwidth;
     });
+    window.designer.$root.$on('node.added', (node) => {
+      console.log("NODE ADDED",node)
+      this.updateSchemas();
+    })
 
+    window.designer.$root.$on('toolkit.dirty', () => {
+      this.updateSchemas();
+    })    
     this.deployLoading = true;
     DataService.getDeployments(this.obj.name)
       .then((deployments) => {
@@ -2812,9 +2815,14 @@ export default {
         console.log('DEPLOYMENTS ERROR', err);
         this.deployLoading = false;
       });
+
+    this.fetchCode();
   },
   data() {
     return {
+      argports: {},
+      funcs: [],
+      codewidth: 650,
       queuecolumns: [
         {
           name: 'task',
@@ -2862,7 +2870,7 @@ export default {
       },
       viewResultsDialog: false,
       messageSplitter: 70,
-      types: ['Schema 1', 'Schema 2'],
+      types: [],
       deployLoading: false,
       errorMsg: '',
       loginname: '',
@@ -3177,12 +3185,15 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        version:'v1.2.2',
         perworker: true,
         ratelimit: '60/m',
         websocket: 'ws://localhost:3003',
         bandwidth: true,
         requirements: '',
         container: true,
+        imagerepo: 'local',
+        containerimage: 'pyfi/processors:latest',
         streaming: true,
         usegit: true,
         enabled: true,
@@ -3201,9 +3212,10 @@ export default {
         useschedule: false,
         disabled: false,
         commit: '',
-        git:
+        gitrepo:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
         columns: [],
+        modulepath:'pyfi/processors/sample.py',
         readwrite: 0,
         properties: [],
       },
@@ -3411,6 +3423,129 @@ export default {
     };
   },
   methods: {
+    fetchCode () {
+      var me = this;
+      var url = new URL(this.obj.gitrepo) 
+      console.log("URL ", url)
+      //https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
+      var codeUrl = "https://raw.githubusercontent.com/" + url.pathname + "/main/" + this.obj.modulepath;
+      console.log("CODE", codeUrl);   
+      http.get(codeUrl).then((response) => {
+        console.log("CODE RESPONSE", response)
+
+        me.obj.code = response.data
+        //const re = /(def)\s(\w+)/g;
+        const re = /def (\w+)\s*\((.*?)\):/g;
+
+        var matches = response.data.matchAll(re);
+        
+        this.funcs = [];
+
+        for (const match of matches) {
+          var name = match[0].split('(')[0].split(' ').at(-1)
+          var args = match[2].split(',');
+
+          var _args = [];
+          for (const arg of args) {
+            if (arg.indexOf('*')>-1 || arg.indexOf('=')>-1) {
+              
+            } else {
+              if (arg.indexOf(':')>-1) {
+                arg = arg.split(':')[0]
+              }
+              console.log("ARG", arg)
+             _args.push(arg) 
+            }
+          }
+          this.funcs.push({ 'name': name , 'args':_args});
+        }
+
+        if (this.$refs.myEditor) {
+          const editor = this.$refs.myEditor.editor;
+
+          if (editor) {
+            editor.session.setValue(me.obj.code)
+          }
+        }
+      })
+    },
+    copyNode() {
+      console.log("COPY NODE")
+      function findMatch(list, obj) {
+        for (var i = 0; i < list.length; i++) {
+          var o = list[i];
+          if (o.id === obj.id) {
+            return true;
+          }
+        }
+        return false;
+      }
+      function findEdge(list, edge) {
+        for (var i = 0; i < list.length; i++) {
+          var e = list[i];
+          if (e.source === edge.source || e.target === edge.target) {
+            return true;
+          }
+        }
+        return false;
+      }
+      function haveAllNodes(nodes, edge) {
+        var source = false;
+        var target = false;
+        for (var i = 0; i < nodes.length; i++) {
+          var node = nodes[i];
+          if (edge.source.split('.')[0] === node.id) source = true;
+          if (edge.target.split('.')[0] === node.id) target = true;
+        }
+        return source && target;
+      }
+
+      var node = window.toolkit.getNode(this.obj.id);
+
+      if (!node) {
+        console.log("NODE NOT FOUND!")
+      }
+
+      var nodes = [node];
+
+      console.log('COPY SELECTED NODES:', nodes);
+      var exportData = window.toolkit.exportData();
+      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'));
+      var jsonData = {};
+      jsonData.nodes = [];
+      jsonData.edges = [];
+      jsonData.ports = [];
+      for (var i = 0; i < data.nodes.length; i++) {
+        const n = data.nodes[i];
+        if (findMatch(nodes, n)) {
+          jsonData.nodes.push(n);
+        }
+      }
+      for (var i = 0; i < data.edges.length; i++) {
+        const e = data.edges[i];
+        if (haveAllNodes(jsonData.nodes, e)) {
+          jsonData.edges.push(e);
+        }
+      }
+      for (var i = 0; i < jsonData.nodes.length; i++) {
+        const node = jsonData.nodes[i];
+        for (var p = 0; p < data.ports.length; p++) {
+          var port = data.ports[p];
+          if (port.id.indexOf(node.id) > -1) {
+            jsonData.ports.push(port);
+          }
+        }
+      }
+
+      window.clipboard = jsonData;
+      var nodes = [];
+      for (var i = 0; i < window.clipboard.nodes.length; i++) {
+        nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id));
+      }
+      window.nodes = nodes;
+      console.log('jsonData:', jsonData);
+      this.$store.commit('designer/setMessage','Node copied!');
+    },    
     closePortEdit() {
       editPort = false;
     },
@@ -3569,12 +3704,31 @@ export default {
       require('brace/snippets/javascript'); // snippet
       console.log('editorInit');
       const editor = this.$refs.myEditor.editor;
-
+      console.log("EDITOR INIT")
       editor.setAutoScrollEditorIntoView(true);
+      editor.on("change", function() {
+        console.log("edit event")
+          
+        var re = /(def)\s(\w+)/g;
 
-      setTimeout(function () {
-        // me.thecode = me.obj.code;
-      }, 500);
+        var matches = editor.getValue().matchAll(re);
+        
+        me.funcs = [];
+
+        for (const match of matches) {
+          me.funcs.push({ 'name': match[2] });
+        }
+
+        re = /def (\w+)\s*\((.*?)\):/g;
+        matches = editor.getValue().matchAll(re);
+        for (const match of matches) {
+          console.log("FUNC",match)
+        }
+
+      })
+      if (me.obj.code) {
+        editor.session.setValue(me.obj.code)
+      }  
     },
     showCode() {
       // this.code = true;
@@ -3640,13 +3794,21 @@ export default {
       }
       // Delete all the edges for this column id
       console.log(this.obj);
+      console.log("PORT ARGS", this.argports[column]);
       window.toolkit.removePort(this.obj.id, column);
+      this.argports[column].forEach((portid) => {
+        window.toolkit.removePort(this.obj.id, portid);
+      })
       // window.renderer.repaint(this.obj);
     },
     addPort(port) {
       port.background = 'white';
       port.datatype = 'Column';
-      port.schema = 'Schema 1';
+      if (this.types.length > 0) {
+        port.schema = this.types[0];
+      } else {
+        port.schema = null;
+      }
       port.id = 'port' + uuidv4();
       port.id = port.id.replace(/-/g, '');
       port.description = 'A description';
@@ -3656,22 +3818,46 @@ export default {
       console.log('Firing node updated...');
 
       console.log(this.obj.columns);
+
+      return port;
+    },
+    updateSchemas () {
+      setTimeout(() => {
+          var graph = window.toolkit.getGraph().serialize();
+
+          var schemas = [];
+
+          graph['nodes'].forEach((node) => {
+            if (node['type'] == 'schema') {
+            schemas.push(node['name']) 
+            }
+          });
+          console.log("SCHEMAS", schemas);
+          this.types = schemas;
+      })
+
     },
     addNewPort(func, type, icon) {
-      this.addPort({
+      var me = this;
+
+      var port = this.addPort({
         name: func['function'],
         icon: icon,
         type: type,
       });
       this.ports[func['function']] = true;
+      this.argports[port.id] = []
+      
+      this.updateSchemas();
 
       func['args'].forEach((arg) => {
-        this.addPort({
+        var arg = this.addPort({
           name: arg,
           icon: 'fab fa-python',
           type: 'Input',
         });
         this.ports[arg] = true;
+        this.argports[port.id].push(arg.id);
       });
     },
     addErrorPort() {
