@@ -41,7 +41,7 @@
     </q-inner-loading>
     <q-menu context-menu style="border: 1px solid black;">
       <q-list dense>
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup @click="configview = true">
           <q-item-section side>
             <q-icon name="fas fa-cog"></q-icon>
           </q-item-section>
@@ -50,21 +50,19 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup v-if="obj.status == 'running'" @click="obj.status = 'stopped'">
           <q-item-section side>
-            <q-icon name="fas fa-stop"></q-icon>
+            <q-icon name="fas fa-stop" ></q-icon>
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Stop</q-item-section>
+          <q-item-section side class="text-blue-grey-8" >Stop</q-item-section>
         </q-item>
+        <q-item clickable v-close-popup v-if="obj.status == 'stopped'" @click="obj.status = 'running'">
+          <q-item-section side>
+            <q-icon name="fas fa-play"></q-icon>
+          </q-item-section>
+          <q-item-section side class="text-blue-grey-8" >Run</q-item-section>
+        </q-item>        
         <q-separator />
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="fa fa-area-chart"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
-            View Status History
-          </q-item-section>
-        </q-item>
         <q-item clickable v-close-popup>
           <q-item-section side>
             <q-icon name="fas fa-list"></q-icon>
@@ -97,7 +95,7 @@
           <q-item-section side class="text-blue-grey-8">
             Center in View
           </q-item-section>
-        </q-item>
+        </q-item><!--
         <q-item clickable v-close-popup>
           <q-item-section side>
             <q-icon name="fas fa-palette"></q-icon>
@@ -112,7 +110,7 @@
             <q-icon name="far fa-object-group"></q-icon>
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Group</q-item-section>
-        </q-item>
+        </q-item>-->
         <q-separator />
 
         <q-item clickable v-close-popup @click="copyNode">
@@ -123,7 +121,7 @@
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup @click="deleteConfirm = true">
           <q-item-section side>
             <q-icon name="fas fa-trash"></q-icon>
           </q-item-section>
@@ -434,11 +432,11 @@
             Add Socket
           </q-tooltip>
         </div>
-        <!--
+        
         <div
           class="text-secondary"
           style="margin-right: 10px;"
-          @click="addNewPort('Output', 'Output', 'fas fa-plug')"
+          @click="addNewPort({ function: 'Output', args: [] }, 'Output', 'fas fa-plug')"
         >
           <i class="fas fa-plug" style="cursor: pointer;"></i>
           <q-tooltip
@@ -449,7 +447,7 @@
           >
             Add Plug
           </q-tooltip>
-        </div>-->
+        </div>
 
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
@@ -481,8 +479,10 @@
             icon="fa fa-play"
             size="xs"
             dense
+            v-if="obj.status == 'stopped'"
             flat
             class="edit-name text-secondary"
+            @click="obj.status = 'running'"
             style="
               position: absolute;
               right: 75px;
@@ -497,9 +497,34 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Run
+              Start
             </q-tooltip>
           </q-btn>
+          <q-btn
+            icon="fa fa-stop"
+            size="xs"
+            dense
+            flat
+            v-if="obj.status == 'running'"
+            @click="obj.status = 'stopped'"
+            class="edit-name text-secondary text-green"
+            style="
+              position: absolute;
+              right: 75px;
+              top: -68px;
+              width: 30px;
+              height: 30px;
+            "
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Stop
+            </q-tooltip>
+          </q-btn>          
           <q-btn
             dense
             flat
@@ -849,6 +874,9 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
+            <q-popup-edit v-model="column.name" buttons v-if="column.icon == 'fas fa-plug'">
+              <q-input type="string" v-model="column.name" dense autofocus />
+            </q-popup-edit>
             </span>
           </span>
         </div>
@@ -1145,7 +1173,7 @@
           class="bg-primary text-white"
           color="primary"
           v-close-popup
-          @click="codewidth -= 50"
+          @click="codewidth -= 100"
         >
           <q-tooltip
             anchor="top middle"
@@ -1163,7 +1191,7 @@
           class="bg-accent text-dark"
           color="primary"
           v-close-popup
-          @click="codewidth += 50"
+          @click="codewidth += 100"
         >
           <q-tooltip
             anchor="top middle"
@@ -3217,6 +3245,7 @@ export default {
         columns: [],
         modulepath:'pyfi/processors/sample.py',
         readwrite: 0,
+        status: 'stopped',
         properties: [],
       },
       text: '',

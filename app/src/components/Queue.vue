@@ -13,12 +13,19 @@
     <q-toolbar style="position: absolute; left: 0px; top: -13px;">
       <q-item-label
         style="margin-left: 5px; font-weight: bold; color: #775351;"
-        :data-source="node" class="fas fa-email"
+        :data-source="node"
+        class="fas fa-email"
+      >
+        <q-select
+          style="width: 275px;"
+          v-model="model"
+          :options="options"
+          :dense="true"
+          :options-dense="true"
         >
-        <q-select style="width:275px" v-model="model" :options="options" :dense="true" :options-dense="true">
-<template v-slot:prepend>
-          <q-icon name="far fa-envelope" />
-        </template>
+          <template v-slot:prepend>
+            <q-icon name="far fa-envelope" />
+          </template>
         </q-select>
         <!--{{ name }}
         <q-popup-edit v-model="name" title="Queue Name" buttons>
@@ -26,7 +33,19 @@
         </q-popup-edit>-->
       </q-item-label>
       <q-space />
-      <q-btn flat dense size="xs" icon="close" color="primary" style="cursor:pointer;font-size:.7em;position:absolute;right:5px"></q-btn>
+      <q-btn
+        flat
+        dense
+        size="xs"
+        icon="close"
+        color="primary"
+        style="
+          cursor: pointer;
+          font-size: 0.7em;
+          position: absolute;
+          right: 5px;
+        "
+      ></q-btn>
 
       <!--
       <q-btn-dropdown
@@ -90,9 +109,23 @@
       "
     >
       Queued
-      <span style="font-weight: bold; color: #775351;">{{messages}} ({{bytes}} bytes)</span>
-      <q-btn flat dense icon="menu" size="xs" @click="showQueue" color="primary" style="cursor:pointer;font-size:.7em;position:absolute;right:5px"/>
-      
+      <span style="font-weight: bold; color: #775351;"
+        >{{ messages }} ({{ bytes }} bytes)</span
+      >
+      <q-btn
+        flat
+        dense
+        icon="menu"
+        size="xs"
+        @click="showQueue"
+        color="primary"
+        style="
+          cursor: pointer;
+          font-size: 0.7em;
+          position: absolute;
+          right: 5px;
+        "
+      />
     </div>
     <q-card
       style="
@@ -131,7 +164,6 @@
         />
       </q-card-actions>
     </q-card>
-
   </div>
 </template>
 <script>
@@ -146,7 +178,7 @@ export default {
     var me = this;
     socket.on('global', (data) => {
       //console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      if(data['type'] && data['type'] == 'queues') {
+      if (data['type'] && data['type'] == 'queues') {
         me.messageReceived(data);
       }
     });
@@ -156,23 +188,27 @@ export default {
   },
   methods: {
     showQueue() {
-      window.root.$emit('view.queue',this.name);
+      window.root.$emit('view.queue', this.name);
     },
     sizeOf(bytes) {
-      if (bytes == 0) { return "0.00 B"; }
+      if (bytes == 0) {
+        return '0.00 B';
+      }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
-      return (bytes/Math.pow(1024, e)).toFixed(2)+' '+' KMGTP'.charAt(e)+'B';
+      return (
+        (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
+      );
     },
     messageReceived(msg) {
       //console.log("QUEUES RECEIVED",msg);
-      msg['queues'].forEach( (queue) => {
+      msg['queues'].forEach((queue) => {
         //console.log("QUEUE NAME",queue['name'],this.name)
-        if(queue['name'] == this.name) {
+        if (queue['name'] == this.name) {
           //console.log("FOUND MY QUEUE",queue['messages'])
-          this.messages = queue['messages']
-          this.bytes = this.sizeOf(queue['message_bytes'])
+          this.messages = queue['messages'];
+          this.bytes = this.sizeOf(queue['message_bytes']);
         }
-      })
+      });
       this.$emit('message.received', msg);
     },
     clickMe() {
@@ -183,7 +219,11 @@ export default {
     return {
       model: 'sockq2.proc2.do_this',
       options: [
-        'sockq2.proc2.do_this', 'sockq1.proc1.do_something', 'queue1', 'pyfi.processors.sample.do_this', 'pyfi.processors.sample.do_something	'
+        'sockq2.proc2.do_this',
+        'sockq1.proc1.do_something',
+        'queue1',
+        'pyfi.processors.sample.do_this',
+        'pyfi.processors.sample.do_something	',
       ],
       messages: 0,
       bytes: 0,
