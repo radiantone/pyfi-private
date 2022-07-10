@@ -27,11 +27,13 @@ from .models import (
     PasswordModel,
     DeploymentModel,
     NetworkModel,
+    VersionModel
 )
 
 __all__ = (
     "oso",
     "WorkerModel",
+    "VersionModel",
     "ArgumentModel",
     "LoginModel",
     "EventModel",

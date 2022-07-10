@@ -7,7 +7,11 @@ class DataService {
     getFiles (collection: string, folder: string): Promise<any> {
         return http.get('/api/files/'+collection+'/'+folder);
     }
-    
+
+    getVersions (flow: string): Promise<any> {
+        return http.get('/api/versions/' + flow);
+    }
+
     getDeployments (processor: string): Promise<any> {
         return http.get('/api/deployments/' + processor);
     }
@@ -57,7 +61,6 @@ class DataService {
     deleteFile (id: string): Promise<any> {
         return http.delete('/api/files/' + id);
     }
-
 
     login (data: any): Promise<any> {
         return http.post('/api/login', data);

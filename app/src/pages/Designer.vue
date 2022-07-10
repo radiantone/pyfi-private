@@ -6,6 +6,7 @@
         class="text-dark"
         size="sm"
         style="padding-left: 10px; border-bottom: 2px dashed grey;"
+        v-if="showtoolbar"
       >
         <q-btn-toggle
           name="mode"
@@ -526,7 +527,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="versionsDialog = true">
               <q-item-section side>
                 <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
@@ -593,6 +594,7 @@
     <div
       elevated
       class="q-pa-md"
+      v-if="navigate"
       style="max-width: 350px; position: absolute; left: 0px; top: 50px;"
     >
       <q-expansion-item
@@ -815,7 +817,8 @@
                 icon="fas fa-cog"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Configure</q-tooltip></q-btn>
+                ><q-tooltip>Configure</q-tooltip></q-btn
+              >
               <q-separator style="margin-right: 8px;" />
               <q-btn
                 dense
@@ -825,7 +828,8 @@
                 icon="fas fa-book"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Save to Library</q-tooltip></q-btn>
+                ><q-tooltip>Save to Library</q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
@@ -844,7 +848,8 @@
                 icon="fas fa-play"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Run Processor</q-tooltip></q-btn>
+                ><q-tooltip>Run Processor</q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
@@ -853,7 +858,8 @@
                 icon="fas fa-stop"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Stop Processor</q-tooltip></q-btn>
+                ><q-tooltip>Stop Processor</q-tooltip></q-btn
+              >
               <q-separator style="margin-right: 8px;" />
               <q-btn
                 dense
@@ -863,7 +869,8 @@
                 icon="fas fa-save"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Save Processor</q-tooltip></q-btn>
+                ><q-tooltip>Save Processor</q-tooltip></q-btn
+              >
               <q-btn
                 dense
                 flat
@@ -872,7 +879,8 @@
                 icon="fas fa-upload"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Publish Processor</q-tooltip></q-btn>
+                ><q-tooltip>Publish Processor</q-tooltip></q-btn
+              >
             </q-toolbar>
             <q-toolbar style="margin-top: 0px; min-height: 20px;">
               <q-btn
@@ -883,9 +891,10 @@
                 icon="fas fa-copy"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Copy Processor</q-tooltip></q-btn>
+                ><q-tooltip>Copy Processor</q-tooltip></q-btn
+              >
               <q-separator style="margin-right: 8px;" />
-              
+
               <q-separator />
               <q-separator style="margin-right: 8px;" />
               <q-btn
@@ -916,7 +925,8 @@
                 icon="far fa-trash-alt"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
-              ><q-tooltip>Delete Processor</q-tooltip></q-btn>
+                ><q-tooltip>Delete Processor</q-tooltip></q-btn
+              >
             </q-toolbar>
           </q-card-section>
         </q-card>
@@ -938,49 +948,48 @@
         icon="mail_outline"
         label="Messages"
       >
-        <q-card style="padding: 5px;height:400px">
-         <q-scroll-area style="height: 395px; width: 100%;">
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         This is a log line.<br>
-         </q-scroll-area>
+        <q-card style="padding: 5px; height: 400px;">
+          <q-scroll-area style="height: 395px; width: 100%;">
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+            This is a log line.<br />
+          </q-scroll-area>
         </q-card>
-        </q-expansion-item>
-
+      </q-expansion-item>
     </div>
 
     <q-dialog v-model="showconfirmclose" persistent>
@@ -1301,6 +1310,142 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog v-model="versionsDialog" transition-show="none" persistent>
+      <q-card
+        style="
+          width: 70vw;
+          max-width: 70vw;
+          height: 80vh;
+          padding: 10px;
+          padding-left: 30px;
+          padding-top: 40px;
+        "
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Versions</q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="versionsDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-splitter
+          v-model="versionSplitter"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: calc(100% - 40px);"
+        >
+          <template v-slot:before>
+            <q-table
+              dense
+              :columns="versioncolumns"
+              :data="versiondata"
+              row-key="name"
+              flat
+              :pagination="versionPagination"
+              style="
+                height: calc(100% - 0px);
+                width: 100%;
+                border-top-radius: 0px;
+                border-bottom-radius: 0px;
+              "
+            >
+              <template v-slot:body="props">
+                <q-tr :props="props" :key="getUuid">
+                  <q-td :key="props.cols[0].name" :props="props">
+                    <a
+                      class="text-secondary"
+                      @click="previewFlow(props.row.version)"
+                      >{{ props.cols[0].value }}</a>
+                  </q-td>
+                  <q-td :key="props.cols[1].name" :props="props">
+                    {{ props.cols[1].value }}
+                  </q-td>
+                  <q-td :key="props.cols[2].name" :props="props">
+                    {{ props.cols[2].value }}
+                  </q-td>
+                  <q-td :key="props.cols[3].name" :props="props">
+                    {{ props.cols[3].value }}
+                  </q-td>
+                  <q-td :key="props.cols[4].name" :props="props">
+                    {{ props.cols[4].value }}
+                  </q-td>
+                  <q-td :key="props.cols[5].name" :props="props">
+                    {{ props.cols[5].value }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </template>
+          <template v-slot:after
+            ><div style="height: 100%; width: 100%;">
+              <Designer
+                :ref="'previewdesigner'"
+                :flowcode="''"
+                :flowname="''"
+                :flowuuid="''"
+                :flowid="''"
+                :surfaceId="''"
+                navigate="false"
+                :showtoolbar="false"
+              /></div
+          ></template>
+        </q-splitter>
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            icon="refresh"
+            class="bg-secondary text-dark"
+            color="primary"
+            @click="refreshVersions"
+          />
+        </q-card-actions>
+        <q-card-actions align="right"
+          ><q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+
+        <q-inner-loading :showing="versionsLoading" style="z-index: 9999;">
+          <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 <style>
@@ -1494,6 +1639,7 @@ export default {
     'flow',
     'showtoolbar',
     'flowname',
+    'navigate',
   ],
   components: {
     Styles,
@@ -1503,6 +1649,21 @@ export default {
     Queue,
     Networks,
     editor: require('vue2-ace-editor'),
+  },
+  watch: {
+    versionsDialog: function (value) {
+      if (value) {
+        console.log('LOAD VERSIONS');
+        DataService.getVersions(this.flowuuid)
+          .then((versions) => {
+            this.versiondata = versions.data;
+            this.versionsLoading = false;
+          })
+          .catch((error) => {
+            this.versionsLoading = false;
+          });
+      }
+    },
   },
   computed: {
     htmlDataComponent() {
@@ -1543,6 +1704,20 @@ export default {
     },
   },
   methods: {
+    previewFlow(version) {
+      console.log('preview', version, this.versiondata);
+      this.versiondata.forEach((row) => {
+        console.log('row', row);
+        if (row.version == version) {
+          console.log('PREVIEW', row.code);
+          this.$refs.previewdesigner.toolkit.clear();
+          this.$refs.previewdesigner.toolkit.load({
+            type: 'json',
+            data: JSON.parse(row.code)
+          });
+        }
+      });
+    },
     bandwidthToggle() {
       console.log('bandwidthToggle');
       this.showBandwidth = !this.showBandwidth;
@@ -1800,7 +1975,7 @@ export default {
 
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
-
+    console.log('NAVIGATE', this.navigate);
     console.log('FLOW UUID', this.flowuuid);
     console.log('MOUNTED DESIGNER: STORE', this.$store);
     window.store = this.$store;
@@ -1974,6 +2149,62 @@ export default {
   },
   data: () => {
     return {
+      versiondata: [],
+      versionsLoading: true,
+      flow: {
+        id: '',
+        code: '',
+        filename: '',
+        _id: '',
+      },
+      navigate: true,
+      versioncolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'type',
+          label: 'Type',
+          field: 'type',
+          align: 'left',
+        },
+        {
+          name: 'filepath',
+          label: 'File Path',
+          field: 'filepath',
+          align: 'left',
+        },
+        {
+          name: 'collection',
+          label: 'Collection',
+          field: 'collection',
+          align: 'left',
+        },
+        {
+          name: 'version',
+          label: 'Version',
+          field: 'version',
+          align: 'left',
+        },
+        {
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left',
+        },
+      ],
+      versionSplitter: 50,
+      versionPagination: {
+        sortBy: 'desc',
+        descending: false,
+        page: 1,
+        rowsPerPage: 20,
+        // rowsNumber: xx if getting data from a server
+      },
+      versionsDialog: false,
       zoom: 1.0,
       value: true,
       showBandwidth: true,
@@ -2541,8 +2772,8 @@ export default {
             events: {
               tap: function (params) {
                 // toolkit.toggleSelection(params.node);
-              }
-            }
+              },
+            },
           },
           processor: {
             component: ScriptTemplate,
@@ -2659,10 +2890,10 @@ export default {
             },
           },
           data: {
-            component: DataTemplate
+            component: DataTemplate,
           },
           schema: {
-            component: SchemaTemplate
+            component: SchemaTemplate,
           },
 
           router: {
@@ -2908,12 +3139,11 @@ export default {
                       propsData: {
                         node:
                           component.source.attributes['data-port-id'].nodeValue,
-                        name: 'sockq2.proc2.do_this' //component.getData()['name'],
+                        name: 'sockq2.proc2.do_this', //component.getData()['name'],
                       },
                     });
                     instance.$mount();
                     return instance.$el;
-
                   },
                   id: 'connector',
                   events: {

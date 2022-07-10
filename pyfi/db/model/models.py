@@ -394,6 +394,26 @@ class ContainerModel(BaseModel):
     container_id = Column(String(80), unique=True, nullable=False)
 
 
+class VersionModel(Base):
+    __tablename__ = "versions"
+
+    id = Column(
+        String(40),
+        autoincrement=False,
+        default=literal_column("uuid_generate_v4()"),
+        unique=True,
+        primary_key=True,
+    )
+    name = Column(String(80), unique=False, nullable=False)
+    file_id = Column(String, ForeignKey("file.id"), nullable=False)
+    file = relationship("FileModel", lazy=True)
+    owner = Column(String(40), default=literal_column("current_user"))
+    flow = Column(Text, unique=False, nullable=False)
+
+    version = Column(
+        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
+    )
+
 class DeploymentModel(BaseModel):
     __tablename__ = "deployment"
 

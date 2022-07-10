@@ -238,6 +238,8 @@
                 :flowuuid="flow._id"
                 :flowid="flow.id"
                 :surfaceId="'flow' + flow.id"
+                showtoolbar="true"
+                navigate="true"
               />
             </q-tab-panel>
           </q-tab-panels>

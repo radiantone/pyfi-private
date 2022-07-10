@@ -43,6 +43,7 @@ from pyfi.db.model import (
     LogModel,
     DeploymentModel,
     NetworkModel,
+    VersionModel
 )
 from pyfi.client.user import USER, engine, session, sessionmaker
 from flask_restx import Api, Resource, fields, reqparse
@@ -223,6 +224,8 @@ def do_processor(id):
         with get_session() as session:
             logging.info("POSTING processor: %s",processor)
             _processor = session.query(ProcessorModel).filter_by(name=processor['name']).first()
+
+
             if not _processor:
 
                 props = {
@@ -572,6 +575,25 @@ def delete_file(fid):
             return jsonify(status), 500
 
 
+@app.route("/versions/<flowid>", methods=["GET"])
+def get_versions(flowid):
+
+    with get_session() as session:
+        logging.info("Getting versions for %s",flowid)
+        versions = session.query(VersionModel).filter(VersionModel.file_id==flowid).all()
+        logging.info("Got versions for %s %s",flowid, versions)
+
+        _versions = [{
+            'name':version.file.filename,
+            'type':'flow',
+            'filepath':version.file.path,
+            'collection':version.file.collection,
+            'version':str(version.version),
+            'owner':version.owner,            
+            'code':version.flow
+        } for version in versions]
+        return jsonify(_versions)
+
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
 def post_files(collection, path):
     print("POST", collection, path)
@@ -674,6 +696,11 @@ def post_files(collection, path):
             if "saveas" in data:
                 print("SAVEAS", file)
 
+        if data["type"] == 'flow':
+            logging.info("Creating version %s %s", file.name, file.id)
+            version = VersionModel(name=file.name, file=file, flow=file.code)
+            session.add(version)
+            logging.info("Added version %s",version)
             session.add(file)
             session.commit()
 
