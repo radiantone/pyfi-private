@@ -789,7 +789,7 @@
     </ul>
 
     <ul
-      v-if="obj.icon == 'fab fa-python'"
+      v-if="obj.icon == 'fab fa-python' || obj.icon == 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"

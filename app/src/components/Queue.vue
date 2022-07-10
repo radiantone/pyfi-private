@@ -22,6 +22,7 @@
           :options="options"
           :dense="true"
           :options-dense="true"
+          :menu-offset="[5,-9]"
         >
           <template v-slot:prepend>
             <q-icon name="far fa-envelope" />

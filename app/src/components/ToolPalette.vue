@@ -305,12 +305,18 @@
       </q-tooltip>
     </q-btn>
     <q-space />
-
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Active Hosts:
+      Nodes:
+      <span class="text-dark">17</span>
+    </q-item-label>
+    <q-item-label
+      class="text-secondary"
+      style="margin-top: 40px; margin-right: 20px;"
+    >
+      Agents:
       <span class="text-dark">17</span>
     </q-item-label>
 
@@ -318,14 +324,14 @@
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Active Queues:
+      Queues:
       <span class="text-dark">20</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Active Processors:
+      Processors:
       <span class="text-dark">125</span>
     </q-item-label>
     <q-item-label class="text-secondary" style="margin-top: 40px;">

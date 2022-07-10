@@ -187,21 +187,6 @@
         </div>
         <div
           class="text-secondary"
-          style="margin-right: 10px;"
-          @click="addNewPort('Error', 'fas fa-exclamation')"
-        >
-          <i class="fas fa-exclamation" style="cursor: pointer;" />
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Error Plug
-          </q-tooltip>
-        </div>
-        <div
-          class="text-secondary"
           @click="addNewPort('Input', 'outlet-icon')"
           style="margin-right: 10px;"
         >

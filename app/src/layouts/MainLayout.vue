@@ -492,7 +492,7 @@
       :width="512"
       style="overflow: hidden;"
     >
-    <Processors
+    <Library
               :objecttype="'processor'"
               :icon="'fas fa-wrench'"
               :collection="'processors'"
@@ -733,7 +733,7 @@ import { defineComponent, ref } from '@vue/composition-api';
 import Designer from 'src/pages/Designer.vue';
 import ToolPalette from 'src/components/ToolPalette.vue';
 import ModelToolPalette from 'src/components/ModelToolPalette.vue';
-
+import Library from 'src/components/Library.vue';
 import Processors from 'components/Processors.vue';
 import DataService from 'components/util/DataService';
 
@@ -760,7 +760,7 @@ const socket = io('http://localhost');
 
 export default defineComponent({
   name: 'MainLayout',
-  components: { Designer, ToolPalette, ModelToolPalette, Processors },
+  components: { Designer, ToolPalette, ModelToolPalette, Processors, Library },
   setup() {
     return {};
   },

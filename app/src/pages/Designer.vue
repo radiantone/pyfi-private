@@ -460,7 +460,7 @@
           <q-list dense>
             <q-item clickable v-close-popup>
               <q-item-section side>
-                <q-icon name="fas fa-table"></q-icon>
+                <q-icon name="fas fa-refresh"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Refresh
@@ -528,27 +528,27 @@
             <q-separator />
             <q-item clickable v-close-popup>
               <q-item-section side>
-                <q-icon name="fas fa-download"></q-icon>
+                <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Download
+                Versions
               </q-item-section>
             </q-item>
             <q-separator />
             <q-item clickable v-close-popup>
               <q-item-section side>
-                <q-icon name="fas fa-upload"></q-icon>
+                <q-icon name="fas fa-download"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Upload Template
+                Download Flow
               </q-item-section>
             </q-item>
             <q-item clickable v-close-popup>
               <q-item-section side>
-                <q-icon name="fas fa-project-diagram"></q-icon>
+                <q-icon name="fas fa-upload"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Create Template
+                Upload Flow
               </q-item-section>
             </q-item>
             <q-separator />
