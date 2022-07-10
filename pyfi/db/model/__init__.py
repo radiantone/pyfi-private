@@ -27,11 +27,13 @@ from .models import (
     PasswordModel,
     DeploymentModel,
     NetworkModel,
-    VersionModel
+    VersionModel,
+    AlchemyEncoder
 )
 
 __all__ = (
     "oso",
+    "AlchemyEncoder",
     "WorkerModel",
     "VersionModel",
     "ArgumentModel",

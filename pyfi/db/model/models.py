@@ -52,6 +52,8 @@ def use_identity(element, compiler, **kw):
 
 class AlchemyEncoder(json.JSONEncoder):
     def default(self, obj):
+        from datetime import datetime
+        
         if isinstance(obj.__class__, DeclarativeMeta):
             # an SQLAlchemy class
             fields = {}
@@ -61,6 +63,8 @@ class AlchemyEncoder(json.JSONEncoder):
                 data = obj.__getattribute__(field)
                 try:
                     # this will fail on non-encodable values, like other classes
+                    if type(data) is datetime:
+                        data = str(data)
                     json.dumps(data)
                     fields[field] = data
                 except TypeError:
@@ -406,7 +410,7 @@ class VersionModel(Base):
     )
     name = Column(String(80), unique=False, nullable=False)
     file_id = Column(String, ForeignKey("file.id"), nullable=False)
-    file = relationship("FileModel", lazy=True)
+    file = relationship("FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True)
     owner = Column(String(40), default=literal_column("current_user"))
     flow = Column(Text, unique=False, nullable=False)
 

@@ -191,26 +191,7 @@ def create_endpoint(modulename, taskname):
     return route(FlowDelegate)
 
 
-class AlchemyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj.__class__, DeclarativeMeta):
-            # an SQLAlchemy class
-            fields = {}
-            for field in [
-                x for x in dir(obj) if not x.startswith("_") and x != "metadata"
-            ]:
-                data = obj.__getattribute__(field)
-                try:
-                    # this will fail on non-encodable values, like other classes
-                    json.dumps(data)
-                    fields[field] = data
-                except TypeError:
-                    fields[field] = None
-            # a json-encodable dict
-            return fields
-
-        return json.JSONEncoder.default(self, obj)
-
+from pyfi.db.model import AlchemyEncoder
 
 app.json_encoder = AlchemyEncoder
 
@@ -256,6 +237,19 @@ def get_processors():
         processors = session.query(ProcessorModel).all()
 
         return jsonify(processors)
+
+
+@app.route("/result/<resultid>", methods=["GET"])
+def get_result(resultid):
+    import redis
+    import pickle
+
+    redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+    r = redisclient.get(resultid)
+
+    _r = pickle.loads(r)
+
+    return jsonify(_r)
 
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
@@ -593,6 +587,20 @@ def get_versions(flowid):
             'code':version.flow
         } for version in versions]
         return jsonify(_versions)
+
+
+@app.route("/calls/<name>", methods=["GET"])
+def get_calls(name):
+
+    with get_session() as session:
+        processor = session.query(ProcessorModel).filter_by(name=name).first()
+        if not processor:
+            return f"Processor {name} not found.", 404
+
+        calls = session.query(CallModel).filter(CallModel.socket.has(processor_id=processor.id)).order_by(CallModel.created.desc()).limit(100).all()
+
+        jcalls = jsonify(calls)
+        return jcalls
 
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
 def post_files(collection, path):
