@@ -197,7 +197,6 @@
         </q-input>
       </q-toolbar>
     </q-header>
- 
     <q-splitter
       v-model="splitterModel"
       vertical

@@ -373,14 +373,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="
-                  addNewPort(
-                    { function: 'function: ' + func.name, args: [] },
-                    'Error',
-                    'fas fa-exclamation'
-                  )
-                "
-              >
+                @click="addNewPort({ function: 'function: ' + func.name, args: [] },'Error','fas fa-exclamation')">
                 <q-item-section side>
                   <q-icon name="fab fa-python"></q-icon>
                 </q-item-section>
@@ -1172,6 +1165,7 @@
     </q-dialog>
 
     <!-- Code dialog -->
+    <Console v-if="pythonview" :codewidth="codewidth"/>
     <q-card
       :style="
         'width: ' +
@@ -1185,6 +1179,8 @@
       <q-card-section
         style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
       >
+
+      
         <editor
           v-model="obj.code"
           @init="editorInit"
@@ -1261,6 +1257,30 @@
             content-class="bg-black text-white"
           >
             Fetch Code
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="
+            position: absolute;
+            bottom: 0px;
+            left: 150px;
+            width: 50px;
+            margin: 0px;
+          "
+          flat
+          icon="fab fa-python"
+          class="bg-accent text-secondary"
+          color="primary"
+          v-close-popup
+          @click="pythonview = !pythonview"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Python Console
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -2475,12 +2495,19 @@
         "
       >
         <div id="chart">
+          
           <apexchart
             type="candlestick"
             height="390"
             :options="chartOptions2"
             :series="series2"
           ></apexchart>
+          <!--<apexchart
+            type="line"
+            height="390"
+            :options="lineOptions"
+            :series="lineSeris"
+          ></apexchart>-->
         </div>
       </q-card-section>
       <q-card-actions align="left"></q-card-actions>
@@ -2530,7 +2557,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>{{ obj.name }}</q-item-label>
+              <q-item-label>Results for {{ obj.name }}</q-item-label>
               <q-space />
               <q-btn
                 class="text-primary"
@@ -2647,6 +2674,13 @@
   </div>
 </template>
 <style>
+
+.parentBox {
+  padding: 0px;
+  margin-left: 5px;
+  margin-right:5px;
+}
+
 .q-item {
   margin-right: 0px;
 }
@@ -2674,11 +2708,7 @@ import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
 import { mdiLambda } from '@mdi/js';
 import { TSDB } from 'uts';
-var Moment = require('moment'); // require
-
-const tsdb = new TSDB();
-
-// Import the mixin class
+import Console from 'components/Console';
 import Processor from '../Processor.vue';
 import BetterCounter from '../BetterCounter';
 import DataService from 'components/util/DataService';
@@ -2686,6 +2716,10 @@ import { mdiPowerSocketUs } from '@mdi/js';
 import { mdiCodeBraces } from '@mdi/js';
 import { urlencoded } from 'body-parser';
 import http from 'src/http-common';
+
+var Moment = require('moment'); // require
+
+const tsdb = new TSDB();
 
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
@@ -2718,6 +2752,7 @@ export default {
     editor: require('vue2-ace-editor'),
     VueResizable,
     BetterCounter,
+    Console
   },
   watch: {
     inBytes: function (val) {
@@ -2908,6 +2943,7 @@ export default {
     return {
       argports: {},
       funcs: [],
+      afuncs: [],
       codewidth: 650,
       queuecolumns: [
         {
@@ -3324,6 +3360,10 @@ export default {
           },
         },
       },
+      lineOptions: {
+
+      },
+      lineSeries: [],
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
@@ -3500,7 +3540,7 @@ export default {
           },
         },
         {
-          name: 'Read/Write',
+          name: 'Total',
           bytes: 'totalBytes',
           time: '5 min',
           spark: {
@@ -3531,6 +3571,7 @@ export default {
         },
       ],
       codeview: false,
+      pythonview: false,
       gitview: false,
       entityName: '',
       columnName: '',
@@ -3569,6 +3610,14 @@ export default {
     };
   },
   methods: {
+    addFunc(func) {
+      console.log("FUNCS2",this.funcs)
+      addNewPort(
+                    { function: 'function: ' + func.name, args: func.args },
+                    'Output',
+                    'outlet-icon'
+                  )
+    },
     showResult(resultid) {
       this.resultdataloading = true;
 
@@ -3584,7 +3633,9 @@ export default {
       DataService.getCalls(this.obj.name).then((calls) => {
         this.resultdata = calls.data;
         this.resultloading = false;
-      });
+      }).catch((error) => {
+        this.resultloading = false;  
+      })
     },
     showResultsDialog() {
       this.viewResultsDialog = true;
@@ -3628,8 +3679,10 @@ export default {
             }
           }
           this.funcs.push({ name: name, args: _args });
+          //this.afuncs.push({ name: name, args: _args });
         }
 
+        console.log("FUNCS", this.funcs);
         if (this.$refs.myEditor) {
           const editor = this.$refs.myEditor.editor;
 
@@ -3885,12 +3938,27 @@ export default {
         me.funcs = [];
 
         for (const match of matches) {
-          me.funcs.push({ name: match[2] });
+            var name = match[0].split('(')[0].split(' ').at(-1);
+            var args = match[2].split(',');
+
+            var _args = [];
+            for (const arg of args) {
+              if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
+              } else {
+                if (arg.indexOf(':') > -1) {
+                  arg = arg.split(':')[0];
+                }
+                console.log('ARG', arg);
+                _args.push(arg);
+              }
+            }
+            me.funcs.push({ name: name, args: _args });
         }
 
         re = /def (\w+)\s*\((.*?)\):/g;
         matches = editor.getValue().matchAll(re);
         for (const match of matches) {
+
         }
       });
     },    
@@ -3915,14 +3983,23 @@ export default {
         me.funcs = [];
 
         for (const match of matches) {
-          me.funcs.push({ name: match[2] });
+            var name = match[0].split('(')[0].split(' ').at(-1);
+            var args = match[2].split(',');
+
+            var _args = [];
+            for (const arg of args) {
+              if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
+              } else {
+                if (arg.indexOf(':') > -1) {
+                  arg = arg.split(':')[0];
+                }
+                console.log('ARG', arg);
+                _args.push(arg);
+              }
+            }
+            me.funcs.push({ name: name, args: _args });
         }
 
-        re = /def (\w+)\s*\((.*?)\):/g;
-        matches = editor.getValue().matchAll(re);
-        for (const match of matches) {
-          console.log('FUNC', match);
-        }
       });
       if (me.obj.code) {
         editor.session.setValue(me.obj.code);
@@ -4047,15 +4124,20 @@ export default {
 
       this.updateSchemas();
 
-      func['args'].forEach((arg) => {
-        var arg = this.addPort({
-          name: arg,
-          icon: 'fab fa-python',
-          type: 'Input',
-        });
-        this.ports[arg] = true;
-        this.argports[port.id].push(arg.id);
-      });
+      if (type == 'Error') {
+        return;
+      }
+
+          func['args'].forEach((arg) => {
+                  var arg = this.addPort({
+                    name: arg,
+                    icon: 'fab fa-python',
+                    type: 'Input',
+                  });
+                  this.ports[arg] = true;
+                  this.argports[port.id].push(arg.id);
+                });
+      
     },
     addErrorPort() {
       if (this.error) {
