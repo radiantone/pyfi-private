@@ -311,8 +311,8 @@ services:
     image: redislabs/redisinsight:latest
     ports:
       - 8001:8001
-    volumes:
-      - ./data/redisinsight:/db
+    #volumes:
+    #  - ./data/redisinsight:/db
 
 volumes:
   pgdata:

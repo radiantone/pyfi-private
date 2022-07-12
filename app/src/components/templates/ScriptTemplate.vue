@@ -41,6 +41,15 @@
     </q-inner-loading>
     <q-menu context-menu style="border: 1px solid black;">
       <q-list dense>
+<q-item clickable v-close-popup @click="saveProcessor">
+              <q-item-section side>
+                <q-icon name="fas fa-save"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Save
+              </q-item-section>
+            </q-item>        
+        <q-separator />
         <q-item clickable v-close-popup @click="configview = true">
           <q-item-section side>
             <q-icon name="fas fa-cog"></q-icon>
@@ -73,9 +82,17 @@
           <q-item-section side class="text-blue-grey-8">Run</q-item-section>
         </q-item>
         <q-separator />
+<q-item clickable v-close-popup @click="showResultsDialog">
+              <q-item-section side>
+                <q-icon name="fas fa-list"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                View Results
+              </q-item-section>
+            </q-item>        
         <q-item clickable v-close-popup>
           <q-item-section side>
-            <q-icon name="fas fa-list"></q-icon>
+            <q-icon :name="this.abacusIcon"></q-icon>
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">
             View State
@@ -98,14 +115,23 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup @click="centerOnNode">
           <q-item-section side>
             <q-icon name="far fa-object-group"></q-icon>
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">
             Center in View
-          </q-item-section> </q-item
-        ><!--
+          </q-item-section> 
+        </q-item>
+        <q-item clickable v-close-popup @click="cornerInView">
+          <q-item-section side>
+            <q-icon name="far fa-object-group"></q-icon>
+          </q-item-section>
+          <q-item-section side class="text-blue-grey-8">
+            Corner in View
+          </q-item-section> 
+        </q-item>        
+        <!--
         <q-item clickable v-close-popup>
           <q-item-section side>
             <q-icon name="fas fa-palette"></q-icon>
@@ -309,6 +335,21 @@
         <q-item-label class="text-primary" style="margin-right: 30px;">{{
           obj.ratelimit
         }}</q-item-label>
+<div
+          class="text-secondary"
+          @click="cornerInView"
+          style="margin-right: 15px;"
+        >
+          <i class="far fa-object-group" style="cursor: pointer;" />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Corner
+          </q-tooltip>
+        </div>        
         <div
           class="text-secondary"
           @click="refreshProcessor"
@@ -599,23 +640,7 @@
           "
         >
           <q-list dense>
-            <q-item clickable v-close-popup @click="saveProcessor">
-              <q-item-section side>
-                <q-icon name="fas fa-save"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Save
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="showResultsDialog">
-              <q-item-section side>
-                <q-icon name="fas fa-list"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Results
-              </q-item-section>
-            </q-item>
-            <q-separator />
+
             <q-item
               clickable
               v-close-popup
@@ -1165,7 +1190,7 @@
     </q-dialog>
 
     <!-- Code dialog -->
-    <Console v-if="pythonview" :codewidth="codewidth"/>
+    <Console v-if="pythonview && codeview" :codewidth="codewidth"/>
     <q-card
       :style="
         'width: ' +
@@ -2707,6 +2732,7 @@ import { v4 as uuidv4 } from 'uuid';
 import VueResizable from 'vue-resizable';
 import Vuetify from 'vuetify';
 import { mdiLambda } from '@mdi/js';
+import { mdiAbacus } from '@mdi/js';
 import { TSDB } from 'uts';
 import Console from 'components/Console';
 import Processor from '../Processor.vue';
@@ -2764,6 +2790,7 @@ export default {
     this.plugIcon = mdiPowerSocketUs;
     this.braces = mdiCodeBraces;
     this.lambdaIcon = mdiLambda;
+    this.abacusIcon = mdiAbacus;
     console.log('me.tooltips ', me.tooltips);
     console.log('start listening for show.tooltips');
     window.root.$on('show.tooltips', (value) => {
@@ -3610,6 +3637,28 @@ export default {
     };
   },
   methods: {
+    cornerInView () {
+      var node = this.toolkit.getNode(this.obj);
+      window.toolkit.surface.setZoom(1.09);
+      window.toolkit.surface.centerOn(node, {
+        doNotAnimate: true,
+        onComplete: function () {
+          window.toolkit.surface.pan(-700, -440);
+        },
+      });
+    },
+    centerOnNode () {
+      var node = this.toolkit.getNode(this.obj);
+        
+      window.toolkit.surface.centerOn(node, {
+        doNotAnimate: true,
+        onComplete: function () {
+          var loc = window.toolkit.surface.mapLocation(300, 50);
+          //console.log(loc);
+          window.toolkit.surface.pan(0, -200);
+        },
+      });
+    },
     addFunc(func) {
       console.log("FUNCS2",this.funcs)
       addNewPort(
@@ -3641,25 +3690,11 @@ export default {
       this.viewResultsDialog = true;
       this.refreshResultsData();
     },
-    fetchCode() {
-      var me = this;
-      var url = new URL(this.obj.gitrepo);
-      console.log('URL ', url);
-      //https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
-      var codeUrl =
-        'https://raw.githubusercontent.com/' +
-        url.pathname +
-        '/main/' +
-        this.obj.modulepath;
-      console.log('CODE', codeUrl);
-      http.get(codeUrl).then((response) => {
-        console.log('CODE RESPONSE', response);
-
-        me.obj.code = response.data;
-        //const re = /(def)\s(\w+)/g;
+    updateFunctions (data) {
+      
         const re = /def (\w+)\s*\((.*?)\):/g;
 
-        var matches = response.data.matchAll(re);
+        var matches = data.matchAll(re);
 
         this.funcs = [];
 
@@ -3679,10 +3714,27 @@ export default {
             }
           }
           this.funcs.push({ name: name, args: _args });
-          //this.afuncs.push({ name: name, args: _args });
         }
 
-        console.log("FUNCS", this.funcs);
+    },
+    fetchCode() {
+      var me = this;
+      var url = new URL(this.obj.gitrepo);
+      console.log('URL ', url);
+      //https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
+      var codeUrl =
+        'https://raw.githubusercontent.com/' +
+        url.pathname +
+        '/main/' +
+        this.obj.modulepath;
+      console.log('CODE', codeUrl);
+      http.get(codeUrl).then((response) => {
+        console.log('CODE RESPONSE', response);
+
+        me.obj.code = response.data;
+        //const re = /(def)\s(\w+)/g;
+        me.updateFunctions(response.data);
+
         if (this.$refs.myEditor) {
           const editor = this.$refs.myEditor.editor;
 
@@ -3930,36 +3982,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true);
       editor.on('change', function () {
         console.log('edit event');
-
-        var re = /(def)\s(\w+)/g;
-
-        var matches = editor.getValue().matchAll(re);
-
-        me.funcs = [];
-
-        for (const match of matches) {
-            var name = match[0].split('(')[0].split(' ').at(-1);
-            var args = match[2].split(',');
-
-            var _args = [];
-            for (const arg of args) {
-              if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
-              } else {
-                if (arg.indexOf(':') > -1) {
-                  arg = arg.split(':')[0];
-                }
-                console.log('ARG', arg);
-                _args.push(arg);
-              }
-            }
-            me.funcs.push({ name: name, args: _args });
-        }
-
-        re = /def (\w+)\s*\((.*?)\):/g;
-        matches = editor.getValue().matchAll(re);
-        for (const match of matches) {
-
-        }
+        me.updateFunctions(editor.getValue())
       });
     },    
     editorInit: function () {
@@ -3976,29 +3999,7 @@ export default {
       editor.on('change', function () {
         console.log('edit event');
 
-        var re = /(def)\s(\w+)/g;
-
-        var matches = editor.getValue().matchAll(re);
-
-        me.funcs = [];
-
-        for (const match of matches) {
-            var name = match[0].split('(')[0].split(' ').at(-1);
-            var args = match[2].split(',');
-
-            var _args = [];
-            for (const arg of args) {
-              if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
-              } else {
-                if (arg.indexOf(':') > -1) {
-                  arg = arg.split(':')[0];
-                }
-                console.log('ARG', arg);
-                _args.push(arg);
-              }
-            }
-            me.funcs.push({ name: name, args: _args });
-        }
+        me.updateFunctions(editor.getValue())
 
       });
       if (me.obj.code) {
