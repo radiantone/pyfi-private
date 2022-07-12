@@ -142,7 +142,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="far fa-object-group"
-          label="0"
+          :label="groups"
         ><q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -898,8 +898,11 @@ export default defineComponent({
   },
   methods: {
     updateStats () {
+      console.log("UPDATE STATS")
+
       var running = 0;
       var stopped = 0;
+
       if (window.toolkit) {
         var objs = window.toolkit.getGraph().serialize()
 
@@ -914,8 +917,10 @@ export default defineComponent({
           }
         });
       }
+      debugger;
       this.stopped = stopped;
       this.running = running;
+      this.groups = objs['groups'].length;
     },
     getUuid() {
       return 'key_' + uuidv4();
@@ -1298,6 +1303,7 @@ export default defineComponent({
       },
       running: 0,
       stopped: 0,
+      groups: 0,
       librarydrawer: false,
       newQueueDialog: false,
       messagedrawer: false,

@@ -47,6 +47,7 @@
           size="sm"
           icon="fa fa-stop"
           class="q-mr-xs"
+          @click="nodeStatus('stopped')"
         >
           <q-tooltip
             content-class
@@ -62,6 +63,7 @@
           size="sm"
           icon="fa fa-play"
           class="q-mr-xs"
+          @click="nodeStatus('running')"
         >
           <q-tooltip
             content-class
@@ -145,21 +147,6 @@
             :offset="[10, 10]"
           >
             Redo
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          style="min-height: 45px; font-size: 1em;"
-          @click="refresh"
-          size="sm"
-          icon="update"
-        >
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Update
           </q-tooltip>
         </q-btn>
         <q-btn
@@ -486,15 +473,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
-              <q-item-section side>
-                <q-icon name="fas fa-paste"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Paste
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="nodeStatus('running')">
               <q-item-section side>
                 <q-icon name="fas fa-play"></q-icon>
               </q-item-section>
@@ -502,7 +481,7 @@
                 Start
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="nodeStatus('stopped')">
               <q-item-section side>
                 <q-icon name="fas fa-stop"></q-icon>
               </q-item-section>
@@ -1718,8 +1697,7 @@ export default {
         }
       });
     },
-    bandwidthToggle() {
-      console.log('bandwidthToggle');
+    nodeStatus(status) {
       this.showBandwidth = !this.showBandwidth;
       var selection = window.toolkit.getSelection();
       var nodes = selection.getAll();
@@ -1727,7 +1705,29 @@ export default {
       if (nodes.length > 0) {
         nodes.forEach((node) => {
           setTimeout(() => {
-            console.log('BANDWIDTH NODE', node.component, node);
+            if (node.component && node.component.setBandwidth) {
+              node.component.obj.status = status;
+            }
+          });
+        });
+      } else {
+        window.toolkit.getNodes().forEach((node) => {
+          setTimeout(() => {
+            if (node.component && node.component.setBandwidth) {
+              node.component.obj.status = status;
+            }
+          });
+        });
+      }
+    },
+    bandwidthToggle() {
+      this.showBandwidth = !this.showBandwidth;
+      var selection = window.toolkit.getSelection();
+      var nodes = selection.getAll();
+
+      if (nodes.length > 0) {
+        nodes.forEach((node) => {
+          setTimeout(() => {
             if (node.component && node.component.setBandwidth) {
               node.component.setBandwidth(this.showBandwidth);
             }
@@ -1736,7 +1736,6 @@ export default {
       } else {
         window.toolkit.getNodes().forEach((node) => {
           setTimeout(() => {
-            console.log('BANDWIDTH NODE', node.component, node);
             if (node.component && node.component.setBandwidth) {
               node.component.setBandwidth(this.showBandwidth);
             }
@@ -2046,6 +2045,7 @@ export default {
               // called after the data has loaded.
               window.toolkit.surface.setZoom(1.0);
               me.toolkit.surface.zoomToFit({ fill: 0.75 });
+              window.designer.$root.$on('toolkit.dirty');
             },
           });
         }
@@ -2609,7 +2609,7 @@ export default {
           });
           toolkit.dirty = true;
 
-          window.toolkit.$root.$emit('toolkit.dirty', true);
+          toolkit.$root.$emit('toolkit.dirty', true);
         },
         groupFactory: function (type, data, callback) {
           console.log('Group factory:', type, data);

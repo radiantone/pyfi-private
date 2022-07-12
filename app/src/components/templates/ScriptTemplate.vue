@@ -3653,6 +3653,7 @@ export default {
     },
     centerOnNode () {
       var node = this.toolkit.getNode(this.obj);
+      window.toolkit.surface.setZoom(1.09);
         
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
