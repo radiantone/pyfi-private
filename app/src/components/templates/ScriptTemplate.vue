@@ -2781,6 +2781,9 @@ export default {
     Console
   },
   watch: {
+    'obj.status': function(val) {
+      window.designer.$root.$emit('toolkit.dirty')
+    },
     inBytes: function (val) {
       //console.log('inBytes', val);
     },
@@ -2952,6 +2955,7 @@ export default {
     window.designer.$root.$on('toolkit.dirty', () => {
       this.updateSchemas();
     });
+    window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true;
     DataService.getDeployments(this.obj.name)
       .then((deployments) => {

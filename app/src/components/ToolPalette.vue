@@ -238,6 +238,23 @@
     <q-btn
       flat
       align="left"
+      icon="las la-database"
+      aria-label="Database"
+      size="xl"
+      id="database"
+      style="min-height: 56px; cursor: grabbing;"
+      class="text-dark text-bold"
+    >
+      <q-tooltip
+        content-style="font-size: 16px"
+        content-class="bg-black text-white"
+      >
+        Database
+      </q-tooltip>
+    </q-btn>    
+    <q-btn
+      flat
+      align="left"
       icon="las la-chart-area"
       aria-label="Chart"
       size="large"
@@ -310,14 +327,14 @@
       style="margin-top: 40px; margin-right: 20px;"
     >
       Nodes:
-      <span class="text-dark">17</span>
+      <span class="text-dark">{{nodes}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
       Agents:
-      <span class="text-dark">17</span>
+      <span class="text-dark">{{agents}}</span>
     </q-item-label>
 
     <q-item-label
@@ -325,15 +342,36 @@
       style="margin-top: 40px; margin-right: 20px;"
     >
       Queues:
-      <span class="text-dark">20</span>
+      <span class="text-dark">{{queues}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
       Processors:
-      <span class="text-dark">125</span>
+      <span class="text-dark">{{processors}}</span>
     </q-item-label>
+    <q-item-label
+      class="text-secondary"
+      style="margin-top: 40px; margin-right: 20px;"
+    >
+      Deployments:
+      <span class="text-dark">{{deployments}}</span>
+    </q-item-label>       
+    <q-item-label
+      class="text-secondary"
+      style="margin-top: 40px; margin-right: 20px;"
+    >
+      CPUS:
+      <span class="text-dark">{{cpus_running}}/{{cpus_total}}</span>
+    </q-item-label>      
+    <q-item-label
+      class="text-secondary"
+      style="margin-top: 40px; margin-right: 20px;"
+    >
+      Tasks:
+      <span class="text-dark">{{tasks}}</span>
+    </q-item-label>    
     <q-item-label class="text-secondary" style="margin-top: 40px;">
       System Usage:
     </q-item-label>
@@ -495,6 +533,7 @@ import { mdiCodeBraces } from '@mdi/js';
 
 export default {
   name: 'ToolPalette',
+  props: ['nodes','agents','queues','processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
   created () {
     
     this.braces = mdiCodeBraces;

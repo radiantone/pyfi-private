@@ -48,7 +48,7 @@ def get_session():
                 # Publish to redis, pubsub, which gets sent to browser
                 redisclient.publish(
                     "global",
-                    json.dumps({'type':'processor','processor':obj}),
+                    json.dumps({'type':'processor','processor':str(obj)}),
                 )
 
     return _session

@@ -6,6 +6,14 @@
         v-bind:data-generator="dataGenerator"
         surfaceId="flow1"
         selector="[data-node-type]"
+        :nodes="this.stats.nodes"
+        :agents="this.stats.agents"
+        :queues="this.stats.queues"
+        :processors="this.stats.processors"
+        :tasks="this.stats.tasks"
+        :cpus_total="this.stats.cpus_total"
+        :deployments="this.stats.deployments"
+        :cpus_running="this.stats.cpus_running"
       />
       <ModelToolPalette
         v-if="tools == 'model'"
@@ -22,7 +30,12 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-list"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Statistics Table
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -31,7 +44,12 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-bullseye"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Data Transmitted
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -40,7 +58,12 @@
           style="padding: 0px; height: 40px;"
           icon="fas fa-satellite-dish"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Messages Transmitted
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -48,8 +71,13 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fa fa-play"
-          label="0"
-        />
+          :label="running"
+        >              <q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Running Processors
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -57,8 +85,13 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fa fa-stop"
-          label="0"
-        />
+          :label="stopped"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Stopped Processors
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -67,34 +100,12 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-warning invalid"
           label="0"
-        />
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fas fa-bolt"
-          label="0"
-        />
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fa fa-check"
-          label="0"
-        />
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fa fa-asterisk"
-          label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Errored Processors
+              </q-tooltip></q-btn>
         <q-btn
           color="secondary"
           flat
@@ -103,25 +114,84 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-arrow-circle-up"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Deployed Processors
+              </q-tooltip></q-btn>              
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
           style="padding: 0px; height: 40px;"
-          icon="fa fa-exclamation-circle"
+          icon="fas fa-bolt"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Queued Tasks
+              </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
           style="padding: 0px; height: 40px;"
-          icon="fa fa-question"
+          icon="far fa-object-group"
           label="0"
-        />
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Processor Groups
+              </q-tooltip></q-btn>
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;"
+          icon="history"
+          label="0"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Versions
+              </q-tooltip></q-btn>
+
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;"
+          icon="fa fa-edit"
+          label="0"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Local Changes
+              </q-tooltip></q-btn>
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;"
+          icon="code"
+          label="0"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Lines of Code
+              </q-tooltip></q-btn>
 
         <q-btn
           color="secondary"
@@ -775,6 +845,8 @@ export default defineComponent({
       if (msg['channel'] == 'task') {
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 200);
+      } else if (msg['type'] && msg['type'] == 'stats') {
+        me.stats = msg;
       } else {
         var qs = [];
         if (msg['type'] && msg['type'] == 'queues') {
@@ -825,6 +897,26 @@ export default defineComponent({
     },
   },
   methods: {
+    updateStats () {
+      var running = 0;
+      var stopped = 0;
+      if (window.toolkit) {
+        var objs = window.toolkit.getGraph().serialize()
+
+        console.log("OBJS", objs);
+        objs['nodes'].forEach((node) => {
+          console.log("NODE", node)
+          if (node.status == 'running') {
+            running += 1;
+          }
+          if (node.status == 'stopped') {
+            stopped += 1;
+          }
+        });
+      }
+      this.stopped = stopped;
+      this.running = running;
+    },
     getUuid() {
       return 'key_' + uuidv4();
     },
@@ -893,6 +985,9 @@ export default defineComponent({
     var me = this;
     //console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     //console.log('MAINLAYOUT STORE', this.$store);
+    window.designer.$root.$on('toolkit.dirty', () => {
+      this.updateStats();
+    })
     this.$root.$on('flow.uuid', (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i];
@@ -1191,6 +1286,18 @@ export default defineComponent({
   },
   data() {
     return {
+      stats: {
+        nodes: 0,
+        agents: 0,
+        queues: 0,
+        processors: 0,
+        cpus_total: 0,
+        deployments: 0,
+        cpus_running: 0,
+        tasks: 0
+      },
+      running: 0,
+      stopped: 0,
       librarydrawer: false,
       newQueueDialog: false,
       messagedrawer: false,

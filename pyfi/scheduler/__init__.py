@@ -17,7 +17,10 @@ from pyfi.db.model import (
     SchedulerModel,
     WorkModel,
     ProcessorModel,
+    NodeModel,
+    QueueModel,
     DeploymentModel,
+    TaskModel,
     AgentModel,
 )
 from pyfi.db import get_session
@@ -180,6 +183,51 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
+
+            def update_stats():
+                node_count = (
+                    session.query(NodeModel).count()
+                )
+                agent_count = (
+                    session.query(AgentModel).count()
+                )
+                queue_count = (
+                    session.query(QueueModel).count()
+                )
+                processor_count = (
+                    session.query(ProcessorModel).count()
+                )
+                task_count = (
+                    session.query(TaskModel).count()
+                )
+
+                deployments = (
+                    session.query(DeploymentModel).all()
+                )                
+
+                cpu_count = 0
+                cpu_running = 0
+
+                for deployment in deployments:
+                    cpu_count += deployment.cpus
+                    if deployment.status == 'running':
+                        cpu_running += deployment.cpus
+
+                return {
+                    'nodes': node_count,
+                    'agents': agent_count,
+                    'queues': queue_count,
+                    'processors': processor_count,
+                    'deployments': len(deployments),
+                    'tasks': task_count,
+                    'cpus_total': cpu_count,
+                    'cpus_running': cpu_running,
+                    'type': 'stats'
+                }
+
+            stats = update_stats()
+            logging.info("Publishing stats: %s",json.dumps(stats))
+            redisclient.publish("global", json.dumps(stats))
 
             """
             if processor is None:
