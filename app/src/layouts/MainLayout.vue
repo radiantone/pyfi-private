@@ -41,9 +41,9 @@
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px;"
+          style="padding: 0px; height: 40px; "
           icon="fa fa-bullseye"
-          label="0"
+          :label="transmittedSize"
         ><q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -57,7 +57,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fas fa-satellite-dish"
-          label="0"
+          :label="messageCount"
         ><q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -807,6 +807,8 @@ import ModelToolPalette from 'src/components/ModelToolPalette.vue';
 import Library from 'src/components/Library.vue';
 import Processors from 'components/Processors.vue';
 import DataService from 'components/util/DataService';
+var filesize = require('filesize');
+const size = filesize.partial({base: 2, standard: "jedec"});
 
 import {
   mappedGetters,
@@ -897,6 +899,13 @@ export default defineComponent({
     },
   },
   methods: {
+    transmitted () {
+      var me = this;
+      setTimeout(5, () => {
+        me.transmittedSize = size(this.messageSize)
+        me.transmitted();
+      },3000)
+    },    
     updateStats () {
       console.log("UPDATE STATS")
 
@@ -993,6 +1002,15 @@ export default defineComponent({
     window.designer.$root.$on('toolkit.dirty', () => {
       this.updateStats();
     })
+
+    this.transmitted();
+    
+    window.root.$on('message.count', (count) => {
+      me.messageCount += count;
+    });
+    window.root.$on('message.size', (size) => {
+      me.messageSize += size;
+    });    
     this.$root.$on('flow.uuid', (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i];
@@ -1291,6 +1309,9 @@ export default defineComponent({
   },
   data() {
     return {
+      messageCount: 0,
+      messageSize: 0,
+      transmittedSize: 0,
       stats: {
         nodes: 0,
         agents: 0,

@@ -1474,15 +1474,6 @@ export default {
     showTooltip(show) {
       this.tooltip = show;
     },
-    showSpeakerDialog(tab) {
-      // this.$root.$emit("show.speaker.tab",tab);
-      window.root.$emit('new.speaker.dialog', {
-        mode: 'edit',
-        tab: tab,
-        obj: this.obj,
-      });
-      console.log('show speaker dialog');
-    },
     confirmDeleteSpeech(id) {
       this.deleteSpeechID = id;
       this.deleteItem = true;

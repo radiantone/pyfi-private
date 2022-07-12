@@ -2812,7 +2812,8 @@ export default {
       if (msg['channel'] == 'task' && msg['state']) {
         //console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
-
+        window.root.$emit('message.count', 1);
+        window.root.$emit('message.size', bytes);
         tsdb.series('inBytes').insert(
           {
             bytes: bytes,
@@ -3973,7 +3974,6 @@ export default {
         edge.innerText = value;
       });
     },
-
     resultEditorInit: function () {
       var me = this;
 
@@ -4016,15 +4016,6 @@ export default {
     },
     showTooltip(show) {
       this.tooltip = show;
-    },
-    showSpeakerDialog(tab) {
-      // this.$root.$emit("show.speaker.tab",tab);
-      window.root.$emit('new.speaker.dialog', {
-        mode: 'edit',
-        tab: tab,
-        obj: this.obj,
-      });
-      console.log('show speaker dialog');
     },
     confirmDeletePort(id) {
       this.deletePortID = id;
