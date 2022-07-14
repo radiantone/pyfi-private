@@ -197,10 +197,21 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 processor_count = (
                     session.query(ProcessorModel).count()
                 )
+                stopped_processor_count = (
+                    session.query(ProcessorModel).filter_by(status='stopped').count()
+                )
+                running_processor_count = (
+                    session.query(ProcessorModel).filter_by(status='running').count()
+                )      
+                ready_processor_count = (
+                    session.query(ProcessorModel).filter_by(status='ready').count()
+                )                           
+                error_processor_count = (
+                    session.query(ProcessorModel).filter_by(status='error').count()
+                )                                                  
                 task_count = (
                     session.query(TaskModel).count()
                 )
-
                 deployments = (
                     session.query(DeploymentModel).all()
                 )                
@@ -218,6 +229,10 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     'agents': agent_count,
                     'queues': queue_count,
                     'processors': processor_count,
+                    'processors_running': running_processor_count,
+                    'processors_stopped': stopped_processor_count,
+                    'processors_ready': ready_processor_count,
+                    'processors_error': error_processor_count,
                     'deployments': len(deployments),
                     'tasks': task_count,
                     'cpus_total': cpu_count,

@@ -105,28 +105,14 @@
                 content-class="bg-black text-white"
               >
                 Errored Processors
-              </q-tooltip></q-btn>
+              </q-tooltip></q-btn>           
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fa fa-arrow-circle-up"
-          label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Deployed Processors
-              </q-tooltip></q-btn>              
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fas fa-bolt"
+          style="padding: 0px; height: 40px;font-size:1em"
+          :icon="mdiEmailFast"
           label="0"
         ><q-tooltip
                 content-style="font-size: 16px"
@@ -134,7 +120,38 @@
               >
                 Queued Tasks
               </q-tooltip>
+        </q-btn>            
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;font-size:1em"
+          :icon="mdiEmailAlert"
+          label="0"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Errored Tasks
+              </q-tooltip>
+        </q-btn>        
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;font-size:1em"
+          :icon="mdiEmailCheck"
+          label="0"
+        ><q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Completed Tasks
+              </q-tooltip>
         </q-btn>
+              <!--
         <q-btn
           color="secondary"
           flat
@@ -192,7 +209,7 @@
               >
                 Lines of Code
               </q-tooltip></q-btn>
-
+-->
         <q-btn
           color="secondary"
           flat
@@ -807,6 +824,7 @@ import ModelToolPalette from 'src/components/ModelToolPalette.vue';
 import Library from 'src/components/Library.vue';
 import Processors from 'components/Processors.vue';
 import DataService from 'components/util/DataService';
+
 var filesize = require('filesize');
 const size = filesize.partial({base: 2, standard: "jedec"});
 
@@ -828,6 +846,10 @@ import 'assets/fonts/fontawesome-webfont.woff';
 import 'assets/fonts/flowfont2.woff2';
 
 import { mdiCodeBraces } from '@mdi/js';
+import { mdiEmailFast } from '@mdi/js';
+import { mdiEmailAlert } from '@mdi/js';
+import { mdiEmailCheck } from '@mdi/js';
+
 import { io, Socket } from 'socket.io-client';
 const socket = io('http://localhost');
 
@@ -837,7 +859,11 @@ export default defineComponent({
   setup() {
     return {};
   },
-  created() {
+  created () {
+    this.mdiEmailAlert = mdiEmailAlert;
+    this.mdiEmailFast = mdiEmailFast;
+    this.mdiEmailCheck = mdiEmailCheck;
+
     this.schemaIcon = mdiCodeBraces;
     var me = this;
     this.tab = 'flow' + this.flows[0].id;
@@ -926,10 +952,9 @@ export default defineComponent({
           }
         });
       }
-      debugger;
-      this.stopped = stopped;
-      this.running = running;
-      this.groups = objs['groups'].length;
+      //this.stopped = stopped;
+      //this.running = running;
+      //this.groups = objs['groups'].length;
     },
     getUuid() {
       return 'key_' + uuidv4();
