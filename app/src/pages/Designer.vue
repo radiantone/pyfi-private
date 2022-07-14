@@ -1646,7 +1646,6 @@ export default {
   },
   computed: {
     htmlDataComponent() {
-      console.log('htmlDataComponent');
       return {
         template:
           "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
@@ -3134,11 +3133,11 @@ export default {
                   name: '${name}',
                   create: function (component) {
                     let QueueClass = Vue.extend(Queue);
-                    debugger;
                     let instance = new QueueClass({
                       propsData: {
                         node:
                           component.source.attributes['data-port-id'].nodeValue,
+                        component: component,
                         name: 'sockq2.proc2.do_this', //component.getData()['name'],
                       },
                     });

@@ -303,10 +303,10 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         _taskp = socket.task.module+'.'+socket.task.name
                         if processor.perworker:
                             logging.info("Setting rate limit per worker for task %s to %s",_taskp, processor.ratelimit+units )
-                            celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
+                            #celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
                         else:
                             logging.info("Setting rate limit global for task %s to %s",_taskp, processor.ratelimit+units )
-                            celery.control.rate_limit(_taskp, processor.ratelimit+units)
+                            #celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
 
                 if deployed_cpus < processor.concurrency:

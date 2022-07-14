@@ -901,7 +901,7 @@ export default defineComponent({
   methods: {
     transmitted () {
       var me = this;
-      setTimeout(5, () => {
+      setTimeout(() => {
         me.transmittedSize = size(this.messageSize)
         me.transmitted();
       },3000)

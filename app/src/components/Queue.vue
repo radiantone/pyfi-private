@@ -18,7 +18,7 @@
       >
         <q-select
           style="width: 275px;"
-          v-model="model"
+          v-model="component.edge.data.queue"
           :options="options"
           :dense="true"
           :options-dense="true"
@@ -40,6 +40,7 @@
         size="xs"
         icon="close"
         color="primary"
+        @click="deleteEdgeConfirm = true"
         style="
           cursor: pointer;
           font-size: 0.7em;
@@ -165,6 +166,70 @@
         />
       </q-card-actions>
     </q-card>
+
+    <q-dialog v-model="deleteEdgeConfirm" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Delete Edge</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to delete this edge?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Delete"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="deleteEdge"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 <script>
@@ -174,7 +239,10 @@ let socket = io('http://localhost');
 
 export default {
   name: 'Button',
-  props: ['node', 'name'],
+  props: ['node', 'name', 'component'],
+  mounted () {
+    console.log("QUEUE NODE",this.node)
+  },
   created() {
     var me = this;
     socket.on('global', (data) => {
@@ -188,6 +256,10 @@ export default {
     });
   },
   methods: {
+    deleteEdge () {
+      console.log("Deleting edge ", this.component);
+      window.toolkit.removeEdge(this.component.edge);
+    },
     showQueue() {
       window.root.$emit('view.queue', this.name);
     },
@@ -218,6 +290,7 @@ export default {
   },
   data() {
     return {
+      deleteEdgeConfirm: false,
       model: 'sockq2.proc2.do_this',
       options: [
         'sockq2.proc2.do_this',
@@ -226,6 +299,9 @@ export default {
         'pyfi.processors.sample.do_this',
         'pyfi.processors.sample.do_something	',
       ],
+      obj: {
+
+      },
       messages: 0,
       bytes: 0,
       queueconfig: false,

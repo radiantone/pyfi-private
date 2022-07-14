@@ -2781,6 +2781,7 @@ export default {
     Console
   },
   watch: {
+    
     'obj.status': function(val) {
       window.designer.$root.$emit('toolkit.dirty')
     },
@@ -3644,7 +3645,7 @@ export default {
   methods: {
     cornerInView () {
       var node = this.toolkit.getNode(this.obj);
-      window.toolkit.surface.setZoom(1.09);
+      window.toolkit.surface.setZoom(1.00);
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
         onComplete: function () {

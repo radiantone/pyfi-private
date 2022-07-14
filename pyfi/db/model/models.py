@@ -328,12 +328,21 @@ class FileModel(BaseModel):
 
 class FlowModel(BaseModel):
     """
-    Docstring
+    A flow model
     """
 
     __tablename__ = "flow"
-    processors = relationship("ProcessorModel", backref="flow", lazy=True)
 
+    # Collection of processors within this flow. A processor can reside
+    # in multiple flows at once
+    processors = relationship("ProcessorModel", lazy=True)
+
+    # File reference for this flow. i.e. it's saved state
+    file = relationship("FileModel", lazy=True)
+
+    # List of versions associated with this flow
+    versions = relationship("VersionModel", lazy=True)
+    
 
 class AgentModel(BaseModel):
     """
