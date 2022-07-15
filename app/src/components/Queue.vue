@@ -18,7 +18,7 @@
       >
         <q-select
           style="width: 275px;"
-          v-model="component.edge.data.queue"
+          v-model="edgeQueue"
           :options="options"
           :dense="true"
           :options-dense="true"
@@ -241,7 +241,7 @@ export default {
   name: 'Button',
   props: ['node', 'name', 'component'],
   mounted () {
-    console.log("QUEUE NODE",this.node)
+    console.log("QUEUE NODE",this.component)
   },
   created() {
     var me = this;
@@ -254,6 +254,16 @@ export default {
     this.$on('message.received', (msg) => {
       //console.log('QUEUE MESSAGE RECEIVED', msg);
     });
+  },
+  computed: {
+    edgeQueue: function (value) {
+      if (this.component.edge) {
+        if (value) {
+          this.component.edge.data.queue = value;
+        }
+        return this.component.edge.data.queue;
+      }
+    }
   },
   methods: {
     deleteEdge () {

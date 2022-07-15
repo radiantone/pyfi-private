@@ -1400,6 +1400,7 @@
           ></template>
         </q-splitter>
         <q-card-actions align="left">
+          <!--
           <q-btn
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
@@ -1407,7 +1408,7 @@
             class="bg-secondary text-dark"
             color="primary"
             @click="refreshVersions"
-          />
+          />-->
         </q-card-actions>
         <q-card-actions align="right"
           ><q-btn

@@ -341,7 +341,7 @@ def get_queue_messages(queue):
     print("MESSAGES",messages)
     for message in messages:
         msg = {}
-        print(json.dumps(message, indent=4))
+        msg['payload'] = json.dumps(message, indent=4)
         msg["routing_key"] = message["routing_key"]
         msg["id"] = message["properties"]["headers"]["id"]
         kwargs = json.loads(

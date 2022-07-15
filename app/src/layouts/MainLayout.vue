@@ -570,7 +570,7 @@
       :width="512"
       style="overflow: hidden;"
     >
-        <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
+  <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
       <q-list separator>
         <q-item
           v-for="item in items"
@@ -580,8 +580,8 @@
           <q-item-section avatar>
             <q-icon name="fas fa-microchip"   class="text-secondary" />
           </q-item-section>
-          <q-item-section
-            ><a
+          <q-item-section>
+                      <q-item-label><a
               class="text-secondary"
               style="
                 z-index: 99999;
@@ -591,8 +591,9 @@
                 font-size: 1.3em;
               "
               @click="centerNode(item.id)"
-              >{{ item.name }}</a
-            >
+              >{{ item.name }}</a></q-item-label>
+          <q-item-label caption lines="2">{{item.description}}</q-item-label>
+
           </q-item-section>
           <q-space />
         </q-item>
@@ -693,7 +694,7 @@
                   <q-td :key="props.cols[1].name" :props="props">
                     <a
                       class="text-secondary"
-                      @click="messagedrawer = !messagedrawer"
+                      @click="showMessagePayload(props.row.payload)"
                       >{{ props.cols[1].value }}</a
                     >
                   </q-td>
@@ -714,7 +715,18 @@
             </q-table>
           </template>
           <template v-slot:after
-            ><div style="height: 100%; width: 100%;"></div
+            ><div style="height: 100%; width: 100%;">
+            <editor
+          @init="resultEditorInit"
+          style="font-size: 16px; min-height: 600px;"
+          lang="javascript"
+          theme="chrome"
+          ref="resultEditor"
+          width="100%"
+          height="fit"
+        ></editor>
+            
+            </div
           ></template>
         </q-splitter>
         <q-card-actions align="left">
@@ -884,7 +896,10 @@ const socket = io('http://localhost');
 
 export default defineComponent({
   name: 'MainLayout',
-  components: { Designer, ToolPalette, ModelToolPalette, Processors, Library },
+  components: {
+    editor: require('vue2-ace-editor'),
+    Designer, ToolPalette, ModelToolPalette, Processors, Library
+  },
   setup() {
     return {};
   },
@@ -954,6 +969,25 @@ export default defineComponent({
     },
   },
   methods: {
+    showMessagePayload (payload) {
+      const editor = this.$refs.resultEditor.editor;
+      editor.session.setValue(payload);
+    },
+    resultEditorInit: function () {
+      var me = this;
+
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      const editor = this.$refs.resultEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+      editor.on('change', function () {
+        console.log('edit event');
+      });
+    },        
     centerNode (id) {
       window.toolkit.surface.centerOn(id, {
         doNotAnimate: true,
@@ -1383,6 +1417,7 @@ export default defineComponent({
   },
   data() {
     return {
+      messageContent: '',
       graph: {},
       items: [],
       messageCount: 0,
