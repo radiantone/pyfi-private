@@ -325,6 +325,12 @@ class FileModel(BaseModel):
     type = Column(String(40))
     icon = Column(String(40))
 
+flows_versions = Table(
+    "flows_versions",
+    Base.metadata,
+    Column("flow_id", ForeignKey("flow.id"), primary_key=True),
+    Column("version_id", ForeignKey("versions.id"), primary_key=True),
+)
 
 class FlowModel(BaseModel):
     """
@@ -338,10 +344,11 @@ class FlowModel(BaseModel):
     processors = relationship("ProcessorModel", lazy=True)
 
     # File reference for this flow. i.e. it's saved state
-    file = relationship("FileModel", lazy=True)
+    file_id = Column(String, ForeignKey("file.id"), nullable=False)
+    file = relationship("FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True)
 
     # List of versions associated with this flow
-    versions = relationship("VersionModel", lazy=True)
+    versions = relationship("VersionModel", secondary=flows_versions,  lazy=True)
     
 
 class AgentModel(BaseModel):

@@ -1004,6 +1004,10 @@ def stop_processor(context, name):
         processor.requested_status = "stopped"
         database = context.obj["database"]
         database.session.add(processor)
+        for deployment in processor.deployments:
+            deployment.status = 'stopped'
+            database.session.add(deployment)
+            
         database.session.commit()
         print("Processor stop requested.")
     else:

@@ -71,7 +71,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fa fa-play"
-          :label="running"
+          :label="stats.processors_running"
         >              <q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -85,7 +85,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fa fa-stop"
-          :label="stopped"
+          :label="stats.processors_stopped"
         ><q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -99,7 +99,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px;"
           icon="fa fa-warning invalid"
-          label="0"
+          :label="stats.processors_errored"
         ><q-tooltip
                 content-style="font-size: 16px"
                 content-class="bg-black text-white"
@@ -269,6 +269,7 @@
           style="width: 20%; border-left: 1px solid lightgrey;"
           input-class="text-left text-dark"
           class="q-ml-md text-dark bg-white"
+          @keyup="searchString"
         >
           <template v-slot:append>
             <q-icon color="dark" size="sm" v-if="text === ''" name="search" />
@@ -569,7 +570,35 @@
       :width="512"
       style="overflow: hidden;"
     >
-      <q-inner-loading :showing="true" style="z-index: 9999999;">
+        <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
+      <q-list separator>
+        <q-item
+          v-for="item in items"
+          :key="item.id"
+          :id="'row' + item.id"
+        >
+          <q-item-section avatar>
+            <q-icon name="fas fa-microchip"   class="text-secondary" />
+          </q-item-section>
+          <q-item-section
+            ><a
+              class="text-secondary"
+              style="
+                z-index: 99999;
+                cursor: pointer;
+                width: 100%;
+                min-width: 250px;
+                font-size: 1.3em;
+              "
+              @click="centerNode(item.id)"
+              >{{ item.name }}</a
+            >
+          </q-item-section>
+          <q-space />
+        </q-item>
+      </q-list>
+    </q-scroll-area>
+      <q-inner-loading :showing="false" style="z-index: 9999999;">
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
     </q-drawer>
@@ -925,6 +954,24 @@ export default defineComponent({
     },
   },
   methods: {
+    centerNode (id) {
+      window.toolkit.surface.centerOn(id, {
+        doNotAnimate: true,
+        onComplete: function () {
+          window.toolkit.surface.pan(0, -200);
+        },
+      });
+    },
+    searchString () {
+      console.log("Searching for", this.text)
+      this.items = []
+      this.graph['nodes'].forEach((node) => {
+        console.log("Searching node ", node);
+        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
+          this.items.push(node)
+        }
+      })
+    },
     transmitted () {
       var me = this;
       setTimeout(() => {
@@ -1011,9 +1058,11 @@ export default defineComponent({
           this.flow = flow;
         }
       }
+      console.log("GRAPH", this.graph);
       if (this.$refs[tab + 'designer']) {
         window.toolkit = this.$refs[tab + 'designer'][0].toolkit;
         window.toolkit.$q = this.$q;
+        this.graph = window.toolkit.getGraph().serialize();
         window.renderer = window.toolkit.renderer;
         console.log('Refreshing designer');
         this.$refs[tab + 'designer'][0].refresh();
@@ -1334,6 +1383,8 @@ export default defineComponent({
   },
   data() {
     return {
+      graph: {},
+      items: [],
       messageCount: 0,
       messageSize: 0,
       transmittedSize: 0,
