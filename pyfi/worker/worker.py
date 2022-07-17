@@ -903,7 +903,7 @@ class WorkerService:
                         rj.jsonset("celery-task-result-"
                                                  + _signal["taskid"], Path.rootPath(), _r)
                         logging.info("REDIS JSON:%s %s","celery-task-result-"
-                                                 + _signal["taskid"],_r)
+                                                 + _signal["taskid"],json.loads(_r))
 
                         if isinstance(_r, TaskInvokeException):
                             import traceback
