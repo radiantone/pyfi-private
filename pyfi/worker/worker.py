@@ -895,6 +895,12 @@ class WorkerService:
                         data["message"] = json.dumps(result)
                         data["message"] = json.dumps(data)
                         data["error"] = False
+                        from rejson import Client, Path
+                        rj = Client(host=self.backend, port=6379, decode_responses=True)
+                        rj.jsonset("celery-task-result-"
+                                                 + _signal["taskid"], Path.rootPath(), result)
+                        logging.info("REDIS JSON:%s %s","celery-task-result-"
+                                                 + _signal["taskid"],result)
 
                         if isinstance(_r, TaskInvokeException):
                             import traceback
