@@ -152,8 +152,8 @@ setup(
     include_package_data=True,
     python_requires=">=3.8.*",
     install_requires=[
-        'amqp==5.0.9',
-        'celery==5.2.3',
+        'amqp',
+        'celery',
         'click',
         'flask',
         'bjoern',
@@ -177,6 +177,7 @@ setup(
         'schedule',
         'apscheduler',
         'sphinx',
+        'rejson',
         # 'simpy',
         'oso',
         'sqlalchemy-oso',
