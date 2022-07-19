@@ -755,7 +755,7 @@
             </q-table>
           </template>
           <template v-slot:after
-            ><div style="height: fit; width: 100%;">
+            ><div style="height: 100%; width: 100%;">
               <editor
                 @init="resultEditorInit"
                 style="font-size: 1.5em; "

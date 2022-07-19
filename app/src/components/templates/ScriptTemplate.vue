@@ -761,6 +761,10 @@
         :data-port-id="column.id"
       >
         <div class="table-column-edit text-primary">
+<i
+            class="fa fa-play table-column-delete-icon"
+            title="Trigger Port"
+          />        
           <i
             class="fa fa-times table-column-delete-icon"
             title="Delete Port"
@@ -846,6 +850,11 @@
         :data-port-id="column.id"
       >
         <div class="table-column-edit text-primary">
+<i
+            class="fa fa-play table-column-delete-icon"
+            title="Trigger Port"
+            style="margin-left:30px;margin-right:5px"
+          />                
           <i
             class="fa fa-times table-column-delete-icon"
             title="Delete Port"
@@ -895,7 +904,7 @@
             borderless
             v-if="column.type == 'Input'"
             :options-dense="true"
-            style="font-size: 1em;"
+            style="font-size: 1em;margin-right:20px"
             label-color="orange"
             v-model="column.schema"
             :options="types"
@@ -2658,12 +2667,12 @@
             ><div style="height: 100%; width: 100%;">
                       <editor
           @init="resultEditorInit"
-          style="font-size: 16px; min-height: 600px;"
+          style="font-size: 1.5em; "
           lang="javascript"
           theme="chrome"
           ref="resultEditor"
           width="100%"
-          height="fit"
+          height="100%"
         ></editor>
             </div>
             <q-inner-loading :showing="resultdataloading" style="z-index: 0;">

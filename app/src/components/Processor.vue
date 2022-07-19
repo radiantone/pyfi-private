@@ -104,7 +104,6 @@ export default mixins(ProcessorBase).extend<
       if (this.$store.state.designer.streaming) {
         this.$emit('message.received', msg);
       } else {
-        console.log('Streaming is off');
       }
     },
     messageSend(msg) {
