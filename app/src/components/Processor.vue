@@ -1,5 +1,4 @@
 <script lang="ts">
-
 import { Wrapper } from '../util';
 import Vue from 'vue';
 import mixins from 'vue-typed-mixins';
@@ -22,75 +21,108 @@ interface SocketData {
 }
 
 export interface ProcessorState {
-    name: string;
+  name: string;
 }
 
 export const ProcessorMixin = Vue.extend({
-   data() {
-       return {
-           name:"Processor"
-       }
-   }
+  data() {
+    return {
+      name: 'Processor',
+    };
+  },
 });
 
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
-    name!: ProcessorState['name'];
+  name!: ProcessorState['name'];
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   'http://localhost'
 );
 
-export default mixins(ProcessorBase).extend<ProcessorState,
+export default mixins(ProcessorBase).extend<
+  ProcessorState,
   Methods,
   Computed,
-  Props>({
-
+  Props
+>({
   data() {
     return {
-        name:"MyProcessor"
+      name: 'MyProcessor',
     };
   },
+
   created() {
     var me = this;
 
-    socket.on("basicEmit", (a, b, c) => {
-      console.log("SERVER EMIT",a,b,c)
-      me.$store.commit('designer/setMessage',b);
+    socket.on('basicEmit', (a, b, c) => {
+      console.log('SERVER EMIT', a, b, c);
+      me.$store.commit('designer/setMessage', b);
     });
-    socket.on("global", (data) => {
-      //console.log("SERVER GLOBAL MESSAGE",data);
-      me.messageReceived(data);
-    });
-  },
-  computed: {
-   
-  },
-  mounted() {
+    me.listenMessages();
 
   },
+  computed: {
+    /*
+    connected() {
+      return this.$store.state.designer.connected;
+    },
+    streaming() {
+      return this.$store.state.designer.streaming;
+    },*/
+  },
+  watch: {
+    connected: function (newv, oldv) {
+      console.log('PROCESSOR CONNECTED', oldv, newv);
+      if (newv) {
+        // This means that changes to the flow are committed back
+        // to the database as they happen
+      }
+    },
+    streaming: function (newv, oldv) {
+      console.log('PROCESSOR STREAMING', oldv, newv);
+      if (newv) {
+        // This means the flow is receiving streaming messages in real-time
+        console.log('PROCESSOR: Turning on messages');
+      } else {
+        socket.off('global');
+        console.log('PROCESSOR:  Turning off messages');
+      }
+    },
+  },
+  mounted() {},
+
   methods: {
+    listenMessages() {
+      var me = this;
+      socket.on('global', (data) => {
+        //console.log("SERVER GLOBAL MESSAGE",data);
+        me.messageReceived(data);
+      });
+    },
     messageReceived(msg) {
-      this.$emit("message.received",msg)
+      if (this.$store.state.designer.streaming) {
+        this.$emit('message.received', msg);
+      } else {
+        console.log('Streaming is off');
+      }
     },
     messageSend(msg) {
-        const person = <SocketData>msg;
-        socket.emit('hello', person);
-    }
+      const person = <SocketData>msg;
+      socket.emit('hello', person);
+    },
   },
 });
 
 interface MessageListener {
   messageReceived(message: any): void;
-  messageSend(message: any): void;
+  messageSend (message: any): void;
+  listenMessages (): void;
 }
 
-interface Methods extends MessageListener {
-}
+interface Methods extends MessageListener {}
 
-interface Computed {
-
-}
+interface Computed {}
 
 interface Props {
   wrapper: Wrapper;

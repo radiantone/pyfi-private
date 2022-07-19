@@ -30,26 +30,28 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-list"
           label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Statistics Table
-              </q-tooltip></q-btn>
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Statistics Table
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px; "
+          style="padding: 0px; height: 40px;"
           icon="fa fa-bullseye"
           :label="transmittedSize"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Data Transmitted
-              </q-tooltip></q-btn>
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Data Transmitted
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
@@ -58,12 +60,13 @@
           style="padding: 0px; height: 40px;"
           icon="fas fa-satellite-dish"
           :label="messageCount"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Messages Transmitted
-              </q-tooltip></q-btn>
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Messages Transmitted
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
@@ -72,12 +75,14 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-play"
           :label="stats.processors_running"
-        >              <q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Running Processors
-              </q-tooltip></q-btn>
+        >
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Running Processors
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
@@ -86,12 +91,13 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-stop"
           :label="stats.processors_stopped"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Stopped Processors
-              </q-tooltip></q-btn>
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Stopped Processors
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
@@ -100,58 +106,59 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Errored Processors
-              </q-tooltip></q-btn>           
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Errored Processors
+          </q-tooltip></q-btn
+        >
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px;font-size:1em"
+          style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailFast"
           label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Queued Tasks
-              </q-tooltip>
-        </q-btn>            
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Queued Tasks
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px;font-size:1em"
+          style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailAlert"
           label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Errored Tasks
-              </q-tooltip>
-        </q-btn>        
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Errored Tasks
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
           size="sm"
           class="text-dark"
-          style="padding: 0px; height: 40px;font-size:1em"
+          style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailCheck"
           label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Completed Tasks
-              </q-tooltip>
+          ><q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Completed Tasks
+          </q-tooltip>
         </q-btn>
-              <!--
+        <!--
         <q-btn
           color="secondary"
           flat
@@ -554,6 +561,39 @@
           <q-item-label class="text-dark" style="">{{ status }}</q-item-label>
         </q-btn>
         <q-space />
+
+        <q-btn-toggle
+        v-model="modeModel"
+        push
+        flat
+        dense
+        toggle-color="secondary"
+        class="text-primary"
+        style="margin-right:40px"
+        :options="[
+          {label: 'Disconnected', value: 'disconnected', slot: 'one'},
+          {label: 'Connected', value: 'connected', slot: 'two'},
+          {label: 'Streaming', value: 'streaming', slot: 'three'}
+        ]"
+      >
+        <template v-slot:one>
+          <q-icon :name="mdiFlashOutline"/>
+          <q-tooltip content-style="font-size: 16px"
+              content-class="bg-black text-white">Disconnected</q-tooltip>
+        </template>
+
+        <template v-slot:two>
+          <q-icon :name="mdiFlash"/>
+          <q-tooltip content-style="font-size: 16px"
+              content-class="bg-black text-white">Connected</q-tooltip>
+        </template>
+
+        <template v-slot:three>
+          <q-icon :name="mdiWavesArrowRight"/>
+          <q-tooltip content-style="font-size: 16px"
+              content-class="bg-black text-white">Streaming</q-tooltip>
+        </template>
+      </q-btn-toggle>
         <q-btn
           flat
           dense
@@ -570,35 +610,35 @@
       :width="512"
       style="overflow: hidden;"
     >
-  <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
-      <q-list separator>
-        <q-item
-          v-for="item in items"
-          :key="item.id"
-          :id="'row' + item.id"
-        >
-          <q-item-section avatar>
-            <q-icon name="fas fa-microchip"   class="text-secondary" />
-          </q-item-section>
-          <q-item-section>
-                      <q-item-label><a
-              class="text-secondary"
-              style="
-                z-index: 99999;
-                cursor: pointer;
-                width: 100%;
-                min-width: 250px;
-                font-size: 1.3em;
-              "
-              @click="centerNode(item.id)"
-              >{{ item.name }}</a></q-item-label>
-          <q-item-label caption lines="2">{{item.description}}</q-item-label>
-
-          </q-item-section>
-          <q-space />
-        </q-item>
-      </q-list>
-    </q-scroll-area>
+      <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
+        <q-list separator>
+          <q-item v-for="item in items" :key="item.id" :id="'row' + item.id">
+            <q-item-section avatar>
+              <q-icon name="fas fa-microchip" class="text-secondary" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label
+                ><a
+                  class="text-secondary"
+                  style="
+                    z-index: 99999;
+                    cursor: pointer;
+                    width: 100%;
+                    min-width: 250px;
+                    font-size: 1.3em;
+                  "
+                  @click="centerNode(item.id)"
+                  >{{ item.name }}</a
+                ></q-item-label
+              >
+              <q-item-label caption lines="2">{{
+                item.description
+              }}</q-item-label>
+            </q-item-section>
+            <q-space />
+          </q-item>
+        </q-list>
+      </q-scroll-area>
       <q-inner-loading :showing="false" style="z-index: 9999999;">
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
@@ -610,12 +650,12 @@
       :width="512"
       style="overflow: hidden;"
     >
-    <Library
-              :objecttype="'processor'"
-              :icon="'fas fa-wrench'"
-              :collection="'processors'"
-              style="width: 100%;"
-          />
+      <Library
+        :objecttype="'processor'"
+        :icon="'fas fa-wrench'"
+        :collection="'processors'"
+        style="width: 100%;"
+      />
     </q-drawer>
     <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
       <q-card
@@ -715,18 +755,16 @@
             </q-table>
           </template>
           <template v-slot:after
-            ><div style="height: 100%; width: 100%;">
-            <editor
-          @init="resultEditorInit"
-          style="font-size: 16px; min-height: 600px;"
-          lang="javascript"
-          theme="chrome"
-          ref="resultEditor"
-          width="100%"
-          height="fit"
-        ></editor>
-            
-            </div
+            ><div style="height: fit; width: 100%;">
+              <editor
+                @init="resultEditorInit"
+                style="font-size: 1.5em; "
+                lang="javascript"
+                theme="chrome"
+                ref="resultEditor"
+                width="100%"
+                height="100%"
+              ></editor></div
           ></template>
         </q-splitter>
         <q-card-actions align="left">
@@ -812,7 +850,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
   </q-layout>
 </template>
 <style>
@@ -867,7 +904,7 @@ import Processors from 'components/Processors.vue';
 import DataService from 'components/util/DataService';
 
 var filesize = require('filesize');
-const size = filesize.partial({base: 2, standard: "jedec"});
+const size = filesize.partial({ base: 2, standard: 'jedec' });
 
 import {
   mappedGetters,
@@ -886,6 +923,9 @@ import 'assets/fonts/fontawesome-webfont.woff2';
 import 'assets/fonts/fontawesome-webfont.woff';
 import 'assets/fonts/flowfont2.woff2';
 
+import { mdiFlash } from '@mdi/js';
+import { mdiFlashOutline } from '@mdi/js';
+import { mdiWavesArrowRight } from '@mdi/js';
 import { mdiCodeBraces } from '@mdi/js';
 import { mdiEmailFast } from '@mdi/js';
 import { mdiEmailAlert } from '@mdi/js';
@@ -898,46 +938,53 @@ export default defineComponent({
   name: 'MainLayout',
   components: {
     editor: require('vue2-ace-editor'),
-    Designer, ToolPalette, ModelToolPalette, Processors, Library
+    Designer,
+    ToolPalette,
+    ModelToolPalette,
+    Processors,
+    Library,
   },
   setup() {
     return {};
   },
-  created () {
+  created() {
     this.mdiEmailAlert = mdiEmailAlert;
     this.mdiEmailFast = mdiEmailFast;
     this.mdiEmailCheck = mdiEmailCheck;
+    this.mdiWavesArrowRight = mdiWavesArrowRight;
+    this.mdiFlashOutline = mdiFlashOutline;
+    this.mdiFlash = mdiFlash;
+
+    // Reset connection status to disconnected
+    this.$store.commit('designer/setConnected', false);
+    this.$store.commit('designer/setStreaming', false);
 
     this.schemaIcon = mdiCodeBraces;
     var me = this;
     this.tab = 'flow' + this.flows[0].id;
     window.layout = this;
-    socket.on('global', (msg) => {
-      //console.log('MAINLAYOUT', msg);
-      if (msg['channel'] == 'task') {
-        me.msglogs.unshift(msg);
-        me.msglogs = me.msglogs.slice(0, 200);
-      } else if (msg['type'] && msg['type'] == 'stats') {
-        me.stats = msg;
-      } else {
-        var qs = [];
-        if (msg['type'] && msg['type'] == 'queues') {
-          msg['queues'].forEach((queue) => {
-            if (queue['name'].indexOf('celery') == -1) {
-              qs.push({
-                name: queue['name'],
-                messages: queue['messages'],
-                bytes: queue['message_bytes'],
-                action: '',
-              });
-            }
-          });
-          me.queues = qs;
-        }
-      }
-    });
+
+    this.listenGlobal();
   },
   watch: {
+    connected: function (newv, oldv) {
+      console.log('CONNECTED', oldv, newv);
+      if (newv) {
+        // This means that changes to the flow are committed back
+        // to the database as they happen
+      }
+    },
+    streaming: function (newv, oldv) {
+      console.log('STREAMING', oldv, newv);
+      if (newv) {
+        // This means the flow is receiving streaming messages in real-time
+        console.log("Turning on messages")
+        this.listenGlobal();
+      } else {
+        socket.off("global");
+        console.log("Turning off messages")
+      }
+    },
     viewQueueDialog: function (val) {
       if (val) {
         this.queueloading = true;
@@ -961,6 +1008,35 @@ export default defineComponent({
     },
   },
   computed: {
+    modeModel: {
+      get () {
+        return this.mode   
+      },
+      set (val) {
+        var me = this;
+        this.mode = val
+
+        if (val == 'disconnected') {
+          me.$store.commit('designer/setConnected', false);
+          me.$store.commit('designer/setStreaming', false);
+        }
+        if (val == 'connected') {
+          me.$store.commit('designer/setConnected', true);
+          me.$store.commit('designer/setStreaming', false);
+        }
+        if (val == 'streaming') {
+          me.$store.commit('designer/setConnected', true);
+          me.$store.commit('designer/setStreaming', true);
+        }
+        console.log("setMode", this.mode);
+      }
+    },
+    connected() {
+      return this.$store.state.designer.connected;
+    },
+    streaming() {
+      return this.$store.state.designer.streaming;
+    },
     status() {
       return this.$store.state.designer.message;
     },
@@ -969,7 +1045,35 @@ export default defineComponent({
     },
   },
   methods: {
-    showMessagePayload (payload) {
+    listenGlobal() {
+      var me = this;
+
+      socket.on('global', (msg) => {
+        //console.log('MAINLAYOUT', msg);
+        if (msg['channel'] == 'task') {
+          me.msglogs.unshift(msg);
+          me.msglogs = me.msglogs.slice(0, 200);
+        } else if (msg['type'] && msg['type'] == 'stats') {
+          me.stats = msg;
+        } else {
+          var qs = [];
+          if (msg['type'] && msg['type'] == 'queues') {
+            msg['queues'].forEach((queue) => {
+              if (queue['name'].indexOf('celery') == -1) {
+                qs.push({
+                  name: queue['name'],
+                  messages: queue['messages'],
+                  bytes: queue['message_bytes'],
+                  action: '',
+                });
+              }
+            });
+            me.queues = qs;
+          }
+        }
+      });
+    },
+    showMessagePayload(payload) {
       const editor = this.$refs.resultEditor.editor;
       editor.session.setValue(payload);
     },
@@ -987,8 +1091,8 @@ export default defineComponent({
       editor.on('change', function () {
         console.log('edit event');
       });
-    },        
-    centerNode (id) {
+    },
+    centerNode(id) {
       window.toolkit.surface.centerOn(id, {
         doNotAnimate: true,
         onComplete: function () {
@@ -996,35 +1100,38 @@ export default defineComponent({
         },
       });
     },
-    searchString () {
-      console.log("Searching for", this.text)
-      this.items = []
+    searchString() {
+      console.log('Searching for', this.text);
+      this.items = [];
       this.graph['nodes'].forEach((node) => {
-        console.log("Searching node ", node);
-        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
-          this.items.push(node)
+        console.log('Searching node ', node);
+        if (
+          node.name.indexOf(this.text) > -1 ||
+          node.description.indexOf(this.text) > -1
+        ) {
+          this.items.push(node);
         }
-      })
+      });
     },
-    transmitted () {
+    transmitted() {
       var me = this;
       setTimeout(() => {
-        me.transmittedSize = size(this.messageSize)
+        me.transmittedSize = size(this.messageSize);
         me.transmitted();
-      },3000)
-    },    
-    updateStats () {
-      console.log("UPDATE STATS")
+      }, 3000);
+    },
+    updateStats() {
+      console.log('UPDATE STATS');
 
       var running = 0;
       var stopped = 0;
 
       if (window.toolkit) {
-        var objs = window.toolkit.getGraph().serialize()
+        var objs = window.toolkit.getGraph().serialize();
 
-        console.log("OBJS", objs);
+        console.log('OBJS', objs);
         objs['nodes'].forEach((node) => {
-          console.log("NODE", node)
+          console.log('NODE', node);
           if (node.status == 'running') {
             running += 1;
           }
@@ -1092,7 +1199,7 @@ export default defineComponent({
           this.flow = flow;
         }
       }
-      console.log("GRAPH", this.graph);
+      console.log('GRAPH', this.graph);
       if (this.$refs[tab + 'designer']) {
         window.toolkit = this.$refs[tab + 'designer'][0].toolkit;
         window.toolkit.$q = this.$q;
@@ -1109,16 +1216,28 @@ export default defineComponent({
     //console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
       this.updateStats();
-    })
+    });
+    console.log('STATUS: CONNECTED', this.connected);
+    /*
+    function setconnected () {
+      console.log("setconnected")
+      setTimeout(() => {
+        console.log("SETTING CONNECTED TO true")
+        me.$store.commit('designer/setConnected', !me.$store.state.designer.connected);
+        setconnected();
+      }, 3000)
+
+    }
+    setconnected();*/
 
     this.transmitted();
-    
+
     window.root.$on('message.count', (count) => {
       me.messageCount += count;
     });
     window.root.$on('message.size', (size) => {
       me.messageSize += size;
-    });    
+    });
     this.$root.$on('flow.uuid', (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i];
@@ -1138,7 +1257,7 @@ export default defineComponent({
       this.librarydrawer = !this.librarydrawer;
     });
     this.$root.$on('new.queue', () => {
-      console.log("NEW.QUEUE")
+      console.log('NEW.QUEUE');
       this.newQueueDialog = true;
     });
 
@@ -1417,6 +1536,7 @@ export default defineComponent({
   },
   data() {
     return {
+      mode: 'disconnected',
       messageContent: '',
       graph: {},
       items: [],
@@ -1431,7 +1551,7 @@ export default defineComponent({
         cpus_total: 0,
         deployments: 0,
         cpus_running: 0,
-        tasks: 0
+        tasks: 0,
       },
       running: 0,
       stopped: 0,

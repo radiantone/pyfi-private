@@ -929,43 +929,9 @@
       >
         <q-card style="padding: 5px; height: 400px;">
           <q-scroll-area style="height: 395px; width: 100%;">
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
-            This is a log line.<br />
+           <span id="logspan">
+            
+           </span>
           </q-scroll-area>
         </q-card>
       </q-expansion-item>

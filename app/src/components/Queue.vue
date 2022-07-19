@@ -18,11 +18,12 @@
       >
         <q-select
           style="width: 275px;"
-          v-model="edgeQueue"
+          v-model="queueName"
           :options="options"
           :dense="true"
           :options-dense="true"
           :menu-offset="[5,-9]"
+          @input="queueSelect"
         >
           <template v-slot:prepend>
             <q-icon name="far fa-envelope" />
@@ -254,18 +255,15 @@ export default {
     this.$on('message.received', (msg) => {
       //console.log('QUEUE MESSAGE RECEIVED', msg);
     });
+    this.queueName = this.component.edge.data.queue;
   },
   computed: {
-    edgeQueue: function (value) {
-      if (this.component.edge) {
-        if (value) {
-          this.component.edge.data.queue = value;
-        }
-        return this.component.edge.data.queue;
-      }
-    }
   },
   methods: {
+    queueSelect (val) {
+      console.log("QUEUE SELECTED ", val);
+      this.component.edge.data.queue = val;
+    },
     deleteEdge () {
       console.log("Deleting edge ", this.component);
       window.toolkit.removeEdge(this.component.edge);
@@ -301,7 +299,7 @@ export default {
   data() {
     return {
       deleteEdgeConfirm: false,
-      model: 'sockq2.proc2.do_this',
+      queueName: 'sockq2.proc2.do_this',
       options: [
         'sockq2.proc2.do_this',
         'sockq1.proc1.do_something',

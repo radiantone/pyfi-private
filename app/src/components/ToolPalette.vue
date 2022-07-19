@@ -428,6 +428,14 @@
               Counters
             </q-item-section>
           </q-item>
+          <q-item clickable v-close-popup @click="loadPython">
+            <q-item-section side>
+              <q-icon name="fab fa-python"></q-icon>
+            </q-item-section>
+            <q-item-section side class="text-blue-grey-8">
+              Load Python
+            </q-item-section>
+          </q-item>          
           <q-separator />
           <q-item clickable v-close-popup>
             <q-item-section side>
@@ -542,6 +550,13 @@ export default {
     console.log('TOOLPALETTE STORE', this.$store);
   },
   methods: {
+    loadPython () {
+      var head = document.getElementById("head");
+      let script = document.createElement('script');
+      script.setAttribute("src", "https://pyscript.net/alpha/pyscript.js");
+      script.setAttribute("type", "application/javascript");
+      head.appendChild(script);
+    },
     openLibrary () {
       this.$root.$emit('open.library');
     },
