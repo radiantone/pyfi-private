@@ -81,15 +81,7 @@
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Run</q-item-section>
         </q-item>
-        <q-separator />
-<q-item clickable v-close-popup @click="showResultsDialog">
-              <q-item-section side>
-                <q-icon name="fas fa-list"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                View Results
-              </q-item-section>
-            </q-item>        
+        <q-separator />     
         <q-item clickable v-close-popup>
           <q-item-section side>
             <q-icon :name="this.abacusIcon"></q-icon>
@@ -511,7 +503,7 @@
             style="
               margin-right: 10px;
               position: absolute;
-              right: 105px;
+              right: 130px;
               top: -68px;
               width: 30px;
               height: 30px;
@@ -536,7 +528,7 @@
             @click="obj.status = 'running'"
             style="
               position: absolute;
-              right: 75px;
+              right: 105px;
               top: -68px;
               width: 30px;
               height: 30px;
@@ -561,7 +553,7 @@
             class="edit-name text-secondary text-green"
             style="
               position: absolute;
-              right: 75px;
+              right: 105px;
               top: -68px;
               width: 30px;
               height: 30px;
@@ -576,6 +568,30 @@
               Stop
             </q-tooltip>
           </q-btn>
+          <q-btn
+            dense
+            flat
+            size="xs"
+            icon="fas fa-list"
+            @click="showResultsDialog"
+            class="edit-name text-secondary"
+            style="
+              position: absolute;
+              right: 75px;
+              top: -68px;
+              width: 30px;
+              height: 30px;
+            "
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              View Results
+            </q-tooltip>
+          </q-btn>          
           <q-btn
             dense
             flat
@@ -4078,9 +4094,12 @@ export default {
       console.log(this.obj);
       console.log('PORT ARGS', this.argports[column]);
       window.toolkit.removePort(this.obj.id, column);
-      this.argports[column].forEach((portid) => {
-        window.toolkit.removePort(this.obj.id, portid);
-      });
+
+      if (this.argports[column]) {
+        this.argports[column].forEach((portid) => {
+          window.toolkit.removePort(this.obj.id, portid);
+        });
+      }
       // window.renderer.repaint(this.obj);
     },
     addPort(port) {

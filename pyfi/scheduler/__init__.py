@@ -200,6 +200,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 stopped_processor_count = (
                     session.query(ProcessorModel).filter_by(status='stopped').count()
                 )
+                starting_processor_count = (
+                    session.query(ProcessorModel).filter_by(status='stopped', requested_status='start').count()
+                )      
                 running_processor_count = (
                     session.query(ProcessorModel).filter_by(status='running').count()
                 )      
@@ -229,6 +232,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     'agents': agent_count,
                     'queues': queue_count,
                     'processors': processor_count,
+                    'processors_starting': starting_processor_count,
                     'processors_running': running_processor_count,
                     'processors_stopped': stopped_processor_count,
                     'processors_ready': ready_processor_count,

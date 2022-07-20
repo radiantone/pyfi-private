@@ -73,6 +73,22 @@
           size="sm"
           class="text-dark"
           style="padding: 0px; height: 40px;"
+          icon="las la-play"
+          :label="stats.processors_starting"
+        >
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Starting Processors
+          </q-tooltip></q-btn
+        >        
+        <q-btn
+          color="secondary"
+          flat
+          size="sm"
+          class="text-dark"
+          style="padding: 0px; height: 40px;"
           icon="fa fa-play"
           :label="stats.processors_running"
         >
@@ -1551,6 +1567,9 @@ export default defineComponent({
         cpus_total: 0,
         deployments: 0,
         cpus_running: 0,
+        processors_starting: 0,
+        processors_running: 0,
+        processors_errored: 0,
         tasks: 0,
       },
       running: 0,

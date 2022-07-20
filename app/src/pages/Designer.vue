@@ -194,7 +194,9 @@
             Save to Current Folder
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload">
+        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload"
+        :disabled="connected"
+        >
           <q-tooltip
             content-class
             content-style="font-size: 16px;"
@@ -462,14 +464,13 @@
               <q-item-section side class="text-blue-grey-8">
                 Configure
               </q-item-section>
-            </q-item>
-            <q-separator />
-            <q-item clickable v-close-popup>
+            </q-item>            <q-separator />
+            <q-item clickable v-close-popup @click="versionsDialog = true">
               <q-item-section side>
-                <q-icon name="far fa-sticky-note"></q-icon>
+                <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Variables
+                Versions
               </q-item-section>
             </q-item>
             <q-separator />
@@ -505,17 +506,19 @@
                 Disable
               </q-item-section>
             </q-item>
+
             <q-separator />
-            <q-item clickable v-close-popup @click="versionsDialog = true">
+            
+            <q-item clickable v-close-popup>
               <q-item-section side>
-                <q-icon name="fas fa-history"></q-icon>
+                <q-icon name="far fa-sticky-note"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Versions
+                Variables
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="downloadFlow">
               <q-item-section side>
                 <q-icon name="fas fa-download"></q-icon>
               </q-item-section>
@@ -930,7 +933,7 @@
         <q-card style="padding: 5px; height: 400px;">
           <q-scroll-area style="height: 395px; width: 100%;">
            <span id="logspan">
-            
+
            </span>
           </q-scroll-area>
         </q-card>
@@ -1568,6 +1571,25 @@ import DataService from 'src/components/util/DataService';
 import ParallelTemplateVue from 'src/components/templates/ParallelTemplate.vue';
 //import 'floating-vue/dist/style.css'
 
+function downloadFile(file) {
+  // Create a link and set the URL using `createObjectURL`
+  const link = document.createElement("a");
+  link.style.display = "none";
+  link.href = URL.createObjectURL(file);
+  link.download = file.name;
+
+  // It needs to be added to the DOM so it can be clicked
+  document.body.appendChild(link);
+  link.click();
+
+  // To make this work on Firefox we need to wait
+  // a little while before removing it.
+  setTimeout(() => {
+    URL.revokeObjectURL(link.href);
+    link.parentNode.removeChild(link);
+  }, 0);
+}
+
 function htmlToElement(html) {
   var template = document.createElement('template');
   html = html.trim(); // Never return a text node of whitespace as the result
@@ -1612,6 +1634,9 @@ export default {
     },
   },
   computed: {
+    connected() {
+      return this.$store.state.designer.connected;
+    },
     htmlDataComponent() {
       return {
         template:
@@ -1649,6 +1674,18 @@ export default {
     },
   },
   methods: {
+    downloadFlow () {
+      var thecode = JSON.stringify(
+        window.toolkit.getGraph().serialize(),
+        null,
+        '\t'
+      );
+      // Dynamically create a File
+      const myFile = new File([thecode], this.flowname+".json");
+
+      // Download it using our function
+      downloadFile(myFile);
+    },
     previewFlow(version) {
       console.log('preview', version, this.versiondata);
       this.versiondata.forEach((row) => {
@@ -3100,10 +3137,16 @@ export default {
                   name: '${name}',
                   create: function (component) {
                     let QueueClass = Vue.extend(Queue);
+                    var nodeValue = null;
+
+                    if (component.source.attributes['data-jtk-port-id']) {
+                      nodeValue = component.source.attributes['data-jtk-port-id'].nodeValue
+                    } else if (component.source.attributes['data-port-id']) {
+                      nodeValue = component.source.attributes['data-port-id'].nodeValue
+                    }
                     let instance = new QueueClass({
                       propsData: {
-                        node:
-                          component.source.attributes['data-port-id'].nodeValue,
+                        node:nodeValue,
                         component: component,
                         name: 'sockq2.proc2.do_this', //component.getData()['name'],
                       },
