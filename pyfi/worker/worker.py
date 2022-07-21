@@ -899,7 +899,7 @@ class WorkerService:
                         from urllib.parse import urlparse
 
                         logging.info("REDIS JSON: Connecting to %s", self.backend)
-                        rj = Client(host=urlparse(self.backend).hostname, port=6379, decode_responses=True)
+                        rj = Client(host=urlparse(CONFIG.get("redis", "uri")).hostname, port=6379, decode_responses=True)
                         rj.jsonset("celery-task-result-"
                                                  + _signal["taskid"], Path.rootPath(), _r)
                         logging.info("REDIS JSON:%s %s","celery-task-result-"
