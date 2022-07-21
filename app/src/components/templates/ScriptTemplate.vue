@@ -82,7 +82,7 @@
           <q-item-section side class="text-blue-grey-8">Run</q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup disabled>
           <q-item-section side>
             <q-icon :name="this.abacusIcon"></q-icon>
           </q-item-section>
@@ -90,7 +90,7 @@
             View State
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup disabled>
           <q-item-section side>
             <q-icon name="fas fa-book"></q-icon>
           </q-item-section>
@@ -98,7 +98,7 @@
             View Usage
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item clickable v-close-popup disabled> 
           <q-item-section side>
             <q-icon name="fas fa-plug"></q-icon>
           </q-item-section>

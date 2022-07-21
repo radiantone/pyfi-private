@@ -326,14 +326,14 @@
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Nodes:
+      <a class="link-hover" href="#">Nodes:</a>
       <span class="text-dark">{{nodes}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Agents:
+      <a class="link-hover" href="#">Agents:</a>
       <span class="text-dark">{{agents}}</span>
     </q-item-label>
 
@@ -341,35 +341,35 @@
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Queues:
+      <a class="link-hover" href="#">Queues:</a>
       <span class="text-dark">{{queues}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Processors:
+      <a class="link-hover" href="#">Processors:</a>
       <span class="text-dark">{{processors}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Deployments:
+      <a class="link-hover" href="#">Deployments:</a>
       <span class="text-dark">{{deployments}}</span>
     </q-item-label>       
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      CPUS:
+      <a class="link-hover" href="#">CPUS:</a>
       <span class="text-dark">{{cpus_running}}/{{cpus_total}}</span>
     </q-item-label>      
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      Tasks:
+      <a class="link-hover" href="#">Tasks:</a>
       <span class="text-dark">{{tasks}}</span>
     </q-item-label>    
     <q-item-label class="text-secondary" style="margin-top: 40px;">
@@ -534,6 +534,11 @@
   background: black;
   color: white;
 }
+
+.link-hover:hover {
+  text-decoration: underline;
+}
+
 </style>
 <script>
 import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';

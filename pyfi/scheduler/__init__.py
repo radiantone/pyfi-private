@@ -244,7 +244,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     'processors_running': running_processor_count,
                     'processors_stopped': stopped_processor_count,
                     'processors_ready': ready_processor_count,
-                    'processors_error': error_processor_count,
+                    'processors_errored': error_processor_count,
                     'deployments': len(deployments),
                     'tasks': task_count,
                     'tasks_success': tasks_success,

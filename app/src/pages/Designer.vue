@@ -261,6 +261,7 @@
           size="sm"
           icon="fas fa-close"
           @click="showconfirmclose = true"
+          v-if="flowid != 1"
         >
           <q-tooltip
             content-class
@@ -502,7 +503,7 @@
                 Stop
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup disabled>
               <q-item-section side>
                 <q-icon name="fas fa-bolt"></q-icon>
               </q-item-section>
@@ -510,7 +511,7 @@
                 Enable
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup disabled>
               <q-item-section side>
                 <q-icon name="fas fa-times-circle"></q-icon>
               </q-item-section>
@@ -528,7 +529,7 @@
                 Download Flow
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup disabled>
               <q-item-section side>
                 <q-icon name="fas fa-upload"></q-icon>
               </q-item-section>
@@ -537,7 +538,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="emptyQueuesDialog = true">
               <q-item-section side>
                 <q-icon name="fas fa-minus-circle"></q-icon>
               </q-item-section>
@@ -1594,6 +1595,70 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="emptyQueuesDialog" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Empty All Queues</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to empty all the queues?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="No"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Yes, Empty"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
   </q-layout>
 </template>
 <style>
@@ -2393,6 +2458,7 @@ export default {
       ],
       viewVariablesDialog: false,
       viewConfigureDialog: false,
+      emptyQueuesDialog: false,
       versiondata: [],
       versionsLoading: true,
       flow: {
