@@ -243,12 +243,19 @@ def get_processors():
 def get_result(resultid):
     import redis
     import pickle
+    from pymongo import MongoClient
 
     # TODO: Change to mongo
-    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-    r = redisclient.get(resultid)
+    #redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+    #r = redisclient.get(resultid)
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    logging.info("GETTING RESULT %s",resultid)
+    with client:
+        db = client.celery
+        result = db.celery_taskmeta.find_one({'_id':resultid.replace('celery-task-meta-','')})
+        logging.info("RESULT %s",result)
 
-    _r = pickle.loads(r)
+        _r = pickle.loads(result['result'])
 
     return jsonify(_r)
 

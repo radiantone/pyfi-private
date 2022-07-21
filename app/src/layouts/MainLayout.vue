@@ -136,7 +136,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailFast"
-          label="0"
+          :label="queuedTasks"
           ><q-tooltip
             content-style="font-size: 16px"
             content-class="bg-black text-white"
@@ -151,7 +151,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailAlert"
-          label="0"
+          :label="stats.tasks_failure"
           ><q-tooltip
             content-style="font-size: 16px"
             content-class="bg-black text-white"
@@ -166,7 +166,7 @@
           class="text-dark"
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailCheck"
-          label="0"
+          :label="stats.tasks_success"
           ><q-tooltip
             content-style="font-size: 16px"
             content-class="bg-black text-white"
@@ -232,7 +232,6 @@
               >
                 Lines of Code
               </q-tooltip></q-btn>
--->
         <q-btn
           color="secondary"
           flat
@@ -242,7 +241,8 @@
           icon="fa fa-refresh"
           label="12:36:17 EDT"
         />
-
+-->
+        <q-separator vertical inset color="primary"/>
         <q-btn-toggle
           v-model="tools"
           class="my-custom-toggle"
@@ -1008,6 +1008,7 @@ export default defineComponent({
           .then((messages) => {
             this.queueloading = false;
             this.queuedata = messages.data;
+            this.updateQueuedTasks();
           })
           .catch((err) => {
             this.queueloading = false;
@@ -1069,11 +1070,18 @@ export default defineComponent({
         if (msg['channel'] == 'task') {
           me.msglogs.unshift(msg);
           me.msglogs = me.msglogs.slice(0, 200);
+
+
+          window.root.$emit('message.count', 1);
+          var bytes = JSON.stringify(msg).length;
+          window.root.$emit('message.size', bytes);
+        
         } else if (msg['type'] && msg['type'] == 'stats') {
           me.stats = msg;
         } else {
           var qs = [];
           if (msg['type'] && msg['type'] == 'queues') {
+            var queued_tasks = 0;
             msg['queues'].forEach((queue) => {
               if (queue['name'].indexOf('celery') == -1) {
                 qs.push({
@@ -1082,6 +1090,8 @@ export default defineComponent({
                   bytes: queue['message_bytes'],
                   action: '',
                 });
+                queued_tasks += parseInt(queue['messages']);
+                this.queuedTasks = queued_tasks;
               }
             });
             me.queues = qs;
@@ -1163,12 +1173,26 @@ export default defineComponent({
     getUuid() {
       return 'key_' + uuidv4();
     },
-    refreshQueues() {
+    updateQueuedTasks () {
+      var queued_tasks = 0;
+
+      this.queuedata.forEach((queue) => {
+        console.log("QUEUE",queue)
+        queued_tasks += parseInt(queue.messages);
+      })
+
+      console.log("QUEUED TASKS", queued_tasks);
+      this.queuedTasks = queued_tasks;
+    },
+    refreshQueues () {
       this.queueloading = true;
+      console.log("QUEUES REFRESHING")
       DataService.getMessages(this.queuename)
         .then((messages) => {
           this.queueloading = false;
           this.queuedata = messages.data;
+          console.log("QUEUEDATA", this.queuedata);
+          this.updateQueuedTasks();
         })
         .catch((err) => {
           this.queueloading = false;
@@ -1552,6 +1576,7 @@ export default defineComponent({
   },
   data() {
     return {
+      queuedTasks: 0,
       mode: 'disconnected',
       messageContent: '',
       graph: {},

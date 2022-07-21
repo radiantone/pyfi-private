@@ -194,8 +194,12 @@
             Save to Current Folder
           </q-tooltip>
         </q-btn>
-        <q-btn flat style="min-height: 45px;" size="sm" icon="fas fa-upload"
-        :disabled="connected"
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          icon="fas fa-upload"
+          :disabled="connected"
         >
           <q-tooltip
             content-class
@@ -448,7 +452,7 @@
         </q-inner-loading>
         <q-menu context-menu>
           <q-list dense>
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="redraw">
               <q-item-section side>
                 <q-icon name="fas fa-refresh"></q-icon>
               </q-item-section>
@@ -456,21 +460,29 @@
                 Refresh
               </q-item-section>
             </q-item>
-            <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item clickable v-close-popup @click="viewConfigureDialog = true">
               <q-item-section side>
                 <q-icon name="fas fa-cog"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Configure
               </q-item-section>
-            </q-item>            <q-separator />
+            </q-item>
             <q-item clickable v-close-popup @click="versionsDialog = true">
               <q-item-section side>
                 <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Versions
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-close-popup @click="viewVariablesDialog = true">
+              <q-item-section side>
+                <q-icon name="far fa-sticky-note"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Variables
               </q-item-section>
             </q-item>
             <q-separator />
@@ -507,16 +519,6 @@
               </q-item-section>
             </q-item>
 
-            <q-separator />
-            
-            <q-item clickable v-close-popup>
-              <q-item-section side>
-                <q-icon name="far fa-sticky-note"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Variables
-              </q-item-section>
-            </q-item>
             <q-separator />
             <q-item clickable v-close-popup @click="downloadFlow">
               <q-item-section side>
@@ -932,9 +934,7 @@
       >
         <q-card style="padding: 5px; height: 400px;">
           <q-scroll-area style="height: 395px; width: 100%;">
-           <span id="logspan">
-
-           </span>
+            <span id="logspan"> </span>
           </q-scroll-area>
         </q-card>
       </q-expansion-item>
@@ -1333,7 +1333,8 @@
                     <a
                       class="text-secondary"
                       @click="previewFlow(props.row.version)"
-                      >{{ props.cols[0].value }}</a>
+                      >{{ props.cols[0].value }}</a
+                    >
                   </q-td>
                   <q-td :key="props.cols[1].name" :props="props">
                     {{ props.cols[1].value }}
@@ -1393,6 +1394,204 @@
         <q-inner-loading :showing="versionsLoading" style="z-index: 9999;">
           <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="viewVariablesDialog" persistent>
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Variables</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewVariablesDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        >
+          <q-table
+            dense
+            :columns="variablecolumns"
+            :data="variabledata"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  <a class="text-secondary">{{ props.row.name }}</a>
+                  <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  <a class="text-secondary">{{ props.row.value }}</a>
+                  <q-popup-edit v-model="props.row.value" v-slot="scope" >
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.cols[2].value }}
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="viewConfigureDialog" persistent>
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Configure</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewConfigureDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        >
+          <q-table
+            dense
+            :columns="variablecolumns"
+            :data="variabledata"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  <a class="text-secondary">{{ props.row.name }}</a>
+                  <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  <a class="text-secondary">{{ props.row.value }}</a>
+                  <q-popup-edit v-model="props.row.value" v-slot="scope" >
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.cols[2].value }}
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </q-layout>
@@ -1573,8 +1772,8 @@ import ParallelTemplateVue from 'src/components/templates/ParallelTemplate.vue';
 
 function downloadFile(file) {
   // Create a link and set the URL using `createObjectURL`
-  const link = document.createElement("a");
-  link.style.display = "none";
+  const link = document.createElement('a');
+  link.style.display = 'none';
   link.href = URL.createObjectURL(file);
   link.download = file.name;
 
@@ -1674,14 +1873,14 @@ export default {
     },
   },
   methods: {
-    downloadFlow () {
+    downloadFlow() {
       var thecode = JSON.stringify(
         window.toolkit.getGraph().serialize(),
         null,
         '\t'
       );
       // Dynamically create a File
-      const myFile = new File([thecode], this.flowname+".json");
+      const myFile = new File([thecode], this.flowname + '.json');
 
       // Download it using our function
       downloadFile(myFile);
@@ -1695,7 +1894,7 @@ export default {
           this.$refs.previewdesigner.toolkit.clear();
           this.$refs.previewdesigner.toolkit.load({
             type: 'json',
-            data: JSON.parse(row.code)
+            data: JSON.parse(row.code),
           });
         }
       });
@@ -1749,6 +1948,14 @@ export default {
     },
     redraw() {
       window.toolkit.surface.refresh();
+      //this.$store.commit('designer/setMessage', 'Canvas refreshed!');
+      this.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Canvas refreshed',
+            icon: 'fas fa-refresh',
+          });
     },
     resetView() {
       window.toolkit.surface.setZoom(1.0);
@@ -2152,6 +2359,40 @@ export default {
   },
   data: () => {
     return {
+      variabledata: [
+        {
+          name: 'VAR1',
+          value: 'VALUE1',
+          scope: 'FLOW',
+        },
+        {
+          name: 'VAR2',
+          value: 'VALUE2',
+          scope: 'FLOW',
+        },
+      ],
+      variablecolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left',
+        },
+        {
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left',
+        },
+      ],
+      viewVariablesDialog: false,
+      viewConfigureDialog: false,
       versiondata: [],
       versionsLoading: true,
       flow: {
@@ -3140,13 +3381,16 @@ export default {
                     var nodeValue = null;
 
                     if (component.source.attributes['data-jtk-port-id']) {
-                      nodeValue = component.source.attributes['data-jtk-port-id'].nodeValue
+                      nodeValue =
+                        component.source.attributes['data-jtk-port-id']
+                          .nodeValue;
                     } else if (component.source.attributes['data-port-id']) {
-                      nodeValue = component.source.attributes['data-port-id'].nodeValue
+                      nodeValue =
+                        component.source.attributes['data-port-id'].nodeValue;
                     }
                     let instance = new QueueClass({
                       propsData: {
-                        node:nodeValue,
+                        node: nodeValue,
                         component: component,
                         name: 'sockq2.proc2.do_this', //component.getData()['name'],
                       },

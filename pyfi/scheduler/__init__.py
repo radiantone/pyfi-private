@@ -160,6 +160,14 @@ class DeployProcessorPlugin(SchedulerPlugin):
     def run(self, *args, **kwargs):
         import random
         import redis
+        from pymongo import MongoClient
+
+        client = MongoClient(CONFIG.get("mongodb", "uri"))
+        tasks_success = 0
+        with client:
+            db = client.celery
+            tasks_success = db.celery_taskmeta.count_documents({'status':'SUCCESS'})
+            tasks_failure = db.celery_taskmeta.count_documents({'status':'FAILURE'})
 
         redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
@@ -239,6 +247,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     'processors_error': error_processor_count,
                     'deployments': len(deployments),
                     'tasks': task_count,
+                    'tasks_success': tasks_success,
+                    'tasks_failure': tasks_failure,
                     'cpus_total': cpu_count,
                     'cpus_running': cpu_running,
                     'type': 'stats'

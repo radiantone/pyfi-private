@@ -1,5 +1,5 @@
 <template>
-    <q-card  :style="'min-height: 647px;width: 600px; position: absolute; left:'+(codewidth+412)+'px;top:0px'">
+    <q-card  :style="'min-height: 647px;width: 600px; z-index:9999999;position: absolute; left:'+(codewidth+412)+'px;top:0px'">
     <py-repl id="my-repl" auto-generate="true"> </py-repl>
     
     </q-card>
