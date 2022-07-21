@@ -5,8 +5,16 @@
 
 class Config:
     """ """
+    import configparser
+    from pathlib import Path
+
+    CONFIG = configparser.ConfigParser()
+
+    HOME = str(Path.home())
+    ini = HOME + "/pyfi.ini"
+    CONFIG.read(ini)
 
     enable_utc = True
     timezone = "America/New_York"
-    broker_url = "pyamqp://localhost"
-    result_backend = "mongodb://root:rootpassword@localhost"
+    broker_url = CONFIG.get("broker", "uri")
+    result_backend = CONFIG.get("backend", "uri")
