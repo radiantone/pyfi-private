@@ -2250,6 +2250,7 @@ class WorkerService:
                     # Install pyfi
                     # TODO: Make this URL a setting so it can be overridden
                     env.install("psycopg2")
+                    env.install("pymongo")
                     env.install("-e git+" + login + "/radiantone/pyfi-private#egg=pyfi")
 
                     if not self.processor.use_container:

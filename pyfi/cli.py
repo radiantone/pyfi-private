@@ -2964,6 +2964,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
         import pickle
 
         if result:
+            # TODO: Get from mongo
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
             r = redisclient.get(call.resultid)
 

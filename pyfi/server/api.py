@@ -244,6 +244,7 @@ def get_result(resultid):
     import redis
     import pickle
 
+    # TODO: Change to mongo
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     r = redisclient.get(resultid)
 
