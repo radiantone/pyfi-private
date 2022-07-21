@@ -41,7 +41,7 @@ def get_session():
         import redis
         import json
 
-        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+        redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
         for obj in session:
             if isinstance(obj, Processor):

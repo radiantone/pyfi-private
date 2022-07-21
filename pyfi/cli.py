@@ -337,7 +337,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             import json
 
             logging.debug("commit UPDATED",session)
-            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             for obj in session:
                 logging.debug("OBJ IN SESSION",type(obj), obj)
@@ -2964,7 +2964,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
         import pickle
 
         if result:
-            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
             r = redisclient.get(call.resultid)
 
             _r = pickle.loads(r)
@@ -4655,7 +4655,7 @@ def listen(context, name, channel, adaptor):
     import redis
     import importlib
 
-    redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     p = redisclient.pubsub()
     p.psubscribe([name + "." + channel])
     print("Listening to", name)

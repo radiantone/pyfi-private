@@ -161,7 +161,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
         import random
         import redis
 
-        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+        redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
         session = get_session()
         try:

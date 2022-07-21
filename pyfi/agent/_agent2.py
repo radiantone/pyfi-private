@@ -829,7 +829,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
             queues = get_queues()
             logging.debug("QUEUES %s",queues)
-            redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             redisclient.publish(
                 "global",

@@ -1747,7 +1747,7 @@ class WorkerService:
                             """Main meta function that tracks arguments and dispatches to the user code"""
                             import json
 
-                            redisclient = redis.Redis.from_url(self.backend)
+                            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
                             logging.info("WRAPPED FUNCTION INVOKE %s", socket.task)
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
@@ -2289,7 +2289,7 @@ class WorkerService:
 
         def emit_messages():
             """Get messages off queue and emit to pubsub server"""
-            redisclient = redis.Redis.from_url(self.backend)
+            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
             from setproctitle import setproctitle
 
             setproctitle("pyfi worker::emit_messages")

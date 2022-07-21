@@ -85,7 +85,7 @@ def get_session(**kwargs):
         import json
 
         logging.debug("commit UPDATED",session)
-        redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+        redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
         for obj in session:
             logging.debug("OBJ IN SESSION",type(obj), obj)
@@ -244,7 +244,7 @@ def get_result(resultid):
     import redis
     import pickle
 
-    redisclient = redis.Redis.from_url(CONFIG.get("backend", "uri"))
+    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     r = redisclient.get(resultid)
 
     _r = pickle.loads(r)
