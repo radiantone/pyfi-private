@@ -471,13 +471,21 @@
             </q-item>
             <q-item clickable v-close-popup @click="versionsDialog = true">
               <q-item-section side>
-                <q-icon name="fas fa-history"></q-icon>
+                <q-icon name="far fa-clone"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Versions
               </q-item-section>
             </q-item>
 
+            <q-item clickable v-close-popup @click="showHistory">
+              <q-item-section side>
+                <q-icon name="fas fa-history"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                History
+              </q-item-section>
+            </q-item>
             <q-item clickable v-close-popup @click="viewVariablesDialog = true">
               <q-item-section side>
                 <q-icon name="far fa-sticky-note"></q-icon>
@@ -1596,6 +1604,91 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="viewHistoryDialog" persistent>
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>History</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewHistoryDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: calc(100% - 40px); width: 100%;"
+        >
+          <q-table
+            dense
+            :columns="historycolumns"
+            :data="undoredo.undoStack"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              height: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  {{ props.row.constructor.name }}
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  {{ props.row.obj.data.name }}
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.row.obj.data.id }}
+                </q-td>                
+              </q-tr>     
+            </template>
+          </q-table>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
     <q-dialog v-model="emptyQueuesDialog" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -1938,6 +2031,13 @@ export default {
     },
   },
   methods: {
+    showHistory () {
+      console.log("HISTORY", this.undoredo.undoStack);
+      this.undoredo.undoStack.forEach((command) => {
+        console.log("COMMAND", command, command.constructor.name);        
+      })
+      this.viewHistoryDialog = true;
+    },
     downloadFlow() {
       var thecode = JSON.stringify(
         window.toolkit.getGraph().serialize(),
@@ -2424,6 +2524,7 @@ export default {
   },
   data: () => {
     return {
+      undoredo: {},
       variabledata: [
         {
           name: 'VAR1',
@@ -2435,6 +2536,26 @@ export default {
           value: 'VALUE2',
           scope: 'FLOW',
         },
+      ],
+      historycolumns: [
+        {
+          name: 'action',
+          label: 'Action',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'object',
+          label: 'Object',
+          field: 'object',
+          align: 'left',
+        },
+        {
+          name: 'id',
+          label: 'Object ID',
+          field: 'id',
+          align: 'left',
+        }
       ],
       variablecolumns: [
         {
