@@ -1937,6 +1937,7 @@ class WorkerService:
                                             result = _func(*args)
                                             output = buf.getvalue()
                                             logging.info("%s OUTPUT: %s",_func,output)
+                                            redisclient.set(taskid+"-output",output)
                                         return result
                                     except Exception as ex:
                                         import traceback
