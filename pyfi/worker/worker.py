@@ -1869,7 +1869,7 @@ class WorkerService:
                                                 'type':'output',
                                                 'taskid': taskid,
                                                 'output': json.dumps(output),
-                                                'processor': _processor.id
+                                                'processor': _processor.name
                                             }
                                         redisclient.publish("global", json.dumps(outputj))
                                         logging.info("OUT PATH %s","out/" + taskid)
@@ -1914,7 +1914,7 @@ class WorkerService:
                                                 'type':'output',
                                                 'taskid': taskid,
                                                 'output': json.dumps(output),
-                                                'processor': _processor.id
+                                                'processor': _processor.name
                                             }
                                         redisclient.publish("global", json.dumps(outputj))
                                         result = None
@@ -1955,7 +1955,7 @@ class WorkerService:
                                                 'type':'output',
                                                 'taskid': taskid,
                                                 'output': json.dumps(output),
-                                                'processor': _processor.id
+                                                'processor': _processor.name
                                             }
                                             redisclient.publish("global", json.dumps(outputj))
                                         return result

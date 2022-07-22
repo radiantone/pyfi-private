@@ -2883,6 +2883,13 @@ export default {
 
     this.$on('message.received', (msg) => {
       //console.log('MESSAGE RECEIVED', msg);
+
+      if (msg['type'] && msg['type'] == 'output') {
+        console.log("CONSOLE OUTPUT:",msg)
+        if (msg['processor'] == this.obj.id) {
+          console.log("MY CONSOLE OUTPUT:",msg)
+        }
+      }
       if (msg['room'] && msg['room'] != me.obj.name) {
         //console.log('MESSAGE NOT FOR ME');
         return;
