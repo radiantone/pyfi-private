@@ -1864,7 +1864,7 @@ class WorkerService:
                                         # Publish to redis
                                         run = self.container.exec_run(pythoncmd)
                                         output = run.output.decode("utf-8")
-
+                                        redisclient.set(taskid+"-output",output)
                                         logging.info("OUT PATH %s","out/" + taskid)
                                         # Unpickle output and return it
                                     else:
@@ -1900,8 +1900,9 @@ class WorkerService:
 
                                         logging.info("CONTAINER RUN: %s",pythoncmd)
                                         res = self.container.exec_run(pythoncmd)
-
-                                        logging.info("OUTPUT: %s", res.output)
+                                        output = res.output.decode("utf-8")
+                                        logging.info("OUTPUT: %s", output)
+                                        redisclient.set(taskid+"-output",output)
 
                                         result = None
                                         with open(
