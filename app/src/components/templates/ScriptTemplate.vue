@@ -2294,7 +2294,11 @@
           height: 400px;
         "
       >
-        Console view
+            <q-scroll-area style="height:375px;width::auto">
+              <div v-for="log in consolelogs">
+                <pre style="font-weight:bold">{{ log['date'] }}</pre><pre>{{ log['output'] }}</pre>
+              </div>
+            </q-scroll-area>
       </q-card-section>
       
       <q-card-actions align="right">
@@ -2886,8 +2890,9 @@ export default {
 
       if (msg['type'] && msg['type'] == 'output') {
         console.log("CONSOLE OUTPUT:",msg)
-        if (msg['processor'] == this.obj.id) {
-          console.log("MY CONSOLE OUTPUT:",msg)
+        if (msg['processor'] == this.obj.name) {
+          console.log("MY CONSOLE OUTPUT:", msg)
+          me.consolelogs.push({ 'date': new Date(), 'output': JSON.parse(msg['output']) }) 
         }
       }
       if (msg['room'] && msg['room'] != me.obj.name) {
@@ -3198,6 +3203,7 @@ export default {
       tasklogs: [],
       resultlogs: [],
       msglogs: [],
+      consolelogs: [],
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
