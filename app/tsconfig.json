@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "target": "es5"
   },
+  "noImplicitAny": false,
+  "allowJs": true,
   "include": [
     "./src",
     "public/js"  

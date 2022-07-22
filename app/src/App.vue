@@ -16,6 +16,11 @@ import StreamPlugin from "./plugins/stream-plugin";
 //import FloatingVue from 'floating-vue';
 import Vue from "vue";
 import Vuetify from "vuetify";
+
+//import { VueTypedJs } from 'vue-typed-js';
+const VueTypedJs = require('vue-typed-js');
+
+Vue.use(VueTypedJs)
 //import VueD3 from 'vue2-d3';
 //Vue.use(VueD3)
 //Vue.use(FloatingVue);
