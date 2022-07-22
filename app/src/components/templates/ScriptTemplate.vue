@@ -3105,7 +3105,7 @@ export default {
         },
         {
           name: 'id',
-          label: 'ID',
+          label: 'Result',
           field: 'id',
           align: 'left',
         },

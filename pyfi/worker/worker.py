@@ -1865,6 +1865,13 @@ class WorkerService:
                                         run = self.container.exec_run(pythoncmd)
                                         output = run.output.decode("utf-8")
                                         redisclient.set(taskid+"-output",output)
+                                        outputj = {
+                                                'type':'output',
+                                                'taskid': taskid,
+                                                'output': json.dumps(output),
+                                                'processor': _processor.id
+                                            }
+                                        redisclient.publish("global", json.dumps(outputj))
                                         logging.info("OUT PATH %s","out/" + taskid)
                                         # Unpickle output and return it
                                     else:
@@ -1903,7 +1910,13 @@ class WorkerService:
                                         output = res.output.decode("utf-8")
                                         logging.info("OUTPUT: %s", output)
                                         redisclient.set(taskid+"-output",output)
-
+                                        outputj = {
+                                                'type':'output',
+                                                'taskid': taskid,
+                                                'output': json.dumps(output),
+                                                'processor': _processor.id
+                                            }
+                                        redisclient.publish("global", json.dumps(outputj))
                                         result = None
                                         with open(
                                                 "out/" + taskid + ".out", "rb"
@@ -1938,6 +1951,13 @@ class WorkerService:
                                             output = buf.getvalue()
                                             logging.info("%s OUTPUT: %s",_func,output)
                                             redisclient.set(taskid+"-output",output)
+                                            outputj = {
+                                                'type':'output',
+                                                'taskid': taskid,
+                                                'output': json.dumps(output),
+                                                'processor': _processor.id
+                                            }
+                                            redisclient.publish("global", json.dumps(outputj))
                                         return result
                                     except Exception as ex:
                                         import traceback
