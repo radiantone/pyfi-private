@@ -1859,7 +1859,12 @@ class WorkerService:
                                         logging.info("Invoking %s", pythoncmd)
 
                                         logging.info("CONTAINER RUN: %s",pythoncmd)
-                                        self.container.exec_run(pythoncmd)
+
+                                        # TODO: Get stdout, stderr and save
+                                        # Publish to redis
+                                        run = self.container.exec_run(pythoncmd)
+                                        output = run.output.decode("utf-8")
+
                                         logging.info("OUT PATH %s","out/" + taskid)
                                         # Unpickle output and return it
                                     else:
@@ -1917,8 +1922,21 @@ class WorkerService:
                                     else:
                                         raise NotImplementedError
                                 else:
+                                    #from io import StringIO # Python3 use: from io import StringIO
+                                    #old_stdout = sys.stdout
+                                    #sys.stdout = mystdout = StringIO()
+                                    from contextlib import redirect_stdout
+                                    import io
+
                                     try:
-                                        return _func(*args)
+                                        # TODO: Get stdout, stderr
+                                        result = None
+                                        # blah blah lots of code ...
+                                        with io.StringIO() as buf, redirect_stdout(buf):
+                                            result = _func(*args)
+                                            output = buf.getvalue()
+                                            logging.info("%s OUTPUT: %s",_func,output)
+                                        return result
                                     except Exception as ex:
                                         import traceback
 
@@ -1928,6 +1946,9 @@ class WorkerService:
                                         _ex.tb = _r
                                         _ex.exception = ex
                                         raise _ex from ex
+                                    finally:
+                                        pass
+                                        #sys.stdout = old_stdout
 
                         # If processor is script
                         func = self.celery.task(
