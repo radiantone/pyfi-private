@@ -8,6 +8,10 @@ class DataService {
         return http.get('/api/files/'+collection+'/'+folder);
     }
 
+    getOutput (resultid: string): Promise<any> {
+        return http.get('/api/output/' + resultid);
+    }
+
     getResult (resultid: string): Promise<any> {
         return http.get('/api/result/' + resultid);
     }

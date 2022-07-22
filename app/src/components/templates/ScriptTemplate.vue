@@ -2704,7 +2704,10 @@
                     >
                   </q-td>
                   <q-td :key="props.cols[2].name" :props="props">
-                    {{ props.cols[2].value }}
+                    <a
+                      class="text-secondary"
+                      @click="showOutput(props.cols[1].value)"
+                      >Output</a>
                   </q-td>
                   <q-td :key="props.cols[3].name" :props="props">
                     {{ props.cols[3].value }}
@@ -2722,6 +2725,9 @@
 
                   <q-td :key="props.cols[7].name" :props="props">
                     {{ props.cols[7].value }}
+                  </q-td>
+                  <q-td :key="props.cols[8].name" :props="props">
+                    {{ props.cols[8].value }}
                   </q-td>
                 </q-tr>
               </template>
@@ -3100,6 +3106,13 @@ export default {
         {
           name: 'id',
           label: 'ID',
+          field: 'id',
+          align: 'left',
+        },
+
+        {
+          name: 'id',
+          label: 'Output',
           field: 'id',
           align: 'left',
         },
@@ -3743,6 +3756,16 @@ export default {
         'Output',
         'outlet-icon'
       );
+    },
+    showOutput(resultid) {
+      this.resultdataloading = true;
+
+      DataService.getOutput(resultid).then((result) => {
+        this.resultdataloading = false;
+
+        const editor = this.$refs.resultEditor.editor;
+        editor.session.setValue(result.data);
+      });
     },
     showResult(resultid) {
       this.resultdataloading = true;

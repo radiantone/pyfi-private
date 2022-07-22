@@ -19,6 +19,7 @@ from flask import (
     send_from_directory,
     current_app,
     send_from_directory,
+    make_response
 )
 
 from pyfi.blueprints.show import blueprint
@@ -237,6 +238,21 @@ def get_processors():
         processors = session.query(ProcessorModel).all()
 
         return jsonify(processors)
+
+
+@app.route("/output/<resultid>", methods=["GET"])
+def get_output(resultid):
+    import redis
+    import pickle
+    from pymongo import MongoClient
+
+    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+    resultid = resultid.replace('celery-task-meta-','')
+    r = redisclient.get(resultid+"-output")
+    logging.info("get_output: %s %s",resultid+"-output", r)
+    response = make_response(r, 200)
+    response.mimetype = "text/plain"
+    return response
 
 
 @app.route("/result/<resultid>", methods=["GET"])
