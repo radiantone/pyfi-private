@@ -1,6 +1,6 @@
 <template>
   <div
-    class="table node shadow-1 jtk-node"
+    class="table node shadow-1   jtk-node"
     style="overflow: unset !important;"
     :style="
       'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '
@@ -279,7 +279,15 @@
           </q-list>
         </q-btn-dropdown>
       </div>
-      <span
+      <span v-if="obj.titletab" id="toptitle" 
+        style="position: absolute; left: 5px; font-size: 20px; top: -40px;z-index:-99999;width:300px;padding-left:10px;background-color:white;padding:5px;"
+        class="text-black shadow-2"
+      >
+        <span class="proc-title text-dark" style="font-style: italic;margin-left:5px">
+          {{ obj.name }}
+        </span>
+      </span>      
+      <span v-if="!obj.titletab"
         style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
       >
@@ -519,9 +527,9 @@
             style="
               margin-right: 10px;
               position: absolute;
-              right: 130px;
+              right: 125px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -546,7 +554,7 @@
               position: absolute;
               right: 105px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -571,7 +579,7 @@
               position: absolute;
               right: 105px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -588,14 +596,38 @@
             dense
             flat
             size="xs"
+            icon="fas fa-terminal"
+            @click="showPanel('consoleview', !consoleview)"
+            class="edit-name text-secondary"
+            style="
+              position: absolute;
+              right: 80px;
+              top: -68px;
+              width: 25px;
+              height: 30px;
+            "
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Console
+            </q-tooltip>
+          </q-btn>          
+          <q-btn
+            dense
+            flat
+            size="xs"
             icon="fas fa-list"
             @click="showResultsDialog"
             class="edit-name text-secondary"
             style="
               position: absolute;
-              right: 75px;
+              right: 55px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -617,9 +649,9 @@
             class="edit-name text-secondary"
             style="
               position: absolute;
-              right: 45px;
+              right: 30px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -641,9 +673,9 @@
             class="new-column add text-secondary"
             style="
               position: absolute;
-              right: 20px;
+              right: 15px;
               top: -68px;
-              width: 30px;
+              width: 25px;
               height: 30px;
             "
           >
@@ -666,7 +698,7 @@
           style="
             position: absolute;
             right: 0px;
-            width: 30px;
+            width: 25px;
             height: 30px;
             top: -68px;
           "
@@ -729,18 +761,6 @@
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 History
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('consoleview', !consoleview)"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-terminal"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Console
               </q-item-section>
             </q-item>
             <q-item
@@ -1702,8 +1722,8 @@
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="GIT" />
                       <q-checkbox
-                        v-model="obj.container"
-                        label="Containerized"
+                        v-model="obj.titletab"
+                        label="Title Tab"
                         style="margin-left: 40px;"
                       />
                       <q-checkbox
@@ -1751,6 +1771,13 @@
                       :disable="!obj.container"
                     />
                   </q-form>
+                  <q-toolbar>
+                      <q-checkbox
+                        v-model="obj.container"
+                        label="Containerized"
+                      />
+                  </q-toolbar>
+
                 </div>
               </q-tab-panel>
               <q-tab-panel
@@ -3529,6 +3556,7 @@ export default {
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
+        titletab: false,
         style: '',
         x: 0,
         y: 0,

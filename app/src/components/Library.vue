@@ -82,7 +82,27 @@
             Refresh
           </q-tooltip>
         </q-btn>
-       
+       <q-btn
+          flat
+          round
+          icon="fas fa-plus"
+          size="xs"
+          color="primary"
+          class="q-mr-xs"
+          style="padding: 0;"
+          @click="
+            showpath = false;
+            showaddfolder = true;
+          "
+        >
+          <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Add Folder
+          </q-tooltip>
+        </q-btn>
       </q-breadcrumbs>
     </div>
     <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
@@ -94,7 +114,17 @@
           class="dragrow"
         >
           <q-item-section avatar>
-            <q-icon name="fas fa-microchip"   class="text-secondary" />
+            <q-icon
+              :name="item.icon"
+              color="secondary"
+              v-if="item.type == 'folder'"
+              :class="darkStyle"
+            />
+            <q-icon
+              :name="item.icon"
+              v-if="item.type != 'folder'"
+              :class="darkStyle"
+            />
           </q-item-section>
           <q-item-section
             ><a
@@ -106,10 +136,40 @@
                 min-width: 250px;
                 font-size: 1.3em;
               "
-              >{{ item.name }}</a
+              @click="selectFileOrFolder(item)"
+              >{{ ( item.filename ? item.filename : item.name )}}</a
             >
           </q-item-section>
           <q-space />
+          <q-toolbar>
+            <q-space />
+            <q-btn flat dense rounded icon="edit" :class="darkStyle">
+              <q-tooltip
+                v-if="item.type === objecttype"
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Rename
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              dense
+              rounded
+              icon="delete"
+              :class="darkStyle"
+              @click="showDeleteObject(item)"
+            >
+              <q-tooltip
+                v-if="item.type === objecttype"
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Delete
+                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
+              </q-tooltip>
+            </q-btn>
+          </q-toolbar>
         </q-item>
       </q-list>
     </q-scroll-area>
@@ -151,6 +211,26 @@ export default {
   },
   methods: {
 
+    addFolder() {
+      var me = this;
+      this.showaddfolder = false;
+      this.showpath = true;
+      this.loading = true;
+      console.log('FOLDERNAME', this.foldername + '/' + this.newfolder);
+      DataService.newFolder('library', this.foldername + '/' + this.newfolder)
+        .then(() => {
+          me.synchronize();
+        })
+        .catch(function (error) {
+          console.log(error);
+          me.loading = false;
+          me.notifyMessage(
+            'dark',
+            'error',
+            'There was an error creating the folder.'
+          );
+        });
+    },
     breadcrumbClick(crumb) {
       console.log('CRUMB:', crumb.path);
       var path = crumb.path;
@@ -172,6 +252,11 @@ export default {
       paths[0].icon = 'home';
       this.navigate(path);
     },
+
+    navigate(folder) {
+      this.foldername = folder;
+      this.synchronize();
+    },
     selectFileOrFolder(item) {
       var me = this;
 
@@ -179,15 +264,8 @@ export default {
       item._id = item.id;
       
       this.flowuuid = item.id;
-      if (item.type === this.objecttype) {
-        DataService.getFile(item.id).then((code) => {
-          item.code = code.data;
-          me.flowcode = item.code;
-          console.log('FLOW CODE', item);
-          me.$root.$emit('load.flow', item);
-        });
-      } else if (item.type === 'folder') {
-        this.foldername = item.path+"/"+item.name;
+      if (item.type === 'folder') {
+        this.foldername = item.path+"/"+item.filename;
         var p = this.foldername.split('/');
         var paths = (this.paths = []);
         var _path = '';
@@ -218,7 +296,7 @@ export default {
       this.loading = true;
       var me = this;
       try {
-        var files = DataService.getProcessors();
+        var files = DataService.getFiles(this.collection,this.foldername);
         files
           .then(function (result) {
             setTimeout(function () {
@@ -239,8 +317,8 @@ export default {
                 if (el) {
                   console.log(result[i], el);
                   el.data = result[i];
-                  el.data.type = "processor";
-                  el.data.icon = "fas fa-microchip";
+                  el.data.type = "template";
+                  //el.data.icon = "fas fa-microchip";
 
                   var draghandle = dd.drag(el, {
                     image: true, // default drag image

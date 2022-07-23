@@ -667,9 +667,9 @@
       style="overflow: hidden;"
     >
       <Library
-        :objecttype="'processor'"
+        :objecttype="'template'"
         :icon="'fas fa-wrench'"
-        :collection="'processors'"
+        :collection="'library'"
         style="width: 100%;"
       />
     </q-drawer>

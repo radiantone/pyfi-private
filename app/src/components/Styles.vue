@@ -27,6 +27,21 @@
   fill: red;
 }
 
+.shadow-1-null:before {
+  content: "";
+  height: 7px;
+  width: 280;
+  position: absolute;
+  bottom: 0px;
+  background: white;
+  z-index: 2;
+}
+.shadow-2 {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
 .shadow-1 {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
