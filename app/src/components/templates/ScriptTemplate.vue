@@ -2295,17 +2295,36 @@
         "
       >
             <q-scroll-area style="height:375px;width::auto" ref="scroll">
-              <div v-for="(log,index) in consolelogs">
-<pre v-if="index < consolelogs.length-1">{{log['date']}}</pre>
-<pre v-if="index < consolelogs.length-1">{{log['output']}}</pre>
-              <vue-typed-js v-if="index == consolelogs.length-1" :typeSpeed="10" :strings="['<pre>'+log['date']+'</pre><pre>'+log['output']+'</pre>']" :contentType="'html'">
-                <h2 class="typing"></h2>
-              </vue-typed-js>
+            <div  v-for="(log, index ) in consolelogs">
+            <div v-if="consolehistory">
+              <pre style="font-weight:bold">{{log['date']}}</pre>
+              <pre>{{log['output']}}</pre>
               </div>
+              <vue-typed-js v-if="!consolehistory && index == consolelogs.length-1" :typeSpeed="1" :strings="['<b>'+consolelogs[consolelogs.length-1]['date']+'</b><br><br>'+consolelogs[consolelogs.length-1]['output']]" :contentType="'html'">
+                <pre class="typing"></pre>
+              </vue-typed-js>
+
+            </div>
+
 
             </q-scroll-area>
       </q-card-section>
-      
+            <q-card-actions align="left">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          label="Clear"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="consolelogs = []"
+        />
+                              <q-checkbox
+                        v-model="consolehistory"
+                        label="History"
+                        style="position: absolute; bottom: 0px; left: 110px; "
+                      />
+      </q-card-actions>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2897,8 +2916,7 @@ export default {
         console.log("CONSOLE OUTPUT:",msg)
         if (msg['processor'] == this.obj.name) {
           console.log("MY CONSOLE OUTPUT:", msg)
-          me.consolelogs.push({ 'date': new Date(), 'output': JSON.parse(msg['output']) }) 
-          this.$refs.scroll.setScrollPercentage("vertical", 1)
+          me.consolelogs.push({ 'date': new Date(), 'output': msg['output'] }) 
         }
       }
       if (msg['room'] && msg['room'] != me.obj.name) {
@@ -3213,6 +3231,7 @@ export default {
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
+      consolehistory: false,
       saving: false,
       workersLoading: false,
       splitterModel: 50,

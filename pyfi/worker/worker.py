@@ -1841,7 +1841,10 @@ class WorkerService:
 
                             import pickle
 
+                            # TODO: Load processor decorator class here
                             # TODO: Add sourceplug names to _kwargs
+
+                            ''' MAIN FUNCTION EXECUTION '''
                             if _kwargs:
                                 """If we have kwargs to pass in"""
                                 logging.info("Invoking function %s %s", args, _kwargs)
@@ -1878,8 +1881,33 @@ class WorkerService:
                                         # Run new non-detached container for task
                                         raise NotImplementedError
                                 else:
+                                    import io
+                                    from contextlib import redirect_stdout
                                     # Execute the function inside this celery worker
-                                    return _func(*args, **_kwargs)
+                                    result = None
+                                    # blah blah lots of code ...
+                                    with io.StringIO() as buf, redirect_stdout(buf):
+                                        # TODO: Load processor class wrapper here
+                                        # The processor class will decorate the function and
+                                        # instrument the parameters and the response value
+                                        # For example, a JSONStore processor might wrap the function
+                                        # passing in a metadata object containing the collection to use
+                                        # then storing the result in that collection in the JSONStore
+                                        # Or it doesn't call the _func at all because there is no user code
+                                        # It simple accepts the incoming arguments and stores them
+                                        result = _func(*args, **_kwargs)
+                                        output = buf.getvalue()
+                                        logging.info("%s OUTPUT: %s",_func,output)
+                                        redisclient.set(taskid+"-output",output)
+                                        outputj = {
+                                            'type':'output',
+                                            'taskid': taskid,
+                                            'output': output,
+                                            'processor': _processor.name
+                                        }
+                                        redisclient.publish("global", json.dumps(outputj))
+                                    return result
+                                    #return _func(*args, **_kwargs)
                             else:
                                 """If we only have args to pass in"""
                                 logging.info("Invoking function %s", args)
@@ -2403,6 +2431,9 @@ class WorkerService:
         p.resume()
         self.scheduler.resume()
 
+    #########################################################################
+    # Kill worker thread
+    #########################################################################
     def kill(self):
         """
         Docstring
