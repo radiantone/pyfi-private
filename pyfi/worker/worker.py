@@ -1868,7 +1868,7 @@ class WorkerService:
                                         outputj = {
                                                 'type':'output',
                                                 'taskid': taskid,
-                                                'output': json.dumps(output),
+                                                'output': output,
                                                 'processor': _processor.name
                                             }
                                         redisclient.publish("global", json.dumps(outputj))
@@ -1913,7 +1913,7 @@ class WorkerService:
                                         outputj = {
                                                 'type':'output',
                                                 'taskid': taskid,
-                                                'output': json.dumps(output),
+                                                'output': output,
                                                 'processor': _processor.name
                                             }
                                         redisclient.publish("global", json.dumps(outputj))
@@ -1954,7 +1954,7 @@ class WorkerService:
                                             outputj = {
                                                 'type':'output',
                                                 'taskid': taskid,
-                                                'output': json.dumps(output),
+                                                'output': output,
                                                 'processor': _processor.name
                                             }
                                             redisclient.publish("global", json.dumps(outputj))

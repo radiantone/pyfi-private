@@ -3040,7 +3040,7 @@ export default {
           });
           toolkit.dirty = true;
 
-          toolkit.$root.$emit('toolkit.dirty', true);
+          //toolkit.$root.$emit('toolkit.dirty', true);
         },
         groupFactory: function (type, data, callback) {
           console.log('Group factory:', type, data);

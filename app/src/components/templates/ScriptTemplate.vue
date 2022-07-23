@@ -2294,10 +2294,15 @@
           height: 400px;
         "
       >
-            <q-scroll-area style="height:375px;width::auto">
-              <div v-for="log in consolelogs">
-                <pre style="font-weight:bold">{{ log['date'] }}</pre><pre>{{ log['output'] }}</pre>
+            <q-scroll-area style="height:375px;width::auto" ref="scroll">
+              <div v-for="(log,index) in consolelogs">
+<pre v-if="index < consolelogs.length-1">{{log['date']}}</pre>
+<pre v-if="index < consolelogs.length-1">{{log['output']}}</pre>
+              <vue-typed-js v-if="index == consolelogs.length-1" :typeSpeed="10" :strings="['<pre>'+log['date']+'</pre><pre>'+log['output']+'</pre>']" :contentType="'html'">
+                <h2 class="typing"></h2>
+              </vue-typed-js>
               </div>
+
             </q-scroll-area>
       </q-card-section>
       
@@ -2893,6 +2898,7 @@ export default {
         if (msg['processor'] == this.obj.name) {
           console.log("MY CONSOLE OUTPUT:", msg)
           me.consolelogs.push({ 'date': new Date(), 'output': JSON.parse(msg['output']) }) 
+          this.$refs.scroll.setScrollPercentage("vertical", 1)
         }
       }
       if (msg['room'] && msg['room'] != me.obj.name) {
@@ -3043,7 +3049,7 @@ export default {
       this.updateSchemas();
     });
 
-    window.designer.$root.$on('toolkit.dirty', () => {
+    window.designer.$root.$on('toolkit.dirty', (val) => {
       this.updateSchemas();
     });
     window.designer.$root.$emit('toolkit.dirty');
