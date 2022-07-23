@@ -7,16 +7,19 @@ import hashlib
 import logging
 
 from pyfi.client.objects import SocketNotFoundException
-logging.basicConfig(level=logging.INFO,
-                    format='%(filename)s: '    
-                            '%(levelname)s: '
-                            '%(funcName)s(): '
-                            '%(lineno)d:\t'
-                            '%(message)s')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(filename)s: "
+    "%(levelname)s: "
+    "%(funcName)s(): "
+    "%(lineno)d:\t"
+    "%(message)s",
+)
 
 
-logger = logging.getLogger(__name__)                       
-logging.getLogger('sqlalchemy_oso.session').setLevel(logging.CRITICAL)     
+logger = logging.getLogger(__name__)
+logging.getLogger("sqlalchemy_oso.session").setLevel(logging.CRITICAL)
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
@@ -26,33 +29,33 @@ from pathlib import Path
 
 import click
 from prettytable import PrettyTable
-from sqlalchemy import create_engine, MetaData, literal_column
+from sqlalchemy import MetaData, create_engine, event
 from sqlalchemy import exc as sa_exc
+from sqlalchemy import literal_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
-from sqlalchemy import event
 
 from pyfi.db.model import (
-    oso,
-    SchedulerModel,
-    UserModel,
-    EventModel,
-    ArgumentModel,
-    LoginModel,
     AgentModel,
-    WorkerModel,
+    ArgumentModel,
     CallModel,
-    PlugModel,
-    SocketModel,
-    ProcessorModel,
-    NodeModel,
-    RoleModel,
-    QueueModel,
-    TaskModel,
-    LogModel,
     DeploymentModel,
-    PasswordModel,
+    EventModel,
+    LoginModel,
+    LogModel,
     NetworkModel,
+    NodeModel,
+    PasswordModel,
+    PlugModel,
+    ProcessorModel,
+    QueueModel,
+    RoleModel,
+    SchedulerModel,
+    SocketModel,
+    TaskModel,
+    UserModel,
+    WorkerModel,
+    oso,
 )
 from pyfi.db.model.models import PrivilegeModel
 from pyfi.web import run_http
@@ -71,19 +74,23 @@ CONFIG.read(ini)
 
 dburi = CONFIG.get("database", "uri")
 
-POSTGRES_ROOT = '/'.join(dburi.rsplit('/')[:-1])+"/" #"postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/"
-POSTGRES = dburi #"postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/pyfi"
+POSTGRES_ROOT = (
+    "/".join(dburi.rsplit("/")[:-1]) + "/"
+)  # "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/"
+POSTGRES = dburi  # "postgresql://postgres:pyfi101@" + HOSTNAME + ":5432/pyfi"
+
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     logging.error("Uncaught exception %s", exc_value)
 
 
 def import_class(name):
-    components = name.split('.')
+    components = name.split(".")
     mod = __import__(components[0])
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
+
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
@@ -109,7 +116,6 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-
 @click.group(invoke_without_command=True)
 @click.option("--debug", is_flag=True, default=False, help="Debug switch")
 @click.option("-d", "--db", help="Database URI")
@@ -128,17 +134,18 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     CLI for creating & managing flow networks
     """
 
-
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
     if debug:
         logging.basicConfig(
-            format="%(asctime)s : %(name)s %(levelname)s : %(message)s", level=logging.DEBUG
+            format="%(asctime)s : %(name)s %(levelname)s : %(message)s",
+            level=logging.DEBUG,
         )
     else:
         logging.basicConfig(
-            format="%(asctime)s : %(name)s %(levelname)s : %(message)s", level=logging.INFO
+            format="%(asctime)s : %(name)s %(levelname)s : %(message)s",
+            level=logging.INFO,
         )
 
     context.obj = {}
@@ -224,6 +231,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
     except:
         import traceback
+
         print(traceback.format_exc())
         print(
             "Database unavailable. Please check your configuration or ensure database server is running."
@@ -245,8 +253,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
                 user_m = (
                     session.query(UserModel)
-                        .filter_by(name=username, password=password)
-                        .first()
+                    .filter_by(name=username, password=password)
+                    .first()
                 )
                 # context.obj['user'] = user_m
                 # context.obj['database'].session.add(user_m)
@@ -280,8 +288,8 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             session = sessionmaker(bind=engine)()
             _user = (
                 session.query(UserModel)
-                    .filter_by(name=username, password=password)
-                    .first()
+                .filter_by(name=username, password=password)
+                .first()
             )
             permissions = {
                 SchedulerModel: "read",
@@ -331,22 +339,23 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         context.obj["database"].session = session  # context.obj['session']
 
         # Load the base policy file into OSO
-        @event.listens_for(session, 'before_commit')
+        @event.listens_for(session, "before_commit")
         def receive_after_commit(session):
-            import redis
             import json
 
-            logging.debug("commit UPDATED",session)
+            import redis
+
+            logging.debug("commit UPDATED", session)
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             for obj in session:
-                logging.debug("OBJ IN SESSION",type(obj), obj)
+                logging.debug("OBJ IN SESSION", type(obj), obj)
 
                 if isinstance(obj, ProcessorModel):
                     # Publish to redis, pubsub, which gets sent to browser
                     redisclient.publish(
                         "global",
-                        json.dumps({'type':'processor','processor':str(obj)}),
+                        json.dumps({"type": "processor", "processor": str(obj)}),
                     )
 
         # Generate OSO user policy file based on roles and privileges in the database
@@ -395,9 +404,9 @@ def user_add(context, user, role, privilege):
     if role:
         role_m = (
             context.obj["database"]
-                .session.query(RoleModel)
-                .filter_by(name=role)
-                .first()
+            .session.query(RoleModel)
+            .filter_by(name=role)
+            .first()
         )
         print("ROLE:", role_m)
         user_m.roles += [role_m]
@@ -502,9 +511,9 @@ def login(context, database):
     if not database:
         user_m = (
             context.obj["database"]
-                .session.query(UserModel)
-                .filter_by(name=user, password=password)
-                .first()
+            .session.query(UserModel)
+            .filter_by(name=user, password=password)
+            .first()
         )
 
         if user_m is not None:
@@ -518,16 +527,16 @@ def login(context, database):
     dburi = CONFIG.get("database", "uri")
     uri = urlparse(dburi)
     newuri = (
-            uri.scheme
-            + "://"
-            + user
-            + ":"
-            + __password
-            + "@"
-            + uri.hostname
-            + ":"
-            + str(uri.port)
-            + uri.path
+        uri.scheme
+        + "://"
+        + user
+        + ":"
+        + __password
+        + "@"
+        + uri.hostname
+        + ":"
+        + str(uri.port)
+        + uri.path
     )
     CONFIG.set("database", "uri", newuri)
     CONFIG.set("login", "password", password)
@@ -600,21 +609,13 @@ def network(context):
 @click.option("-nd", "--node", help="Name of node to add")
 @click.pass_context
 def add_node_to_network(context, name, node):
-    """ Add node to a network """
+    """Add node to a network"""
     network = (
-        context.obj["database"]
-            .session.query(NetworkModel)
-            .filter_by(name=name)
-            .first()
+        context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
     )
-    logging.debug("network is %s",network)
-    node = (
-        context.obj["database"]
-            .session.query(NodeModel)
-            .filter_by(name=node)
-            .first()
-    )
-    logging.debug("node is %s",node)
+    logging.debug("network is %s", network)
+    node = context.obj["database"].session.query(NodeModel).filter_by(name=node).first()
+    logging.debug("node is %s", node)
     if node is None:
         print(f"Node {node} not found.")
         return
@@ -636,9 +637,10 @@ def migrate(context, directory):
     """
     Perform database migration/upgrade
     """
-    from pyfi.db.model import Base
-    from alembic.migration import MigrationContext
     from alembic.autogenerate import compare_metadata, produce_migrations
+    from alembic.migration import MigrationContext
+
+    from pyfi.db.model import Base
 
     target_metadata = Base.metadata
 
@@ -648,8 +650,8 @@ def migrate(context, directory):
     diff = compare_metadata(mc, target_metadata)
     script = produce_migrations(mc, target_metadata)
 
-    from alembic.config import Config
     from alembic import command
+    from alembic.config import Config
 
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("script_location", directory)
@@ -710,10 +712,10 @@ def db_drop(context, yes):
     try:
         if not yes:
             if click.confirm(
-                    "Are you sure you want to drop the database?", default=False
+                "Are you sure you want to drop the database?", default=False
             ):
                 if click.confirm(
-                        "Are you REALLY sure you want to drop the database?", default=False
+                    "Are you REALLY sure you want to drop the database?", default=False
                 ):
                     dropdb(context)
                 else:
@@ -883,9 +885,9 @@ def remove_processor(context):
     """
     processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=context.obj["id"])
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(id=context.obj["id"])
+        .first()
     )
     # Business logic here?
     processor.requested_status = "removed"
@@ -910,17 +912,17 @@ def pause_processor(context, name):
         print("Pausing ", name)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         print("Pausing ", id)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     # Business logic here?
@@ -948,17 +950,17 @@ def resume_processor(context, name):
         print("Pausing ", name)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         print("Pausing ", id)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     # Business logic here?
@@ -986,17 +988,17 @@ def stop_processor(context, name):
         print("Stopping", name)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         print("Stopping ", id)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     # Business logic here?
@@ -1005,9 +1007,9 @@ def stop_processor(context, name):
         database = context.obj["database"]
         database.session.add(processor)
         for deployment in processor.deployments:
-            deployment.status = 'stopped'
+            deployment.status = "stopped"
             database.session.add(deployment)
-            
+
         database.session.commit()
         print("Processor stop requested.")
     else:
@@ -1027,17 +1029,17 @@ def start_processor(context, name):
         print("Starting", name)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         print("Starting", id)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     # Business logic here?
@@ -1061,17 +1063,17 @@ def restart_processor(context, name):
         print("Restarting", name)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         print("Restarting", id)
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     # Business logic here?
@@ -1125,9 +1127,9 @@ def delete_network(context, name):
 def delete_deployment(context, name):
     deployment = (
         context.obj["database"]
-            .session.query(DeploymentModel)
-            .filter_by(name=name)
-            .first()
+        .session.query(DeploymentModel)
+        .filter_by(name=name)
+        .first()
     )
 
     if deployment.worker:
@@ -1209,9 +1211,9 @@ def delete_agent(context, name):
 def delete_processor(context, name):
     model = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(name=name)
+        .first()
     )
 
     context.obj["database"].session.delete(model)
@@ -1261,7 +1263,9 @@ def update(context, id):
 @scheduler.command(name="start", help="Start the default scheduler")
 @click.option("-n", "--name", default=None, required=True)
 @click.option("-i", "--interval", default=3, required=False)
-@click.option("-c", "--class", 'clazz', default="pyfi.scheduler.BasicScheduler", required=False)
+@click.option(
+    "-c", "--class", "clazz", default="pyfi.scheduler.BasicScheduler", required=False
+)
 @click.pass_context
 def start_scheduler(context, name, interval, clazz):
     from pyfi.scheduler import BasicScheduler
@@ -1273,7 +1277,7 @@ def start_scheduler(context, name, interval, clazz):
         scheduler.run()
     except Exception as ex:
         logger.error(ex)
-    #scheduler = BasicScheduler(name, interval)
+    # scheduler = BasicScheduler(name, interval)
 
 
 @scheduler.command(name="remove")
@@ -1299,17 +1303,17 @@ def add_node_to_scheduler(context, node):
     if name is not None:
         scheduler = (
             context.obj["database"]
-                .session.query(SchedulerModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(SchedulerModel)
+            .filter_by(name=name)
+            .first()
         )
 
     elif id is not None:
         scheduler = (
             context.obj["database"]
-                .session.query(SchedulerModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(SchedulerModel)
+            .filter_by(id=id)
+            .first()
         )
 
     if scheduler is None:
@@ -1421,19 +1425,25 @@ def show_task(context, name, gitrepo):
 @click.option(
     "-a", "--argument", required=False, default=None, help="Name of argument to pass"
 )
-@click.option("-sy", "--synchronized", is_flag=True, default=False, help="Execute full data flow from this task, wait for result.")
+@click.option(
+    "-sy",
+    "--synchronized",
+    is_flag=True,
+    default=False,
+    help="Execute full data flow from this task, wait for result.",
+)
 @click.pass_context
 def run_task(context, name, format, socket, data, nodata, argument, synchronized):
     """
     Run a task
     """
-    import sys
     import imp
-    from pyfi.client.api import parallel, pipeline
-    from pyfi.client.user import USER
-    from pyfi.client.objects import SocketNotFoundException
+    import sys
 
-    from pyfi.client.api import Socket
+    from pyfi.client.api import Socket, parallel, pipeline
+    from pyfi.client.objects import SocketNotFoundException
+    from pyfi.client.user import USER
+
     if socket is None:
         click.echo("No socket name was provided.")
         return
@@ -1446,9 +1456,9 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
 
         _task = (
             context.obj["database"]
-                .session.query(TaskModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(TaskModel)
+            .filter_by(name=name)
+            .first()
         )
 
         if _task.code:
@@ -1471,7 +1481,7 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
         return
 
     kwargs = {}
-   
+
     if synchronized:
         _data = None
         if data:
@@ -1483,14 +1493,14 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
                     _data = eval(data)
 
         def build_pipeline(socket):
-        
+
             sources = []
             for plug in socket.socket.sourceplugs:
                 target_socket = plug.target
                 _socket = Socket(name=target_socket.name, user=USER)
                 pip = build_pipeline(_socket)
                 if len(pip):
-                    sources += [pipeline(_socket.p(),pip)]
+                    sources += [pipeline(_socket.p(), pip)]
                 else:
                     sources += [_socket.p()]
 
@@ -1503,14 +1513,14 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
 
         p_calls = build_pipeline(socket)
 
-        print("P_CALLS",p_calls)
-        print("socket.p(_data).get() ",[socket.p(_data), p_calls])
+        print("P_CALLS", p_calls)
+        print("socket.p(_data).get() ", [socket.p(_data), p_calls])
         p = pipeline([socket.p(_data), p_calls])
         p = p_calls
         s1 = Socket(name="pyfi.processors.sample.do_something", user=USER).p
         s2 = Socket(name="pyfi.processors.sample.do_this", user=USER).p
-        p = pipeline([s1("Hi!"),s2("There!")])
-        print("PIPELINE",p)
+        p = pipeline([s1("Hi!"), s2("There!")])
+        print("PIPELINE", p)
         print(p().get())
 
         return
@@ -1597,19 +1607,19 @@ def update_object(obj, locals):
 @click.option("-mp", "--modulepath", default=None, required=False)
 @click.pass_context
 def update_processor(
-        context,
-        name,
-        module,
-        hostname,
-        workers,
-        gitrepo,
-        commit,
-        beat,
-        requested_status,
-        branch,
-        password,
-        container,
-        modulepath
+    context,
+    name,
+    module,
+    hostname,
+    workers,
+    gitrepo,
+    commit,
+    beat,
+    requested_status,
+    branch,
+    password,
+    container,
+    modulepath,
 ):
     """
     Update a processor in the database
@@ -1621,17 +1631,17 @@ def update_processor(
     if name is not None:
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
 
     elif id is not None:
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
         # Update deployment
@@ -1640,7 +1650,9 @@ def update_processor(
         processor.module = click.prompt("Module", type=str, default=processor.module)
 
     if not container:
-        processor.use_container = click.prompt("Container", type=bool, default=processor.use_container)
+        processor.use_container = click.prompt(
+            "Container", type=bool, default=processor.use_container
+        )
 
     if not workers:
         processor.concurrency = click.prompt(
@@ -1665,7 +1677,9 @@ def update_processor(
         if _password:
             # Does password object exist first?
 
-            __password = PasswordModel(name=processor.name+".password", password=_password)
+            __password = PasswordModel(
+                name=processor.name + ".password", password=_password
+            )
             context.obj["database"].session.add(__password)
             __password.processor = processor
     if not modulepath:
@@ -1832,19 +1846,19 @@ def add_task(context, name, module, code, repo):
 @click.option("-c", "--cpus", default=0, help="Number of CPUs")
 @click.pass_context
 def add_deployment(context, name, deploy, hostname, cpus):
-    """ Add a deployment """
+    """Add a deployment"""
     processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=name)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(name=name)
+        .first()
     )
 
     deployment = (
         context.obj["database"]
-            .session.query(DeploymentModel)
-            .filter_by(name=deploy)
-            .first()
+        .session.query(DeploymentModel)
+        .filter_by(name=deploy)
+        .first()
     )
 
     if deployment is not None:
@@ -1962,24 +1976,24 @@ def add_deployment(context, name, deploy, hostname, cpus):
 )
 @click.pass_context
 def add_processor(
-        context,
-        name,
-        module,
-        hostname,
-        workers,
-        retries,
-        gitrepo,
-        commit,
-        requested_status,
-        beat,
-        branch,
-        password,
-        requirements,
-        endpoint,
-        api,
-        cpus,
-        deploy,
-        modulepath
+    context,
+    name,
+    module,
+    hostname,
+    workers,
+    retries,
+    gitrepo,
+    commit,
+    requested_status,
+    beat,
+    branch,
+    password,
+    requirements,
+    endpoint,
+    api,
+    cpus,
+    deploy,
+    modulepath,
 ):
     """
     Add processor to the database
@@ -1990,8 +2004,8 @@ def add_processor(
 
     #  hostname=hostname,
     if endpoint is None:
-        endpoint = '/'+module+'/'+name
-        
+        endpoint = "/" + module + "/" + name
+
     processor = ProcessorModel(
         id=id,
         status="ready",
@@ -2009,18 +2023,22 @@ def add_processor(
         endpoint=endpoint,
         hasapi=api,
         requirements=requirements,
-        modulepath=modulepath
+        modulepath=modulepath,
     )
 
     if password:
-        _password = PasswordModel(name=name+".password", password=hashlib.md5(password.encode()).hexdigest())
+        _password = PasswordModel(
+            name=name + ".password", password=hashlib.md5(password.encode()).hexdigest()
+        )
         processor.password = _password
-        
+
         context.obj["database"].session.add(_password)
 
     if deploy:
         if hostname and cpus > 0:
-            deployment = DeploymentModel(name=processor.name, hostname=hostname, cpus=cpus)
+            deployment = DeploymentModel(
+                name=processor.name, hostname=hostname, cpus=cpus
+            )
             processor.deployments += [deployment]
             context.obj["database"].session.add(deployment)
         else:
@@ -2063,7 +2081,7 @@ def add_processor(
 @click.option("-n", "--name", default=None, required=True)
 @click.pass_context
 def add_network(context, name):
-    """ Create a named network """
+    """Create a named network"""
 
     user = context.obj["user"]
     network = NetworkModel(name=name, user=user)
@@ -2096,9 +2114,9 @@ def add_privilege(context, user, name, role):
         try:
             user = (
                 context.obj["database"]
-                    .session.query(UserModel)
-                    .filter_by(name=user)
-                    .first()
+                .session.query(UserModel)
+                .filter_by(name=user)
+                .first()
             )
             user.lastupdated = datetime.now()
             privilege = PrivilegeModel(id=id, name=name, right=name)
@@ -2124,9 +2142,11 @@ def add_user(context, name, email, password):
     """
     Add user object to the database
     """
-    from sqlalchemy.exc import IntegrityError
-    from pyfi.db.model import Base
     import hashlib
+
+    from sqlalchemy.exc import IntegrityError
+
+    from pyfi.db.model import Base
 
     id = context.obj["id"]
 
@@ -2295,10 +2315,10 @@ def update_task(context, name, module, code):
         _task.requested_status = "update"
         socket = (
             context.obj["database"]
-                .session.query(SocketModel)
-                .join(TaskModel)
-                .filter(SocketModel.task_id == TaskModel.id)
-                .first()
+            .session.query(SocketModel)
+            .join(TaskModel)
+            .filter(SocketModel.task_id == TaskModel.id)
+            .first()
         )
         socket.processor.requested_status = "update"
 
@@ -2326,9 +2346,9 @@ def update_socket(context, name, queue, interval, procid, procname, task):
     if name is not None:
         socket = (
             context.obj["database"]
-                .session.query(SocketModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(SocketModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         socket = (
@@ -2337,9 +2357,9 @@ def update_socket(context, name, queue, interval, procid, procname, task):
 
     processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=socket.processor_id)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(id=socket.processor_id)
+        .first()
     )
     if not interval and interval > 0:
         socket.interval = click.prompt("Interval", type=int, default=socket.interval)
@@ -2371,9 +2391,9 @@ def update_plug(context, name, queue, procid, procname):
     if name is not None:
         plug = (
             context.obj["database"]
-                .session.query(PlugModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(PlugModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         plug = context.obj["database"].session.query(PlugModel).filter_by(id=id).first()
@@ -2381,25 +2401,25 @@ def update_plug(context, name, queue, procid, procname):
     # Get the plug's current processor
     current_processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=plug.processor_id)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(id=plug.processor_id)
+        .first()
     )
 
     # Get the processor referenced in the CLI
     if procname is not None:
         new_processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=procname)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=procname)
+            .first()
         )
     elif procid is not None:
         new_processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=procid)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=procid)
+            .first()
         )
 
     # If the new processor is different, then add it to the transaction
@@ -2442,16 +2462,16 @@ def add_plug(context, name, queue, source, target):
 
     source_socket = (
         context.obj["database"]
-            .session.query(SocketModel)
-            .filter_by(name=source)
-            .first()
+        .session.query(SocketModel)
+        .filter_by(name=source)
+        .first()
     )
 
     target_socket = (
         context.obj["database"]
-            .session.query(SocketModel)
-            .filter_by(name=target)
-            .first()
+        .session.query(SocketModel)
+        .filter_by(name=target)
+        .first()
     )
 
     queue = (
@@ -2503,9 +2523,9 @@ def add_socket(context, name, queue, interval, procname, task):
 
     processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(name=procname)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(name=procname)
+        .first()
     )
 
     queue = (
@@ -2528,9 +2548,9 @@ def add_socket(context, name, queue, interval, procname, task):
     if task is not None:
         _task = (
             context.obj["database"]
-                .session.query(TaskModel)
-                .filter_by(name=task)
-                .first()
+            .session.query(TaskModel)
+            .filter_by(name=task)
+            .first()
         )
         if _task is None:
             _task = TaskModel(
@@ -2592,7 +2612,7 @@ def kill_agent(context, name):
         print("Agent does not exist.")
         return
 
-    agent.requested_status = 'kill'
+    agent.requested_status = "kill"
     context.obj["database"].session.commit()
 
 
@@ -2663,12 +2683,12 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     deployments = (
         context.obj["database"]
-            .session.query(DeploymentModel)
-            .filter_by(hostname=hostname)
-            .all()
+        .session.query(DeploymentModel)
+        .filter_by(hostname=hostname)
+        .all()
     )
     logging.info("DEPLOYMENTS for %s are %s", hostname, deployments)
-    
+
     for deployment in deployments:
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
@@ -2685,14 +2705,15 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             logging.info("Committed session")
             logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
 
-    
     for deployment in deployments:
-        """ Just finding the the deployment for the current worker name """
+        """Just finding the the deployment for the current worker name"""
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
 
         if deployment.worker.id == workerModel.id:
-            logging.info("Assigning worker deployment based on ID %s",deployment.worker)
+            logging.info(
+                "Assigning worker deployment based on ID %s", deployment.worker
+            )
             workerModel.deployment = deployment
             break
 
@@ -2703,9 +2724,9 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     worker = {}
     processor = (
         context.obj["database"]
-            .session.query(ProcessorModel)
-            .filter_by(id=workerModel.processor_id)
-            .first()
+        .session.query(ProcessorModel)
+        .filter_by(id=workerModel.processor_id)
+        .first()
     )
 
     dir = "work/" + processor.id
@@ -2735,6 +2756,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
     except:
         logger.info("Error creating WorkerService")
         import traceback
+
         print(traceback.format_exc())
 
     logger.info("Creating WorkerService Done")
@@ -2752,7 +2774,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 @ls.command(name="passwords")
 @click.pass_context
 def ls_passwords(context):
-    """ List hashed passwords """
+    """List hashed passwords"""
     x = PrettyTable()
 
     names = [
@@ -2765,17 +2787,11 @@ def ls_passwords(context):
     passwords = context.obj["database"].session.query(PasswordModel).all()
 
     for node in passwords:
-        print("PROC",node.processor)
-        x.add_row(
-            [
-                node.processor.name,
-                node.password,
-                node.owner,
-                node.lastupdated
-            ]
-        )
+        print("PROC", node.processor)
+        x.add_row([node.processor.name, node.password, node.owner, node.lastupdated])
 
     print(x)
+
 
 @ls.command(name="queue")
 @click.option("--id", default=None, help="ID of call")
@@ -2786,11 +2802,11 @@ def ls_queue(context, id, name, task):
     """
     List a queue
     """
+    import json
     from urllib.parse import urlparse
 
     # Combine info from database and rabbitmq about this queue
     import requests
-    import json
 
     x = PrettyTable()
     if id is not None:
@@ -2800,9 +2816,9 @@ def ls_queue(context, id, name, task):
     elif name is not None:
         queue = (
             context.obj["database"]
-                .session.query(QueueModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(QueueModel)
+            .filter_by(name=name)
+            .first()
         )
 
     if task:
@@ -2914,8 +2930,9 @@ def ls_call(context, id, name, result, tree, graph, flow):
     """
     List a call
     """
-    import redis
     import json
+
+    import redis
 
     x = PrettyTable()
 
@@ -2951,9 +2968,9 @@ def ls_call(context, id, name, result, tree, graph, flow):
             # Should use tracking
             nodes = (
                 context.obj["database"]
-                    .session.query(CallModel)
-                    .filter_by(task_id=call.task_id)
-                    .all()
+                .session.query(CallModel)
+                .filter_by(task_id=call.task_id)
+                .all()
             )
         else:
             nodes = [call]
@@ -2984,16 +3001,16 @@ def ls_call(context, id, name, result, tree, graph, flow):
         if graph:
             calls = (
                 context.obj["database"]
-                    .session.query(CallModel)
-                    .filter_by(tracking=call.tracking)
-                    .all()
+                .session.query(CallModel)
+                .filter_by(tracking=call.tracking)
+                .all()
             )
 
             calldict = {}
             for _call in calls:
                 calldict[call.celeryid] = _call
 
-            from pptree import print_tree, Node
+            from pptree import Node, print_tree
 
             for _call in calls:
                 if _call.taskparent is None:
@@ -3003,7 +3020,13 @@ def ls_call(context, id, name, result, tree, graph, flow):
             def get_call_graph(parent, node, _calls):
                 logger.debug("node is %s", node)
                 for _child in _calls:
-                    logger.debug("_child %s %s %s %s", _child.name, _child.id, _child.parent, _child.task_id)
+                    logger.debug(
+                        "_child %s %s %s %s",
+                        _child.name,
+                        _child.id,
+                        _child.parent,
+                        _child.task_id,
+                    )
                     if _child.parent == node.id:
                         logger.debug("Found child node %s", _child)
                         _child_node = Node(_child.name, parent)
@@ -3020,16 +3043,16 @@ def ls_call(context, id, name, result, tree, graph, flow):
             if not tree:
                 return
         if tree:
-            from pptree import print_tree, Node
+            from pptree import Node, print_tree
 
             root = Node(call.name)
 
             def get_call_graph(root, _call):
                 _calls = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .filter_by(parent=_call.id)
-                        .all()
+                    .session.query(CallModel)
+                    .filter_by(parent=_call.id)
+                    .all()
                 )
 
                 for _child in _calls:
@@ -3059,12 +3082,12 @@ def ls_call(context, id, name, result, tree, graph, flow):
     x = PrettyTable()
     print()
     print("Function")
-    names = ["ID","Module","Name"]
+    names = ["ID", "Module", "Name"]
     x.field_names = names
 
-    x.add_row([node.socket.task.id,node.socket.task.module,node.socket.task.name])
+    x.add_row([node.socket.task.id, node.socket.task.module, node.socket.task.name])
     print(x)
-    
+
     x = PrettyTable()
     print()
     print("Provenance")
@@ -3120,10 +3143,10 @@ def ls_roles(context, page, rows, ascend):
         else:
             nodes = (
                 context.obj["database"]
-                    .session.query(RoleModel)
-                    .order_by(RoleModel.lastupdated.desc())
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                .session.query(RoleModel)
+                .order_by(RoleModel.lastupdated.desc())
+                .offset((page - 1) * rows)
+                .limit(rows)
             )
     else:
         if total < rows:
@@ -3131,10 +3154,10 @@ def ls_roles(context, page, rows, ascend):
         else:
             nodes = (
                 context.obj["database"]
-                    .session.query(RoleModel)
-                    .order_by(RoleModel.lastupdated.asc())
-                    .offset((page - 1) * rows)
-                    .limit(rows)
+                .session.query(RoleModel)
+                .order_by(RoleModel.lastupdated.asc())
+                .offset((page - 1) * rows)
+                .limit(rows)
             )
 
     row = 0
@@ -3187,11 +3210,7 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
     """
     x = PrettyTable()
 
-    names = [
-        "Page",
-        "Row",
-        "Name"
-    ]
+    names = ["Page", "Row", "Name"]
 
     if id:
         names += ["ID"]
@@ -3199,8 +3218,8 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
     names += [
         "Queue",
         "Function",
-        #"Task ID",
-        #"Tracking",
+        # "Task ID",
+        # "Tracking",
         "Owner",
         "Last Updated",
         "Socket",
@@ -3214,9 +3233,9 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
     if unfinished:
         total = (
             context.obj["database"]
-                .session.query(CallModel)
-                .filter_by(finished=None)
-                .count()
+            .session.query(CallModel)
+            .filter_by(finished=None)
+            .count()
         )
     else:
         total = context.obj["database"].session.query(CallModel).count()
@@ -3234,9 +3253,9 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .filter_by(finished=None)
-                        .all()
+                    .session.query(CallModel)
+                    .filter_by(finished=None)
+                    .all()
                 )
             else:
                 nodes = context.obj["database"].session.query(CallModel).all()
@@ -3244,28 +3263,28 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .order_by(CallModel.lastupdated.desc())
-                        .filter_by(finished=None)
-                        .offset((page - 1) * rows)
-                        .limit(rows)
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.desc())
+                    .filter_by(finished=None)
+                    .offset((page - 1) * rows)
+                    .limit(rows)
                 )
             else:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .order_by(CallModel.lastupdated.desc())
-                        .offset((page - 1) * rows)
-                        .limit(rows)
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.desc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
                 )
     else:
         if total < rows:
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .filter_by(finished=None)
-                        .all()
+                    .session.query(CallModel)
+                    .filter_by(finished=None)
+                    .all()
                 )
             else:
                 nodes = context.obj["database"].session.query(CallModel).all()
@@ -3273,29 +3292,25 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
             if unfinished:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .order_by(CallModel.lastupdated.asc())
-                        .filter_by(finished=None)
-                        .offset((page - 1) * rows)
-                        .limit(rows)
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.asc())
+                    .filter_by(finished=None)
+                    .offset((page - 1) * rows)
+                    .limit(rows)
                 )
             else:
                 nodes = (
                     context.obj["database"]
-                        .session.query(CallModel)
-                        .order_by(CallModel.lastupdated.asc())
-                        .offset((page - 1) * rows)
-                        .limit(rows)
+                    .session.query(CallModel)
+                    .order_by(CallModel.lastupdated.asc())
+                    .offset((page - 1) * rows)
+                    .limit(rows)
                 )
 
     row = 0
     for node in nodes:
         row += 1
-        cols = [
-            page,
-            row,
-            node.name
-        ]
+        cols = [page, row, node.name]
 
         if id:
             cols += [node.id]
@@ -3303,8 +3318,8 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
         cols += [
             node.socket.queue.name,
             node.socket.task.name,
-            #node.resultid,
-            #node.tracking,
+            # node.resultid,
+            # node.tracking,
             node.owner,
             node.lastupdated,
             node.socket.name,
@@ -3354,12 +3369,14 @@ def ls_calls(context, page, rows, unfinished, ascend, id, tracking, task):
 def ls_network(context, name, horizontal, vertical, condensed=True):
     """List the flow network"""
 
-    from pptree import print_tree, Node
+    from pptree import Node, print_tree
 
     if horizontal or vertical:
         condensed = False
 
-    network = context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    network = (
+        context.obj["database"].session.query(NetworkModel).filter_by(name=name).first()
+    )
 
     _root = Node("PYFI")
     root = Node(name, _root)
@@ -3474,9 +3491,9 @@ def ls_socket(context, id, name, graph):
     if name is not None:
         socket = (
             context.obj["database"]
-                .session.query(SocketModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(SocketModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         socket = (
@@ -3518,7 +3535,7 @@ def ls_socket(context, id, name, graph):
             ]
         )
 
-    from pptree import print_tree, Node
+    from pptree import Node, print_tree
 
     # TODO: Add graph for outbound plugs of this socket
 
@@ -3552,21 +3569,21 @@ def ls_processor(context, id, name, graph):
     """
     List a processor
     """
-    from pptree import print_tree, Node
+    from pptree import Node, print_tree
 
     if name is not None:
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(name=name)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(name=name)
+            .first()
         )
     elif id is not None:
         processor = (
             context.obj["database"]
-                .session.query(ProcessorModel)
-                .filter_by(id=id)
-                .first()
+            .session.query(ProcessorModel)
+            .filter_by(id=id)
+            .first()
         )
 
     if processor is None:
@@ -3662,9 +3679,9 @@ def ls_processor(context, id, name, graph):
     x.field_names = names
     nodes = (
         context.obj["database"]
-            .session.query(DeploymentModel)
-            .filter_by(processor_id=processor.id)
-            .all()
+        .session.query(DeploymentModel)
+        .filter_by(processor_id=processor.id)
+        .all()
     )
     for node in nodes:
         x.add_row(
@@ -3689,16 +3706,24 @@ def ls_processor(context, id, name, graph):
 
 @ls.command(name="task")
 @click.option("-n", "--name", default=None, required=True, help="Name of task")
-@click.option("-s", "--source", is_flag=True, required=False, help="Source of task function")
-@click.option("-c", "--code", is_flag=True, required=False, help="Code override of task")
-@click.option("-p", "--plugs", is_flag=True, default=False, required=False, help="Show plugs")
-@click.option("-so", "--sockets", is_flag=True, default=False, required=False, help="Show sockets")
+@click.option(
+    "-s", "--source", is_flag=True, required=False, help="Source of task function"
+)
+@click.option(
+    "-c", "--code", is_flag=True, required=False, help="Code override of task"
+)
+@click.option(
+    "-p", "--plugs", is_flag=True, default=False, required=False, help="Show plugs"
+)
+@click.option(
+    "-so", "--sockets", is_flag=True, default=False, required=False, help="Show sockets"
+)
 @click.pass_context
 def ls_task(context, name, source, code, plugs, sockets):
     """
     List a task
     """
-    from pptree import print_tree, Node
+    from pptree import Node, print_tree
 
     task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
@@ -3847,6 +3872,7 @@ def ls_task(context, name, source, code, plugs, sockets):
 
         print(x)
 
+
 @ls.command(name="stats")
 @click.pass_context
 def ls_stats(context):
@@ -3885,7 +3911,7 @@ def ls_deployments(context):
                 node.name,
                 node.id,
                 node.owner,
-                node.worker.name if node.worker else 'pending',
+                node.worker.name if node.worker else "pending",
                 node.lastupdated,
                 node.hostname,
                 node.processor.name,
@@ -3928,7 +3954,7 @@ def ls_schedulers(context):
 @ls.command(name="networks")
 @click.pass_context
 def ls_networks(context):
-    """ List current networks """
+    """List current networks"""
     x = PrettyTable()
 
     names = ["Name", "ID"]
@@ -3996,8 +4022,9 @@ def ls_queues(context):
     """
     List queues
     """
-    import requests
     import json
+
+    import requests
 
     x = PrettyTable()
 
@@ -4172,7 +4199,14 @@ def ls_user(context, name):
 
 
 @ls.command(name="workers")
-@click.option("-n", "--name", default=False, is_flag=True, required=False, help="List worker names")
+@click.option(
+    "-n",
+    "--name",
+    default=False,
+    is_flag=True,
+    required=False,
+    help="List worker names",
+)
 @click.pass_context
 def ls_workers(context, name):
     """
@@ -4227,7 +4261,6 @@ def ls_workers(context, name):
                 hostname,
                 pname,
                 node.concurrency,
-
                 _name,
                 node.workerdir,
             ]
@@ -4468,7 +4501,7 @@ def ls_node(context, name, tree, horizontal):
     """
     List a node
     """
-    from pptree import print_tree, Node
+    from pptree import Node, print_tree
 
     node = context.obj["database"].session.query(NodeModel).filter_by(name=name).first()
 
@@ -4653,8 +4686,9 @@ def listen(context, name, channel, adaptor):
     """
     Listen on a pub/sub channel
     """
-    import redis
     import importlib
+
+    import redis
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     p = redisclient.pubsub()
@@ -4705,19 +4739,20 @@ def api_start(context, ip, port):
     Run pyfi API server
     """
     import multiprocessing
-    import gunicorn.app.base
+
     import bjoern
+    import gunicorn.app.base
 
-    from pyfi.server.api import create_endpoint, app as server
     from pyfi.api import blueprint
+    from pyfi.server.api import app as server
+    from pyfi.server.api import create_endpoint
 
-    
     """ Spawn this as a managed sub process. """
+
     def start_api():
         cpus = multiprocessing.cpu_count()
 
         class StandaloneApplication(gunicorn.app.base.BaseApplication):
-
             def __init__(self, app, options=None):
                 self.options = options or {}
                 self.application = app
@@ -4725,8 +4760,11 @@ def api_start(context, ip, port):
                 print("GUNICORN APP START")
 
             def load_config(self):
-                config = {key: value for key, value in self.options.items()
-                        if key in self.cfg.settings and value is not None}
+                config = {
+                    key: value
+                    for key, value in self.options.items()
+                    if key in self.cfg.settings and value is not None
+                }
                 for key, value in config.items():
                     self.cfg.set(key.lower(), value)
 
@@ -4737,8 +4775,8 @@ def api_start(context, ip, port):
         logger.info("Serving API on {}:{}".format(ip, port))
 
         server.register_blueprint(blueprint)
-        
-        '''
+
+        """
         do_something = context.obj["database"].session.query(TaskModel).filter_by(name='do_something').first()
         do_this = context.obj["database"].session.query(TaskModel).filter_by(name='do_this').first()
 
@@ -4747,22 +4785,22 @@ def api_start(context, ip, port):
 
         if do_this:
             create_endpoint(do_this.module,do_this.name)
-        '''
+        """
 
         tasks = context.obj["database"].session.query(TaskModel).all()
 
         for task in tasks:
-            create_endpoint(task.module,task.name)
+            create_endpoint(task.module, task.name)
 
         server.app_context().push()
         try:
             options = {
-                'bind': '%s:%s' % ('0.0.0.0', str(port)),
-                'workers': cpus,
+                "bind": "%s:%s" % ("0.0.0.0", str(port)),
+                "workers": cpus,
                 # 'threads': number_of_workers(),
-                'timeout': 120,
+                "timeout": 120,
             }
-            #StandaloneApplication(server, options).run()
+            # StandaloneApplication(server, options).run()
             bjoern.run(server, ip, port)
         except Exception as ex:
             logging.error(ex)
@@ -4773,7 +4811,7 @@ def api_start(context, ip, port):
     process.start()
     click.echo("API process started.")
     process.join()
-    '''
+    """
     import time
     time.sleep(5)
     process.terminate()
@@ -4781,8 +4819,9 @@ def api_start(context, ip, port):
     process = multiprocessing.Process(target=start_api)
     process.start()
     process.join()
-    '''
+    """
     click.echo("API process exited.")
+
 
 @agent.command(name="start")
 @click.option("-p", "--port", default=8001, help="Healthcheck port")
@@ -4814,30 +4853,31 @@ def api_start(context, ip, port):
 @click.option("-wp", "--workerport", default=8001, help="Healthcheck port for worker")
 @click.pass_context
 def start_agent(
-        context,
-        port,
-        clean,
-        backend,
-        broker,
-        name,
-        config,
-        queues,
-        user,
-        pool,
-        cpus,
-        size,
-        host,
-        workerport,
+    context,
+    port,
+    clean,
+    backend,
+    broker,
+    name,
+    config,
+    queues,
+    user,
+    pool,
+    cpus,
+    size,
+    host,
+    workerport,
 ):
     """
     Start an agent
     """
     from pyfi.agent import AgentService
+
     logger.info("start_agent name is %s cpus %s", name, cpus)
     if name:
         os.environ["PYFI_HOSTNAME"] = name
     else:
-        name='localhost'
+        name = "localhost"
 
     if host is not None:
         logger.debug("host is %s", host)
@@ -4854,13 +4894,13 @@ def start_agent(
 
         if CONFIG.has_section("services"):
             agent_class_name = CONFIG.get("services", "agent")
-            logger.debug("Importing agent service class %s",agent_class_name)
+            logger.debug("Importing agent service class %s", agent_class_name)
             try:
                 agent_class = import_class(agent_class_name)
             except Exception as ex:
                 logging.error(ex)
                 return
-            logging.info("Starting agent_class %s",agent_class)
+            logging.info("Starting agent_class %s", agent_class)
             agent = agent_class(
                 context.obj["database"],
                 context.obj["dburi"],
@@ -4874,7 +4914,8 @@ def start_agent(
                 clean=clean,
                 size=size,
                 cpus=cpus,
-                broker=broker)
+                broker=broker,
+            )
         else:
             agent = AgentService(
                 context.obj["database"],
@@ -4889,7 +4930,8 @@ def start_agent(
                 clean=clean,
                 size=size,
                 cpus=cpus,
-                broker=broker)
+                broker=broker,
+            )
 
         agent.start()
 

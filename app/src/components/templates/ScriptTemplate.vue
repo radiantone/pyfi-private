@@ -82,6 +82,15 @@
           <q-item-section side class="text-blue-grey-8">Run</q-item-section>
         </q-item>
         <q-separator />
+        <q-item clickable v-close-popup @click="saveProcessor">
+          <q-item-section side>
+            <q-icon name="fas fa-book"></q-icon>
+          </q-item-section>
+          <q-item-section side class="text-blue-grey-8">
+            Add to Library
+          </q-item-section>
+        </q-item>
+        <q-separator />
         <q-item clickable v-close-popup disabled>
           <q-item-section side>
             <q-icon :name="this.abacusIcon"></q-icon>
@@ -2300,7 +2309,7 @@
               <pre style="font-weight:bold">{{log['date']}}</pre>
               <pre>{{log['output']}}</pre>
               </div>
-              <vue-typed-js v-if="!consolehistory && index == consolelogs.length-1" :typeSpeed="1" :strings="['<b>'+consolelogs[consolelogs.length-1]['date']+'</b><br><br>'+consolelogs[consolelogs.length-1]['output']]" :contentType="'html'">
+              <vue-typed-js v-if="!consolehistory && index == consolelogs.length-1" :showCursor="false" :typeSpeed="1" :strings="['<b>'+consolelogs[consolelogs.length-1]['date']+'</b><br><br>'+consolelogs[consolelogs.length-1]['output']]" :contentType="'html'">
                 <pre class="typing"></pre>
               </vue-typed-js>
 

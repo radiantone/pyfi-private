@@ -2032,10 +2032,6 @@ export default {
   },
   methods: {
     showHistory () {
-      console.log("HISTORY", this.undoredo.undoStack);
-      this.undoredo.undoStack.forEach((command) => {
-        console.log("COMMAND", command, command.constructor.name);        
-      })
       this.viewHistoryDialog = true;
     },
     downloadFlow() {

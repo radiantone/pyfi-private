@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 
-from pyfi.client.api import Processor, Socket, Plug
+from pyfi.client.api import Plug, Processor, Socket
 from pyfi.client.user import USER
 from pyfi.config import CONFIG
 from pyfi.db.model import AlchemyEncoder

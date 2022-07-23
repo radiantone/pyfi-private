@@ -8,39 +8,41 @@ proc1.sockets += [socket]
 """
 import logging
 
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
 
 import configparser
 import os
 import platform
-from kombu import Exchange, Queue as KQueue, binding
-from kombu import serialization
 from pathlib import Path
+
+from kombu import Exchange
+from kombu import Queue as KQueue
+from kombu import binding, serialization
 from prettytable import PrettyTable
-from sqlalchemy import create_engine, MetaData, literal_column
+from sqlalchemy import MetaData, create_engine, literal_column
 from sqlalchemy.orm import sessionmaker
 
 from celery import Celery, signature
 from pyfi.config.celery import Config
 from pyfi.db.model import (
-    SchedulerModel,
-    UserModel,
-    AgentModel,
-    WorkerModel,
-    ArgumentModel,
-    PlugModel,
-    SocketModel,
     ActionModel,
-    FlowModel,
-    ProcessorModel,
-    NodeModel,
-    RoleModel,
-    QueueModel,
-    SettingsModel,
-    TaskModel,
-    LogModel,
+    AgentModel,
+    ArgumentModel,
     DeploymentModel,
+    FlowModel,
+    LogModel,
     NetworkModel,
+    NodeModel,
+    PlugModel,
+    ProcessorModel,
+    QueueModel,
+    RoleModel,
+    SchedulerModel,
+    SettingsModel,
+    SocketModel,
+    TaskModel,
+    UserModel,
+    WorkerModel,
 )
 from pyfi.server.api import app
 
@@ -51,8 +53,10 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
+
 class Registry(dict):
-    """ Singleton that holds all the in-memory references during network creation """
+    """Singleton that holds all the in-memory references during network creation"""
+
     pass
 
 
@@ -64,6 +68,7 @@ registry = Registry()
 
 class SocketNotFoundException(Exception):
     pass
+
 
 class Base:
     """
@@ -103,7 +108,7 @@ class Network(Base):
         self.network = self.session.query(NetworkModel).filter_by(name=name).first()
 
         if self.network is None:
-            self.network = NetworkModel(name=name,user=user)
+            self.network = NetworkModel(name=name, user=user)
 
         self.session.add(self.network)
         self.session.commit()
@@ -202,13 +207,13 @@ class Argument(Base):
     def find(cls, name, task):
         return (
             cls.session.query(ArgumentModel)
-                .join(TaskModel)
-                .filter(
+            .join(TaskModel)
+            .filter(
                 ArgumentModel.name == name
                 and TaskModel.name == task
                 and ArgumentModel.task_id == TaskModel.id
             )
-                .first()
+            .first()
         )
 
 
@@ -282,17 +287,18 @@ class Socket(Base):
     """
     Docstring
     """
+
     synchronized = False
 
     def __init__(self, *args, **kwargs):
-        import inspect
         import importlib
+        import inspect
 
         super().__init__()
 
         backend = CONFIG.get("backend", "uri")
         broker = CONFIG.get("broker", "uri")
-        logging.debug("Socket: %s %s",backend, broker)
+        logging.debug("Socket: %s %s", backend, broker)
         self.app = Celery(backend=backend, broker=broker)
 
         from pyfi.celery import config
@@ -318,7 +324,7 @@ class Socket(Base):
             self.session.add(self.processor.processor)
 
         if "sync" in kwargs:
-            self.synchronized = kwargs['sync']
+            self.synchronized = kwargs["sync"]
 
         self.loadbalanced = False
         if "loadbalanced" in kwargs:
@@ -340,9 +346,9 @@ class Socket(Base):
                     self.task = TaskModel(name=taskname)
 
                 if "code" in kwargs:
-                    self.task.source = kwargs['source']
+                    self.task.source = kwargs["source"]
                 if "source" in kwargs:
-                    self.task.source = kwargs['source']
+                    self.task.source = kwargs["source"]
 
             if type(taskname) is TaskModel:
                 self.task = taskname
@@ -415,11 +421,11 @@ class Socket(Base):
             self.session.refresh(self.socket)
 
         self.key = (
-                self.socket.queue.name
-                + "."
-                + self.processor.name
-                + "."
-                + self.socket.task.name
+            self.socket.queue.name
+            + "."
+            + self.processor.name
+            + "."
+            + self.socket.task.name
         )
 
         try:
@@ -470,7 +476,10 @@ class Socket(Base):
 
     def p(self, *args, **kwargs):
         """Partial method signature (not executed)"""
-        logger.debug("socket signature: %s",self.processor.processor.module + "." + self.socket.task.name)
+        logger.debug(
+            "socket signature: %s",
+            self.processor.processor.module + "." + self.socket.task.name,
+        )
         try:
             return self.processor.app.signature(
                 self.processor.processor.module + "." + self.socket.task.name,
@@ -481,7 +490,9 @@ class Socket(Base):
                 kwargs=kwargs,
             )
         finally:
-            self.processor.app.autodiscover_tasks(self.processor.processor.module + "." + self.socket.task.name)
+            self.processor.app.autodiscover_tasks(
+                self.processor.processor.module + "." + self.socket.task.name
+            )
             logger.debug("Autodiscover tasks")
 
     def delay(self, *args, **kwargs):
@@ -507,7 +518,10 @@ class Socket(Base):
         self.session.refresh(self.socket)
 
         if not self.synchronized:
-            logging.info("Invoking task %s",self.processor.processor.module + "." + self.socket.task.name)
+            logging.info(
+                "Invoking task %s",
+                self.processor.processor.module + "." + self.socket.task.name,
+            )
             task_sig = (
                 self.processor.app.signature(
                     self.processor.processor.module + "." + self.socket.task.name,
@@ -515,8 +529,8 @@ class Socket(Base):
                     queue=self.queue,
                     kwargs=kwargs,
                 )
-                    .delay()
-                    .get()
+                .delay()
+                .get()
             )
 
             # argument = {'name':'message','kind':3,'position':0}
@@ -529,7 +543,9 @@ class Socket(Base):
             logger.debug("Invoking synchronized")
             # Follow paths from socket and build parallel/pipeline/chain/chord from aggregate sockets found
             # Then execute the parallel() object and wait for value, return that.
-            self.processor.app.autodiscover_tasks(self.processor.processor.module + "." + self.socket.task.name)
+            self.processor.app.autodiscover_tasks(
+                self.processor.processor.module + "." + self.socket.task.name
+            )
             logger.debug("Autodiscover tasks")
 
             return
@@ -691,24 +707,25 @@ class Processor(Base):
     """
 
     def __init__(
-            self,
-            hostname=None,
-            id=None,
-            name=None,
-            user=None,
-            gitrepo=None,
-            branch=None,
-            module=None,
-            requested_status="ready",
-            concurrency=None,
-            agent=None,
-            commit=None,
-            beat=None,
+        self,
+        hostname=None,
+        id=None,
+        name=None,
+        user=None,
+        gitrepo=None,
+        branch=None,
+        module=None,
+        requested_status="ready",
+        concurrency=None,
+        agent=None,
+        commit=None,
+        beat=None,
     ):
 
         super().__init__()
 
         from kombu.common import Broadcast
+
         from pyfi.celery import config
 
         """
@@ -790,8 +807,7 @@ class Processor(Base):
 
         self.app.config_from_object(config)
         self.database.session.commit()
-        registry[self.processor.id] = self   # Add myself to the memory registry
-
+        registry[self.processor.id] = self  # Add myself to the memory registry
 
     def get(self):
         self.database.session.add(self.processor)

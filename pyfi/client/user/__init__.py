@@ -1,26 +1,27 @@
 import logging
-from sqlalchemy import create_engine, MetaData, literal_column
+
+from sqlalchemy import MetaData, create_engine, literal_column
 from sqlalchemy.orm import sessionmaker
 
 from pyfi.config import CONFIG
 from pyfi.db.model import (
-    oso,
-    SchedulerModel,
-    UserModel,
-    AgentModel,
-    WorkerModel,
-    CallModel,
-    PlugModel,
-    SocketModel,
     ActionModel,
+    AgentModel,
+    CallModel,
     FlowModel,
-    ProcessorModel,
-    NodeModel,
-    RoleModel,
-    QueueModel,
-    SettingsModel,
-    TaskModel,
     LogModel,
+    NodeModel,
+    PlugModel,
+    ProcessorModel,
+    QueueModel,
+    RoleModel,
+    SchedulerModel,
+    SettingsModel,
+    SocketModel,
+    TaskModel,
+    UserModel,
+    WorkerModel,
+    oso,
 )
 
 db = CONFIG.get("database", "uri")

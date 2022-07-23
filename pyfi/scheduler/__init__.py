@@ -1,29 +1,26 @@
+import configparser
+import json
 import logging
 import os
 import platform
-import time
 import sched
 import signal
-import json
-
-from pathlib import Path
-from celery import Celery
-
-import configparser
-
+import time
 from multiprocessing import Process
+from pathlib import Path
 
-from pyfi.db.model import (
-    SchedulerModel,
-    WorkModel,
-    ProcessorModel,
-    NodeModel,
-    QueueModel,
-    DeploymentModel,
-    TaskModel,
-    AgentModel,
-)
+from celery import Celery
 from pyfi.db import get_session
+from pyfi.db.model import (
+    AgentModel,
+    DeploymentModel,
+    NodeModel,
+    ProcessorModel,
+    QueueModel,
+    SchedulerModel,
+    TaskModel,
+    WorkModel,
+)
 
 HOSTNAME = platform.node()
 
@@ -42,6 +39,7 @@ backend = CONFIG.get("backend", "uri")
 broker = CONFIG.get("broker", "uri")
 
 celery = Celery(backend=backend, broker=broker)
+
 
 class SchedulerPlugin:
     """Base scheduler plugin class"""
@@ -159,6 +157,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
     def run(self, *args, **kwargs):
         import random
+
         import redis
         from pymongo import MongoClient
 
@@ -166,8 +165,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
         tasks_success = 0
         with client:
             db = client.celery
-            tasks_success = db.celery_taskmeta.count_documents({'status':'SUCCESS'})
-            tasks_failure = db.celery_taskmeta.count_documents({'status':'FAILURE'})
+            tasks_success = db.celery_taskmeta.count_documents({"status": "SUCCESS"})
+            tasks_failure = db.celery_taskmeta.count_documents({"status": "FAILURE"})
 
         redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
@@ -193,69 +192,59 @@ class DeployProcessorPlugin(SchedulerPlugin):
             )
 
             def update_stats():
-                node_count = (
-                    session.query(NodeModel).count()
-                )
-                agent_count = (
-                    session.query(AgentModel).count()
-                )
-                queue_count = (
-                    session.query(QueueModel).count()
-                )
-                processor_count = (
-                    session.query(ProcessorModel).count()
-                )
+                node_count = session.query(NodeModel).count()
+                agent_count = session.query(AgentModel).count()
+                queue_count = session.query(QueueModel).count()
+                processor_count = session.query(ProcessorModel).count()
                 stopped_processor_count = (
-                    session.query(ProcessorModel).filter_by(status='stopped').count()
+                    session.query(ProcessorModel).filter_by(status="stopped").count()
                 )
                 starting_processor_count = (
-                    session.query(ProcessorModel).filter_by(status='stopped', requested_status='start').count()
-                )      
-                running_processor_count = (
-                    session.query(ProcessorModel).filter_by(status='running').count()
-                )      
-                ready_processor_count = (
-                    session.query(ProcessorModel).filter_by(status='ready').count()
-                )                           
-                error_processor_count = (
-                    session.query(ProcessorModel).filter_by(status='error').count()
-                )                                                  
-                task_count = (
-                    session.query(TaskModel).count()
+                    session.query(ProcessorModel)
+                    .filter_by(status="stopped", requested_status="start")
+                    .count()
                 )
-                deployments = (
-                    session.query(DeploymentModel).all()
-                )                
+                running_processor_count = (
+                    session.query(ProcessorModel).filter_by(status="running").count()
+                )
+                ready_processor_count = (
+                    session.query(ProcessorModel).filter_by(status="ready").count()
+                )
+                error_processor_count = (
+                    session.query(ProcessorModel).filter_by(status="error").count()
+                )
+                task_count = session.query(TaskModel).count()
+                deployments = session.query(DeploymentModel).all()
 
                 cpu_count = 0
                 cpu_running = 0
 
                 for deployment in deployments:
                     cpu_count += deployment.cpus
-                    if deployment.status == 'running':
+                    if deployment.status == "running":
                         cpu_running += deployment.cpus
 
                 return {
-                    'nodes': node_count,
-                    'agents': agent_count,
-                    'queues': queue_count,
-                    'processors': processor_count,
-                    'processors_starting': starting_processor_count,
-                    'processors_running': running_processor_count,
-                    'processors_stopped': stopped_processor_count,
-                    'processors_ready': ready_processor_count,
-                    'processors_errored': error_processor_count,
-                    'deployments': len(deployments),
-                    'tasks': task_count,
-                    'tasks_success': tasks_success,
-                    'tasks_failure': tasks_failure,
-                    'cpus_total': cpu_count,
-                    'cpus_running': cpu_running,
-                    'type': 'stats'
+                    "nodes": node_count,
+                    "agents": agent_count,
+                    "queues": queue_count,
+                    "processors": processor_count,
+                    "processors_starting": starting_processor_count,
+                    "processors_running": running_processor_count,
+                    "processors_stopped": stopped_processor_count,
+                    "processors_ready": ready_processor_count,
+                    "processors_errored": error_processor_count,
+                    "deployments": len(deployments),
+                    "tasks": task_count,
+                    "tasks_success": tasks_success,
+                    "tasks_failure": tasks_failure,
+                    "cpus_total": cpu_count,
+                    "cpus_running": cpu_running,
+                    "type": "stats",
                 }
 
             stats = update_stats()
-            logging.info("Publishing stats: %s",json.dumps(stats))
+            logging.info("Publishing stats: %s", json.dumps(stats))
             redisclient.publish("global", json.dumps(stats))
 
             """
@@ -309,34 +298,40 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 worker_names = []
 
-
                 for deployment in processor.deployments:
                     logging.info("   Deployment: CPU %s", deployment.cpus)
                     deployed_cpus += deployment.cpus
 
-                    if deployment.worker and deployment.worker.status == 'running':
+                    if deployment.worker and deployment.worker.status == "running":
                         worker_names += [deployment.worker]
 
                 try:
-                    units = '/'+processor.ratelimit.split('/')[1]
-                    rate_limit = int(processor.ratelimit.split('/')[0])
+                    units = "/" + processor.ratelimit.split("/")[1]
+                    rate_limit = int(processor.ratelimit.split("/")[0])
                 finally:
                     rate_limit = 60
                     units = "/m"
 
                 if len(worker_names):
                     rate_per_worker = rate_limit / len(worker_names)
-                    
-                    for socket in processor.sockets:
-                        """ For each socket task, set the rate limit based on the processor and active workers """
-                        _taskp = socket.task.module+'.'+socket.task.name
-                        if processor.perworker:
-                            logging.info("Setting rate limit per worker for task %s to %s",_taskp, processor.ratelimit+units )
-                            #celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
-                        else:
-                            logging.info("Setting rate limit global for task %s to %s",_taskp, processor.ratelimit+units )
-                            #celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
+                    for socket in processor.sockets:
+                        """For each socket task, set the rate limit based on the processor and active workers"""
+                        _taskp = socket.task.module + "." + socket.task.name
+                        if processor.perworker:
+                            logging.info(
+                                "Setting rate limit per worker for task %s to %s",
+                                _taskp,
+                                processor.ratelimit + units,
+                            )
+                            # celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
+                        else:
+                            logging.info(
+                                "Setting rate limit global for task %s to %s",
+                                _taskp,
+                                processor.ratelimit + units,
+                            )
+                            # celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
                 if deployed_cpus < processor.concurrency:
                     needed_cpus = processor.concurrency - deployed_cpus
@@ -392,21 +387,30 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                         _cpus,
                                     )
                                     session.commit()
-                                    redisclient.publish("global", json.dumps({"processor": processor.id, "deployment":str(_deployment), "action":"add"}))
+                                    redisclient.publish(
+                                        "global",
+                                        json.dumps(
+                                            {
+                                                "processor": processor.id,
+                                                "deployment": str(_deployment),
+                                                "action": "add",
+                                            }
+                                        ),
+                                    )
                                     needed_cpus -= _cpus
                                 else:
                                     logging.warning("_cpus is zero")
 
                 elif deployed_cpus > processor.concurrency:
                     # Downsize deployments
-                    '''
+                    """
                     reduce_by = deployed_cpus - processor.concurrency
 
                     for deployment in processor.deployments:
                         if deployment.cpus > reduce_by:
                             deployment.cpus -= reduce_by
                             deployment.requested_status = "update"
-                    '''
+                    """
                     pass
                 elif deployed_cpus == processor.concurrency:
                     logging.info("Processor concurrency needs are met.")

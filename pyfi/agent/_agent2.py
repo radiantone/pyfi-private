@@ -1,35 +1,43 @@
 """
 agent.py - pyfi agent server responsible for managing worker/processor lifecycle on a host
 """
-import logging
 # logging.basicConfig(level=logging.DEBUG)
 import configparser
+import datetime
+import gc
+import logging
 import multiprocessing
 import os
-import gc
 import platform
 import shutil
 import signal
-import psutil
-import datetime
-
 from typing import List, Literal
 
-logger = logging.getLogger(__name__)    
+import psutil
+
+logger = logging.getLogger(__name__)
 logger.debug("Agent service")
 
-from threading import Thread
-from multiprocessing import Condition
 from contextlib import contextmanager
+from multiprocessing import Condition
 from pathlib import Path
+from threading import Thread
 
 from flask import Flask
-from sqlalchemy import create_engine, MetaData, literal_column
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy import exc as sa_exc
+from sqlalchemy import literal_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
+
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import WorkerModel, AgentModel, NodeModel, DeploymentModel, ProcessorModel
+from pyfi.db.model import (
+    AgentModel,
+    DeploymentModel,
+    NodeModel,
+    ProcessorModel,
+    WorkerModel,
+)
 from pyfi.worker import WorkerService
 
 lock = Condition()
@@ -57,23 +65,26 @@ if os.path.exists(ini):
 
 engine = create_engine(CONFIG.get("database", "uri"))
 
+
 @app.route("/")
 def health():
     import json
 
     return json.dumps({"status": "green"})
 
+
 def import_class(name):
-    components = name.split('.')
+    components = name.split(".")
     mod = __import__(components[0])
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
 
+
 @contextmanager
 def get_session(**kwargs):
     logger.debug("get_session: Creating session")
-    session = sessionmaker(bind=engine, **kwargs)() #expire_on_commit=False
+    session = sessionmaker(bind=engine, **kwargs)()  # expire_on_commit=False
 
     try:
         logger.debug("get_session: Yielding session")
@@ -91,11 +102,12 @@ def get_session(**kwargs):
         session.close()
         gc.collect()
 
+
 def kill_containers():
     """Kill running containers"""
     import docker
 
-    if 'AGENT_CWD' in os.environ:
+    if "AGENT_CWD" in os.environ:
         agent_cwd = os.environ["AGENT_CWD"]
 
         if os.path.exists(f"{agent_cwd}/containers.pid"):
@@ -118,26 +130,30 @@ def kill_containers():
             except Exception as ex:
                 pass
 
+
 class AgentPlugin:
     pass
 
+
 class AgentService:
-    dburi : str = "postgresql://postgres:postgres@" + HOSTNAME + ":5432/pyfi"
-    port : int = 8003,
-    config = None,
-    clean : bool = False,
-    user = None,
-    pool : int = 4,
-    cpus : int = -1,
-    backend : str = "redis://localhost",
-    broker : str = "pyamqp://localhost",
-    name : str = None,
-    size : int = 10,
-    plugins : List[AgentPlugin] = [],
-    workerport : int = 8020
+    dburi: str = "postgresql://postgres:postgres@" + HOSTNAME + ":5432/pyfi"
+    port: int = (8003,)
+    config = (None,)
+    clean: bool = (False,)
+    user = (None,)
+    pool: int = (4,)
+    cpus: int = (-1,)
+    backend: str = ("redis://localhost",)
+    broker: str = ("pyamqp://localhost",)
+    name: str = (None,)
+    size: int = (10,)
+    plugins: List[AgentPlugin] = ([],)
+    workerport: int = 8020
+
 
 class AgentWebServerPlugin(AgentPlugin):
-    """ Health check web endpoint """
+    """Health check web endpoint"""
+
     def __init__(self):
         logger.debug("[AgentWebServerPlugin] Creating")
         pass
@@ -147,6 +163,7 @@ class AgentWebServerPlugin(AgentPlugin):
         logger.debug("[AgentWebServerPlugin] Starting")
         import bjoern
         from billiard.context import Process
+
         #########################################################################
         # Agent endpoints & health checks
         #########################################################################
@@ -168,8 +185,10 @@ class AgentWebServerPlugin(AgentPlugin):
     def wait(self):
         return self.process.join()
 
+
 class AgentShutdownPlugin(AgentPlugin):
-    """ Detect signal and gracefully shutown """
+    """Detect signal and gracefully shutown"""
+
     def __init__(self):
         logger.debug("[AgentShutdownPlugin] Creating")
 
@@ -201,7 +220,9 @@ class AgentShutdownPlugin(AgentPlugin):
 
             with get_session() as session:
                 agent = (
-                    session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+                    session.query(AgentModel)
+                    .filter_by(hostname=agent_service.name)
+                    .first()
                 )
                 if os.path.exists(f"{agent_cwd}/agent.pid"):
                     os.remove(f"{agent_cwd}/agent.pid")
@@ -234,8 +255,9 @@ class AgentShutdownPlugin(AgentPlugin):
     def wait(self):
         pass
 
+
 class AgentMonitorPlugin(AgentPlugin):
-    """ Master plugin for all the monitor classes """
+    """Master plugin for all the monitor classes"""
 
     def __init__(self, *args, **kwargs):
         import sched
@@ -252,47 +274,51 @@ class AgentMonitorPlugin(AgentPlugin):
     def deployment_monitor(self, agent):
 
         with get_session() as session:
-            logger.debug("[DeploymentMonitor] Getting deployments %s",agent.hostname)
+            logger.debug("[DeploymentMonitor] Getting deployments %s", agent.hostname)
             mydeployments = (
-                session.query(DeploymentModel)
-                    .filter_by(hostname=agent.hostname)
-                    .all()
+                session.query(DeploymentModel).filter_by(hostname=agent.hostname).all()
             )
             # Deploy new processors
             for mydeployment in mydeployments:
 
-                logger.debug("GOT DEPLOYMENT %s WORKER %s",mydeployment, mydeployment.worker)
+                logger.debug(
+                    "GOT DEPLOYMENT %s WORKER %s", mydeployment, mydeployment.worker
+                )
                 try:
                     myprocessor = mydeployment.processor
-                    logging.debug("MYPROCESSOR %s",myprocessor)
-                    #self.database.session.refresh(
+                    logging.debug("MYPROCESSOR %s", myprocessor)
+                    # self.database.session.refresh(
                     #    myprocessor
-                    #)  # Might not be needed
+                    # )  # Might not be needed
                     if myprocessor.requested_status == "move":
                         continue
 
                     for processor in self.processors:
                         processor["processor"] = (
                             session.query(ProcessorModel)
-                                .filter_by(id=processor["id"])
-                                .first()
+                            .filter_by(id=processor["id"])
+                            .first()
                         )
                         logging.debug(processor["processor"])
                         logging.debug(myprocessor)
                         if processor["processor"].id == myprocessor.id:
-                            
-                            if mydeployment.requested_status == 'update':
-                                logging.debug("Deployment %s has changed for processor %s", mydeployment, myprocessor)
-                                logging.debug("Updating deployment %s",mydeployment)
+
+                            if mydeployment.requested_status == "update":
+                                logging.debug(
+                                    "Deployment %s has changed for processor %s",
+                                    mydeployment,
+                                    myprocessor,
+                                )
+                                logging.debug("Updating deployment %s", mydeployment)
                                 mydeployment.status = "updating"
                                 session.commit()
                                 # Restart the worker, which will pull the assigned deployment
                                 # from database and restart with new configs
-                                logging.info("Killing worker %s",processor["worker"])
+                                logging.info("Killing worker %s", processor["worker"])
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
-                                mydeployment.requested_status = 'ready'
-                                mydeployment.status = 'running'
+                                mydeployment.requested_status = "ready"
+                                mydeployment.status = "running"
                                 mydeployment.status = "updating"
                                 session.commit()
 
@@ -302,9 +328,8 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["deployment"] = mydeployment
                         processor["processor"] = (
                             session.query(ProcessorModel)
-                                .filter_by(
-                                id=processor["id"]
-                            ).first()
+                            .filter_by(id=processor["id"])
+                            .first()
                         )
                         session.refresh(processor["processor"])
                         if processor["processor"].id == myprocessor.id:
@@ -315,18 +340,22 @@ class AgentMonitorPlugin(AgentPlugin):
                     if not found:
                         # If this is a new processor, add it to cache
                         self.processors += [
-                            {"worker": None, "processor": myprocessor, "id": myprocessor.id}
+                            {
+                                "worker": None,
+                                "processor": myprocessor,
+                                "id": myprocessor.id,
+                            }
                         ]
                         logging.info("Added processor %s", myprocessor)
 
                     # This block looks at the processors and creates a worker if needed
-                    
+
                     for processor in self.processors:
 
                         #
                         # Update processor
                         #
-                        '''
+                        """
                         pid = processor["id"]
                         processor["processor"] = (
                             session.query(ProcessorModel)
@@ -334,22 +363,27 @@ class AgentMonitorPlugin(AgentPlugin):
                                 id=pid
                             ).first()
                         )
-                        '''
+                        """
 
                         logging.debug(
                             "Processor.requested_status START %s %s",
-                            processor["processor"].requested_status, processor["processor"]
+                            processor["processor"].requested_status,
+                            processor["processor"],
                         )
 
                         if "model" in processor:
-                            logger.debug("[PROCESSOR KEYS] is %s %s",processor["model"], processor.keys())
-                            
+                            logger.debug(
+                                "[PROCESSOR KEYS] is %s %s",
+                                processor["model"],
+                                processor.keys(),
+                            )
+
                         process_died = False
 
                         #
                         # Update worker model
                         #
-                        '''
+                        """
                         if "worker.id" in processor:
                             processor["worker"]["model"] = (
                                 session.query(ProcessorModel)
@@ -357,9 +391,13 @@ class AgentMonitorPlugin(AgentPlugin):
                                     id=processor["worker.id"]
                                 ).first()
                             )
-                        '''
+                        """
 
-                        if "worker" in processor and processor["worker"] and "model" in processor["worker"]:
+                        if (
+                            "worker" in processor
+                            and processor["worker"]
+                            and "model" in processor["worker"]
+                        ):
                             try:
                                 session.refresh(processor["worker"]["model"])
                             except:
@@ -367,7 +405,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                     session.add(processor["worker"]["model"])
                                 except:
                                     pass
-
 
                         #
                         # Processor state events
@@ -405,12 +442,10 @@ class AgentMonitorPlugin(AgentPlugin):
                             if processor["worker"] is not None:
                                 logging.info("Killing worker")
                                 try:
-                                    
+
                                     processor["worker"]["process"].kill()
                                     processor["worker"] = None
-                                    logging.info(
-                                        "Killed worker"
-                                    )
+                                    logging.info("Killed worker")
                                 except:
                                     import traceback
 
@@ -432,9 +467,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 logging.info("Pausing worker")
                                 try:
                                     processor["worker"]["process"].suspend()
-                                    logging.info(
-                                        "Paused worker"
-                                    )
+                                    logging.info("Paused worker")
                                 except:
                                     import traceback
 
@@ -457,9 +490,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 logging.info("Resuming worker")
                                 try:
                                     processor["worker"]["process"].resume()
-                                    logging.info(
-                                        "Paused worker"
-                                    )
+                                    logging.info("Paused worker")
                                 except:
                                     import traceback
 
@@ -483,9 +514,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 try:
                                     processor["worker"]["process"].kill()
                                     processor["worker"] = None
-                                    logging.info(
-                                        "Killed worker"
-                                    )
+                                    logging.info("Killed worker")
                                 except:
                                     import traceback
 
@@ -513,7 +542,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         Otherwise, if processor requested state is 'update', then restart process
                         or if processor worker is None, restart it (e.g. on startup)
                         """
-                        
+
                         #
                         # Check if worker is alive
                         #
@@ -528,12 +557,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                     "processor['worker'] is %s", processor["worker"]
                                 )
                                 if (
-                                        processor["worker"]
-                                        and processor["worker"]["wprocess"]
+                                    processor["worker"]
+                                    and processor["worker"]["wprocess"]
                                 ):
                                     process_died = (
-                                            processor["worker"]["wprocess"].poll()
-                                            is not None
+                                        processor["worker"]["wprocess"].poll()
+                                        is not None
                                     )
                             except:
                                 import traceback
@@ -547,23 +576,29 @@ class AgentMonitorPlugin(AgentPlugin):
                         # If no worker or the process died, (re)start it
                         #
                         if (
-                                processor["processor"].requested_status == "start"
-                                or (
+                            processor["processor"].requested_status == "start"
+                            or (
                                 process_died
                                 or (
-                                        processor["processor"].requested_status == "update"
-                                        or processor["worker"] is None
+                                    processor["processor"].requested_status == "update"
+                                    or processor["worker"] is None
                                 )
-                        )
-                                and (
+                            )
+                            and (
                                 processor["processor"].status != "stopped"
                                 and processor["processor"].requested_status != "stopped"
-                        )
+                            )
                         ):
                             logging.debug("process_died %s", process_died)
-                            logging.debug("processor[\"worker\"] %s", processor["worker"])
-                            logging.debug("processor[\"processor\"].requested_status %s", processor["processor"].requested_status)
-                            logging.debug("processor[\"processor\"].status %s", processor["processor"].status)
+                            logging.debug('processor["worker"] %s', processor["worker"])
+                            logging.debug(
+                                'processor["processor"].requested_status %s',
+                                processor["processor"].requested_status,
+                            )
+                            logging.debug(
+                                'processor["processor"].status %s',
+                                processor["processor"].status,
+                            )
 
                             if processor["worker"] is None:
                                 logging.info("Worker is none")
@@ -574,32 +609,33 @@ class AgentMonitorPlugin(AgentPlugin):
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
 
-
                             if "deployment" in processor:
-                                print("DEPLOYMENT",processor["deployment"])
+                                print("DEPLOYMENT", processor["deployment"])
                                 session.refresh(processor["deployment"])
-                                print("DEPLOYMENT.WORKER",processor["deployment"].worker)
+                                print(
+                                    "DEPLOYMENT.WORKER", processor["deployment"].worker
+                                )
 
                             #
                             # If there is a deployment, but no worker
                             #
                             if (
-                                    "deployment" in processor
-                                    and processor["deployment"].worker is None
+                                "deployment" in processor
+                                and processor["deployment"].worker is None
                             ):
                                 """If there is no worker model, create one and link to Processor"""
 
                                 logging.info("WORKER IS NONE. CORRECTING")
-                                
+
                                 worker_model = (
                                     session.query(WorkerModel)
-                                        .filter_by(
+                                    .filter_by(
                                         name=self.agent_service.name
-                                                + ".agent."
-                                                + processor["processor"].name
-                                                + ".worker"
+                                        + ".agent."
+                                        + processor["processor"].name
+                                        + ".worker"
                                     )
-                                        .first()
+                                    .first()
                                 )
 
                                 if worker_model is None:
@@ -609,9 +645,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                     worker_model = WorkerModel(
                                         id=str(uuid4()),
                                         name=self.agent_service.name
-                                                + ".agent."
-                                                + processor["processor"].name
-                                                + ".worker",
+                                        + ".agent."
+                                        + processor["processor"].name
+                                        + ".worker",
                                         concurrency=processor["deployment"].cpus,
                                         status="ready",
                                         backend=self.agent_service.backend,
@@ -629,14 +665,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                 worker_model.lastupdated = datetime.datetime.now()
                                 worker_model.status = "running"
                                 worker_model.processor = processor["processor"]
-                                
-                                #session.add(agent)
+
+                                # session.add(agent)
                                 session.add(worker_model)
 
                                 logging.info("Worker model is %s", worker_model)
-                                logging.info(
-                                    "Agent workers is %s", agent.workers
-                                )
+                                logging.info("Agent workers is %s", agent.workers)
 
                                 #
                                 # Attach worker to agent
@@ -659,25 +693,31 @@ class AgentMonitorPlugin(AgentPlugin):
                                 os.makedirs(_dir, exist_ok=True)
 
                                 logging.info(
-                                    "Agent: Creating Worker() queue size %s", self.agent_service.size
+                                    "Agent: Creating Worker() queue size %s",
+                                    self.agent_service.size,
                                 )
                                 session.merge(processor["processor"])
                                 try:
                                     session.add(processor["processor"])
                                 except:
                                     pass
-                                
+
                                 #
                                 # For all my deployments, update processor deployment and create WorkerService
                                 #
                                 for deployment in processor["processor"].deployments:
-                                    logger.debug("Worker is none %s and died %s",processor["worker"] is None, process_died)
+                                    logger.debug(
+                                        "Worker is none %s and died %s",
+                                        processor["worker"] is None,
+                                        process_died,
+                                    )
                                     logging.debug("Deployment worker %s", deployment)
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == self.agent_service.name:
                                         logging.debug(
                                             "Deployment hostname is {} and HOSTNAME2 is {}".format(
-                                                deployment.hostname, self.agent_service.name
+                                                deployment.hostname,
+                                                self.agent_service.name,
                                             )
                                         )
                                         processor["deployment"] = deployment
@@ -721,10 +761,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                         # session.add(workerproc.worker_model)
                                         worker_model = (
                                             session.query(WorkerModel)
-                                                .filter_by(
-                                                deployment=deployment
-                                            )
-                                                .first()
+                                            .filter_by(deployment=deployment)
+                                            .first()
                                         )
 
                                         if not worker_model:
@@ -752,7 +790,10 @@ class AgentMonitorPlugin(AgentPlugin):
                                         try:
                                             deployment.worker.agent = agent
                                         except:
-                                            logging.info("deployment.worker.agent %s",deployment.worker.agent)
+                                            logging.info(
+                                                "deployment.worker.agent %s",
+                                                deployment.worker.agent,
+                                            )
 
                                         logging.info(
                                             "-----------------------Worker process %s started.",
@@ -760,15 +801,15 @@ class AgentMonitorPlugin(AgentPlugin):
                                         )
 
                                         worker["model"] = deployment.worker
-                                        worker[
-                                            "model"
-                                        ].process = workerproc.process.pid
+                                        worker["model"].process = workerproc.process.pid
                                         worker["process"] = workerproc
                                         worker["wprocess"] = wprocess
 
                                         processor["worker"] = worker
                                         processor["worker.id"] = worker["model"].id
-                                        print("**** PROCESS WORKER 2",processor["worker"])
+                                        print(
+                                            "**** PROCESS WORKER 2", processor["worker"]
+                                        )
                                         logging.info(
                                             "-----------------------workerproc is %s",
                                             workerproc,
@@ -783,18 +824,18 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["processor"].requested_status = "ready"
                             processor["processor"].status = "running"
 
-                            #session.add(processor["processor"])
-                            #session.refresh(processor["processor"])
+                            # session.add(processor["processor"])
+                            # session.refresh(processor["processor"])
 
-                            #session.commit()
-                    
-                    
+                            # session.commit()
+
                 finally:
                     pass
 
     def start(self, agent_service: AgentService, **kwargs):
         from billiard.context import Process
-        logger.info("[AgentMonitorPlugin] Starting %s",kwargs)
+
+        logger.info("[AgentMonitorPlugin] Starting %s", kwargs)
         self.kwargs = kwargs
         self.agent_service = agent_service
 
@@ -802,42 +843,52 @@ class AgentMonitorPlugin(AgentPlugin):
 
         with get_session() as session:
             node = (
-                session.query(NodeModel).filter_by(name=agent_service.name+".agent.node").first()
+                session.query(NodeModel)
+                .filter_by(name=agent_service.name + ".agent.node")
+                .first()
             )
             if not node:
-                logging.error("No NODE by name %s",agent_service.name+".agent.node")
+                logging.error("No NODE by name %s", agent_service.name + ".agent.node")
             else:
                 agent = (
-                    session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+                    session.query(AgentModel)
+                    .filter_by(hostname=agent_service.name)
+                    .first()
                 )
                 if agent is None:
                     agent = AgentModel(
-                        hostname=agent_service.name, node_id=node.id, name=agent_service.name + ".agent", pid=os.getpid(), **kwargs
+                        hostname=agent_service.name,
+                        node_id=node.id,
+                        name=agent_service.name + ".agent",
+                        pid=os.getpid(),
+                        **kwargs,
                     )
                     session.add(agent)
 
                 agent.pid = os.getpid()
                 agent.requested_status = "starting"
                 agent.status = "starting"
-                agent.cpus = self.kwargs['cpus']
-                logging.info("AgentMonitorPlugin: agent cpus %s",agent.cpus)
+                agent.cpus = self.kwargs["cpus"]
+                logging.info("AgentMonitorPlugin: agent cpus %s", agent.cpus)
 
         def update_queues():
-            from pyfi.util.rabbit import get_queues
-            import redis
             import json
 
+            import redis
+
+            from pyfi.util.rabbit import get_queues
+
             queues = get_queues()
-            logging.debug("QUEUES %s",queues)
+            logging.debug("QUEUES %s", queues)
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             redisclient.publish(
                 "global",
-                json.dumps({'type':'queues','queues':queues}),
+                json.dumps({"type": "queues", "queues": queues}),
             )
             redisclient.publish(
                 "queues",
-                json.dumps({'type':'queues','queues':queues}),
+                json.dumps({"type": "queues", "queues": queues}),
             )
 
         def monitor_processors():
@@ -849,23 +900,31 @@ class AgentMonitorPlugin(AgentPlugin):
             """ Main agent loop to monitor state of processors assigned to it and start, stop, pause, resume, kill them
             as their data objects change state. This includes managing the workers and deployments """
 
-            logger.debug("[AgentMonitorPlugin] main_loop processors %s", processor_workers)
+            logger.debug(
+                "[AgentMonitorPlugin] main_loop processors %s", processor_workers
+            )
 
             process = psutil.Process(os.getpid())
-            
+
             with get_session() as session:
                 # Put all the work here
-                logging.debug("Agent Service Name %s",agent_service.name)
-                logger.debug("[AgentMonitorPlugin] main_loop Worker memory before: %s",process.memory_info().rss)
+                logging.debug("Agent Service Name %s", agent_service.name)
+                logger.debug(
+                    "[AgentMonitorPlugin] main_loop Worker memory before: %s",
+                    process.memory_info().rss,
+                )
                 # Get or create Agent
                 agent = (
-                    session.query(AgentModel).filter_by(hostname=agent_service.name).first()
+                    session.query(AgentModel)
+                    .filter_by(hostname=agent_service.name)
+                    .first()
                 )
-                if agent and agent.requested_status == 'kill':
+                if agent and agent.requested_status == "kill":
                     import sys
+
                     logger.info("Killing agent process %s", agent.pid)
-                    agent.requested_status = 'ready'
-                    agent.status = 'killed'
+                    agent.requested_status = "ready"
+                    agent.status = "killed"
                     session.commit()
                     os.kill(agent.pid, signal.SIGINT)
                     os.kill(os.getpid(), signal.SIGINT)
@@ -874,51 +933,56 @@ class AgentMonitorPlugin(AgentPlugin):
                 # Get or create Node for this agent
                 if agent is None:
                     agent = AgentModel(
-                        hostname=agent_service.name, name=agent_service.name + ".agent", pid=os.getpid(), **self.kwargs
+                        hostname=agent_service.name,
+                        name=agent_service.name + ".agent",
+                        pid=os.getpid(),
+                        **self.kwargs,
                     )
 
                 if agent is None:
                     logger.error("No agent present.")
-                    
+
                     return
 
                 node = (
                     session.query(NodeModel).filter_by(hostname=agent.hostname).first()
                 )
-                logging.debug("NODE IS %s",node)
+                logging.debug("NODE IS %s", node)
                 if node is None:
                     node = NodeModel(
                         name=agent.name + ".node", agent=agent, hostname=agent.hostname
                     )
-                    
+
                     session.add(node)
                     session.commit()
 
                 node.cpus = CPUS
                 agent.node = node
-            
+
                 agent.status = "running"
-                #agent.cpus = node.cpus
+                # agent.cpus = node.cpus
                 agent.port = self.port
                 agent.updated = datetime.now()
 
-                logger.debug("[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",agent.cpus, agent)
-                logger.debug("[AgentMonitorPlugin] main_loop node is %s",node)
-                
-                logger.debug("[AgentMonitorPlugin] main_loop Worker memory after: %s",process.memory_info().rss)
+                logger.debug(
+                    "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
+                    agent.cpus,
+                    agent,
+                )
+                logger.debug("[AgentMonitorPlugin] main_loop node is %s", node)
+
+                logger.debug(
+                    "[AgentMonitorPlugin] main_loop Worker memory after: %s",
+                    process.memory_info().rss,
+                )
 
                 # DeploymentMonitor
                 logging.debug("Invoking deployment_monitor")
                 self.deployment_monitor(agent)
 
-
-
             # ProcessorMonitor
 
-
-
             # NodeMonitor
-
 
             gc.collect()
 
@@ -935,30 +999,32 @@ class AgentMonitorPlugin(AgentPlugin):
         process.start()
 
         logger.debug("[AgentMonitorPlugin] Startup Complete")
-        
+
     def wait(self):
         return self.process.join()
 
+
 plugins = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
 
+
 class PluginAgentService(AgentService):
-    """ Agent class """
+    """Agent class"""
 
     def __init__(
-            self,
-            database,
-            dburi,
-            port=8003,
-            config=None,
-            clean=False,
-            user=None,
-            pool=4,
-            cpus=-1,
-            backend="redis://localhost",
-            broker="pyamqp://localhost",
-            name=None,
-            size=10,
-            workerport=8020,
+        self,
+        database,
+        dburi,
+        port=8003,
+        config=None,
+        clean=False,
+        user=None,
+        pool=4,
+        cpus=-1,
+        backend="redis://localhost",
+        broker="pyamqp://localhost",
+        name=None,
+        size=10,
+        workerport=8020,
     ):
         self.port = port
         self.backend = backend
@@ -982,7 +1048,7 @@ class PluginAgentService(AgentService):
 
         with open("agent.pid", "w") as procfile:
             procfile.write(str(os.getpid()))
-            
+
     def start(self):
 
         os.environ["AGENT_CWD"] = os.getcwd()
@@ -990,11 +1056,11 @@ class PluginAgentService(AgentService):
 
         for plugin in plugins:
             self.plugins[plugin.__class__.__name__] = plugin
-            logging.debug("AgentService: Registered plugin %s",plugin.__class__.__name__)
+            logging.debug(
+                "AgentService: Registered plugin %s", plugin.__class__.__name__
+            )
 
-        kwargs = {
-            'cpus':self.cpus
-        }
+        kwargs = {"cpus": self.cpus}
         [plugin.start(self, **kwargs) for plugin in plugins]
 
         [plugin.wait() for plugin in plugins]

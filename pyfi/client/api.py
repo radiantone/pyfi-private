@@ -3,32 +3,33 @@ Python client API for invoking and building flows and manipulating data results
 """
 import pydash as data
 from pipe import select, where
-from pydash import flatten, chunk, omit, get, filter_ as filter
+from pydash import chunk
+from pydash import filter_ as filter
+from pydash import flatten, get, omit
 
-from celery import (
-    group as parallel,
-    chain as pipeline,
-    chord as funnel,
-    chunks as segment,
-)
+from celery import chain as pipeline
+from celery import chord as funnel
+from celery import chunks as segment
+from celery import group as parallel
+
+from .decorators import agent, network, node, plug, processor, socket, task, worker
+from .library import ProcessorBase
 from .objects import (
-    Node,
-    Processor,
-    Task,
-    Socket,
-    Queue,
-    Plug,
-    Work,
     Agent,
     Argument,
-    Registry,
-    Worker,
+    Deployment,
     Network,
+    Node,
+    Plug,
+    Processor,
+    Queue,
+    Registry,
     Scheduler,
-    Deployment
+    Socket,
+    Task,
+    Work,
+    Worker,
 )
-from .decorators import processor, task, node, agent, worker, socket, plug, network
-from .library import ProcessorBase
 
 __all__ = (
     "Processor",

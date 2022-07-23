@@ -1,16 +1,17 @@
 import logging
+
 import redis
 
-from celery.signals import setup_logging
 from celery.signals import (
-    worker_process_init,
     after_task_publish,
-    task_success,
-    task_prerun,
-    task_postrun,
+    setup_logging,
     task_failure,
     task_internal_error,
+    task_postrun,
+    task_prerun,
     task_received,
+    task_success,
+    worker_process_init,
 )
 
 
@@ -79,8 +80,8 @@ class Script:
             _newargs = []
             for arg in socket.task.arguments:
                 if (
-                        arg.kind != Parameter.POSITIONAL_ONLY
-                        and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
+                    arg.kind != Parameter.POSITIONAL_ONLY
+                    and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
                 ):
                     continue
 
@@ -304,7 +305,7 @@ class Script:
 
     @task_postrun.connect()
     def pyfi_task_postrun(
-            sender=None, task_id=None, task=None, retval=None, *args, **kwargs
+        sender=None, task_id=None, task=None, retval=None, *args, **kwargs
     ):
         from datetime import datetime
         from uuid import uuid4

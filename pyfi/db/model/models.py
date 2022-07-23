@@ -2,40 +2,40 @@
 Class database model definitions
 """
 import json
-
 from datetime import datetime
+
 from oso import Oso
 from sqlalchemy import (
-    Enum,
-    Table,
+    INTEGER,
+    Boolean,
     Column,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
     Integer,
     LargeBinary,
-    Text,
-    String,
-    ForeignKey,
-    DateTime,
-    Boolean,
-    Float,
     Sequence,
-    INTEGER,
-    literal_column,
+    String,
+    Table,
+    Text,
     UniqueConstraint,
-    select,
+    and_,
     column,
+    literal_column,
+    select,
 )
-
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.ext.mutable import MutableList
-
-from sqlalchemy import and_
-from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import declarative_mixin, foreign, remote
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import DeclarativeMeta, declared_attr
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.orm import (
+    declarative_base,
+    declarative_mixin,
+    foreign,
+    relationship,
+    remote,
+)
 from sqlalchemy.schema import CreateColumn
 
 Base = declarative_base(name="Base")
@@ -53,7 +53,7 @@ def use_identity(element, compiler, **kw):
 class AlchemyEncoder(json.JSONEncoder):
     def default(self, obj):
         from datetime import datetime
-        
+
         if isinstance(obj.__class__, DeclarativeMeta):
             # an SQLAlchemy class
             fields = {}
@@ -325,12 +325,14 @@ class FileModel(BaseModel):
     type = Column(String(40))
     icon = Column(String(40))
 
+
 flows_versions = Table(
     "flows_versions",
     Base.metadata,
     Column("flow_id", ForeignKey("flow.id"), primary_key=True),
     Column("version_id", ForeignKey("versions.id"), primary_key=True),
 )
+
 
 class FlowModel(BaseModel):
     """
@@ -345,11 +347,13 @@ class FlowModel(BaseModel):
 
     # File reference for this flow. i.e. it's saved state
     file_id = Column(String, ForeignKey("file.id"), nullable=False)
-    file = relationship("FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True)
+    file = relationship(
+        "FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True
+    )
 
     # List of versions associated with this flow
-    versions = relationship("VersionModel", secondary=flows_versions,  lazy=True)
-    
+    versions = relationship("VersionModel", secondary=flows_versions, lazy=True)
+
 
 class AgentModel(BaseModel):
     """
@@ -426,13 +430,16 @@ class VersionModel(Base):
     )
     name = Column(String(80), unique=False, nullable=False)
     file_id = Column(String, ForeignKey("file.id"), nullable=False)
-    file = relationship("FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True)
+    file = relationship(
+        "FileModel", lazy=True, cascade="all, delete-orphan", single_parent=True
+    )
     owner = Column(String(40), default=literal_column("current_user"))
     flow = Column(Text, unique=False, nullable=False)
 
     version = Column(
         DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
+
 
 class DeploymentModel(BaseModel):
     __tablename__ = "deployment"
@@ -479,7 +486,6 @@ class ProcessorModel(HasLogs, BaseModel):
     cron = Column(Text)
     hasapi = Column(Boolean)
     uistate = Column(Text)
-
 
     description = Column(Text(), nullable=True, default="Some description")
     container_image = Column(String(60))

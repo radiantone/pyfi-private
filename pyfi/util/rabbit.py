@@ -1,7 +1,8 @@
-import requests
-import json
 import configparser
+import json
 from pathlib import Path
+
+import requests
 
 CONFIG = configparser.ConfigParser()
 
@@ -10,13 +11,14 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 api = CONFIG.get("broker", "api")
-base = api.replace('/api','')
+base = api.replace("/api", "")
 user = CONFIG.get("broker", "user")
 password = CONFIG.get("broker", "password")
 
+
 def get_queues():
     session = requests.Session()
-    session.auth = (user,password)
+    session.auth = (user, password)
 
     auth = session.post(base)
     response = session.get(f"{api}/queues")
@@ -25,8 +27,15 @@ def get_queues():
 
 def get_messages(queue, count):
     session = requests.Session()
-    session.auth = (user,password)
+    session.auth = (user, password)
 
     auth = session.post(base)
-    response = session.post(f"{api}/queues/%2F/{queue}/get", data='{"vhost":"/","name":"'+queue+'","truncate":"50000","ackmode":"ack_requeue_true","encoding":"auto","count":"'+str(count)+'"}')
+    response = session.post(
+        f"{api}/queues/%2F/{queue}/get",
+        data='{"vhost":"/","name":"'
+        + queue
+        + '","truncate":"50000","ackmode":"ack_requeue_true","encoding":"auto","count":"'
+        + str(count)
+        + '"}',
+    )
     return json.loads(response.content)

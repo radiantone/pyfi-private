@@ -1,4 +1,4 @@
-from .agent import AgentService
 from ._agent2 import PluginAgentService
+from .agent import AgentService
 
-__all__ = ("AgentService","PluginAgentService")
+__all__ = ("AgentService", "PluginAgentService")

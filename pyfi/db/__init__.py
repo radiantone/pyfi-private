@@ -14,19 +14,19 @@ from .model.models import SocketModel as Socket
 from .model.models import TaskModel as Task
 from .model.models import UserModel as User
 from .model.models import WorkerModel as Worker
-
 from .postgres import _compile_drop_table
 
 
 def get_session():
     import configparser
-    from sqlalchemy import create_engine
+
+    from sqlalchemy import create_engine, event
     from sqlalchemy.orm import sessionmaker
-    from sqlalchemy import event
 
     CONFIG = configparser.ConfigParser()
 
     from pathlib import Path
+
     HOME = str(Path.home())
 
     ini = HOME + "/pyfi.ini"
@@ -36,10 +36,11 @@ def get_session():
     _engine = create_engine(CONFIG.get("database", "uri"))
     _session = sessionmaker(bind=_engine)()
 
-    @event.listens_for(_session, 'before_commit')
+    @event.listens_for(_session, "before_commit")
     def receive_after_commit(session):
-        import redis
         import json
+
+        import redis
 
         redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
@@ -48,7 +49,7 @@ def get_session():
                 # Publish to redis, pubsub, which gets sent to browser
                 redisclient.publish(
                     "global",
-                    json.dumps({'type':'processor','processor':str(obj)}),
+                    json.dumps({"type": "processor", "processor": str(obj)}),
                 )
 
     return _session

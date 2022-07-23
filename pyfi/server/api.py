@@ -1,57 +1,55 @@
 """
 pyfi API server Flask app
 """
+import configparser
+import gc
+import json
 import logging
 import platform
-import json
-import gc
-import configparser
-
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from contextlib import contextmanager
 from typing import Any
 
-
-from contextlib import contextmanager
 from flask import (
     Flask,
+    current_app,
     jsonify,
+    make_response,
     request,
     send_from_directory,
-    current_app,
-    send_from_directory,
-    make_response
 )
+from flask_restx import Api, Resource, fields, reqparse
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from pyfi.blueprints.show import blueprint
-from pyfi.db.model import (
-    oso,
-    SchedulerModel,
-    UserModel,
-    EventModel,
-    ArgumentModel,
-    LoginModel,
-    AgentModel,
-    WorkerModel,
-    CallModel,
-    PlugModel,
-    SocketModel,
-    ProcessorModel,
-    FileModel,
-    NodeModel,
-    RoleModel,
-    QueueModel,
-    TaskModel,
-    LogModel,
-    DeploymentModel,
-    NetworkModel,
-    VersionModel
-)
 from pyfi.client.user import USER, engine, session, sessionmaker
-from flask_restx import Api, Resource, fields, reqparse
+from pyfi.db.model import (
+    AgentModel,
+    ArgumentModel,
+    CallModel,
+    DeploymentModel,
+    EventModel,
+    FileModel,
+    LoginModel,
+    LogModel,
+    NetworkModel,
+    NodeModel,
+    PlugModel,
+    ProcessorModel,
+    QueueModel,
+    RoleModel,
+    SchedulerModel,
+    SocketModel,
+    TaskModel,
+    UserModel,
+    VersionModel,
+    WorkerModel,
+    oso,
+)
 
 CONFIG = configparser.ConfigParser()
 
 from pathlib import Path
+
 HOME = str(Path.home())
 
 ini = HOME + "/pyfi.ini"
@@ -80,24 +78,24 @@ from sqlalchemy import event
 def get_session(**kwargs):
     session = sessionmaker(bind=engine, **kwargs)()
 
-    @event.listens_for(session, 'before_commit')
+    @event.listens_for(session, "before_commit")
     def receive_after_commit(session):
-        import redis
         import json
 
-        logging.debug("commit UPDATED",session)
+        import redis
+
+        logging.debug("commit UPDATED", session)
         redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
         for obj in session:
-            logging.debug("OBJ IN SESSION",type(obj), obj)
+            logging.debug("OBJ IN SESSION", type(obj), obj)
 
             if isinstance(obj, ProcessorModel):
                 # Publish to redis, pubsub, which gets sent to browser
                 redisclient.publish(
                     "global",
-                    json.dumps({'type':'processor','processor':str(obj)}),
+                    json.dumps({"type": "processor", "processor": str(obj)}),
                 )
-
 
     try:
         yield session
@@ -121,8 +119,8 @@ def create_endpoint(modulename, taskname):
     # So it will invoke the class method with the correct runtime parameters
 
     def decorator(module="", task=""):
-        from types import ModuleType
         import io
+        from types import ModuleType
 
         with get_session() as session:
             _task = session.query(TaskModel).filter_by(name=task).first()
@@ -137,7 +135,7 @@ def create_endpoint(modulename, taskname):
         lines = io.StringIO(code).readlines()
 
         for line in lines:
-            if line[0] == '@':
+            if line[0] == "@":
                 inside_dec = True
             if inside_dec and line.find("def") != 0:
                 continue
@@ -174,8 +172,8 @@ def create_endpoint(modulename, taskname):
         @ns.expect(model)
         def post(self):
             # Fetch the socket and invoke that
-            from pyfi.client.user import USER
             from pyfi.client.api import Socket
+            from pyfi.client.user import USER
 
             logging.info("PAYLOAD", api.payload)
             socket = Socket(name=modulename + "." + taskname, user=USER)
@@ -197,38 +195,39 @@ from pyfi.db.model import AlchemyEncoder
 app.json_encoder = AlchemyEncoder
 
 
-@app.route("/processor/<id>", methods=["POST","GET","DELETE"])
+@app.route("/processor/<id>", methods=["POST", "GET", "DELETE"])
 def do_processor(id):
 
-    if request.method == 'POST':
-        processor : Any = request.get_json()
+    if request.method == "POST":
+        processor: Any = request.get_json()
 
         with get_session() as session:
-            logging.info("POSTING processor: %s",processor)
-            _processor = session.query(ProcessorModel).filter_by(name=processor['name']).first()
-
+            logging.info("POSTING processor: %s", processor)
+            _processor = (
+                session.query(ProcessorModel).filter_by(name=processor["name"]).first()
+            )
 
             if not _processor:
 
                 props = {
-                    'name':processor['name'],
-                    'description':processor['description'],
-                    'gitrepo':processor['gitrepo'],
-                    'modulepath':processor['modulepath'],
-                    'concurrency':processor['concurrency'],
-                    'use_container':processor['container'],
-                    'module':processor['package'],
-                    'ratelimit':processor['ratelimit'],
-                    'perworker':processor['perworker']
+                    "name": processor["name"],
+                    "description": processor["description"],
+                    "gitrepo": processor["gitrepo"],
+                    "modulepath": processor["modulepath"],
+                    "concurrency": processor["concurrency"],
+                    "use_container": processor["container"],
+                    "module": processor["package"],
+                    "ratelimit": processor["ratelimit"],
+                    "perworker": processor["perworker"],
                 }
                 _processor = ProcessorModel(**props, user=USER)
                 session.add(_processor)
-                return jsonify({'status':'ok'})
+                return jsonify({"status": "ok"})
             else:
-                logging.info("Updating processor %s with %s",_processor, processor)
+                logging.info("Updating processor %s with %s", _processor, processor)
                 _processor.update(processor)
                 session.add(_processor)
-                return jsonify({'status':'ok'})
+                return jsonify({"status": "ok"})
 
 
 @app.route("/processors", methods=["GET"])
@@ -242,14 +241,15 @@ def get_processors():
 
 @app.route("/output/<resultid>", methods=["GET"])
 def get_output(resultid):
-    import redis
     import pickle
+
+    import redis
     from pymongo import MongoClient
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-    resultid = resultid.replace('celery-task-meta-','')
-    r = redisclient.get(resultid+"-output")
-    logging.info("get_output: %s %s",resultid+"-output", r)
+    resultid = resultid.replace("celery-task-meta-", "")
+    r = redisclient.get(resultid + "-output")
+    logging.info("get_output: %s %s", resultid + "-output", r)
     response = make_response(r, 200)
     response.mimetype = "text/plain"
     return response
@@ -257,21 +257,24 @@ def get_output(resultid):
 
 @app.route("/result/<resultid>", methods=["GET"])
 def get_result(resultid):
-    import redis
     import pickle
+
+    import redis
     from pymongo import MongoClient
 
     # TODO: Change to mongo
-    #redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-    #r = redisclient.get(resultid)
+    # redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+    # r = redisclient.get(resultid)
     client = MongoClient(CONFIG.get("mongodb", "uri"))
-    logging.info("GETTING RESULT %s",resultid)
+    logging.info("GETTING RESULT %s", resultid)
     with client:
         db = client.celery
-        result = db.celery_taskmeta.find_one({'_id':resultid.replace('celery-task-meta-','')})
-        logging.info("RESULT %s",result)
+        result = db.celery_taskmeta.find_one(
+            {"_id": resultid.replace("celery-task-meta-", "")}
+        )
+        logging.info("RESULT %s", result)
 
-        _r = pickle.loads(result['result'])
+        _r = pickle.loads(result["result"])
 
     return jsonify(_r)
 
@@ -351,21 +354,22 @@ def get_file(fid):
 
 @app.route("/queue/messages/<queue>", methods=["GET"])
 def get_queue_messages(queue):
-    from pyfi.util.rabbit import get_messages
     import json
+
+    from pyfi.util.rabbit import get_messages
 
     messages = get_messages(queue, 100)
 
     # Extract messages for queue
-    
-    if type(messages) is dict and 'error' in messages:
+
+    if type(messages) is dict and "error" in messages:
         return f"Queue {queue} not found", 404
 
     _message = []
-    print("MESSAGES",messages)
+    print("MESSAGES", messages)
     for message in messages:
         msg = {}
-        msg['payload'] = json.dumps(message, indent=4)
+        msg["payload"] = json.dumps(message, indent=4)
         msg["routing_key"] = message["routing_key"]
         msg["id"] = message["properties"]["headers"]["id"]
         kwargs = json.loads(
@@ -383,34 +387,31 @@ def get_queue_messages(queue):
 
     return jsonify(_message)
 
+
 @app.route("/workers/<processor>", methods=["GET"])
 def get_workers(processor):
 
     with get_session() as session:
-        _processor = (
-            session.query(ProcessorModel)
-                .filter_by(name=processor)
-                .first()
-        )
+        _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         if not _processor:
             return f"Processor {processor} not found", 404
 
-        workers = (
-            session.query(WorkerModel)
-                .filter_by(processor_id=_processor.id)
-                .all()
-        )
+        workers = session.query(WorkerModel).filter_by(processor_id=_processor.id).all()
 
         _workers = []
 
         for worker in workers:
-            _workers += [{
-                'name':worker.name,
-                'host':worker.agent.hostname,
-                'cpus':'None' if not worker.deployment else worker.deployment.cpus,
-                'deployment':'None' if not worker.deployment else worker.deployment.name,
-                'status':worker.status
-            }]
+            _workers += [
+                {
+                    "name": worker.name,
+                    "host": worker.agent.hostname,
+                    "cpus": "None" if not worker.deployment else worker.deployment.cpus,
+                    "deployment": "None"
+                    if not worker.deployment
+                    else worker.deployment.name,
+                    "status": worker.status,
+                }
+            ]
         return jsonify(_workers)
 
 
@@ -418,25 +419,23 @@ def get_workers(processor):
 def get_deployments(processor):
 
     with get_session() as session:
-        _processor = (
-            session.query(ProcessorModel)
-                .filter_by(name=processor)
-                .first()
-        )
+        _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         deps = []
 
         if _processor:
             for dep in _processor.deployments:
-                worker = dep.worker.name if dep.worker else 'None'
+                worker = dep.worker.name if dep.worker else "None"
 
-                deps += [{
-                    'name':dep.name,
-                    'owner':dep.owner,
-                    'hostname':dep.hostname,
-                    'cpus':dep.cpus,
-                    'status':dep.worker.status,
-                    'worker':dep.worker.name
-                }]
+                deps += [
+                    {
+                        "name": dep.name,
+                        "owner": dep.owner,
+                        "hostname": dep.hostname,
+                        "cpus": dep.cpus,
+                        "status": dep.worker.status,
+                        "worker": dep.worker.name,
+                    }
+                ]
 
         return jsonify(deps)
 
@@ -455,11 +454,12 @@ def get_pattern(pid):
 def code_extract():
 
     data = request.get_json(silent=True)
-    code = data['code']
+    code = data["code"]
 
     _funcs = {}
 
     return jsonify(_funcs)
+
 
 @app.route("/networks", methods=["GET"])
 def get_networks():
@@ -597,19 +597,24 @@ def delete_file(fid):
 def get_versions(flowid):
 
     with get_session() as session:
-        logging.info("Getting versions for %s",flowid)
-        versions = session.query(VersionModel).filter(VersionModel.file_id==flowid).all()
-        logging.info("Got versions for %s %s",flowid, versions)
+        logging.info("Getting versions for %s", flowid)
+        versions = (
+            session.query(VersionModel).filter(VersionModel.file_id == flowid).all()
+        )
+        logging.info("Got versions for %s %s", flowid, versions)
 
-        _versions = [{
-            'name':version.file.filename,
-            'type':'flow',
-            'filepath':version.file.path,
-            'collection':version.file.collection,
-            'version':str(version.version),
-            'owner':version.owner,            
-            'code':version.flow
-        } for version in versions]
+        _versions = [
+            {
+                "name": version.file.filename,
+                "type": "flow",
+                "filepath": version.file.path,
+                "collection": version.file.collection,
+                "version": str(version.version),
+                "owner": version.owner,
+                "code": version.flow,
+            }
+            for version in versions
+        ]
         return jsonify(_versions)
 
 
@@ -621,10 +626,17 @@ def get_calls(name):
         if not processor:
             return f"Processor {name} not found.", 404
 
-        calls = session.query(CallModel).filter(CallModel.socket.has(processor_id=processor.id)).order_by(CallModel.created.desc()).limit(100).all()
+        calls = (
+            session.query(CallModel)
+            .filter(CallModel.socket.has(processor_id=processor.id))
+            .order_by(CallModel.created.desc())
+            .limit(100)
+            .all()
+        )
 
         jcalls = jsonify(calls)
         return jcalls
+
 
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
 def post_files(collection, path):
@@ -728,11 +740,11 @@ def post_files(collection, path):
             if "saveas" in data:
                 print("SAVEAS", file)
 
-        if data["type"] == 'flow':
+        if data["type"] == "flow":
             logging.info("Creating version %s %s", file.name, file.id)
             version = VersionModel(name=file.name, file=file, flow=file.code)
             session.add(version)
-            logging.info("Added version %s",version)
+            logging.info("Added version %s", version)
             session.add(file)
             session.commit()
 

@@ -1,4 +1,3 @@
-
 import logging
 import os
 import platform
@@ -7,16 +6,16 @@ import paramiko
 from sqlalchemy import exc as sa_exc
 
 from pyfi.client.api import (
-    Node,
-    Processor,
-    Socket,
-    Plug,
     Agent,
     Argument,
-    Worker,
-    Queue,
     Network,
+    Node,
+    Plug,
+    Processor,
+    Queue,
     Scheduler,
+    Socket,
+    Worker,
 )
 from pyfi.client.objects import Deployment
 from pyfi.client.user import USER
@@ -28,18 +27,18 @@ if "PYFI_HOSTNAME" in os.environ:
 
 
 def remove_network(
-        _ssh,
-        path,
-        ini,
-        polar,
-        hostname,
-        username,
-        sshkey,
-        branch,
-        pyfi,
-        repo,
-        clean,
-        commit=None,
+    _ssh,
+    path,
+    ini,
+    polar,
+    hostname,
+    username,
+    sshkey,
+    branch,
+    pyfi,
+    repo,
+    clean,
+    commit=None,
 ):
     """Remote host only needs to have ssh key trust to be managed by pyfi
     PYFI will remote install itself and manage the running agent processes on it.
@@ -101,18 +100,18 @@ def remove_network(
 
 
 def install_repo(
-        _ssh,
-        path,
-        ini,
-        polar,
-        hostname,
-        username,
-        sshkey,
-        branch,
-        pyfi,
-        repo,
-        clean,
-        commit=None,
+    _ssh,
+    path,
+    ini,
+    polar,
+    hostname,
+    username,
+    sshkey,
+    branch,
+    pyfi,
+    repo,
+    clean,
+    commit=None,
 ):
     """Remote host only needs to have ssh key trust to be managed by pyfi
     PYFI will remote install itself and manage the running agent processes on it.
@@ -308,7 +307,7 @@ def compose_agent(node, agent, deploy, _agent):
                     arguments = socket["task"]["function"]
                 else:
                     arguments = False
-                
+
                 _socket = Socket(
                     name=socketname,
                     user=USER,
@@ -350,7 +349,8 @@ def compose_agent(node, agent, deploy, _agent):
 
 
 def build_queue(name, queue):
-    from kombu import Exchange, Queue as KQueue
+    from kombu import Exchange
+    from kombu import Queue as KQueue
 
     logging.info("Building queue %s %s", name, queue)
     message_ttl = int(queue["message_ttl"]) if "message_ttl" in queue else 300000
@@ -469,9 +469,9 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                         processor=socket.processor.processor,
                         agent=_agent.agent,
                         name=node["hostname"]
-                             + ".agent."
-                             + socket.socket.processor.name
-                             + ".worker",
+                        + ".agent."
+                        + socket.socket.processor.name
+                        + ".worker",
                     )
                     logging.info("Worker ID %s", worker.worker.id)
                     _agent.agent.workers += [worker.worker]

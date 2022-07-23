@@ -1,15 +1,19 @@
 """
 Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 """
-from pyfi.client.api import ProcessorBase, network, node, agent, processor, socket, plug
+from pyfi.client.api import ProcessorBase, agent, network, node, plug, processor, socket
 
 
 @network(name="network-1")
 @node(name="node2", hostname="agent2")
 @agent(name="ag2")
-@processor(name="proc2", deployment="proc2.deploy",
-           gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
-           module="pyfi.processors.sample", concurrency=6)
+@processor(
+    name="proc2",
+    deployment="proc2.deploy",
+    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    module="pyfi.processors.sample",
+    concurrency=6,
+)
 class ProcessorB(ProcessorBase):
     """Description"""
 
@@ -30,9 +34,12 @@ class ProcessorB(ProcessorBase):
 @network(name="network-1")
 @node(name="node1", hostname="phoenix")
 @agent(name="ag1")
-@processor(name="proc1", deployment="proc1.deploy",
-           gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
-           module="pyfi.processors.sample")  # gitrepo and module can be implied
+@processor(
+    name="proc1",
+    deployment="proc1.deploy",
+    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    module="pyfi.processors.sample",
+)  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
     """Description"""
 
@@ -47,9 +54,11 @@ class ProcessorA(ProcessorBase):
             "message_ttl": 300000,
             "durable": True,
             "expires": 200,
-        }
+        },
     )
-    @socket(name="sock1", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"})
+    @socket(
+        name="sock1", processor="proc1", beat=True, interval=5, queue={"name": "sockq1"}
+    )
     def do_something(message):
         """do_something"""
         from random import randrange
@@ -63,5 +72,5 @@ class ProcessorA(ProcessorBase):
         return {"message": message, "graph": graph}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Network created.")

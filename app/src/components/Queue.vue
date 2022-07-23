@@ -255,7 +255,11 @@ export default {
     this.$on('message.received', (msg) => {
       //console.log('QUEUE MESSAGE RECEIVED', msg);
     });
-    this.queueName = this.component.edge.data.queue;
+    if (this.component.edge) {
+      this.queueName = this.component.edge.data.queue;
+    } else {
+      this.queueName = "None"
+    }
   },
   computed: {
   },

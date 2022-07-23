@@ -1,9 +1,10 @@
 """ Example"""
-from pyfi.client.api import parallel, pipeline, funnel
+from pyfi.client.api import funnel, parallel, pipeline
 
 # Function API over your processor models
 # do_something is my python function mounted onto a processor from my github repo
-from pyfi.client.example.api import do_something_p as do_something, do_this_p as do_this
+from pyfi.client.example.api import do_something_p as do_something
+from pyfi.client.example.api import do_this_p as do_this
 
 # Durable, reliable, parallel, distributed workflows
 _pipeline = pipeline(

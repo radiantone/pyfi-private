@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := all
-black = black --target-version py39 blazer
-isort = isort --profile black blazer
+black = black --target-version py39 pyfi
+isort = isort --profile black pyfi
 
 .PHONY: depends
 depends:
-	bash ./bin/depends.sh
+	echo
 
 .PHONY: init
 init: depends
@@ -19,8 +19,8 @@ format:
 
 .PHONY: lint
 lint:
-	mypy --show-error-codes  blazer
-	flake8 --ignore=E203,F841,E501,E722,W503  blazer
+	mypy --show-error-codes pyfi
+	flake8 --ignore=E203,F841,E501,E722,W503  pyfi
 	$(isort) --check-only --df
 	$(black) --check --diff
 
@@ -32,8 +32,8 @@ install: depends init
 
 .PHONY: update
 update: format lint
-	pip freeze | grep -v blazer > requirements.txt
-	git add setup.py docs bin blazer requirements.txt Makefile
+	pip freeze | grep -v pyfi > requirements.txt
+	git add setup.py docs bin pyfi app  requirements.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
 	python setup.py install
@@ -53,25 +53,6 @@ clean:
 	python setup.py clean
 	git status
 
-.PHONY: tests
-tests: format lint
-	python setup.py install
-	bash ./bin/test_map_reduce.sh
-	bash ./bin/test_gpu.sh
-	bash ./bin/test_mapreduce.sh
-	bash ./bin/test_scatter.sh
-	bash ./bin/test_stream.sh
-	bash ./bin/test_scatter_stream.sh
-	bash ./bin/test_map_reduce_stream.sh
-	bash ./bin/test_environment_range.sh
-	bash ./bin/test_environment_watch.sh
-	bash ./bin/test_data_shard.sh
-	bash ./bin/rungpu.sh
-	bash ./bin/test_kernel.sh
-	@bash -c 'echo'
-	@bash -c 'echo All tests passed!'
-	@bash -c 'echo -----------------------------------------------------------------'
-	
 .PHONY: all
-all: format lint update docs install tests clean
+all: format lint update docs install clean
 	git status

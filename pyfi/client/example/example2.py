@@ -1,5 +1,5 @@
 # do_something is my python function mounted onto a processor from my github repo
-from pyfi.client.api import parallel, pipeline, funnel
+from pyfi.client.api import funnel, parallel, pipeline
 from pyfi.client.example.api import do_something
 
 # Send a message to the socket function
