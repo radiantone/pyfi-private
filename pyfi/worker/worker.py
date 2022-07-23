@@ -2237,7 +2237,7 @@ class WorkerService:
                         ):
                             import datetime
                             import traceback
-                            from datetime import datetime
+                            
                             from uuid import uuid4
 
                             if sender.__name__ == "enqueue":
