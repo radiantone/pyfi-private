@@ -19,8 +19,8 @@ format:
 
 .PHONY: lint
 lint:
-	mypy --show-error-codes pyfi
-	flake8 --ignore=E203,F841,E501,E722,W503  pyfi
+	#mypy --show-error-codes pyfi
+	flake8 --ignore=E203,F401,E402,F841,E501,E722,W503  pyfi
 	$(isort) --check-only --df
 	$(black) --check --diff
 
