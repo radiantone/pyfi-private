@@ -98,10 +98,10 @@ class ProcessorA(ProcessorBase):
 
 
 if __name__ == "__main__":
-    network = Network(name="network-1", user=USER)
+    _network = Network(name="network-1", user=USER)
     node2 = Node(name="node2", hostname="agent2")
     node3 = Node(name="node3", hostname="agent3")
-    network.nodes += [node2, node3]
+    _network.nodes += [node2, node3]
 
     agent2 = Agent(name="agent2", hostname="agent2")
     node2.agent = agent2

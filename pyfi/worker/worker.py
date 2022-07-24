@@ -22,7 +22,6 @@ from functools import partial
 from inspect import Parameter
 from multiprocessing import Condition, Queue
 from pathlib import Path
-from time import time
 
 from flask import Flask
 from pytz import utc
@@ -924,8 +923,6 @@ class WorkerService:
                         )
 
                         if isinstance(_r, TaskInvokeException):
-                            import traceback
-
                             data["error"] = True
                             data["message"] = _r.tb
 
@@ -1795,7 +1792,6 @@ class WorkerService:
 
                         def wrapped_function(*args, **kwargs):
                             """Main meta function that tracks arguments and dispatches to the user code"""
-                            import json
 
                             redisclient = redis.Redis.from_url(
                                 CONFIG.get("redis", "uri")
@@ -2095,7 +2091,6 @@ class WorkerService:
                         ):
                             """Update args and kwargs before sending to task. Other bookeeping"""
                             from datetime import datetime
-                            from uuid import uuid4
 
                             # PRERUN_CONDITION.acquire()
                             try:
@@ -2186,7 +2181,6 @@ class WorkerService:
                             _function_name = request.name.rsplit(".")[-1:]
                             logging.info("Task Request Parent %s", request.parent_id)
                             from datetime import datetime
-                            from uuid import uuid4
 
                             sender = request.task_name.rsplit(".")[-1]
                             print("RECEIVED SENDER:", sender)
@@ -2237,8 +2231,6 @@ class WorkerService:
                         ):
                             import datetime
                             import traceback
-                            
-                            from uuid import uuid4
 
                             if sender.__name__ == "enqueue":
                                 return

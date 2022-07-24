@@ -367,13 +367,13 @@ class Socket(Base):
 
             _module = importlib.import_module(self.task.module)
             _function = getattr(_module, self.task.name)
-            signature = inspect.signature(_function)
+            _signature = inspect.signature(_function)
 
             position = 0
             self.task.arguments = []
 
-            for pname in signature.parameters:
-                param = signature.parameters[pname]
+            for pname in _signature.parameters:
+                param = _signature.parameters[pname]
                 _argument = ArgumentModel(
                     name=param.name, position=position, user=user, kind=param.kind
                 )

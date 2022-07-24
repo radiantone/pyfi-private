@@ -2,6 +2,7 @@ import logging
 
 import redis
 
+'''
 from celery.signals import (
     after_task_publish,
     setup_logging,
@@ -340,3 +341,5 @@ class Script:
             }
         )
         logging.info("POSTRUN DONE PUTTING ON main_queue")
+
+'''

@@ -21,7 +21,7 @@ from flask_restx import Api, Resource, fields, reqparse
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from pyfi.blueprints.show import blueprint
-from pyfi.client.user import USER, engine, session, sessionmaker
+from pyfi.client.user import USER, engine, sessionmaker
 from pyfi.db.model import (
     AgentModel,
     ArgumentModel,
@@ -745,8 +745,9 @@ def post_files(collection, path):
             version = VersionModel(name=file.name, file=file, flow=file.code)
             session.add(version)
             logging.info("Added version %s", version)
-            session.add(file)
-            session.commit()
+
+        session.add(file)
+        session.commit()
 
         status = {"status": "ok", "id": file.id}
         print("STATUS", status)
@@ -767,5 +768,5 @@ hello = api.namespace("hello", description="Hello operations")
 route = hello.route("/<string:message>")
 route(HelloService)
 
-""" Iterate over all the processors, tasks and for the ones where endpoint=True, add them as 
+""" Iterate over all the processors, tasks and for the ones where endpoint=True, add them as
 service routes. Perhaps monitor the database and update accordingly """

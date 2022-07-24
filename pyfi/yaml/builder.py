@@ -320,7 +320,7 @@ def compose_agent(node, agent, deploy, _agent):
 
                 sockets[socketname] = _socket
 
-        if "build" in agent and agent["build"] == False:
+        if "build" in agent and not agent["build"]:
             continue
 
         clean = node["clean"] if "clean" in node else True
@@ -497,7 +497,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
         for plugname in detail["network"]["plugs"]:
             plug = detail["network"]["plugs"][plugname]
 
-            if hasattr(plug, "enabled") and plug.enabled == False:
+            if hasattr(plug, "enabled") and not plug.enabled:
                 continue
 
             plug_queue = plug["queue"]

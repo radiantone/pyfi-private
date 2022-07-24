@@ -1,6 +1,6 @@
 <template>
   <div
-    class="table node shadow-1   jtk-node"
+    class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
     :style="
       'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '
@@ -82,7 +82,7 @@
           <q-item-section side class="text-blue-grey-8">Run</q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup @click="saveProcessor">
+        <q-item clickable v-close-popup @click="addToLibrary">
           <q-item-section side>
             <q-icon name="fas fa-book"></q-icon>
           </q-item-section>
@@ -107,7 +107,7 @@
             View Usage
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup disabled> 
+        <q-item clickable v-close-popup disabled>
           <q-item-section side>
             <q-icon name="fas fa-plug"></q-icon>
           </q-item-section>
@@ -279,15 +279,37 @@
           </q-list>
         </q-btn-dropdown>
       </div>
-      <span v-if="obj.titletab" id="toptitle" 
-        style="position: absolute; left: 5px; font-size: 20px; top: -40px;z-index:-99999;width:300px;padding-left:10px;background-color:white;padding:5px;"
+      <span
+        v-if="obj.titletab"
+        id="toptitle"
+        style="
+          position: absolute;
+          left: 5px;
+          font-size: 20px;
+          top: -40px;
+          z-index: -99999;
+          width: 300px;
+          padding-left: 10px;
+          background-color: white;
+          padding: 5px;
+        "
         class="text-black shadow-2"
       >
-        <span class="proc-title text-dark" style="font-style: italic;margin-left:5px">
+        <span
+          class="proc-title text-dark"
+          style="font-style: italic; margin-left: 5px;"
+        >
           {{ obj.name }}
+            <q-popup-edit
+                v-model="obj.name"
+                buttons
+              >
+                <q-input type="string" v-model="obj.name" dense autofocus />
+              </q-popup-edit>
         </span>
-      </span>      
-      <span v-if="!obj.titletab"
+      </span>
+      <span
+        v-if="!obj.titletab"
         style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
       >
@@ -615,7 +637,7 @@
             >
               Console
             </q-tooltip>
-          </q-btn>          
+          </q-btn>
           <q-btn
             dense
             flat
@@ -1772,12 +1794,8 @@
                     />
                   </q-form>
                   <q-toolbar>
-                      <q-checkbox
-                        v-model="obj.container"
-                        label="Containerized"
-                      />
+                    <q-checkbox v-model="obj.container" label="Containerized" />
                   </q-toolbar>
-
                 </div>
               </q-tab-panel>
               <q-tab-panel
@@ -2322,30 +2340,38 @@
       "
       v-if="consoleview"
     >
-    <q-card-section
+      <q-card-section
         style="
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 400px;
+          height: 500px;
         "
       >
-            <q-scroll-area style="height:375px;width::auto" ref="scroll">
-            <div  v-for="(log, index ) in consolelogs">
+        <q-scroll-area style="height:475px;width::auto" ref="scroll">
+          <div v-for="(log, index) in consolelogs">
             <div v-if="consolehistory">
-              <pre style="font-weight:bold">{{log['date']}}</pre>
-              <pre>{{log['output']}}</pre>
-              </div>
-              <vue-typed-js v-if="!consolehistory && index == consolelogs.length-1" :showCursor="false" :typeSpeed="1" :strings="['<b>'+consolelogs[consolelogs.length-1]['date']+'</b><br><br>'+consolelogs[consolelogs.length-1]['output']]" :contentType="'html'">
-                <pre class="typing"></pre>
-              </vue-typed-js>
-
+              <pre style="font-weight: bold;">{{ log['date'] }}</pre>
+              <pre>{{ log['output'] }}</pre>
             </div>
-
-
-            </q-scroll-area>
+            <vue-typed-js
+              v-if="!consolehistory && index == consolelogs.length - 1"
+              :showCursor="false"
+              :typeSpeed="1"
+              :strings="[
+                '<b>' +
+                  consolelogs[consolelogs.length - 1]['date'] +
+                  '</b><br><br>' +
+                  consolelogs[consolelogs.length - 1]['output'],
+              ]"
+              :contentType="'html'"
+            >
+              <pre class="typing"></pre>
+            </vue-typed-js>
+          </div>
+        </q-scroll-area>
       </q-card-section>
-            <q-card-actions align="left">
+      <q-card-actions align="left">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -2355,11 +2381,20 @@
           v-close-popup
           @click="consolelogs = []"
         />
-                              <q-checkbox
-                        v-model="consolehistory"
-                        label="History"
-                        style="position: absolute; bottom: 0px; left: 110px; "
-                      />
+        <q-btn
+          flat
+          style="position: absolute; margin: 0px; bottom: 0px; left: 100px; width: 100px;"
+          label="Download"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="consolelogs = []"
+        />
+        <q-checkbox
+          v-model="consolehistory"
+          label="History"
+          style="position: absolute; bottom: 0px; left: 210px;"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2368,11 +2403,10 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          v-close-popup
+          @click="consoleview = false"
         />
       </q-card-actions>
     </q-card>
-
 
     <q-card
       v-if="mousecard"
@@ -2771,7 +2805,8 @@
                     <a
                       class="text-secondary"
                       @click="showOutput(props.cols[1].value)"
-                      >Output</a>
+                      >Output</a
+                    >
                   </q-td>
                   <q-td :key="props.cols[3].name" :props="props">
                     {{ props.cols[3].value }}
@@ -2949,10 +2984,11 @@ export default {
       //console.log('MESSAGE RECEIVED', msg);
 
       if (msg['type'] && msg['type'] == 'output') {
-        console.log("CONSOLE OUTPUT:",msg)
+        console.log('CONSOLE OUTPUT:', msg);
         if (msg['processor'] == this.obj.name) {
-          console.log("MY CONSOLE OUTPUT:", msg)
-          me.consolelogs.push({ 'date': new Date(), 'output': msg['output'] }) 
+          console.log('MY CONSOLE OUTPUT:', msg);
+          me.consolelogs.push({ date: new Date(), output: msg['output'] });
+          me.consolelogs = me.consolelogs.slice(0, 100);
         }
       }
       if (msg['room'] && msg['room'] != me.obj.name) {
@@ -3801,6 +3837,9 @@ export default {
     };
   },
   methods: {
+    addToLibrary () {
+      window.root.$emit('add.library', this.obj);
+    },
     cornerInView() {
       var node = this.toolkit.getNode(this.obj);
       window.toolkit.surface.setZoom(1.0);

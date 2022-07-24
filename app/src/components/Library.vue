@@ -105,7 +105,7 @@
         </q-btn>
       </q-breadcrumbs>
     </div>
-    <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
+    <q-scroll-area style="height: calc(100vh - 180px); width: 100%;">
       <q-list separator>
         <q-item
           v-for="item in items"
@@ -113,17 +113,19 @@
           :id="'row' + item.id"
           class="dragrow"
         >
-          <q-item-section avatar>
+          <q-item-section avatar >
             <q-icon
               :name="item.icon"
               color="secondary"
               v-if="item.type == 'folder'"
               :class="darkStyle"
+              
             />
             <q-icon
               :name="item.icon"
               v-if="item.type != 'folder'"
               :class="darkStyle"
+              size="sm"
             />
           </q-item-section>
           <q-item-section
@@ -143,9 +145,16 @@
           <q-space />
           <q-toolbar>
             <q-space />
+            <q-btn flat dense rounded icon="fas fa-thumbtack" style="font-size:.8em" :class="darkStyle">
+              <q-tooltip
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Pin
+              </q-tooltip>
+            </q-btn>
             <q-btn flat dense rounded icon="edit" :class="darkStyle">
               <q-tooltip
-                v-if="item.type === objecttype"
                 content-style="font-size: 16px"
                 :offset="[10, 10]"
               >
@@ -161,7 +170,6 @@
               @click="showDeleteObject(item)"
             >
               <q-tooltip
-                v-if="item.type === objecttype"
                 content-style="font-size: 16px"
                 :offset="[10, 10]"
               >
@@ -208,9 +216,41 @@ export default {
   mounted() {
     this.synchronize();
     this.$root.$on('update.' + this.collection, this.synchronize);
+    window.root.$on('add.library', this.addToLibrary)
   },
   methods: {
-
+    async addToLibrary (obj) {
+      console.log("ADD LIBRARY", obj);
+      var me = this;
+      await DataService.newFile(
+        'library',
+        this.foldername,
+        obj.id,
+        obj.name,
+        false,
+        'template',
+        obj.icon,
+        JSON.stringify(obj)
+      )
+        .then((response) => {
+          me.synchronize();
+          me.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Add to library succeeded!',
+            icon: 'save',
+          });
+        }).catch(() => {
+          me.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'There was an error adding to the library!',
+            icon: 'fas fa-exclamation',
+          });
+        })
+    },
     addFolder() {
       var me = this;
       this.showaddfolder = false;
@@ -221,8 +261,7 @@ export default {
         .then(() => {
           me.synchronize();
         })
-        .catch(function (error) {
-          console.log(error);
+        .catch(() => {
           me.loading = false;
           me.notifyMessage(
             'dark',

@@ -6,8 +6,6 @@ import getpass
 import hashlib
 import logging
 
-from pyfi.client.objects import SocketNotFoundException
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(filename)s: "
@@ -1245,6 +1243,7 @@ def add(context, id):
     context.obj["id"] = str(id)
 
 
+'''
 @cli.group()
 @click.option("--id", default=None, help="ID of object being added")
 @click.pass_context
@@ -1258,6 +1257,7 @@ def update(context, id):
         id = uuid4()
 
     context.obj["id"] = str(id)
+'''
 
 
 @scheduler.command(name="start", help="Start the default scheduler")
@@ -3106,9 +3106,15 @@ def ls_call(context, id, name, result, tree, graph, flow):
         names = ["Name", "ID", "Owner", "Last Updated", "Note"]
         x.field_names = names
         if call:
-            for event in call.events:
+            for call_event in call.events:
                 x.add_row(
-                    [event.name, event.id, event.owner, event.lastupdated, event.note]
+                    [
+                        call_event.name,
+                        call_event.id,
+                        call_event.owner,
+                        call_event.lastupdated,
+                        call_event.note,
+                    ]
                 )
     print(x)
 
@@ -4793,6 +4799,7 @@ def api_start(context, ip, port):
             create_endpoint(task.module, task.name)
 
         server.app_context().push()
+
         try:
             options = {
                 "bind": "%s:%s" % ("0.0.0.0", str(port)),
@@ -4806,20 +4813,24 @@ def api_start(context, ip, port):
             logging.error(ex)
             logger.info("Shutting down...")
 
-    process = multiprocessing.Process(target=start_api)
-    click.echo("Starting API process.")
-    process.start()
-    click.echo("API process started.")
-    process.join()
-    """
-    import time
-    time.sleep(5)
-    process.terminate()
+    cont = True
+    while cont:
+        import signal
+        import time
 
-    process = multiprocessing.Process(target=start_api)
-    process.start()
-    process.join()
-    """
+        def handler(signum, fram):
+            exit(0)
+
+        signal.signal(signal.SIGINT, handler)
+
+        process = multiprocessing.Process(target=start_api)
+        click.echo("Starting API process.")
+        process.start()
+        click.echo("API process started.")
+        time.sleep(15)
+        click.echo("Terminating API server and restarting...")
+        process.terminate()
+
     click.echo("API process exited.")
 
 
