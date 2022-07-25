@@ -300,12 +300,9 @@
           style="font-style: italic; margin-left: 5px;"
         >
           {{ obj.name }}
-            <q-popup-edit
-                v-model="obj.name"
-                buttons
-              >
-                <q-input type="string" v-model="obj.name" dense autofocus />
-              </q-popup-edit>
+          <q-popup-edit v-model="obj.name" buttons>
+            <q-input type="string" v-model="obj.name" dense autofocus />
+          </q-popup-edit>
         </span>
       </span>
       <span
@@ -334,7 +331,7 @@
         v-if="error"
         style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
       >
-        {{ errorMsg }}
+        <a href="#" style="color:red">{{ errorMsg }}</a>
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
@@ -356,9 +353,11 @@
           Concurrency
         </q-tooltip>
       </span>
+      <q-btn class="text-primary" flat dense size="sm" icon="fas fa-save " @click="saveProcessor" style="cursor:pointer;position: absolute; right: 10px; top: 30px; font-size: .6em;"></q-btn>
+
       <span
         class="text-blue-grey-8 pull-right"
-        style="position: absolute; right: 10px; top: 50px; font-size: 11px;"
+        style="position: absolute; left: 10px; top: 70px; font-size: 11px;"
       >
         {{ obj.version }}
       </span>
@@ -743,13 +742,27 @@
             <q-item
               clickable
               v-close-popup
-              @click="showPanel('commentsview', !commentsview)"
+              @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-comments"></q-icon>
+                <q-icon name="far fa-list-alt"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
-                Comments
+                Environment
+              </q-item-section>
+            </q-item>            
+            <q-separator />
+
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('notesview', !notesview)"
+            >
+              <q-item-section side>
+                <q-icon name="far fa-sticky-note"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Notes
               </q-item-section>
             </q-item>
             <q-item clickable v-close-popup @click="loginProcessor">
@@ -809,20 +822,7 @@
                 Requirements
               </q-item-section>
             </q-item>
-            <q-separator />
 
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('environmentview', !environmentview)"
-            >
-              <q-item-section side>
-                <q-icon name="far fa-list-alt"></q-icon>
-              </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
-                Environment
-              </q-item-section>
-            </q-item>
           </q-list>
         </q-btn-dropdown>
       </div>
@@ -1422,7 +1422,6 @@
 
     <q-card
       style="
-        width: 100%;
         width: 650px;
         z-index: 999;
         display: block;
@@ -1437,36 +1436,25 @@
       >
         <editor
           v-model="obj.requirements"
-          @init="editorInit"
+          @init="reqEditorInit"
           style="font-size: 16px; min-height: 600px;"
           lang="python"
           theme="chrome"
-          ref="myEditor"
+          ref="requirementsEditor"
           width="100%"
           height="fit"
         ></editor>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="requirementsview = false"
-          v-close-popup
-        >
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
+      
+      <q-card-actions align="right" style="margin-top:15px">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
+          @click="requirementsview = false"
           v-close-popup
-          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -1728,7 +1716,7 @@
                           (val && val.length > 0) || 'Please type something',
                       ]"
                     />
-                    <q-toolbar style="margin-left:-30px">
+                    <q-toolbar style="margin-left: -30px;">
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="GIT" />
                       <q-checkbox
@@ -1787,9 +1775,17 @@
                       v-model="obj.commit"
                       hint="Commit Hash"
                     />
-</q-form>
+
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.gittag"
+                      hint="GIT Tag"
+                    />
+                  </q-form>
                 </div>
-              </q-tab-panel>              
+              </q-tab-panel>
               <q-tab-panel
                 name="containersettings"
                 style="padding-top: 0px; padding-bottom: 0px;"
@@ -2131,64 +2127,70 @@
           height: 400px;
         "
       >
-        Environment view
+          <q-table
+            dense
+            :columns="variablecolumns"
+            :data="variabledata"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  <a class="text-secondary">{{ props.row.name }}</a>
+                  <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
+                    <q-input
+                      v-model="props.row.name"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  <a class="text-secondary">{{ props.row.value }}</a>
+                  <q-popup-edit v-model="props.row.value" v-slot="scope" buttons>
+                    <q-input
+                      v-model="props.row.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.cols[2].value }}
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="environmentview = false"
-          v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Add"
+            class="bg-primary text-secondary"
+            color="primary"
+            @click="addVariable"
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            @click="environmentview = false"
+          />
+        </q-card-actions>
     </q-card>
 
     <q-card
@@ -2273,13 +2275,13 @@
 
     <q-card
       style="
-        width: 100%;
         width: 650px;
         z-index: 999;
         display: block;
         position: absolute;
         right: -655px;
         top: 0px;
+        height: 450px;
       "
       v-if="historyview"
     >
@@ -2291,64 +2293,49 @@
           height: 400px;
         "
       >
-        History view
+          <q-table
+            dense
+            :columns="historycolumns"
+            :data="myhistory"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              height: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  {{ props.row.constructor.name }}
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  {{ props.row.obj.data.name }}
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.row.obj.data.id }}
+                </q-td>   
+                <q-td key="owner" >
+                  {{owner}}
+                </q-td>                                
+              </q-tr>     
+            </template>
+          </q-table>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           flat
           label="Close"
-          class="bg-accent text-dark"
+          class="bg-secondary text-white"
           color="primary"
           @click="historyview = false"
           v-close-popup
         />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
+        </q-card-actions>
     </q-card>
 
     <q-card
@@ -2406,7 +2393,13 @@
         />
         <q-btn
           flat
-          style="position: absolute; margin: 0px; bottom: 0px; left: 100px; width: 100px;"
+          style="
+            position: absolute;
+            margin: 0px;
+            bottom: 0px;
+            left: 100px;
+            width: 100px;
+          "
           label="Download"
           class="bg-secondary text-white"
           color="primary"
@@ -2445,80 +2438,46 @@
     </q-card>
     <q-card
       style="
-        width: 100%;
         width: 650px;
+        height: 465px;
         z-index: 999;
         display: block;
         position: absolute;
         right: -655px;
         top: 0px;
       "
-      v-if="commentsview"
+      v-if="notesview"
     >
       <q-card-section
         style="
+        height:430px;
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 400px;
         "
       >
-        Comments view
+            <div style="height: 100%; width: 100%;">
+              <editor
+                v-model="obj.notes"
+                @init="notesEditorInit"
+                style="font-size: 1.5em;"
+                lang="text"
+                theme="chrome"
+                ref="notesEditor"
+                width="100%"
+                height="100%"
+              ></editor>
+            </div>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
       <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="commentsview = false"
-          v-close-popup
-        />
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
+          @click="notesview = false"
           v-close-popup
-          @click="removeColumn(deletePortID)"
         />
       </q-card-actions>
     </q-card>
@@ -3108,6 +3067,18 @@ export default {
     }, 3000);
   },
   computed: {
+    myhistory () {
+      var me = this;
+
+      var myhist = [];
+      window.toolkit.undoredo.undoStack.forEach((entry) => {
+          if(entry.obj.data.id == me.obj.id) {
+            myhist.push(entry)
+          }
+      })
+
+      return myhist;
+    },
     rateLimit(val) {},
     taskTime() {
       return this.task_time;
@@ -3225,6 +3196,54 @@ export default {
         },
       ],
       resultdata: [],
+      variablecolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left',
+        },
+        {
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left',
+        },
+      ],      
+      variabledata: [
+      ],      
+      owner:'darren',
+      historycolumns: [
+        {
+          name: 'action',
+          label: 'Action',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'object',
+          label: 'Object',
+          field: 'object',
+          align: 'left',
+        },
+        {
+          name: 'id',
+          label: 'Object ID',
+          field: 'id',
+          align: 'left',
+        },
+        {
+          name: 'owner',
+          label: 'Owner',
+          align: 'left',
+        }
+      ],      
       resultdataloading: false,
       resultloading: false,
       resultcolumns: [
@@ -3616,6 +3635,7 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
         titletab: false,
+        notes:'',
         style: '',
         x: 0,
         y: 0,
@@ -3625,6 +3645,7 @@ export default {
         websocket: 'ws://localhost:3003',
         bandwidth: true,
         requirements: '',
+        gittag: '',
         container: true,
         imagerepo: 'local',
         containerimage: 'pyfi/processors:latest',
@@ -3661,7 +3682,7 @@ export default {
       consoleview: false,
       logsview: false,
       requirementsview: false,
-      commentsview: false,
+      notesview: false,
       securityview: false,
       environmentview: false,
       scalingview: false,
@@ -3860,7 +3881,14 @@ export default {
     };
   },
   methods: {
-    addToLibrary () {
+    addVariable() {
+      this.variabledata.push({
+        'name': 'NAME',
+        'value': 'VALUE',
+        'scope':'FLOW'  
+      })
+    },    
+    addToLibrary() {
       window.root.$emit('add.library', this.obj);
     },
     cornerInView() {
@@ -4164,7 +4192,7 @@ export default {
       this.consoleview = false;
       this.environmentview = false;
       this.scalingview = false;
-      this.commentsview = false;
+      this.notesview = false;
       this.requirementsview = false;
       this.logsview = false;
       this.securityview = false;
@@ -4177,6 +4205,9 @@ export default {
         //window.toolkit.surface.setZoom(1.0);
 
         var node = this.toolkit.getNode(this.obj);
+        if (view == 'historyview') {
+          console.log(this.myhistory); 
+        }
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
@@ -4206,6 +4237,38 @@ export default {
         edge.innerText = value;
       });
     },
+    reqEditorInit: function () {
+      var me = this;
+
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      const editor = this.$refs.requirementsEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+      editor.on('change', function () {
+        console.log('edit event');
+        me.obj.requirements = editor.getValue();
+      });
+    },        
+    notesEditorInit: function () {
+      var me = this;
+
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      const editor = this.$refs.notesEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+      editor.on('change', function () {
+        console.log('edit event');
+        me.obj.notes = editor.getValue();
+      });
+    },    
     resultEditorInit: function () {
       var me = this;
 

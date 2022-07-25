@@ -512,7 +512,13 @@
                         :id="props.row.name"
                         width="100"
                         icon="remove_circle"
-                      />
+                      ><q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Purge Messages
+          </q-tooltip></q-btn>
                       <q-btn
                         flat
                         round
@@ -522,7 +528,13 @@
                         :id="props.row.name"
                         width="100"
                         icon="fas fa-cog"
-                      />
+                      ><q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Configure
+          </q-tooltip></q-btn>
                       <q-btn
                         flat
                         round
@@ -532,7 +544,13 @@
                         :id="props.row.name"
                         width="100"
                         icon="delete"
-                      />
+                      ><q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Delete Queue
+          </q-tooltip></q-btn>
                     </q-td>
                   </q-tr>
                 </template>

@@ -488,7 +488,7 @@
             </q-item>
             <q-item clickable v-close-popup @click="viewVariablesDialog = true">
               <q-item-section side>
-                <q-icon name="far fa-sticky-note"></q-icon>
+                <q-icon name="fas fa-font"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Variables
@@ -1468,7 +1468,7 @@
                   <a class="text-secondary">{{ props.row.name }}</a>
                   <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
                     <q-input
-                      v-model="scope.value"
+                      v-model="props.row.name"
                       dense
                       autofocus
                       counter
@@ -1477,9 +1477,9 @@
                 </q-td>
                 <q-td :key="props.cols[1].name" :props="props">
                   <a class="text-secondary">{{ props.row.value }}</a>
-                  <q-popup-edit v-model="props.row.value" v-slot="scope" >
+                  <q-popup-edit v-model="props.row.value" v-slot="scope" buttons>
                     <q-input
-                      v-model="scope.value"
+                      v-model="props.row.value"
                       dense
                       autofocus
                       counter
@@ -1494,6 +1494,16 @@
           </q-table>
         </q-card-section>
 
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Add"
+            class="bg-primary text-secondary"
+            color="primary"
+            @click="addVariable"
+          />
+        </q-card-actions>
         <q-card-actions align="right">
           <q-btn
             flat
@@ -1671,7 +1681,10 @@
                 </q-td>
                 <q-td :key="props.cols[2].name" :props="props">
                   {{ props.row.obj.data.id }}
-                </q-td>                
+                </q-td>   
+                <q-td key="owner" >
+                  {{owner}}
+                </q-td>                                
               </q-tr>     
             </template>
           </q-table>
@@ -1748,6 +1761,7 @@
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
+            @click="emptyAllQueues"
           />
         </q-card-actions>
       </q-card>
@@ -1978,6 +1992,9 @@ export default {
     editor: require('vue2-ace-editor'),
   },
   watch: {
+    'undoredo.undoStack': function () {
+      console.log("HISTORY CHANGED!")
+    },
     versionsDialog: function (value) {
       if (value) {
         console.log('LOAD VERSIONS');
@@ -2033,6 +2050,16 @@ export default {
     },
   },
   methods: {
+    addVariable() {
+      this.variabledata.push({
+        'name': 'NAME',
+        'value': 'VALUE',
+        'scope':'FLOW'  
+      })
+    },
+    emptyAllQueues() {
+
+    },
     showHistory () {
       this.viewHistoryDialog = true;
     },
@@ -2520,24 +2547,16 @@ export default {
           },
           compound: true,
         });
+        me.toolkit.undoredo = me.undoredo;
       });
     });
   },
   data: () => {
     return {
+      owner:'darren',
       messages:[],
       undoredo: {},
       variabledata: [
-        {
-          name: 'VAR1',
-          value: 'VALUE1',
-          scope: 'FLOW',
-        },
-        {
-          name: 'VAR2',
-          value: 'VALUE2',
-          scope: 'FLOW',
-        },
       ],
       historycolumns: [
         {
@@ -2556,6 +2575,11 @@ export default {
           name: 'id',
           label: 'Object ID',
           field: 'id',
+          align: 'left',
+        },
+        {
+          name: 'owner',
+          label: 'Owner',
           align: 'left',
         }
       ],

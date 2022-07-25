@@ -40,6 +40,10 @@ class DataService {
         return http.post('/api/processor/'+processor.id, processor)
     }
 
+    emptyAllQueues (): Promise<any> {
+        return http.get('/api/emptyqueues/')
+    }
+
     getProcessor (id: string): Promise<any> {
         return http.get('/api/processor/' + id)
     }

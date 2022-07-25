@@ -195,6 +195,20 @@ from pyfi.db.model import AlchemyEncoder
 app.json_encoder = AlchemyEncoder
 
 
+@app.route("/emptyqueue/<queuename>", methods=["GET"])
+def empty_queue(queuename):
+    # send DELETE method to queue contents URL
+    # http://<brokerurl>/api/queues/%2F/<queuename>/contents
+    # Send queue status update to global pubsub channel
+    return jsonify({"status": "ok"})
+
+
+@app.route("/emptyqueues", methods=["GET"])
+def empty_queues():
+    # Fetch all queues
+    # send DELETE method to each queue
+    return jsonify({"status": "ok"})
+
 @app.route("/processor/<id>", methods=["POST", "GET", "DELETE"])
 def do_processor(id):
 

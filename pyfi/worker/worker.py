@@ -2397,8 +2397,11 @@ class WorkerService:
                                 "Could not install %s", self.processor.gitrepo.strip()
                             )
 
-            if self.processor.commit:
+            if self.processor.commit and not self.processor.gittag:
                 os.system("git checkout {}".format(self.processor.commit))
+
+            if self.processor.gittag:
+                os.system("git checkout {}".format(self.processor.gittag))
 
         # Sometimes we just want to recreate the setup
         if not start:

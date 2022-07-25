@@ -241,15 +241,17 @@ export default {
             message: 'Add to library succeeded!',
             icon: 'save',
           });
-        }).catch(() => {
-          me.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'There was an error adding to the library!',
-            icon: 'fas fa-exclamation',
-          });
-        })
+        }).catch(({ response }) => {
+          console.log(response);
+          me.loading = false;
+          me.saveas = false;
+          if (response.status === 409) {
+            console.log('File name exists ', response.data.id);
+            me.overwriteflow = true;
+            me.flowuuid = response.data.id;
+            me.notifyMessage('dark', 'error', 'The file name already exists.');
+          }
+        });
     },
     addFolder() {
       var me = this;
