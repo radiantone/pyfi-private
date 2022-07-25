@@ -353,7 +353,16 @@
           Concurrency
         </q-tooltip>
       </span>
-      <q-btn class="text-primary" flat dense size="sm" icon="fas fa-save " @click="saveProcessor" style="cursor:pointer;position: absolute; right: 10px; top: 30px; font-size: .6em;"></q-btn>
+      <q-btn class="text-primary" flat dense size="md" icon="fas fa-save " @click="saveProcessor" style="cursor:pointer;position: absolute; right: 10px; top: 30px; font-size: .8em;">
+              <q-tooltip
+          anchor="top middle"
+          :offset="[-30, 40]"
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Save Processor
+        </q-tooltip>
+      </q-btn>
 
       <span
         class="text-blue-grey-8 pull-right"
