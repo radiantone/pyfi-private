@@ -41,12 +41,7 @@ export default Vue.extend({
   },
   created () {
     var me = this;
-    let n = this.$q.notify;
 
-    this.$q.notify = function (opts) {
-      me.$root.$emit("log.message",opts.message)
-      n(opts);
-    }
     console.log("Q",this.$q)
   },
   data() {

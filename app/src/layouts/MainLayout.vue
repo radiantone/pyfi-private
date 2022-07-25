@@ -948,6 +948,7 @@ import { mdiEmailAlert } from '@mdi/js';
 import { mdiEmailCheck } from '@mdi/js';
 
 import { io, Socket } from 'socket.io-client';
+
 const socket = io('http://localhost');
 
 export default defineComponent({
@@ -974,6 +975,13 @@ export default defineComponent({
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false);
     this.$store.commit('designer/setStreaming', false);
+
+    let n = this.$q.notify;
+
+    this.$q.notify = function (opts) {
+      me.$root.$emit("log.message",opts.message)
+      n(opts);
+    }
 
     this.schemaIcon = mdiCodeBraces;
     var me = this;
