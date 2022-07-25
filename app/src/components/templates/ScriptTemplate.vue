@@ -549,7 +549,7 @@
             style="
               margin-right: 10px;
               position: absolute;
-              right: 125px;
+              right: 135px;
               top: -68px;
               width: 25px;
               height: 30px;
@@ -574,7 +574,7 @@
             @click="obj.status = 'running'"
             style="
               position: absolute;
-              right: 105px;
+              right: 110px;
               top: -68px;
               width: 25px;
               height: 30px;
@@ -599,7 +599,7 @@
             class="edit-name text-secondary text-green"
             style="
               position: absolute;
-              right: 105px;
+              right: 110px;
               top: -68px;
               width: 25px;
               height: 30px;
@@ -623,7 +623,7 @@
             class="edit-name text-secondary"
             style="
               position: absolute;
-              right: 80px;
+              right: 85px;
               top: -68px;
               width: 25px;
               height: 30px;
@@ -1625,7 +1625,7 @@
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
-          height: 610px;
+          height: 470px;
         "
       >
         <q-tabs
@@ -1655,6 +1655,7 @@
             >
               <q-tab name="settings" label="Processor" />
               <q-tab name="containersettings" label="Container" />
+              <q-tab name="gitsettings" label="Git" />
               <q-tab name="apisettings" label="API" />
               <q-tab name="throttling" label="Throttling" />
               <q-tab name="versions" label="Versions" />
@@ -1718,29 +1719,16 @@
                     />
                     <q-input
                       filled
+                      v-model="obj.icon"
                       dense
-                      :disable="!obj.usegit"
-                      v-model="obj.gitrepo"
-                      hint="GIT Repository"
+                      hint="Icon Class"
+                      lazy-rules
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Please type something',
+                      ]"
                     />
-
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.modulepath"
-                      hint="Module Path"
-                    />
-
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.commit"
-                      hint="Commit Hash"
-                    />
-
-                    <q-toolbar>
+                    <q-toolbar style="margin-left:-30px">
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="GIT" />
                       <q-checkbox
@@ -1767,6 +1755,41 @@
                   </q-form>
                 </div>
               </q-tab-panel>
+              <q-tab-panel
+                name="gitsettings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form class="q-gutter-md">
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.gitrepo"
+                      hint="GIT Repository"
+                    />
+
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.modulepath"
+                      hint="Module Path"
+                    />
+
+                    <q-input
+                      filled
+                      dense
+                      :disable="!obj.usegit"
+                      v-model="obj.commit"
+                      hint="Commit Hash"
+                    />
+</q-form>
+                </div>
+              </q-tab-panel>              
               <q-tab-panel
                 name="containersettings"
                 style="padding-top: 0px; padding-bottom: 0px;"
