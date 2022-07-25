@@ -943,7 +943,9 @@
       >
         <q-card style="padding: 5px; height: 400px;">
           <q-scroll-area style="height: 395px; width: 100%;">
-            <span id="logspan"> </span>
+            <span id="logspan" v-for="msg in messages">
+              {{msg}}<br>
+            </span>
           </q-scroll-area>
         </q-card>
       </q-expansion-item>
@@ -2343,6 +2345,9 @@ export default {
       me.showName = true;
     }, 1000);
 
+    this.$root.$on('log.message', (message) => {
+      me.messages.unshift(message);
+    })
     this.toolkitComponent = this.$refs.toolkitComponent;
     this.toolkit = this.toolkitComponent.toolkit;
     console.log('NAVIGATE', this.navigate);
@@ -2520,6 +2525,7 @@ export default {
   },
   data: () => {
     return {
+      messages:[],
       undoredo: {},
       variabledata: [
         {

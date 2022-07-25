@@ -354,7 +354,6 @@ export default {
                   "[id='row" + result[i].id + "']"
                 );
                 if (el) {
-                  console.log(result[i], el);
                   el.data = result[i];
                   el.data.type = "template";
                   //el.data.icon = "fas fa-microchip";

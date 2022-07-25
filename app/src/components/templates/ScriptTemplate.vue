@@ -4338,7 +4338,6 @@ export default {
             schemas.push(node['name']);
           }
         });
-        console.log('SCHEMAS', schemas);
         this.types = schemas;
       });
     },

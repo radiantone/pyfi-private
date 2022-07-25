@@ -33,10 +33,21 @@ LoadingBar.setDefaults({
   color: "dark",
   size: "3px",
   position: "top"
-});
+}); 
+
 
 export default Vue.extend({
   components: {
+  },
+  created () {
+    var me = this;
+    let n = this.$q.notify;
+
+    this.$q.notify = function (opts) {
+      me.$root.$emit("log.message",opts.message)
+      n(opts);
+    }
+    console.log("Q",this.$q)
   },
   data() {
     return {
