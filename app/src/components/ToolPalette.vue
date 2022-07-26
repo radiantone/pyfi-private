@@ -1,4 +1,5 @@
 <template>
+<div>
   <q-toolbar class="sidebar node-palette">
     <img
       src="~assets/images/pyfi.svg"
@@ -326,14 +327,14 @@
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Nodes:</a>
+      <a class="link-hover" href="#" @click="showStats('Nodes')">Nodes:</a>
       <span class="text-dark">{{nodes}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Agents:</a>
+      <a class="link-hover" href="#" @click="showStats('Agents')">Agents:</a>
       <span class="text-dark">{{agents}}</span>
     </q-item-label>
 
@@ -341,35 +342,35 @@
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Queues:</a>
+      <a class="link-hover" href="#" @click="showStats('Queues')">Queues:</a>
       <span class="text-dark">{{queues}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Processors:</a>
+      <a class="link-hover" href="#" @click="showStats('Processors')">Processors:</a>
       <span class="text-dark">{{processors}}</span>
     </q-item-label>
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Deployments:</a>
+      <a class="link-hover" href="#" @click="showStats('Deployments')">Deployments:</a>
       <span class="text-dark">{{deployments}}</span>
     </q-item-label>       
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">CPUS:</a>
+      <a class="link-hover" href="#" @click="showStats('CPUs')">CPUS:</a>
       <span class="text-dark">{{cpus_running}}/{{cpus_total}}</span>
     </q-item-label>      
     <q-item-label
       class="text-secondary"
       style="margin-top: 40px; margin-right: 20px;"
     >
-      <a class="link-hover" href="#">Tasks:</a>
+      <a class="link-hover" href="#" @click="showStats('CPUs')">Tasks:</a>
       <span class="text-dark">{{tasks}}</span>
     </q-item-label>    
     <q-item-label class="text-secondary" style="margin-top: 40px;">
@@ -525,6 +526,105 @@
       </q-menu>
     </q-btn>
   </q-toolbar>
+
+      <q-dialog v-model="viewStatsDialog" persistent>
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>{{ statname }}</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewStatsDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        >
+          <q-table
+            dense
+            :columns="statcolumns"
+            :data="statdata"
+            row-key="name"
+            flat
+            style="
+              width: 100%;
+              margin-top: 20px;
+              border-top-radius: 0px;
+              border-bottom-radius: 0px;
+            "
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props" :key="getUuid">
+                <q-td :key="props.cols[0].name" :props="props">
+                  <a class="text-secondary">{{ props.row.name }}</a>
+                  <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
+                    <q-input
+                      v-model="props.row.name"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[1].name" :props="props">
+                  <a class="text-secondary">{{ props.row.value }}</a>
+                  <q-popup-edit v-model="props.row.value" v-slot="scope" buttons>
+                    <q-input
+                      v-model="props.row.value"
+                      dense
+                      autofocus
+                      counter
+                    />
+                  </q-popup-edit>
+                </q-td>
+                <q-td :key="props.cols[2].name" :props="props">
+                  {{ props.cols[2].value }}
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    </div>
 </template>
 <style scoped>
 .my-custom-toggle {
@@ -555,6 +655,11 @@ export default {
     console.log('TOOLPALETTE STORE', this.$store);
   },
   methods: {
+
+    showStats (name) {
+      this.statname = name
+      this.viewStatsDialog = true
+    },    
     loadPython () {
       var head = document.getElementById("head");
       let script = document.createElement('script');
@@ -574,6 +679,32 @@ export default {
   },
   data() {
     return {
+
+      viewStatsDialog: false,
+      statcolumns: [],
+      statname: '',
+      statdata: [],
+      variablecolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left',
+        },
+        {
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left',
+        },
+      ],
+      variabledata: [],       
       mode: 'code',
       series: [
         {

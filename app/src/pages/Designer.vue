@@ -2069,6 +2069,9 @@ export default {
         null,
         '\t'
       );
+
+      // TODO: Insert variables and config
+
       // Dynamically create a File
       const myFile = new File([thecode], this.flowname + '.json');
 
@@ -2180,6 +2183,9 @@ export default {
         null,
         '\t'
       );
+
+      // TODO: Insert variables and config
+
       this.$root.$emit(
         'save.flow.to.folder.' + this.flowid,
         this.flowname,

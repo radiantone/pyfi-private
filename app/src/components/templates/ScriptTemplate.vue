@@ -1497,12 +1497,17 @@
         right: -955px;
         top: 0px;
         height: 800px;
-        padding-bottom: 35px
+        padding-bottom: 35px;
       "
       v-if="gitview"
     >
       <q-card-section style="height: 100%;">
-        <q-splitter v-model="codeSplitterModel" horizontal style="height: 100%;">
+        <q-splitter
+          v-model="codeSplitterModel"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: 100%;"
+        >
           <template v-slot:before>
             <div class="q-pa-md">
               <q-table
@@ -1511,30 +1516,35 @@
                 :data="gitdata"
                 row-key="name"
                 flat
-                virtual-scroll
                 :rows-per-page-options="[10]"
                 style="
+                  height: calc(100% - 0px);
                   width: 100%;
                   border-top-radius: 0px;
                   border-bottom-radius: 0px;
                 "
               >
-               <template v-slot:body="props">
-            <q-tr :props="props" :key="getUuid">
-              <q-td :key="props.cols[0].name" :props="props">
-                <a href="#" style="color:#6b8791;text-decoration: underline;" @click="showCommit(props.cols[0].value)">{{props.cols[0].value}}</a>
-              </q-td>
-              <q-td :key="props.cols[1].name" :props="props">
-                {{ props.cols[1].value }}
-              </q-td>
-              <q-td :key="props.cols[2].name" :props="props">
-                {{ props.cols[2].value }}
-              </q-td>
-              <q-td :key="props.cols[3].name" :props="props">
-                {{ props.cols[3].value }}
-              </q-td>
-              </q-tr>
-              </template>
+                <template v-slot:body="props">
+                  <q-tr :props="props" :key="getUuid">
+                    <q-td :key="props.cols[0].name" :props="props">
+                      <a
+                        href="#"
+                        style="color: #6b8791; text-decoration: underline;"
+                        @click="showCommit(props.cols[0].value,props.cols[3].value)"
+                        >{{ props.cols[0].value }}</a
+                      >
+                    </q-td>
+                    <q-td :key="props.cols[1].name" :props="props">
+                      {{ props.cols[1].value }}
+                    </q-td>
+                    <q-td :key="props.cols[2].name" :props="props">
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td :key="props.cols[3].name" :props="props">
+                      {{ props.cols[3].value }}
+                    </q-td>
+                  </q-tr>
+                </template>
                 <template v-slot:loading>
                   <q-inner-loading :showing="true" style="z-index: 9999999;">
                     <q-spinner-gears size="50px" color="primary" />
@@ -1545,11 +1555,11 @@
           </template>
 
           <template v-slot:after>
-            <div class="q-pa-md" style="height: 100%;padding:0px">
+            <div class="q-pa-md" style="height: 100%; padding: 0px;">
               <editor
                 v-model="commitcode"
                 @init="gitEditorInit"
-                style="font-size: 1.5em"
+                style="font-size: 1.5em;"
                 lang="python"
                 theme="chrome"
                 ref="gitEditor"
@@ -1561,9 +1571,14 @@
         </q-splitter>
       </q-card-section>
       <q-card-section
-        style="padding: 5px; z-index: 999999; padding-bottom: 10px;padding-top:10px"
+        style="
+          padding: 5px;
+          z-index: 999999;
+          padding-bottom: 10px;
+          padding-top: 10px;
+        "
       ></q-card-section>
-      <q-card-actions align="left" >
+      <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
@@ -1583,9 +1598,9 @@
           </q-tooltip>
         </q-btn>
       </q-card-actions>
-        <q-item-label >
-          {{ gitcommit }}
-        </q-item-label>
+      <q-item-label style="position:absolute;left:120px;bottom:5px;font-size:1.5em">
+        {{ gitcommit }}<span style="margin-right:40px"></span> {{ gitdate }}
+      </q-item-label>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -3185,7 +3200,7 @@ export default {
       argports: {},
       funcs: [],
       afuncs: [],
-      codewidth: 650,
+      codewidth: 950,
       queuecolumns: [
         {
           name: 'task',
@@ -3939,11 +3954,12 @@ export default {
     };
   },
   methods: {
-    showCommit (hash) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0],hash).then((code) => {
-        this.commitcode = code.data; 
-      })
+    showCommit(hash, date) {
+      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
+        this.commitcode = code.data;
+      });
       this.gitcommit = hash;
+      this.gitdate = date;
     },
     showGit() {
       this.getCommits();

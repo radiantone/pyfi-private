@@ -884,6 +884,8 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+
   </q-layout>
 </template>
 <style>
@@ -1225,7 +1227,8 @@ export default defineComponent({
           // show error message
         });
     },
-    toggleSplitter() {
+    toggleSplitter () {
+      this.librarydrawer = false;
       if (this.splitterModel < 100) {
         this.splitterSave = this.splitterModel;
         this.splitterModel = 100;
@@ -1761,6 +1764,27 @@ export default defineComponent({
         },
       ],
       queues: [],
+      variablecolumns: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left',
+        },
+        {
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left',
+        },
+        {
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left',
+        },
+      ],
+      variabledata: [],      
       jsondata: {},
       msglogs: [],
       searchdrawer: false,
