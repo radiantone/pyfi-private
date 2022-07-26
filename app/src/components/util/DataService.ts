@@ -8,6 +8,18 @@ class DataService {
         return http.get('/api/files/'+collection+'/'+folder);
     }
 
+    getCommits (repo: string, file: string): Promise<any> {
+        return http.post('/api/git', { 'repo': repo , 'file':file});
+    }
+
+    getCode (repo: string, hash: string): Promise<any> {
+        return http.post('/api/git/code', { 'repo': repo, 'commit': hash });
+    }    
+
+    loginProcessor (id: string, password: string): Promise<any> {
+        return http.post('/api/login/'+id, { 'password': password });
+    }
+
     getOutput (resultid: string): Promise<any> {
         return http.get('/api/output/' + resultid);
     }

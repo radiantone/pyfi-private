@@ -115,6 +115,19 @@
       <span style="font-weight: bold; color: #775351;"
         >{{ messages }} ({{ bytes }} bytes)</span
       >
+<q-btn
+        flat
+        dense
+        icon="fas fa-chart-bar"
+        size="xs"
+        color="primary"
+        style="
+          cursor: pointer;
+          font-size: 0.7em;
+          position: absolute;
+          right: 25px;
+        "
+      />      
       <q-btn
         flat
         dense

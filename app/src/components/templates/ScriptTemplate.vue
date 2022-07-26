@@ -24,7 +24,7 @@
             outlined
             square
             bottom-slots
-            v-model="loginname"
+            v-model="password"
             counter
             maxlength="20"
             dense
@@ -33,7 +33,13 @@
               <i class="fas fa-lock text-secondary" style="font-size: 0.8em;" />
             </template>
             <template v-slot:after>
-              <q-btn dense flat label="Unlock" color="secondary" />
+              <q-btn
+                dense
+                flat
+                label="Unlock"
+                color="secondary"
+                @click="doLogin"
+              />
             </template>
           </q-input>
         </q-toolbar>
@@ -331,7 +337,7 @@
         v-if="error"
         style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
       >
-        <a href="#" style="color:red">{{ errorMsg }}</a>
+        <a href="#" style="color: red;">{{ errorMsg }}</a>
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
@@ -353,8 +359,22 @@
           Concurrency
         </q-tooltip>
       </span>
-      <q-btn class="text-primary" flat dense size="md" icon="fas fa-save " @click="saveProcessor" style="cursor:pointer;position: absolute; right: 10px; top: 30px; font-size: .8em;">
-              <q-tooltip
+      <q-btn
+        class="text-primary"
+        flat
+        dense
+        size="md"
+        icon="fas fa-save "
+        @click="saveProcessor"
+        style="
+          cursor: pointer;
+          position: absolute;
+          right: 10px;
+          top: 30px;
+          font-size: 0.8em;
+        "
+      >
+        <q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
           content-style="font-size: 16px"
@@ -759,7 +779,7 @@
               <q-item-section side class="text-blue-grey-8">
                 Environment
               </q-item-section>
-            </q-item>            
+            </q-item>
             <q-separator />
 
             <q-item
@@ -831,7 +851,6 @@
                 Requirements
               </q-item-section>
             </q-item>
-
           </q-list>
         </q-btn-dropdown>
       </div>
@@ -1454,8 +1473,8 @@
           height="fit"
         ></editor>
       </q-card-section>
-      
-      <q-card-actions align="right" style="margin-top:15px">
+
+      <q-card-actions align="right" style="margin-top: 15px;">
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
@@ -1471,54 +1490,87 @@
     <!-- Git dialog -->
     <q-card
       style="
-        width: 100%;
-        width: 650px;
+        width: 950px;
         z-index: 999;
         display: block;
         position: absolute;
-        right: -655px;
+        right: -955px;
         top: 0px;
-        height: 500px;
+        height: 800px;
+        padding-bottom: 35px
       "
       v-if="gitview"
     >
-      <q-card-section>
-        <q-splitter v-model="splitterModel" horizontal style="height: 465px;">
+      <q-card-section style="height: 100%;">
+        <q-splitter v-model="codeSplitterModel" horizontal style="height: 100%;">
           <template v-slot:before>
             <div class="q-pa-md">
-              <div class="text-h4 q-mb-md">Before</div>
-              <div v-for="n in 20" :key="n" class="q-my-md">
-                {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
-                elit. Quis praesentium cumque magnam odio iure quidem, quod
-                illum numquam possimus obcaecati commodi minima assumenda
-                consectetur culpa fuga nulla ullam. In, libero.
-              </div>
+              <q-table
+                dense
+                :columns="gitcolumns"
+                :data="gitdata"
+                row-key="name"
+                flat
+                virtual-scroll
+                :rows-per-page-options="[10]"
+                style="
+                  width: 100%;
+                  border-top-radius: 0px;
+                  border-bottom-radius: 0px;
+                "
+              >
+               <template v-slot:body="props">
+            <q-tr :props="props" :key="getUuid">
+              <q-td :key="props.cols[0].name" :props="props">
+                <a href="#" style="color:#6b8791;text-decoration: underline;" @click="showCommit(props.cols[0].value)">{{props.cols[0].value}}</a>
+              </q-td>
+              <q-td :key="props.cols[1].name" :props="props">
+                {{ props.cols[1].value }}
+              </q-td>
+              <q-td :key="props.cols[2].name" :props="props">
+                {{ props.cols[2].value }}
+              </q-td>
+              <q-td :key="props.cols[3].name" :props="props">
+                {{ props.cols[3].value }}
+              </q-td>
+              </q-tr>
+              </template>
+                <template v-slot:loading>
+                  <q-inner-loading :showing="true" style="z-index: 9999999;">
+                    <q-spinner-gears size="50px" color="primary" />
+                  </q-inner-loading>
+                </template>
+              </q-table>
             </div>
           </template>
 
           <template v-slot:after>
-            <div class="q-pa-md">
-              <div class="text-h4 q-mb-md">After</div>
-              <div v-for="n in 20" :key="n" class="q-my-md">
-                {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
-                elit. Quis praesentium cumque magnam odio iure quidem, quod
-                illum numquam possimus obcaecati commodi minima assumenda
-                consectetur culpa fuga nulla ullam. In, libero.
-              </div>
+            <div class="q-pa-md" style="height: 100%;padding:0px">
+              <editor
+                v-model="commitcode"
+                @init="gitEditorInit"
+                style="font-size: 1.5em"
+                lang="python"
+                theme="chrome"
+                ref="gitEditor"
+                width="100%"
+                height="100%"
+              ></editor>
             </div>
           </template>
         </q-splitter>
       </q-card-section>
       <q-card-section
-        style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
+        style="padding: 5px; z-index: 999999; padding-bottom: 10px;padding-top:10px"
       ></q-card-section>
-      <q-card-actions align="left">
+      <q-card-actions align="left" >
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
-          icon="history"
+          icon="refresh"
           class="bg-primary text-white"
           color="primary"
+          @click="getCommits"
           v-close-popup
         >
           <q-tooltip
@@ -1527,44 +1579,22 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish To Network
+            Refresh
           </q-tooltip>
         </q-btn>
       </q-card-actions>
+        <q-item-label >
+          {{ gitcommit }}
+        </q-item-label>
       <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="gitview = false"
-          v-close-popup
-        />
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
+          @click="gitview = false"
         />
       </q-card-actions>
     </q-card>
@@ -2136,70 +2166,60 @@
           height: 400px;
         "
       >
-          <q-table
-            dense
-            :columns="variablecolumns"
-            :data="variabledata"
-            row-key="name"
-            flat
-            style="
-              width: 100%;
-              margin-top: 20px;
-              border-top-radius: 0px;
-              border-bottom-radius: 0px;
-            "
-          >
-            <template v-slot:body="props">
-              <q-tr :props="props" :key="getUuid">
-                <q-td :key="props.cols[0].name" :props="props">
-                  <a class="text-secondary">{{ props.row.name }}</a>
-                  <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
-                    <q-input
-                      v-model="props.row.name"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td :key="props.cols[1].name" :props="props">
-                  <a class="text-secondary">{{ props.row.value }}</a>
-                  <q-popup-edit v-model="props.row.value" v-slot="scope" buttons>
-                    <q-input
-                      v-model="props.row.value"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td :key="props.cols[2].name" :props="props">
-                  {{ props.cols[2].value }}
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
+        <q-table
+          dense
+          :columns="variablecolumns"
+          :data="variabledata"
+          row-key="name"
+          flat
+          style="
+            width: 100%;
+            margin-top: 20px;
+            border-top-radius: 0px;
+            border-bottom-radius: 0px;
+          "
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props" :key="getUuid">
+              <q-td :key="props.cols[0].name" :props="props">
+                <a class="text-secondary">{{ props.row.name }}</a>
+                <q-popup-edit v-model="props.row.name" v-slot="scope" buttons>
+                  <q-input v-model="props.row.name" dense autofocus counter />
+                </q-popup-edit>
+              </q-td>
+              <q-td :key="props.cols[1].name" :props="props">
+                <a class="text-secondary">{{ props.row.value }}</a>
+                <q-popup-edit v-model="props.row.value" v-slot="scope" buttons>
+                  <q-input v-model="props.row.value" dense autofocus counter />
+                </q-popup-edit>
+              </q-td>
+              <q-td :key="props.cols[2].name" :props="props">
+                {{ props.cols[2].value }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
       </q-card-section>
-        <q-card-actions align="left">
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-            label="Add"
-            class="bg-primary text-secondary"
-            color="primary"
-            @click="addVariable"
-          />
-        </q-card-actions>
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Close"
-            class="bg-secondary text-white"
-            color="primary"
-            @click="environmentview = false"
-          />
-        </q-card-actions>
+      <q-card-actions align="left">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          label="Add"
+          class="bg-primary text-secondary"
+          color="primary"
+          @click="addVariable"
+        />
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="environmentview = false"
+        />
+      </q-card-actions>
     </q-card>
 
     <q-card
@@ -2302,37 +2322,37 @@
           height: 400px;
         "
       >
-          <q-table
-            dense
-            :columns="historycolumns"
-            :data="myhistory"
-            row-key="name"
-            flat
-            style="
-              width: 100%;
-              height: 100%;
-              margin-top: 20px;
-              border-top-radius: 0px;
-              border-bottom-radius: 0px;
-            "
-          >
-            <template v-slot:body="props">
-              <q-tr :props="props" :key="getUuid">
-                <q-td :key="props.cols[0].name" :props="props">
-                  {{ props.row.constructor.name }}
-                </q-td>
-                <q-td :key="props.cols[1].name" :props="props">
-                  {{ props.row.obj.data.name }}
-                </q-td>
-                <q-td :key="props.cols[2].name" :props="props">
-                  {{ props.row.obj.data.id }}
-                </q-td>   
-                <q-td key="owner" >
-                  {{owner}}
-                </q-td>                                
-              </q-tr>     
-            </template>
-          </q-table>
+        <q-table
+          dense
+          :columns="historycolumns"
+          :data="myhistory"
+          row-key="name"
+          flat
+          style="
+            width: 100%;
+            height: 100%;
+            margin-top: 20px;
+            border-top-radius: 0px;
+            border-bottom-radius: 0px;
+          "
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props" :key="getUuid">
+              <q-td :key="props.cols[0].name" :props="props">
+                {{ props.row.constructor.name }}
+              </q-td>
+              <q-td :key="props.cols[1].name" :props="props">
+                {{ props.row.obj.data.name }}
+              </q-td>
+              <q-td :key="props.cols[2].name" :props="props">
+                {{ props.row.obj.data.id }}
+              </q-td>
+              <q-td key="owner">
+                {{ owner }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
@@ -2344,7 +2364,7 @@
           @click="historyview = false"
           v-close-popup
         />
-        </q-card-actions>
+      </q-card-actions>
     </q-card>
 
     <q-card
@@ -2459,24 +2479,24 @@
     >
       <q-card-section
         style="
-        height:430px;
+          height: 430px;
           padding: 5px;
           z-index: 999999;
           padding-bottom: 10px;
         "
       >
-            <div style="height: 100%; width: 100%;">
-              <editor
-                v-model="obj.notes"
-                @init="notesEditorInit"
-                style="font-size: 1.5em;"
-                lang="text"
-                theme="chrome"
-                ref="notesEditor"
-                width="100%"
-                height="100%"
-              ></editor>
-            </div>
+        <div style="height: 100%; width: 100%;">
+          <editor
+            v-model="obj.notes"
+            @init="notesEditorInit"
+            style="font-size: 1.5em;"
+            lang="text"
+            theme="chrome"
+            ref="notesEditor"
+            width="100%"
+            height="100%"
+          ></editor>
+        </div>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
@@ -3076,15 +3096,15 @@ export default {
     }, 3000);
   },
   computed: {
-    myhistory () {
+    myhistory() {
       var me = this;
 
       var myhist = [];
       window.toolkit.undoredo.undoStack.forEach((entry) => {
-          if(entry.obj.data.id == me.obj.id) {
-            myhist.push(entry)
-          }
-      })
+        if (entry.obj.data.id == me.obj.id) {
+          myhist.push(entry);
+        }
+      });
 
       return myhist;
     },
@@ -3205,6 +3225,7 @@ export default {
         },
       ],
       resultdata: [],
+      commitcode: '',
       variablecolumns: [
         {
           name: 'name',
@@ -3224,10 +3245,9 @@ export default {
           field: 'scope',
           align: 'left',
         },
-      ],      
-      variabledata: [
-      ],      
-      owner:'darren',
+      ],
+      variabledata: [],
+      owner: 'darren',
       historycolumns: [
         {
           name: 'action',
@@ -3251,8 +3271,8 @@ export default {
           name: 'owner',
           label: 'Owner',
           align: 'left',
-        }
-      ],      
+        },
+      ],
       resultdataloading: false,
       resultloading: false,
       resultcolumns: [
@@ -3330,7 +3350,7 @@ export default {
       types: [],
       deployLoading: false,
       errorMsg: '',
-      loginname: '',
+      password: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       bytes_in_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -3358,6 +3378,7 @@ export default {
       saving: false,
       workersLoading: false,
       splitterModel: 50,
+      codeSplitterModel: 50,
       series2: [
         {
           data: [
@@ -3644,7 +3665,7 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
         titletab: false,
-        notes:'',
+        notes: '',
         style: '',
         x: 0,
         y: 0,
@@ -3707,6 +3728,34 @@ export default {
           processor: 'proc1',
           cpus: 5,
           status: 'running',
+        },
+      ],
+      gitdata: [],
+      gitcommit: '',
+      gitcolumns: [
+        {
+          name: 'hash',
+          label: 'Hash',
+          field: 'hash',
+          align: 'left',
+        },
+        {
+          name: 'author',
+          label: 'Author',
+          field: 'author',
+          align: 'left',
+        },
+        {
+          name: 'message',
+          label: 'Message',
+          field: 'message',
+          align: 'left',
+        },
+        {
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          align: 'left',
         },
       ],
       deploycolumns: [
@@ -3890,13 +3939,41 @@ export default {
     };
   },
   methods: {
+    showCommit (hash) {
+      DataService.getCode(this.obj.gitrepo.split('#')[0],hash).then((code) => {
+        this.commitcode = code.data; 
+      })
+      this.gitcommit = hash;
+    },
+    showGit() {
+      this.getCommits();
+      this.gitview = true;
+    },
+    getCommits() {
+      DataService.getCommits(
+        this.obj.gitrepo.split('#')[0],
+        this.obj.modulepath
+      ).then((result) => {
+        this.gitdata = result.data;
+      });
+    },
+    doLogin() {
+      var me = this;
+
+      DataService.loginProcessor(this.obj.id, this.password)
+        .then((result) => {
+          me.login = false;
+          console.log(result);
+        })
+        .catch((error) => {});
+    },
     addVariable() {
       this.variabledata.push({
-        'name': 'NAME',
-        'value': 'VALUE',
-        'scope':'FLOW'  
-      })
-    },    
+        name: 'NAME',
+        value: 'VALUE',
+        scope: 'FLOW',
+      });
+    },
     addToLibrary() {
       window.root.$emit('add.library', this.obj);
     },
@@ -4215,7 +4292,10 @@ export default {
 
         var node = this.toolkit.getNode(this.obj);
         if (view == 'historyview') {
-          console.log(this.myhistory); 
+          console.log(this.myhistory);
+        }
+        if (view == 'gitview') {
+          this.getCommits();
         }
         /*
         window.toolkit.surface.centerOn(node, {
@@ -4246,6 +4326,16 @@ export default {
         edge.innerText = value;
       });
     },
+    gitEditorInit: function () {
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      const editor = this.$refs.gitEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+    },
     reqEditorInit: function () {
       var me = this;
 
@@ -4261,7 +4351,7 @@ export default {
         console.log('edit event');
         me.obj.requirements = editor.getValue();
       });
-    },        
+    },
     notesEditorInit: function () {
       var me = this;
 
@@ -4277,7 +4367,7 @@ export default {
         console.log('edit event');
         me.obj.notes = editor.getValue();
       });
-    },    
+    },
     resultEditorInit: function () {
       var me = this;
 
