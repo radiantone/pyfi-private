@@ -959,11 +959,34 @@
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
       >
-        <div class="table-column-edit text-primary">
+        <div class="table-column-edit text-primary">  
+                  <div
+          class="table-column-edit text-primary"
+          style="
+            max-height: 15px;
+            position: absolute;
+            right: 20px;
+            margin-top: -10px;
+          "
+        ><!--
+          <q-select
+            dense
+            borderless
+            v-if="column.type != 'Input'"
+            :options-dense="true"
+            style="font-size: 1em; margin-right: 20px;"
+            label-color="orange"
+            v-model="column.queue"
+            :options="queues"
+            value="string"
+          ><template v-slot:prepend>
+          <q-icon name="fas fa-envelope" style="font-size:.5em" color="primary"/>
+        </template></q-select>-->
+        </div>
           <i
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
-            style="margin-left: 30px; margin-right: 5px;"
+            style="margin-right: 5px;"
           />
           <i
             class="fa fa-times table-column-delete-icon"
@@ -1019,7 +1042,7 @@
             v-model="column.schema"
             :options="types"
             value="string"
-          />
+          ></q-select>
         </div>
         <div v-if="column.type != 'Input'">
           <div class="float-left text-secondary">
@@ -3007,22 +3030,17 @@ export default {
     });
 
     this.$on('message.received', (msg) => {
-      //console.log('MESSAGE RECEIVED', msg);
 
       if (msg['type'] && msg['type'] == 'output') {
-        console.log('CONSOLE OUTPUT:', msg);
         if (msg['processor'] == this.obj.name) {
-          console.log('MY CONSOLE OUTPUT:', msg);
           me.consolelogs.push({ date: new Date(), output: msg['output'] });
           me.consolelogs = me.consolelogs.slice(0, 100);
         }
       }
       if (msg['room'] && msg['room'] != me.obj.name) {
-        //console.log('MESSAGE NOT FOR ME');
         return;
       }
       if (msg['channel'] == 'task' && msg['state']) {
-        //console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
         window.root.$emit('message.count', 1);
         window.root.$emit('message.size', bytes);
@@ -3180,6 +3198,9 @@ export default {
     window.designer.$root.$on('toolkit.dirty', (val) => {
       this.updateSchemas();
     });
+    window.root.$on('update.queues', (queues) => {
+      this.queues = queues.map( (queue) => queue.name);
+    })
     window.designer.$root.$emit('toolkit.dirty');
     this.deployLoading = true;
     DataService.getDeployments(this.obj.name)
@@ -3197,6 +3218,7 @@ export default {
   },
   data() {
     return {
+      queues: [],
       argports: {},
       funcs: [],
       afuncs: [],
@@ -4485,7 +4507,8 @@ export default {
       }
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
+    addPort (port) {
+      debugger; 
       port.background = 'white';
       port.datatype = 'Column';
       if (this.types.length > 0) {
@@ -4496,6 +4519,9 @@ export default {
       port.id = 'port' + uuidv4();
       port.id = port.id.replace(/-/g, '');
       port.description = 'A description';
+
+      port.queue = 'None';
+
       console.log('Port:', port);
       window.toolkit.addNewPort(this.obj.id, 'column', port);
       window.renderer.repaint(this.obj);
@@ -4527,6 +4553,7 @@ export default {
         icon: icon,
         type: type,
       });
+
       this.ports[func['function']] = true;
       this.argports[port.id] = [];
 

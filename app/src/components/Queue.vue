@@ -7,7 +7,7 @@
       width: 300px;
       height: 40px;
       padding: 3px;
-      font-size: 12px;
+      font-size: 14px;
     "
   >
     <q-toolbar style="position: absolute; left: 0px; top: -13px;">
@@ -18,11 +18,12 @@
       >
         <q-select
           style="width: 275px;"
+          
           v-model="queueName"
-          :options="options"
+          :options="queues"
           :dense="true"
           :options-dense="true"
-          :menu-offset="[5,-9]"
+          :menu-offset="[5, -9]"
           @input="queueSelect"
         >
           <template v-slot:prepend>
@@ -115,7 +116,7 @@
       <span style="font-weight: bold; color: #775351;"
         >{{ messages }} ({{ bytes }} bytes)</span
       >
-<q-btn
+      <q-btn
         flat
         dense
         icon="fas fa-chart-bar"
@@ -127,7 +128,7 @@
           position: absolute;
           right: 25px;
         "
-      />      
+      />
       <q-btn
         flat
         dense
@@ -243,7 +244,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
   </div>
 </template>
 <script>
@@ -254,8 +254,11 @@ let socket = io('http://localhost');
 export default {
   name: 'Button',
   props: ['node', 'name', 'component'],
-  mounted () {
-    console.log("QUEUE NODE",this.component)
+  mounted() {
+    console.log('QUEUE NODE', this.component);
+    window.root.$on('update.queues', (queues) => {
+      this.queues = queues.map( (queue) => queue.name);
+    })
   },
   created() {
     var me = this;
@@ -271,18 +274,17 @@ export default {
     if (this.component.edge) {
       this.queueName = this.component.edge.data.queue;
     } else {
-      this.queueName = "None"
+      this.queueName = 'None';
     }
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    queueSelect (val) {
-      console.log("QUEUE SELECTED ", val);
+    queueSelect(val) {
+      console.log('QUEUE SELECTED ', val);
       this.component.edge.data.queue = val;
     },
-    deleteEdge () {
-      console.log("Deleting edge ", this.component);
+    deleteEdge() {
+      console.log('Deleting edge ', this.component);
       window.toolkit.removeEdge(this.component.edge);
     },
     showQueue() {
@@ -315,18 +317,12 @@ export default {
   },
   data() {
     return {
+      choosequeue: false,
       deleteEdgeConfirm: false,
-      queueName: 'sockq2.proc2.do_this',
-      options: [
-        'sockq2.proc2.do_this',
-        'sockq1.proc1.do_something',
-        'queue1',
-        'pyfi.processors.sample.do_this',
-        'pyfi.processors.sample.do_something	',
+      queueName: 'None',
+      queues: [
       ],
-      obj: {
-
-      },
+      obj: {},
       messages: 0,
       bytes: 0,
       queueconfig: false,

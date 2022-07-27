@@ -441,7 +441,7 @@ class Socket(Base):
         self.processor.sockets += [self.socket]
         self.session.commit()
 
-        self.queue = KQueue(
+        self.kqueue = KQueue(
             self.key,
             Exchange(self.socket.queue.name, type="direct"),
             routing_key=self.key,
@@ -457,7 +457,7 @@ class Socket(Base):
 
         if self.loadbalanced:
             self.key = self.processor.processor.module + "." + self.socket.task.name
-            self.queue = KQueue(
+            self.kqueue = KQueue(
                 self.key,
                 # self.socket.queue.name+'.'+self.processor.name+'.'+self.socket.task.name
                 Exchange(self.socket.queue.name, type="direct"),
@@ -471,7 +471,7 @@ class Socket(Base):
             )
 
         self.app.conf.task_routes = {
-            self.key: {"queue": self.queue, "exchange": self.socket.queue.name}
+            self.key: {"queue": self.kqueue, "exchange": self.socket.queue.name}
         }
 
     def p(self, *args, **kwargs):
@@ -486,7 +486,7 @@ class Socket(Base):
                 app=self.processor.app,
                 args=args,
                 serializer="pickle",
-                queue=self.queue,
+                queue=self.kqueue,
                 kwargs=kwargs,
             )
         finally:
@@ -526,7 +526,7 @@ class Socket(Base):
                 self.processor.app.signature(
                     self.processor.processor.module + "." + self.socket.task.name,
                     args=args,
-                    queue=self.queue,
+                    queue=self.kqueue,
                     kwargs=kwargs,
                 )
                 .delay()

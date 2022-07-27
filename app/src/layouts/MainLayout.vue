@@ -1123,6 +1123,7 @@ export default defineComponent({
               }
             });
             me.queues = qs;
+            window.root.$emit('update.queues', qs)
           }
         }
       });

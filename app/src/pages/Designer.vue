@@ -3174,6 +3174,7 @@ export default {
                 var sourceNode = sourceEdge.source.getNode();
                 if (sourceNode === params.source.getNode()) {
                   if (sourceEdge.target.getNode() === params.target.getNode()) {
+                    let argname = targetEdges[0].target.data.name;
                     console.log('Existing edge: ', sourceEdge);
                     edgeCount += 1;
                   }

@@ -184,6 +184,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
         logging.debug("PLUG RESULT %s", plug is not None)
 
+        # TODO: QUEUENAME
         tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
         #tkey = socket.queue.name
         queue = KQueue(
@@ -1048,7 +1049,7 @@ class WorkerService:
                                         msg = str(msg)
 
 
-                                # TODO: Should this just be key?
+                                # TODO: QUEUENAME Should this just be key?
                                 tkey = (
                                     key
                                     + "."
@@ -1098,6 +1099,7 @@ class WorkerService:
                                         },
                                     )
 
+                                    # TODO: Task queue
                                     plug_sig = self.celery.signature(
                                         processor.name + ".pyfi.celery.tasks.enqueue",
                                         args=(msg,),
@@ -1589,6 +1591,8 @@ class WorkerService:
                     for socket in self.processor.sockets:
                         if socket.interval <= 0:
                             continue
+
+                        # TODO: QUEUENAME
                         tkey = (
                             socket.queue.name
                             + "."
