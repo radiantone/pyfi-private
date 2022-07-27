@@ -1399,11 +1399,26 @@ class WorkerService:
                             )
 
                             for processor_plug in socket.sourceplugs:
+                                tkey = (
+                                    processor_plug.target.queue.name
+                                    + "."
+                                    + fix(_processor.name)
+                                    + "."
+                                    + processor_plug.target.task.name
+                                )
+                                tkey2 = (
+                                    _processor.module
+                                    + "."
+                                    + processor_plug.target.task.name
+                                )
+
+                                # This should connect the task routing key
+                                # tkey2 to the plug queue name to allow the task
+                                # to be reached from any specific processor_plug.queue
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
                                     Exchange(processor_plug.queue.name, type="direct"),
-                                    routing_key=fix(self.processor.name)
-                                    + ".pyfi.celery.tasks.enqueue",
+                                    routing_key=tkey2,
                                     message_ttl=processor_plug.queue.message_ttl,
                                     durable=processor_plug.queue.durable,
                                     expires=processor_plug.queue.expires,
