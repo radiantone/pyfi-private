@@ -184,8 +184,8 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
         logging.debug("PLUG RESULT %s", plug is not None)
 
-        #tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
-        tkey = socket.queue.name
+        tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
+        #tkey = socket.queue.name
         queue = KQueue(
             tkey,
             Exchange(socket.queue.name, type="direct"),
