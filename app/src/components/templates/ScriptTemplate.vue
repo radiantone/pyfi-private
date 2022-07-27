@@ -1723,7 +1723,7 @@
               <q-tab name="gitsettings" label="Git" />
               <q-tab name="apisettings" label="API" />
               <q-tab name="throttling" label="Throttling" />
-              <q-tab name="versions" label="Versions" />
+              <q-tab name="versions" label="Version" />
               <q-tab
                 v-if="obj.icon == lambdaIcon"
                 name="lambda"
