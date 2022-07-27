@@ -1079,6 +1079,7 @@ class WorkerService:
                                         )
                                     )
 
+                                    '''
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
@@ -1098,13 +1099,31 @@ class WorkerService:
                                             "x-expires": 300,
                                         },
                                     )
-
                                     # TODO: Task queue
                                     plug_sig = self.celery.signature(
                                         processor.name + ".pyfi.celery.tasks.enqueue",
                                         args=(msg,),
                                         queue=plug_queue,
                                         kwargs=pass_kwargs,
+                                    )
+                                    '''
+
+                                    plug_queue = KQueue(
+                                        processor_plug.queue.name,
+                                        Exchange(key, type="direct"),
+                                        routing_key=tkey,
+                                        message_ttl=processor_plug.queue.message_ttl,
+                                        durable=processor_plug.queue.durable,
+                                        expires=processor_plug.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
+                                        # processor_plug.queue.ttl etc
+                                        queue_arguments={
+                                            "x-message-ttl": 30000,
+                                            "x-expires": 300,
+                                        },
                                     )
                                     # Declare worker queue using target queue properties
                                     worker_queue = KQueue(
@@ -1177,6 +1196,11 @@ class WorkerService:
                                             + "."
                                             + processor_plug.target.task.name,
                                             args=(msg,),
+
+                                            # TODO: QUEUENAME
+                                            # queue=plug_queue
+                                            # This will ensure that each "edge" in the flow, which is one plug connecting
+                                            # two sockets, has its own assigned queue for invoking the target task
                                             queue=worker_queue,
                                             kwargs=pass_kwargs,
                                         )
