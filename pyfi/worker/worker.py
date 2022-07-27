@@ -110,6 +110,10 @@ if "PYFI_HOSTNAME" in os.environ:
 logging.info("OS PID is {}".format(os.getpid()))
 
 
+def fix(name):
+
+    return name.replace(" ",".")
+
 def execute_function(taskid, mname, fname, *args, **kwargs):
     """Executor for container based tasks"""
     import importlib
@@ -180,7 +184,8 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
         logging.debug("PLUG RESULT %s", plug is not None)
 
-        tkey = socket.queue.name + "." + processor.name + "." + socket.task.name
+        #tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
+        tkey = socket.queue.name
         queue = KQueue(
             tkey,
             Exchange(socket.queue.name, type="direct"),
@@ -191,6 +196,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
             # expires=30,
             # socket.queue.message_ttl
             # socket.queue.expires
+            # TODO: These attributes need to come from Queue model
             queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
         )
 
@@ -1041,16 +1047,18 @@ class WorkerService:
                                     except:
                                         msg = str(msg)
 
+
+                                # TODO: Should this just be key?
                                 tkey = (
                                     key
                                     + "."
-                                    + target_processor.name.replace(" ", ".")
+                                    + fix(target_processor.name)
                                     + "."
                                     + processor_plug.target.task.name
                                 )
 
                                 tkey2 = (
-                                    key + "." + "." + processor_plug.target.task.name
+                                    key + "." + processor_plug.target.task.name
                                 )
 
                                 logging.info("Sending {} to queue {}".format(msg, tkey))
@@ -1075,7 +1083,7 @@ class WorkerService:
                                         Exchange(
                                             processor_plug.queue.name, type="direct"
                                         ),
-                                        routing_key=processor.name
+                                        routing_key=fix(processor.name)
                                         + ".pyfi.celery.tasks.enqueue",
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -1083,6 +1091,7 @@ class WorkerService:
                                         # expires=30,
                                         # socket.queue.message_ttl
                                         # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
                                         queue_arguments={
                                             "x-message-ttl": 30000,
                                             "x-expires": 300,
@@ -1106,6 +1115,7 @@ class WorkerService:
                                         # expires=30,
                                         # socket.queue.message_ttl
                                         # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
                                         queue_arguments={
                                             "x-message-ttl": 30000,
                                             "x-expires": 300,
@@ -1122,6 +1132,7 @@ class WorkerService:
                                         # expires=30,
                                         # socket.queue.message_ttl
                                         # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
                                         queue_arguments={
                                             "x-message-ttl": 30000,
                                             "x-expires": 300,
@@ -1364,7 +1375,7 @@ class WorkerService:
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
                                     Exchange(processor_plug.queue.name, type="direct"),
-                                    routing_key=self.processor.name
+                                    routing_key=fix(self.processor.name)
                                     + ".pyfi.celery.tasks.enqueue",
                                     message_ttl=processor_plug.queue.message_ttl,
                                     durable=processor_plug.queue.durable,
@@ -1372,6 +1383,7 @@ class WorkerService:
                                     # expires=30,
                                     # socket.queue.message_ttl
                                     # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
                                     queue_arguments={
                                         "x-message-ttl": 30000,
                                         "x-expires": 300,
@@ -1383,20 +1395,20 @@ class WorkerService:
                                 KQueue(
                                     socket.queue.name
                                     + "."
-                                    + self.processor.name.replace(" ", ".")
+                                    + fix(self.processor.name)
                                     + "."
                                     + socket.task.name,
                                     Exchange(
                                         socket.queue.name
                                         + "."
-                                        + self.processor.name.replace(" ", ".")
+                                        + fix(self.processor.name)
                                         + "."
                                         + socket.task.name,
                                         type="direct",
                                     ),
                                     routing_key=socket.queue.name
                                     + "."
-                                    + self.processor.name.replace(" ", ".")
+                                    + fix(self.processor.name)
                                     + "."
                                     + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
@@ -1404,6 +1416,7 @@ class WorkerService:
                                     expires=socket.queue.expires,
                                     # socket.queue.message_ttl
                                     # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
                                     queue_arguments={
                                         "x-message-ttl": 30000,
                                         "x-expires": 300,
@@ -1417,7 +1430,7 @@ class WorkerService:
                                     Exchange(
                                         socket.queue.name
                                         + "."
-                                        + self.processor.name.replace(" ", ".")
+                                        + fix(self.processor.name)
                                         + "."
                                         + socket.task.name,
                                         type="direct",
@@ -1430,6 +1443,7 @@ class WorkerService:
                                     expires=socket.queue.expires,
                                     # socket.queue.message_ttl
                                     # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
                                     queue_arguments={
                                         "x-message-ttl": 30000,
                                         "x-expires": 300,
@@ -1441,7 +1455,7 @@ class WorkerService:
                                 KQueue(
                                     socket.queue.name
                                     + "."
-                                    + self.processor.name.replace(" ", ".")
+                                    + fix(self.processor.name)
                                     + "."
                                     + socket.task.name,
                                     Exchange(
@@ -1451,6 +1465,7 @@ class WorkerService:
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
+                                    # TODO: These attributes need to come from Queue model
                                     queue_arguments={
                                         "x-message-ttl": 30000,
                                         "x-expires": 300,
@@ -1577,7 +1592,7 @@ class WorkerService:
                         tkey = (
                             socket.queue.name
                             + "."
-                            + self.processor.name.replace(" ", ".")
+                            + fix(self.processor.name)
                             + "."
                             + socket.task.name
                         )
@@ -1589,6 +1604,7 @@ class WorkerService:
                             message_ttl=socket.queue.message_ttl,
                             durable=socket.queue.durable,
                             expires=socket.queue.expires,
+                            # TODO: These attributes need to come from Queue model
                             queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
                         )
                         """

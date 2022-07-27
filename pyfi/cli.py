@@ -2982,21 +2982,29 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
         if result:
             # TODO: Get from mongo
-            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-            r = redisclient.get(call.resultid)
 
-            _r = pickle.loads(r)
-            if isinstance(_r, Exception):
-                import traceback
+            from pymongo import MongoClient
 
-                # _r = traceback.format_tb(_r.__traceback__)
-                print(_r.__traceback__)
-            else:
-                try:
-                    print(json.dumps(_r, indent=4))
-                except:
-                    print(_r)
-            return
+            client = MongoClient(CONFIG.get("mongodb", "uri"))
+            with client:
+                db = client.celery
+                result = db.celery_taskmeta.find_one(
+                    {"_id": call.resultid.replace("celery-task-meta-", "")}
+                )
+
+                _r = pickle.loads(result["result"])
+
+                if isinstance(_r, Exception):
+                    import traceback
+
+                    # _r = traceback.format_tb(_r.__traceback__)
+                    print(_r.__traceback__)
+                else:
+                    try:
+                        print(json.dumps(_r, indent=4))
+                    except:
+                        print(_r)
+                return
 
         if graph:
             calls = (

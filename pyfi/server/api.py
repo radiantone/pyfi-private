@@ -324,7 +324,6 @@ def get_output(resultid):
 def get_result(resultid):
     import pickle
 
-    import redis
     from pymongo import MongoClient
 
     # TODO: Change to mongo
