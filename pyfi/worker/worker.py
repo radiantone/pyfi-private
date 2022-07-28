@@ -559,6 +559,7 @@ class WorkerService:
         import threading
         import time
         from multiprocessing import Process
+        from threading import Thread
 
         import bjoern
 
@@ -2587,7 +2588,6 @@ class WorkerService:
             if not start:
                 return
 
-            from threading import Thread
 
             """ Start worker process"""
             worker_process = self.worker_process = Thread(
