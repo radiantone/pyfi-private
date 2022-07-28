@@ -174,7 +174,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     backend = CONFIG.get("backend", "uri")
     broker = CONFIG.get("broker", "uri")
     celery = Celery(backend=backend, broker=broker, include=processor.module)
-
+    logging.info("TASK NAMES: %s", celery.tasks.keys())
     try:
         name = plug.name
 
