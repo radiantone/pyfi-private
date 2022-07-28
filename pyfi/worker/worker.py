@@ -1191,7 +1191,7 @@ class WorkerService:
                                             logging.info(
                                                 "Processor plug not connected to argument."
                                             )
-                                            
+
                                         task_sig = self.celery.signature(
                                             processor_plug.name
                                             + "." 
@@ -1454,7 +1454,7 @@ class WorkerService:
                                     },
                                 )
                                 task_routes[
-                                    processor_plug + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
                                     "queue": processor_plug.queue.name,
                                     "exchange": [
