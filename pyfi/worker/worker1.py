@@ -322,6 +322,7 @@ class WorkerService:
         self.agent = agent
         self.port = workerport
 
+        logging.info("INIT WORKERSERVICE1")
         if hostname:
             HOSTNAME = hostname
             self.hostname = hostname
