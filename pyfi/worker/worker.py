@@ -170,7 +170,7 @@ run_times = {}
 
 def dispatcher(processor, plug, message, session, socket, **kwargs):
     """Execute a task based on a schedule"""
-    logging.info("Dispatching %s PLUG %s", socket)
+    logging.info("Dispatching %s PLUG %s", socket, plug)
     backend = CONFIG.get("backend", "uri")
     broker = CONFIG.get("broker", "uri")
     celery = Celery(backend=backend, broker=broker, include=processor.module)
