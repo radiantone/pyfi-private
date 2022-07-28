@@ -1204,8 +1204,8 @@ class WorkerService:
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            queue=worker_queue,
-                                            #queue=plug_queue,
+                                            #queue=worker_queue,
+                                            queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
                                         '''
@@ -1433,7 +1433,7 @@ class WorkerService:
                                 )
 
                                 # PLUG ROUTING
-                                routing_key = processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
+                                routing_key = processor_plug.queue.name + "." + self.processor.module + "." + processor_plug.target.task.name
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
@@ -1454,7 +1454,9 @@ class WorkerService:
                                         "x-expires": 300,
                                     },
                                 )
-
+                                task_sig = self.celery.signature(
+                                            routing_key, queue=plug_queue
+                                        )
                                 # PLUG ROUTING
                                 task_routes[
                                     processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
