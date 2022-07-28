@@ -1673,7 +1673,8 @@ class WorkerService:
                     logging.error(ex)
 
                 logging.info("Created celery worker")
-
+                from celery import current_app 
+                print("TASK KEYS",current_app.tasks.keys())
                 # Find existing model first
                 try:
                     logging.info(
