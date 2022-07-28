@@ -1431,7 +1431,7 @@ class WorkerService:
                                 )
 
                                 # PLUG ROUTING
-                                routing_key = processor_plug.name + "." + fix(self.processor.module) + "." + socket.task.name
+                                routing_key = processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
