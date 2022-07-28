@@ -1435,9 +1435,9 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
-                                    processor_plug.name,
+                                    processor_plug.queue.name,
                                     Exchange(
-                                        processor_plug.name,
+                                        processor_plug.queue.name,
                                         type="direct",
                                     ),
                                     routing_key=routing_key,
@@ -1455,18 +1455,18 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
-                                    "queue": processor_plug.name,
+                                    "queue": processor_plug.queue.name,
                                     "exchange": [
-                                        processor_plug.name
+                                        processor_plug.queue.name
                                     ],
                                 }
 
                                 # PLUG ROUTING
-                                logging.info("ADDED ROUTE %s for %s",processor_plug.name + "." + self.processor.module + "." + socket.task.name,
+                                logging.info("ADDED ROUTE %s for %s",processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name,
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ])
                                 logging.info("ADDED TARGET PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
