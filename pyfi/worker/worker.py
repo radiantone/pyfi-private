@@ -1113,7 +1113,7 @@ class WorkerService:
 
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
-                                        Exchange(key, type="direct"),
+                                        Exchange(processor_plug.queue.name, type="direct"),
                                         routing_key=tkey,
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -1204,8 +1204,8 @@ class WorkerService:
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            queue=worker_queue,
-                                            #queue=plug_queue,
+                                            #queue=worker_queue,
+                                            queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
                                         delayed = pipeline(task_sig)
@@ -1420,7 +1420,7 @@ class WorkerService:
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
                                     Exchange(processor_plug.queue.name, type="direct"),
-                                    routing_key=tkey2,
+                                    routing_key=tkey,
                                     message_ttl=processor_plug.queue.message_ttl,
                                     durable=processor_plug.queue.durable,
                                     expires=processor_plug.queue.expires,
