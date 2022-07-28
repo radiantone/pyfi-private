@@ -730,9 +730,11 @@ class WorkerService:
                                 logging.info(
                                     "SOCKET TARGET PLUGS %s", _socket.sourceplugs
                                 )
+
+                                # TODO: Still needed?
                                 for source in _socket.sourceplugs:
                                     logging.info(
-                                        "SOCKET QUEUE IS %s, TARGET QUEUE is %s",
+                                        "SOCKET QUEUE IS %s, SOURCE QUEUE is %s",
                                         _socket.queue.name,
                                         source.queue.name,
                                     )
@@ -1201,8 +1203,8 @@ class WorkerService:
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            queue=worker_queue,
-                                            #queue=plug_queue,
+                                            #queue=worker_queue,
+                                            queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
 
