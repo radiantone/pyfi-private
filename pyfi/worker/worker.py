@@ -2652,13 +2652,13 @@ class WorkerService:
                 logging.info("worker web_server: exiting...")
 
 
-        #def start_web_server():
-        webserver = Thread(target=web_server)
-        webserver.start()
-        logging.info("web_server started...")
+        def start_web_server():
+            webserver = Thread(target=web_server)
+            webserver.start()
+            logging.info("web_server started...")
 
 
-        ops = [start_database_actions, start_worker_proc, start_emit_messages]
+        ops = [start_database_actions, start_worker_proc, start_emit_messages, start_web_server]
 
         # Start all the operations
         [op() for op in ops]
