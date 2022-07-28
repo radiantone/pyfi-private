@@ -1458,6 +1458,7 @@ class WorkerService:
                                     },
                                 )
                                 '''
+                                logging.info("ADDED SOURCE PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
 
                             task_queues += [
