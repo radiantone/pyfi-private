@@ -1461,6 +1461,11 @@ class WorkerService:
                                         processor_plug.queue.name
                                     ],
                                 }
+
+                                logging.info("ADDED ROUTE %s for %s",processor_plug.name + "." + self.processor.module + "." + socket.task.name,
+                                task_routes[
+                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                ])
                                 '''                                
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
