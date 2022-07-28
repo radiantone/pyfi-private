@@ -2653,7 +2653,7 @@ class WorkerService:
 
 
         #def start_web_server():
-        webserver = Process(target=web_server, daemon=True)
+        webserver = Thread(target=web_server)
         webserver.start()
         logging.info("web_server started...")
 
