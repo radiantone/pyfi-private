@@ -1424,7 +1424,7 @@ class WorkerService:
                                         + socket.task.name,
                                         type="direct",
                                     ),
-                                    routing_key=socket.queue.name
+                                    routing_key=processor_plug.queue.name
                                     + "."
                                     + fix(self.processor.name)
                                     + "."
