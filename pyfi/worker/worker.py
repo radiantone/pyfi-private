@@ -2652,7 +2652,7 @@ class WorkerService:
                 logging.info("worker web_server: exiting...")
 
         def start_web_server():
-            webserver = Process(target=web_server, daemon=True)
+            webserver = Process(target=web_server)
             webserver.start()
             logging.info("web_server started...")
 
