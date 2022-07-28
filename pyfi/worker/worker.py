@@ -1431,13 +1431,13 @@ class WorkerService:
                                 )
 
                                 # PLUG ROUTING
-                                routing_key = processor_plug.source.queue.name + "." + fix(self.processor.name) + "." + socket.task.name
+                                routing_key = processor_plug.name + "." + fix(self.processor.name) + "." + socket.task.name
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
-                                    processor_plug.source.queue.name,
+                                    processor_plug.name,
                                     Exchange(
-                                        processor_plug.source.queue.name,
+                                        processor_plug.name,
                                         type="direct",
                                     ),
                                     routing_key=routing_key,
@@ -1455,11 +1455,11 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.source.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
-                                    "queue": processor_plug.source.queue.name,
+                                    "queue": processor_plug.name,
                                     "exchange": [
-                                        processor_plug.source.queue.name
+                                        processor_plug.name
                                     ],
                                 }
 
