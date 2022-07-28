@@ -2457,8 +2457,7 @@ class WorkerService:
                 worker.start()
 
         worker_process = None
-        webserver = None
-        
+
         def start_worker_proc():
             if self.worker:
                 logging.debug(
@@ -2657,10 +2656,13 @@ class WorkerService:
             webserver.start()
             logging.info("web_server started...")
 
-        ops = [start_database_actions, start_worker_proc, start_emit_messages, start_web_server]
+            return webserver
+
+        ops = [start_database_actions, start_worker_proc, start_emit_messages]
 
         # Start all the operations
         [op() for op in ops]
+        webserver = start_web_server()
         
         logging.info("Returning worker_process %s",worker_process)
 
