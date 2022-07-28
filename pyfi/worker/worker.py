@@ -1420,7 +1420,7 @@ class WorkerService:
                                 tkey = (
                                     processor_plug.source.queue.name
                                     + "."
-                                    + fix(_processor.name)
+                                    + self.processor.module
                                     + "."
                                     + processor_plug.source.task.name
                                 )
