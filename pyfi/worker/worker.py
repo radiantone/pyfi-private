@@ -112,7 +112,8 @@ logging.info("OS PID is {}".format(os.getpid()))
 
 def fix(name):
 
-    return name.replace(" ",".")
+    return name.replace(" ", ".")
+
 
 def execute_function(taskid, mname, fname, *args, **kwargs):
     """Executor for container based tasks"""
@@ -186,8 +187,8 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
         # TODO: QUEUENAME
         tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
-        #tkey = socket.queue.name
-        logging.info("DISPATCH TKEY %s",tkey)
+        # tkey = socket.queue.name
+        logging.info("DISPATCH TKEY %s", tkey)
         queue = KQueue(
             tkey,
             Exchange(socket.queue.name, type="direct"),
@@ -1051,7 +1052,6 @@ class WorkerService:
                                     except:
                                         msg = str(msg)
 
-
                                 # TODO: QUEUENAME Should this just be key?
                                 tkey = (
                                     key
@@ -1061,9 +1061,7 @@ class WorkerService:
                                     + processor_plug.target.task.name
                                 )
 
-                                tkey2 = (
-                                    key + "." + processor_plug.target.task.name
-                                )
+                                tkey2 = key + "." + processor_plug.target.task.name
 
                                 logging.info("Sending {} to queue {}".format(msg, tkey))
 
@@ -1082,7 +1080,7 @@ class WorkerService:
                                         )
                                     )
 
-                                    '''
+                                    """
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
@@ -1109,7 +1107,7 @@ class WorkerService:
                                         queue=plug_queue,
                                         kwargs=pass_kwargs,
                                     )
-                                    '''
+                                    """
 
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
@@ -1199,13 +1197,12 @@ class WorkerService:
                                             + "."
                                             + processor_plug.target.task.name,
                                             args=(msg,),
-
                                             # TODO: QUEUENAME
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            queue=worker_queue,
-                                            #queue=plug_queue,
+                                            #queue=worker_queue,
+                                            queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
                                         delayed = pipeline(task_sig)
@@ -1419,6 +1416,33 @@ class WorkerService:
                                 # to be reached from any specific processor_plug.queue
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
+                                    Exchange(
+                                        socket.queue.name
+                                        + "."
+                                        + fix(self.processor.name)
+                                        + "."
+                                        + socket.task.name,
+                                        type="direct",
+                                    ),
+                                    routing_key=socket.queue.name
+                                    + "."
+                                    + fix(self.processor.name)
+                                    + "."
+                                    + socket.task.name,
+                                    message_ttl=socket.queue.message_ttl,
+                                    durable=socket.queue.durable,
+                                    expires=socket.queue.expires,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
+                                    queue_arguments={
+                                        "x-message-ttl": 30000,
+                                        "x-expires": 300,
+                                    },
+                                )
+                                '''                                
+                                plug_queue = KQueue(
+                                    processor_plug.queue.name,
                                     Exchange(processor_plug.queue.name, type="direct"),
                                     routing_key=tkey,
                                     message_ttl=processor_plug.queue.message_ttl,
@@ -1433,6 +1457,7 @@ class WorkerService:
                                         "x-expires": 300,
                                     },
                                 )
+                                '''
                                 task_queues += [plug_queue]
 
                             task_queues += [
