@@ -1111,7 +1111,7 @@ class WorkerService:
                                     '''
 
                                     plug_queue = KQueue(
-                                        processor_plug.queue.name,
+                                        processor_plug.target.queue.name,
                                         Exchange(key, type="direct"),
                                         routing_key=tkey,
                                         message_ttl=processor_plug.queue.message_ttl,
