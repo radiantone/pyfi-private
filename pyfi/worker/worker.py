@@ -1191,7 +1191,23 @@ class WorkerService:
                                             logging.info(
                                                 "Processor plug not connected to argument."
                                             )
-
+                                            
+                                        task_sig = self.celery.signature(
+                                            processor_plug.name
+                                            + "." 
+                                            + target_processor.module
+                                            + "."
+                                            + processor_plug.target.task.name,
+                                            args=(msg,),
+                                            # TODO: QUEUENAME
+                                            # queue=plug_queue
+                                            # This will ensure that each "edge" in the flow, which is one plug connecting
+                                            # two sockets, has its own assigned queue for invoking the target task
+                                            #queue=worker_queue,
+                                            queue=plug_queue,
+                                            kwargs=pass_kwargs,
+                                        )
+                                        '''
                                         task_sig = self.celery.signature(
                                             target_processor.module
                                             + "."
@@ -1205,6 +1221,7 @@ class WorkerService:
                                             queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
+                                        '''
                                         delayed = pipeline(task_sig)
                                         pipelines += [delayed]
                                         logging.info("   ADDED TASK SIG: %s", task_sig)
@@ -1417,11 +1434,7 @@ class WorkerService:
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
                                     Exchange(
-                                        socket.queue.name
-                                        + "."
-                                        + fix(self.processor.name)
-                                        + "."
-                                        + socket.task.name,
+                                        processor_plug.queue.name,
                                         type="direct",
                                     ),
                                     routing_key=processor_plug.queue.name
@@ -1440,6 +1453,14 @@ class WorkerService:
                                         "x-expires": 300,
                                     },
                                 )
+                                task_routes[
+                                    processor_plug + "." + self.processor.module + "." + socket.task.name
+                                ] = {
+                                    "queue": processor_plug.queue.name,
+                                    "exchange": [
+                                        processor_plug.queue.name
+                                    ],
+                                }
                                 '''                                
                                 plug_queue = KQueue(
                                     processor_plug.queue.name,
@@ -1542,7 +1563,6 @@ class WorkerService:
                                     },
                                 )
                             ]
-
                             task_routes[
                                 self.processor.module + "." + socket.task.name
                             ] = {
