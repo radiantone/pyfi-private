@@ -288,7 +288,7 @@ export default {
       window.toolkit.removeEdge(this.component.edge);
     },
     showQueue() {
-      window.root.$emit('view.queue', this.name);
+      window.root.$emit('view.queue', this.queueName);
     },
     sizeOf(bytes) {
       if (bytes == 0) {
@@ -303,7 +303,7 @@ export default {
       //console.log("QUEUES RECEIVED",msg);
       msg['queues'].forEach((queue) => {
         //console.log("QUEUE NAME",queue['name'],this.name)
-        if (queue['name'] == this.name) {
+        if (queue['name'] == this.queueName) {
           //console.log("FOUND MY QUEUE",queue['messages'])
           this.messages = queue['messages'];
           this.bytes = this.sizeOf(queue['message_bytes']);

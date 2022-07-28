@@ -2227,7 +2227,7 @@ class WorkerService:
                             name=_processor.module + "." + socket.task.name,
                             retries=_processor.retries,
                         )
-                        
+                        logging.info("TASK: %s",_processor.module + "." + socket.task.name)
                         for plug in socket.targetplugs:
 
                             func = self.celery.task(
@@ -2235,6 +2235,11 @@ class WorkerService:
                                 name=plug.queue.name + "." + _processor.module + "." + socket.task.name,
                                 retries=_processor.retries,
                             )
+                            logging.info("TASK: %s",plug.queue.name + "." + _processor.module + "." + socket.task.name)
+                        
+                        
+                        from celery import current_app 
+                        print("TASK KEYS:",current_app.tasks.keys())
                         """
                         Everything that hosts and runs user code is a processor, but there are different types.
                         Each type handles the meta invocation a bit different.
