@@ -1194,7 +1194,7 @@ class WorkerService:
 
                                         # PLUG ROUTING
                                         task_sig = self.celery.signature(
-                                            processor_plug.name
+                                            processor_plug.queue.name
                                             + "." 
                                             + target_processor.module
                                             + "."
