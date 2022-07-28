@@ -566,6 +566,9 @@ class WorkerService:
             # Retrieve workmodels where worker=me and execute them
             pass
 
+
+        """ Manage database interactions and task lifecycle messages """
+        ################################################################
         def database_actions():
             """Main database interaction thread. Receives signals off a queue
             and conducts database operations based on the message"""
@@ -1249,9 +1252,14 @@ class WorkerService:
 
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
-        dbactions = threading.Thread(target=database_actions)
-        dbactions.start()
 
+        def start_database_actions():
+            dbactions = threading.Thread(target=database_actions)
+            dbactions.start()
+            logging.info("database_actions started...")
+
+        """ Main worker process/thread"""
+        #################################
         def worker_proc(app, _queue, dburi):
             """Main celery worker thread. Configure worker, queues and launch celery worker"""
             import builtins
@@ -2447,151 +2455,156 @@ class WorkerService:
                 logging.info("Starting worker...")
                 worker.start()
 
-        if self.worker:
-            logging.debug(
-                "Preparing worker %s %s %s %s %s",
-                self.worker.name,
-                self.processor.plugs,
-                self.backend,
-                self.broker,
-                self.worker.processor.module,
-            )
+        worker_process = None
 
-        """ Install gitrepo and build virtualenv """
-        if self.processor.commit and self.skipvenv:
-            if self.processor.commit:
-                os.system("git checkout {}".format(self.processor.commit))
-
-        if self.processor.gitrepo and not self.skipvenv:
-
-            if self.usecontainer:
-                """Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
-                raise NotImplementedError
-            else:
-                """Build our virtualenv and import the gitrepo for the processor"""
+        def start_worker_proc():
+            if self.worker:
                 logging.debug(
-                    "git clone -b {} --single-branch {} git".format(
-                        self.processor.branch, self.processor.gitrepo
-                    )
+                    "Preparing worker %s %s %s %s %s",
+                    self.worker.name,
+                    self.processor.plugs,
+                    self.backend,
+                    self.broker,
+                    self.worker.processor.module,
                 )
 
-                # if not 'clean' and path for self.worker.workdir exists
-                # then move to that directory
-                # Create git directory and pull the remote repo
+            """ Install gitrepo and build virtualenv """
+            if self.processor.commit and self.skipvenv:
+                if self.processor.commit:
+                    os.system("git checkout {}".format(self.processor.commit))
 
-                if self.worker:
-                    logging.info("Worker directory: %s", self.worker.workerdir)
+            if self.processor.gitrepo and not self.skipvenv:
 
-                logging.info("Current directory: %s", os.getcwd())
-
-                if (
-                    self.worker
-                    and self.worker.workerdir
-                    and os.path.exists(self.worker.workerdir)
-                    and os.path.exists(self.worker.workerdir + "/git")
-                ):
-                    logging.info(
-                        "Changing to existing work directory %s", self.worker.workerdir
-                    )
-                    os.chdir(self.worker.workerdir + "/git")
-                    os.system("git config --get remote.origin.url")
-                    os.system("git config pull.rebase false")
-                    logging.info("Pulling update from git")
-                    os.system("git pull")
+                if self.usecontainer:
+                    """Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
+                    raise NotImplementedError
                 else:
-                    """Clone gitrepo. Retry after 3 seconds if failure"""
-                    count = 1
-                    logging.info("cwd is %s", os.getcwd())
-                    logging.info("workdir is %s", self.workdir)
+                    """Build our virtualenv and import the gitrepo for the processor"""
+                    logging.debug(
+                        "git clone -b {} --single-branch {} git".format(
+                            self.processor.branch, self.processor.gitrepo
+                        )
+                    )
 
-                    if not os.path.exists(self.workdir):
-                        os.makedirs(self.workdir)
+                    # if not 'clean' and path for self.worker.workdir exists
+                    # then move to that directory
+                    # Create git directory and pull the remote repo
+
+                    if self.worker:
+                        logging.info("Worker directory: %s", self.worker.workerdir)
+
+                    logging.info("Current directory: %s", os.getcwd())
+
+                    if (
+                        self.worker
+                        and self.worker.workerdir
+                        and os.path.exists(self.worker.workerdir)
+                        and os.path.exists(self.worker.workerdir + "/git")
+                    ):
+                        logging.info(
+                            "Changing to existing work directory %s", self.worker.workerdir
+                        )
+                        os.chdir(self.worker.workerdir + "/git")
+                        os.system("git config --get remote.origin.url")
+                        os.system("git config pull.rebase false")
+                        logging.info("Pulling update from git")
+                        os.system("git pull")
                     else:
-                        os.chdir(self.workdir)
+                        """Clone gitrepo. Retry after 3 seconds if failure"""
+                        count = 1
+                        logging.info("cwd is %s", os.getcwd())
+                        logging.info("workdir is %s", self.workdir)
 
-                    while True:
-                        """Try 5 times to clone repo successfully"""
-                        if count >= 5:
-                            break
-                        try:
-                            logging.info(
-                                "git clone -b {} --single-branch {} git".format(
-                                    self.processor.branch,
-                                    self.processor.gitrepo.split("#")[0],
+                        if not os.path.exists(self.workdir):
+                            os.makedirs(self.workdir)
+                        else:
+                            os.chdir(self.workdir)
+
+                        while True:
+                            """Try 5 times to clone repo successfully"""
+                            if count >= 5:
+                                break
+                            try:
+                                logging.info(
+                                    "git clone -b {} --single-branch {} git".format(
+                                        self.processor.branch,
+                                        self.processor.gitrepo.split("#")[0],
+                                    )
                                 )
-                            )
-                            os.system(
-                                "git clone -b {} --single-branch {} git".format(
-                                    self.processor.branch,
-                                    self.processor.gitrepo.split("#")[0],
+                                os.system(
+                                    "git clone -b {} --single-branch {} git".format(
+                                        self.processor.branch,
+                                        self.processor.gitrepo.split("#")[0],
+                                    )
                                 )
-                            )
-                            sys.path.append(self.workdir + "/git")
-                            os.chdir("git")
-                            os.system("git config credential.helper store")
-                            break
-                        except Exception as ex:
-                            logging.error(ex)
-                            time.sleep(3)
-                            count += 1
+                                sys.path.append(self.workdir + "/git")
+                                os.chdir("git")
+                                os.system("git config credential.helper store")
+                                break
+                            except Exception as ex:
+                                logging.error(ex)
+                                time.sleep(3)
+                                count += 1
 
-                # Create or update venv
-                from virtualenvapi.manage import VirtualEnvironment
+                    # Create or update venv
+                    from virtualenvapi.manage import VirtualEnvironment
 
-                # If not using a container, then build the virtualenv
-                if not os.path.exists("venv"):
+                    # If not using a container, then build the virtualenv
+                    if not os.path.exists("venv"):
 
-                    logging.info("Building virtualenv...in %s", os.getcwd())
-                    env = VirtualEnvironment(
-                        "venv", python=sys.executable, system_site_packages=True
-                    )  # inside git directory
+                        logging.info("Building virtualenv...in %s", os.getcwd())
+                        env = VirtualEnvironment(
+                            "venv", python=sys.executable, system_site_packages=True
+                        )  # inside git directory
 
-                    login = os.environ["GIT_LOGIN"]
+                        login = os.environ["GIT_LOGIN"]
 
-                    # Install pyfi
-                    # TODO: Make this URL a setting so it can be overridden
-                    env.install("psycopg2")
-                    env.install("pymongo")
-                    env.install("-e git+" + login + "/radiantone/pyfi-private#egg=pyfi")
+                        # Install pyfi
+                        # TODO: Make this URL a setting so it can be overridden
+                        env.install("psycopg2")
+                        env.install("pymongo")
+                        env.install("-e git+" + login + "/radiantone/pyfi-private#egg=pyfi")
 
-                    if not self.processor.use_container:
-                        """If we are not running the processor tasks in a container, then load it into the venv"""
-                        try:
-                            env.install("-e git+" + self.processor.gitrepo.strip())
-                        except:
-                            import traceback
+                        if not self.processor.use_container:
+                            """If we are not running the processor tasks in a container, then load it into the venv"""
+                            try:
+                                env.install("-e git+" + self.processor.gitrepo.strip())
+                            except:
+                                import traceback
 
-                            print(traceback.format_exc())
-                            logging.error(
-                                "Could not install %s", self.processor.gitrepo.strip()
-                            )
+                                print(traceback.format_exc())
+                                logging.error(
+                                    "Could not install %s", self.processor.gitrepo.strip()
+                                )
 
-            if self.processor.commit and not self.processor.gittag:
-                os.system("git checkout {}".format(self.processor.commit))
+                if self.processor.commit and not self.processor.gittag:
+                    os.system("git checkout {}".format(self.processor.commit))
 
-            if self.processor.gittag:
-                os.system("git checkout {}".format(self.processor.gittag))
+                if self.processor.gittag:
+                    os.system("git checkout {}".format(self.processor.gittag))
 
-        # Sometimes we just want to recreate the setup
-        if not start:
-            return
+            # Sometimes we just want to recreate the setup
+            if not start:
+                return
 
-        from threading import Thread
+            from threading import Thread
 
-        """ Start worker process"""
-        worker_process = self.worker_process = Thread(
-            target=worker_proc,
-            name="worker_proc",
-            args=(self.celery, self.queue, self.dburi),
-        )
+            """ Start worker process"""
+            worker_process = self.worker_process = Thread(
+                target=worker_proc,
+                name="worker_proc",
+                args=(self.celery, self.queue, self.dburi),
+            )
 
-        worker_process.app = self.celery
-        worker_process.daemon = True
-        worker_process.start()
-        logging.info("worker_process started...")
+            worker_process.app = self.celery
+            worker_process.daemon = True
+            worker_process.start()
+            logging.info("worker_process started...")
 
-        self.process = worker_process
+            self.process = worker_process
 
+        """ Send messages to redis pub/sub for consumers """
+        ####################################################
         def emit_messages():
             """Get messages off queue and emit to pubsub server"""
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
@@ -2617,13 +2630,16 @@ class WorkerService:
                     logging.error(ex)
                     time.sleep(3)
 
-        emit_process = self.emit_process = Thread(
-            target=emit_messages, name="emit_messages"
-        )
-        emit_process.daemon = True
-        emit_process.start()
-        logging.info("emit_messages started...")
+        def start_emit_messages():
+            emit_process = self.emit_process = Thread(
+                target=emit_messages, name="emit_messages"
+            )
+            emit_process.daemon = True
+            emit_process.start()
+            logging.info("emit_messages started...")
 
+        """ Health check web server """
+        ###############################
         def web_server():
             from setproctitle import setproctitle
 
@@ -2635,8 +2651,17 @@ class WorkerService:
                 logging.error(ex)
                 logging.info("worker web_server: exiting...")
 
-        webserver = Process(target=web_server, daemon=True)
-        webserver.start()
+        def start_web_server():
+            webserver = Process(target=web_server, daemon=True)
+            webserver.start()
+            logging.info("web_server started...")
+
+        ops = [start_database_actions, start_worker_proc, start_emit_messages, start_web_server]
+
+        # Start all the operations
+        [op() for op in ops]
+        
+        logging.info("Returning worker_process %s",worker_process)
 
         return worker_process
 
