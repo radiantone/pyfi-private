@@ -1454,9 +1454,6 @@ class WorkerService:
                                         "x-expires": 300,
                                     },
                                 )
-                                task_sig = self.celery.signature(
-                                            routing_key, queue=plug_queue
-                                        )
                                 # PLUG ROUTING
                                 task_routes[
                                     processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
@@ -2230,7 +2227,14 @@ class WorkerService:
                             name=_processor.module + "." + socket.task.name,
                             retries=_processor.retries,
                         )
+                        
+                        for plug in socket.targetplugs:
 
+                            func = self.celery.task(
+                                wrapped_function,
+                                name=plug.queue.name + "." + _processor.module + "." + socket.task.name,
+                                retries=_processor.retries,
+                            )
                         """
                         Everything that hosts and runs user code is a processor, but there are different types.
                         Each type handles the meta invocation a bit different.
