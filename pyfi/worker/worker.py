@@ -1431,17 +1431,15 @@ class WorkerService:
                                 # This should connect the task routing key
                                 # tkey2 to the plug queue name to allow the task
                                 # to be reached from any specific processor_plug.queue
+                                routing_key = processor_plug.target.queue.name + "." + fix(self.processor.name) + "." + socket.task.name
+
                                 plug_queue = KQueue(
-                                    processor_plug.queue.name,
+                                    processor_plug.target.queue.name,
                                     Exchange(
-                                        processor_plug.queue.name,
+                                        processor_plug.target.queue.name,
                                         type="direct",
                                     ),
-                                    routing_key=processor_plug.queue.name
-                                    + "."
-                                    + fix(self.processor.name)
-                                    + "."
-                                    + socket.task.name,
+                                    routing_key=routing_key,
                                     message_ttl=socket.queue.message_ttl,
                                     durable=socket.queue.durable,
                                     expires=socket.queue.expires,
@@ -1454,17 +1452,17 @@ class WorkerService:
                                     },
                                 )
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
-                                    "queue": processor_plug.queue.name,
+                                    "queue": processor_plug.target.queue.name,
                                     "exchange": [
-                                        processor_plug.queue.name
+                                        processor_plug.target.queue.name
                                     ],
                                 }
 
-                                logging.info("ADDED ROUTE %s for %s",processor_plug.name + "." + self.processor.module + "." + socket.task.name,
+                                logging.info("ADDED ROUTE %s for %s",processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name,
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ])
                                 '''                                
                                 plug_queue = KQueue(
