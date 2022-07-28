@@ -733,7 +733,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                         logging.info(
                                             f"-----------------------Agent {agent.id}"
                                         )
-                                        workerproc = self.workerproc = WorkerService(
+                                        if self.workerclass:
+                                            pass
+                                        else:
+                                            self.workerclass = WorkerService
+
+                                        workerproc = self.workerproc = self.workerclass(
                                             processor["processor"],
                                             size=self.agent_service.size,
                                             workdir=_dir,
@@ -841,6 +846,7 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.info("[AgentMonitorPlugin] Starting %s", kwargs)
         self.kwargs = kwargs
         self.agent_service = agent_service
+        self.workerclass = kwargs['workerclass']
 
         self.port = agent_service.port
 
@@ -1026,6 +1032,7 @@ class PluginAgentService(AgentService):
         backend="redis://localhost",
         broker="pyamqp://localhost",
         name=None,
+        workerclass=None,
         size=10,
         workerport=8020,
     ):
@@ -1043,6 +1050,7 @@ class PluginAgentService(AgentService):
         self.size = size
         self.workerproc = None
         self.workerport = workerport
+        self.workerclass = workerclass
         self.name = name
         self.workers = []
         self.plugins = {}
@@ -1063,7 +1071,7 @@ class PluginAgentService(AgentService):
                 "AgentService: Registered plugin %s", plugin.__class__.__name__
             )
 
-        kwargs = {"cpus": self.cpus}
+        kwargs = {"cpus": self.cpus, "workerclass":self.workerclass}
         [plugin.start(self, **kwargs) for plugin in plugins]
 
         [plugin.wait() for plugin in plugins]

@@ -1,3 +1,3 @@
-from .worker import WorkerService
+from .worker1 import WorkerService
 
-__all__ = ("WorkerService",)
+__all__ = ("WorkerService")

@@ -4915,13 +4915,23 @@ def start_agent(
 
         if CONFIG.has_section("services"):
             agent_class_name = CONFIG.get("services", "agent")
+            worker_class_name = CONFIG.get("services", "worker")
+            
             logger.debug("Importing agent service class %s", agent_class_name)
+            
+            worker_class = None
+
             try:
                 agent_class = import_class(agent_class_name)
+                if worker_class_name:
+                    worker_class = import_class(worker_class_name)
+
             except Exception as ex:
                 logging.error(ex)
                 return
+
             logging.info("Starting agent_class %s", agent_class)
+
             agent = agent_class(
                 context.obj["database"],
                 context.obj["dburi"],
@@ -4935,6 +4945,7 @@ def start_agent(
                 clean=clean,
                 size=size,
                 cpus=cpus,
+                workerclass=worker_class,
                 broker=broker,
             )
         else:
