@@ -1455,7 +1455,7 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
                                     "queue": processor_plug.queue.name,
                                     "exchange": [
