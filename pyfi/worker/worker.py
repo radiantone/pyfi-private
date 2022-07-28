@@ -1639,7 +1639,7 @@ class WorkerService:
 
                 app.conf.task_queues = task_queues
                 app.conf.task_routes = task_routes
-
+                logging.info("TASK_ROUTES %s", task_routes.keys())
                 logging.info(
                     "Creating celery worker %s %s %s deployment %s",
                     self.processor.name + "@" + HOSTNAME,
