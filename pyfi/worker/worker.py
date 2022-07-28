@@ -1234,11 +1234,13 @@ class WorkerService:
                                     if task_sig:
                                         logging.info(
                                             "call complete %s %s %s %s",
-                                            target_processor.module
+                                            processor_plug.queue.name
+                                            + "." 
+                                            + target_processor.module
                                             + "."
                                             + processor_plug.target.task.name,
                                             (msg,),
-                                            worker_queue,
+                                            plug_queue,
                                             task_sig,
                                         )
 
