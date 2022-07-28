@@ -2457,7 +2457,8 @@ class WorkerService:
                 worker.start()
 
         worker_process = None
-
+        webserver = None
+        
         def start_worker_proc():
             if self.worker:
                 logging.debug(
@@ -2652,7 +2653,7 @@ class WorkerService:
                 logging.info("worker web_server: exiting...")
 
         def start_web_server():
-            webserver = Process(target=web_server)
+            webserver = Process(target=web_server, daemon=True)
             webserver.start()
             logging.info("web_server started...")
 
