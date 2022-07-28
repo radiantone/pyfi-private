@@ -1455,7 +1455,7 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ] = {
                                     "queue": processor_plug.queue.name,
                                     "exchange": [
@@ -1466,7 +1466,7 @@ class WorkerService:
                                 # PLUG ROUTING
                                 logging.info("ADDED ROUTE %s for %s",processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name,
                                 task_routes[
-                                    processor_plug.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
                                 ])
                                 logging.info("ADDED TARGET PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
