@@ -1194,19 +1194,6 @@ class WorkerService:
                                             )
 
                                         task_sig = self.celery.signature(
-                                            processor_plug.queue.name,
-                                            args=(msg,),
-
-                                            # TODO: QUEUENAME
-                                            # queue=plug_queue
-                                            # This will ensure that each "edge" in the flow, which is one plug connecting
-                                            # two sockets, has its own assigned queue for invoking the target task
-                                            #queue=worker_queue,
-                                            queue=plug_queue,
-                                            kwargs=pass_kwargs,
-                                        )
-                                        '''
-                                        task_sig = self.celery.signature(
                                             target_processor.module
                                             + "."
                                             + processor_plug.target.task.name,
@@ -1216,11 +1203,10 @@ class WorkerService:
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            #queue=worker_queue,
-                                            queue=plug_queue,
+                                            queue=worker_queue,
+                                            #queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
-                                        '''
                                         delayed = pipeline(task_sig)
                                         pipelines += [delayed]
                                         logging.info("   ADDED TASK SIG: %s", task_sig)
