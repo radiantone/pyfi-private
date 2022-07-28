@@ -285,6 +285,9 @@ class AgentMonitorPlugin(AgentPlugin):
                     "GOT DEPLOYMENT %s WORKER %s", mydeployment, mydeployment.worker
                 )
                 try:
+                    deployment_worker = mydeployment.worker
+                    if deployment_worker.requested_status == 'kill':
+                        os.kill(deployment_worker.process, signal.SIGTERM) 
                     myprocessor = mydeployment.processor
                     logging.debug("MYPROCESSOR %s", myprocessor)
                     # self.database.session.refresh(

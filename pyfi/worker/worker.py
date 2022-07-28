@@ -1192,6 +1192,7 @@ class WorkerService:
                                                 "Processor plug not connected to argument."
                                             )
 
+                                        # PLUG ROUTING
                                         task_sig = self.celery.signature(
                                             processor_plug.name
                                             + "." 
@@ -1414,76 +1415,80 @@ class WorkerService:
                                 "socket.queue.expires %s", socket.queue.expires
                             )
 
-                            for processor_plug in socket.sourceplugs:
-                                tkey = (
-                                    processor_plug.target.queue.name
-                                    + "."
-                                    + fix(_processor.name)
-                                    + "."
-                                    + processor_plug.target.task.name
-                                )
-                                tkey2 = (
-                                    _processor.module
-                                    + "."
-                                    + processor_plug.target.task.name
-                                )
-
-                                # This should connect the task routing key
-                                # tkey2 to the plug queue name to allow the task
-                                # to be reached from any specific processor_plug.queue
-                                routing_key = processor_plug.target.queue.name + "." + fix(self.processor.name) + "." + socket.task.name
-
-                                plug_queue = KQueue(
-                                    processor_plug.target.queue.name,
-                                    Exchange(
-                                        processor_plug.target.queue.name,
-                                        type="direct",
-                                    ),
-                                    routing_key=routing_key,
-                                    message_ttl=socket.queue.message_ttl,
-                                    durable=socket.queue.durable,
-                                    expires=socket.queue.expires,
-                                    # socket.queue.message_ttl
-                                    # socket.queue.expires
-                                    # TODO: These attributes need to come from Queue model
-                                    queue_arguments={
-                                        "x-message-ttl": 30000,
-                                        "x-expires": 300,
-                                    },
-                                )
-                                task_routes[
-                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
-                                ] = {
-                                    "queue": processor_plug.target.queue.name,
-                                    "exchange": [
+                            for plugs in (socket.sourceplugs, socket.targetplugs):
+                                for processor_plug in plugs:
+                                    """ PLUG ROUTING """
+                                    tkey = (
                                         processor_plug.target.queue.name
-                                    ],
-                                }
+                                        + "."
+                                        + fix(_processor.name)
+                                        + "."
+                                        + processor_plug.target.task.name
+                                    )
+                                    tkey2 = (
+                                        _processor.module
+                                        + "."
+                                        + processor_plug.target.task.name
+                                    )
 
-                                logging.info("ADDED ROUTE %s for %s",processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name,
-                                task_routes[
-                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
-                                ])
-                                '''                                
-                                plug_queue = KQueue(
-                                    processor_plug.queue.name,
-                                    Exchange(processor_plug.queue.name, type="direct"),
-                                    routing_key=tkey,
-                                    message_ttl=processor_plug.queue.message_ttl,
-                                    durable=processor_plug.queue.durable,
-                                    expires=processor_plug.queue.expires,
-                                    # expires=30,
-                                    # socket.queue.message_ttl
-                                    # socket.queue.expires
-                                    # TODO: These attributes need to come from Queue model
-                                    queue_arguments={
-                                        "x-message-ttl": 30000,
-                                        "x-expires": 300,
-                                    },
-                                )
-                                '''
-                                logging.info("ADDED SOURCE PLUG QUEUE %s", plug_queue)
-                                task_queues += [plug_queue]
+                                    # PLUG ROUTING
+                                    routing_key = processor_plug.target.queue.name + "." + fix(self.processor.name) + "." + socket.task.name
+
+                                    # PLUG ROUTING
+                                    plug_queue = KQueue(
+                                        processor_plug.target.queue.name,
+                                        Exchange(
+                                            processor_plug.target.queue.name,
+                                            type="direct",
+                                        ),
+                                        routing_key=routing_key,
+                                        message_ttl=socket.queue.message_ttl,
+                                        durable=socket.queue.durable,
+                                        expires=socket.queue.expires,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
+                                        queue_arguments={
+                                            "x-message-ttl": 30000,
+                                            "x-expires": 300,
+                                        },
+                                    )
+
+                                    # PLUG ROUTING
+                                    task_routes[
+                                        processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    ] = {
+                                        "queue": processor_plug.target.queue.name,
+                                        "exchange": [
+                                            processor_plug.target.queue.name
+                                        ],
+                                    }
+
+                                    # PLUG ROUTING
+                                    logging.info("ADDED ROUTE %s for %s",processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name,
+                                    task_routes[
+                                        processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    ])
+                                    '''                                
+                                    plug_queue = KQueue(
+                                        processor_plug.queue.name,
+                                        Exchange(processor_plug.queue.name, type="direct"),
+                                        routing_key=tkey,
+                                        message_ttl=processor_plug.queue.message_ttl,
+                                        durable=processor_plug.queue.durable,
+                                        expires=processor_plug.queue.expires,
+                                        # expires=30,
+                                        # socket.queue.message_ttl
+                                        # socket.queue.expires
+                                        # TODO: These attributes need to come from Queue model
+                                        queue_arguments={
+                                            "x-message-ttl": 30000,
+                                            "x-expires": 300,
+                                        },
+                                    )
+                                    '''
+                                    logging.info("ADDED SOURCE PLUG QUEUE %s", plug_queue)
+                                    task_queues += [plug_queue]
 
                             task_queues += [
                                 KQueue(

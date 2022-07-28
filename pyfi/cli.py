@@ -2641,7 +2641,7 @@ def kill_worker(context, name):
     workerModel = (
         context.obj["database"].session.query(WorkerModel).filter_by(name=name).first()
     )
-    workerModel.requested_status = "shutdown"
+    workerModel.requested_status = "kill"
 
     context.obj["database"].session.commit()
 
@@ -4233,6 +4233,7 @@ def ls_workers(context, name):
         "ID",
         "Owner",
         "Port",
+        "Process",
         "Last Updated",
         "Requested Status",
         "Status",
@@ -4266,6 +4267,7 @@ def ls_workers(context, name):
                 node.id,
                 node.owner,
                 node.port,
+                node.process,
                 node.lastupdated,
                 node.requested_status,
                 node.status,
