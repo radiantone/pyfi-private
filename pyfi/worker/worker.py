@@ -567,7 +567,6 @@ class WorkerService:
             # Retrieve workmodels where worker=me and execute them
             pass
 
-
         """ Manage database interactions and task lifecycle messages """
         ################################################################
         def database_actions():
@@ -2456,8 +2455,6 @@ class WorkerService:
                 logging.info("Starting worker...")
                 worker.start()
 
-        worker_process = None
-
         def start_worker_proc():
             if self.worker:
                 logging.debug(
@@ -2651,21 +2648,19 @@ class WorkerService:
                 logging.error(ex)
                 logging.info("worker web_server: exiting...")
 
-
         def start_web_server():
             webserver = Thread(target=web_server)
             webserver.start()
             logging.info("web_server started...")
-
 
         ops = [start_database_actions, start_worker_proc, start_emit_messages, start_web_server]
 
         # Start all the operations
         [op() for op in ops]
         
-        logging.info("Returning worker_process %s",worker_process)
+        logging.info("Returning worker_process %s",self.process)
 
-        return worker_process
+        return self.process
 
     def busy(self):
         """
