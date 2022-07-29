@@ -1481,7 +1481,6 @@ class WorkerService:
                                 logging.info("ADDED TARGET PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
 
-
                             for processor_plug in socket.sourceplugs:
                                 """ PLUG ROUTING """
                                 tkey = (
