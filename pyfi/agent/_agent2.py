@@ -847,7 +847,8 @@ class AgentMonitorPlugin(AgentPlugin):
         self.kwargs = kwargs
         self.agent_service = agent_service
         self.workerclass = kwargs['workerclass']
-
+        del kwargs['workerclass']
+        
         self.port = agent_service.port
 
         with get_session() as session:
