@@ -2376,18 +2376,18 @@ class WorkerService:
                             )
 
                             _function_name = request.name.rsplit(".")[-1:]
-                            logging.debug("Task Request Parent %s", request.parent_id)
+                            logging.info("Task Request Parent %s", request.parent_id)
                             from datetime import datetime
 
                             sender = request.task_name.rsplit(".")[-1]
-                            logging.debug("RECEIVED SENDER: %s", sender)
+                            logging.info("RECEIVED SENDER: %s", sender)
 
                             if sender == "enqueue":
                                 return
 
                             tracking = str(uuid4())
-                            logging.debug("KWARGS %s", kwargs)
-                            logging.debug(
+                            logging.info("KWARGS %s", kwargs)
+                            logging.info(
                                 "RECEIVED KWARGS:",
                                 {
                                     "signal": "received",
@@ -2408,14 +2408,14 @@ class WorkerService:
                                     "taskid": request.id,
                                 }
                             )
-                            logging.debug("PUT RECEIVED KWARGS on queue")
+                            logging.info("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
-                            logging.debug("WAITING ON received_queue")
+                            logging.info("WAITING ON received_queue")
                             _kwargs = self.received_queue.get()
                             kwargs.update(_kwargs)
-                            logging.debug("GOT RECEIVED REPLY %s", _kwargs)
-                            logging.debug("New KWARGS ARE: %s", kwargs)
+                            logging.info("GOT RECEIVED REPLY %s", _kwargs)
+                            logging.info("New KWARGS ARE: %s", kwargs)
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(
