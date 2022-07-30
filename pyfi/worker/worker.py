@@ -702,6 +702,10 @@ class WorkerService:
                                         "CREATED CALL %s %s", myid, _signal["taskid"]
                                     )
 
+                                    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+                                    rb = redisclient.get("celery-task-meta-" + _signal["taskid"])
+                                    logging.info("database_actions: rb result %s", rb)
+                                    
                                     self.queue.put(_data)
                                     logging.info("database_actions: Replying to received_queued %s", _signal["kwargs"])
                                     self.received_queue.put(_signal["kwargs"])
@@ -2448,7 +2452,6 @@ class WorkerService:
 
                             _type = str(type(retval).__name__)
 
-                            logging.info("pyfi_task_postrun: task %s",json.dumps(task, indent=4))
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.debug("TASK POSTRUN ARGS: %s", args)
                             logging.debug("TASK POSTRUN RETVAL: %s", retval)
@@ -2481,6 +2484,7 @@ class WorkerService:
                                 "taskid": task_id,
                                 "args": args,
                             }
+
                             logging.info("POSTRUN PUTTING ON main_queue %s", postrun)
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
