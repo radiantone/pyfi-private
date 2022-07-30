@@ -11,8 +11,8 @@ An example app on top of pyfi. References existing infrastructure and then runs 
 _pipeline = parallel(
     [
         do_something("One"),
-        do_this("Two"),
-        do_this("Three"),
+        do_something("Two"),
+        do_something("Three"),
     ]
 )
 

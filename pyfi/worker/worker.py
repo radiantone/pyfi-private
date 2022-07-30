@@ -1002,6 +1002,7 @@ class WorkerService:
                                 )
                                 continue
 
+                            logging.info("postrun: Querying target processor")
                             target_processor = (
                                 session.query(ProcessorModel)
                                 .filter_by(id=processor_plug.target.processor_id)
@@ -1072,6 +1073,7 @@ class WorkerService:
                                     + processor_plug.target.task.name
                                 )
 
+                                logging.info("postrun: tkey %s", tkey)
                                 tkey2 = key + "." + processor_plug.target.task.name
 
                                 logging.debug("Sending {} to queue {}".format(msg, tkey))
@@ -1091,7 +1093,6 @@ class WorkerService:
                                         )
                                     )
 
-                                    
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
@@ -1111,6 +1112,8 @@ class WorkerService:
                                             "x-expires": 300,
                                         },
                                     )
+
+                                    logging.info("postrun: built plug queue %s", plug_queue)
                                     # TODO: Task queue
                                     plug_sig = self.celery.signature(
                                         processor.name + ".pyfi.celery.tasks.enqueue",
@@ -1203,13 +1206,11 @@ class WorkerService:
                                                 "Processor plug not connected to argument."
                                             )
 
+                                        plug_task_sig = processor_plug.queue.name + "." + target_processor.module + "." + processor_plug.target.task.name
+
+                                        logging.info("postrun: plug_task_sig %s", plug_task_sig)
                                         # PLUG ROUTING
-                                        task_sig = self.celery.signature(
-                                            processor_plug.queue.name
-                                            + "." 
-                                            + target_processor.module
-                                            + "."
-                                            + processor_plug.target.task.name,
+                                        task_sig = self.celery.signature(plug_task_sig,
                                             args=(msg,),
                                             # TODO: QUEUENAME
                                             # queue=plug_queue
