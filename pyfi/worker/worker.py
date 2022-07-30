@@ -121,7 +121,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import pickle
     from uuid import uuid4
 
-    print("Execute function", taskid, mname, fname)
+    logging.debug("Execute function %s %s %s", taskid, mname, fname)
 
     _args = args
     _kwargs = kwargs
@@ -137,10 +137,10 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     result = _function(*_args, **_kwargs)
 
-    print("RESULT: ", result)
+    logging.debug("RESULT: %s", result)
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
         pickle.dump(result, rfile)
-        print("DUMPED OUT:", "/tmp/" + taskid + ".out")
+        logging.debug("DUMPED OUT: /tmp/" + taskid + ".out")
 
     return result
 
@@ -1689,7 +1689,7 @@ class WorkerService:
 
                 logging.debug("Created celery worker")
                 from celery import current_app 
-                print("TASK KEYS",current_app.tasks.keys())
+                logging.debug("TASK KEYS %s",current_app.tasks.keys())
                 # Find existing model first
                 try:
                     logging.debug(
@@ -1795,7 +1795,7 @@ class WorkerService:
                         if socket.scheduled:
                             try:
                                 if socket.schedule_type == "CRON":
-                                    print("ADDING CRON JOB TYPE")
+                                    logging.debug("ADDING CRON JOB TYPE")
 
                                 elif socket.schedule_type == "INTERVAL":
                                     logging.debug(
@@ -2228,7 +2228,7 @@ class WorkerService:
                                         import traceback
 
                                         _r = traceback.format_tb(ex.__traceback__)
-                                        print("_R EXCEPTION", _r)
+                                        logging.debug("_R EXCEPTION %s", _r)
                                         _ex = TaskInvokeException()
                                         _ex.tb = _r
                                         _ex.exception = ex
@@ -2255,7 +2255,7 @@ class WorkerService:
                         
                         
                         from celery import current_app 
-                        print("TASK KEYS:",current_app.tasks.keys())
+                        logging.debug("TASK KEYS: %s",current_app.tasks.keys())
                         """
                         Everything that hosts and runs user code is a processor, but there are different types.
                         Each type handles the meta invocation a bit different.
@@ -2278,7 +2278,7 @@ class WorkerService:
 
                             # PRERUN_CONDITION.acquire()
                             try:
-                                print("prerun TASK: ", type(task), task, kwargs)
+                                logging.debug("prerun TASK: %s %s %s", type(task), task, kwargs)
 
                                 if sender.__name__ == "enqueue":
                                     return
@@ -2290,8 +2290,8 @@ class WorkerService:
                                     kwargs["kwargs"]["tracking"] = tracking
 
                                 kwargs["kwargs"]["prerun"] = str(datetime.now())
-                                print(
-                                    "KWARGS:",
+                                logging.debug(
+                                    "KWARGS: %s",
                                     {
                                         "signal": "prerun",
                                         "sender": _function_name[0],
@@ -2367,14 +2367,14 @@ class WorkerService:
                             from datetime import datetime
 
                             sender = request.task_name.rsplit(".")[-1]
-                            print("RECEIVED SENDER:", sender)
+                            logging.debug("RECEIVED SENDER: %s", sender)
 
                             if sender == "enqueue":
                                 return
 
                             tracking = str(uuid4())
-                            print("KWARGS", kwargs)
-                            print(
+                            logging.debug("KWARGS %s", kwargs)
+                            logging.debug(
                                 "RECEIVED KWARGS:",
                                 {
                                     "signal": "received",
@@ -2395,14 +2395,14 @@ class WorkerService:
                                     "taskid": request.id,
                                 }
                             )
-                            print("PUT RECEIVED KWARGS on queue")
+                            logging.debug("PUT RECEIVED KWARGS on queue")
 
                             # Wait for reply
-                            print("WAITING ON received_queue")
+                            logging.debug("WAITING ON received_queue")
                             _kwargs = self.received_queue.get()
                             kwargs.update(_kwargs)
-                            print("GOT RECEIVED REPLY ", _kwargs)
-                            print("New KWARGS ARE:", kwargs)
+                            logging.debug("GOT RECEIVED REPLY %s", _kwargs)
+                            logging.debug("New KWARGS ARE: %s", kwargs)
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(
