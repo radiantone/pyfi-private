@@ -581,7 +581,9 @@ class WorkerService:
             from datetime import datetime
             from uuid import uuid4
 
+            logging.info("database_actions: Starting...")
             while True:
+                logging.info("database_actions: loop")
                 with self.get_session(self.database) as session:
                     processor = (
                         session.query(ProcessorModel)
@@ -614,91 +616,96 @@ class WorkerService:
                     logging.debug("SIGNAL: %s", _signal)
 
                     if _signal["signal"] == "received":
-                        logging.debug("RECEIVED SIGNAL %s", _signal)
+                        try:
+                            logging.debug("RECEIVED SIGNAL %s", _signal)
 
-                        for _socket in processor.sockets:
-                            if _socket.task.name == _signal["sender"]:
-                                logging.debug(
-                                    "RECEIVED SIGNAL: FOUND TASK %s", _socket.task
-                                )
-                                parent = None
-
-                                received = datetime.now()
-                                logging.debug("Found socket: %s", _socket)
-
-                                if "parent" not in _signal["kwargs"]:
-                                    _signal["kwargs"]["parent"] = str(uuid4())
+                            for _socket in processor.sockets:
+                                if _socket.task.name == _signal["sender"]:
                                     logging.debug(
-                                        "NEW PARENT %s", _signal["kwargs"]["parent"]
+                                        "RECEIVED SIGNAL: FOUND TASK %s", _socket.task
                                     )
-                                    _signal["kwargs"][_socket.task.id] = []
-                                    myid = _signal["kwargs"]["parent"]
-                                else:
-                                    parent = _signal["kwargs"]["parent"]
-                                    myid = str(uuid4())
+                                    parent = None
 
-                                _signal["kwargs"]["myid"] = myid
-                                # For next call
-                                _signal["kwargs"]["parent"] = myid
+                                    received = datetime.now()
+                                    logging.debug("Found socket: %s", _socket)
 
-                                if "tracking" not in _signal["kwargs"]:
-                                    _signal["kwargs"]["tracking"] = str(uuid4())
+                                    if "parent" not in _signal["kwargs"]:
+                                        _signal["kwargs"]["parent"] = str(uuid4())
+                                        logging.debug(
+                                            "NEW PARENT %s", _signal["kwargs"]["parent"]
+                                        )
+                                        _signal["kwargs"][_socket.task.id] = []
+                                        myid = _signal["kwargs"]["parent"]
+                                    else:
+                                        parent = _signal["kwargs"]["parent"]
+                                        myid = str(uuid4())
 
-                                _signal["kwargs"]["received"] = str(received)
-                                processor_path = (
-                                    _socket.queue.name
-                                    + "."
-                                    + processor.name.replace(" ", ".")
-                                )
+                                    _signal["kwargs"]["myid"] = myid
+                                    # For next call
+                                    _signal["kwargs"]["parent"] = myid
 
-                                _data = [
-                                    "roomsg",
-                                    {
-                                        "channel": "task",
-                                        "state": "received",
-                                        "task": _socket.task.name,
-                                        "module": _socket.task.module,
-                                        "date": str(received),
-                                        "room": processor.name,
-                                    },
-                                ]
+                                    if "tracking" not in _signal["kwargs"]:
+                                        _signal["kwargs"]["tracking"] = str(uuid4())
 
-                                # self.queue.put(_data)
+                                    _signal["kwargs"]["received"] = str(received)
+                                    processor_path = (
+                                        _socket.queue.name
+                                        + "."
+                                        + processor.name.replace(" ", ".")
+                                    )
 
-                                call = CallModel(
-                                    id=myid,
-                                    name=processor.module + "." + _socket.task.name,
-                                    taskparent=_signal["taskparent"],
-                                    socket=_socket,
-                                    parent=parent,
-                                    tracking=_signal["kwargs"]["tracking"],
-                                    resultid="celery-task-meta-" + _signal["taskid"],
-                                    celeryid=_signal["taskid"],
-                                    task_id=_socket.task.id,
-                                    state="received",
-                                )
+                                    _data = [
+                                        "roomsg",
+                                        {
+                                            "channel": "task",
+                                            "state": "received",
+                                            "task": _socket.task.name,
+                                            "module": _socket.task.module,
+                                            "date": str(received),
+                                            "room": processor.name,
+                                        },
+                                    ]
 
-                                session.add(call)
-                                event = EventModel(
-                                    name="received",
-                                    note="Received task "
-                                    + processor.module
-                                    + "."
-                                    + _socket.task.name,
-                                )
+                                    # self.queue.put(_data)
 
-                                session.add(event)
-                                call.events += [event]
+                                    call = CallModel(
+                                        id=myid,
+                                        name=processor.module + "." + _socket.task.name,
+                                        taskparent=_signal["taskparent"],
+                                        socket=_socket,
+                                        parent=parent,
+                                        tracking=_signal["kwargs"]["tracking"],
+                                        resultid="celery-task-meta-" + _signal["taskid"],
+                                        celeryid=_signal["taskid"],
+                                        task_id=_socket.task.id,
+                                        state="received",
+                                    )
 
-                                processor.requested_status = "ready"
-                                session.commit()
-                                logging.debug(
-                                    "CREATED CALL %s %s", myid, _signal["taskid"]
-                                )
+                                    session.add(call)
+                                    event = EventModel(
+                                        name="received",
+                                        note="Received task "
+                                        + processor.module
+                                        + "."
+                                        + _socket.task.name,
+                                    )
 
-                                self.queue.put(_data)
-                                logging.info("database_actions: Replying to received_queued %s", _signal["kwargs"])
-                                self.received_queue.put(_signal["kwargs"])
+                                    session.add(event)
+                                    call.events += [event]
+
+                                    processor.requested_status = "ready"
+                                    session.commit()
+                                    logging.debug(
+                                        "CREATED CALL %s %s", myid, _signal["taskid"]
+                                    )
+
+                                    self.queue.put(_data)
+                                    logging.info("database_actions: Replying to received_queued %s", _signal["kwargs"])
+                                    self.received_queue.put(_signal["kwargs"])
+                        except:
+                            import traceback
+
+                            print(traceback.format_exc())
 
                     if _signal["signal"] == "prerun":
                         logging.debug("Task PRERUN: %s", _signal)
