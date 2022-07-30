@@ -2448,6 +2448,7 @@ class WorkerService:
 
                             _type = str(type(retval).__name__)
 
+                            logging.info("pyfi_task_postrun: task %s",task)
                             _function_name = task.name.rsplit(".")[-1:][0]
                             logging.debug("TASK POSTRUN ARGS: %s", args)
                             logging.debug("TASK POSTRUN RETVAL: %s", retval)
