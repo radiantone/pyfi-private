@@ -585,11 +585,13 @@ class WorkerService:
             while True:
                 logging.info("database_actions: loop")
                 with self.get_session(self.database) as session:
+                    logging.info("database_actions: Getting processor")
                     processor = (
                         session.query(ProcessorModel)
                         .filter_by(id=self.processor.id)
                         .first()
                     )
+                    logging.info("database_actions: Got processor %s", processor)
                     # snapshot=tracemalloc.take_snapshot()
                     # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                     #    logging.debug("top_current %s %s", i, stat)
