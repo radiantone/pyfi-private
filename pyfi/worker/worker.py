@@ -187,6 +187,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
 
         # TODO: QUEUENAME
         tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
+        tkey = processor.module + "." + socket.task.name
         # tkey = socket.queue.name
         logging.info("dispatcher: processor %s", processor.name)
         logging.info("dispatcher: plug %s", plug.name)
