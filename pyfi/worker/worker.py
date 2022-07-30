@@ -622,6 +622,7 @@ class WorkerService:
                             logging.info("RECEIVED SIGNAL %s", _signal)
 
                             for _socket in processor.sockets:
+                                logging.info("database_actions: Checking sender %s for task %s",_signal["sender"],_socket.task.name)
                                 if _socket.task.name == _signal["sender"]:
                                     logging.debug(
                                         "RECEIVED SIGNAL: FOUND TASK %s", _socket.task
