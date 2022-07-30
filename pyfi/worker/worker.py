@@ -874,9 +874,11 @@ class WorkerService:
                                 rb = redisclient.get(call.resultid)
                                 rbjson = pickle.loads(rb)
                                 logging.info("database_actions: rb result %s %s",call.resultid, rbjson)
+                                celery_db = mongoclient['celery']
 
-                                mongoclient.celery.celery_taskmeta.insert(rbjson)
-
+                                insert_res = celery_db.celery_taskmeta.insert_one(rbjson)
+                                logging.info("database_actions: insert_res %s", insert_res)
+                                
                                 session.add(event)
                                 call.events += [event]
                                 session.add(call)
