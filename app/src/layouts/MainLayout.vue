@@ -740,7 +740,7 @@
           </div>
         </q-card-section>
         <q-splitter
-          v-model="messageSplitter"
+          v-model="queueSplitter"
           separator-style="background-color: #e3e8ec;height:5px"
           horizontal
           style="height: calc(100% - 40px);"
@@ -1634,6 +1634,7 @@ export default defineComponent({
       newQueueDialog: false,
       messagedrawer: false,
       queueloading: false,
+      queueSplitter: 50,
       messageSplitter: 70,
       queuecolumns: [
         {

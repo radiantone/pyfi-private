@@ -2368,7 +2368,7 @@ class WorkerService:
 
                         @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
-                            logging.debug(
+                            logging.info(
                                 "Task RECEIVED REQUEST %s %s %s",
                                 request.id,
                                 sender,

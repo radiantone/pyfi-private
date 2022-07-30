@@ -425,7 +425,7 @@ def get_queue_messages(queue):
     messages = get_messages(queue, 100)
 
     # Extract messages for queue
-
+    print(json.dumps(messages, indent=4))
     if type(messages) is dict and "error" in messages:
         return f"Queue {queue} not found", 404
 

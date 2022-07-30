@@ -34,7 +34,7 @@ def get_messages(queue, count):
         f"{api}/queues/%2F/{queue}/get",
         data='{"vhost":"/","name":"'
         + queue
-        + '","truncate":"50000","ackmode":"ack_requeue_true","encoding":"auto","count":"'
+        + '","ackmode":"ack_requeue_true","encoding":"auto","count":"'
         + str(count)
         + '"}',
     )
