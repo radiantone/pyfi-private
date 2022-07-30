@@ -11,7 +11,7 @@ An example app on top of pyfi. References existing infrastructure and then runs 
 _pipeline = parallel(
     [
         do_something("One"),
-        do_something("Two"),
+        do_this("Two"),
         do_something("Three"),
     ]
 )
@@ -20,7 +20,7 @@ _pipeline2 = pipeline(
     [
         do_something("One"),
         _pipeline,
-        do_something("Three"),
+        do_this("Three"),
     ]
 )
 
