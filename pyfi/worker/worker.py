@@ -2409,8 +2409,7 @@ class WorkerService:
                                         "taskid": request.id,
                                     },
                                 )
-                                self.main_queue.put(
-                                    {
+                                message = {
                                         "signal": "received",
                                         "sender": _function_name[0],
                                         "kwargs": {"tracking": tracking},
@@ -2418,7 +2417,8 @@ class WorkerService:
                                         "taskparent": request.parent_id,
                                         "taskid": request.id,
                                     }
-                                )
+                                logging.info("pyfi_task_received: main_queue: Put %s",message)
+                                self.main_queue.put(message)
                                 logging.info("PUT RECEIVED KWARGS on queue")
 
                                 # Wait for reply
