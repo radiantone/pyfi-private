@@ -607,9 +607,9 @@ class WorkerService:
                         self.main_queue.qsize(),
                     )
                     logging.debug("---")
-                    logging.debug("---")
+                    logging.debug("database_actions: Waiting on main_queue")
                     _signal = self.main_queue.get()
-                    logging.debug("---")
+                    logging.debug("database_actions: main_queue: Got messages %s",_signal)
                     logging.debug("---")
                     logging.debug("SIGNAL: %s", _signal)
 
@@ -697,6 +697,7 @@ class WorkerService:
                                 )
 
                                 self.queue.put(_data)
+                                logging.info("database_actions: Replying to received_queued %s", _signal["kwargs"])
                                 self.received_queue.put(_signal["kwargs"])
 
                     if _signal["signal"] == "prerun":
@@ -2368,54 +2369,57 @@ class WorkerService:
 
                         @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
-                            logging.info(
-                                "Task RECEIVED REQUEST %s %s %s",
-                                request.id,
-                                sender,
-                                request.name,
-                            )
+                            try:
+                                logging.info(
+                                    "Task RECEIVED REQUEST %s %s %s",
+                                    request.id,
+                                    sender,
+                                    request.name,
+                                )
 
-                            _function_name = request.name.rsplit(".")[-1:]
-                            logging.info("Task Request Parent %s", request.parent_id)
-                            from datetime import datetime
+                                _function_name = request.name.rsplit(".")[-1:]
+                                logging.info("Task Request Parent %s", request.parent_id)
+                                from datetime import datetime
 
-                            sender = request.task_name.rsplit(".")[-1]
-                            logging.info("RECEIVED SENDER: %s", sender)
+                                sender = request.task_name.rsplit(".")[-1]
+                                logging.info("RECEIVED SENDER: %s", sender)
 
-                            if sender == "enqueue":
-                                return
+                                if sender == "enqueue":
+                                    return
 
-                            tracking = str(uuid4())
-                            logging.info("KWARGS %s", kwargs)
-                            logging.info(
-                                "RECEIVED KWARGS:",
-                                {
-                                    "signal": "received",
-                                    "sender": _function_name[0],
-                                    "kwargs": {"tracking": tracking},
-                                    "request": request.id,
-                                    "taskparent": request.parent_id,
-                                    "taskid": request.id,
-                                },
-                            )
-                            self.main_queue.put(
-                                {
-                                    "signal": "received",
-                                    "sender": _function_name[0],
-                                    "kwargs": {"tracking": tracking},
-                                    "request": request.id,
-                                    "taskparent": request.parent_id,
-                                    "taskid": request.id,
-                                }
-                            )
-                            logging.info("PUT RECEIVED KWARGS on queue")
+                                tracking = str(uuid4())
+                                logging.info("KWARGS %s", kwargs)
+                                logging.info(
+                                    "RECEIVED KWARGS:",
+                                    {
+                                        "signal": "received",
+                                        "sender": _function_name[0],
+                                        "kwargs": {"tracking": tracking},
+                                        "request": request.id,
+                                        "taskparent": request.parent_id,
+                                        "taskid": request.id,
+                                    },
+                                )
+                                self.main_queue.put(
+                                    {
+                                        "signal": "received",
+                                        "sender": _function_name[0],
+                                        "kwargs": {"tracking": tracking},
+                                        "request": request.id,
+                                        "taskparent": request.parent_id,
+                                        "taskid": request.id,
+                                    }
+                                )
+                                logging.info("PUT RECEIVED KWARGS on queue")
 
-                            # Wait for reply
-                            logging.info("WAITING ON received_queue")
-                            _kwargs = self.received_queue.get()
-                            kwargs.update(_kwargs)
-                            logging.info("GOT RECEIVED REPLY %s", _kwargs)
-                            logging.info("New KWARGS ARE: %s", kwargs)
+                                # Wait for reply
+                                logging.info("WAITING ON received_queue")
+                                _kwargs = self.received_queue.get()
+                                kwargs.update(_kwargs)
+                                logging.info("GOT RECEIVED REPLY %s", _kwargs)
+                                logging.info("New KWARGS ARE: %s", kwargs)
+                            except:
+                                print(traceback.format_exc())
 
                         @task_postrun.connect()
                         def pyfi_task_postrun(
