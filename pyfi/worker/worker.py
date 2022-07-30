@@ -820,6 +820,8 @@ class WorkerService:
                         import json
                         import pickle
                         from datetime import datetime
+                        from urllib.parse import urlparse
+                        from rejson import Client, Path
 
                         logging.debug("POSTRUN: SIGNAL: %s", _signal)
                         logging.debug("POSTRUN: KWARGS: %s", _signal["kwargs"])
@@ -880,7 +882,7 @@ class WorkerService:
 
                         # Dispatch result to connected plugs
                         for socket in processor.sockets:
-
+                            
                             # Find the socket associated with this task
                             if socket.task.name == _signal["sender"]:
 
@@ -908,6 +910,7 @@ class WorkerService:
                                 }
 
                                 payload = json.dumps(data)
+                                logging.info("postrun: payload %s",data)
                                 data["message"] = payload
                                 break
 
@@ -923,9 +926,6 @@ class WorkerService:
                         data["message"] = json.dumps(result)
                         data["message"] = json.dumps(data)
                         data["error"] = False
-                        from urllib.parse import urlparse
-
-                        from rejson import Client, Path
 
                         logging.debug("REDIS JSON: Connecting to %s", self.backend)
                         rj = Client(
@@ -943,7 +943,7 @@ class WorkerService:
                             "celery-task-result-" + _signal["taskid"],
                             _r,
                         )
-
+                        logging.info("postrun: result: %s", result)
                         if isinstance(_r, TaskInvokeException):
                             data["error"] = True
                             data["message"] = _r.tb
@@ -991,7 +991,7 @@ class WorkerService:
                                 )
                                 continue
 
-                            logging.debug("Using PLUG: %s", processor_plug)
+                            logging.info("postrun: Using PLUG: %s", processor_plug)
 
                             if processor_plug is None:
                                 logging.warning(
@@ -1006,8 +1006,6 @@ class WorkerService:
                                 .filter_by(id=processor_plug.target.processor_id)
                                 .first()
                             )
-
-                            key = processor_plug.target.queue.name
 
                             msgs = [(result, _r)]
 
@@ -1063,6 +1061,7 @@ class WorkerService:
                                     except:
                                         msg = str(msg)
 
+                                key = processor_plug.target.queue.name
                                 # TODO: QUEUENAME Should this just be key?
                                 tkey = (
                                     key
@@ -1091,7 +1090,7 @@ class WorkerService:
                                         )
                                     )
 
-                                    """
+                                    
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
                                         Exchange(
@@ -1118,7 +1117,7 @@ class WorkerService:
                                         queue=plug_queue,
                                         kwargs=pass_kwargs,
                                     )
-                                    """
+                                    
 
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
@@ -1383,7 +1382,9 @@ class WorkerService:
                     .filter_by(id=self.processor.id)
                     .first()
                 )
+
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
+                    """ Set up task routes """
                     logging.debug("Setting up sockets...")
                     for socket in _processor.sockets:
                         logging.debug("Socket %s", socket)
@@ -1665,6 +1666,7 @@ class WorkerService:
                     self.deployment.cpus,
                 )
 
+                """ Create celery worker """
                 worker = None
                 try:
                     worker = app.Worker(
@@ -1690,7 +1692,8 @@ class WorkerService:
                 logging.debug("Created celery worker")
                 from celery import current_app 
                 logging.debug("TASK KEYS %s",current_app.tasks.keys())
-                # Find existing model first
+
+                """ Find or create a WorkerModel for this worker """
                 try:
                     logging.debug(
                         "Creating workerModel with worker dir %s", self.workdir
@@ -1725,13 +1728,13 @@ class WorkerService:
                         session.add(workerModel)
 
                     workerModel.workerdir = self.workdir
-                    # Attach worker to deployment
+
+                    """ Attach worker to deployment """
                     self.deployment.worker = workerModel
                     self.deployment.worker.hostname = HOSTNAME
                     workerModel.deployment = self.deployment
                     workerModel.port = self.port
                     session.commit()
-
                 except Exception as ex:
                     logging.error(ex)
 
@@ -1779,6 +1782,7 @@ class WorkerService:
 
                 logging.debug("CWD %s", os.getcwd())
 
+                """ Import the module of the processor """
                 logging.debug("Importing processor module")
                 module = importlib.import_module(_processor.module)
 
@@ -1938,9 +1942,16 @@ class WorkerService:
                             socket.task,
                             socket.task.source,
                         )
+
+                        # Get the source code of the task function
                         _source = inspect.getsource(_func)
-                        # session.merge(socket)
+
                         session.add(socket.task)
+
+                        # Add the source code to the task object.
+                        # NOTE: This field is different from task.code which
+                        # is an override. The task.source is the source from
+                        # the configured module function (pulled from git repo)
                         socket.task.source = _source
                         logging.debug(
                             "Updated source for %s %s %s",
@@ -1977,6 +1988,7 @@ class WorkerService:
                             _kwargs = kwargs["kwargs"] if "kwargs" in kwargs else None
 
                             if "argument" in kwargs:
+                                """ This means we are invoking on a single argument only """
                                 argument = kwargs["argument"]
 
                                 # Store argument in redis
@@ -2055,6 +2067,8 @@ class WorkerService:
                                 args = _newargs
 
                             source = inspect.getsource(execute_function)
+
+                            # Build the function wrapper call for container execution
                             _call = 'execute_function("{}", "{}", "{}")'.format(
                                 taskid, socket.task.module, socket.task.name
                             )
@@ -2199,9 +2213,6 @@ class WorkerService:
                                     else:
                                         raise NotImplementedError
                                 else:
-                                    # from io import StringIO # Python3 use: from io import StringIO
-                                    # old_stdout = sys.stdout
-                                    # sys.stdout = mystdout = StringIO()
                                     import io
                                     from contextlib import redirect_stdout
 
@@ -2251,7 +2262,7 @@ class WorkerService:
                                 name=plug.queue.name + "." + _processor.module + "." + socket.task.name,
                                 retries=_processor.retries,
                             )
-                            logging.debug("PLUG TASK: %s",plug.queue.name + "." + _processor.module + "." + socket.task.name)
+                            logging.info("PLUG TASK: %s",plug.queue.name + "." + _processor.module + "." + socket.task.name)
                         
                         
                         from celery import current_app 
@@ -2453,7 +2464,7 @@ class WorkerService:
                                 "taskid": task_id,
                                 "args": args,
                             }
-                            logging.debug("POSTRUN PUTTING ON main_queue %s", postrun)
+                            logging.info("POSTRUN PUTTING ON main_queue %s", postrun)
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 
