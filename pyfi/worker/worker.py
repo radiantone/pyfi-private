@@ -1256,7 +1256,9 @@ class WorkerService:
                                             task_sig,
                                         )
 
+                        logging.info("postrun: delayed = parallel(*pipelines).delay()")
                         delayed = parallel(*pipelines).delay()
+                        logging.info("postrun: delayed %s", delayed)
 
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
