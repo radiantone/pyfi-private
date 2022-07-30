@@ -499,6 +499,11 @@
                     <q-td key="messages" :props="props">
                       {{ props.row.messages }}
                     </q-td>
+                    <q-td key="ready" :props="props"></q-td>
+                    <q-td key="unacked" :props="props"></q-td>
+                    <q-td key="incoming" :props="props"></q-td>
+                    <q-td key="delivered" :props="props"></q-td>
+                    <q-td key="acked" :props="props"></q-td>
                     <q-td key="bytes" :width="200" :props="props">
                       {{ props.row.bytes }}
                     </q-td>
@@ -1749,6 +1754,36 @@ export default defineComponent({
           align: 'center',
           label: 'Messages',
           field: 'messages',
+        },
+        {
+          name: 'ready',
+          align: 'center',
+          label: 'Ready',
+          field: 'ready',
+        },
+        {
+          name: 'unacked',
+          align: 'center',
+          label: 'Not Acked',
+          field: 'unacked',
+        },
+        {
+          name: 'incoming',
+          align: 'center',
+          label: 'Incoming',
+          field: 'incoming',
+        },
+        {
+          name: 'delivered',
+          align: 'center',
+          label: 'Delivered',
+          field: 'delivered',
+        },
+        {
+          name: 'acked',
+          align: 'center',
+          label: 'Acked',
+          field: 'acked',
         },
         {
           name: 'bytes',

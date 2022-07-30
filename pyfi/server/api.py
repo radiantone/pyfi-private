@@ -334,11 +334,11 @@ def get_result(resultid):
     with client:
         db = client.celery
         result = db.celery_taskmeta.find_one(
-            {"_id": resultid.replace("celery-task-meta-", "")}
+            {"task_id": resultid.replace("celery-task-meta-", "")}
         )
         logging.info("RESULT %s", result)
 
-        _r = pickle.loads(result["result"])
+        _r = result["result"]
 
     return jsonify(_r)
 

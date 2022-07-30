@@ -97,6 +97,15 @@
           </q-item-section>
         </q-item>
         <q-separator />
+        <q-item clickable v-close-popup @click="addToLibrary">
+          <q-item-section side>
+            <q-icon name="fas fa-power-off"></q-icon>
+          </q-item-section>
+          <q-item-section side class="text-blue-grey-8">
+            Power Cycle
+          </q-item-section>
+        </q-item>
+        <q-separator />
         <q-item clickable v-close-popup disabled>
           <q-item-section side>
             <q-icon :name="this.abacusIcon"></q-icon>
