@@ -580,6 +580,10 @@ class WorkerService:
             and conducts database operations based on the message"""
             from datetime import datetime
             from uuid import uuid4
+            from pymongo import MongoClient
+
+            mongoclient = MongoClient(CONFIG.get("mongodb", "uri"))
+            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             logging.info("database_actions: Starting...")
             while True:
@@ -867,9 +871,11 @@ class WorkerService:
                                 event = EventModel(
                                     name="postrun", note="Postrun for task"
                                 )
-                                redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
                                 rb = redisclient.get(call.resultid)
-                                logging.info("database_actions: rb result %s %s",call.resultid, rb)
+                                rbjson = pickle.loads(rb)
+                                logging.info("database_actions: rb result %s %s",call.resultid, rbjson)
+
+                                mongoclient.celery_taskmeta.insert(rbjson)
 
                                 session.add(event)
                                 call.events += [event]
