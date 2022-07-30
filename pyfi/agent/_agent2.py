@@ -286,7 +286,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 )
                 try:
                     deployment_worker = mydeployment.worker
-                    if deployment_worker.requested_status == 'kill':
+                    if deployment_worker and deployment_worker.requested_status == 'kill':
                         os.kill(deployment_worker.process, signal.SIGTERM) 
                     myprocessor = mydeployment.processor
                     logging.debug("MYPROCESSOR %s", myprocessor)
@@ -848,7 +848,7 @@ class AgentMonitorPlugin(AgentPlugin):
         self.agent_service = agent_service
         self.workerclass = kwargs['workerclass']
         del kwargs['workerclass']
-        
+
         self.port = agent_service.port
 
         with get_session() as session:
