@@ -1618,6 +1618,7 @@ class WorkerService:
                                     },
                                 )
                             ]
+                            
                             task_routes[
                                 self.processor.module + "." + socket.task.name
                             ] = {
