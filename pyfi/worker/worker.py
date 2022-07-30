@@ -611,15 +611,15 @@ class WorkerService:
                         self.main_queue.qsize(),
                     )
                     logging.debug("---")
-                    logging.debug("database_actions: Waiting on main_queue")
+                    logging.info("database_actions: Waiting on main_queue")
                     _signal = self.main_queue.get()
-                    logging.debug("database_actions: main_queue: Got messages %s",_signal)
+                    logging.info("database_actions: main_queue: Got messages %s",_signal)
                     logging.debug("---")
-                    logging.debug("SIGNAL: %s", _signal)
+                    logging.info("SIGNAL: %s", _signal)
 
                     if _signal["signal"] == "received":
                         try:
-                            logging.debug("RECEIVED SIGNAL %s", _signal)
+                            logging.info("RECEIVED SIGNAL %s", _signal)
 
                             for _socket in processor.sockets:
                                 if _socket.task.name == _signal["sender"]:
