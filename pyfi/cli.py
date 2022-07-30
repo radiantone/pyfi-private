@@ -3502,6 +3502,9 @@ def ls_socket(context, id, name, graph):
     """
     List a socket
     """
+    sockets = []
+    socket = None
+
     if name is not None:
         socket = (
             context.obj["database"]
@@ -3509,10 +3512,16 @@ def ls_socket(context, id, name, graph):
             .filter_by(name=name)
             .first()
         )
+        sockets = [socket]
     elif id is not None:
         socket = (
             context.obj["database"].session.query(SocketModel).filter_by(id=id).first()
         )
+        sockets = [socket]
+
+    if not socket:
+        click.echo("No socket was found")
+        return
 
     x = PrettyTable()
 
@@ -3530,8 +3539,6 @@ def ls_socket(context, id, name, graph):
     ]
 
     x.field_names = names
-
-    sockets = [socket]
 
     for node in sockets:
         x.add_row(
@@ -3561,6 +3568,8 @@ def ls_socket(context, id, name, graph):
         print_tree(root, horizontal=False)
     else:
         print(x)
+
+    # Print plugs
 
 
 @ls.command(name="scheduler")
