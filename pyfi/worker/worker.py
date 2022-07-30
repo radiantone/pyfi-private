@@ -875,7 +875,7 @@ class WorkerService:
                                 rbjson = pickle.loads(rb)
                                 logging.info("database_actions: rb result %s %s",call.resultid, rbjson)
 
-                                mongoclient.celery_taskmeta.insert(rbjson)
+                                mongoclient.celery.celery_taskmeta.insert(rbjson)
 
                                 session.add(event)
                                 call.events += [event]
