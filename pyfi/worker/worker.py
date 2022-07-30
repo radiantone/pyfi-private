@@ -702,10 +702,6 @@ class WorkerService:
                                         "CREATED CALL %s %s", myid, _signal["taskid"]
                                     )
 
-                                    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-                                    rb = redisclient.get("celery-task-meta-" + _signal["taskid"])
-                                    logging.info("database_actions: rb result %s %s","celery-task-meta-" + _signal["taskid"], rb)
-
                                     self.queue.put(_data)
                                     logging.info("database_actions: Replying to received_queued %s", _signal["kwargs"])
                                     self.received_queue.put(_signal["kwargs"])
@@ -871,6 +867,9 @@ class WorkerService:
                                 event = EventModel(
                                     name="postrun", note="Postrun for task"
                                 )
+                                redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+                                rb = redisclient.get(call.resultid)
+                                logging.info("database_actions: rb result %s %s",call.resultid, rb)
 
                                 session.add(event)
                                 call.events += [event]
