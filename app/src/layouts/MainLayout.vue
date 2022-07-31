@@ -437,6 +437,7 @@
                   >
                     <q-tab name="stats" class="text-dark" label="Stats" />
                     <q-tab name="json" class="text-dark" label="JSON" />
+                    <q-tab name="history" class="text-dark" label="History" />
                   </q-tabs>
                   <q-tab-panels v-model="queuedetailtab" keep-alive style="height: 100%;">
                     <q-tab-panel
@@ -839,6 +840,7 @@ export default defineComponent({
     let n = this.$q.notify;
 
     this.$q.notify = function (opts) {
+      opts.message = new Date().toLocaleDateString('en-us', { hour: '2-digit', minute: '2-digit' }) + ' ' + opts.message;
       me.$root.$emit("log.message", opts.message);
       n(opts);
     };

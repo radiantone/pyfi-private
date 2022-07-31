@@ -3497,12 +3497,21 @@ export default {
       editPort = false;
     },
     saveProcessor() {
+      var me = this;
+      
       this.refreshing = true;
       DataService.saveProcessor(this.obj)
         .then(() => {
           this.refreshing = false;
           this.error = false;
           this.errorMsg = "";
+          me.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Processor ' + me.obj.name + ' saved!',
+            icon: 'save',
+          });
         })
         .catch(() => {
           this.error = true;

@@ -295,7 +295,11 @@ def do_processor(id):
                 return jsonify({"status": "ok"})
             else:
                 logging.info("Updating processor %s with %s", _processor, processor)
-                _processor.update(processor)
+                for key, value in processor.items():
+                    if(key != 'id' and hasattr(_processor, key)):
+                        setattr(_processor, key, value)
+                        logging.info("Updated processor field %s with %s",key, value)
+
                 session.add(_processor)
                 return jsonify({"status": "ok"})
 
