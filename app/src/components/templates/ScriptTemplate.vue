@@ -2813,6 +2813,14 @@
             <q-toolbar>
               <q-item-label>Results for {{ obj.name }}</q-item-label>
               <q-space />
+                        <q-select
+            dense
+            borderless
+            :options-dense="true"
+            style="font-size: 1em; margin-right: 20px;color:white"
+            v-model="resulttype"
+            :options="['finished','error']"
+          ></q-select>
               <q-btn
                 class="text-primary"
                 flat
@@ -3227,6 +3235,7 @@ export default {
   },
   data() {
     return {
+      resulttype: 'finished',
       queues: [],
       argports: {},
       funcs: [],

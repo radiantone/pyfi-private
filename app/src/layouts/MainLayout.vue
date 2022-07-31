@@ -468,6 +468,13 @@
                 height: calc(100vh - 170px);
               "
             >
+                    <q-splitter
+          v-model="queueTableSplitter"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: calc(100% - 40px);"
+        >
+          <template v-slot:before>
               <q-table
                 dense
                 :data="queues"
@@ -489,15 +496,24 @@
                           min-width: 250px;
                           font-size: 1.3em;
                         "
+                        @click="showQueueDetail(props.row.name)"
+                        >{{ props.row.name }}</a>
+                    </q-td>
+                    <q-td key="messages" :props="props">
+                      <a
+                        class="text-secondary"
+                        style="
+                          z-index: 99999;
+                          cursor: pointer;
+                          width: 100%;
+                          min-width: 250px;
+                          font-size: 1.3em;
+                        "
                         @click="
                           queuename = props.row.name;
                           viewQueueDialog = true;
                         "
-                        >{{ props.row.name }}</a
-                      >
-                    </q-td>
-                    <q-td key="messages" :props="props">
-                      {{ props.row.messages }}
+                        >{{ props.row.messages }}</a>
                     </q-td>
                     <q-td key="ready" :props="props"></q-td>
                     <q-td key="unacked" :props="props"></q-td>
@@ -560,6 +576,19 @@
                   </q-tr>
                 </template>
               </q-table>
+              </template>
+              <template v-slot:after>
+<editor
+                @init="queueDetailEditorInit"
+                style="font-size: 1.5em;"
+                lang="javascript"
+                theme="chrome"
+                ref="queueDetailEditor"
+                width="100%"
+                height="100%"
+              ></editor>
+              </template>
+              </q-splitter>
             </q-tab-panel>
             <q-tab-panel
               name="servers"
@@ -1095,6 +1124,30 @@ export default defineComponent({
     },
   },
   methods: {
+    queueDetailEditorInit: function () {
+      var me = this;
+
+      require('brace/ext/language_tools'); // language extension prerequsite...
+      require('brace/mode/html');
+      require('brace/mode/python'); // language
+      require('brace/mode/less');
+      require('brace/theme/chrome');
+      require('brace/snippets/javascript'); // snippet
+      const editor = this.$refs.queueDetailEditor.editor;
+      editor.setAutoScrollEditorIntoView(true);
+    },    
+    showQueueDetail (name) {
+      const editor = this.$refs.queueDetailEditor.editor;
+      this.detailedqueues.forEach((queue) => {
+        if (queue['name'] == name) {
+          editor.session.setValue(JSON.stringify(
+            queue,
+            null,
+            '\t'
+          ));
+        }
+      })
+    },
     listenGlobal() {
       var me = this;
 
@@ -1115,11 +1168,16 @@ export default defineComponent({
           var qs = [];
           if (msg['type'] && msg['type'] == 'queues') {
             var queued_tasks = 0;
+            me.detailedqueues = msg['queues'];
             msg['queues'].forEach((queue) => {
               if (queue['name'].indexOf('celery') == -1) {
                 qs.push({
                   name: queue['name'],
                   messages: queue['messages'],
+                  ready: queue['messages_ready'],
+                  unacked: queue['messages_unacknowledged'],
+                  ready_rate: queue['messages_ready_details'],
+                  unacked_rate: queue['messages_unacknowledged_details'],
                   bytes: queue['message_bytes'],
                   action: '',
                 });
@@ -1611,6 +1669,8 @@ export default defineComponent({
   },
   data() {
     return {
+      queueTableSplitter: 50,
+      detailedqueues: [],
       queuedTasks: 0,
       mode: 'disconnected',
       messageContent: '',
