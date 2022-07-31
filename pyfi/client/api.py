@@ -12,7 +12,7 @@ from celery import chord as funnel
 from celery import chunks as segment
 from celery import group as parallel
 
-#from .decorators import agent, network, node, plug, processor, socket, task, worker
+# from .decorators import agent, network, node, plug, processor, socket, task, worker
 from .library import ProcessorBase
 from .objects import (
     Agent,
@@ -47,14 +47,14 @@ __all__ = (
     "Network",
     "Scheduler",
     "ProcessorBase",
-    #"processor",
-    #"task",
-    #"node",
-    #"agent",
-    #"worker",
-    #"network",
-    #"socket",
-    #"plug",
+    # "processor",
+    # "task",
+    # "node",
+    # "agent",
+    # "worker",
+    # "network",
+    # "socket",
+    # "plug",
     "parallel",
     "pipeline",
     "flatten",

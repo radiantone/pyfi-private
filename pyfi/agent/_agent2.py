@@ -286,8 +286,11 @@ class AgentMonitorPlugin(AgentPlugin):
                 )
                 try:
                     deployment_worker = mydeployment.worker
-                    if deployment_worker and deployment_worker.requested_status == 'kill':
-                        os.kill(deployment_worker.process, signal.SIGTERM) 
+                    if (
+                        deployment_worker
+                        and deployment_worker.requested_status == "kill"
+                    ):
+                        os.kill(deployment_worker.process, signal.SIGTERM)
                     myprocessor = mydeployment.processor
                     logging.debug("MYPROCESSOR %s", myprocessor)
                     # self.database.session.refresh(
@@ -846,8 +849,8 @@ class AgentMonitorPlugin(AgentPlugin):
         logger.info("[AgentMonitorPlugin] Starting %s", kwargs)
         self.kwargs = kwargs
         self.agent_service = agent_service
-        self.workerclass = kwargs['workerclass']
-        del kwargs['workerclass']
+        self.workerclass = kwargs["workerclass"]
+        del kwargs["workerclass"]
 
         self.port = agent_service.port
 
@@ -1072,7 +1075,7 @@ class PluginAgentService(AgentService):
                 "AgentService: Registered plugin %s", plugin.__class__.__name__
             )
 
-        kwargs = {"cpus": self.cpus, "workerclass":self.workerclass}
+        kwargs = {"cpus": self.cpus, "workerclass": self.workerclass}
         [plugin.start(self, **kwargs) for plugin in plugins]
 
         [plugin.wait() for plugin in plugins]

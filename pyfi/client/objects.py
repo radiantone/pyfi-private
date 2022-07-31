@@ -44,7 +44,8 @@ from pyfi.db.model import (
     UserModel,
     WorkerModel,
 )
-#from pyfi.server.api import app
+
+# from pyfi.server.api import app
 
 CONFIG = configparser.ConfigParser()
 HOME = str(Path.home())

@@ -30,13 +30,11 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-list"
           label="0"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Statistics Table
-          </q-tooltip></q-btn
         >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            Statistics Table
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -45,13 +43,11 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-bullseye"
           :label="transmittedSize"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Data Transmitted
-          </q-tooltip></q-btn
         >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            Data Transmitted
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -60,13 +56,11 @@
           style="padding: 0px; height: 40px;"
           icon="fas fa-satellite-dish"
           :label="messageCount"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Messages Transmitted
-          </q-tooltip></q-btn
         >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            Messages Transmitted
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -76,13 +70,10 @@
           icon="las la-play"
           :label="stats.processors_starting"
         >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Starting Processors
-          </q-tooltip></q-btn
-        >        
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -92,13 +83,10 @@
           icon="fa fa-play"
           :label="stats.processors_running"
         >
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Running Processors
-          </q-tooltip></q-btn
-        >
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -107,13 +95,11 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-stop"
           :label="stats.processors_stopped"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Stopped Processors
-          </q-tooltip></q-btn
         >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            Stopped Processors
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -122,13 +108,11 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Errored Processors
-          </q-tooltip></q-btn
         >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            Errored Processors
+          </q-tooltip>
+        </q-btn>
         <q-btn
           color="secondary"
           flat
@@ -137,10 +121,8 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailFast"
           :label="queuedTasks"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
+        >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Queued Tasks
           </q-tooltip>
         </q-btn>
@@ -152,10 +134,8 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
+        >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Errored Tasks
           </q-tooltip>
         </q-btn>
@@ -167,10 +147,8 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
-          ><q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
+        >
+          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Completed Tasks
           </q-tooltip>
         </q-btn>
@@ -242,7 +220,7 @@
           label="12:36:17 EDT"
         />
 -->
-        <q-separator vertical inset color="primary"/>
+        <q-separator vertical inset color="primary" />
         <q-btn-toggle
           v-model="tools"
           class="my-custom-toggle"
@@ -263,10 +241,7 @@
         >
           <template v-slot:one>
             <div style="font-size: 0.5em; margin-left: 20px;">
-              <q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
+              <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
                 Database Tools
               </q-tooltip>
             </div>
@@ -274,10 +249,7 @@
           <template v-slot:two>
             <div style="font-size: 0.5em; margin-left: 20px;"></div>
 
-            <q-tooltip
-              content-style="font-size: 16px"
-              content-class="bg-black text-white"
-            >
+            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
               Python Tools
             </q-tooltip>
           </template>
@@ -296,48 +268,18 @@
         >
           <template v-slot:append>
             <q-icon color="dark" size="sm" v-if="text === ''" name="search" />
-            <q-icon
-              v-else
-              name="clear"
-              color="dark"
-              size="sm"
-              class="cursor-pointer text-dark"
-              @click="text = ''"
-            />
+            <q-icon v-else name="clear" color="dark" size="sm" class="cursor-pointer text-dark" @click="text = ''" />
           </template>
         </q-input>
       </q-toolbar>
     </q-header>
-    <q-splitter
-      v-model="splitterModel"
-      vertical
-      :limits="[60, 100]"
-      unit="%"
-      style="overflow: hidden;"
-    >
+    <q-splitter v-model="splitterModel" vertical :limits="[60, 100]" unit="%" style="overflow: hidden;">
       <template v-slot:before>
-        <div
-          style="
-            height: 100vh;
-            width: 100%;
-            position: relative;
-            top: 95px;
-            overflow: hidden;
-          "
-        >
-          <q-tab-panels
-            v-model="tab"
-            keep-alive
-            v-for="flow in flows"
-            :key="flow.id"
-          >
+        <div style="height: 100vh; width: 100%; position: relative; top: 95px; overflow: hidden;">
+          <q-tab-panels v-model="tab" keep-alive v-for="flow in flows" :key="flow.id">
             <q-tab-panel
               :name="'flow' + flow.id"
-              style="
-                height: calc(100vh - 165px);
-                padding: 0px;
-                overflow: hidden;
-              "
+              style="height: calc(100vh - 165px); padding: 0px; overflow: hidden;"
               :ref="'flow' + flow.id"
             >
               <Designer
@@ -393,16 +335,7 @@
         </div>
       </template>
       <template v-slot:after>
-        <div
-          style="
-            height: 100vh;
-            width: 100%;
-            padding-top: 5px;
-            position: relative;
-            top: 95px;
-            overflow: hidden;
-          "
-        >
+        <div style="height: 100vh; width: 100%; padding-top: 5px; position: relative; top: 95px; overflow: hidden;">
           <q-tabs
             v-model="drawertab"
             dense
@@ -423,12 +356,7 @@
             <q-tab-panel
               name="messages"
               ref="messages"
-              style="
-                padding: 0px;
-                width: 100%;
-                padding-top: 0px;
-                height: calc(100vh - 170px);
-              "
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
             >
               <q-table
                 dense
@@ -438,14 +366,8 @@
                 flat
                 virtual-scroll
                 :pagination="initialPagination"
-                style="
-                  height: 100%;
-                  width: 100%;
-                  border-top-radius: 0px;
-                  border-bottom-radius: 0px;
-                "
-              >
-              </q-table>
+                style="height: 100%; width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+              ></q-table>
               <!--
                 <q-scroll-area style="height:calc(100vh - 200px);width::auto">
                   <div v-for="log in msglogs">
@@ -461,155 +383,127 @@
             <q-tab-panel
               name="queues"
               ref="queues"
-              style="
-                padding: 0px;
-                width: 100%;
-                padding-top: 0px;
-                height: calc(100vh - 170px);
-              "
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
             >
-                    <q-splitter
-          v-model="queueTableSplitter"
-          separator-style="background-color: #e3e8ec;height:5px"
-          horizontal
-          style="height: calc(100% - 40px);"
-        >
-          <template v-slot:before>
-              <q-table
-                dense
-                :data="queues"
-                :columns="columns"
-                row-key="name"
-                :rows-per-page-options="[50]"
-                virtual-scroll
-                style="height: calc(100vh - 170px);"
+              <q-splitter
+                v-model="queueTableSplitter"
+                separator-style="background-color: #e3e8ec;height:5px"
+                horizontal
+                style="height: calc(100% - 40px);"
               >
-                <template v-slot:body="props">
-                  <q-tr :props="props">
-                    <q-td key="name" :props="props" :width="150">
-                      <a
-                        class="text-secondary"
-                        style="
-                          z-index: 99999;
-                          cursor: pointer;
-                          width: 100%;
-                          min-width: 250px;
-                          font-size: 1.3em;
-                        "
-                        @click="showQueueDetail(props.row.name)"
-                        >{{ props.row.name }}</a>
-                    </q-td>
-                    <q-td key="messages" :props="props">
-                      <a
-                        class="text-secondary"
-                        style="
-                          z-index: 99999;
-                          cursor: pointer;
-                          width: 100%;
-                          min-width: 250px;
-                          font-size: 1.3em;
-                        "
-                        @click="
-                          queuename = props.row.name;
-                          viewQueueDialog = true;
-                        "
-                        >{{ props.row.messages }}</a>
-                    </q-td>
-                    <q-td key="ready" :props="props"></q-td>
-                    <q-td key="unacked" :props="props"></q-td>
-                    <q-td key="incoming" :props="props"></q-td>
-                    <q-td key="delivered" :props="props"></q-td>
-                    <q-td key="acked" :props="props"></q-td>
-                    <q-td key="bytes" :width="200" :props="props">
-                      {{ props.row.bytes }}
-                    </q-td>
-                    <q-td key="actions" :props="props" style="width: 25px;">
-                      <q-btn
-                        flat
-                        round
-                        dense
-                        size="sm"
-                        class="bg-white text-primary"
-                        :id="props.row.name"
-                        width="100"
-                        icon="remove_circle"
-                      ><q-tooltip
-            content-class=""
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Purge Messages
-          </q-tooltip></q-btn>
-                      <q-btn
-                        flat
-                        round
-                        dense
-                        size="sm"
-                        class="bg-white text-primary"
-                        :id="props.row.name"
-                        width="100"
-                        icon="fas fa-cog"
-                      ><q-tooltip
-            content-class=""
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Configure
-          </q-tooltip></q-btn>
-                      <q-btn
-                        flat
-                        round
-                        dense
-                        size="sm"
-                        class="bg-white text-primary"
-                        :id="props.row.name"
-                        width="100"
-                        icon="delete"
-                      ><q-tooltip
-            content-class=""
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Delete Queue
-          </q-tooltip></q-btn>
-                    </q-td>
-                  </q-tr>
+                <template v-slot:before>
+                  <q-table
+                    dense
+                    :data="queues"
+                    :columns="columns"
+                    row-key="name"
+                    :rows-per-page-options="[50]"
+                    virtual-scroll
+                    style="height: calc(100vh - 170px);"
+                  >
+                    <template v-slot:body="props">
+                      <q-tr :props="props">
+                        <q-td key="name" :props="props" :width="150">
+                          <a
+                            class="text-secondary"
+                            style="z-index: 99999; cursor: pointer; width: 100%; min-width: 250px; font-size: 1.3em;"
+                            @click="showQueueDetail(props.row.name)"
+                          >
+                            {{ props.row.name }}
+                          </a>
+                        </q-td>
+                        <q-td key="messages" :props="props">
+                          {{ props.row.messages }}
+                        </q-td>
+                        <q-td key="ready" :props="props">
+                          <a
+                            class="text-secondary"
+                            style="z-index: 99999; cursor: pointer; width: 100%; min-width: 250px; font-size: 1.3em;"
+                            @click="
+                              queuename = props.row.name;
+                              viewQueueDialog = true;
+                            "
+                          >
+                            {{ props.row.ready }}
+                          </a>
+                        </q-td>
+                        <q-td key="unacked" :props="props">{{ props.row.unacked }}</q-td>
+                        <q-td key="incoming" :props="props">{{ props.row.incoming }}</q-td>
+                        <q-td key="delivered" :props="props">{{ props.row.deliver_rate }}</q-td>
+                        <q-td key="acked" :props="props">{{ props.row.acked_rate }}</q-td>
+                        <q-td key="bytes" :width="200" :props="props">{{ props.row.bytes }}</q-td>
+                        <q-td key="actions" :props="props" style="width: 25px;">
+                          <q-btn
+                            flat
+                            round
+                            dense
+                            size="sm"
+                            class="bg-white text-primary"
+                            :id="props.row.name"
+                            width="100"
+                            icon="remove_circle"
+                          >
+                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                              Purge Messages
+                            </q-tooltip>
+                          </q-btn>
+                          <q-btn
+                            flat
+                            round
+                            dense
+                            size="sm"
+                            class="bg-white text-primary"
+                            :id="props.row.name"
+                            width="100"
+                            icon="fas fa-cog"
+                          >
+                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                              Configure
+                            </q-tooltip>
+                          </q-btn>
+                          <q-btn
+                            flat
+                            round
+                            dense
+                            size="sm"
+                            class="bg-white text-primary"
+                            :id="props.row.name"
+                            width="100"
+                            icon="delete"
+                          >
+                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                              Delete Queue
+                            </q-tooltip>
+                          </q-btn>
+                        </q-td>
+                      </q-tr>
+                    </template>
+                  </q-table>
                 </template>
-              </q-table>
-              </template>
-              <template v-slot:after>
-<editor
-                @init="queueDetailEditorInit"
-                style="font-size: 1.5em;"
-                lang="javascript"
-                theme="chrome"
-                ref="queueDetailEditor"
-                width="100%"
-                height="100%"
-              ></editor>
-              </template>
+                <template v-slot:after>
+                  <editor
+                    @init="queueDetailEditorInit"
+                    style="font-size: 1.5em;"
+                    lang="javascript"
+                    theme="chrome"
+                    ref="queueDetailEditor"
+                    width="100%"
+                    height="100%"
+                  ></editor>
+                </template>
               </q-splitter>
             </q-tab-panel>
             <q-tab-panel
               name="servers"
               ref="servers"
-              style="
-                padding: 0px;
-                width: 100%;
-                padding-top: 0px;
-                height: calc(100vh - 170px);
-              "
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
             ></q-tab-panel>
             <q-tab-panel
               name="monitor"
               ref="monitor"
               style="padding: 0px; width: 100%; padding-top: 0px;"
             ></q-tab-panel>
-            <q-tab-panel
-              name="error"
-              ref="error"
-              style="padding: 0px; width: 100%; padding-top: 0px;"
-            ></q-tab-panel>
+            <q-tab-panel name="error" ref="error" style="padding: 0px; width: 100%; padding-top: 0px;"></q-tab-panel>
           </q-tab-panels>
         </div>
       </template>
@@ -631,53 +525,38 @@
         <q-space />
 
         <q-btn-toggle
-        v-model="modeModel"
-        push
-        flat
-        dense
-        toggle-color="secondary"
-        class="text-primary"
-        style="margin-right:40px"
-        :options="[
-          {label: 'Disconnected', value: 'disconnected', slot: 'one'},
-          {label: 'Connected', value: 'connected', slot: 'two'},
-          {label: 'Streaming', value: 'streaming', slot: 'three'}
-        ]"
-      >
-        <template v-slot:one>
-          <q-icon :name="mdiFlashOutline"/>
-          <q-tooltip content-style="font-size: 16px"
-              content-class="bg-black text-white">Disconnected</q-tooltip>
-        </template>
-
-        <template v-slot:two>
-          <q-icon :name="mdiFlash"/>
-          <q-tooltip content-style="font-size: 16px"
-              content-class="bg-black text-white">Connected</q-tooltip>
-        </template>
-
-        <template v-slot:three>
-          <q-icon :name="mdiWavesArrowRight"/>
-          <q-tooltip content-style="font-size: 16px"
-              content-class="bg-black text-white">Streaming</q-tooltip>
-        </template>
-      </q-btn-toggle>
-        <q-btn
+          v-model="modeModel"
+          push
           flat
           dense
-          color="primary"
-          icon="menu"
-          @click="toggleSplitter"
-        ></q-btn>
+          toggle-color="secondary"
+          class="text-primary"
+          style="margin-right: 40px;"
+          :options="[
+            { label: 'Disconnected', value: 'disconnected', slot: 'one' },
+            { label: 'Connected', value: 'connected', slot: 'two' },
+            { label: 'Streaming', value: 'streaming', slot: 'three' },
+          ]"
+        >
+          <template v-slot:one>
+            <q-icon :name="mdiFlashOutline" />
+            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Disconnected</q-tooltip>
+          </template>
+
+          <template v-slot:two>
+            <q-icon :name="mdiFlash" />
+            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Connected</q-tooltip>
+          </template>
+
+          <template v-slot:three>
+            <q-icon :name="mdiWavesArrowRight" />
+            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Streaming</q-tooltip>
+          </template>
+        </q-btn-toggle>
+        <q-btn flat dense color="primary" icon="menu" @click="toggleSplitter"></q-btn>
       </q-toolbar>
     </q-footer>
-    <q-drawer
-      v-model="searchdrawer"
-      side="right"
-      bordered
-      :width="512"
-      style="overflow: hidden;"
-    >
+    <q-drawer v-model="searchdrawer" side="right" bordered :width="512" style="overflow: hidden;">
       <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
         <q-list separator>
           <q-item v-for="item in items" :key="item.id" :id="'row' + item.id">
@@ -685,23 +564,16 @@
               <q-icon name="fas fa-microchip" class="text-secondary" />
             </q-item-section>
             <q-item-section>
-              <q-item-label
-                ><a
+              <q-item-label>
+                <a
                   class="text-secondary"
-                  style="
-                    z-index: 99999;
-                    cursor: pointer;
-                    width: 100%;
-                    min-width: 250px;
-                    font-size: 1.3em;
-                  "
+                  style="z-index: 99999; cursor: pointer; width: 100%; min-width: 250px; font-size: 1.3em;"
                   @click="centerNode(item.id)"
-                  >{{ item.name }}</a
-                ></q-item-label
-              >
-              <q-item-label caption lines="2">{{
-                item.description
-              }}</q-item-label>
+                >
+                  {{ item.name }}
+                </a>
+              </q-item-label>
+              <q-item-label caption lines="2">{{ item.description }}</q-item-label>
             </q-item-section>
             <q-space />
           </q-item>
@@ -711,40 +583,14 @@
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
     </q-drawer>
-    <q-drawer
-      v-model="librarydrawer"
-      side="right"
-      bordered
-      :width="512"
-      style="overflow: hidden;"
-    >
-      <Library
-        :objecttype="'template'"
-        :icon="'fas fa-wrench'"
-        :collection="'library'"
-        style="width: 100%;"
-      />
+    <q-drawer v-model="librarydrawer" side="right" bordered :width="512" style="overflow: hidden;">
+      <Library :objecttype="'template'" :icon="'fas fa-wrench'" :collection="'library'" style="width: 100%;" />
     </q-drawer>
     <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
-      <q-card
-        style="
-          width: 70vw;
-          max-width: 70vw;
-          height: 80vh;
-          padding: 10px;
-          padding-left: 30px;
-          padding-top: 40px;
-        "
-      >
+      <q-card style="width: 70vw; max-width: 70vw; height: 80vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -787,12 +633,7 @@
               row-key="name"
               flat
               :pagination="queuePagination"
-              style="
-                height: calc(100% - 0px);
-                width: 100%;
-                border-top-radius: 0px;
-                border-bottom-radius: 0px;
-              "
+              style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
               <template v-slot:body="props">
                 <q-tr :props="props" :key="getUuid">
@@ -800,11 +641,9 @@
                     {{ props.cols[0].value }}
                   </q-td>
                   <q-td :key="props.cols[1].name" :props="props">
-                    <a
-                      class="text-secondary"
-                      @click="showMessagePayload(props.row.payload)"
-                      >{{ props.cols[1].value }}</a
-                    >
+                    <a class="text-secondary" @click="showMessagePayload(props.row.payload)">
+                      {{ props.cols[1].value }}
+                    </a>
                   </q-td>
                   <q-td :key="props.cols[2].name" :props="props">
                     {{ props.cols[2].value }}
@@ -822,18 +661,19 @@
               </template>
             </q-table>
           </template>
-          <template v-slot:after
-            ><div style="height: 100%; width: 100%;">
+          <template v-slot:after>
+            <div style="height: 100%; width: 100%;">
               <editor
                 @init="resultEditorInit"
-                style="font-size: 1.5em; "
+                style="font-size: 1.5em;"
                 lang="javascript"
                 theme="chrome"
                 ref="resultEditor"
                 width="100%"
                 height="100%"
-              ></editor></div
-          ></template>
+              ></editor>
+            </div>
+          </template>
         </q-splitter>
         <q-card-actions align="left">
           <q-btn
@@ -845,8 +685,8 @@
             @click="refreshQueues"
           />
         </q-card-actions>
-        <q-card-actions align="right"
-          ><q-btn
+        <q-card-actions align="right">
+          <q-btn
             flat
             style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
             label="Close"
@@ -862,18 +702,10 @@
     </q-dialog>
 
     <q-dialog v-model="newQueueDialog" persistent>
-      <q-card
-        style="padding: 10px; padding-top: 30px; width: 50%; height: 50%;"
-      >
+      <q-card style="padding: 10px; padding-top: 30px; width: 50%; height: 50%;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -894,7 +726,7 @@
           </div>
         </q-card-section>
         <q-card-section class="row items-center" style="height: 120px;">
-          <span class="q-ml-sm"> Create queue form here </span>
+          <span class="q-ml-sm">Create queue form here</span>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -918,8 +750,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-
   </q-layout>
 </template>
 <style>
@@ -940,11 +770,11 @@ a.text-secondary:hover {
   width: 100%;
 }
 icon-processor:before {
-  content: '\e807';
+  content: "\e807";
 }
-[class^='icon-']:before,
-[class*=' icon-']:before {
-  font-family: 'flowfont';
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "flowfont";
   font-style: normal;
   font-weight: normal;
   speak: none;
@@ -961,54 +791,47 @@ icon-processor:before {
 }
 </style>
 <script>
-const { v4: uuidv4 } = require('uuid');
-var dd = require('drip-drop');
+const { v4: uuidv4 } = require("uuid");
+var dd = require("drip-drop");
 
-import { QSpinnerOval } from 'quasar';
-import { defineComponent, ref } from '@vue/composition-api';
-import Designer from 'src/pages/Designer.vue';
-import ToolPalette from 'src/components/ToolPalette.vue';
-import ModelToolPalette from 'src/components/ModelToolPalette.vue';
-import Library from 'src/components/Library.vue';
-import Processors from 'components/Processors.vue';
-import DataService from 'components/util/DataService';
+import { QSpinnerOval } from "quasar";
+import { defineComponent, ref } from "@vue/composition-api";
+import Designer from "src/pages/Designer.vue";
+import ToolPalette from "src/components/ToolPalette.vue";
+import ModelToolPalette from "src/components/ModelToolPalette.vue";
+import Library from "src/components/Library.vue";
+import Processors from "components/Processors.vue";
+import DataService from "components/util/DataService";
 
-var filesize = require('filesize');
-const size = filesize.partial({ base: 2, standard: 'jedec' });
+var filesize = require("filesize");
+const size = filesize.partial({ base: 2, standard: "jedec" });
 
-import {
-  mappedGetters,
-  mappedActions,
-  Actions,
-  Getters,
-  State,
-  mappedState,
-} from 'src/store/Store';
+import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from "src/store/Store";
 
-import 'assets/css/font-awesome.min.css';
-import 'assets/css/flowfont.css';
-import 'assets/fonts/fontawesome-webfont.eot';
-import 'assets/fonts/fontawesome-webfont.svg';
-import 'assets/fonts/fontawesome-webfont.woff2';
-import 'assets/fonts/fontawesome-webfont.woff';
-import 'assets/fonts/flowfont2.woff2';
+import "assets/css/font-awesome.min.css";
+import "assets/css/flowfont.css";
+import "assets/fonts/fontawesome-webfont.eot";
+import "assets/fonts/fontawesome-webfont.svg";
+import "assets/fonts/fontawesome-webfont.woff2";
+import "assets/fonts/fontawesome-webfont.woff";
+import "assets/fonts/flowfont2.woff2";
 
-import { mdiFlash } from '@mdi/js';
-import { mdiFlashOutline } from '@mdi/js';
-import { mdiWavesArrowRight } from '@mdi/js';
-import { mdiCodeBraces } from '@mdi/js';
-import { mdiEmailFast } from '@mdi/js';
-import { mdiEmailAlert } from '@mdi/js';
-import { mdiEmailCheck } from '@mdi/js';
+import { mdiFlash } from "@mdi/js";
+import { mdiFlashOutline } from "@mdi/js";
+import { mdiWavesArrowRight } from "@mdi/js";
+import { mdiCodeBraces } from "@mdi/js";
+import { mdiEmailFast } from "@mdi/js";
+import { mdiEmailAlert } from "@mdi/js";
+import { mdiEmailCheck } from "@mdi/js";
 
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
-const socket = io('http://localhost');
+const socket = io("http://localhost");
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: "MainLayout",
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: require("vue2-ace-editor"),
     Designer,
     ToolPalette,
     ModelToolPalette,
@@ -1027,40 +850,40 @@ export default defineComponent({
     this.mdiFlash = mdiFlash;
 
     // Reset connection status to disconnected
-    this.$store.commit('designer/setConnected', false);
-    this.$store.commit('designer/setStreaming', false);
+    this.$store.commit("designer/setConnected", false);
+    this.$store.commit("designer/setStreaming", false);
 
     let n = this.$q.notify;
 
     this.$q.notify = function (opts) {
-      me.$root.$emit("log.message",opts.message)
+      me.$root.$emit("log.message", opts.message);
       n(opts);
-    }
+    };
 
     this.schemaIcon = mdiCodeBraces;
     var me = this;
-    this.tab = 'flow' + this.flows[0].id;
+    this.tab = "flow" + this.flows[0].id;
     window.layout = this;
 
     this.listenGlobal();
   },
   watch: {
     connected: function (newv, oldv) {
-      console.log('CONNECTED', oldv, newv);
+      console.log("CONNECTED", oldv, newv);
       if (newv) {
         // This means that changes to the flow are committed back
         // to the database as they happen
       }
     },
     streaming: function (newv, oldv) {
-      console.log('STREAMING', oldv, newv);
+      console.log("STREAMING", oldv, newv);
       if (newv) {
         // This means the flow is receiving streaming messages in real-time
-        console.log("Turning on messages")
+        console.log("Turning on messages");
         this.listenGlobal();
       } else {
         socket.off("global");
-        console.log("Turning off messages")
+        console.log("Turning off messages");
       }
     },
     viewQueueDialog: function (val) {
@@ -1088,27 +911,27 @@ export default defineComponent({
   },
   computed: {
     modeModel: {
-      get () {
-        return this.mode   
+      get() {
+        return this.mode;
       },
-      set (val) {
+      set(val) {
         var me = this;
-        this.mode = val
+        this.mode = val;
 
-        if (val == 'disconnected') {
-          me.$store.commit('designer/setConnected', false);
-          me.$store.commit('designer/setStreaming', false);
+        if (val == "disconnected") {
+          me.$store.commit("designer/setConnected", false);
+          me.$store.commit("designer/setStreaming", false);
         }
-        if (val == 'connected') {
-          me.$store.commit('designer/setConnected', true);
-          me.$store.commit('designer/setStreaming', false);
+        if (val == "connected") {
+          me.$store.commit("designer/setConnected", true);
+          me.$store.commit("designer/setStreaming", false);
         }
-        if (val == 'streaming') {
-          me.$store.commit('designer/setConnected', true);
-          me.$store.commit('designer/setStreaming', true);
+        if (val == "streaming") {
+          me.$store.commit("designer/setConnected", true);
+          me.$store.commit("designer/setStreaming", true);
         }
         console.log("setMode", this.mode);
-      }
+      },
     },
     connected() {
       return this.$store.state.designer.connected;
@@ -1127,66 +950,70 @@ export default defineComponent({
     queueDetailEditorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.queueDetailEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-    },    
-    showQueueDetail (name) {
+    },
+    showQueueDetail(name) {
       const editor = this.$refs.queueDetailEditor.editor;
       this.detailedqueues.forEach((queue) => {
-        if (queue['name'] == name) {
-          editor.session.setValue(JSON.stringify(
-            queue,
-            null,
-            '\t'
-          ));
+        if (queue["name"] == name) {
+          editor.session.setValue(JSON.stringify(queue, null, "\t"));
         }
-      })
+      });
     },
     listenGlobal() {
       var me = this;
 
-      socket.on('global', (msg) => {
+      socket.on("global", (msg) => {
         //console.log('MAINLAYOUT', msg);
-        if (msg['channel'] == 'task') {
+        if (msg["channel"] == "task") {
           me.msglogs.unshift(msg);
           me.msglogs = me.msglogs.slice(0, 200);
 
-
-          window.root.$emit('message.count', 1);
+          window.root.$emit("message.count", 1);
           var bytes = JSON.stringify(msg).length;
-          window.root.$emit('message.size', bytes);
-        
-        } else if (msg['type'] && msg['type'] == 'stats') {
+          window.root.$emit("message.size", bytes);
+        } else if (msg["type"] && msg["type"] == "stats") {
           me.stats = msg;
         } else {
           var qs = [];
-          if (msg['type'] && msg['type'] == 'queues') {
+          if (msg["type"] && msg["type"] == "queues") {
             var queued_tasks = 0;
-            me.detailedqueues = msg['queues'];
-            msg['queues'].forEach((queue) => {
-              if (queue['name'].indexOf('celery') == -1) {
+            me.detailedqueues = msg["queues"];
+            msg["queues"].forEach((queue) => {
+              if (queue["name"].indexOf("celery") == -1) {
+                var ack_rate = 0;
+                var deliver_rate = 0;
+
+                if ("message_stats" in queue) {
+                  ack_rate = queue["message_stats"]["ack_details"]["rate"];
+                  deliver_rate = queue["message_stats"]["deliver_get_details"]["rate"];
+                }
+
                 qs.push({
-                  name: queue['name'],
-                  messages: queue['messages'],
-                  ready: queue['messages_ready'],
-                  unacked: queue['messages_unacknowledged'],
-                  ready_rate: queue['messages_ready_details'],
-                  unacked_rate: queue['messages_unacknowledged_details'],
-                  bytes: queue['message_bytes'],
-                  action: '',
+                  name: queue["name"],
+                  messages: queue["messages"],
+                  ready: queue["messages_ready"],
+                  acked_rate: ack_rate,
+                  deliver_rate: deliver_rate,
+                  unacked: queue["messages_unacknowledged"],
+                  ready_rate: queue["messages_ready_details"],
+                  unacked_rate: queue["messages_unacknowledged_details"],
+                  bytes: queue["message_bytes"],
+                  action: "",
                 });
-                queued_tasks += parseInt(queue['messages']);
+                queued_tasks += parseInt(queue["messages"]);
                 this.queuedTasks = queued_tasks;
               }
             });
             me.queues = qs;
-            window.root.$emit('update.queues', qs)
+            window.root.$emit("update.queues", qs);
           }
         }
       });
@@ -1198,16 +1025,16 @@ export default defineComponent({
     resultEditorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.resultEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-      editor.on('change', function () {
-        console.log('edit event');
+      editor.on("change", function () {
+        console.log("edit event");
       });
     },
     centerNode(id) {
@@ -1219,14 +1046,11 @@ export default defineComponent({
       });
     },
     searchString() {
-      console.log('Searching for', this.text);
+      console.log("Searching for", this.text);
       this.items = [];
-      this.graph['nodes'].forEach((node) => {
-        console.log('Searching node ', node);
-        if (
-          node.name.indexOf(this.text) > -1 ||
-          node.description.indexOf(this.text) > -1
-        ) {
+      this.graph["nodes"].forEach((node) => {
+        console.log("Searching node ", node);
+        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
           this.items.push(node);
         }
       });
@@ -1239,7 +1063,7 @@ export default defineComponent({
       }, 3000);
     },
     updateStats() {
-      console.log('UPDATE STATS');
+      console.log("UPDATE STATS");
 
       var running = 0;
       var stopped = 0;
@@ -1247,13 +1071,13 @@ export default defineComponent({
       if (window.toolkit) {
         var objs = window.toolkit.getGraph().serialize();
 
-        console.log('OBJS', objs);
-        objs['nodes'].forEach((node) => {
-          console.log('NODE', node);
-          if (node.status == 'running') {
+        console.log("OBJS", objs);
+        objs["nodes"].forEach((node) => {
+          console.log("NODE", node);
+          if (node.status == "running") {
             running += 1;
           }
-          if (node.status == 'stopped') {
+          if (node.status == "stopped") {
             stopped += 1;
           }
         });
@@ -1263,22 +1087,22 @@ export default defineComponent({
       //this.groups = objs['groups'].length;
     },
     getUuid() {
-      return 'key_' + uuidv4();
+      return "key_" + uuidv4();
     },
-    updateQueuedTasks () {
+    updateQueuedTasks() {
       var queued_tasks = 0;
 
       this.queuedata.forEach((queue) => {
-        console.log("QUEUE",queue)
+        console.log("QUEUE", queue);
         queued_tasks += parseInt(queue.messages);
-      })
+      });
 
       console.log("QUEUED TASKS", queued_tasks);
       this.queuedTasks = queued_tasks;
     },
-    refreshQueues () {
+    refreshQueues() {
       this.queueloading = true;
-      console.log("QUEUES REFRESHING")
+      console.log("QUEUES REFRESHING");
       DataService.getMessages(this.queuename)
         .then((messages) => {
           this.queueloading = false;
@@ -1291,7 +1115,7 @@ export default defineComponent({
           // show error message
         });
     },
-    toggleSplitter () {
+    toggleSplitter() {
       this.librarydrawer = false;
       if (this.splitterModel < 100) {
         this.splitterSave = this.splitterModel;
@@ -1306,7 +1130,7 @@ export default defineComponent({
     dataGenerator: function (el) {
       // This probably needs to be automated
       return {
-        type: el.getAttribute('data-node-type'),
+        type: el.getAttribute("data-node-type"),
         w: 120,
         h: 80,
         properties: [],
@@ -1316,30 +1140,30 @@ export default defineComponent({
         facts: [],
         behaviors: [],
         notes: [],
-        package: el.getAttribute('data-node-package'),
-        description: el.getAttribute('data-node-desc'),
-        icon: el.getAttribute('data-node-icon'),
-        name: el.getAttribute('data-node-name'),
+        package: el.getAttribute("data-node-package"),
+        description: el.getAttribute("data-node-desc"),
+        icon: el.getAttribute("data-node-icon"),
+        name: el.getAttribute("data-node-name"),
         id: jsPlumbUtil.uuid(),
       };
     },
     tabChanged(tab) {
-      console.log('REFS:', this.$refs);
-      console.log('TAB:', tab, this.$refs[tab]);
+      console.log("REFS:", this.$refs);
+      console.log("TAB:", tab, this.$refs[tab]);
       for (var i = 0; i < this.flows.length; i++) {
         var flow = this.flows[i];
-        if (tab == 'flow' + flow.id) {
+        if (tab == "flow" + flow.id) {
           this.flow = flow;
         }
       }
-      console.log('GRAPH', this.graph);
-      if (this.$refs[tab + 'designer']) {
-        window.toolkit = this.$refs[tab + 'designer'][0].toolkit;
+      console.log("GRAPH", this.graph);
+      if (this.$refs[tab + "designer"]) {
+        window.toolkit = this.$refs[tab + "designer"][0].toolkit;
         window.toolkit.$q = this.$q;
         this.graph = window.toolkit.getGraph().serialize();
         window.renderer = window.toolkit.renderer;
-        console.log('Refreshing designer');
-        this.$refs[tab + 'designer'][0].refresh();
+        console.log("Refreshing designer");
+        this.$refs[tab + "designer"][0].refresh();
       }
     },
   },
@@ -1347,10 +1171,10 @@ export default defineComponent({
     var me = this;
     //console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     //console.log('MAINLAYOUT STORE', this.$store);
-    window.designer.$root.$on('toolkit.dirty', () => {
+    window.designer.$root.$on("toolkit.dirty", () => {
       this.updateStats();
     });
-    console.log('STATUS: CONNECTED', this.connected);
+    console.log("STATUS: CONNECTED", this.connected);
     /*
     function setconnected () {
       console.log("setconnected")
@@ -1365,38 +1189,38 @@ export default defineComponent({
 
     this.transmitted();
 
-    window.root.$on('message.count', (count) => {
+    window.root.$on("message.count", (count) => {
       me.messageCount += count;
     });
-    window.root.$on('message.size', (size) => {
+    window.root.$on("message.size", (size) => {
       me.messageSize += size;
     });
-    this.$root.$on('flow.uuid', (flowid, flowuuid) => {
+    this.$root.$on("flow.uuid", (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i];
         if (flow.id == flowid) {
           flow._id = flowuuid;
-          console.log('Updated flow', flow, ' with uuid', flowuuid);
+          console.log("Updated flow", flow, " with uuid", flowuuid);
         }
       }
     });
-    window.root.$on('view.queue', (queue) => {
+    window.root.$on("view.queue", (queue) => {
       this.queuename = queue;
       this.viewQueueDialog = true;
     });
 
-    this.$root.$on('open.library', () => {
-      console.log('open.library');
+    this.$root.$on("open.library", () => {
+      console.log("open.library");
       this.librarydrawer = !this.librarydrawer;
     });
-    this.$root.$on('new.queue', () => {
-      console.log('NEW.QUEUE');
+    this.$root.$on("new.queue", () => {
+      console.log("NEW.QUEUE");
       this.newQueueDialog = true;
     });
 
-    this.$root.$on('close.flow', (flowid) => {
-      console.log('DELETING FLOWID', flowid);
-      console.log('BEFORE DELETE', me.flows);
+    this.$root.$on("close.flow", (flowid) => {
+      console.log("DELETING FLOWID", flowid);
+      console.log("BEFORE DELETE", me.flows);
       var index = -1;
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i];
@@ -1409,14 +1233,14 @@ export default defineComponent({
         console.log(value.id, flowid);
         return value.id != flowid;
       });
-      this.tab = 'flow' + me.flows[index - 1].id;
-      this.$refs[this.tab + 'designer'][0].refresh();
-      console.log('AFTER DELETE', me.flows);
+      this.tab = "flow" + me.flows[index - 1].id;
+      this.$refs[this.tab + "designer"][0].refresh();
+      console.log("AFTER DELETE", me.flows);
     });
-    this.$root.$on('new.flow', () => {
+    this.$root.$on("new.flow", () => {
       var id = me.flows.length + 1;
       me.flows.push({
-        filename: 'New Flow',
+        filename: "New Flow",
         id: id,
         code: null,
       });
@@ -1426,87 +1250,87 @@ export default defineComponent({
           me.flow = flow;
         }
       }
-      me.tab = 'flow' + id;
+      me.tab = "flow" + id;
     });
-    this.$root.$on('load.flow', (flow) => {
-      console.log('load.flow', flow);
+    this.$root.$on("load.flow", (flow) => {
+      console.log("load.flow", flow);
       var id = me.flows.length + 1;
       flow._id = flow._id;
       flow.id = id;
       me.flows.push(flow);
-      me.tab = 'flow' + id;
+      me.tab = "flow" + id;
     });
     this.$q.loading.show({
       delay: 40,
-      spinnerColor: 'dark',
+      spinnerColor: "dark",
       spinnerSize: 154,
       spinnerThickness: 1,
     });
-    console.log('Mounting....');
-    console.log('REFS', this.$refs);
-    window.toolkit = this.$refs['flow1designer'][0].toolkit;
+    console.log("Mounting....");
+    console.log("REFS", this.$refs);
+    window.toolkit = this.$refs["flow1designer"][0].toolkit;
     window.toolkit.$q = this.$q;
     window.renderer = window.toolkit.renderer;
     setTimeout(() => {
-      var processor = document.querySelector('#processor');
+      var processor = document.querySelector("#processor");
 
       processor.data = {
         node: {
-          icon: 'fab fa-python',
-          style: '',
-          type: 'processor',
-          name: 'Script Processor',
-          label: 'Script',
-          description: 'A script processor description',
-          package: 'my.python.package',
+          icon: "fab fa-python",
+          style: "",
+          type: "processor",
+          name: "Script Processor",
+          label: "Script",
+          description: "A script processor description",
+          package: "my.python.package",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var portin = document.querySelector('#portin');
+      var portin = document.querySelector("#portin");
       portin.data = {
         node: {
-          icon: 'outlet-icon2',
-          style: 'size:50px',
-          type: 'portin',
-          name: 'Port In',
-          label: 'Port In',
-          description: 'A port in description',
-          package: 'queue name',
+          icon: "outlet-icon2",
+          style: "size:50px",
+          type: "portin",
+          name: "Port In",
+          label: "Port In",
+          description: "A port in description",
+          package: "queue name",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var portout = document.querySelector('#portout');
+      var portout = document.querySelector("#portout");
       portout.data = {
         node: {
-          icon: 'fas fa-plug',
-          style: 'size:50px',
-          type: 'portout',
-          name: 'Port Out',
-          label: 'Port Out',
-          description: 'A port out description',
-          package: 'queue name',
+          icon: "fas fa-plug",
+          style: "size:50px",
+          type: "portout",
+          name: "Port Out",
+          label: "Port Out",
+          description: "A port out description",
+          package: "queue name",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var group = document.querySelector('#processorgroup');
+      var group = document.querySelector("#processorgroup");
       group.data = {
         node: {
-          icon: 'far fa-object-group',
-          style: 'size:50px',
-          type: 'group',
-          name: 'Group',
-          label: 'Group',
-          description: 'A processor group description',
-          package: 'my.python.package',
+          icon: "far fa-object-group",
+          style: "size:50px",
+          type: "group",
+          name: "Group",
+          label: "Group",
+          description: "A processor group description",
+          package: "my.python.package",
           disabled: false,
           group: true,
           columns: [],
@@ -1514,120 +1338,120 @@ export default defineComponent({
         },
       };
 
-      var parallel = document.querySelector('#parallel');
+      var parallel = document.querySelector("#parallel");
       parallel.data = {
         node: {
-          icon: 'fas fa-list',
-          style: 'size:50px',
-          type: 'parallel',
-          name: 'Parallel',
-          label: 'Parallel',
-          description: 'A parallel tool description',
-          package: 'my.python.package',
+          icon: "fas fa-list",
+          style: "size:50px",
+          type: "parallel",
+          name: "Parallel",
+          label: "Parallel",
+          description: "A parallel tool description",
+          package: "my.python.package",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var pipeline = document.querySelector('#pipeline');
+      var pipeline = document.querySelector("#pipeline");
       pipeline.data = {
         node: {
-          icon: 'fas fa-long-arrow-alt-right',
-          style: 'size:50px',
-          type: 'pipeline',
-          name: 'Pipeline',
-          label: 'Pipeline',
-          description: 'A pipeline tool description',
-          package: 'my.python.package',
+          icon: "fas fa-long-arrow-alt-right",
+          style: "size:50px",
+          type: "pipeline",
+          name: "Pipeline",
+          label: "Pipeline",
+          description: "A pipeline tool description",
+          package: "my.python.package",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var segment = document.querySelector('#segment');
+      var segment = document.querySelector("#segment");
       segment.data = {
         node: {
-          icon: 'grid_view',
-          style: 'size:50px',
-          type: 'segment',
-          name: 'Segment',
-          label: 'Segment',
-          description: 'A segment tool description',
-          package: 'my.python.package',
+          icon: "grid_view",
+          style: "size:50px",
+          type: "segment",
+          name: "Segment",
+          label: "Segment",
+          description: "A segment tool description",
+          package: "my.python.package",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var chord = document.querySelector('#chord');
+      var chord = document.querySelector("#chord");
       chord.data = {
         node: {
-          icon: 'low_priority',
-          style: 'size:50px',
-          type: 'chord',
-          name: 'Chord',
-          label: 'Chord',
-          description: 'A chord tool description',
-          package: 'my.python.package',
+          icon: "low_priority",
+          style: "size:50px",
+          type: "chord",
+          name: "Chord",
+          label: "Chord",
+          description: "A chord tool description",
+          package: "my.python.package",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var label = document.querySelector('#label');
+      var label = document.querySelector("#label");
       label.data = {
         node: {
-          icon: 'icon-label',
-          style: 'size:50px',
-          type: 'note',
-          name: 'Label',
-          label: 'Label',
+          icon: "icon-label",
+          style: "size:50px",
+          type: "note",
+          name: "Label",
+          label: "Label",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var data = document.querySelector('#data');
+      var data = document.querySelector("#data");
       data.data = {
         node: {
-          icon: 'las la-file-alt',
-          style: 'size:50px',
-          type: 'data',
-          name: 'Data',
-          label: 'Data',
+          icon: "las la-file-alt",
+          style: "size:50px",
+          type: "data",
+          name: "Data",
+          label: "Data",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var schema = document.querySelector('#schema');
+      var schema = document.querySelector("#schema");
       schema.data = {
         node: {
           icon: this.schemaIcon,
-          style: 'size:50px',
-          type: 'schema',
-          name: 'Schema',
-          label: 'Schema',
+          style: "size:50px",
+          type: "schema",
+          name: "Schema",
+          label: "Schema",
           disabled: false,
           columns: [],
           properties: [],
         },
       };
 
-      var router = document.querySelector('#router');
+      var router = document.querySelector("#router");
       router.data = {
         node: {
-          icon: 'alt_route',
-          style: 'size:50px',
-          type: 'router',
-          name: 'Router',
-          label: 'Router',
+          icon: "alt_route",
+          style: "size:50px",
+          type: "router",
+          name: "Router",
+          label: "Router",
           disabled: false,
           columns: [],
           properties: [],
@@ -1635,20 +1459,7 @@ export default defineComponent({
       };
 
       //, chord, segment, map, reduce
-      var els = [
-        processor,
-        portin,
-        router,
-        portout,
-        group,
-        parallel,
-        segment,
-        chord,
-        pipeline,
-        label,
-        data,
-        schema,
-      ];
+      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema];
 
       els.forEach((el) => {
         var data = el.data;
@@ -1656,9 +1467,9 @@ export default defineComponent({
         var draghandle = dd.drag(el, {
           image: true, // default drag image
         });
-        draghandle.on('start', function (setData, e) {
-          console.log('drag:start:', el, e);
-          setData('object', JSON.stringify(data));
+        draghandle.on("start", function (setData, e) {
+          console.log("drag:start:", el, e);
+          setData("object", JSON.stringify(data));
         });
       });
     });
@@ -1672,8 +1483,8 @@ export default defineComponent({
       queueTableSplitter: 50,
       detailedqueues: [],
       queuedTasks: 0,
-      mode: 'disconnected',
-      messageContent: '',
+      mode: "disconnected",
+      messageContent: "",
       graph: {},
       items: [],
       messageCount: 0,
@@ -1703,45 +1514,45 @@ export default defineComponent({
       messageSplitter: 70,
       queuecolumns: [
         {
-          name: 'task',
-          label: 'Task',
-          field: 'task',
-          align: 'left',
+          name: "task",
+          label: "Task",
+          field: "task",
+          align: "left",
         },
         {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
-          align: 'left',
+          name: "tracking",
+          label: "Tracking",
+          field: "tracking",
+          align: "left",
         },
         {
-          name: 'id',
-          label: 'ID',
-          field: 'id',
-          align: 'left',
+          name: "id",
+          label: "ID",
+          field: "id",
+          align: "left",
         },
         {
-          name: 'time',
-          label: 'Time',
-          field: 'time',
-          align: 'left',
+          name: "time",
+          label: "Time",
+          field: "time",
+          align: "left",
         },
         {
-          name: 'parent',
-          label: 'Parent',
-          field: 'parent',
-          align: 'left',
+          name: "parent",
+          label: "Parent",
+          field: "parent",
+          align: "left",
         },
         {
-          name: 'routing_key',
-          label: 'Routing Key',
-          field: 'routing_key',
-          align: 'left',
+          name: "routing_key",
+          label: "Routing Key",
+          field: "routing_key",
+          align: "left",
         },
       ],
       queuedata: [],
       initialPagination: {
-        sortBy: 'desc',
+        sortBy: "desc",
         descending: false,
         page: 1,
         rowsPerPage: 50,
@@ -1749,7 +1560,7 @@ export default defineComponent({
       },
 
       queuePagination: {
-        sortBy: 'desc',
+        sortBy: "desc",
         descending: false,
         page: 1,
         rowsPerPage: 20,
@@ -1760,142 +1571,142 @@ export default defineComponent({
       splitterSave: 70,
       messageColumns: [
         {
-          name: 'date',
-          label: 'Date',
-          field: 'date',
-          align: 'left',
+          name: "date",
+          label: "Date",
+          field: "date",
+          align: "left",
         },
         {
-          name: 'channel',
-          label: 'Channel',
-          field: 'channel',
-          align: 'left',
+          name: "channel",
+          label: "Channel",
+          field: "channel",
+          align: "left",
         },
         {
-          name: 'module',
-          label: 'Module',
-          field: 'module',
-          align: 'left',
+          name: "module",
+          label: "Module",
+          field: "module",
+          align: "left",
         },
         {
-          name: 'task',
-          label: 'Task',
-          field: 'task',
-          align: 'left',
+          name: "task",
+          label: "Task",
+          field: "task",
+          align: "left",
         },
         {
-          name: 'room',
-          label: 'Room',
-          field: 'room',
-          align: 'left',
+          name: "room",
+          label: "Room",
+          field: "room",
+          align: "left",
         },
         {
-          name: 'state',
-          label: 'State',
-          field: 'state',
-          align: 'left',
+          name: "state",
+          label: "State",
+          field: "state",
+          align: "left",
         },
         {
-          name: 'duration',
-          label: 'Duration',
-          field: 'duration',
-          align: 'left',
+          name: "duration",
+          label: "Duration",
+          field: "duration",
+          align: "left",
         },
       ],
       columns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'messages',
-          align: 'center',
-          label: 'Messages',
-          field: 'messages',
+          name: "messages",
+          align: "center",
+          label: "Messages",
+          field: "messages",
         },
         {
-          name: 'ready',
-          align: 'center',
-          label: 'Ready',
-          field: 'ready',
+          name: "ready",
+          align: "center",
+          label: "Ready",
+          field: "ready",
         },
         {
-          name: 'unacked',
-          align: 'center',
-          label: 'Not Acked',
-          field: 'unacked',
+          name: "unacked",
+          align: "center",
+          label: "Not Acked",
+          field: "unacked",
         },
         {
-          name: 'incoming',
-          align: 'center',
-          label: 'Incoming',
-          field: 'incoming',
+          name: "incoming",
+          align: "center",
+          label: "Incoming",
+          field: "incoming",
         },
         {
-          name: 'delivered',
-          align: 'center',
-          label: 'Delivered',
-          field: 'delivered',
+          name: "delivered",
+          align: "center",
+          label: "Delivered",
+          field: "delivered",
         },
         {
-          name: 'acked',
-          align: 'center',
-          label: 'Acked',
-          field: 'acked',
+          name: "acked",
+          align: "center",
+          label: "Acked",
+          field: "acked",
         },
         {
-          name: 'bytes',
-          align: 'right',
-          classes: 'text-secondary',
-          label: 'Bytes',
-          field: 'bytes',
+          name: "bytes",
+          align: "right",
+          classes: "text-secondary",
+          label: "Bytes",
+          field: "bytes",
         },
         {
-          name: 'actions',
-          align: 'center',
-          style: 'min-width:150px',
-          classes: 'text-secondary',
-          label: 'Actions',
+          name: "actions",
+          align: "center",
+          style: "min-width:150px",
+          classes: "text-secondary",
+          label: "Actions",
         },
       ],
       queues: [],
       variablecolumns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'value',
-          label: 'Value',
-          field: 'value',
-          align: 'left',
+          name: "value",
+          label: "Value",
+          field: "value",
+          align: "left",
         },
         {
-          name: 'scope',
-          label: 'Scope',
-          field: 'scope',
-          align: 'left',
+          name: "scope",
+          label: "Scope",
+          field: "scope",
+          align: "left",
         },
       ],
-      variabledata: [],      
+      variabledata: [],
       jsondata: {},
       msglogs: [],
       searchdrawer: false,
       flows: [
         {
-          filename: 'Scratch Flow',
+          filename: "Scratch Flow",
           id: 1,
         },
       ],
-      drawertab: 'messages',
+      drawertab: "messages",
       drawer: true,
       tab: null,
-      tools: 'code',
-      text: '',
+      tools: "code",
+      text: "",
     };
   },
 });

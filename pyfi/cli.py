@@ -4925,18 +4925,18 @@ def start_agent(
         if CONFIG.has_section("services"):
             agent_class_name = CONFIG.get("services", "agent")
             worker_class_name = CONFIG.get("services", "worker")
-            
+
             logger.debug("Importing agent service class %s", agent_class_name)
             logger.debug("Importing worker service class %s", worker_class_name)
-            
+
             worker_class = None
 
             try:
                 agent_class = import_class(agent_class_name)
                 if worker_class_name:
-                    logger.info("Importing class %s",worker_class_name)
+                    logger.info("Importing class %s", worker_class_name)
                     worker_class = import_class(worker_class_name)
-                    logger.info("Imported class: %s",worker_class)
+                    logger.info("Imported class: %s", worker_class)
 
             except Exception as ex:
                 logging.error(ex)

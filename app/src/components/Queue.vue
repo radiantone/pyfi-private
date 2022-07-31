@@ -42,12 +42,7 @@
         icon="close"
         color="primary"
         @click="deleteEdgeConfirm = true"
-        style="
-          cursor: pointer;
-          font-size: 0.7em;
-          position: absolute;
-          right: 5px;
-        "
+        style="cursor: pointer; font-size: 0.7em; position: absolute; right: 5px;"
       >
         <q-tooltip
           anchor="top middle"
@@ -56,8 +51,8 @@
           content-class="bg-black text-white"
         >
           Remove Edge
-        </q-tooltip></q-btn
-      >
+        </q-tooltip>
+      </q-btn>
 
       <!--
       <q-btn-dropdown
@@ -105,8 +100,7 @@
       style="
         color: black;
         font-weight: normal;
-        font-family: 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica,
-          Arial, sans-serif;
+        font-family: 'Roboto', '-apple-system', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         background-color: white;
         border-top: 1px solid #abbcc3;
         width: 100%;
@@ -121,21 +115,14 @@
       "
     >
       Queued
-      <span style="font-weight: bold; color: #775351;"
-        >{{ messages }} ({{ bytes }} bytes)</span
-      >
+      <span style="font-weight: bold; color: #775351;">{{ messages }} ({{ bytes }} bytes)</span>
       <q-btn
         flat
         dense
         icon="fas fa-chart-bar"
         size="xs"
         color="primary"
-        style="
-          cursor: pointer;
-          font-size: 0.7em;
-          position: absolute;
-          right: 25px;
-        "
+        style="cursor: pointer; font-size: 0.7em; position: absolute; right: 25px;"
         @click="bandwidthView = !bandwidthView"
       >
         <q-tooltip
@@ -145,8 +132,8 @@
           content-class="bg-black text-white"
         >
           Bandwidth Chart
-        </q-tooltip></q-btn
-      >
+        </q-tooltip>
+      </q-btn>
       <q-btn
         flat
         dense
@@ -154,21 +141,17 @@
         size="xs"
         @click="showQueue"
         color="primary"
-        style="
-          cursor: pointer;
-          font-size: 0.7em;
-          position: absolute;
-          right: 5px;
-        "
-        ><q-tooltip
+        style="cursor: pointer; font-size: 0.7em; position: absolute; right: 5px;"
+      >
+        <q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
           Queued Messages
-        </q-tooltip></q-btn
-      >
+        </q-tooltip>
+      </q-btn>
 
       <div v-if="bandwidthView">
         <apexchart
@@ -223,13 +206,7 @@
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -250,11 +227,7 @@
           </div>
         </q-card-section>
         <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
+          <q-avatar icon="fas fa-exclamation" color="primary" text-color="white" />
           <span class="q-ml-sm">
             Are you sure you want to delete this edge?
           </span>
@@ -284,107 +257,105 @@
   </div>
 </template>
 <script>
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
-let socket = io('http://localhost');
+let socket = io("http://localhost");
 
 export default {
-  name: 'Button',
-  props: ['node', 'name', 'component'],
+  name: "Button",
+  props: ["node", "name", "component"],
   mounted() {
-    console.log('QUEUE NODE', this.component);
-    window.root.$on('update.queues', (queues) => {
+    console.log("QUEUE NODE", this.component);
+    window.root.$on("update.queues", (queues) => {
       this.queues = queues.map((queue) => queue.name);
     });
   },
   created() {
     var me = this;
-    socket.on('global', (data) => {
+    socket.on("global", (data) => {
       //console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      if (data['type'] && data['type'] == 'queues') {
+      if (data["type"] && data["type"] == "queues") {
         me.messageReceived(data);
       }
     });
-    this.$on('message.received', (msg) => {
+    this.$on("message.received", (msg) => {
       //console.log('QUEUE MESSAGE RECEIVED', msg);
     });
     if (this.component.edge) {
       this.queueName = this.component.edge.data.queue;
     } else {
-      this.queueName = 'None';
+      this.queueName = "None";
     }
   },
   computed: {},
   methods: {
     queueSelect(val) {
-      console.log('QUEUE SELECTED ', val);
+      console.log("QUEUE SELECTED ", val);
       this.component.edge.data.queue = val;
     },
     deleteEdge() {
-      console.log('Deleting edge ', this.component);
+      console.log("Deleting edge ", this.component);
       window.toolkit.removeEdge(this.component.edge);
     },
     showQueue() {
-      window.root.$emit('view.queue', this.queueName);
+      window.root.$emit("view.queue", this.queueName);
     },
     sizeOf(bytes) {
       if (bytes == 0) {
-        return '0.00 B';
+        return "0.00 B";
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
-      return (
-        (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
-      );
+      return (bytes / Math.pow(1024, e)).toFixed(2) + " " + " KMGTP".charAt(e) + "B";
     },
     messageReceived(msg) {
       //console.log("QUEUES RECEIVED",msg);
-      msg['queues'].forEach((queue) => {
+      msg["queues"].forEach((queue) => {
         //console.log("QUEUE NAME",queue['name'],this.name)
-        if (queue['name'] == this.queueName) {
+        if (queue["name"] == this.queueName) {
           //console.log("FOUND MY QUEUE",queue['messages'])
-          this.messages = queue['messages'];
-          this.bytes = this.sizeOf(queue['message_bytes']);
+          this.messages = queue["messages"];
+          this.bytes = this.sizeOf(queue["message_bytes"]);
         }
       });
-      this.$emit('message.received', msg);
+      this.$emit("message.received", msg);
     },
     clickMe() {
-      console.log('clicked');
+      console.log("clicked");
     },
   },
   data() {
     return {
       chartOptions2: {
         dataLabels: {
-              enabled: false
-            },
+          enabled: false,
+        },
         fill: {
-          type: 'gradient',
+          type: "gradient",
           gradient: {
             shadeIntensity: 1,
             opacityFrom: 0.7,
             opacityTo: 0.9,
-            stops: [0, 100]
-          }
+            stops: [0, 100],
+          },
         },
         stroke: {
           show: true,
-          colors: ['#abbcc3', '#6b8791', '#e3e8ec', '#054848'],
+          colors: ["#abbcc3", "#6b8791", "#e3e8ec", "#054848"],
           width: 1,
           dashArray: 0,
         },
-        colors: ['#abbcc3', '#6b8791', '#e3e8ec', '#054848'],
+        colors: ["#abbcc3", "#6b8791", "#e3e8ec", "#054848"],
         grid: {
           row: {
-            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
             opacity: 0.5,
           },
         },
         plotOptions: {
           candlestick: {
             colors: {
-              upward: '#abbcc3',
-              downward: '#6b8791',
+              upward: "#abbcc3",
+              downward: "#6b8791",
             },
             wick: {
               useFillColor: true,
@@ -393,8 +364,8 @@ export default {
         },
         candlestick: {
           colors: {
-            upward: '#abbcc3',
-            downward: '#6b8791',
+            upward: "#abbcc3",
+            downward: "#6b8791",
           },
           wick: {
             useFillColor: true,
@@ -404,11 +375,11 @@ export default {
           toolbar: {
             show: false,
           },
-          type: 'line',
+          type: "line",
           height: 350,
         },
         xaxis: {
-          type: 'datetime',
+          type: "datetime",
         },
         yaxis: {
           tooltip: {
@@ -668,7 +639,7 @@ export default {
       bandwidthView: false,
       choosequeue: false,
       deleteEdgeConfirm: false,
-      queueName: 'None',
+      queueName: "None",
       queues: [],
       obj: {},
       messages: 0,

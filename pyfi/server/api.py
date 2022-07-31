@@ -209,14 +209,15 @@ def empty_queues():
     # send DELETE method to each queue
     return jsonify({"status": "ok"})
 
+
 @app.route("/git/code", methods=["POST"])
 def get_code():
     from pydriller import Repository
 
     data: Any = request.get_json()
 
-    repo = data['repo']
-    commit = data['commit']
+    repo = data["repo"]
+    commit = data["commit"]
 
     r = Repository(repo, single=commit)
 
@@ -226,39 +227,43 @@ def get_code():
 
     return "No source code found", 404
 
+
 @app.route("/git", methods=["POST"])
 def get_git():
     from pydriller import Repository
 
     data: Any = request.get_json()
 
-    repo = data['repo']
-    file = data['file']
+    repo = data["repo"]
+    file = data["file"]
 
     r = Repository(repo, filepath=file)
 
     commits = []
 
     for commit in r.traverse_commits():
-        commits += [{
-            'hash':commit.hash,
-            'author':commit.author.name,
-            'message':commit.msg,
-            'date':str(commit.author_date)
-        }]
+        commits += [
+            {
+                "hash": commit.hash,
+                "author": commit.author.name,
+                "message": commit.msg,
+                "date": str(commit.author_date),
+            }
+        ]
 
     commits.reverse()
     return jsonify(commits)
 
-    
+
 @app.route("/login/<id>", methods=["POST"])
 def login_processor(id):
     data: Any = request.get_json()
 
-    password = data['password']
-    logging.info("LOGIN FOR %s %s",id, password)
+    password = data["password"]
+    logging.info("LOGIN FOR %s %s", id, password)
 
     return jsonify({"status": "ok"})
+
 
 @app.route("/processor/<id>", methods=["POST", "GET", "DELETE"])
 def do_processor(id):

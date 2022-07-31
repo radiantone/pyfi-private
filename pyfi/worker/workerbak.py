@@ -191,8 +191,16 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
         # tkey = socket.queue.name
         logging.info("dispatcher: processor %s", processor.name)
         logging.info("dispatcher: plug %s", plug.name)
-        logging.info("dispatcher: plug: source %s:%s", plug.source.processor.name, plug.source.task.name)
-        logging.info("dispatcher: plug: target %s:%s", plug.target.processor.name, plug.target.task.name)
+        logging.info(
+            "dispatcher: plug: source %s:%s",
+            plug.source.processor.name,
+            plug.source.task.name,
+        )
+        logging.info(
+            "dispatcher: plug: target %s:%s",
+            plug.target.processor.name,
+            plug.target.task.name,
+        )
         logging.info("dispatcher: tkey %s", tkey)
         logging.info("dispatcher: exchange %s", socket.queue.name)
         logging.info("dispatcher: routing_key %s", tkey)
@@ -822,6 +830,7 @@ class WorkerService:
                         import pickle
                         from datetime import datetime
                         from urllib.parse import urlparse
+
                         from rejson import Client, Path
 
                         logging.debug("POSTRUN: SIGNAL: %s", _signal)
@@ -883,7 +892,7 @@ class WorkerService:
 
                         # Dispatch result to connected plugs
                         for socket in processor.sockets:
-                            
+
                             # Find the socket associated with this task
                             if socket.task.name == _signal["sender"]:
 
@@ -911,7 +920,7 @@ class WorkerService:
                                 }
 
                                 payload = json.dumps(data)
-                                logging.info("postrun: payload %s",data)
+                                logging.info("postrun: payload %s", data)
                                 data["message"] = payload
                                 break
 
@@ -1076,7 +1085,9 @@ class WorkerService:
                                 logging.info("postrun: tkey %s", tkey)
                                 tkey2 = key + "." + processor_plug.target.task.name
 
-                                logging.debug("Sending {} to queue {}".format(msg, tkey))
+                                logging.debug(
+                                    "Sending {} to queue {}".format(msg, tkey)
+                                )
 
                                 if processor_plug.target.queue.qtype == "direct":
                                     logging.debug("Finding processor....")
@@ -1113,7 +1124,9 @@ class WorkerService:
                                         },
                                     )
 
-                                    logging.info("postrun: built plug queue %s", plug_queue)
+                                    logging.info(
+                                        "postrun: built plug queue %s", plug_queue
+                                    )
                                     # TODO: Task queue
                                     plug_sig = self.celery.signature(
                                         processor.name + ".pyfi.celery.tasks.enqueue",
@@ -1121,11 +1134,12 @@ class WorkerService:
                                         queue=plug_queue,
                                         kwargs=pass_kwargs,
                                     )
-                                    
 
                                     plug_queue = KQueue(
                                         processor_plug.queue.name,
-                                        Exchange(processor_plug.queue.name, type="direct"),
+                                        Exchange(
+                                            processor_plug.queue.name, type="direct"
+                                        ),
                                         routing_key=tkey,
                                         message_ttl=processor_plug.queue.message_ttl,
                                         durable=processor_plug.queue.durable,
@@ -1206,21 +1220,30 @@ class WorkerService:
                                                 "Processor plug not connected to argument."
                                             )
 
-                                        plug_task_sig = processor_plug.queue.name + "." + target_processor.module + "." + processor_plug.target.task.name
+                                        plug_task_sig = (
+                                            processor_plug.queue.name
+                                            + "."
+                                            + target_processor.module
+                                            + "."
+                                            + processor_plug.target.task.name
+                                        )
 
-                                        logging.info("postrun: plug_task_sig %s", plug_task_sig)
+                                        logging.info(
+                                            "postrun: plug_task_sig %s", plug_task_sig
+                                        )
                                         # PLUG ROUTING
-                                        task_sig = self.celery.signature(plug_task_sig,
+                                        task_sig = self.celery.signature(
+                                            plug_task_sig,
                                             args=(msg,),
                                             # TODO: QUEUENAME
                                             # queue=plug_queue
                                             # This will ensure that each "edge" in the flow, which is one plug connecting
                                             # two sockets, has its own assigned queue for invoking the target task
-                                            #queue=worker_queue,
+                                            # queue=worker_queue,
                                             queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
-                                        '''
+                                        """
                                         task_sig = self.celery.signature(
                                             target_processor.module
                                             + "."
@@ -1234,7 +1257,7 @@ class WorkerService:
                                             queue=plug_queue,
                                             kwargs=pass_kwargs,
                                         )
-                                        '''
+                                        """
                                         delayed = pipeline(task_sig)
                                         pipelines += [delayed]
                                         logging.debug("   ADDED TASK SIG: %s", task_sig)
@@ -1247,7 +1270,7 @@ class WorkerService:
                                         logging.debug(
                                             "call complete %s %s %s %s",
                                             processor_plug.queue.name
-                                            + "." 
+                                            + "."
                                             + target_processor.module
                                             + "."
                                             + processor_plug.target.task.name,
@@ -1388,7 +1411,7 @@ class WorkerService:
                 )
 
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
-                    """ Set up task routes """
+                    """Set up task routes"""
                     logging.debug("Setting up sockets...")
                     for socket in _processor.sockets:
                         logging.debug("Socket %s", socket)
@@ -1439,7 +1462,7 @@ class WorkerService:
                             )
 
                             for processor_plug in socket.targetplugs:
-                                """ PLUG ROUTING """
+                                """PLUG ROUTING"""
                                 tkey = (
                                     processor_plug.source.queue.name
                                     + "."
@@ -1454,7 +1477,13 @@ class WorkerService:
                                 )
 
                                 # PLUG ROUTING
-                                routing_key = processor_plug.queue.name + "." + self.processor.module + "." + processor_plug.target.task.name
+                                routing_key = (
+                                    processor_plug.queue.name
+                                    + "."
+                                    + self.processor.module
+                                    + "."
+                                    + processor_plug.target.task.name
+                                )
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
@@ -1477,24 +1506,37 @@ class WorkerService:
                                 )
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.queue.name
+                                    + "."
+                                    + self.processor.module
+                                    + "."
+                                    + socket.task.name
                                 ] = {
                                     "queue": processor_plug.queue.name,
-                                    "exchange": [
-                                        processor_plug.queue.name
-                                    ],
+                                    "exchange": [processor_plug.queue.name],
                                 }
 
                                 # PLUG ROUTING
-                                logging.debug("ADDED ROUTE %s for %s",processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name,
-                                task_routes[
-                                    processor_plug.queue.name + "." + self.processor.module + "." + socket.task.name
-                                ])
+                                logging.debug(
+                                    "ADDED ROUTE %s for %s",
+                                    processor_plug.queue.name
+                                    + "."
+                                    + self.processor.module
+                                    + "."
+                                    + socket.task.name,
+                                    task_routes[
+                                        processor_plug.queue.name
+                                        + "."
+                                        + self.processor.module
+                                        + "."
+                                        + socket.task.name
+                                    ],
+                                )
                                 logging.debug("ADDED TARGET PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
 
                             for processor_plug in socket.sourceplugs:
-                                """ PLUG ROUTING """
+                                """PLUG ROUTING"""
                                 tkey = (
                                     processor_plug.target.queue.name
                                     + "."
@@ -1509,7 +1551,13 @@ class WorkerService:
                                 )
 
                                 # PLUG ROUTING
-                                routing_key = processor_plug.target.queue.name + "." + fix(self.processor.name) + "." + socket.task.name
+                                routing_key = (
+                                    processor_plug.target.queue.name
+                                    + "."
+                                    + fix(self.processor.name)
+                                    + "."
+                                    + socket.task.name
+                                )
 
                                 # PLUG ROUTING
                                 plug_queue = KQueue(
@@ -1533,19 +1581,32 @@ class WorkerService:
 
                                 # PLUG ROUTING
                                 task_routes[
-                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
+                                    processor_plug.target.queue.name
+                                    + "."
+                                    + self.processor.module
+                                    + "."
+                                    + socket.task.name
                                 ] = {
                                     "queue": processor_plug.target.queue.name,
-                                    "exchange": [
-                                        processor_plug.target.queue.name
-                                    ],
+                                    "exchange": [processor_plug.target.queue.name],
                                 }
 
                                 # PLUG ROUTING
-                                logging.debug("ADDED ROUTE %s for %s",processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name,
-                                task_routes[
-                                    processor_plug.target.queue.name + "." + self.processor.module + "." + socket.task.name
-                                ])
+                                logging.debug(
+                                    "ADDED ROUTE %s for %s",
+                                    processor_plug.target.queue.name
+                                    + "."
+                                    + self.processor.module
+                                    + "."
+                                    + socket.task.name,
+                                    task_routes[
+                                        processor_plug.target.queue.name
+                                        + "."
+                                        + self.processor.module
+                                        + "."
+                                        + socket.task.name
+                                    ],
+                                )
                                 logging.debug("ADDED SOURCE PLUG QUEUE %s", plug_queue)
                                 task_queues += [plug_queue]
 
@@ -1694,8 +1755,9 @@ class WorkerService:
                     logging.error(ex)
 
                 logging.debug("Created celery worker")
-                from celery import current_app 
-                logging.debug("TASK KEYS %s",current_app.tasks.keys())
+                from celery import current_app
+
+                logging.debug("TASK KEYS %s", current_app.tasks.keys())
 
                 """ Find or create a WorkerModel for this worker """
                 try:
@@ -1992,7 +2054,7 @@ class WorkerService:
                             _kwargs = kwargs["kwargs"] if "kwargs" in kwargs else None
 
                             if "argument" in kwargs:
-                                """ This means we are invoking on a single argument only """
+                                """This means we are invoking on a single argument only"""
                                 argument = kwargs["argument"]
 
                                 # Store argument in redis
@@ -2227,7 +2289,9 @@ class WorkerService:
                                         with io.StringIO() as buf, redirect_stdout(buf):
                                             result = _func(*args)
                                             output = buf.getvalue()
-                                            logging.debug("%s OUTPUT: %s", _func, output)
+                                            logging.debug(
+                                                "%s OUTPUT: %s", _func, output
+                                            )
                                             redisclient.set(taskid + "-output", output)
                                             outputj = {
                                                 "type": "output",
@@ -2258,19 +2322,30 @@ class WorkerService:
                             name=_processor.module + "." + socket.task.name,
                             retries=_processor.retries,
                         )
-                        logging.debug("TASK: %s",_processor.module + "." + socket.task.name)
+                        logging.debug(
+                            "TASK: %s", _processor.module + "." + socket.task.name
+                        )
                         for plug in socket.targetplugs:
 
                             func = self.celery.task(
                                 wrapped_function,
-                                name=plug.queue.name + "." + _processor.module + "." + socket.task.name,
+                                name=plug.queue.name
+                                + "."
+                                + _processor.module
+                                + "."
+                                + socket.task.name,
                                 retries=_processor.retries,
                             )
-                            logging.info("PLUG TASK: %s",plug.queue.name + "." + _processor.module + "." + socket.task.name)
-                        
-                        
-                        from celery import current_app 
-                        logging.debug("TASK KEYS: %s",current_app.tasks.keys())
+                            logging.info(
+                                "PLUG TASK: %s",
+                                plug.queue.name
+                                + "."
+                                + _processor.module
+                                + "."
+                                + socket.task.name,
+                            )
+
+                        logging.debug("TASK KEYS: %s", current_app.tasks.keys())
                         """
                         Everything that hosts and runs user code is a processor, but there are different types.
                         Each type handles the meta invocation a bit different.
@@ -2293,7 +2368,9 @@ class WorkerService:
 
                             # PRERUN_CONDITION.acquire()
                             try:
-                                logging.debug("prerun TASK: %s %s %s", type(task), task, kwargs)
+                                logging.debug(
+                                    "prerun TASK: %s %s %s", type(task), task, kwargs
+                                )
 
                                 if sender.__name__ == "enqueue":
                                     return
@@ -2522,7 +2599,8 @@ class WorkerService:
                         and os.path.exists(self.worker.workerdir + "/git")
                     ):
                         logging.debug(
-                            "Changing to existing work directory %s", self.worker.workerdir
+                            "Changing to existing work directory %s",
+                            self.worker.workerdir,
                         )
                         os.chdir(self.worker.workerdir + "/git")
                         os.system("git config --get remote.origin.url")
@@ -2583,7 +2661,9 @@ class WorkerService:
                         # TODO: Make this URL a setting so it can be overridden
                         env.install("psycopg2")
                         env.install("pymongo")
-                        env.install("-e git+" + login + "/radiantone/pyfi-private#egg=pyfi")
+                        env.install(
+                            "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
+                        )
 
                         if not self.processor.use_container:
                             """If we are not running the processor tasks in a container, then load it into the venv"""
@@ -2594,7 +2674,8 @@ class WorkerService:
 
                                 print(traceback.format_exc())
                                 logging.error(
-                                    "Could not install %s", self.processor.gitrepo.strip()
+                                    "Could not install %s",
+                                    self.processor.gitrepo.strip(),
                                 )
 
                 if self.processor.commit and not self.processor.gittag:
@@ -2606,7 +2687,6 @@ class WorkerService:
             # Sometimes we just want to recreate the setup
             if not start:
                 return
-
 
             """ Start worker process"""
             worker_process = self.worker_process = Thread(
@@ -2675,12 +2755,17 @@ class WorkerService:
             webserver.start()
             logging.debug("web_server started...")
 
-        ops = [start_database_actions, start_worker_proc, start_emit_messages, start_web_server]
+        ops = [
+            start_database_actions,
+            start_worker_proc,
+            start_emit_messages,
+            start_web_server,
+        ]
 
         # Start all the operations
         [op() for op in ops]
-        
-        logging.debug("Returning worker_process %s",self.process)
+
+        logging.debug("Returning worker_process %s", self.process)
 
         return self.process
 
