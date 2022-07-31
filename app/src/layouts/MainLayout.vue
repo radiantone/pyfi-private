@@ -325,7 +325,7 @@
             <q-tab-panel
               name="queues"
               ref="queues"
-              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 130px);"
             >
               <q-splitter
                 v-model="queueTableSplitter"
@@ -370,9 +370,10 @@
                           </a>
                         </q-td>
                         <q-td key="unacked" :props="props">{{ props.row.unacked }}</q-td>
+                        <!--
                         <q-td key="incoming" :props="props">{{ props.row.incoming }}</q-td>
                         <q-td key="delivered" :props="props">{{ props.row.deliver_rate }}</q-td>
-                        <q-td key="acked" :props="props">{{ props.row.acked_rate }}</q-td>
+                        <q-td key="acked" :props="props">{{ props.row.acked_rate }}</q-td>-->
                         <q-td key="bytes" :width="200" :props="props">{{ props.row.bytes }}</q-td>
                         <q-td key="actions" :props="props" style="width: 25px;">
                           <q-btn
@@ -424,15 +425,54 @@
                   </q-table>
                 </template>
                 <template v-slot:after>
-                  <editor
-                    @init="queueDetailEditorInit"
-                    style="font-size: 1.5em;"
-                    lang="javascript"
-                    theme="chrome"
-                    ref="queueDetailEditor"
-                    width="100%"
-                    height="100%"
-                  ></editor>
+                  <q-tabs
+                    v-model="queuedetailtab"
+                    dense
+                    class="bg-primary"
+                    align="left"
+                    narrow-indicator
+                    active-color="dark"
+                    indicator-color="primary"
+                    active-bg-color="accent"
+                  >
+                    <q-tab name="stats" class="text-dark" label="Stats" />
+                    <q-tab name="json" class="text-dark" label="JSON" />
+                  </q-tabs>
+                  <q-tab-panels v-model="queuedetailtab" keep-alive style="height: 100%;">
+                    <q-tab-panel
+                      name="stats"
+                      ref="stats"
+                      style="padding: 0px; width: 100%; padding-top: 0px; height: 100%;"
+                    >
+                      <q-table
+                        dense
+                        :columns="queueDetailColumns"
+                        :data="queueDetailData"
+                        row-key="name"
+                        flat
+                        virtual-scroll
+                        :pagination="initialPagination"
+                        style="height: 100%; width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+                      ></q-table>
+                    </q-tab-panel>
+                    <q-tab-panel
+                      name="json"
+                      ref="json"
+                      style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100% - 25px);"
+                      keep-alive
+                    >
+                      <editor
+                        @init="queueDetailEditorInit"
+                        style="font-size: 1.5em;"
+                        lang="javascript"
+                        theme="chrome"
+                        ref="queueDetailEditor"
+                        width="100%"
+                        v-model="queueDetailContent"
+                        height="100%"
+                      ></editor>
+                    </q-tab-panel>
+                  </q-tab-panels>
                 </template>
               </q-splitter>
             </q-tab-panel>
@@ -890,28 +930,30 @@ export default defineComponent({
     },
   },
   methods: {
-    showStats (name, objects) {
-      console.log("showStats",objects)
-      this.$root.$emit("show.objects", {'name':name, 'objects':objects,'columns':this.objectcolumns[objects]});
+    showStats(name, objects) {
+      console.log("showStats", objects);
+      this.$root.$emit("show.objects", { name: name, objects: objects, columns: this.objectcolumns[objects] });
     },
-    purgeQueue (name) {
-      DataService.purgeQueue(name).then((res) => {
-        this.$q.notify({
-            color: 'secondary',
+    purgeQueue(name) {
+      DataService.purgeQueue(name)
+        .then((res) => {
+          this.$q.notify({
+            color: "secondary",
             timeout: 2000,
-            position: 'top',
-            message: 'Purging Queue '+name+'...',
-            icon: 'fas fa-exclamation',
+            position: "top",
+            message: "Purging Queue " + name + "...",
+            icon: "fas fa-exclamation",
           });
-      }).catch((res) => {
-        this.$q.notify({
-            color: 'secondary',
+        })
+        .catch((res) => {
+          this.$q.notify({
+            color: "secondary",
             timeout: 2000,
-            position: 'top',
-            message: 'Error Purging Queue '+name,
-            icon: 'fas fa-exclamation',
+            position: "top",
+            message: "Error Purging Queue " + name,
+            icon: "fas fa-exclamation",
           });
-      })
+        });
     },
     queueDetailEditorInit: function () {
       var me = this;
@@ -926,10 +968,12 @@ export default defineComponent({
       editor.setAutoScrollEditorIntoView(true);
     },
     showQueueDetail(name) {
-      const editor = this.$refs.queueDetailEditor.editor;
+      this.queueDetailData = this.queueDetails[name];
+      //const editor = this.$refs.queueDetailEditor.editor;
       this.detailedqueues.forEach((queue) => {
         if (queue["name"] == name) {
-          editor.session.setValue(JSON.stringify(queue, null, "\t"));
+          //editor.session.setValue(JSON.stringify(queue, null, "\t"));
+          this.queueDetailContent = JSON.stringify(queue, null, "\t");
         }
       });
     },
@@ -949,6 +993,7 @@ export default defineComponent({
           me.stats = msg;
         } else {
           var qs = [];
+
           if (msg["type"] && msg["type"] == "queues") {
             var queued_tasks = 0;
             me.detailedqueues = msg["queues"];
@@ -957,6 +1002,7 @@ export default defineComponent({
                 var ack_rate = 0;
                 var deliver_rate = 0;
 
+                var properties = [];
                 if ("message_stats" in queue) {
                   ack_rate = queue["message_stats"]["ack_details"]["rate"];
                   deliver_rate = queue["message_stats"]["deliver_get_details"]["rate"];
@@ -974,10 +1020,90 @@ export default defineComponent({
                   bytes: queue["message_bytes"],
                   action: "",
                 });
+ 
+                properties.push({
+                  name: 'Messages Ready',
+                  value:queue["messages_ready"]
+                })
+                properties.push({
+                  name: 'Messages Ackd',
+                  value:queue["messages_ready"]
+                })
+                properties.push({
+                  name: 'Avg Ack Ingress Rate',
+                  value:parseFloat(queue["backing_queue_status"]["avg_ack_ingress_rate"]).toFixed(2)
+                })       
+                properties.push({
+                  name: 'Avg Ingress Rate',
+                  value:parseFloat(queue["backing_queue_status"]["avg_ingress_rate"]).toFixed(2)
+                })                
+                properties.push({
+                  name: 'Avg Engress Rate',
+                  value:parseFloat(queue["backing_queue_status"]["avg_egress_rate"]).toFixed(2)
+                })                
+                properties.push({
+                  name: 'Memory',
+                  value:queue["memory"]
+                })                
+                properties.push({
+                  name: 'Message Bytes',
+                  value:queue["message_bytes"]
+                })                
+                properties.push({
+                  name: 'Message Bytes Persistent',
+                  value:queue["message_bytes_persistent"]
+                })                
+                properties.push({
+                  name: 'Message Bytes Ram',
+                  value:queue["message_bytes_ram"]
+                })                     
+                properties.push({
+                  name: 'Message Bytes Ready',
+                  value:queue["message_bytes_ready"]
+                })                     
+                properties.push({
+                  name: 'Message Bytes UnAckd',
+                  value:queue["message_bytes_unacknowledged"]
+                })                     
+                properties.push({
+                  name: 'Messages',
+                  value:queue["messages"]
+                })                       
+                properties.push({
+                  name: 'Messages Persistent',
+                  value:queue["messages_persistent"]
+                })                       
+                properties.push({
+                  name: 'Messages Ram',
+                  value:queue["messages_ram"]
+                })                       
+                properties.push({
+                  name: 'Messages Ready',
+                  value:queue["messages_ready"]
+                })                          
+                properties.push({
+                  name: 'Messages Ready Rate',
+                  value:parseFloat(queue["messages_ready_details"]["rate"]).toFixed(2)
+                })                             
+                properties.push({
+                  name: 'Messages UnAckd Rate',
+                  value:parseFloat(queue["messages_unacknowledged_details"]["rate"]).toFixed(2)
+                })                         
+                properties.push({
+                  name: 'Messages Ready Ram',
+                  value:queue["messages_ready_ram"]
+                })                        
+                properties.push({
+                  name: 'Node',
+                  value:queue["node"]
+                })                                
+
+                this.queueDetails[queue['name']] = properties;
                 queued_tasks += parseInt(queue["messages"]);
                 this.queuedTasks = queued_tasks;
               }
             });
+              
             me.queues = qs;
             window.root.$emit("update.queues", qs);
           }
@@ -1446,8 +1572,25 @@ export default defineComponent({
   },
   data() {
     return {
+      queueDetailContent: '',
+      queueDetailColumns: [
+        {
+          name: "name",
+          label: "Property",
+          field: "name",
+          align: "left",
+        },
+        {
+          name: "value",
+          label: "Value",
+          field: "value",
+          align: "left",
+        },
+      ],
+      queueDetailData: [],
+      queuedetailtab: "stats",
       objectcolumns: {
-        'runningprocessors': [
+        runningprocessors: [
           {
             name: "name",
             label: "Name",
@@ -1489,10 +1632,10 @@ export default defineComponent({
             label: "Status",
             field: "status",
             align: "left",
-          }
-        ]
+          },
+        ],
       },
-      queueTableSplitter: 50,
+      queueTableSplitter: 40,
       detailedqueues: [],
       queuedTasks: 0,
       mode: "disconnected",
@@ -1563,6 +1706,9 @@ export default defineComponent({
         },
       ],
       queuedata: [],
+      queueDetails: {
+
+      },
       initialPagination: {
         sortBy: "desc",
         descending: false,
@@ -1580,7 +1726,7 @@ export default defineComponent({
       },
       viewQueueDialog: false,
       splitterModel: 100,
-      splitterSave: 62,
+      splitterSave: 73,
       messageColumns: [
         {
           name: "date",
@@ -1649,7 +1795,7 @@ export default defineComponent({
           align: "center",
           label: "Not Acked",
           field: "unacked",
-        },
+        } /*
         {
           name: "incoming",
           align: "center",
@@ -1667,7 +1813,7 @@ export default defineComponent({
           align: "center",
           label: "Acked/sec",
           field: "acked",
-        },
+        },*/,
         {
           name: "bytes",
           align: "right",
