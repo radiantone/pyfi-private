@@ -16,6 +16,14 @@ user = CONFIG.get("broker", "user")
 password = CONFIG.get("broker", "password")
 
 
+def purge_queue(queue):
+    session = requests.Session()
+    session.auth = (user, password)
+
+    auth = session.post(base)
+    response = session.delete(f"{api}/queues/%2F/{queue}/contents",)
+    return response.content
+
 def get_queues():
     session = requests.Session()
     session.auth = (user, password)

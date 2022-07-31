@@ -2,9 +2,7 @@
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
-    :style="
-      'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '
-    "
+    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '"
     @touchstart.stop
     @contextmenu.stop
     @mousemove1="mouseMove"
@@ -19,27 +17,12 @@
       <q-spinner-gears size="0px" color="primary" />
       <div class="text-center">
         <q-toolbar>
-          <q-input
-            filled
-            outlined
-            square
-            bottom-slots
-            v-model="password"
-            counter
-            maxlength="20"
-            dense
-          >
+          <q-input filled outlined square bottom-slots v-model="password" counter maxlength="20" dense>
             <template v-slot:before>
               <i class="fas fa-lock text-secondary" style="font-size: 0.8em;" />
             </template>
             <template v-slot:after>
-              <q-btn
-                dense
-                flat
-                label="Unlock"
-                color="secondary"
-                @click="doLogin"
-              />
+              <q-btn dense flat label="Unlock" color="secondary" @click="doLogin" />
             </template>
           </q-input>
         </q-toolbar>
@@ -65,23 +48,13 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item
-          clickable
-          v-close-popup
-          v-if="obj.status == 'running'"
-          @click="obj.status = 'stopped'"
-        >
+        <q-item clickable v-close-popup v-if="obj.status == 'running'" @click="obj.status = 'stopped'">
           <q-item-section side>
             <q-icon name="fas fa-stop"></q-icon>
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Stop</q-item-section>
         </q-item>
-        <q-item
-          clickable
-          v-close-popup
-          v-if="obj.status == 'stopped'"
-          @click="obj.status = 'running'"
-        >
+        <q-item clickable v-close-popup v-if="obj.status == 'stopped'" @click="obj.status = 'running'">
           <q-item-section side>
             <q-icon name="fas fa-play"></q-icon>
           </q-item-section>
@@ -274,10 +247,7 @@
               "
             >
               <q-item-section side>
-                <q-icon
-                  :name="this.lambdaIcon"
-                  style="font-weight: bold; font-size: 1.2em;"
-                ></q-icon>
+                <q-icon :name="this.lambdaIcon" style="font-weight: bold; font-size: 1.2em;"></q-icon>
               </q-item-section>
               <q-item-section side class="text-blue-grey-8">
                 Lambda
@@ -310,53 +280,30 @@
         "
         class="text-black shadow-2"
       >
-        <span
-          class="proc-title text-dark"
-          style="font-style: italic; margin-left: 5px;"
-        >
+        <span class="proc-title text-dark" style="font-style: italic; margin-left: 5px;">
           {{ obj.name }}
           <q-popup-edit v-model="obj.name" buttons>
             <q-input type="string" v-model="obj.name" dense autofocus />
           </q-popup-edit>
         </span>
       </span>
-      <span
-        v-if="!obj.titletab"
-        style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
-        class="text-black"
-      >
+      <span v-if="!obj.titletab" style="position: absolute; left: 55px; font-size: 20px; top: 5px;" class="text-black">
         <span class="proc-title">
           {{ obj.name }}
         </span>
       </span>
-      <span
-        class="text-secondary"
-        style="position: absolute; left: 55px; top: 31px; font-size: 14px;"
-      >
-        {{ obj.description.substring(0, 35) + '...' }}
+      <span class="text-secondary" style="position: absolute; left: 55px; top: 31px; font-size: 14px;">
+        {{ obj.description.substring(0, 35) + "..." }}
       </span>
-      <span
-        class="text-blue-grey-8"
-        style="position: absolute; left: 55px; top: 51px; font-size: 11px;"
-      >
+      <span class="text-blue-grey-8" style="position: absolute; left: 55px; top: 51px; font-size: 11px;">
         {{ obj.package }}
       </span>
-      <span
-        class="text-red"
-        v-if="error"
-        style="position: absolute; left: 55px; top: 70px; font-size: 11px;"
-      >
+      <span class="text-red" v-if="error" style="position: absolute; left: 55px; top: 70px; font-size: 11px;">
         <a href="#" style="color: red;">{{ errorMsg }}</a>
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
-        style="
-          position: absolute;
-          right: 60px;
-          top: 1em;
-          font-weight: bold;
-          font-size: 2em;
-        "
+        style="position: absolute; right: 60px; top: 1em; font-weight: bold; font-size: 2em;"
       >
         {{ obj.concurrency }}
         <q-tooltip
@@ -375,13 +322,7 @@
         size="md"
         icon="fas fa-save "
         @click="saveProcessor"
-        style="
-          cursor: pointer;
-          position: absolute;
-          right: 10px;
-          top: 30px;
-          font-size: 0.8em;
-        "
+        style="cursor: pointer; position: absolute; right: 10px; top: 30px; font-size: 0.8em;"
       >
         <q-tooltip
           anchor="top middle"
@@ -393,21 +334,12 @@
         </q-tooltip>
       </q-btn>
 
-      <span
-        class="text-blue-grey-8 pull-right"
-        style="position: absolute; left: 10px; top: 70px; font-size: 11px;"
-      >
+      <span class="text-blue-grey-8 pull-right" style="position: absolute; left: 10px; top: 70px; font-size: 11px;">
         {{ obj.version }}
       </span>
       <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
-        <q-item-label class="text-primary" style="margin-right: 30px;">{{
-          obj.ratelimit
-        }}</q-item-label>
-        <div
-          class="text-secondary"
-          @click="cornerInView"
-          style="margin-right: 15px;"
-        >
+        <q-item-label class="text-primary" style="margin-right: 30px;">{{ obj.ratelimit }}</q-item-label>
+        <div class="text-secondary" @click="cornerInView" style="margin-right: 15px;">
           <i class="far fa-object-group" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
@@ -418,11 +350,7 @@
             Corner
           </q-tooltip>
         </div>
-        <div
-          class="text-secondary"
-          @click="refreshProcessor"
-          style="margin-right: 10px;"
-        >
+        <div class="text-secondary" @click="refreshProcessor" style="margin-right: 10px;">
           <i class="fas fa-refresh" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
@@ -433,11 +361,7 @@
             Refresh
           </q-tooltip>
         </div>
-        <div
-          class="text-secondary"
-          @click="obj.bandwidth = !obj.bandwidth"
-          style="margin-right: 10px;"
-        >
+        <div class="text-secondary" @click="obj.bandwidth = !obj.bandwidth" style="margin-right: 10px;">
           <i class="fas fa-tachometer-alt" style="cursor: pointer;" />
           <q-tooltip
             anchor="top middle"
@@ -482,20 +406,12 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="
-                  addNewPort(
-                    { function: 'function: ' + func.name, args: [] },
-                    'Error',
-                    'fas fa-exclamation'
-                  )
-                "
+                @click="addNewPort({ function: 'function: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
               >
                 <q-item-section side>
                   <q-icon name="fab fa-python"></q-icon>
                 </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  function: {{ func.name }}
-                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">function: {{ func.name }}</q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>
@@ -526,20 +442,12 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="
-                  addNewPort(
-                    { function: 'function: ' + func.name, args: func.args },
-                    'Output',
-                    'outlet-icon'
-                  )
-                "
+                @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
               >
                 <q-item-section side>
                   <q-icon name="fab fa-python"></q-icon>
                 </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  function: {{ func.name }}
-                </q-item-section>
+                <q-item-section side class="text-blue-grey-8">function: {{ func.name }}</q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>
@@ -556,13 +464,7 @@
         <div
           class="text-secondary"
           style="margin-right: 10px;"
-          @click="
-            addNewPort(
-              { function: 'Output', args: [] },
-              'Output',
-              'fas fa-plug'
-            )
-          "
+          @click="addNewPort({ function: 'Output', args: [] }, 'Output', 'fas fa-plug')"
         >
           <i class="fas fa-plug" style="cursor: pointer;"></i>
           <q-tooltip
@@ -583,14 +485,7 @@
             flat
             @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="
-              margin-right: 10px;
-              position: absolute;
-              right: 135px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="margin-right: 10px; position: absolute; right: 135px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -609,13 +504,7 @@
             flat
             class="edit-name text-secondary"
             @click="obj.status = 'running'"
-            style="
-              position: absolute;
-              right: 110px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -634,13 +523,7 @@
             v-if="obj.status == 'running'"
             @click="obj.status = 'stopped'"
             class="edit-name text-secondary text-green"
-            style="
-              position: absolute;
-              right: 110px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -658,13 +541,7 @@
             icon="fas fa-terminal"
             @click="showPanel('consoleview', !consoleview)"
             class="edit-name text-secondary"
-            style="
-              position: absolute;
-              right: 85px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 85px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -682,13 +559,7 @@
             icon="fas fa-list"
             @click="showResultsDialog"
             class="edit-name text-secondary"
-            style="
-              position: absolute;
-              right: 55px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 55px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -706,13 +577,7 @@
             icon="fa fa-cog"
             @click="showPanel('configview', !configview)"
             class="edit-name text-secondary"
-            style="
-              position: absolute;
-              right: 30px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 30px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -730,13 +595,7 @@
             flat
             dense
             class="new-column add text-secondary"
-            style="
-              position: absolute;
-              right: 15px;
-              top: -68px;
-              width: 25px;
-              height: 30px;
-            "
+            style="position: absolute; right: 15px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -754,20 +613,10 @@
           dense
           color="secondary"
           padding="0px"
-          style="
-            position: absolute;
-            right: 0px;
-            width: 25px;
-            height: 30px;
-            top: -68px;
-          "
+          style="position: absolute; right: 0px; width: 25px; height: 30px; top: -68px;"
         >
           <q-list dense>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('workerview', !workerview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('workerview', !workerview)">
               <q-item-section side>
                 <q-icon name="fas fa-hard-hat"></q-icon>
               </q-item-section>
@@ -777,11 +626,7 @@
             </q-item>
             <q-separator />
 
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('environmentview', !environmentview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('environmentview', !environmentview)">
               <q-item-section side>
                 <q-icon name="far fa-list-alt"></q-icon>
               </q-item-section>
@@ -791,11 +636,7 @@
             </q-item>
             <q-separator />
 
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('notesview', !notesview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('notesview', !notesview)">
               <q-item-section side>
                 <q-icon name="far fa-sticky-note"></q-icon>
               </q-item-section>
@@ -812,11 +653,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('gitview', !gitview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('gitview', !gitview)">
               <q-item-section side>
                 <q-icon name="fab fa-github"></q-icon>
               </q-item-section>
@@ -824,11 +661,7 @@
                 Git
               </q-item-section>
             </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('historyview', !historyview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('historyview', !historyview)">
               <q-item-section side>
                 <q-icon name="fas fa-history"></q-icon>
               </q-item-section>
@@ -836,11 +669,7 @@
                 History
               </q-item-section>
             </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('logsview', !logsview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('logsview', !logsview)">
               <q-item-section side>
                 <q-icon name="fas fa-glasses"></q-icon>
               </q-item-section>
@@ -848,11 +677,7 @@
                 Logs
               </q-item-section>
             </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="showPanel('requirementsview', !requirementsview)"
-            >
+            <q-item clickable v-close-popup @click="showPanel('requirementsview', !requirementsview)">
               <q-item-section side>
                 <q-icon name="fab fa-python"></q-icon>
               </q-item-section>
@@ -864,39 +689,20 @@
         </q-btn-dropdown>
       </div>
     </div>
-    <ul
-      v-if="obj.icon == 'fas fa-database'"
-      class="table-columns"
-      v-for="column in obj.columns"
-      :key="column.id"
-    >
+    <ul v-if="obj.icon == 'fas fa-database'" class="table-columns" v-for="column in obj.columns" :key="column.id">
       <li
-        :class="
-          'table-column jtk-droppable table-column-type-' + column.datatype
-        "
-        :style="
-          'background:' +
-          column.background +
-          ';border-top: 1px dashed lightgrey'
-        "
+        :class="'table-column jtk-droppable table-column-type-' + column.datatype"
+        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
       >
         <div class="table-column-edit text-primary">
           <i class="fa fa-play table-column-delete-icon" title="Trigger Port" />
-          <i
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
-            @click="confirmDeletePort(column.id)"
-          />
+          <i class="fa fa-times table-column-delete-icon" title="Delete Port" @click="confirmDeletePort(column.id)" />
         </div>
         <div>
           <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
+            <i :class="column.icon" :title="column.name" style="margin-right: 5px;" />
           </div>
           <span>
             <span :id="column.id">
@@ -929,7 +735,8 @@
                 </q-list>
               </q-btn-dropdown>
             </span>
-            : <span class="text-secondary">{{ column.description }}</span>
+            :
+            <span class="text-secondary">{{ column.description }}</span>
           </span>
         </div>
 
@@ -941,12 +748,7 @@
           filter-exclude="true"
         />
 
-        <jtk-target
-          name="target"
-          :port-id="column.id"
-          type="Input"
-          :scope="column.datatype"
-        />
+        <jtk-target name="target" :port-id="column.id" type="Input" :scope="column.datatype" />
       </li>
     </ul>
 
@@ -957,27 +759,17 @@
       :key="column.id"
     >
       <li
-        :class="
-          'table-column jtk-droppable table-column-type-' + column.datatype
-        "
-        :style="
-          'background:' +
-          column.background +
-          ';border-top: 1px dashed lightgrey'
-        "
+        :class="'table-column jtk-droppable table-column-type-' + column.datatype"
+        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
       >
-        <div class="table-column-edit text-primary">  
-                  <div
-          class="table-column-edit text-primary"
-          style="
-            max-height: 15px;
-            position: absolute;
-            right: 20px;
-            margin-top: -10px;
-          "
-        ><!--
+        <div class="table-column-edit text-primary">
+          <div
+            class="table-column-edit text-primary"
+            style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
+          >
+            <!--
           <q-select
             dense
             borderless
@@ -991,26 +783,18 @@
           ><template v-slot:prepend>
           <q-icon name="fas fa-envelope" style="font-size:.5em" color="primary"/>
         </template></q-select>-->
-        </div>
+          </div>
           <i
+            v-if="column.type != 'Input'"
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
             style="margin-right: 5px;"
           />
-          <i
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
-            @click="confirmDeletePort(column.id)"
-          />
+          <i class="fa fa-times table-column-delete-icon" title="Delete Port" @click="confirmDeletePort(column.id)" />
         </div>
         <div
           class="table-column-edit text-primary"
-          style="
-            max-height: 15px;
-            position: absolute;
-            right: 20px;
-            margin-top: -10px;
-          "
+          style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
         >
           <!--
           <q-btn-dropdown
@@ -1046,29 +830,22 @@
             borderless
             v-if="column.type == 'Input'"
             :options-dense="true"
-            style="font-size: 1em; margin-right: 20px;"
+            style="font-size: 1em; margin-right: 5px;"
             label-color="orange"
             v-model="column.schema"
             :options="types"
             value="string"
+            :menu-offset="[5, -9]"
           ></q-select>
         </div>
         <div v-if="column.type != 'Input'">
           <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
+            <i :class="column.icon" :title="column.name" style="margin-right: 5px;" />
           </div>
           <span>
             <span :id="column.id">
               {{ column.name }}
-              <q-popup-edit
-                v-model="column.name"
-                buttons
-                v-if="column.icon == 'fas fa-plug'"
-              >
+              <q-popup-edit v-model="column.name" buttons v-if="column.icon == 'fas fa-plug'">
                 <q-input type="string" v-model="column.name" dense autofocus />
               </q-popup-edit>
             </span>
@@ -1076,11 +853,7 @@
         </div>
         <div v-if="column.type == 'Input'" style="margin-left: 30px;">
           <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
+            <i :class="column.icon" :title="column.name" style="margin-right: 5px;" />
           </div>
           <span>
             <span :id="column.id">
@@ -1120,16 +893,8 @@
         style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
       >
         <template v-slot:body="props">
-          <q-tr
-            :props="props"
-            :key="getUuid"
-            @click="showPanel('dataview', !dataview)"
-          >
-            <q-td
-              :key="props.cols[0].name"
-              :props="props"
-              :style="rowStripe(props.row.index)"
-            >
+          <q-tr :props="props" :key="getUuid" @click="showPanel('dataview', !dataview)">
+            <q-td :key="props.cols[0].name" :props="props" :style="rowStripe(props.row.index)">
               {{ props.cols[0].value }}
             </q-td>
             <q-td
@@ -1164,11 +929,7 @@
             >
               {{ taskTime }}
             </q-td>
-            <q-td
-              :key="props.cols[3].name"
-              :props="props"
-              :style="rowStripe(props.row.index) + ';width:80px'"
-            >
+            <q-td :key="props.cols[3].name" :props="props" :style="rowStripe(props.row.index) + ';width:80px'">
               <v-sparkline
                 v-if="props.cols[1].value == 'inBytes'"
                 :labels="props.row.spark.labels"
@@ -1202,11 +963,7 @@
                 padding="0"
               ></v-sparkline>
             </q-td>
-            <q-td
-              :key="props.cols[1].name"
-              :props="props"
-              :style="rowStripe(props.row.index)"
-            >
+            <q-td :key="props.cols[1].name" :props="props" :style="rowStripe(props.row.index)">
               5 min
             </q-td>
           </q-tr>
@@ -1217,13 +974,7 @@
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -1244,11 +995,7 @@
           </div>
         </q-card-section>
         <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
+          <q-avatar icon="fas fa-exclamation" color="primary" text-color="white" />
           <span class="q-ml-sm">
             Are you sure you want to delete this socket?
           </span>
@@ -1281,13 +1028,7 @@
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -1308,11 +1049,7 @@
           </div>
         </q-card-section>
         <q-card-section class="row items-center" style="height: 120px;">
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
+          <q-avatar icon="fas fa-exclamation" color="primary" text-color="white" />
           <span class="q-ml-sm">
             Are you sure you want to delete this processor?
           </span>
@@ -1352,9 +1089,7 @@
       "
       v-if="codeview"
     >
-      <q-card-section
-        style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
         <editor
           v-model="obj.code"
           @init="editorInit"
@@ -1386,13 +1121,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="
-            position: absolute;
-            bottom: 0px;
-            left: 50px;
-            width: 50px;
-            margin: 0px;
-          "
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
           flat
           icon="far fa-arrow-alt-circle-right"
           class="bg-accent text-dark"
@@ -1410,13 +1139,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="
-            position: absolute;
-            bottom: 0px;
-            left: 100px;
-            width: 50px;
-            margin: 0px;
-          "
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
           flat
           icon="published_with_changes"
           class="bg-secondary text-accent"
@@ -1434,13 +1157,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="
-            position: absolute;
-            bottom: 0px;
-            left: 150px;
-            width: 50px;
-            margin: 0px;
-          "
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
           flat
           icon="fab fa-python"
           class="bg-accent text-secondary"
@@ -1481,19 +1198,10 @@
     </q-card>
 
     <q-card
-      style="
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="requirementsview"
     >
-      <q-card-section
-        style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
         <editor
           v-model="obj.requirements"
           @init="reqEditorInit"
@@ -1549,12 +1257,7 @@
                 row-key="name"
                 flat
                 :rows-per-page-options="[10]"
-                style="
-                  height: calc(100% - 0px);
-                  width: 100%;
-                  border-top-radius: 0px;
-                  border-bottom-radius: 0px;
-                "
+                style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
                 <template v-slot:body="props">
                   <q-tr :props="props" :key="getUuid">
@@ -1562,9 +1265,10 @@
                       <a
                         href="#"
                         style="color: #6b8791; text-decoration: underline;"
-                        @click="showCommit(props.cols[0].value,props.cols[3].value)"
-                        >{{ props.cols[0].value }}</a
+                        @click="showCommit(props.cols[0].value, props.cols[3].value)"
                       >
+                        {{ props.cols[0].value }}
+                      </a>
                     </q-td>
                     <q-td :key="props.cols[1].name" :props="props">
                       {{ props.cols[1].value }}
@@ -1602,14 +1306,7 @@
           </template>
         </q-splitter>
       </q-card-section>
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          padding-top: 10px;
-        "
-      ></q-card-section>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;"></q-card-section>
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -1630,8 +1327,10 @@
           </q-tooltip>
         </q-btn>
       </q-card-actions>
-      <q-item-label style="position:absolute;left:120px;bottom:5px;font-size:1.5em">
-        {{ gitcommit }}<span style="margin-right:40px"></span> {{ gitdate }}
+      <q-item-label style="position: absolute; left: 120px; bottom: 5px; font-size: 1.5em;">
+        {{ gitcommit }}
+        <span style="margin-right: 40px;"></span>
+        {{ gitdate }}
       </q-item-label>
       <q-card-actions align="right">
         <q-btn
@@ -1647,26 +1346,10 @@
     </q-card>
 
     <q-card
-      style="
-        width: 400px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -405px;
-        height: 400px;
-        top: 0px;
-      "
+      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
       v-if="editPort"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 650px;
-        "
-      >
-      </q-card-section>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;"></q-card-section>
 
       <q-card-actions align="right">
         <q-btn
@@ -1683,25 +1366,10 @@
     <!-- Config dialog -->
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 470px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 470px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1721,52 +1389,27 @@
 
         <q-tab-panels v-model="tab" keep-alive>
           <q-tab-panel name="settings" style="padding: 0px;" ref="settings">
-            <q-tabs
-              v-model="settingstab"
-              class="text-primary"
-              align="center"
-              dense
-            >
+            <q-tabs v-model="settingstab" class="text-primary" align="center" dense>
               <q-tab name="settings" label="Processor" />
               <q-tab name="containersettings" label="Container" />
               <q-tab name="gitsettings" label="Git" />
               <q-tab name="apisettings" label="API" />
               <q-tab name="throttling" label="Throttling" />
               <q-tab name="versions" label="Version" />
-              <q-tab
-                v-if="obj.icon == lambdaIcon"
-                name="lambda"
-                label="Lambda"
-              /><q-tab
-                v-if="obj.icon == 'fas fa-database'"
-                name="database"
-                label="Database"
-              />
+              <q-tab v-if="obj.icon == lambdaIcon" name="lambda" label="Lambda" />
+              <q-tab v-if="obj.icon == 'fas fa-database'" name="database" label="Database" />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
-              <q-tab-panel
-                name="settings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
+              <q-tab-panel name="settings" style="padding-top: 0px; padding-bottom: 0px;">
+                <div class="q-pa-md" style="max-width: 100%; padding-bottom: 0px;">
+                  <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
                     <q-input
                       filled
                       v-model="obj.name"
                       dense
                       hint="Processor Name"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
 
                     <q-input
@@ -1775,10 +1418,7 @@
                       dense
                       hint="Processor Description"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                     <q-input
                       filled
@@ -1786,10 +1426,7 @@
                       dense
                       hint="Processor Package"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                     <q-input
                       filled
@@ -1797,89 +1434,34 @@
                       dense
                       hint="Icon Class"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                     <q-toolbar style="margin-left: -30px;">
                       <q-space />
                       <q-checkbox v-model="obj.usegit" label="GIT" />
-                      <q-checkbox
-                        v-model="obj.titletab"
-                        label="Title Tab"
-                        style="margin-left: 40px;"
-                      />
-                      <q-checkbox
-                        v-model="obj.enabled"
-                        label="Enabled"
-                        style="margin-left: 40px;"
-                      />
-                      <q-checkbox
-                        v-model="obj.endpoint"
-                        label="API"
-                        style="margin-left: 40px; margin-right: 50px;"
-                      />
-                      <q-checkbox
-                        v-model="obj.streaming"
-                        label="Streaming"
-                        style=""
-                      />
+                      <q-checkbox v-model="obj.titletab" label="Title Tab" style="margin-left: 40px;" />
+                      <q-checkbox v-model="obj.enabled" label="Enabled" style="margin-left: 40px;" />
+                      <q-checkbox v-model="obj.endpoint" label="API" style="margin-left: 40px; margin-right: 50px;" />
+                      <q-checkbox v-model="obj.streaming" label="Streaming" style="" />
                     </q-toolbar>
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel
-                name="gitsettings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
+              <q-tab-panel name="gitsettings" style="padding-top: 0px; padding-bottom: 0px;">
+                <div class="q-pa-md" style="max-width: 100%; padding-bottom: 0px;">
                   <q-form class="q-gutter-md">
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.gitrepo"
-                      hint="GIT Repository"
-                    />
+                    <q-input filled dense :disable="!obj.usegit" v-model="obj.gitrepo" hint="GIT Repository" />
 
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.modulepath"
-                      hint="Module Path"
-                    />
+                    <q-input filled dense :disable="!obj.usegit" v-model="obj.modulepath" hint="Module Path" />
 
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.commit"
-                      hint="Commit Hash"
-                    />
+                    <q-input filled dense :disable="!obj.usegit" v-model="obj.commit" hint="Commit Hash" />
 
-                    <q-input
-                      filled
-                      dense
-                      :disable="!obj.usegit"
-                      v-model="obj.gittag"
-                      hint="GIT Tag"
-                    />
+                    <q-input filled dense :disable="!obj.usegit" v-model="obj.gittag" hint="GIT Tag" />
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel
-                name="containersettings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
+              <q-tab-panel name="containersettings" style="padding-top: 0px; padding-bottom: 0px;">
+                <div class="q-pa-md" style="max-width: 100%; padding-bottom: 0px;">
                   <q-form class="q-gutter-md">
                     <q-input
                       filled
@@ -1903,23 +1485,10 @@
                   </q-toolbar>
                 </div>
               </q-tab-panel>
-              <q-tab-panel
-                name="apisettings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
+              <q-tab-panel name="apisettings" style="padding-top: 0px; padding-bottom: 0px;">
+                <div class="q-pa-md" style="max-width: 100%; padding-bottom: 0px;">
                   <q-form class="q-gutter-md">
-                    <q-input
-                      filled
-                      v-model="obj.api"
-                      dense
-                      hint="API Endpoint"
-                      lazy-rules
-                      :disable="!obj.endpoint"
-                    />
+                    <q-input filled v-model="obj.api" dense hint="API Endpoint" lazy-rules :disable="!obj.endpoint" />
                     <q-input
                       filled
                       v-model="obj.websocket"
@@ -1931,92 +1500,50 @@
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel
-                name="throttling"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
+              <q-tab-panel name="throttling" style="padding-top: 0px; padding-bottom: 0px;">
                 <q-toolbar>
-                  <q-input
-                    style="width: 200px;"
-                    hint="Rate Limit"
-                    type="string"
-                    v-model.number="obj.ratelimit"
-                  />
+                  <q-input style="width: 200px;" hint="Rate Limit" type="string" v-model.number="obj.ratelimit" />
 
                   <q-checkbox v-model="obj.perworker" label="Per Worker" />
                 </q-toolbar>
               </q-tab-panel>
 
-              <q-tab-panel
-                name="versions"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
+              <q-tab-panel name="versions" style="padding-top: 0px; padding-bottom: 0px;">
                 <q-toolbar>
-                  <q-input
-                    style="width: 200px;"
-                    hint="Version"
-                    type="string"
-                    v-model.number="obj.version"
-                  />
+                  <q-input style="width: 200px;" hint="Version" type="string" v-model.number="obj.version" />
                 </q-toolbar>
               </q-tab-panel>
-              <q-tab-panel
-                name="lambda"
-                v-if="obj.icon == lambdaIcon"
-                style="padding-top: 0px;"
-              >
+              <q-tab-panel name="lambda" v-if="obj.icon == lambdaIcon" style="padding-top: 0px;">
                 <div class="q-pa-md" style="max-width: 100%;">
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
+                  <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
                     <q-input
                       filled
                       v-model="obj.lamdaurl"
                       dense
                       hint="Lambda URL"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel
-                name="database"
-                v-if="obj.icon == 'fas fa-database'"
-                style="padding-top: 0px;"
-              >
+              <q-tab-panel name="database" v-if="obj.icon == 'fas fa-database'" style="padding-top: 0px;">
                 <div class="q-pa-md" style="max-width: 100%;">
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
+                  <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
                     <q-input
                       filled
                       v-model="obj.databasestring"
                       dense
                       hint="Connection String"
                       lazy-rules
-                      :rules="[
-                        (val) =>
-                          (val && val.length > 0) || 'Please type something',
-                      ]"
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                   </q-form>
                 </div>
               </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
-          <q-tab-panel
-            name="concurrency"
-            style="padding: 20px;"
-            ref="concurrency"
-          >
+          <q-tab-panel name="concurrency" style="padding: 20px;" ref="concurrency">
             <q-table
               dense
               :columns="deploycolumns"
@@ -2025,11 +1552,7 @@
               flat
               virtual-scroll
               :rows-per-page-options="[10]"
-              style="
-                width: 100%;
-                border-top-radius: 0px;
-                border-bottom-radius: 0px;
-              "
+              style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
               <template v-slot:loading>
                 <q-inner-loading :showing="true" style="z-index: 9999999;">
@@ -2037,22 +1560,12 @@
                 </q-inner-loading>
               </template>
             </q-table>
-            <q-input
-              style="width: 100px;"
-              hint="Number of CPUs"
-              type="number"
-              v-model.number="obj.concurrency"
-            />
+            <q-input style="width: 100px;" hint="Number of CPUs" type="number" v-model.number="obj.concurrency" />
             <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
               <q-spinner-gears size="50px" color="primary" />
             </q-inner-loading>
             <q-btn
-              style="
-                position: absolute;
-                bottom: 0px;
-                right: 0px;
-                margin-right: 20px;
-              "
+              style="position: absolute; bottom: 0px; right: 0px; margin-right: 20px;"
               flat
               icon="refresh"
               class="bg-primary text-white"
@@ -2062,32 +1575,13 @@
             />
           </q-tab-panel>
           <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
-            <q-input
-              hint="Enter CRON Expression"
-              placeholder="* * * * *"
-              v-model.number="obj.cron"
-            />
-            <q-input
-              style="width: 100px;"
-              hint="Beat Interval"
-              type="number"
-              v-model.number="obj.interval"
-            />
-            <q-checkbox
-              v-model="obj.beat"
-              style="margin-top: 30px;"
-              label="Beat"
-            />
-            <q-checkbox
-              v-model="obj.useschedule"
-              style="margin-top: 30px;"
-              label="Use CRON"
-            />
+            <q-input hint="Enter CRON Expression" placeholder="* * * * *" v-model.number="obj.cron" />
+            <q-input style="width: 100px;" hint="Beat Interval" type="number" v-model.number="obj.interval" />
+            <q-checkbox v-model="obj.beat" style="margin-top: 30px;" label="Beat" />
+            <q-checkbox v-model="obj.useschedule" style="margin-top: 30px;" label="Use CRON" />
           </q-tab-panel>
-          <q-tab-panel name="security" style="padding: 20px;" ref="security">
-          </q-tab-panel>
-          <q-tab-panel name="scaling" style="padding: 20px;" ref="scaling">
-          </q-tab-panel>
+          <q-tab-panel name="security" style="padding: 20px;" ref="security"></q-tab-panel>
+          <q-tab-panel name="scaling" style="padding: 20px;" ref="scaling"></q-tab-panel>
         </q-tab-panels>
       </q-card-section>
       <q-card-actions align="left">
@@ -2141,9 +1635,7 @@
         <q-spinner-gears size="50px" color="primary" />
       </q-inner-loading>
 
-      <q-card-section
-        style="padding: 15px; z-index: 999999; padding-bottom: 10px;"
-      >
+      <q-card-section style="padding: 15px; z-index: 999999; padding-bottom: 10px;">
         <q-table
           dense
           :columns="workercolumns"
@@ -2152,13 +1644,8 @@
           flat
           virtual-scroll
           :rows-per-page-options="[10]"
-          style="
-            width: 100%;
-            border-top-radius: 0px;
-            border-bottom-radius: 0px;
-          "
-        >
-        </q-table>
+          style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+        ></q-table>
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -2194,37 +1681,17 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="environmentview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         <q-table
           dense
           :columns="variablecolumns"
           :data="variabledata"
           row-key="name"
           flat
-          style="
-            width: 100%;
-            margin-top: 20px;
-            border-top-radius: 0px;
-            border-bottom-radius: 0px;
-          "
+          style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
           <template v-slot:body="props">
             <q-tr :props="props" :key="getUuid">
@@ -2270,25 +1737,10 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="scalingview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         Scaling view
       </q-card-section>
       <q-card-actions align="left">
@@ -2350,38 +1802,17 @@
     </q-card>
 
     <q-card
-      style="
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-        height: 450px;
-      "
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px; height: 450px;"
       v-if="historyview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         <q-table
           dense
           :columns="historycolumns"
           :data="myhistory"
           row-key="name"
           flat
-          style="
-            width: 100%;
-            height: 100%;
-            margin-top: 20px;
-            border-top-radius: 0px;
-            border-bottom-radius: 0px;
-          "
+          style="width: 100%; height: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
           <template v-slot:body="props">
             <q-tr :props="props" :key="getUuid">
@@ -2415,30 +1846,15 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="consoleview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 500px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-scroll-area style="height:475px;width::auto" ref="scroll">
           <div v-for="(log, index) in consolelogs">
             <div v-if="consolehistory">
-              <pre style="font-weight: bold;">{{ log['date'] }}</pre>
-              <pre>{{ log['output'] }}</pre>
+              <pre style="font-weight: bold;">{{ log["date"] }}</pre>
+              <pre>{{ log["output"] }}</pre>
             </div>
             <vue-typed-js
               v-if="!consolehistory && index == consolelogs.length - 1"
@@ -2469,24 +1885,14 @@
         />
         <q-btn
           flat
-          style="
-            position: absolute;
-            margin: 0px;
-            bottom: 0px;
-            left: 100px;
-            width: 100px;
-          "
+          style="position: absolute; margin: 0px; bottom: 0px; left: 100px; width: 100px;"
           label="Download"
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
           @click="consolelogs = []"
         />
-        <q-checkbox
-          v-model="consolehistory"
-          label="History"
-          style="position: absolute; bottom: 0px; left: 210px;"
-        />
+        <q-checkbox v-model="consolehistory" label="History" style="position: absolute; bottom: 0px; left: 210px;" />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2503,35 +1909,13 @@
     <q-card
       v-if="mousecard"
       class="bg-secondary"
-      :style="
-        'width:200px;height:300px;z-index:9999;position:absolute;top:' +
-        cardY +
-        'px;left:' +
-        cardX +
-        'px'
-      "
-    >
-    </q-card>
+      :style="'width:200px;height:300px;z-index:9999;position:absolute;top:' + cardY + 'px;left:' + cardX + 'px'"
+    ></q-card>
     <q-card
-      style="
-        width: 650px;
-        height: 465px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="notesview"
     >
-      <q-card-section
-        style="
-          height: 430px;
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-        "
-      >
+      <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
         <div style="height: 100%; width: 100%;">
           <editor
             v-model="obj.notes"
@@ -2559,25 +1943,10 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="securityview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         Security view
       </q-card-section>
       <q-card-actions align="left">
@@ -2639,15 +2008,7 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="logsview"
     >
       <q-tabs v-model="logtab" class="text-primary" align="center" dense>
@@ -2657,58 +2018,34 @@
       </q-tabs>
       <q-tab-panels v-model="logtab" keep-alive>
         <q-tab-panel name="tasklog" style="padding: 0px;" ref="tasklog">
-          <q-card-section
-            style="
-              padding: 5px;
-              z-index: 999999;
-              padding-bottom: 10px;
-              height: 450px;
-            "
-          >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in tasklogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
-                  log['state']
-                }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp;
-                --&nbsp;&nbsp;{{ log['task'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
-                  log['duration']
-                }}
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
+                  log["module"]
+                }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["task"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["duration"] }}
               </div>
             </q-scroll-area>
           </q-card-section>
         </q-tab-panel>
         <q-tab-panel name="resultlog" style="padding: 0px;" ref="tasklog">
-          <q-card-section
-            style="
-              padding: 5px;
-              z-index: 999999;
-              padding-bottom: 10px;
-              height: 450px;
-            "
-          >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in resultlogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
-                  log['module']
-                }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['task'] }}
-                {{ JSON.parse(log['message']) }}
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["module"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
+                  log["task"]
+                }}
+                {{ JSON.parse(log["message"]) }}
               </div>
             </q-scroll-area>
           </q-card-section>
         </q-tab-panel>
         <q-tab-panel name="msglog" style="padding: 0px;" ref="msglog">
-          <q-card-section
-            style="
-              padding: 5px;
-              z-index: 999999;
-              padding-bottom: 10px;
-              height: 450px;
-            "
-          >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width::auto">
               <div v-for="log in msglogs">
-                {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
-                {{ log['message'] }}
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
+                {{ log["message"] }}
               </div>
             </q-scroll-area>
           </q-card-section>
@@ -2730,32 +2067,12 @@
 
     <!-- Chart dialog -->
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-      "
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="dataview"
     >
-      <q-card-section
-        style="
-          padding: 5px;
-          z-index: 999999;
-          padding-bottom: 10px;
-          height: 400px;
-        "
-      >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         <div id="chart">
-          <apexchart
-            type="candlestick"
-            height="390"
-            :options="chartOptions2"
-            :series="series2"
-          ></apexchart>
+          <apexchart type="candlestick" height="390" :options="chartOptions2" :series="series2"></apexchart>
           <!--<apexchart
             type="line"
             height="390"
@@ -2779,25 +2096,10 @@
     </q-card>
 
     <q-dialog v-model="viewResultsDialog" transition-show="none" persistent>
-      <q-card
-        style="
-          width: 70vw;
-          max-width: 70vw;
-          height: 80vh;
-          padding: 10px;
-          padding-left: 30px;
-          padding-top: 40px;
-        "
-      >
+      <q-card style="width: 70vw; max-width: 70vw; height: 80vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
         <q-card-section
           class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
         >
           <div
             style="
@@ -2813,14 +2115,14 @@
             <q-toolbar>
               <q-item-label>Results for {{ obj.name }}</q-item-label>
               <q-space />
-                        <q-select
-            dense
-            borderless
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 20px;color:white"
-            v-model="resulttype"
-            :options="['finished','error']"
-          ></q-select>
+              <q-select
+                dense
+                borderless
+                :options-dense="true"
+                style="font-size: 1em; margin-right: 20px; color: white;"
+                v-model="resulttype"
+                :options="['finished', 'error']"
+              ></q-select>
               <q-btn
                 class="text-primary"
                 flat
@@ -2848,12 +2150,7 @@
               row-key="name"
               flat
               :pagination="resultPagination"
-              style="
-                height: calc(100% - 0px);
-                width: 100%;
-                border-top-radius: 0px;
-                border-bottom-radius: 0px;
-              "
+              style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
               <template v-slot:body="props">
                 <q-tr :props="props" :key="getUuid">
@@ -2861,18 +2158,10 @@
                     {{ props.cols[0].value }}
                   </q-td>
                   <q-td :key="props.cols[1].name" :props="props">
-                    <a
-                      class="text-secondary"
-                      @click="showResult(props.row.resultid)"
-                      >{{ props.cols[1].value }}</a
-                    >
+                    <a class="text-secondary" @click="showResult(props.row.resultid)">{{ props.cols[1].value }}</a>
                   </q-td>
                   <q-td :key="props.cols[2].name" :props="props">
-                    <a
-                      class="text-secondary"
-                      @click="showOutput(props.cols[1].value)"
-                      >Output</a
-                    >
+                    <a class="text-secondary" @click="showOutput(props.cols[1].value)">Output</a>
                   </q-td>
                   <q-td :key="props.cols[3].name" :props="props">
                     {{ props.cols[3].value }}
@@ -2898,8 +2187,8 @@
               </template>
             </q-table>
           </template>
-          <template v-slot:after
-            ><div style="height: 100%; width: 100%;">
+          <template v-slot:after>
+            <div style="height: 100%; width: 100%;">
               <editor
                 @init="resultEditorInit"
                 style="font-size: 1.5em;"
@@ -2925,8 +2214,8 @@
             @click="refreshResultsData"
           />
         </q-card-actions>
-        <q-card-actions align="right"
-          ><q-btn
+        <q-card-actions align="right">
+          <q-btn
             flat
             style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
             label="Close"
@@ -2970,23 +2259,23 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
-import { v4 as uuidv4 } from 'uuid';
-import VueResizable from 'vue-resizable';
-import Vuetify from 'vuetify';
-import { mdiLambda } from '@mdi/js';
-import { mdiAbacus } from '@mdi/js';
-import { TSDB } from 'uts';
-import Console from 'components/Console';
-import Processor from '../Processor.vue';
-import BetterCounter from '../BetterCounter';
-import DataService from 'components/util/DataService';
-import { mdiPowerSocketUs } from '@mdi/js';
-import { mdiCodeBraces } from '@mdi/js';
-import { urlencoded } from 'body-parser';
-import http from 'src/http-common';
+import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
+import { v4 as uuidv4 } from "uuid";
+import VueResizable from "vue-resizable";
+import Vuetify from "vuetify";
+import { mdiLambda } from "@mdi/js";
+import { mdiAbacus } from "@mdi/js";
+import { TSDB } from "uts";
+import Console from "components/Console";
+import Processor from "../Processor.vue";
+import BetterCounter from "../BetterCounter";
+import DataService from "components/util/DataService";
+import { mdiPowerSocketUs } from "@mdi/js";
+import { mdiCodeBraces } from "@mdi/js";
+import { urlencoded } from "body-parser";
+import http from "src/http-common";
 
-var Moment = require('moment'); // require
+var Moment = require("moment"); // require
 
 const tsdb = new TSDB();
 
@@ -3014,18 +2303,18 @@ Delete
 
 */
 export default {
-  name: 'ScriptTemplate',
+  name: "ScriptTemplate",
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {
-    editor: require('vue2-ace-editor'),
+    editor: require("vue2-ace-editor"),
     VueResizable,
     BetterCounter,
     Console,
   },
   watch: {
-    'obj.status': function (val) {
-      window.designer.$root.$emit('toolkit.dirty');
+    "obj.status": function (val) {
+      window.designer.$root.$emit("toolkit.dirty");
     },
     inBytes: function (val) {
       //console.log('inBytes', val);
@@ -3037,41 +2326,40 @@ export default {
     this.braces = mdiCodeBraces;
     this.lambdaIcon = mdiLambda;
     this.abacusIcon = mdiAbacus;
-    console.log('me.tooltips ', me.tooltips);
-    console.log('start listening for show.tooltips');
-    window.root.$on('show.tooltips', (value) => {
-      console.log('start tooltips:', value);
+    console.log("me.tooltips ", me.tooltips);
+    console.log("start listening for show.tooltips");
+    window.root.$on("show.tooltips", (value) => {
+      console.log("start tooltips:", value);
       me.tooltips = value;
-      console.log('ME:', me);
-      console.log('TOOLTIPS', me.tooltips);
+      console.log("ME:", me);
+      console.log("TOOLTIPS", me.tooltips);
     });
 
-    this.$on('message.received', (msg) => {
-
-      if (msg['type'] && msg['type'] == 'output') {
-        if (msg['processor'] == this.obj.name) {
-          me.consolelogs.push({ date: new Date(), output: msg['output'] });
+    this.$on("message.received", (msg) => {
+      if (msg["type"] && msg["type"] == "output") {
+        if (msg["processor"] == this.obj.name) {
+          me.consolelogs.push({ date: new Date(), output: msg["output"] });
           me.consolelogs = me.consolelogs.slice(0, 100);
         }
       }
-      if (msg['room'] && msg['room'] != me.obj.name) {
+      if (msg["room"] && msg["room"] != me.obj.name) {
         return;
       }
-      if (msg['channel'] == 'task' && msg['state']) {
+      if (msg["channel"] == "task" && msg["state"]) {
         var bytes = JSON.stringify(msg).length;
-        window.root.$emit('message.count', 1);
-        window.root.$emit('message.size', bytes);
-        tsdb.series('inBytes').insert(
+        window.root.$emit("message.count", 1);
+        window.root.$emit("message.size", bytes);
+        tsdb.series("inBytes").insert(
           {
             bytes: bytes,
           },
           Date.now()
         );
 
-        var timedata = tsdb.series('inBytes').query({
-          metrics: { data: TSDB.map('bytes') },
+        var timedata = tsdb.series("inBytes").query({
+          metrics: { data: TSDB.map("bytes") },
           where: {
-            time: { is: '<', than: Date.now() - 5 * 60 },
+            time: { is: "<", than: Date.now() - 5 * 60 },
           },
         });
 
@@ -3082,43 +2370,41 @@ export default {
         //console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
         me.bytes_in += bytes;
 
-        me.calls_in = timedata[0]['results'].data.length;
+        me.calls_in = timedata[0]["results"].data.length;
         me.tasklogs.unshift(msg);
         me.tasklogs = me.tasklogs.slice(0, 100);
       }
-      if (msg['channel'] == 'task' && msg['message']) {
-        var timedata = tsdb.series('outBytes').query({
-          metrics: { data: TSDB.map('bytes') },
+      if (msg["channel"] == "task" && msg["message"]) {
+        var timedata = tsdb.series("outBytes").query({
+          metrics: { data: TSDB.map("bytes") },
           where: {
-            time: { is: '<', than: Date.now() - 5 * 60 },
+            time: { is: "<", than: Date.now() - 5 * 60 },
           },
         });
-        tsdb.series('outBytes').insert(
+        tsdb.series("outBytes").insert(
           {
             bytes: bytes,
           },
           Date.now()
         );
-        var json = JSON.parse(msg['message']);
-        me.bytes_out += msg['message'].length;
-        me.bytes_out_5min.unshift(msg['message'].length);
-        if (msg['state'] == 'postrun' && msg['duration']) {
-          const moment = Moment(msg['duration'], 'H:mm:ss.SSS');
+        var json = JSON.parse(msg["message"]);
+        me.bytes_out += msg["message"].length;
+        me.bytes_out_5min.unshift(msg["message"].length);
+        if (msg["state"] == "postrun" && msg["duration"]) {
+          const moment = Moment(msg["duration"], "H:mm:ss.SSS");
           //console.log('MOMENT', moment);
-          me.tasktime_out_5min.unshift(
-            moment.seconds() + moment.milliseconds()
-          );
+          me.tasktime_out_5min.unshift(moment.seconds() + moment.milliseconds());
           me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8);
 
           me.task_time = json.duration;
         }
         //console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8);
-        me.calls_out = timedata[0]['results'].data.length;
+        me.calls_out = timedata[0]["results"].data.length;
         me.resultlogs.unshift(json);
         me.resultlogs = me.resultlogs.slice(0, 100);
       }
-      if (msg['channel'] == 'log' && msg['message']) {
+      if (msg["channel"] == "log" && msg["message"]) {
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 100);
       }
@@ -3128,12 +2414,8 @@ export default {
       //console.log('MSGLOGS', me.msglogs);
     });
     // Print some fields from the mixin component
-    console.log(
-      'BetterCounter: ',
-      this.delayMs,
-      this.internalPerformAsyncIncrement
-    );
-    console.log('getcount', this.countLabel);
+    console.log("BetterCounter: ", this.delayMs, this.internalPerformAsyncIncrement);
+    console.log("getcount", this.countLabel);
     // Changing this.delayMs will cause it to be saved in the vuex store and sync'd with server.
     // Any changes to the server will arrive through the customer Store via websockets, update the
     // vuex model and cause any reactive components in this view to change as well.
@@ -3163,19 +2445,13 @@ export default {
       return this.task_time;
     },
     inBytes() {
-      return this.calls_in + ' (' + this.bytes_in_human + ' bytes)';
+      return this.calls_in + " (" + this.bytes_in_human + " bytes)";
     },
     outBytes() {
-      return this.calls_out + ' (' + this.bytes_out_human + ' bytes)';
+      return this.calls_out + " (" + this.bytes_out_human + " bytes)";
     },
     totalBytes() {
-      return (
-        this.calls_out +
-        this.calls_in +
-        ' (' +
-        this.sizeOf(this.bytes_out + this.bytes_in) +
-        ' bytes)'
-      );
+      return this.calls_out + this.calls_in + " (" + this.sizeOf(this.bytes_out + this.bytes_in) + " bytes)";
     },
     bytes_in_human() {
       return this.sizeOf(this.bytes_in);
@@ -3190,44 +2466,44 @@ export default {
   mounted() {
     var me = this;
 
-    console.log('MOUNTED STORE', this.$store);
-    console.log('BYTES_IN', this['bytes_in']);
+    console.log("MOUNTED STORE", this.$store);
+    console.log("BYTES_IN", this["bytes_in"]);
 
-    d3.selectAll('p').style('color', 'white');
-    console.log('D3 ran');
+    d3.selectAll("p").style("color", "white");
+    console.log("D3 ran");
     // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({ name: 'darren', age: 51 });
+    this.sayHello({ name: "darren", age: 51 });
 
     setTimeout(() => {
-      console.log('ME.getNode()', me.getNode());
+      console.log("ME.getNode()", me.getNode());
       me.getNode().component = this;
     }, 3000);
     this.$el.component = this;
-    window.designer.$on('toggle.bandwidth', (bandwidth) => {
-      console.log('toggle bandwidth', bandwidth);
+    window.designer.$on("toggle.bandwidth", (bandwidth) => {
+      console.log("toggle bandwidth", bandwidth);
       me.obj.bandwidth = bandwidth;
     });
-    window.designer.$root.$on('node.added', (node) => {
-      console.log('NODE ADDED', node);
+    window.designer.$root.$on("node.added", (node) => {
+      console.log("NODE ADDED", node);
       this.updateSchemas();
     });
 
-    window.designer.$root.$on('toolkit.dirty', (val) => {
+    window.designer.$root.$on("toolkit.dirty", (val) => {
       this.updateSchemas();
     });
-    window.root.$on('update.queues', (queues) => {
-      this.queues = queues.map( (queue) => queue.name);
-    })
-    window.designer.$root.$emit('toolkit.dirty');
+    window.root.$on("update.queues", (queues) => {
+      this.queues = queues.map((queue) => queue.name);
+    });
+    window.designer.$root.$emit("toolkit.dirty");
     this.deployLoading = true;
     DataService.getDeployments(this.obj.name)
       .then((deployments) => {
-        console.log('DEPLOYMENTS', deployments);
+        console.log("DEPLOYMENTS", deployments);
         this.deployLoading = false;
         this.deploydata = deployments.data;
       })
       .catch((err) => {
-        console.log('DEPLOYMENTS ERROR', err);
+        console.log("DEPLOYMENTS ERROR", err);
         this.deployLoading = false;
       });
 
@@ -3235,7 +2511,7 @@ export default {
   },
   data() {
     return {
-      resulttype: 'finished',
+      resulttype: "finished",
       queues: [],
       argports: {},
       funcs: [],
@@ -3243,158 +2519,158 @@ export default {
       codewidth: 950,
       queuecolumns: [
         {
-          name: 'task',
-          label: 'Task',
-          field: 'task',
-          align: 'left',
+          name: "task",
+          label: "Task",
+          field: "task",
+          align: "left",
         },
         {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
-          align: 'left',
+          name: "tracking",
+          label: "Tracking",
+          field: "tracking",
+          align: "left",
         },
         {
-          name: 'id',
-          label: 'ID',
-          field: 'id',
-          align: 'left',
+          name: "id",
+          label: "ID",
+          field: "id",
+          align: "left",
         },
         {
-          name: 'time',
-          label: 'Time',
-          field: 'time',
-          align: 'left',
+          name: "time",
+          label: "Time",
+          field: "time",
+          align: "left",
         },
         {
-          name: 'parent',
-          label: 'Parent',
-          field: 'parent',
-          align: 'left',
+          name: "parent",
+          label: "Parent",
+          field: "parent",
+          align: "left",
         },
         {
-          name: 'routing_key',
-          label: 'Routing Key',
-          field: 'routing_key',
-          align: 'left',
+          name: "routing_key",
+          label: "Routing Key",
+          field: "routing_key",
+          align: "left",
         },
       ],
       resultdata: [],
-      commitcode: '',
+      commitcode: "",
       variablecolumns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'value',
-          label: 'Value',
-          field: 'value',
-          align: 'left',
+          name: "value",
+          label: "Value",
+          field: "value",
+          align: "left",
         },
         {
-          name: 'scope',
-          label: 'Scope',
-          field: 'scope',
-          align: 'left',
+          name: "scope",
+          label: "Scope",
+          field: "scope",
+          align: "left",
         },
       ],
       variabledata: [],
-      owner: 'darren',
+      owner: "darren",
       historycolumns: [
         {
-          name: 'action',
-          label: 'Action',
-          field: 'name',
-          align: 'left',
+          name: "action",
+          label: "Action",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'object',
-          label: 'Object',
-          field: 'object',
-          align: 'left',
+          name: "object",
+          label: "Object",
+          field: "object",
+          align: "left",
         },
         {
-          name: 'id',
-          label: 'Object ID',
-          field: 'id',
-          align: 'left',
+          name: "id",
+          label: "Object ID",
+          field: "id",
+          align: "left",
         },
         {
-          name: 'owner',
-          label: 'Owner',
-          align: 'left',
+          name: "owner",
+          label: "Owner",
+          align: "left",
         },
       ],
       resultdataloading: false,
       resultloading: false,
       resultcolumns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'id',
-          label: 'Result',
-          field: 'id',
-          align: 'left',
+          name: "id",
+          label: "Result",
+          field: "id",
+          align: "left",
         },
 
         {
-          name: 'id',
-          label: 'Output',
-          field: 'id',
-          align: 'left',
+          name: "id",
+          label: "Output",
+          field: "id",
+          align: "left",
         },
         {
-          name: 'created',
-          label: 'Created',
-          field: 'created',
-          align: 'left',
+          name: "created",
+          label: "Created",
+          field: "created",
+          align: "left",
         },
         {
-          name: 'state',
-          label: 'State',
-          field: 'state',
-          align: 'left',
+          name: "state",
+          label: "State",
+          field: "state",
+          align: "left",
         },
         {
-          name: 'lastupdated',
-          label: 'Last Updated',
-          field: 'lastupdated',
-          align: 'left',
+          name: "lastupdated",
+          label: "Last Updated",
+          field: "lastupdated",
+          align: "left",
         },
         {
-          name: 'owner',
-          label: 'Owner',
-          field: 'owner',
-          align: 'left',
+          name: "owner",
+          label: "Owner",
+          field: "owner",
+          align: "left",
         },
         {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
-          align: 'left',
+          name: "tracking",
+          label: "Tracking",
+          field: "tracking",
+          align: "left",
         },
         {
-          name: 'task_id',
-          label: 'Task ID',
-          field: 'task_id',
-          align: 'left',
+          name: "task_id",
+          label: "Task ID",
+          field: "task_id",
+          align: "left",
         },
       ],
       resultPagination: {
-        sortBy: 'desc',
+        sortBy: "desc",
         descending: false,
         page: 1,
         rowsPerPage: 20,
       },
       queuePagination: {
-        sortBy: 'desc',
+        sortBy: "desc",
         descending: false,
         page: 1,
         rowsPerPage: 20,
@@ -3404,8 +2680,8 @@ export default {
       messageSplitter: 70,
       types: [],
       deployLoading: false,
-      errorMsg: '',
-      password: '',
+      errorMsg: "",
+      password: "",
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       bytes_in_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -3416,18 +2692,18 @@ export default {
       calls_out: 0,
       task_time: 0,
       login: false,
-      logtab: 'tasklog',
+      logtab: "tasklog",
       cardX: 0,
       cardY: 0,
       mousecard: false,
-      tab: 'settings',
+      tab: "settings",
       error: false,
       tasklogs: [],
       resultlogs: [],
       msglogs: [],
       consolelogs: [],
       editPort: false,
-      settingstab: 'settings',
+      settingstab: "settings",
       refreshing: false,
       consolehistory: false,
       saving: false,
@@ -3684,8 +2960,8 @@ export default {
         plotOptions: {
           candlestick: {
             colors: {
-              upward: '#abbcc3',
-              downward: '#6b8791',
+              upward: "#abbcc3",
+              downward: "#6b8791",
             },
             wick: {
               useFillColor: true,
@@ -3694,19 +2970,19 @@ export default {
         },
         candlestick: {
           colors: {
-            upward: '#abbcc3',
-            downward: '#6b8791',
+            upward: "#abbcc3",
+            downward: "#6b8791",
           },
           wick: {
             useFillColor: true,
           },
         },
         chart: {
-          type: 'candlestick',
+          type: "candlestick",
           height: 350,
         },
         xaxis: {
-          type: 'datetime',
+          type: "datetime",
         },
         yaxis: {
           tooltip: {
@@ -3718,49 +2994,49 @@ export default {
       lineSeries: [],
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'fab fa-python',
+        icon: "fab fa-python",
         titletab: false,
-        notes: '',
-        style: '',
+        notes: "",
+        style: "",
         x: 0,
         y: 0,
-        version: 'v1.2.2',
+        version: "v1.2.2",
         perworker: true,
-        ratelimit: '60/m',
-        websocket: 'ws://localhost:3003',
+        ratelimit: "60/m",
+        websocket: "ws://localhost:3003",
         bandwidth: true,
-        requirements: '',
-        gittag: '',
+        requirements: "",
+        gittag: "",
         container: true,
-        imagerepo: 'local',
-        containerimage: 'pyfi/processors:latest',
+        imagerepo: "local",
+        containerimage: "pyfi/processors:latest",
         streaming: true,
         usegit: true,
         enabled: true,
         endpoint: false,
         beat: false,
         streaming: true,
-        api: '/api/processor',
-        type: 'script',
-        name: 'Script Processor',
-        label: 'Script',
-        description: 'A script processor description',
-        package: 'my.python.package',
+        api: "/api/processor",
+        type: "script",
+        name: "Script Processor",
+        label: "Script",
+        description: "A script processor description",
+        package: "my.python.package",
         concurrency: 3,
-        cron: '* * * * *',
+        cron: "* * * * *",
         interval: 5,
         useschedule: false,
         disabled: false,
-        commit: '',
+        commit: "",
         gitrepo:
-          'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
+          "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
         columns: [],
-        modulepath: 'pyfi/processors/sample.py',
+        modulepath: "pyfi/processors/sample.py",
         readwrite: 0,
-        status: 'stopped',
+        status: "stopped",
         properties: [],
       },
-      text: '',
+      text: "",
       configview: false,
       workerview: false,
       historyview: false,
@@ -3777,179 +3053,179 @@ export default {
       bandwidth: true,
       deploydata: [
         {
-          name: 'Name1',
-          owner: 'postgres',
-          hostname: 'agent2',
-          processor: 'proc1',
+          name: "Name1",
+          owner: "postgres",
+          hostname: "agent2",
+          processor: "proc1",
           cpus: 5,
-          status: 'running',
+          status: "running",
         },
       ],
       gitdata: [],
-      gitcommit: '',
+      gitcommit: "",
       gitcolumns: [
         {
-          name: 'hash',
-          label: 'Hash',
-          field: 'hash',
-          align: 'left',
+          name: "hash",
+          label: "Hash",
+          field: "hash",
+          align: "left",
         },
         {
-          name: 'author',
-          label: 'Author',
-          field: 'author',
-          align: 'left',
+          name: "author",
+          label: "Author",
+          field: "author",
+          align: "left",
         },
         {
-          name: 'message',
-          label: 'Message',
-          field: 'message',
-          align: 'left',
+          name: "message",
+          label: "Message",
+          field: "message",
+          align: "left",
         },
         {
-          name: 'date',
-          label: 'Date',
-          field: 'date',
-          align: 'left',
+          name: "date",
+          label: "Date",
+          field: "date",
+          align: "left",
         },
       ],
       deploycolumns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'owner',
-          label: 'Owner',
-          field: 'owner',
-          align: 'left',
+          name: "owner",
+          label: "Owner",
+          field: "owner",
+          align: "left",
         },
         {
-          name: 'hostname',
-          label: 'Hostname',
-          field: 'hostname',
-          align: 'left',
+          name: "hostname",
+          label: "Hostname",
+          field: "hostname",
+          align: "left",
         },
         {
-          name: 'worker',
-          label: 'Worker',
-          field: 'worker',
-          align: 'left',
+          name: "worker",
+          label: "Worker",
+          field: "worker",
+          align: "left",
         },
         {
-          name: 'cpus',
-          label: 'CPUS',
-          field: 'cpus',
-          align: 'left',
+          name: "cpus",
+          label: "CPUS",
+          field: "cpus",
+          align: "left",
         },
         {
-          name: 'status',
-          label: 'Status',
-          field: 'status',
-          align: 'left',
+          name: "status",
+          label: "Status",
+          field: "status",
+          align: "left",
         },
       ],
       workercolumns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'host',
-          label: 'Host',
-          field: 'host',
-          align: 'left',
+          name: "host",
+          label: "Host",
+          field: "host",
+          align: "left",
         },
         {
-          name: 'cpus',
-          label: 'CPUs',
-          field: 'cpus',
-          align: 'left',
+          name: "cpus",
+          label: "CPUs",
+          field: "cpus",
+          align: "left",
         },
         {
-          name: 'deployment',
-          label: 'Deployment',
-          field: 'deployment',
-          align: 'left',
+          name: "deployment",
+          label: "Deployment",
+          field: "deployment",
+          align: "left",
         },
         {
-          name: 'status',
-          label: 'Status',
-          field: 'status',
-          align: 'left',
+          name: "status",
+          label: "Status",
+          field: "status",
+          align: "left",
         },
       ],
       columns: [
         {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left',
+          name: "name",
+          label: "Name",
+          field: "name",
+          align: "left",
         },
         {
-          name: 'bytes',
-          align: 'center',
-          label: 'Bytes',
-          field: 'bytes',
+          name: "bytes",
+          align: "center",
+          label: "Bytes",
+          field: "bytes",
         },
         {
-          name: 'time',
-          align: 'right',
-          classes: 'text-secondary',
-          label: 'Time',
-          field: 'time',
+          name: "time",
+          align: "right",
+          classes: "text-secondary",
+          label: "Time",
+          field: "time",
         },
         {
-          name: 'spark',
-          align: 'center',
-          classes: 'text-secondary',
-          label: 'Spark',
-          field: 'spark',
+          name: "spark",
+          align: "center",
+          classes: "text-secondary",
+          label: "Spark",
+          field: "spark",
         },
       ],
       workerdata: [],
       data: [
         {
-          name: 'In',
-          bytes: 'inBytes',
-          time: '5 min',
+          name: "In",
+          bytes: "inBytes",
+          time: "5 min",
           spark: {
-            name: 'in',
-            labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
+            name: "in",
+            labels: ["12am", "3am", "6am", "9am", "12pm", "3pm", "6pm", "9pm"],
             value: [200, 675, 410, 390, 310, 460, 250, 240],
           },
         },
         {
-          name: 'Total',
-          bytes: 'totalBytes',
-          time: '5 min',
+          name: "Total",
+          bytes: "totalBytes",
+          time: "5 min",
           spark: {
-            name: 'readwrite',
-            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
+            name: "readwrite",
+            labels: ["12am", "3am", "12pm", "3pm", "6pm", "6am", "9am", "9pm"],
             value: [200, 390, 310, 460, 675, 410, 250, 240],
           },
         },
         {
-          name: 'Out',
-          bytes: 'outBytes',
-          time: '5 min',
+          name: "Out",
+          bytes: "outBytes",
+          time: "5 min",
           spark: {
-            name: 'readoutwrite',
-            labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
+            name: "readoutwrite",
+            labels: ["3pm", "6pm", "9pm", "12am", "3am", "6am", "9am", "12pm"],
             value: [460, 250, 240, 200, 675, 410, 390, 310],
           },
         },
         {
-          name: 'Task/Time',
-          bytes: 'taskTime',
-          time: '5 min',
+          name: "Task/Time",
+          bytes: "taskTime",
+          time: "5 min",
           spark: {
-            name: 'taskstime',
-            labels: ['9am', '12pm', '3pm', '6pm', '9pm', '12am', '3am', '6am'],
+            name: "taskstime",
+            labels: ["9am", "12pm", "3pm", "6pm", "9pm", "12am", "3am", "6am"],
             value: [390, 310, 460, 250, 240, 200, 675, 410],
           },
         },
@@ -3957,9 +3233,9 @@ export default {
       codeview: false,
       pythonview: false,
       gitview: false,
-      entityName: '',
-      columnName: '',
-      thecode: '',
+      entityName: "",
+      columnName: "",
+      thecode: "",
       tooltips: false,
       tooltip: false,
       code: false,
@@ -3975,27 +3251,27 @@ export default {
       deleteConfirm: false,
       prompt: false,
       contentStyle: {
-        backgroundColor: 'rgba(0,0,0,0.02)',
-        color: '#555',
+        backgroundColor: "rgba(0,0,0,0.02)",
+        color: "#555",
       },
 
       contentActiveStyle: {
-        backgroundColor: '#eee',
-        color: 'black',
+        backgroundColor: "#eee",
+        color: "black",
       },
 
       thumbStyle: {
-        right: '2px',
-        borderRadius: '5px',
-        backgroundColor: '#027be3',
-        width: '5px',
+        right: "2px",
+        borderRadius: "5px",
+        backgroundColor: "#027be3",
+        width: "5px",
         opacity: 0.75,
       },
     };
   },
   methods: {
     showCommit(hash, date) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
+      DataService.getCode(this.obj.gitrepo.split("#")[0], hash).then((code) => {
         this.commitcode = code.data;
       });
       this.gitcommit = hash;
@@ -4006,10 +3282,7 @@ export default {
       this.gitview = true;
     },
     getCommits() {
-      DataService.getCommits(
-        this.obj.gitrepo.split('#')[0],
-        this.obj.modulepath
-      ).then((result) => {
+      DataService.getCommits(this.obj.gitrepo.split("#")[0], this.obj.modulepath).then((result) => {
         this.gitdata = result.data;
       });
     },
@@ -4025,13 +3298,13 @@ export default {
     },
     addVariable() {
       this.variabledata.push({
-        name: 'NAME',
-        value: 'VALUE',
-        scope: 'FLOW',
+        name: "NAME",
+        value: "VALUE",
+        scope: "FLOW",
       });
     },
     addToLibrary() {
-      window.root.$emit('add.library', this.obj);
+      window.root.$emit("add.library", this.obj);
     },
     cornerInView() {
       var node = this.toolkit.getNode(this.obj);
@@ -4057,12 +3330,8 @@ export default {
       });
     },
     addFunc(func) {
-      console.log('FUNCS2', this.funcs);
-      addNewPort(
-        { function: 'function: ' + func.name, args: func.args },
-        'Output',
-        'outlet-icon'
-      );
+      console.log("FUNCS2", this.funcs);
+      addNewPort({ function: "function: " + func.name, args: func.args }, "Output", "outlet-icon");
     },
     showOutput(resultid) {
       this.resultdataloading = true;
@@ -4107,17 +3376,17 @@ export default {
       this.funcs = [];
 
       for (const match of matches) {
-        var name = match[0].split('(')[0].split(' ').at(-1);
-        var args = match[2].split(',');
+        var name = match[0].split("(")[0].split(" ").at(-1);
+        var args = match[2].split(",");
 
         var _args = [];
         for (const arg of args) {
-          if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
+          if (arg.indexOf("*") > -1 || arg.indexOf("=") > -1) {
           } else {
-            if (arg.indexOf(':') > -1) {
-              arg = arg.split(':')[0];
+            if (arg.indexOf(":") > -1) {
+              arg = arg.split(":")[0];
             }
-            console.log('ARG', arg);
+            console.log("ARG", arg);
             _args.push(arg);
           }
         }
@@ -4127,16 +3396,12 @@ export default {
     fetchCode() {
       var me = this;
       var url = new URL(this.obj.gitrepo);
-      console.log('URL ', url);
+      console.log("URL ", url);
       //https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
-      var codeUrl =
-        'https://raw.githubusercontent.com/' +
-        url.pathname +
-        '/main/' +
-        this.obj.modulepath;
-      console.log('CODE', codeUrl);
+      var codeUrl = "https://raw.githubusercontent.com/" + url.pathname + "/main/" + this.obj.modulepath;
+      console.log("CODE", codeUrl);
       http.get(codeUrl).then((response) => {
-        console.log('CODE RESPONSE', response);
+        console.log("CODE RESPONSE", response);
 
         me.obj.code = response.data;
         //const re = /(def)\s(\w+)/g;
@@ -4152,7 +3417,7 @@ export default {
       });
     },
     copyNode() {
-      console.log('COPY NODE');
+      console.log("COPY NODE");
       function findMatch(list, obj) {
         for (var i = 0; i < list.length; i++) {
           var o = list[i];
@@ -4176,8 +3441,8 @@ export default {
         var target = false;
         for (var i = 0; i < nodes.length; i++) {
           var node = nodes[i];
-          if (edge.source.split('.')[0] === node.id) source = true;
-          if (edge.target.split('.')[0] === node.id) target = true;
+          if (edge.source.split(".")[0] === node.id) source = true;
+          if (edge.target.split(".")[0] === node.id) target = true;
         }
         return source && target;
       }
@@ -4185,14 +3450,14 @@ export default {
       var node = window.toolkit.getNode(this.obj.id);
 
       if (!node) {
-        console.log('NODE NOT FOUND!');
+        console.log("NODE NOT FOUND!");
       }
 
       var nodes = [node];
 
-      console.log('COPY SELECTED NODES:', nodes);
+      console.log("COPY SELECTED NODES:", nodes);
       var exportData = window.toolkit.exportData();
-      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'));
+      var data = JSON.parse(JSON.stringify(exportData, undefined, "\t"));
       var jsonData = {};
       jsonData.nodes = [];
       jsonData.edges = [];
@@ -4225,8 +3490,8 @@ export default {
         nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id));
       }
       window.nodes = nodes;
-      console.log('jsonData:', jsonData);
-      this.$store.commit('designer/setMessage', 'Node copied!');
+      console.log("jsonData:", jsonData);
+      this.$store.commit("designer/setMessage", "Node copied!");
     },
     closePortEdit() {
       editPort = false;
@@ -4237,11 +3502,11 @@ export default {
         .then(() => {
           this.refreshing = false;
           this.error = false;
-          this.errorMsg = '';
+          this.errorMsg = "";
         })
         .catch(() => {
           this.error = true;
-          this.errorMsg = 'Error saving processor';
+          this.errorMsg = "Error saving processor";
           this.refreshing = false;
         });
     },
@@ -4249,23 +3514,21 @@ export default {
       this.deployLoading = true;
       DataService.getDeployments(this.obj.name)
         .then((deployments) => {
-          console.log('DEPLOYMENTS', deployments);
+          console.log("DEPLOYMENTS", deployments);
           this.deployLoading = false;
           this.deploydata = deployments.data;
         })
         .catch((err) => {
-          console.log('DEPLOYMENTS ERROR', err);
+          console.log("DEPLOYMENTS ERROR", err);
           this.deployLoading = false;
         });
     },
     sizeOf(bytes) {
       if (bytes == 0) {
-        return '0.00 B';
+        return "0.00 B";
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
-      return (
-        (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
-      );
+      return (bytes / Math.pow(1024, e)).toFixed(2) + " " + " KMGTP".charAt(e) + "B";
     },
     mouseEnter(event) {
       this.cardX = event.clientX;
@@ -4273,7 +3536,7 @@ export default {
       this.mousecard = true;
     },
     mouseExit(event) {
-      console.log('mouseExit');
+      console.log("mouseExit");
       //this.mousecard = false;
     },
     mouseMove(event) {
@@ -4282,7 +3545,7 @@ export default {
       console.log(this.cardX, this.cardY);
     },
     setBandwidth(value) {
-      console.log('SET BANDWIDTH', value);
+      console.log("SET BANDWIDTH", value);
       this.obj.bandwidth = value;
     },
     onSubmit() {},
@@ -4311,11 +3574,11 @@ export default {
       }, 2000);
     },
     getUuid() {
-      return 'key_' + uuidv4();
+      return "key_" + uuidv4();
     },
     rowStripe(row) {
       if (row % 2 == 0) {
-        return 'background-color:white';
+        return "background-color:white";
       }
     },
     workerviewSetup() {
@@ -4339,18 +3602,18 @@ export default {
       this.logsview = false;
       this.securityview = false;
       this[view] = show;
-      if (this[view + 'Setup']) {
-        this[view + 'Setup']();
+      if (this[view + "Setup"]) {
+        this[view + "Setup"]();
       }
 
       if (show) {
         //window.toolkit.surface.setZoom(1.0);
 
         var node = this.toolkit.getNode(this.obj);
-        if (view == 'historyview') {
+        if (view == "historyview") {
           console.log(this.myhistory);
         }
-        if (view == 'gitview') {
+        if (view == "gitview") {
           this.getCommits();
         }
         /*
@@ -4365,94 +3628,94 @@ export default {
       }
     },
     updateDescription(value, initialValue) {
-      console.log('updateDesc', value, initialValue);
+      console.log("updateDesc", value, initialValue);
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
     },
     updateName(value, initialValue, column) {
-      console.log('column edited ', column);
-      console.log('updateName', value, initialValue);
+      console.log("column edited ", column);
+      console.log("updateName", value, initialValue);
       this.renameConfirm = true;
       this.renameValue = value;
       this.initialValue = initialValue;
-      var edges = document.querySelectorAll('[data-source=' + column + ']');
+      var edges = document.querySelectorAll("[data-source=" + column + "]");
 
       edges.forEach((edge) => {
         edge.innerText = value;
       });
     },
     gitEditorInit: function () {
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.gitEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
     },
     reqEditorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.requirementsEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-      editor.on('change', function () {
-        console.log('edit event');
+      editor.on("change", function () {
+        console.log("edit event");
         me.obj.requirements = editor.getValue();
       });
     },
     notesEditorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.notesEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-      editor.on('change', function () {
-        console.log('edit event');
+      editor.on("change", function () {
+        console.log("edit event");
         me.obj.notes = editor.getValue();
       });
     },
     resultEditorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.resultEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-      editor.on('change', function () {
-        console.log('edit event');
+      editor.on("change", function () {
+        console.log("edit event");
         me.updateFunctions(editor.getValue());
       });
     },
     editorInit: function () {
       var me = this;
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
+      require("brace/ext/language_tools"); // language extension prerequsite...
+      require("brace/mode/html");
+      require("brace/mode/python"); // language
+      require("brace/mode/less");
+      require("brace/theme/chrome");
+      require("brace/snippets/javascript"); // snippet
       const editor = this.$refs.myEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
-      editor.on('change', function () {
-        console.log('edit event');
+      editor.on("change", function () {
+        console.log("edit event");
 
         me.updateFunctions(editor.getValue());
       });
@@ -4471,25 +3734,25 @@ export default {
       this.deleteItem = true;
     },
     resetToolkit() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', false);
+      console.log("emitting toolkit.dirty");
+      this.$root.$emit("toolkit.dirty", false);
     },
     valueChanged() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', true);
+      console.log("emitting toolkit.dirty");
+      this.$root.$emit("toolkit.dirty", true);
     },
     deleteNode() {
       window.toolkit.removeNode(this.obj);
     },
     removeColumn(column) {
       // Delete all argument columns too
-      console.log('Removing column: ', column);
+      console.log("Removing column: ", column);
 
       for (var i = 0; i < this.obj.columns.length; i++) {
         var col = this.obj.columns[i];
         console.log(col);
         if (col.id == column) {
-          console.log('Deleted column');
+          console.log("Deleted column");
           this.obj.columns.splice(i, 1);
           break;
         }
@@ -4500,22 +3763,14 @@ export default {
       for (var i = 0; i < edges.length; i++) {
         console.log(edge);
         const edge = edges[i];
-        console.log(
-          edge.source.getNode().id,
-          this.obj.id,
-          edge.data.label,
-          column
-        );
-        if (
-          edge.source.getNode().id === this.obj.id &&
-          edge.data.label == column
-        ) {
+        console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column);
+        if (edge.source.getNode().id === this.obj.id && edge.data.label == column) {
           window.toolkit.removeEdge(edge);
         }
       }
       // Delete all the edges for this column id
       console.log(this.obj);
-      console.log('PORT ARGS', this.argports[column]);
+      console.log("PORT ARGS", this.argports[column]);
       window.toolkit.removePort(this.obj.id, column);
 
       if (this.argports[column]) {
@@ -4525,25 +3780,25 @@ export default {
       }
       // window.renderer.repaint(this.obj);
     },
-    addPort (port) {
-      debugger; 
-      port.background = 'white';
-      port.datatype = 'Column';
+    addPort(port) {
+      debugger;
+      port.background = "white";
+      port.datatype = "Column";
       if (this.types.length > 0) {
         port.schema = this.types[0];
       } else {
         port.schema = null;
       }
-      port.id = 'port' + uuidv4();
-      port.id = port.id.replace(/-/g, '');
-      port.description = 'A description';
+      port.id = "port" + uuidv4();
+      port.id = port.id.replace(/-/g, "");
+      port.description = "A description";
 
-      port.queue = 'None';
+      port.queue = "None";
 
-      console.log('Port:', port);
-      window.toolkit.addNewPort(this.obj.id, 'column', port);
+      console.log("Port:", port);
+      window.toolkit.addNewPort(this.obj.id, "column", port);
       window.renderer.repaint(this.obj);
-      console.log('Firing node updated...');
+      console.log("Firing node updated...");
 
       console.log(this.obj.columns);
 
@@ -4555,9 +3810,9 @@ export default {
 
         var schemas = [];
 
-        graph['nodes'].forEach((node) => {
-          if (node['type'] == 'schema') {
-            schemas.push(node['name']);
+        graph["nodes"].forEach((node) => {
+          if (node["type"] == "schema") {
+            schemas.push(node["name"]);
           }
         });
         this.types = schemas;
@@ -4567,25 +3822,25 @@ export default {
       var me = this;
 
       var port = this.addPort({
-        name: func['function'],
+        name: func["function"],
         icon: icon,
         type: type,
       });
 
-      this.ports[func['function']] = true;
+      this.ports[func["function"]] = true;
       this.argports[port.id] = [];
 
       this.updateSchemas();
 
-      if (type == 'Error') {
+      if (type == "Error") {
         return;
       }
 
-      func['args'].forEach((arg) => {
+      func["args"].forEach((arg) => {
         var arg = this.addPort({
           name: arg,
-          icon: 'fab fa-python',
-          type: 'Input',
+          icon: "fab fa-python",
+          type: "Input",
         });
         this.ports[arg] = true;
         this.argports[port.id].push(arg.id);
@@ -4594,31 +3849,31 @@ export default {
     addErrorPort() {
       if (this.error) {
         this.$q.notify({
-          color: 'negative',
+          color: "negative",
           timeout: 2000,
-          position: 'bottom',
-          message: 'Error is already created',
-          icon: 'fas fa-exclamation',
+          position: "bottom",
+          message: "Error is already created",
+          icon: "fas fa-exclamation",
         });
         return;
       }
       this.addPort({
-        name: 'Error',
-        icon: 'fas fa-exclamation',
-        type: 'Error',
+        name: "Error",
+        icon: "fas fa-exclamation",
+        type: "Error",
       });
       this.error = true;
     },
     selectNode: function () {
-      console.log('selected: ', this.obj.id);
-      window.root.$emit('node.selected', this.obj);
+      console.log("selected: ", this.obj.id);
+      window.root.$emit("node.selected", this.obj);
     },
     deleteEntity: function (name) {
       this.entityName = name;
       this.confirm = true;
     },
     clicked: function () {
-      console.log('clicked');
+      console.log("clicked");
     },
   },
 };

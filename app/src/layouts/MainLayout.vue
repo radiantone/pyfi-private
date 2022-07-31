@@ -442,6 +442,7 @@
                             :id="props.row.name"
                             width="100"
                             icon="remove_circle"
+                            @click="purgeQueue(props.row.name)"
                           >
                             <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
                               Purge Messages
@@ -695,7 +696,7 @@
             v-close-popup
           />
         </q-card-actions>
-        <q-inner-loading :showing="queueloading" style="z-index: 0;">
+        <q-inner-loading :showing="queueloading" style="z-index: 99999;">
           <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
       </q-card>
@@ -947,6 +948,25 @@ export default defineComponent({
     },
   },
   methods: {
+    purgeQueue (name) {
+      DataService.purgeQueue(name).then((res) => {
+        this.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Purging Queue '+name+'...',
+            icon: 'fas fa-exclamation',
+          });
+      }).catch((res) => {
+        this.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Error Purging Queue '+name,
+            icon: 'fas fa-exclamation',
+          });
+      })
+    },
     queueDetailEditorInit: function () {
       var me = this;
 
@@ -1568,7 +1588,7 @@ export default defineComponent({
       },
       viewQueueDialog: false,
       splitterModel: 100,
-      splitterSave: 70,
+      splitterSave: 62,
       messageColumns: [
         {
           name: "date",
@@ -1641,19 +1661,19 @@ export default defineComponent({
         {
           name: "incoming",
           align: "center",
-          label: "Incoming",
+          label: "Incoming/sec",
           field: "incoming",
         },
         {
           name: "delivered",
           align: "center",
-          label: "Delivered",
+          label: "Delivered/sec",
           field: "delivered",
         },
         {
           name: "acked",
           align: "center",
-          label: "Acked",
+          label: "Acked/sec",
           field: "acked",
         },
         {

@@ -421,6 +421,13 @@ def get_file(fid):
         return file.code, 200
 
 
+@app.route("/queue/<queue>/contents", methods=["DELETE"])
+def purge_queue(queue):
+    from pyfi.util.rabbit import purge_queue
+
+    return purge_queue(queue)
+
+
 @app.route("/queue/messages/<queue>", methods=["GET"])
 def get_queue_messages(queue):
     import json

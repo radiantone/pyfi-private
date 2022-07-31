@@ -8,6 +8,10 @@ class DataService {
         return http.get('/api/files/'+collection+'/'+folder);
     }
 
+    purgeQueue (queue: string): Promise<any> {
+        return http.delete('/api/queue/'+queue+'/contents');
+    }
+
     getCommits (repo: string, file: string): Promise<any> {
         return http.post('/api/git', { 'repo': repo , 'file':file});
     }
