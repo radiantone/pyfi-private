@@ -1170,7 +1170,12 @@
             <q-toolbar>
               <q-item-label>Flow Source</q-item-label>
               <q-space />
-              <q-item-label name="code" class="text-primary">{ }</q-item-label>
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="code = false"
+                style="z-index: 10; cursor: pointer;"
+              />
             </q-toolbar>
           </div>
         </q-card-section>

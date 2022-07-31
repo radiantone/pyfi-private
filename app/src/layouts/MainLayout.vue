@@ -30,6 +30,7 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-list"
           label="0"
+          @click="showStats('Statistics Table', 'statstable')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Statistics Table
@@ -43,6 +44,7 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-bullseye"
           :label="transmittedSize"
+          @click="showStats('Data Transmitted', 'datatransmitted')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Data Transmitted
@@ -56,6 +58,7 @@
           style="padding: 0px; height: 40px;"
           icon="fas fa-satellite-dish"
           :label="messageCount"
+          @click="showStats('Messages Transmitted', 'messagestransmitted')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Messages Transmitted
@@ -69,6 +72,7 @@
           style="padding: 0px; height: 40px;"
           icon="las la-play"
           :label="stats.processors_starting"
+          @click="showStats('Starting Processors', 'startingprocessors')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Starting Processors
@@ -82,6 +86,7 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-play"
           :label="stats.processors_running"
+          @click="showStats('Running Processors', 'runningprocessors')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Running Processors
@@ -95,6 +100,7 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-stop"
           :label="stats.processors_stopped"
+          @click="showStats('Stopped Processors', 'stoppedprocessors')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Stopped Processors
@@ -108,6 +114,7 @@
           style="padding: 0px; height: 40px;"
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
+          @click="showStats('Errored Processors', 'erroredprocessors')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Errored Processors
@@ -121,6 +128,7 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailFast"
           :label="queuedTasks"
+          @click="showStats('Queued Tasks', 'queuedtasks')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Queued Tasks
@@ -134,6 +142,7 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
+          @click="showStats('Errored Tasks', 'erroredtasks')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Errored Tasks
@@ -147,79 +156,12 @@
           style="padding: 0px; height: 40px; font-size: 1em;"
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
+          @click="showStats('Completed Tasks', 'completedtasks')"
         >
           <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
             Completed Tasks
           </q-tooltip>
         </q-btn>
-        <!--
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="far fa-object-group"
-          :label="groups"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Processor Groups
-              </q-tooltip></q-btn>
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="history"
-          label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Versions
-              </q-tooltip></q-btn>
-
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fa fa-edit"
-          label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Local Changes
-              </q-tooltip></q-btn>
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="code"
-          label="0"
-        ><q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Lines of Code
-              </q-tooltip></q-btn>
-        <q-btn
-          color="secondary"
-          flat
-          size="sm"
-          class="text-dark"
-          style="padding: 0px; height: 40px;"
-          icon="fa fa-refresh"
-          label="12:36:17 EDT"
-        />
--->
         <q-separator vertical inset color="primary" />
         <q-btn-toggle
           v-model="tools"
@@ -948,6 +890,10 @@ export default defineComponent({
     },
   },
   methods: {
+    showStats (name, objects) {
+      console.log("showStats",objects)
+      this.$root.$emit("show.objects", {'name':name, 'objects':objects,'columns':this.objectcolumns[objects]});
+    },
     purgeQueue (name) {
       DataService.purgeQueue(name).then((res) => {
         this.$q.notify({
@@ -1500,6 +1446,52 @@ export default defineComponent({
   },
   data() {
     return {
+      objectcolumns: {
+        'runningprocessors': [
+          {
+            name: "name",
+            label: "Name",
+            field: "name",
+            align: "left",
+          },
+          {
+            name: "owner",
+            label: "Owner",
+            field: "owner",
+            align: "left",
+          },
+          {
+            name: "id",
+            label: "ID",
+            field: "id",
+            align: "left",
+          },
+          {
+            name: "concurrency",
+            label: "Concurrency",
+            field: "concurrency",
+            align: "left",
+          },
+          {
+            name: "created",
+            label: "Created On",
+            field: "created",
+            align: "left",
+          },
+          {
+            name: "lastupdated",
+            label: "Last Updated",
+            field: "lastupdated",
+            align: "left",
+          },
+          {
+            name: "status",
+            label: "Status",
+            field: "status",
+            align: "left",
+          }
+        ]
+      },
       queueTableSplitter: 50,
       detailedqueues: [],
       queuedTasks: 0,

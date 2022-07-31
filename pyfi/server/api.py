@@ -537,6 +537,54 @@ def code_extract():
     return jsonify(_funcs)
 
 
+@app.route("/deployments", methods=["GET"])
+def get_deploys():
+
+    with get_session() as session:
+        deployments = session.query(DeploymentModel).all()
+        return jsonify(deployments)
+
+
+@app.route("/queues", methods=["GET"])
+def get_queues():
+
+    with get_session() as session:
+        queues = session.query(QueueModel).all()
+        return jsonify(queues)
+
+
+@app.route("/agents", methods=["GET"])
+def get_agents():
+
+    with get_session() as session:
+        agents = session.query(AgentModel).all()
+        return jsonify(agents)
+
+
+@app.route("/workers", methods=["GET"])
+def get_workers_():
+
+    with get_session() as session:
+        workers = session.query(WorkerModel).all()
+        return jsonify(workers)
+
+
+@app.route("/tasks", methods=["GET"])
+def get_tasks():
+
+    with get_session() as session:
+        tasks = session.query(TaskModel).all()
+        return jsonify(tasks)
+
+
+@app.route("/nodes", methods=["GET"])
+def get_nodes():
+
+    with get_session() as session:
+        nodes = session.query(NodeModel).all()
+        return jsonify(nodes)
+
+
 @app.route("/networks", methods=["GET"])
 def get_networks():
 
