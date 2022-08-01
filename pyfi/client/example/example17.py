@@ -39,7 +39,7 @@ class ProcessorB(ProcessorBase):
     name="proc1",
     gitrepo=os.environ["GIT_REPO"],
     module="pyfi.processors.sample",
-    concurrency=6,
+    concurrency=2,
 )
 class ProcessorA(ProcessorBase):
     """Description"""
@@ -69,6 +69,48 @@ class ProcessorA(ProcessorBase):
         from random import randrange
 
         message = "TEXT:" + str(message)
+        graph = {
+            "tag": {"name": "tagname", "value": "tagvalue"},
+            "name": "temperature",
+            "value": randrange(10),
+        }
+        return {"message": message, "graph": graph}
+
+
+@processor(
+    name="proc3",
+    gitrepo=os.environ["GIT_REPO"],
+    module="pyfi.processors.sample",
+    concurrency=2,
+)
+class ProcessorC(ProcessorBase):
+    """Description"""
+
+    def get_message(self):
+        return "Self message!"
+
+    @plug(
+        name="plug2",
+        target="pyfi.processors.sample.do_this",  # Must be defined above already (prevents cycles)
+        queue={
+            "name": "queue2",
+            "message_ttl": 300000,
+            "durable": True,
+            "expires": 200,
+        },
+    )
+    @socket(
+        name="pyfi.processors.sample.do_something",
+        processor="proc3",
+        beat=False,
+        interval=5,
+        queue={"name": "sockq3"},
+    )
+    def do_something(message):
+        """do_something"""
+        from random import randrange
+
+        message = "TEXT2:" + str(message)
         graph = {
             "tag": {"name": "tagname", "value": "tagvalue"},
             "name": "temperature",
