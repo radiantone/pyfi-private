@@ -681,7 +681,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                 #
                                 # Attach worker to agent
                                 #
-                                agent.workers += [worker_model]
+
+                                if worker_model not in agent.workers:
+                                    agent.workers += [worker_model]
 
                                 logging.info("Worker %s created.", worker_model.id)
                                 session.commit()

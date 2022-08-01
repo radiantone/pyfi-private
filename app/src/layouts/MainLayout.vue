@@ -3,8 +3,8 @@
     <q-header elevated>
       <ToolPalette
         v-if="tools == 'code'"
-        v-bind:data-generator="dataGenerator"
-        surfaceId="flow1"
+        :data-generator="dataGenerator"
+        surface-id="flow1"
         selector="[data-node-type]"
         :nodes="this.stats.nodes"
         :agents="this.stats.agents"
@@ -17,11 +17,14 @@
       />
       <ModelToolPalette
         v-if="tools == 'model'"
-        v-bind:data-generator="dataGenerator"
-        surfaceId="flow1"
+        :data-generator="dataGenerator"
+        surface-id="flow1"
         selector="[data-node-type]"
       />
-      <q-toolbar class="bg-accent" style="min-height: 40px; padding: 0px;">
+      <q-toolbar
+        class="bg-accent"
+        style="min-height: 40px; padding: 0px;"
+      >
         <q-btn
           color="secondary"
           flat
@@ -32,7 +35,10 @@
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Statistics Table
           </q-tooltip>
         </q-btn>
@@ -46,7 +52,10 @@
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Data Transmitted
           </q-tooltip>
         </q-btn>
@@ -60,7 +69,10 @@
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Messages Transmitted
           </q-tooltip>
         </q-btn>
@@ -74,7 +86,10 @@
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Starting Processors
           </q-tooltip>
         </q-btn>
@@ -88,7 +103,10 @@
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Running Processors
           </q-tooltip>
         </q-btn>
@@ -102,7 +120,10 @@
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Stopped Processors
           </q-tooltip>
         </q-btn>
@@ -116,7 +137,10 @@
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Errored Processors
           </q-tooltip>
         </q-btn>
@@ -130,7 +154,10 @@
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Queued Tasks
           </q-tooltip>
         </q-btn>
@@ -144,7 +171,10 @@
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Errored Tasks
           </q-tooltip>
         </q-btn>
@@ -158,11 +188,18 @@
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
         >
-          <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
             Completed Tasks
           </q-tooltip>
         </q-btn>
-        <q-separator vertical inset color="primary" />
+        <q-separator
+          vertical
+          inset
+          color="primary"
+        />
         <q-btn-toggle
           v-model="tools"
           class="my-custom-toggle"
@@ -183,15 +220,21 @@
         >
           <template v-slot:one>
             <div style="font-size: 0.5em; margin-left: 20px;">
-              <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+              <q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
                 Database Tools
               </q-tooltip>
             </div>
           </template>
           <template v-slot:two>
-            <div style="font-size: 0.5em; margin-left: 20px;"></div>
+            <div style="font-size: 0.5em; margin-left: 20px;" />
 
-            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+            <q-tooltip
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
               Python Tools
             </q-tooltip>
           </template>
@@ -209,16 +252,39 @@
           @keyup="searchString"
         >
           <template v-slot:append>
-            <q-icon color="dark" size="sm" v-if="text === ''" name="search" />
-            <q-icon v-else name="clear" color="dark" size="sm" class="cursor-pointer text-dark" @click="text = ''" />
+            <q-icon
+              color="dark"
+              size="sm"
+              v-if="text === ''"
+              name="search"
+            />
+            <q-icon
+              v-else
+              name="clear"
+              color="dark"
+              size="sm"
+              class="cursor-pointer text-dark"
+              @click="text = ''"
+            />
           </template>
         </q-input>
       </q-toolbar>
     </q-header>
-    <q-splitter v-model="splitterModel" vertical :limits="[60, 100]" unit="%" style="overflow: hidden;">
+    <q-splitter
+      v-model="splitterModel"
+      vertical
+      :limits="[60, 100]"
+      unit="%"
+      style="overflow: hidden;"
+    >
       <template v-slot:before>
         <div style="height: 100vh; width: 100%; position: relative; top: 95px; overflow: hidden;">
-          <q-tab-panels v-model="tab" keep-alive v-for="flow in flows" :key="flow.id">
+          <q-tab-panels
+            v-model="tab"
+            keep-alive
+            v-for="flow in flows"
+            :key="flow.id"
+          >
             <q-tab-panel
               :name="'flow' + flow.id"
               style="height: calc(100vh - 165px); padding: 0px; overflow: hidden;"
@@ -231,7 +297,7 @@
                 @update-name="updateFlow"
                 :flowuuid="flow._id"
                 :flowid="flow.id"
-                :surfaceId="'flow' + flow.id"
+                :surface-id="'flow' + flow.id"
                 showtoolbar="true"
                 navigate="true"
               />
@@ -288,13 +354,36 @@
             indicator-color="primary"
             active-bg-color="accent"
           >
-            <q-tab name="messages" class="text-dark" label="Messages" />
-            <q-tab name="queues" class="text-dark" label="Queues" />
-            <q-tab name="servers" class="text-dark" label="Servers" />
-            <q-tab name="monitor" class="text-dark" label="Monitor" />
-            <q-tab name="error" class="text-dark" label="Errors" />
+            <q-tab
+              name="messages"
+              class="text-dark"
+              label="Messages"
+            />
+            <q-tab
+              name="queues"
+              class="text-dark"
+              label="Queues"
+            />
+            <q-tab
+              name="servers"
+              class="text-dark"
+              label="Servers"
+            />
+            <q-tab
+              name="monitor"
+              class="text-dark"
+              label="Monitor"
+            />
+            <q-tab
+              name="error"
+              class="text-dark"
+              label="Errors"
+            />
           </q-tabs>
-          <q-tab-panels v-model="drawertab" keep-alive>
+          <q-tab-panels
+            v-model="drawertab"
+            keep-alive
+          >
             <q-tab-panel
               name="messages"
               ref="messages"
@@ -309,18 +398,7 @@
                 virtual-scroll
                 :pagination="initialPagination"
                 style="height: 100%; width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-              ></q-table>
-              <!--
-                <q-scroll-area style="height:calc(100vh - 200px);width::auto">
-                  <div v-for="log in msglogs">
-                    {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
-                      log['state']
-                    }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log['module'] }}&nbsp;&nbsp;
-                    --&nbsp;&nbsp;{{ log['task'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
-                      log['duration']
-                    }}
-                  </div>
-                </q-scroll-area>-->
+              />
             </q-tab-panel>
             <q-tab-panel
               name="queues"
@@ -345,7 +423,11 @@
                   >
                     <template v-slot:body="props">
                       <q-tr :props="props">
-                        <q-td key="name" :props="props" :width="150">
+                        <q-td
+                          key="name"
+                          :props="props"
+                          :width="150"
+                        >
                           <a
                             class="text-secondary"
                             style="z-index: 99999; cursor: pointer; width: 100%; min-width: 250px; font-size: 1.3em;"
@@ -354,10 +436,16 @@
                             {{ props.row.name }}
                           </a>
                         </q-td>
-                        <q-td key="messages" :props="props">
+                        <q-td
+                          key="messages"
+                          :props="props"
+                        >
                           {{ props.row.messages }}
                         </q-td>
-                        <q-td key="ready" :props="props">
+                        <q-td
+                          key="ready"
+                          :props="props"
+                        >
                           <a
                             class="text-secondary"
                             style="z-index: 99999; cursor: pointer; width: 100%; min-width: 250px; font-size: 1.3em;"
@@ -369,13 +457,28 @@
                             {{ props.row.ready }}
                           </a>
                         </q-td>
-                        <q-td key="unacked" :props="props">{{ props.row.unacked }}</q-td>
+                        <q-td
+                          key="unacked"
+                          :props="props"
+                        >
+                          {{ props.row.unacked }}
+                        </q-td>
                         <!--
                         <q-td key="incoming" :props="props">{{ props.row.incoming }}</q-td>
                         <q-td key="delivered" :props="props">{{ props.row.deliver_rate }}</q-td>
                         <q-td key="acked" :props="props">{{ props.row.acked_rate }}</q-td>-->
-                        <q-td key="bytes" :width="200" :props="props">{{ props.row.bytes }}</q-td>
-                        <q-td key="actions" :props="props" style="width: 25px;">
+                        <q-td
+                          key="bytes"
+                          :width="200"
+                          :props="props"
+                        >
+                          {{ props.row.bytes }}
+                        </q-td>
+                        <q-td
+                          key="actions"
+                          :props="props"
+                          style="width: 25px;"
+                        >
                           <q-btn
                             flat
                             round
@@ -387,7 +490,11 @@
                             icon="remove_circle"
                             @click="purgeQueue(props.row.name)"
                           >
-                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                            <q-tooltip
+                              content-class=""
+                              content-style="font-size: 16px"
+                              :offset="[10, 10]"
+                            >
                               Purge Messages
                             </q-tooltip>
                           </q-btn>
@@ -401,7 +508,11 @@
                             width="100"
                             icon="fas fa-cog"
                           >
-                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                            <q-tooltip
+                              content-class=""
+                              content-style="font-size: 16px"
+                              :offset="[10, 10]"
+                            >
                               Configure
                             </q-tooltip>
                           </q-btn>
@@ -415,7 +526,11 @@
                             width="100"
                             icon="delete"
                           >
-                            <q-tooltip content-class="" content-style="font-size: 16px" :offset="[10, 10]">
+                            <q-tooltip
+                              content-class=""
+                              content-style="font-size: 16px"
+                              :offset="[10, 10]"
+                            >
                               Delete Queue
                             </q-tooltip>
                           </q-btn>
@@ -435,11 +550,27 @@
                     indicator-color="primary"
                     active-bg-color="accent"
                   >
-                    <q-tab name="stats" class="text-dark" label="Stats" />
-                    <q-tab name="json" class="text-dark" label="JSON" />
-                    <q-tab name="history" class="text-dark" label="History" />
+                    <q-tab
+                      name="stats"
+                      class="text-dark"
+                      label="Stats"
+                    />
+                    <q-tab
+                      name="json"
+                      class="text-dark"
+                      label="JSON"
+                    />
+                    <q-tab
+                      name="history"
+                      class="text-dark"
+                      label="History"
+                    />
                   </q-tabs>
-                  <q-tab-panels v-model="queuedetailtab" keep-alive style="height: 100%;">
+                  <q-tab-panels
+                    v-model="queuedetailtab"
+                    keep-alive
+                    style="height: 100%;"
+                  >
                     <q-tab-panel
                       name="stats"
                       ref="stats"
@@ -454,7 +585,7 @@
                         virtual-scroll
                         :pagination="initialPagination"
                         style="height: 100%; width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-                      ></q-table>
+                      />
                     </q-tab-panel>
                     <q-tab-panel
                       name="json"
@@ -471,7 +602,7 @@
                         width="100%"
                         v-model="queueDetailContent"
                         height="100%"
-                      ></editor>
+                      />
                     </q-tab-panel>
                   </q-tab-panels>
                 </template>
@@ -481,13 +612,17 @@
               name="servers"
               ref="servers"
               style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
-            ></q-tab-panel>
+            />
             <q-tab-panel
               name="monitor"
               ref="monitor"
               style="padding: 0px; width: 100%; padding-top: 0px;"
-            ></q-tab-panel>
-            <q-tab-panel name="error" ref="error" style="padding: 0px; width: 100%; padding-top: 0px;"></q-tab-panel>
+            />
+            <q-tab-panel
+              name="error"
+              ref="error"
+              style="padding: 0px; width: 100%; padding-top: 0px;"
+            />
           </q-tab-panels>
         </div>
       </template>
@@ -503,8 +638,17 @@
       "
     >
       <q-toolbar style="padding: 0px; margin-top: -12px;">
-        <q-btn flat dense color="primary">
-          <q-item-label class="text-dark" style="">{{ status }}</q-item-label>
+        <q-btn
+          flat
+          dense
+          color="primary"
+        >
+          <q-item-label
+            class="text-dark"
+            style=""
+          >
+            {{ status }}
+          </q-item-label>
         </q-btn>
         <q-space />
 
@@ -524,28 +668,62 @@
         >
           <template v-slot:one>
             <q-icon :name="mdiFlashOutline" />
-            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Disconnected</q-tooltip>
+            <q-tooltip
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Disconnected
+            </q-tooltip>
           </template>
 
           <template v-slot:two>
             <q-icon :name="mdiFlash" />
-            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Connected</q-tooltip>
+            <q-tooltip
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Connected
+            </q-tooltip>
           </template>
 
           <template v-slot:three>
             <q-icon :name="mdiWavesArrowRight" />
-            <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">Streaming</q-tooltip>
+            <q-tooltip
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Streaming
+            </q-tooltip>
           </template>
         </q-btn-toggle>
-        <q-btn flat dense color="primary" icon="menu" @click="toggleSplitter"></q-btn>
+        <q-btn
+          flat
+          dense
+          color="primary"
+          icon="menu"
+          @click="toggleSplitter"
+        />
       </q-toolbar>
     </q-footer>
-    <q-drawer v-model="searchdrawer" side="right" bordered :width="512" style="overflow: hidden;">
+    <q-drawer
+      v-model="searchdrawer"
+      side="right"
+      bordered
+      :width="512"
+      style="overflow: hidden;"
+    >
       <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
         <q-list separator>
-          <q-item v-for="item in items" :key="item.id" :id="'row' + item.id">
+          <q-item
+            v-for="item in items"
+            :key="item.id"
+            :id="'row' + item.id"
+          >
             <q-item-section avatar>
-              <q-icon name="fas fa-microchip" class="text-secondary" />
+              <q-icon
+                name="fas fa-microchip"
+                class="text-secondary"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -557,20 +735,46 @@
                   {{ item.name }}
                 </a>
               </q-item-label>
-              <q-item-label caption lines="2">{{ item.description }}</q-item-label>
+              <q-item-label
+                caption
+                lines="2"
+              >
+                {{ item.description }}
+              </q-item-label>
             </q-item-section>
             <q-space />
           </q-item>
         </q-list>
       </q-scroll-area>
-      <q-inner-loading :showing="false" style="z-index: 9999999;">
-        <q-spinner-gears size="50px" color="primary" />
+      <q-inner-loading
+        :showing="false"
+        style="z-index: 9999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
       </q-inner-loading>
     </q-drawer>
-    <q-drawer v-model="librarydrawer" side="right" bordered :width="512" style="overflow: hidden;">
-      <Library :objecttype="'template'" :icon="'fas fa-wrench'" :collection="'library'" style="width: 100%;" />
+    <q-drawer
+      v-model="librarydrawer"
+      side="right"
+      bordered
+      :width="512"
+      style="overflow: hidden;"
+    >
+      <Library
+        :objecttype="'template'"
+        :icon="'fas fa-wrench'"
+        :collection="'library'"
+        style="width: 100%;"
+      />
     </q-drawer>
-    <q-dialog v-model="viewQueueDialog" transition-show="none" persistent>
+    <q-dialog
+      v-model="viewQueueDialog"
+      transition-show="none"
+      persistent
+    >
       <q-card style="width: 70vw; max-width: 70vw; height: 80vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
         <q-card-section
           class="bg-secondary"
@@ -620,25 +824,49 @@
               style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
               <template v-slot:body="props">
-                <q-tr :props="props" :key="getUuid">
-                  <q-td :key="props.cols[0].name" :props="props">
+                <q-tr
+                  :props="props"
+                  :key="getUuid"
+                >
+                  <q-td
+                    :key="props.cols[0].name"
+                    :props="props"
+                  >
                     {{ props.cols[0].value }}
                   </q-td>
-                  <q-td :key="props.cols[1].name" :props="props">
-                    <a class="text-secondary" @click="showMessagePayload(props.row.payload)">
+                  <q-td
+                    :key="props.cols[1].name"
+                    :props="props"
+                  >
+                    <a
+                      class="text-secondary"
+                      @click="showMessagePayload(props.row.payload)"
+                    >
                       {{ props.cols[1].value }}
                     </a>
                   </q-td>
-                  <q-td :key="props.cols[2].name" :props="props">
+                  <q-td
+                    :key="props.cols[2].name"
+                    :props="props"
+                  >
                     {{ props.cols[2].value }}
                   </q-td>
-                  <q-td :key="props.cols[3].name" :props="props">
+                  <q-td
+                    :key="props.cols[3].name"
+                    :props="props"
+                  >
                     {{ props.cols[3].value }}
                   </q-td>
-                  <q-td :key="props.cols[4].name" :props="props">
+                  <q-td
+                    :key="props.cols[4].name"
+                    :props="props"
+                  >
                     {{ props.cols[4].value }}
                   </q-td>
-                  <q-td :key="props.cols[5].name" :props="props">
+                  <q-td
+                    :key="props.cols[5].name"
+                    :props="props"
+                  >
                     {{ props.cols[5].value }}
                   </q-td>
                 </q-tr>
@@ -655,7 +883,7 @@
                 ref="resultEditor"
                 width="100%"
                 height="100%"
-              ></editor>
+              />
             </div>
           </template>
         </q-splitter>
@@ -679,13 +907,22 @@
             v-close-popup
           />
         </q-card-actions>
-        <q-inner-loading :showing="queueloading" style="z-index: 99999;">
-          <q-spinner-gears size="50px" color="primary" />
+        <q-inner-loading
+          :showing="queueloading"
+          style="z-index: 99999;"
+        >
+          <q-spinner-gears
+            size="50px"
+            color="primary"
+          />
         </q-inner-loading>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="newQueueDialog" persistent>
+    <q-dialog
+      v-model="newQueueDialog"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px; width: 50%; height: 50%;">
         <q-card-section
           class="bg-secondary"
@@ -705,11 +942,17 @@
             <q-toolbar>
               <q-item-label>New Queue</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="far fa-envelope" />
+              <q-icon
+                class="text-primary"
+                name="far fa-envelope"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <span class="q-ml-sm">Create queue form here</span>
         </q-card-section>
 
@@ -775,456 +1018,450 @@ icon-processor:before {
 }
 </style>
 <script>
-const { v4: uuidv4 } = require("uuid");
-var dd = require("drip-drop");
+const { v4: uuidv4 } = require('uuid')
+var dd = require('drip-drop')
 
-import { QSpinnerOval } from "quasar";
-import { defineComponent, ref } from "@vue/composition-api";
-import Designer from "src/pages/Designer.vue";
-import ToolPalette from "src/components/ToolPalette.vue";
-import ModelToolPalette from "src/components/ModelToolPalette.vue";
-import Library from "src/components/Library.vue";
-import Processors from "components/Processors.vue";
-import DataService from "components/util/DataService";
+import { QSpinnerOval } from 'quasar'
+import { defineComponent, ref } from '@vue/composition-api'
+import Designer from 'src/pages/Designer.vue'
+import ToolPalette from 'src/components/ToolPalette.vue'
+import ModelToolPalette from 'src/components/ModelToolPalette.vue'
+import Library from 'src/components/Library.vue'
+import Processors from 'components/Processors.vue'
+import DataService from 'components/util/DataService'
 
-var filesize = require("filesize");
-const size = filesize.partial({ base: 2, standard: "jedec" });
+var filesize = require('filesize')
+const size = filesize.partial({ base: 2, standard: 'jedec' })
 
-import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from "src/store/Store";
+import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from 'src/store/Store'
 
-import "assets/css/font-awesome.min.css";
-import "assets/css/flowfont.css";
-import "assets/fonts/fontawesome-webfont.eot";
-import "assets/fonts/fontawesome-webfont.svg";
-import "assets/fonts/fontawesome-webfont.woff2";
-import "assets/fonts/fontawesome-webfont.woff";
-import "assets/fonts/flowfont2.woff2";
+import 'assets/css/font-awesome.min.css'
+import 'assets/css/flowfont.css'
+import 'assets/fonts/fontawesome-webfont.eot'
+import 'assets/fonts/fontawesome-webfont.svg'
+import 'assets/fonts/fontawesome-webfont.woff2'
+import 'assets/fonts/fontawesome-webfont.woff'
+import 'assets/fonts/flowfont2.woff2'
 
-import { mdiFlash } from "@mdi/js";
-import { mdiFlashOutline } from "@mdi/js";
-import { mdiWavesArrowRight } from "@mdi/js";
-import { mdiCodeBraces } from "@mdi/js";
-import { mdiEmailFast } from "@mdi/js";
-import { mdiEmailAlert } from "@mdi/js";
-import { mdiEmailCheck } from "@mdi/js";
+import { mdiFlash, mdiFlashOutline, mdiWavesArrowRight, mdiCodeBraces, mdiEmailFast, mdiEmailAlert, mdiEmailCheck } from '@mdi/js'
 
-import { io, Socket } from "socket.io-client";
+import { io, Socket } from 'socket.io-client'
 
-const socket = io("http://localhost");
+const socket = io('http://localhost')
 
 export default defineComponent({
-  name: "MainLayout",
+  name: 'MainLayout',
   components: {
-    editor: require("vue2-ace-editor"),
+    editor: require('vue2-ace-editor'),
     Designer,
     ToolPalette,
     ModelToolPalette,
     Processors,
-    Library,
+    Library
   },
-  setup() {
-    return {};
+  setup () {
+    return {}
   },
-  created() {
-    this.mdiEmailAlert = mdiEmailAlert;
-    this.mdiEmailFast = mdiEmailFast;
-    this.mdiEmailCheck = mdiEmailCheck;
-    this.mdiWavesArrowRight = mdiWavesArrowRight;
-    this.mdiFlashOutline = mdiFlashOutline;
-    this.mdiFlash = mdiFlash;
+  created () {
+    this.mdiEmailAlert = mdiEmailAlert
+    this.mdiEmailFast = mdiEmailFast
+    this.mdiEmailCheck = mdiEmailCheck
+    this.mdiWavesArrowRight = mdiWavesArrowRight
+    this.mdiFlashOutline = mdiFlashOutline
+    this.mdiFlash = mdiFlash
 
     // Reset connection status to disconnected
-    this.$store.commit("designer/setConnected", false);
-    this.$store.commit("designer/setStreaming", false);
+    this.$store.commit('designer/setConnected', false)
+    this.$store.commit('designer/setStreaming', false)
 
-    let n = this.$q.notify;
+    const n = this.$q.notify
 
     this.$q.notify = function (opts) {
-      opts.message = new Date().toLocaleDateString('en-us', { hour: '2-digit', minute: '2-digit' }) + ' ' + opts.message;
-      me.$root.$emit("log.message", opts.message);
-      n(opts);
-    };
+      opts.message = new Date().toLocaleDateString('en-us', { hour: '2-digit', minute: '2-digit' }) + ' ' + opts.message
+      me.$root.$emit('log.message', opts.message)
+      n(opts)
+    }
 
-    this.schemaIcon = mdiCodeBraces;
-    var me = this;
-    this.tab = "flow" + this.flows[0].id;
-    window.layout = this;
+    this.schemaIcon = mdiCodeBraces
+    var me = this
+    this.tab = 'flow' + this.flows[0].id
+    window.layout = this
 
-    this.listenGlobal();
+    this.listenGlobal()
   },
   watch: {
     connected: function (newv, oldv) {
-      console.log("CONNECTED", oldv, newv);
+      console.log('CONNECTED', oldv, newv)
       if (newv) {
         // This means that changes to the flow are committed back
         // to the database as they happen
       }
     },
     streaming: function (newv, oldv) {
-      console.log("STREAMING", oldv, newv);
+      console.log('STREAMING', oldv, newv)
       if (newv) {
         // This means the flow is receiving streaming messages in real-time
-        console.log("Turning on messages");
-        this.listenGlobal();
+        console.log('Turning on messages')
+        this.listenGlobal()
       } else {
-        socket.off("global");
-        console.log("Turning off messages");
+        socket.off('global')
+        console.log('Turning off messages')
       }
     },
     viewQueueDialog: function (val) {
       if (val) {
-        this.queueloading = true;
+        this.queueloading = true
         DataService.getMessages(this.queuename)
           .then((messages) => {
-            this.queueloading = false;
-            this.queuedata = messages.data;
-            this.updateQueuedTasks();
+            this.queueloading = false
+            this.queuedata = messages.data
+            this.updateQueuedTasks()
           })
           .catch((err) => {
-            this.queueloading = false;
+            this.queueloading = false
             // show error message
-          });
+          })
       }
     },
     text: function (val) {
       if (this.text.length > 0) {
-        this.searchdrawer = true;
+        this.searchdrawer = true
       } else {
-        this.searchdrawer = false;
+        this.searchdrawer = false
       }
-    },
+    }
   },
   computed: {
     modeModel: {
-      get() {
-        return this.mode;
+      get () {
+        return this.mode
       },
-      set(val) {
-        var me = this;
-        this.mode = val;
+      set (val) {
+        var me = this
+        this.mode = val
 
-        if (val == "disconnected") {
-          me.$store.commit("designer/setConnected", false);
-          me.$store.commit("designer/setStreaming", false);
+        if (val == 'disconnected') {
+          me.$store.commit('designer/setConnected', false)
+          me.$store.commit('designer/setStreaming', false)
         }
-        if (val == "connected") {
-          me.$store.commit("designer/setConnected", true);
-          me.$store.commit("designer/setStreaming", false);
+        if (val == 'connected') {
+          me.$store.commit('designer/setConnected', true)
+          me.$store.commit('designer/setStreaming', false)
         }
-        if (val == "streaming") {
-          me.$store.commit("designer/setConnected", true);
-          me.$store.commit("designer/setStreaming", true);
+        if (val == 'streaming') {
+          me.$store.commit('designer/setConnected', true)
+          me.$store.commit('designer/setStreaming', true)
         }
-        console.log("setMode", this.mode);
-      },
+        console.log('setMode', this.mode)
+      }
     },
-    connected() {
-      return this.$store.state.designer.connected;
+    connected () {
+      return this.$store.state.designer.connected
     },
-    streaming() {
-      return this.$store.state.designer.streaming;
+    streaming () {
+      return this.$store.state.designer.streaming
     },
-    status() {
-      return this.$store.state.designer.message;
+    status () {
+      return this.$store.state.designer.message
     },
-    getSurfaceId() {
-      return window.toolkit.surfaceId;
-    },
+    getSurfaceId () {
+      return window.toolkit.surfaceId
+    }
   },
   methods: {
-    showStats(name, objects) {
-      console.log("showStats", objects);
-      this.$root.$emit("show.objects", { name: name, objects: objects, columns: this.objectcolumns[objects] });
+    showStats (name, objects) {
+      console.log('showStats', objects)
+      this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
-    purgeQueue(name) {
+    purgeQueue (name) {
       DataService.purgeQueue(name)
         .then((res) => {
           this.$q.notify({
-            color: "secondary",
+            color: 'secondary',
             timeout: 2000,
-            position: "top",
-            message: "Purging Queue " + name + "...",
-            icon: "fas fa-exclamation",
-          });
+            position: 'top',
+            message: 'Purging Queue ' + name + '...',
+            icon: 'fas fa-exclamation'
+          })
         })
         .catch((res) => {
           this.$q.notify({
-            color: "secondary",
+            color: 'secondary',
             timeout: 2000,
-            position: "top",
-            message: "Error Purging Queue " + name,
-            icon: "fas fa-exclamation",
-          });
-        });
+            position: 'top',
+            message: 'Error Purging Queue ' + name,
+            icon: 'fas fa-exclamation'
+          })
+        })
     },
     queueDetailEditorInit: function () {
-      var me = this;
+      var me = this
 
-      require("brace/ext/language_tools"); // language extension prerequsite...
-      require("brace/mode/html");
-      require("brace/mode/python"); // language
-      require("brace/mode/less");
-      require("brace/theme/chrome");
-      require("brace/snippets/javascript"); // snippet
-      const editor = this.$refs.queueDetailEditor.editor;
-      editor.setAutoScrollEditorIntoView(true);
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.queueDetailEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
     },
-    showQueueDetail(name) {
-      this.queueDetailData = this.queueDetails[name];
-      //const editor = this.$refs.queueDetailEditor.editor;
+    showQueueDetail (name) {
+      this.queueDetailData = this.queueDetails[name]
+      // const editor = this.$refs.queueDetailEditor.editor;
       this.detailedqueues.forEach((queue) => {
-        if (queue["name"] == name) {
-          //editor.session.setValue(JSON.stringify(queue, null, "\t"));
-          this.queueDetailContent = JSON.stringify(queue, null, "\t");
+        if (queue.name == name) {
+          // editor.session.setValue(JSON.stringify(queue, null, "\t"));
+          this.queueDetailContent = JSON.stringify(queue, null, '\t')
         }
-      });
+      })
     },
-    listenGlobal() {
-      var me = this;
+    listenGlobal () {
+      var me = this
 
-      socket.on("global", (msg) => {
-        //console.log('MAINLAYOUT', msg);
-        if (msg["channel"] == "task") {
-          me.msglogs.unshift(msg);
-          me.msglogs = me.msglogs.slice(0, 200);
+      socket.on('global', (msg) => {
+        // console.log('MAINLAYOUT', msg);
+        if (msg.channel == 'task') {
+          me.msglogs.unshift(msg)
+          me.msglogs = me.msglogs.slice(0, 200)
 
-          window.root.$emit("message.count", 1);
-          var bytes = JSON.stringify(msg).length;
-          window.root.$emit("message.size", bytes);
-        } else if (msg["type"] && msg["type"] == "stats") {
-          me.stats = msg;
+          window.root.$emit('message.count', 1)
+          var bytes = JSON.stringify(msg).length
+          window.root.$emit('message.size', bytes)
+        } else if (msg.type && msg.type == 'stats') {
+          me.stats = msg
         } else {
-          var qs = [];
+          var qs = []
 
-          if (msg["type"] && msg["type"] == "queues") {
-            var queued_tasks = 0;
-            me.detailedqueues = msg["queues"];
-            msg["queues"].forEach((queue) => {
-              if (queue["name"].indexOf("celery") == -1) {
-                var ack_rate = 0;
-                var deliver_rate = 0;
+          if (msg.type && msg.type == 'queues') {
+            var queued_tasks = 0
+            me.detailedqueues = msg.queues
+            msg.queues.forEach((queue) => {
+              if (queue.name.indexOf('celery') == -1) {
+                var ack_rate = 0
+                var deliver_rate = 0
 
-                var properties = [];
-                if ("message_stats" in queue) {
-                  ack_rate = queue["message_stats"]["ack_details"]["rate"];
-                  deliver_rate = queue["message_stats"]["deliver_get_details"]["rate"];
+                var properties = []
+                if ('message_stats' in queue) {
+                  ack_rate = queue.message_stats && queue.message_stats.ack_details ? queue.message_stats.ack_details.rate : 0
+                  deliver_rate = queue.message_stats && queue.message_stats.deliver_get_details ? queue.message_stats.deliver_get_details.rate : 0
                 }
 
                 qs.push({
-                  name: queue["name"],
-                  messages: queue["messages"],
-                  ready: queue["messages_ready"],
+                  name: queue.name,
+                  messages: queue.messages,
+                  ready: queue.messages_ready,
                   acked_rate: ack_rate,
                   deliver_rate: deliver_rate,
-                  unacked: queue["messages_unacknowledged"],
-                  ready_rate: queue["messages_ready_details"],
-                  unacked_rate: queue["messages_unacknowledged_details"],
-                  bytes: queue["message_bytes"],
-                  action: "",
-                });
- 
+                  unacked: queue.messages_unacknowledged,
+                  ready_rate: queue.messages_ready_details,
+                  unacked_rate: queue.messages_unacknowledged_details,
+                  bytes: queue.message_bytes,
+                  action: ''
+                })
+
                 properties.push({
                   name: 'Messages Ready',
-                  value:queue["messages_ready"]
+                  value: queue.messages_ready
                 })
                 properties.push({
                   name: 'Messages Ackd',
-                  value:queue["messages_ready"]
+                  value: queue.messages_ready
                 })
                 properties.push({
                   name: 'Avg Ack Ingress Rate',
-                  value:parseFloat(queue["backing_queue_status"]["avg_ack_ingress_rate"]).toFixed(2)
-                })       
+                  value: parseFloat(queue.backing_queue_status.avg_ack_ingress_rate).toFixed(2)
+                })
                 properties.push({
                   name: 'Avg Ingress Rate',
-                  value:parseFloat(queue["backing_queue_status"]["avg_ingress_rate"]).toFixed(2)
-                })                
+                  value: parseFloat(queue.backing_queue_status.avg_ingress_rate).toFixed(2)
+                })
                 properties.push({
                   name: 'Avg Engress Rate',
-                  value:parseFloat(queue["backing_queue_status"]["avg_egress_rate"]).toFixed(2)
-                })                
+                  value: parseFloat(queue.backing_queue_status.avg_egress_rate).toFixed(2)
+                })
                 properties.push({
                   name: 'Memory',
-                  value:queue["memory"]
-                })                
+                  value: queue.memory
+                })
                 properties.push({
                   name: 'Message Bytes',
-                  value:queue["message_bytes"]
-                })                
+                  value: queue.message_bytes
+                })
                 properties.push({
                   name: 'Message Bytes Persistent',
-                  value:queue["message_bytes_persistent"]
-                })                
+                  value: queue.message_bytes_persistent
+                })
                 properties.push({
                   name: 'Message Bytes Ram',
-                  value:queue["message_bytes_ram"]
-                })                     
+                  value: queue.message_bytes_ram
+                })
                 properties.push({
                   name: 'Message Bytes Ready',
-                  value:queue["message_bytes_ready"]
-                })                     
+                  value: queue.message_bytes_ready
+                })
                 properties.push({
                   name: 'Message Bytes UnAckd',
-                  value:queue["message_bytes_unacknowledged"]
-                })                     
+                  value: queue.message_bytes_unacknowledged
+                })
                 properties.push({
                   name: 'Messages',
-                  value:queue["messages"]
-                })                       
+                  value: queue.messages
+                })
                 properties.push({
                   name: 'Messages Persistent',
-                  value:queue["messages_persistent"]
-                })                       
+                  value: queue.messages_persistent
+                })
                 properties.push({
                   name: 'Messages Ram',
-                  value:queue["messages_ram"]
-                })                       
+                  value: queue.messages_ram
+                })
                 properties.push({
                   name: 'Messages Ready',
-                  value:queue["messages_ready"]
-                })                          
+                  value: queue.messages_ready
+                })
                 properties.push({
                   name: 'Messages Ready Rate',
-                  value:parseFloat(queue["messages_ready_details"]["rate"]).toFixed(2)
-                })                             
+                  value: parseFloat(queue.messages_ready_details.rate).toFixed(2)
+                })
                 properties.push({
                   name: 'Messages UnAckd Rate',
-                  value:parseFloat(queue["messages_unacknowledged_details"]["rate"]).toFixed(2)
-                })                         
+                  value: parseFloat(queue.messages_unacknowledged_details.rate).toFixed(2)
+                })
                 properties.push({
                   name: 'Messages Ready Ram',
-                  value:queue["messages_ready_ram"]
-                })                        
+                  value: queue.messages_ready_ram
+                })
                 properties.push({
                   name: 'Node',
-                  value:queue["node"]
-                })                                
+                  value: queue.node
+                })
 
-                this.queueDetails[queue['name']] = properties;
-                queued_tasks += parseInt(queue["messages"]);
-                this.queuedTasks = queued_tasks;
+                this.queueDetails[queue.name] = properties
+                queued_tasks += parseInt(queue.messages)
+                this.queuedTasks = queued_tasks
               }
-            });
-              
-            me.queues = qs;
-            window.root.$emit("update.queues", qs);
+            })
+
+            me.queues = qs
+            window.root.$emit('update.queues', qs)
           }
         }
-      });
+      })
     },
-    showMessagePayload(payload) {
-      const editor = this.$refs.resultEditor.editor;
-      editor.session.setValue(payload);
+    showMessagePayload (payload) {
+      const editor = this.$refs.resultEditor.editor
+      editor.session.setValue(payload)
     },
     resultEditorInit: function () {
-      var me = this;
+      var me = this
 
-      require("brace/ext/language_tools"); // language extension prerequsite...
-      require("brace/mode/html");
-      require("brace/mode/python"); // language
-      require("brace/mode/less");
-      require("brace/theme/chrome");
-      require("brace/snippets/javascript"); // snippet
-      const editor = this.$refs.resultEditor.editor;
-      editor.setAutoScrollEditorIntoView(true);
-      editor.on("change", function () {
-        console.log("edit event");
-      });
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.resultEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        console.log('edit event')
+      })
     },
-    centerNode(id) {
+    centerNode (id) {
       window.toolkit.surface.centerOn(id, {
         doNotAnimate: true,
         onComplete: function () {
-          window.toolkit.surface.pan(0, -200);
-        },
-      });
-    },
-    searchString() {
-      console.log("Searching for", this.text);
-      this.items = [];
-      this.graph["nodes"].forEach((node) => {
-        console.log("Searching node ", node);
-        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
-          this.items.push(node);
+          window.toolkit.surface.pan(0, -200)
         }
-      });
+      })
     },
-    transmitted() {
-      var me = this;
+    searchString () {
+      console.log('Searching for', this.text)
+      this.items = []
+      this.graph.nodes.forEach((node) => {
+        console.log('Searching node ', node)
+        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
+          this.items.push(node)
+        }
+      })
+    },
+    transmitted () {
+      var me = this
       setTimeout(() => {
-        me.transmittedSize = size(this.messageSize);
-        me.transmitted();
-      }, 3000);
+        me.transmittedSize = size(this.messageSize)
+        me.transmitted()
+      }, 3000)
     },
-    updateStats() {
-      console.log("UPDATE STATS");
+    updateStats () {
+      console.log('UPDATE STATS')
 
-      var running = 0;
-      var stopped = 0;
+      var running = 0
+      var stopped = 0
 
       if (window.toolkit) {
-        var objs = window.toolkit.getGraph().serialize();
+        var objs = window.toolkit.getGraph().serialize()
 
-        console.log("OBJS", objs);
-        objs["nodes"].forEach((node) => {
-          console.log("NODE", node);
-          if (node.status == "running") {
-            running += 1;
+        console.log('OBJS', objs)
+        objs.nodes.forEach((node) => {
+          console.log('NODE', node)
+          if (node.status == 'running') {
+            running += 1
           }
-          if (node.status == "stopped") {
-            stopped += 1;
+          if (node.status == 'stopped') {
+            stopped += 1
           }
-        });
+        })
       }
-      //this.stopped = stopped;
-      //this.running = running;
-      //this.groups = objs['groups'].length;
+      // this.stopped = stopped;
+      // this.running = running;
+      // this.groups = objs['groups'].length;
     },
-    getUuid() {
-      return "key_" + uuidv4();
+    getUuid () {
+      return 'key_' + uuidv4()
     },
-    updateQueuedTasks() {
-      var queued_tasks = 0;
+    updateQueuedTasks () {
+      var queued_tasks = 0
 
       this.queuedata.forEach((queue) => {
-        console.log("QUEUE", queue);
-        queued_tasks += parseInt(queue.messages);
-      });
+        console.log('QUEUE', queue)
+        queued_tasks += parseInt(queue.messages)
+      })
 
-      console.log("QUEUED TASKS", queued_tasks);
-      this.queuedTasks = queued_tasks;
+      console.log('QUEUED TASKS', queued_tasks)
+      this.queuedTasks = queued_tasks
     },
-    refreshQueues() {
-      this.queueloading = true;
-      console.log("QUEUES REFRESHING");
+    refreshQueues () {
+      this.queueloading = true
+      console.log('QUEUES REFRESHING')
       DataService.getMessages(this.queuename)
         .then((messages) => {
-          this.queueloading = false;
-          this.queuedata = messages.data;
-          console.log("QUEUEDATA", this.queuedata);
-          this.updateQueuedTasks();
+          this.queueloading = false
+          this.queuedata = messages.data
+          console.log('QUEUEDATA', this.queuedata)
+          this.updateQueuedTasks()
         })
         .catch((err) => {
-          this.queueloading = false;
+          this.queueloading = false
           // show error message
-        });
+        })
     },
-    toggleSplitter() {
-      this.librarydrawer = false;
+    toggleSplitter () {
+      this.librarydrawer = false
       if (this.splitterModel < 100) {
-        this.splitterSave = this.splitterModel;
-        this.splitterModel = 100;
+        this.splitterSave = this.splitterModel
+        this.splitterModel = 100
       } else {
-        this.splitterModel = this.splitterSave;
+        this.splitterModel = this.splitterSave
       }
     },
-    updateFlow(name) {
-      this.flow.filename = name;
+    updateFlow (name) {
+      this.flow.filename = name
     },
     dataGenerator: function (el) {
       // This probably needs to be automated
       return {
-        type: el.getAttribute("data-node-type"),
+        type: el.getAttribute('data-node-type'),
         w: 120,
         h: 80,
         properties: [],
@@ -1234,41 +1471,41 @@ export default defineComponent({
         facts: [],
         behaviors: [],
         notes: [],
-        package: el.getAttribute("data-node-package"),
-        description: el.getAttribute("data-node-desc"),
-        icon: el.getAttribute("data-node-icon"),
-        name: el.getAttribute("data-node-name"),
-        id: jsPlumbUtil.uuid(),
-      };
+        package: el.getAttribute('data-node-package'),
+        description: el.getAttribute('data-node-desc'),
+        icon: el.getAttribute('data-node-icon'),
+        name: el.getAttribute('data-node-name'),
+        id: jsPlumbUtil.uuid()
+      }
     },
-    tabChanged(tab) {
-      console.log("REFS:", this.$refs);
-      console.log("TAB:", tab, this.$refs[tab]);
+    tabChanged (tab) {
+      console.log('REFS:', this.$refs)
+      console.log('TAB:', tab, this.$refs[tab])
       for (var i = 0; i < this.flows.length; i++) {
-        var flow = this.flows[i];
-        if (tab == "flow" + flow.id) {
-          this.flow = flow;
+        var flow = this.flows[i]
+        if (tab == 'flow' + flow.id) {
+          this.flow = flow
         }
       }
-      console.log("GRAPH", this.graph);
-      if (this.$refs[tab + "designer"]) {
-        window.toolkit = this.$refs[tab + "designer"][0].toolkit;
-        window.toolkit.$q = this.$q;
-        this.graph = window.toolkit.getGraph().serialize();
-        window.renderer = window.toolkit.renderer;
-        console.log("Refreshing designer");
-        this.$refs[tab + "designer"][0].refresh();
+      console.log('GRAPH', this.graph)
+      if (this.$refs[tab + 'designer']) {
+        window.toolkit = this.$refs[tab + 'designer'][0].toolkit
+        window.toolkit.$q = this.$q
+        this.graph = window.toolkit.getGraph().serialize()
+        window.renderer = window.toolkit.renderer
+        console.log('Refreshing designer')
+        this.$refs[tab + 'designer'][0].refresh()
       }
-    },
+    }
   },
-  mounted() {
-    var me = this;
-    //console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
-    //console.log('MAINLAYOUT STORE', this.$store);
-    window.designer.$root.$on("toolkit.dirty", () => {
-      this.updateStats();
-    });
-    console.log("STATUS: CONNECTED", this.connected);
+  mounted () {
+    var me = this
+    // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
+    // console.log('MAINLAYOUT STORE', this.$store);
+    window.designer.$root.$on('toolkit.dirty', () => {
+      this.updateStats()
+    })
+    console.log('STATUS: CONNECTED', this.connected)
     /*
     function setconnected () {
       console.log("setconnected")
@@ -1279,369 +1516,369 @@ export default defineComponent({
       }, 3000)
 
     }
-    setconnected();*/
+    setconnected(); */
 
-    this.transmitted();
+    this.transmitted()
 
-    window.root.$on("message.count", (count) => {
-      me.messageCount += count;
-    });
-    window.root.$on("message.size", (size) => {
-      me.messageSize += size;
-    });
-    this.$root.$on("flow.uuid", (flowid, flowuuid) => {
+    window.root.$on('message.count', (count) => {
+      me.messageCount += count
+    })
+    window.root.$on('message.size', (size) => {
+      me.messageSize += size
+    })
+    this.$root.$on('flow.uuid', (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
-        var flow = me.flows[i];
+        var flow = me.flows[i]
         if (flow.id == flowid) {
-          flow._id = flowuuid;
-          console.log("Updated flow", flow, " with uuid", flowuuid);
+          flow._id = flowuuid
+          console.log('Updated flow', flow, ' with uuid', flowuuid)
         }
       }
-    });
-    window.root.$on("view.queue", (queue) => {
-      this.queuename = queue;
-      this.viewQueueDialog = true;
-    });
+    })
+    window.root.$on('view.queue', (queue) => {
+      this.queuename = queue
+      this.viewQueueDialog = true
+    })
 
-    this.$root.$on("open.library", () => {
-      console.log("open.library");
-      this.librarydrawer = !this.librarydrawer;
-    });
-    this.$root.$on("new.queue", () => {
-      console.log("NEW.QUEUE");
-      this.newQueueDialog = true;
-    });
+    this.$root.$on('open.library', () => {
+      console.log('open.library')
+      this.librarydrawer = !this.librarydrawer
+    })
+    this.$root.$on('new.queue', () => {
+      console.log('NEW.QUEUE')
+      this.newQueueDialog = true
+    })
 
-    this.$root.$on("close.flow", (flowid) => {
-      console.log("DELETING FLOWID", flowid);
-      console.log("BEFORE DELETE", me.flows);
-      var index = -1;
+    this.$root.$on('close.flow', (flowid) => {
+      console.log('DELETING FLOWID', flowid)
+      console.log('BEFORE DELETE', me.flows)
+      var index = -1
       for (var i = 0; i < me.flows.length; i++) {
-        var flow = me.flows[i];
+        var flow = me.flows[i]
         if (flow.id == flowid) {
-          index = i;
-          break;
+          index = i
+          break
         }
       }
       me.flows = me.flows.filter(function (value, index, arr) {
-        console.log(value.id, flowid);
-        return value.id != flowid;
-      });
-      this.tab = "flow" + me.flows[index - 1].id;
-      this.$refs[this.tab + "designer"][0].refresh();
-      console.log("AFTER DELETE", me.flows);
-    });
-    this.$root.$on("new.flow", () => {
-      var id = me.flows.length + 1;
+        console.log(value.id, flowid)
+        return value.id != flowid
+      })
+      this.tab = 'flow' + me.flows[index - 1].id
+      this.$refs[this.tab + 'designer'][0].refresh()
+      console.log('AFTER DELETE', me.flows)
+    })
+    this.$root.$on('new.flow', () => {
+      var id = me.flows.length + 1
       me.flows.push({
-        filename: "New Flow",
+        filename: 'New Flow',
         id: id,
-        code: null,
-      });
+        code: null
+      })
       for (var i = 0; i < me.flows.length; i++) {
-        var flow = me.flows[i];
+        var flow = me.flows[i]
         if (flow.id == id) {
-          me.flow = flow;
+          me.flow = flow
         }
       }
-      me.tab = "flow" + id;
-    });
-    this.$root.$on("load.flow", (flow) => {
-      console.log("load.flow", flow);
-      var id = me.flows.length + 1;
-      flow._id = flow._id;
-      flow.id = id;
-      me.flows.push(flow);
-      me.tab = "flow" + id;
-    });
+      me.tab = 'flow' + id
+    })
+    this.$root.$on('load.flow', (flow) => {
+      console.log('load.flow', flow)
+      var id = me.flows.length + 1
+      flow._id = flow._id
+      flow.id = id
+      me.flows.push(flow)
+      me.tab = 'flow' + id
+    })
     this.$q.loading.show({
       delay: 40,
-      spinnerColor: "dark",
+      spinnerColor: 'dark',
       spinnerSize: 154,
-      spinnerThickness: 1,
-    });
-    console.log("Mounting....");
-    console.log("REFS", this.$refs);
-    window.toolkit = this.$refs["flow1designer"][0].toolkit;
-    window.toolkit.$q = this.$q;
-    window.renderer = window.toolkit.renderer;
+      spinnerThickness: 1
+    })
+    console.log('Mounting....')
+    console.log('REFS', this.$refs)
+    window.toolkit = this.$refs.flow1designer[0].toolkit
+    window.toolkit.$q = this.$q
+    window.renderer = window.toolkit.renderer
     setTimeout(() => {
-      var processor = document.querySelector("#processor");
+      var processor = document.querySelector('#processor')
 
       processor.data = {
         node: {
-          icon: "fab fa-python",
-          style: "",
-          type: "processor",
-          name: "Script Processor",
-          label: "Script",
-          description: "A script processor description",
-          package: "my.python.package",
+          icon: 'fab fa-python',
+          style: '',
+          type: 'processor',
+          name: 'Script Processor',
+          label: 'Script',
+          description: 'A script processor description',
+          package: 'my.python.package',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var portin = document.querySelector("#portin");
+      var portin = document.querySelector('#portin')
       portin.data = {
         node: {
-          icon: "outlet-icon2",
-          style: "size:50px",
-          type: "portin",
-          name: "Port In",
-          label: "Port In",
-          description: "A port in description",
-          package: "queue name",
+          icon: 'outlet-icon2',
+          style: 'size:50px',
+          type: 'portin',
+          name: 'Port In',
+          label: 'Port In',
+          description: 'A port in description',
+          package: 'queue name',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var portout = document.querySelector("#portout");
+      var portout = document.querySelector('#portout')
       portout.data = {
         node: {
-          icon: "fas fa-plug",
-          style: "size:50px",
-          type: "portout",
-          name: "Port Out",
-          label: "Port Out",
-          description: "A port out description",
-          package: "queue name",
+          icon: 'fas fa-plug',
+          style: 'size:50px',
+          type: 'portout',
+          name: 'Port Out',
+          label: 'Port Out',
+          description: 'A port out description',
+          package: 'queue name',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var group = document.querySelector("#processorgroup");
+      var group = document.querySelector('#processorgroup')
       group.data = {
         node: {
-          icon: "far fa-object-group",
-          style: "size:50px",
-          type: "group",
-          name: "Group",
-          label: "Group",
-          description: "A processor group description",
-          package: "my.python.package",
+          icon: 'far fa-object-group',
+          style: 'size:50px',
+          type: 'group',
+          name: 'Group',
+          label: 'Group',
+          description: 'A processor group description',
+          package: 'my.python.package',
           disabled: false,
           group: true,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var parallel = document.querySelector("#parallel");
+      var parallel = document.querySelector('#parallel')
       parallel.data = {
         node: {
-          icon: "fas fa-list",
-          style: "size:50px",
-          type: "parallel",
-          name: "Parallel",
-          label: "Parallel",
-          description: "A parallel tool description",
-          package: "my.python.package",
+          icon: 'fas fa-list',
+          style: 'size:50px',
+          type: 'parallel',
+          name: 'Parallel',
+          label: 'Parallel',
+          description: 'A parallel tool description',
+          package: 'my.python.package',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var pipeline = document.querySelector("#pipeline");
+      var pipeline = document.querySelector('#pipeline')
       pipeline.data = {
         node: {
-          icon: "fas fa-long-arrow-alt-right",
-          style: "size:50px",
-          type: "pipeline",
-          name: "Pipeline",
-          label: "Pipeline",
-          description: "A pipeline tool description",
-          package: "my.python.package",
+          icon: 'fas fa-long-arrow-alt-right',
+          style: 'size:50px',
+          type: 'pipeline',
+          name: 'Pipeline',
+          label: 'Pipeline',
+          description: 'A pipeline tool description',
+          package: 'my.python.package',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var segment = document.querySelector("#segment");
+      var segment = document.querySelector('#segment')
       segment.data = {
         node: {
-          icon: "grid_view",
-          style: "size:50px",
-          type: "segment",
-          name: "Segment",
-          label: "Segment",
-          description: "A segment tool description",
-          package: "my.python.package",
+          icon: 'grid_view',
+          style: 'size:50px',
+          type: 'segment',
+          name: 'Segment',
+          label: 'Segment',
+          description: 'A segment tool description',
+          package: 'my.python.package',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var chord = document.querySelector("#chord");
+      var chord = document.querySelector('#chord')
       chord.data = {
         node: {
-          icon: "low_priority",
-          style: "size:50px",
-          type: "chord",
-          name: "Chord",
-          label: "Chord",
-          description: "A chord tool description",
-          package: "my.python.package",
+          icon: 'low_priority',
+          style: 'size:50px',
+          type: 'chord',
+          name: 'Chord',
+          label: 'Chord',
+          description: 'A chord tool description',
+          package: 'my.python.package',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var label = document.querySelector("#label");
+      var label = document.querySelector('#label')
       label.data = {
         node: {
-          icon: "icon-label",
-          style: "size:50px",
-          type: "note",
-          name: "Label",
-          label: "Label",
+          icon: 'icon-label',
+          style: 'size:50px',
+          type: 'note',
+          name: 'Label',
+          label: 'Label',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var data = document.querySelector("#data");
+      var data = document.querySelector('#data')
       data.data = {
         node: {
-          icon: "las la-file-alt",
-          style: "size:50px",
-          type: "data",
-          name: "Data",
-          label: "Data",
+          icon: 'las la-file-alt',
+          style: 'size:50px',
+          type: 'data',
+          name: 'Data',
+          label: 'Data',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var schema = document.querySelector("#schema");
+      var schema = document.querySelector('#schema')
       schema.data = {
         node: {
           icon: this.schemaIcon,
-          style: "size:50px",
-          type: "schema",
-          name: "Schema",
-          label: "Schema",
+          style: 'size:50px',
+          type: 'schema',
+          name: 'Schema',
+          label: 'Schema',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
-      var router = document.querySelector("#router");
+      var router = document.querySelector('#router')
       router.data = {
         node: {
-          icon: "alt_route",
-          style: "size:50px",
-          type: "router",
-          name: "Router",
-          label: "Router",
+          icon: 'alt_route',
+          style: 'size:50px',
+          type: 'router',
+          name: 'Router',
+          label: 'Router',
           disabled: false,
           columns: [],
-          properties: [],
-        },
-      };
+          properties: []
+        }
+      }
 
       //, chord, segment, map, reduce
-      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema];
+      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema]
 
       els.forEach((el) => {
-        var data = el.data;
-        data.id = uuidv4();
+        var data = el.data
+        data.id = uuidv4()
         var draghandle = dd.drag(el, {
-          image: true, // default drag image
-        });
-        draghandle.on("start", function (setData, e) {
-          console.log("drag:start:", el, e);
-          setData("object", JSON.stringify(data));
-        });
-      });
-    });
-    var me = this;
+          image: true // default drag image
+        })
+        draghandle.on('start', function (setData, e) {
+          console.log('drag:start:', el, e)
+          setData('object', JSON.stringify(data))
+        })
+      })
+    })
+    var me = this
     setTimeout(function () {
-      me.$q.loading.hide();
-    }, 500);
+      me.$q.loading.hide()
+    }, 500)
   },
-  data() {
+  data () {
     return {
       queueDetailContent: '',
       queueDetailColumns: [
         {
-          name: "name",
-          label: "Property",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Property',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "value",
-          label: "Value",
-          field: "value",
-          align: "left",
-        },
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left'
+        }
       ],
       queueDetailData: [],
-      queuedetailtab: "stats",
+      queuedetailtab: 'stats',
       objectcolumns: {
         runningprocessors: [
           {
-            name: "name",
-            label: "Name",
-            field: "name",
-            align: "left",
+            name: 'name',
+            label: 'Name',
+            field: 'name',
+            align: 'left'
           },
           {
-            name: "owner",
-            label: "Owner",
-            field: "owner",
-            align: "left",
+            name: 'owner',
+            label: 'Owner',
+            field: 'owner',
+            align: 'left'
           },
           {
-            name: "id",
-            label: "ID",
-            field: "id",
-            align: "left",
+            name: 'id',
+            label: 'ID',
+            field: 'id',
+            align: 'left'
           },
           {
-            name: "concurrency",
-            label: "Concurrency",
-            field: "concurrency",
-            align: "left",
+            name: 'concurrency',
+            label: 'Concurrency',
+            field: 'concurrency',
+            align: 'left'
           },
           {
-            name: "created",
-            label: "Created On",
-            field: "created",
-            align: "left",
+            name: 'created',
+            label: 'Created On',
+            field: 'created',
+            align: 'left'
           },
           {
-            name: "lastupdated",
-            label: "Last Updated",
-            field: "lastupdated",
-            align: "left",
+            name: 'lastupdated',
+            label: 'Last Updated',
+            field: 'lastupdated',
+            align: 'left'
           },
           {
-            name: "status",
-            label: "Status",
-            field: "status",
-            align: "left",
-          },
-        ],
+            name: 'status',
+            label: 'Status',
+            field: 'status',
+            align: 'left'
+          }
+        ]
       },
       queueTableSplitter: 40,
       detailedqueues: [],
       queuedTasks: 0,
-      mode: "disconnected",
-      messageContent: "",
+      mode: 'disconnected',
+      messageContent: '',
       graph: {},
       items: [],
       messageCount: 0,
@@ -1658,7 +1895,7 @@ export default defineComponent({
         processors_starting: 0,
         processors_running: 0,
         processors_errored: 0,
-        tasks: 0,
+        tasks: 0
       },
       running: 0,
       stopped: 0,
@@ -1671,59 +1908,59 @@ export default defineComponent({
       messageSplitter: 70,
       queuecolumns: [
         {
-          name: "task",
-          label: "Task",
-          field: "task",
-          align: "left",
+          name: 'task',
+          label: 'Task',
+          field: 'task',
+          align: 'left'
         },
         {
-          name: "tracking",
-          label: "Tracking",
-          field: "tracking",
-          align: "left",
+          name: 'tracking',
+          label: 'Tracking',
+          field: 'tracking',
+          align: 'left'
         },
         {
-          name: "id",
-          label: "ID",
-          field: "id",
-          align: "left",
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left'
         },
         {
-          name: "time",
-          label: "Time",
-          field: "time",
-          align: "left",
+          name: 'time',
+          label: 'Time',
+          field: 'time',
+          align: 'left'
         },
         {
-          name: "parent",
-          label: "Parent",
-          field: "parent",
-          align: "left",
+          name: 'parent',
+          label: 'Parent',
+          field: 'parent',
+          align: 'left'
         },
         {
-          name: "routing_key",
-          label: "Routing Key",
-          field: "routing_key",
-          align: "left",
-        },
+          name: 'routing_key',
+          label: 'Routing Key',
+          field: 'routing_key',
+          align: 'left'
+        }
       ],
       queuedata: [],
       queueDetails: {
 
       },
       initialPagination: {
-        sortBy: "desc",
+        sortBy: 'desc',
         descending: false,
         page: 1,
-        rowsPerPage: 50,
+        rowsPerPage: 50
         // rowsNumber: xx if getting data from a server
       },
 
       queuePagination: {
-        sortBy: "desc",
+        sortBy: 'desc',
         descending: false,
         page: 1,
-        rowsPerPage: 20,
+        rowsPerPage: 20
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,
@@ -1731,74 +1968,73 @@ export default defineComponent({
       splitterSave: 73,
       messageColumns: [
         {
-          name: "date",
-          label: "Date",
-          field: "date",
-          align: "left",
+          name: 'date',
+          label: 'Date',
+          field: 'date',
+          align: 'left'
         },
         {
-          name: "channel",
-          label: "Channel",
-          field: "channel",
-          align: "left",
+          name: 'channel',
+          label: 'Channel',
+          field: 'channel',
+          align: 'left'
         },
         {
-          name: "module",
-          label: "Module",
-          field: "module",
-          align: "left",
+          name: 'module',
+          label: 'Module',
+          field: 'module',
+          align: 'left'
         },
         {
-          name: "task",
-          label: "Task",
-          field: "task",
-          align: "left",
+          name: 'task',
+          label: 'Task',
+          field: 'task',
+          align: 'left'
         },
         {
-          name: "room",
-          label: "Room",
-          field: "room",
-          align: "left",
+          name: 'room',
+          label: 'Room',
+          field: 'room',
+          align: 'left'
         },
         {
-          name: "state",
-          label: "State",
-          field: "state",
-          align: "left",
+          name: 'state',
+          label: 'State',
+          field: 'state',
+          align: 'left'
         },
         {
-          name: "duration",
-          label: "Duration",
-          field: "duration",
-          align: "left",
-        },
+          name: 'duration',
+          label: 'Duration',
+          field: 'duration',
+          align: 'left'
+        }
       ],
       columns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "messages",
-          align: "center",
-          label: "Messages",
-          field: "messages",
+          name: 'messages',
+          align: 'center',
+          label: 'Messages',
+          field: 'messages'
         },
         {
-          name: "ready",
-          align: "center",
-          label: "Ready",
-          field: "ready",
+          name: 'ready',
+          align: 'center',
+          label: 'Ready',
+          field: 'ready'
         },
         {
-          name: "unacked",
-          align: "center",
-          label: "Not Acked",
-          field: "unacked",
-        } /*
-        {
+          name: 'unacked',
+          align: 'center',
+          label: 'Not Acked',
+          field: 'unacked'
+        }, /*        {
           name: "incoming",
           align: "center",
           label: "Incoming/sec",
@@ -1815,42 +2051,42 @@ export default defineComponent({
           align: "center",
           label: "Acked/sec",
           field: "acked",
-        },*/,
+        }, */
         {
-          name: "bytes",
-          align: "right",
-          classes: "text-secondary",
-          label: "Bytes",
-          field: "bytes",
+          name: 'bytes',
+          align: 'right',
+          classes: 'text-secondary',
+          label: 'Bytes',
+          field: 'bytes'
         },
         {
-          name: "actions",
-          align: "center",
-          style: "min-width:150px",
-          classes: "text-secondary",
-          label: "Actions",
-        },
+          name: 'actions',
+          align: 'center',
+          style: 'min-width:150px',
+          classes: 'text-secondary',
+          label: 'Actions'
+        }
       ],
       queues: [],
       variablecolumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "value",
-          label: "Value",
-          field: "value",
-          align: "left",
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left'
         },
         {
-          name: "scope",
-          label: "Scope",
-          field: "scope",
-          align: "left",
-        },
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left'
+        }
       ],
       variabledata: [],
       jsondata: {},
@@ -1858,16 +2094,16 @@ export default defineComponent({
       searchdrawer: false,
       flows: [
         {
-          filename: "Scratch Flow",
-          id: 1,
-        },
+          filename: 'Scratch Flow',
+          id: 1
+        }
       ],
-      drawertab: "messages",
+      drawertab: 'messages',
       drawer: true,
       tab: null,
-      tools: "code",
-      text: "",
-    };
-  },
-});
+      tools: 'code',
+      text: ''
+    }
+  }
+})
 </script>

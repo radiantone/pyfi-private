@@ -512,8 +512,8 @@ def get_deployments(processor):
                         "owner": dep.owner,
                         "hostname": dep.hostname,
                         "cpus": dep.cpus,
-                        "status": dep.worker.status,
-                        "worker": dep.worker.name,
+                        "status": dep.worker.status if dep.worker else 'None',
+                        "worker": worker,
                     }
                 ]
 

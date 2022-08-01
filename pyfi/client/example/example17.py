@@ -17,7 +17,7 @@ class ProcessorB(ProcessorBase):
     """Description"""
 
     @socket(
-        name="pyfi.processors.sample.do_this",
+        name="proc2.do_this",
         processor="proc2",
         arguments=True,
         queue={"name": "sockq2"},
@@ -49,7 +49,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="pyfi.processors.sample.do_this",  # Must be defined above already (prevents cycles)
+        target="proc2.do_this",  # Must be defined above already (prevents cycles)
         queue={
             "name": "queue1",
             "message_ttl": 300000,
@@ -58,7 +58,7 @@ class ProcessorA(ProcessorBase):
         },
     )
     @socket(
-        name="pyfi.processors.sample.do_something",
+        name="proc1.do_something",
         processor="proc1",
         beat=False,
         interval=15,
@@ -91,7 +91,7 @@ class ProcessorC(ProcessorBase):
 
     @plug(
         name="plug2",
-        target="pyfi.processors.sample.do_this",  # Must be defined above already (prevents cycles)
+        target="proc2.do_this",  # Must be defined above already (prevents cycles)
         queue={
             "name": "queue2",
             "message_ttl": 300000,
@@ -100,7 +100,7 @@ class ProcessorC(ProcessorBase):
         },
     )
     @socket(
-        name="pyfi.processors.sample.do_something",
+        name="proc3.do_something",
         processor="proc3",
         beat=False,
         interval=5,
