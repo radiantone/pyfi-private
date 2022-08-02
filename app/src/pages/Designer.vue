@@ -229,6 +229,21 @@
           style="min-height: 45px;"
           @click="redraw"
           size="sm"
+          icon="fas fa-retweet"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Redraw
+          </q-tooltip>
+        </q-btn>
+<q-btn
+          flat
+          style="min-height: 45px;"
+          @click="redraw"
+          size="sm"
           icon="fas fa-refresh"
         >
           <q-tooltip
@@ -236,10 +251,9 @@
             content-style="font-size: 16px"
             :offset="[10, 10]"
           >
-            Refresh
+            Resync
           </q-tooltip>
         </q-btn>
-
         <q-btn
           flat
           style="min-height: 45px;"
@@ -1686,11 +1700,11 @@
                 </q-td>
                 <q-td :key="props.cols[2].name" :props="props">
                   {{ props.row.obj.data.id }}
-                </q-td>   
+                </q-td>
                 <q-td key="owner" >
                   {{owner}}
-                </q-td>                                
-              </q-tr>     
+                </q-td>
+              </q-tr>
             </template>
           </q-table>
         </q-card-section>
@@ -2059,7 +2073,7 @@ export default {
       this.variabledata.push({
         'name': 'NAME',
         'value': 'VALUE',
-        'scope':'FLOW'  
+        'scope':'FLOW'
       })
     },
     emptyAllQueues() {

@@ -185,7 +185,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         DeploymentModel.cpus < ProcessorModel.concurrency
                     )
                 )
-                .with_for_update()
+                #.with_for_update()
                 .all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
