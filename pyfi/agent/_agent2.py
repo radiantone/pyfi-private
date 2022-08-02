@@ -559,6 +559,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     "Processor.requested_status 0 %s",
                                     processor["processor"].requested_status,
                                 )
+                                session.merge(processor["worker"])
                                 logging.debug(
                                     "processor['worker'] is %s", processor["worker"]
                                 )

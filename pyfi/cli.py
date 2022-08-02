@@ -1263,17 +1263,18 @@ def update(context, id):
 @scheduler.command(name="start", help="Start the default scheduler")
 @click.option("-n", "--name", default=None, required=True)
 @click.option("-i", "--interval", default=3, required=False)
+@click.option("-nd", "--nodeployments", default=False, is_flag=True, required=False)
 @click.option(
     "-c", "--class", "clazz", default="pyfi.scheduler.BasicScheduler", required=False
 )
 @click.pass_context
-def start_scheduler(context, name, interval, clazz):
+def start_scheduler(context, name, interval, nodeployments, clazz):
     from pyfi.scheduler import BasicScheduler
 
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
     try:
         scheduler_class = import_class(clazz)
-        scheduler = scheduler_class(name, interval)
+        scheduler = scheduler_class(name, nodeployments, interval)
         scheduler.run()
     except Exception as ex:
         logger.error(ex)

@@ -50,6 +50,9 @@ class SchedulerPlugin:
     _stop = False
     event = None
 
+    def __init__(self,args):
+        self.args = args
+
     def run(self, *args, **kwargs):
         logging.info("Schedule run %s %s", args, kwargs)
 
@@ -333,7 +336,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             )
                             # celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
-                if deployed_cpus < processor.concurrency:
+                logging.info("No Deployments is: %s", self.args)
+
+                if not self.args and (deployed_cpus < processor.concurrency):
                     needed_cpus = processor.concurrency - deployed_cpus
                     logging.info("Concurrency shortfall, finding %s CPUs", needed_cpus)
 
@@ -515,11 +520,11 @@ class BasicScheduler:
     process = None
     nodes = []
 
-    def __init__(self, name, interval):
+    def __init__(self, name, deployments, interval):
         self.name = name
         self.interval = interval
 
-        self.plugins = [cls() for cls in _plugins]
+        self.plugins = [cls(deployments) for cls in _plugins]
 
         signal.signal(signal.SIGINT, self.stop)
 

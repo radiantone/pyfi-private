@@ -2696,7 +2696,7 @@ class WorkerService:
                     # If not using a container, then build the virtualenv
                     if not os.path.exists("venv"):
 
-                        logging.debug("Building virtualenv...in %s", os.getcwd())
+                        logging.info("Building virtualenv...in %s", os.getcwd())
                         env = VirtualEnvironment(
                             "venv", python=sys.executable, system_site_packages=True
                         )  # inside git directory
