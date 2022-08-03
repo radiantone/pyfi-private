@@ -83,8 +83,11 @@ def import_class(name):
 
 @contextmanager
 def get_session(**kwargs):
+
+    from pyfi.db import get_session
+
     logger.debug("get_session: Creating session")
-    session = sessionmaker(bind=engine, **kwargs)()  # expire_on_commit=False
+    session = get_session()
 
     try:
         logger.debug("get_session: Yielding session")

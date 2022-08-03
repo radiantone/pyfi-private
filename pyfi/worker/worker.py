@@ -281,11 +281,13 @@ class WorkerService:
     @contextmanager
     def get_session(self, engine):
         """Creates a context with an open SQLAlchemy session."""
+        from pyfi.db import get_session
+
         logging.debug("Connecting DB")
 
         if not self._session:
             logging.debug("Creating scoped session")
-            self._session = scoped_session(self.sm)
+            self._session = get_ession()
             # self._session = scoped_session(
             #    sessionmaker(autocommit=False, autoflush=True, bind=engine)
             # )
