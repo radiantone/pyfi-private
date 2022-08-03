@@ -329,7 +329,8 @@ class WorkerService:
 
         self.processor = {}
         for key, value in json.loads(str(processor)).items():
-            setattr(self.processor,key,value)
+            print(key,value)
+            setattr(self.processor, key, value)
 
         print("SELF.PROCESSOR",self.processor)
         self.worker = deployment.worker
