@@ -326,7 +326,7 @@ class WorkerService:
 
         global HOSTNAME
 
-        self.processor = processor
+        self.processor = json.loads(str(processor))
 
         self.worker = deployment.worker
         self.deployment = deployment
@@ -920,7 +920,7 @@ class WorkerService:
 
                         sourceplugs = {}
                         data = {
-                            "module": self.processor.module,
+                            "module": processor.module,
                             "date": str(datetime.now()),
                             "resultkey": "celery-task-meta-" + _signal["taskid"],
                             "message": "Processor message",
@@ -948,7 +948,7 @@ class WorkerService:
 
                                 # Create data record for this event
                                 data = {
-                                    "module": self.processor.module,
+                                    "module": processor.module,
                                     "date": str(datetime.now()),
                                     "resultkey": "celery-task-meta-"
                                     + _signal["taskid"],
@@ -1441,7 +1441,6 @@ class WorkerService:
                 task_routes = {}
 
                 logging.debug("My processor is: {}".format(self.processor))
-                logging.debug("Processor sockets: {}".format(self.processor.sockets))
 
                 _processor = (
                     session.query(ProcessorModel)
@@ -1505,7 +1504,7 @@ class WorkerService:
                                 tkey = (
                                     processor_plug.source.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + processor_plug.source.task.name
                                 )
@@ -1519,7 +1518,7 @@ class WorkerService:
                                 routing_key = (
                                     processor_plug.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + processor_plug.target.task.name
                                 )
@@ -1547,7 +1546,7 @@ class WorkerService:
                                 task_routes[
                                     processor_plug.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + socket.task.name
                                 ] = {
@@ -1560,13 +1559,13 @@ class WorkerService:
                                     "ADDED ROUTE %s for %s",
                                     processor_plug.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + socket.task.name,
                                     task_routes[
                                         processor_plug.queue.name
                                         + "."
-                                        + self.processor.module
+                                        + _processor.module
                                         + "."
                                         + socket.task.name
                                     ],
@@ -1593,7 +1592,7 @@ class WorkerService:
                                 routing_key = (
                                     processor_plug.target.queue.name
                                     + "."
-                                    + fix(self.processor.name)
+                                    + fix(_processor.name)
                                     + "."
                                     + socket.task.name
                                 )
@@ -1622,7 +1621,7 @@ class WorkerService:
                                 task_routes[
                                     processor_plug.target.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + socket.task.name
                                 ] = {
@@ -1635,13 +1634,13 @@ class WorkerService:
                                     "ADDED ROUTE %s for %s",
                                     processor_plug.target.queue.name
                                     + "."
-                                    + self.processor.module
+                                    + _processor.module
                                     + "."
                                     + socket.task.name,
                                     task_routes[
                                         processor_plug.target.queue.name
                                         + "."
-                                        + self.processor.module
+                                        + _processor.module
                                         + "."
                                         + socket.task.name
                                     ],
@@ -1653,20 +1652,20 @@ class WorkerService:
                                 KQueue(
                                     socket.queue.name
                                     + "."
-                                    + fix(self.processor.name)
+                                    + fix(_processor.name)
                                     + "."
                                     + socket.task.name,
                                     Exchange(
                                         socket.queue.name
                                         + "."
-                                        + fix(self.processor.name)
+                                        + fix(_processor.name)
                                         + "."
                                         + socket.task.name,
                                         type="direct",
                                     ),
                                     routing_key=socket.queue.name
                                     + "."
-                                    + fix(self.processor.name)
+                                    + fix(_processor.name)
                                     + "."
                                     + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
@@ -1684,16 +1683,16 @@ class WorkerService:
 
                             task_queues += [
                                 KQueue(
-                                    self.processor.module + "." + socket.task.name,
+                                    _processor.module + "." + socket.task.name,
                                     Exchange(
                                         socket.queue.name
                                         + "."
-                                        + fix(self.processor.name)
+                                        + fix(_processor.name)
                                         + "."
                                         + socket.task.name,
                                         type="direct",
                                     ),
-                                    routing_key=self.processor.module
+                                    routing_key=_processor.module
                                     + "."
                                     + socket.task.name,
                                     message_ttl=socket.queue.message_ttl,
@@ -1713,7 +1712,7 @@ class WorkerService:
                                 KQueue(
                                     socket.queue.name
                                     + "."
-                                    + fix(self.processor.name)
+                                    + fix(_processor.name)
                                     + "."
                                     + socket.task.name,
                                     Exchange(
@@ -1732,7 +1731,7 @@ class WorkerService:
                             ]
 
                             task_routes[
-                                self.processor.module + "." + socket.task.name
+                                _processor.module + "." + socket.task.name
                             ] = {
                                 "queue": socket.queue.name,
                                 "exchange": [
@@ -1764,7 +1763,7 @@ class WorkerService:
                 logging.debug("TASK_ROUTES %s", task_routes.keys())
                 logging.debug(
                     "Creating celery worker %s %s %s deployment %s",
-                    self.processor.name + "@" + HOSTNAME,
+                    _processor.name + "@" + HOSTNAME,
                     self.backend,
                     self.broker,
                     self.deployment.cpus,
@@ -1843,11 +1842,11 @@ class WorkerService:
                     logging.error(ex)
 
                 logging.debug("Checking beat")
-                if self.processor.beat:
+                if _processor.beat:
                     logging.debug("Has beat")
                     worker.app.conf.beat_schedule = {}
 
-                    for socket in self.processor.sockets:
+                    for socket in _processor.sockets:
                         if socket.interval <= 0:
                             continue
 
@@ -1855,7 +1854,7 @@ class WorkerService:
                         tkey = (
                             socket.queue.name
                             + "."
-                            + fix(self.processor.name)
+                            + fix(_processor.name)
                             + "."
                             + socket.task.name
                         )
