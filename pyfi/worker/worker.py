@@ -321,6 +321,7 @@ class WorkerService:
     ):
         """ """
         import multiprocessing
+        import json
 
         from pyfi.db.model import Base
 
