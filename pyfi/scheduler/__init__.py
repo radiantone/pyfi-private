@@ -193,6 +193,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
+            session.commit()
 
             def update_stats():
                 node_count = session.query(NodeModel).count()
@@ -219,6 +220,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 task_count = session.query(TaskModel).count()
                 deployments = session.query(DeploymentModel).all()
 
+                session.commit()
                 cpu_count = 0
                 cpu_running = 0
 
@@ -292,6 +294,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     session.query(SchedulerModel).filter_by(name=self.name).first()
                 )
 
+                session.commit()
                 # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
                 # Each node will have n free CPUs. A set of deployments are needed that map the processor concurrency needs
                 # to all available CPUs across nodes.
@@ -420,6 +423,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 elif deployed_cpus == processor.concurrency:
                     logging.info("Processor concurrency needs are met.")
         finally:
+            session.commit()
             session.close()
 
 

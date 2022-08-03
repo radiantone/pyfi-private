@@ -1451,7 +1451,7 @@ class WorkerService:
                     .filter_by(id=self.processor.id)
                     .first()
                 )
-
+                session.commit()
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
                     """Set up task routes"""
                     logging.debug("Setting up sockets...")
