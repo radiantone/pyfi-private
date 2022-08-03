@@ -218,29 +218,23 @@ class AgentShutdownPlugin(AgentPlugin):
 
             logger.info("Killing workers")
 
-            with get_session() as session:
-                agent = (
-                    session.query(AgentModel)
-                    .filter_by(hostname=agent_service.name)
-                    .first()
-                )
-                if os.path.exists(f"{agent_cwd}/agent.pid"):
-                    os.remove(f"{agent_cwd}/agent.pid")
+            if os.path.exists(f"{agent_cwd}/agent.pid"):
+                os.remove(f"{agent_cwd}/agent.pid")
 
-                if os.path.exists(f"{agent_cwd}/worker.pid"):
-                    with open(f"{agent_cwd}/worker.pid", "r") as wfile:
-                        workerpids = wfile.readlines()
+            if os.path.exists(f"{agent_cwd}/worker.pid"):
+                with open(f"{agent_cwd}/worker.pid", "r") as wfile:
+                    workerpids = wfile.readlines()
 
-                        for workerpid in workerpids:
-                            workerpid = int(workerpid)
-                            logger.info("Killing worker process %s", workerpid)
-                            try:
-                                os.killpg(os.getpgid(workerpid), 15)
-                                os.kill(workerpid, signal.SIGKILL)
-                            except Exception as ex:
-                                logging.warning(ex)
+                    for workerpid in workerpids:
+                        workerpid = int(workerpid)
+                        logger.info("Killing worker process %s", workerpid)
+                        try:
+                            os.killpg(os.getpgid(workerpid), 15)
+                            os.kill(workerpid, signal.SIGKILL)
+                        except Exception as ex:
+                            logging.warning(ex)
 
-                    os.remove(f"{agent_cwd}/worker.pid")
+                os.remove(f"{agent_cwd}/worker.pid")
 
                 os.killpg(os.getpgid(os.getpid()), 15)
                 os.kill(os.getpid(), signal.SIGKILL)

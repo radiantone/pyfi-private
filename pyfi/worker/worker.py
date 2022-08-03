@@ -601,7 +601,7 @@ class WorkerService:
             logging.info("database_actions: Starting...")
             while True:
                 logging.info("database_actions: loop")
-                with self.get_session(self.database) as session:
+                session = scoped_session(self.sm)
                     logging.info("database_actions: Getting processor")
                     processor = (
                         session.query(ProcessorModel)
