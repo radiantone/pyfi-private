@@ -328,7 +328,7 @@ class WorkerService:
         global HOSTNAME
 
         self.processor = {}
-        for key, value in json.loads(str(processor)):
+        for key, value in json.loads(str(processor)).items():
             setattr(self.processor,key,value)
 
         print("SELF.PROCESSOR",self.processor)
