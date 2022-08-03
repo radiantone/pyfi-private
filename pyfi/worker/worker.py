@@ -366,13 +366,13 @@ class WorkerService:
         cpus = multiprocessing.cpu_count()
         self.database = DATABASE
 
+        sm = sessionmaker(bind=self.database)
+        self.sm = sm
+
         with self.get_session(self.database) as session:
             self.processor = _processor = (
                     session.query(ProcessorModel).filter_by(name=processor.name).first()
                 )
-
-        sm = sessionmaker(bind=self.database)
-        self.sm = sm
 
         self.pool = pool
         self.user = user
