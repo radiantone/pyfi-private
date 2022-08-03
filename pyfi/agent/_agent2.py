@@ -272,6 +272,7 @@ class AgentMonitorPlugin(AgentPlugin):
             mydeployments = (
                 session.query(DeploymentModel).filter_by(hostname=agent.hostname).all()
             )
+            session.commit()
             # Deploy new processors
             for mydeployment in mydeployments:
 
