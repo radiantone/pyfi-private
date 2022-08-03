@@ -327,7 +327,7 @@ class WorkerService:
 
         global HOSTNAME
 
-        self.processor = object()
+        self.processor = {}
         for key, value in json.loads(str(processor)).items():
             print(key,value)
             self.processor[key] = value
