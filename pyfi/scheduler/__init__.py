@@ -340,6 +340,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             # celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
                 logging.info("No Deployments is: %s", self.args)
+                session.commit()
 
                 if not self.args and (deployed_cpus < processor.concurrency):
                     needed_cpus = processor.concurrency - deployed_cpus
