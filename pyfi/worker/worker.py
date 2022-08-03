@@ -327,8 +327,6 @@ class WorkerService:
 
         global HOSTNAME
 
-        self.processor = processor
-
         self.worker = deployment.worker
         self.deployment = deployment
         self.backend = backend
@@ -367,6 +365,11 @@ class WorkerService:
 
         cpus = multiprocessing.cpu_count()
         self.database = DATABASE
+
+        with self.get_session(self.database) as session:
+            self.processor = _processor = (
+                    session.query(ProcessorModel).filter_by(name=processor.name).first()
+                )
 
         sm = sessionmaker(bind=self.database)
         self.sm = sm
