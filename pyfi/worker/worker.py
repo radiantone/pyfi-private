@@ -599,153 +599,62 @@ class WorkerService:
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             logging.info("database_actions: Starting...")
+            session = scoped_session(self.sm)
             while True:
                 logging.info("database_actions: loop")
-                with self.get_session(self.database) as session:
-                    logging.info("database_actions: Getting processor")
-                    processor = (
-                        session.query(ProcessorModel)
-                        .filter_by(id=self.processor.id)
-                        .first()
-                    )
-                    logging.info("database_actions: Got processor %s", processor)
-                    # snapshot=tracemalloc.take_snapshot()
-                    # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
-                    #    logging.debug("top_current %s %s", i, stat)
+                logging.info("database_actions: Getting processor")
+                processor = (
+                    session.query(ProcessorModel)
+                    .filter_by(id=self.processor.id)
+                    .first()
+                )
+                logging.info("database_actions: Got processor %s", processor)
+                # snapshot=tracemalloc.take_snapshot()
+                # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
+                #    logging.debug("top_current %s %s", i, stat)
 
-                    # session.refresh(processor)
-                    # Check if any work has been assigned to me and then do it
-                    # This will pause the task execution for this worker until the
-                    # work is complete
-                    do_work()
+                # session.refresh(processor)
+                # Check if any work has been assigned to me and then do it
+                # This will pause the task execution for this worker until the
+                # work is complete
+                do_work()
 
-                    _plugs = {}
+                _plugs = {}
 
-                    logging.debug("DBACTION: Processor %s", processor)
-                    logging.debug(
-                        "Checking main_queue[%s] with %s items",
-                        self.size,
-                        self.main_queue.qsize(),
-                    )
-                    logging.debug("---")
-                    logging.info("database_actions: Waiting on main_queue")
-                    _signal = self.main_queue.get()
-                    logging.info(
-                        "database_actions: main_queue: Got messages %s", _signal
-                    )
-                    logging.debug("---")
-                    logging.info("SIGNAL: %s", _signal)
+                logging.debug("DBACTION: Processor %s", processor)
+                logging.debug(
+                    "Checking main_queue[%s] with %s items",
+                    self.size,
+                    self.main_queue.qsize(),
+                )
+                logging.debug("---")
+                logging.info("database_actions: Waiting on main_queue")
+                _signal = self.main_queue.get()
+                logging.info(
+                    "database_actions: main_queue: Got messages %s", _signal
+                )
+                logging.debug("---")
+                logging.info("SIGNAL: %s", _signal)
 
-                    if _signal["signal"] == "received":
-                        try:
-                            logging.info("RECEIVED SIGNAL %s", _signal)
-
-                            for _socket in processor.sockets:
-                                logging.info(
-                                    "database_actions: Checking sender %s for task %s",
-                                    _signal["sender"],
-                                    _socket.task.name,
-                                )
-                                if _socket.task.name == _signal["sender"]:
-                                    logging.debug(
-                                        "RECEIVED SIGNAL: FOUND TASK %s", _socket.task
-                                    )
-                                    parent = None
-
-                                    received = datetime.now()
-                                    logging.debug("Found socket: %s", _socket)
-
-                                    if "parent" not in _signal["kwargs"]:
-                                        _signal["kwargs"]["parent"] = str(uuid4())
-                                        logging.debug(
-                                            "NEW PARENT %s", _signal["kwargs"]["parent"]
-                                        )
-                                        _signal["kwargs"][_socket.task.id] = []
-                                        myid = _signal["kwargs"]["parent"]
-                                    else:
-                                        parent = _signal["kwargs"]["parent"]
-                                        myid = str(uuid4())
-
-                                    _signal["kwargs"]["myid"] = myid
-                                    # For next call
-                                    _signal["kwargs"]["parent"] = myid
-
-                                    if "tracking" not in _signal["kwargs"]:
-                                        _signal["kwargs"]["tracking"] = str(uuid4())
-
-                                    _signal["kwargs"]["received"] = str(received)
-                                    processor_path = (
-                                        _socket.queue.name
-                                        + "."
-                                        + processor.name.replace(" ", ".")
-                                    )
-
-                                    _data = [
-                                        "roomsg",
-                                        {
-                                            "channel": "task",
-                                            "state": "received",
-                                            "task": _socket.task.name,
-                                            "module": _socket.task.module,
-                                            "date": str(received),
-                                            "room": processor.name,
-                                        },
-                                    ]
-
-                                    # self.queue.put(_data)
-
-                                    call = CallModel(
-                                        id=myid,
-                                        name=processor.module + "." + _socket.task.name,
-                                        taskparent=_signal["taskparent"],
-                                        socket=_socket,
-                                        parent=parent,
-                                        tracking=_signal["kwargs"]["tracking"],
-                                        resultid="celery-task-meta-"
-                                        + _signal["taskid"],
-                                        celeryid=_signal["taskid"],
-                                        task_id=_socket.task.id,
-                                        state="received",
-                                    )
-
-                                    session.add(call)
-                                    event = EventModel(
-                                        name="received",
-                                        note="Received task "
-                                        + processor.module
-                                        + "."
-                                        + _socket.task.name,
-                                    )
-
-                                    session.add(event)
-                                    call.events += [event]
-
-                                    processor.requested_status = "ready"
-                                    session.commit()
-                                    logging.debug(
-                                        "CREATED CALL %s %s", myid, _signal["taskid"]
-                                    )
-
-                                    self.queue.put(_data)
-                                    logging.info(
-                                        "database_actions: Replying to received_queued %s",
-                                        _signal["kwargs"],
-                                    )
-                                    self.received_queue.put(_signal["kwargs"])
-                        except:
-                            import traceback
-
-                            print(traceback.format_exc())
-
-                    if _signal["signal"] == "prerun":
-                        logging.debug("Task PRERUN: %s", _signal)
+                if _signal["signal"] == "received":
+                    try:
+                        logging.info("RECEIVED SIGNAL %s", _signal)
 
                         for _socket in processor.sockets:
+                            logging.info(
+                                "database_actions: Checking sender %s for task %s",
+                                _signal["sender"],
+                                _socket.task.name,
+                            )
                             if _socket.task.name == _signal["sender"]:
-
+                                logging.debug(
+                                    "RECEIVED SIGNAL: FOUND TASK %s", _socket.task
+                                )
                                 parent = None
 
-                                started = datetime.now()
+                                received = datetime.now()
+                                logging.debug("Found socket: %s", _socket)
+
                                 if "parent" not in _signal["kwargs"]:
                                     _signal["kwargs"]["parent"] = str(uuid4())
                                     logging.debug(
@@ -755,7 +664,16 @@ class WorkerService:
                                     myid = _signal["kwargs"]["parent"]
                                 else:
                                     parent = _signal["kwargs"]["parent"]
+                                    myid = str(uuid4())
 
+                                _signal["kwargs"]["myid"] = myid
+                                # For next call
+                                _signal["kwargs"]["parent"] = myid
+
+                                if "tracking" not in _signal["kwargs"]:
+                                    _signal["kwargs"]["tracking"] = str(uuid4())
+
+                                _signal["kwargs"]["received"] = str(received)
                                 processor_path = (
                                     _socket.queue.name
                                     + "."
@@ -766,572 +684,653 @@ class WorkerService:
                                     "roomsg",
                                     {
                                         "channel": "task",
-                                        "state": "running",
+                                        "state": "received",
                                         "task": _socket.task.name,
                                         "module": _socket.task.module,
-                                        "date": str(started),
+                                        "date": str(received),
                                         "room": processor.name,
                                     },
                                 ]
 
-                                self.queue.put(_data)
+                                # self.queue.put(_data)
 
-                                sourceplug = None
-                                logging.debug(
-                                    "SOCKET TARGET PLUGS %s", _socket.sourceplugs
+                                call = CallModel(
+                                    id=myid,
+                                    name=processor.module + "." + _socket.task.name,
+                                    taskparent=_signal["taskparent"],
+                                    socket=_socket,
+                                    parent=parent,
+                                    tracking=_signal["kwargs"]["tracking"],
+                                    resultid="celery-task-meta-"
+                                    + _signal["taskid"],
+                                    celeryid=_signal["taskid"],
+                                    task_id=_socket.task.id,
+                                    state="received",
                                 )
 
-                                # TODO: Still needed?
-                                for source in _socket.sourceplugs:
-                                    logging.debug(
-                                        "SOCKET QUEUE IS %s, SOURCE QUEUE is %s",
-                                        _socket.queue.name,
-                                        source.queue.name,
-                                    )
-                                    if source.queue.name == _socket.queue.name:
-                                        sourceplug = source
-                                        break
+                                session.add(call)
+                                event = EventModel(
+                                    name="received",
+                                    note="Received task "
+                                    + processor.module
+                                    + "."
+                                    + _socket.task.name,
+                                )
 
-                                logging.debug("Looking up call %s", _signal["taskid"])
+                                session.add(event)
+                                call.events += [event]
+
+                                processor.requested_status = "ready"
+                                session.commit()
+                                logging.debug(
+                                    "CREATED CALL %s %s", myid, _signal["taskid"]
+                                )
+
+                                self.queue.put(_data)
+                                logging.info(
+                                    "database_actions: Replying to received_queued %s",
+                                    _signal["kwargs"],
+                                )
+                                self.received_queue.put(_signal["kwargs"])
+                    except:
+                        import traceback
+
+                        print(traceback.format_exc())
+
+                if _signal["signal"] == "prerun":
+                    logging.debug("Task PRERUN: %s", _signal)
+
+                    for _socket in processor.sockets:
+                        if _socket.task.name == _signal["sender"]:
+
+                            parent = None
+
+                            started = datetime.now()
+                            if "parent" not in _signal["kwargs"]:
+                                _signal["kwargs"]["parent"] = str(uuid4())
+                                logging.debug(
+                                    "NEW PARENT %s", _signal["kwargs"]["parent"]
+                                )
+                                _signal["kwargs"][_socket.task.id] = []
+                                myid = _signal["kwargs"]["parent"]
+                            else:
+                                parent = _signal["kwargs"]["parent"]
+
+                            processor_path = (
+                                _socket.queue.name
+                                + "."
+                                + processor.name.replace(" ", ".")
+                            )
+
+                            _data = [
+                                "roomsg",
+                                {
+                                    "channel": "task",
+                                    "state": "running",
+                                    "task": _socket.task.name,
+                                    "module": _socket.task.module,
+                                    "date": str(started),
+                                    "room": processor.name,
+                                },
+                            ]
+
+                            self.queue.put(_data)
+
+                            sourceplug = None
+                            logging.debug(
+                                "SOCKET TARGET PLUGS %s", _socket.sourceplugs
+                            )
+
+                            # TODO: Still needed?
+                            for source in _socket.sourceplugs:
+                                logging.debug(
+                                    "SOCKET QUEUE IS %s, SOURCE QUEUE is %s",
+                                    _socket.queue.name,
+                                    source.queue.name,
+                                )
+                                if source.queue.name == _socket.queue.name:
+                                    sourceplug = source
+                                    break
+
+                            logging.debug("Looking up call %s", _signal["taskid"])
+                            call = (
+                                session.query(CallModel)
+                                .filter_by(celeryid=_signal["taskid"])
+                                .first()
+                            )
+
+                            if call is None:
+                                logging.debug("Sleeping 1...")
+                                time.sleep(1)
+
+                                logging.debug(
+                                    "Looking up call 2 %s ", _signal["taskid"]
+                                )
                                 call = (
                                     session.query(CallModel)
                                     .filter_by(celeryid=_signal["taskid"])
                                     .first()
                                 )
 
-                                if call is None:
-                                    logging.debug("Sleeping 1...")
-                                    time.sleep(1)
+                            if call is not None:
 
-                                    logging.debug(
-                                        "Looking up call 2 %s ", _signal["taskid"]
-                                    )
-                                    call = (
-                                        session.query(CallModel)
-                                        .filter_by(celeryid=_signal["taskid"])
-                                        .first()
-                                    )
+                                call.parent = parent
+                                _signal["kwargs"]["myid"] = call.id
+                                _signal["kwargs"]["parent"] = call.id
 
-                                if call is not None:
+                                logging.debug("RETRIEVED CALL %s", call)
 
-                                    call.parent = parent
-                                    _signal["kwargs"]["myid"] = call.id
-                                    _signal["kwargs"]["parent"] = call.id
-
-                                    logging.debug("RETRIEVED CALL %s", call)
-
-                                    event = EventModel(
-                                        name="prerun",
-                                        note="Prerun for task "
-                                        + processor.module
-                                        + "."
-                                        + _socket.task.name,
-                                    )
-                                    call.tracking = _signal["kwargs"]["tracking"]
-                                    session.add(event)
-                                    call.events += [event]
-                                    session.add(call.socket)
-                                    session.add(call)
-                                    session.commit()
-                                else:
-                                    logging.warning(
-                                        "No Call found with celeryid=[%s]",
-                                        _signal["taskid"],
-                                    )
-                                    # log error event
-                                    session.rollback()
-
-                                _signal["kwargs"]["plugs"] = _plugs
-                                logging.debug(
-                                    "Putting %s on PRERUN_QUEUE", _signal["kwargs"]
-                                )
-                                self.prerun_queue.put(_signal["kwargs"])
-                                logging.debug(
-                                    "Done Putting %s on PRERUN_QUEUE", _signal["kwargs"]
-                                )
-
-                    if _signal["signal"] == "postrun":
-                        """
-                        Task has completed, now we need to determine how to send the results to downstream plugs
-                        """
-                        import json
-                        import pickle
-                        from datetime import datetime
-                        from urllib.parse import urlparse
-
-                        from rejson import Client, Path
-
-                        logging.debug("POSTRUN: SIGNAL: %s", _signal)
-                        logging.debug("POSTRUN: KWARGS: %s", _signal["kwargs"])
-                        task_kwargs = _signal["kwargs"]
-                        plugs = task_kwargs["plugs"]
-
-                        pass_kwargs = {}
-
-                        if "tracking" in task_kwargs:
-                            pass_kwargs["tracking"] = task_kwargs["tracking"]
-                        if "parent" in task_kwargs:
-                            pass_kwargs["parent"] = task_kwargs["parent"]
-                            logging.debug("SETTING PARENT: %s", pass_kwargs)
-
-                        myid = task_kwargs["myid"]
-                        pass_kwargs["postrun"] = str(datetime.now())
-
-                        try:
-                            # Is there a call already associated with this task? There should be!
-                            call = session.query(CallModel).filter_by(id=myid).first()
-
-                            logging.debug("CALL QUERY %s", call)
-
-                            # Add postrun event to the call
-                            if call:
-                                if "argument" in _signal["kwargs"]:
-                                    call.argument = _signal["kwargs"]["argument"][
-                                        "name"
-                                    ]
-
-                                call.finished = datetime.now()
-                                call.state = "finished"
                                 event = EventModel(
-                                    name="postrun", note="Postrun for task"
+                                    name="prerun",
+                                    note="Prerun for task "
+                                    + processor.module
+                                    + "."
+                                    + _socket.task.name,
                                 )
-                                rb = redisclient.get(call.resultid)
-                                rbjson = pickle.loads(rb)
-                                logging.info(
-                                    "database_actions: rb result %s %s",
-                                    call.resultid,
-                                    rbjson,
-                                )
-                                celery_db = mongoclient["celery"]
-
-                                insert_res = celery_db.celery_taskmeta.insert_one(
-                                    rbjson
-                                )
-                                logging.info(
-                                    "database_actions: insert_res %s", insert_res
-                                )
-
+                                call.tracking = _signal["kwargs"]["tracking"]
                                 session.add(event)
                                 call.events += [event]
+                                session.add(call.socket)
                                 session.add(call)
                                 session.commit()
                             else:
                                 logging.warning(
-                                    "No pre-existing Call object for id %s", myid
+                                    "No Call found with celeryid=[%s]",
+                                    _signal["taskid"],
                                 )
-                        except:
-                            logging.error("No pre-existing Call object for id %s", myid)
+                                # log error event
+                                session.rollback()
 
-                        sourceplugs = {}
-                        data = {
-                            "module": processor.module,
-                            "date": str(datetime.now()),
-                            "resultkey": "celery-task-meta-" + _signal["taskid"],
-                            "message": "Processor message",
-                            "channel": "task",
-                            "room": processor.name,
-                            "task": _signal["sender"],
-                        }
+                            _signal["kwargs"]["plugs"] = _plugs
+                            logging.debug(
+                                "Putting %s on PRERUN_QUEUE", _signal["kwargs"]
+                            )
+                            self.prerun_queue.put(_signal["kwargs"])
+                            logging.debug(
+                                "Done Putting %s on PRERUN_QUEUE", _signal["kwargs"]
+                            )
 
-                        # Dispatch result to connected plugs
-                        for socket in processor.sockets:
+                if _signal["signal"] == "postrun":
+                    """
+                    Task has completed, now we need to determine how to send the results to downstream plugs
+                    """
+                    import json
+                    import pickle
+                    from datetime import datetime
+                    from urllib.parse import urlparse
 
-                            # Find the socket associated with this task
-                            if socket.task.name == _signal["sender"]:
+                    from rejson import Client, Path
 
-                                for plug in socket.sourceplugs:
-                                    _plugs[plug.name] = []
-                                    sourceplugs[plug.name] = plug
+                    logging.debug("POSTRUN: SIGNAL: %s", _signal)
+                    logging.debug("POSTRUN: KWARGS: %s", _signal["kwargs"])
+                    task_kwargs = _signal["kwargs"]
+                    plugs = task_kwargs["plugs"]
 
-                                # Build path to the task
-                                processor_path = (
-                                    socket.queue.name
-                                    + "."
-                                    + processor.name.replace(" ", ".")
+                    pass_kwargs = {}
+
+                    if "tracking" in task_kwargs:
+                        pass_kwargs["tracking"] = task_kwargs["tracking"]
+                    if "parent" in task_kwargs:
+                        pass_kwargs["parent"] = task_kwargs["parent"]
+                        logging.debug("SETTING PARENT: %s", pass_kwargs)
+
+                    myid = task_kwargs["myid"]
+                    pass_kwargs["postrun"] = str(datetime.now())
+
+                    try:
+                        # Is there a call already associated with this task? There should be!
+                        call = session.query(CallModel).filter_by(id=myid).first()
+
+                        logging.debug("CALL QUERY %s", call)
+
+                        # Add postrun event to the call
+                        if call:
+                            if "argument" in _signal["kwargs"]:
+                                call.argument = _signal["kwargs"]["argument"][
+                                    "name"
+                                ]
+
+                            call.finished = datetime.now()
+                            call.state = "finished"
+                            event = EventModel(
+                                name="postrun", note="Postrun for task"
+                            )
+                            rb = redisclient.get(call.resultid)
+                            rbjson = pickle.loads(rb)
+                            logging.info(
+                                "database_actions: rb result %s %s",
+                                call.resultid,
+                                rbjson,
+                            )
+                            celery_db = mongoclient["celery"]
+
+                            insert_res = celery_db.celery_taskmeta.insert_one(
+                                rbjson
+                            )
+                            logging.info(
+                                "database_actions: insert_res %s", insert_res
+                            )
+
+                            session.add(event)
+                            call.events += [event]
+                            session.add(call)
+                            session.commit()
+                        else:
+                            logging.warning(
+                                "No pre-existing Call object for id %s", myid
+                            )
+                    except:
+                        logging.error("No pre-existing Call object for id %s", myid)
+
+                    sourceplugs = {}
+                    data = {
+                        "module": processor.module,
+                        "date": str(datetime.now()),
+                        "resultkey": "celery-task-meta-" + _signal["taskid"],
+                        "message": "Processor message",
+                        "channel": "task",
+                        "room": processor.name,
+                        "task": _signal["sender"],
+                    }
+
+                    # Dispatch result to connected plugs
+                    for socket in processor.sockets:
+
+                        # Find the socket associated with this task
+                        if socket.task.name == _signal["sender"]:
+
+                            for plug in socket.sourceplugs:
+                                _plugs[plug.name] = []
+                                sourceplugs[plug.name] = plug
+
+                            # Build path to the task
+                            processor_path = (
+                                socket.queue.name
+                                + "."
+                                + processor.name.replace(" ", ".")
+                            )
+
+                            # Create data record for this event
+                            data = {
+                                "module": processor.module,
+                                "date": str(datetime.now()),
+                                "resultkey": "celery-task-meta-"
+                                + _signal["taskid"],
+                                "message": "Processor message",
+                                "channel": "task",
+                                "room": processor.name,
+                                "task": _signal["sender"],
+                            }
+
+                            payload = json.dumps(data)
+                            logging.info("postrun: payload %s", data)
+                            data["message"] = payload
+                            break
+
+                    # Add task result to data record
+                    _r = _signal["result"]
+                    logging.debug("RESULT2: %s %s", type(_r), _r)
+                    try:
+                        result = json.dumps(_r, indent=4)
+                    except:
+                        result = str(_r)
+
+                    data["duration"] = _signal["duration"]
+                    data["message"] = json.dumps(result)
+                    data["message"] = json.dumps(data)
+                    data["error"] = False
+
+                    logging.debug("REDIS JSON: Connecting to %s", self.backend)
+                    rj = Client(
+                        host=urlparse(CONFIG.get("redis", "uri")).hostname,
+                        port=6379,
+                        decode_responses=True,
+                    )
+                    rj.jsonset(
+                        "celery-task-result-" + _signal["taskid"],
+                        Path.rootPath(),
+                        _r,
+                    )
+                    logging.debug(
+                        "REDIS JSON:%s %s",
+                        "celery-task-result-" + _signal["taskid"],
+                        _r,
+                    )
+                    logging.info("postrun: result: %s", result)
+                    if isinstance(_r, TaskInvokeException):
+                        data["error"] = True
+                        data["message"] = _r.tb
+
+                    data["state"] = "postrun"
+
+                    logging.debug("DATA2: %s", data)
+                    logging.debug("EMITTING ROOMSG: %s", data)
+
+                    # Put data record into queue for emission
+                    self.queue.put(["roomsg", data])
+
+                    # Put log event into queue for emission
+                    self.queue.put(
+                        [
+                            "roomsg",
+                            {
+                                "channel": "log",
+                                "date": str(datetime.now()),
+                                "room": processor.name,
+                                "message": "A log message!",
+                            },
+                        ]
+                    )
+
+                    logging.debug("PLUGS-: %s", plugs)
+
+                    pipelines = []
+
+                    for pname in sourceplugs:
+                        logging.debug("PLUG Pname: %s", pname)
+                        processor_plug = None
+
+                        if pname not in sourceplugs:
+                            logging.warning("%s plug not in %s", pname, sourceplugs)
+                            continue
+
+                        processor_plug = sourceplugs[pname]
+
+                        if data["error"] and processor_plug.type != "ERROR":
+                            logging.debug(
+                                "Skipping non-error processor plug {} for data error {}".format(
+                                    processor_plug, data
                                 )
+                            )
+                            continue
 
-                                # Create data record for this event
-                                data = {
-                                    "module": processor.module,
-                                    "date": str(datetime.now()),
-                                    "resultkey": "celery-task-meta-"
-                                    + _signal["taskid"],
-                                    "message": "Processor message",
-                                    "channel": "task",
-                                    "room": processor.name,
-                                    "task": _signal["sender"],
-                                }
+                        logging.info("postrun: Using PLUG: %s", processor_plug)
 
-                                payload = json.dumps(data)
-                                logging.info("postrun: payload %s", data)
-                                data["message"] = payload
-                                break
+                        if processor_plug is None:
+                            logging.warning(
+                                "No plug named [%s] found for processor[%s]",
+                                pname,
+                                processor.name,
+                            )
+                            continue
 
-                        # Add task result to data record
-                        _r = _signal["result"]
-                        logging.debug("RESULT2: %s %s", type(_r), _r)
-                        try:
-                            result = json.dumps(_r, indent=4)
-                        except:
-                            result = str(_r)
-
-                        data["duration"] = _signal["duration"]
-                        data["message"] = json.dumps(result)
-                        data["message"] = json.dumps(data)
-                        data["error"] = False
-
-                        logging.debug("REDIS JSON: Connecting to %s", self.backend)
-                        rj = Client(
-                            host=urlparse(CONFIG.get("redis", "uri")).hostname,
-                            port=6379,
-                            decode_responses=True,
-                        )
-                        rj.jsonset(
-                            "celery-task-result-" + _signal["taskid"],
-                            Path.rootPath(),
-                            _r,
-                        )
-                        logging.debug(
-                            "REDIS JSON:%s %s",
-                            "celery-task-result-" + _signal["taskid"],
-                            _r,
-                        )
-                        logging.info("postrun: result: %s", result)
-                        if isinstance(_r, TaskInvokeException):
-                            data["error"] = True
-                            data["message"] = _r.tb
-
-                        data["state"] = "postrun"
-
-                        logging.debug("DATA2: %s", data)
-                        logging.debug("EMITTING ROOMSG: %s", data)
-
-                        # Put data record into queue for emission
-                        self.queue.put(["roomsg", data])
-
-                        # Put log event into queue for emission
-                        self.queue.put(
-                            [
-                                "roomsg",
-                                {
-                                    "channel": "log",
-                                    "date": str(datetime.now()),
-                                    "room": processor.name,
-                                    "message": "A log message!",
-                                },
-                            ]
+                        logging.info("postrun: Querying target processor")
+                        target_processor = (
+                            session.query(ProcessorModel)
+                            .filter_by(id=processor_plug.target.processor_id)
+                            .first()
                         )
 
-                        logging.debug("PLUGS-: %s", plugs)
+                        msgs = [(result, _r)]
 
-                        pipelines = []
+                        logging.debug("msgs %s", msgs)
 
-                        for pname in sourceplugs:
-                            logging.debug("PLUG Pname: %s", pname)
-                            processor_plug = None
+                        """
+                        NOTE: Maybe the logic here is for the plug to have its own queue and to invoke an internal
+                        task on that queue. The task accepts the metadata to invoke the actual socket function.
+                        This would result in the plug queue having its own statistics separate from the socket queue
+                        """
 
-                            if pname not in sourceplugs:
-                                logging.warning("%s plug not in %s", pname, sourceplugs)
+                        """
+                        NOTE: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
+                        this signature for the socket after that. BINGO! Now we can track individual queues for each plug
+                        that have their own properties and they will stack up before the actual socket task is called.
+
+                        # For each plug add to a parallel then run as a single task
+
+                        plugqueue = KQueue(,....,...,processor_plug.queue.name,....)     # e.g. pyfi.queue2
+                        parallel(
+                            pipeline(
+                                signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
+                                self.celery.signature(
+                                    target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                            ),
+                            pipeline(
+                                signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
+                                self.celery.signature(
+                                    target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
+                            )
+                        )
+                        """
+                        for msg, _result in msgs:
+                            """We have data in an outbound queue and need to find the associated plug and socket to construct the call
+                            and pass the data along"""
+
+                            if hasattr(
+                                _result, "plugs"
+                            ) and processor_plug.name not in list(
+                                getattr(_result, "plugs")
+                            ):
+                                # This result is select
                                 continue
+                            elif hasattr(
+                                _result, "plugs"
+                            ) and processor_plug.name in list(
+                                getattr(_result, "plugs")
+                            ):
+                                # Pull the result object out
+                                msg = getattr(_result, "result")
+                                try:
+                                    msg = json.dumps(msg, indent=4)
+                                except:
+                                    msg = str(msg)
 
-                            processor_plug = sourceplugs[pname]
+                            key = processor_plug.target.queue.name
+                            # TODO: QUEUENAME Should this just be key?
+                            tkey = (
+                                key
+                                + "."
+                                + fix(target_processor.name)
+                                + "."
+                                + processor_plug.target.task.name
+                            )
 
-                            if data["error"] and processor_plug.type != "ERROR":
+                            logging.info("postrun: tkey %s", tkey)
+                            tkey2 = key + "." + processor_plug.target.task.name
+
+                            logging.debug(
+                                "Sending {} to queue {}".format(msg, tkey)
+                            )
+
+                            if processor_plug.target.queue.qtype == "direct":
+                                logging.debug("Finding processor....")
+
+                                socket = processor_plug.target
+
                                 logging.debug(
-                                    "Skipping non-error processor plug {} for data error {}".format(
-                                        processor_plug, data
+                                    "Invoking {}=>{}({})".format(
+                                        key,
+                                        target_processor.module
+                                        + "."
+                                        + processor_plug.target.task.name,
+                                        msg,
                                     )
                                 )
-                                continue
 
-                            logging.info("postrun: Using PLUG: %s", processor_plug)
-
-                            if processor_plug is None:
-                                logging.warning(
-                                    "No plug named [%s] found for processor[%s]",
-                                    pname,
-                                    processor.name,
-                                )
-                                continue
-
-                            logging.info("postrun: Querying target processor")
-                            target_processor = (
-                                session.query(ProcessorModel)
-                                .filter_by(id=processor_plug.target.processor_id)
-                                .first()
-                            )
-
-                            msgs = [(result, _r)]
-
-                            logging.debug("msgs %s", msgs)
-
-                            """
-                            NOTE: Maybe the logic here is for the plug to have its own queue and to invoke an internal
-                            task on that queue. The task accepts the metadata to invoke the actual socket function.
-                            This would result in the plug queue having its own statistics separate from the socket queue
-                            """
-
-                            """
-                            NOTE: Create a pipeline that invokes the plug queue with internal "plug_task" task, then add
-                            this signature for the socket after that. BINGO! Now we can track individual queues for each plug
-                            that have their own properties and they will stack up before the actual socket task is called.
-
-                            # For each plug add to a parallel then run as a single task
-
-                            plugqueue = KQueue(,....,...,processor_plug.queue.name,....)     # e.g. pyfi.queue2
-                            parallel(
-                                pipeline(
-                                    signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
-                                    self.celery.signature(
-                                        target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
-                                ),
-                                pipeline(
-                                    signature('pyfi.celery.tasks.enqueue', plugqueue, .....),    # Pass data through
-                                    self.celery.signature(
-                                        target_processor.module+'.'+processor_plug.target.task.name, args=(msg,), queue=worker_queue, kwargs=pass_kwargs).delay()
-                                )
-                            )
-                            """
-                            for msg, _result in msgs:
-                                """We have data in an outbound queue and need to find the associated plug and socket to construct the call
-                                and pass the data along"""
-
-                                if hasattr(
-                                    _result, "plugs"
-                                ) and processor_plug.name not in list(
-                                    getattr(_result, "plugs")
-                                ):
-                                    # This result is select
-                                    continue
-                                elif hasattr(
-                                    _result, "plugs"
-                                ) and processor_plug.name in list(
-                                    getattr(_result, "plugs")
-                                ):
-                                    # Pull the result object out
-                                    msg = getattr(_result, "result")
-                                    try:
-                                        msg = json.dumps(msg, indent=4)
-                                    except:
-                                        msg = str(msg)
-
-                                key = processor_plug.target.queue.name
-                                # TODO: QUEUENAME Should this just be key?
-                                tkey = (
-                                    key
-                                    + "."
-                                    + fix(target_processor.name)
-                                    + "."
-                                    + processor_plug.target.task.name
+                                plug_queue = KQueue(
+                                    processor_plug.queue.name,
+                                    Exchange(
+                                        processor_plug.queue.name, type="direct"
+                                    ),
+                                    routing_key=fix(processor.name)
+                                    + ".pyfi.celery.tasks.enqueue",
+                                    message_ttl=processor_plug.queue.message_ttl,
+                                    durable=processor_plug.queue.durable,
+                                    expires=processor_plug.queue.expires,
+                                    # expires=30,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
+                                    queue_arguments={
+                                        "x-message-ttl": 30000,
+                                        "x-expires": 300,
+                                    },
                                 )
 
-                                logging.info("postrun: tkey %s", tkey)
-                                tkey2 = key + "." + processor_plug.target.task.name
-
-                                logging.debug(
-                                    "Sending {} to queue {}".format(msg, tkey)
+                                logging.info(
+                                    "postrun: built plug queue %s", plug_queue
+                                )
+                                # TODO: Task queue
+                                plug_sig = self.celery.signature(
+                                    processor.name + ".pyfi.celery.tasks.enqueue",
+                                    args=(msg,),
+                                    queue=plug_queue,
+                                    kwargs=pass_kwargs,
                                 )
 
-                                if processor_plug.target.queue.qtype == "direct":
-                                    logging.debug("Finding processor....")
+                                plug_queue = KQueue(
+                                    processor_plug.queue.name,
+                                    Exchange(
+                                        processor_plug.queue.name, type="direct"
+                                    ),
+                                    routing_key=tkey,
+                                    message_ttl=processor_plug.queue.message_ttl,
+                                    durable=processor_plug.queue.durable,
+                                    expires=processor_plug.queue.expires,
+                                    # expires=30,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
+                                    # processor_plug.queue.ttl etc
+                                    queue_arguments={
+                                        "x-message-ttl": 30000,
+                                        "x-expires": 300,
+                                    },
+                                )
+                                # Declare worker queue using target queue properties
+                                worker_queue = KQueue(
+                                    tkey,
+                                    Exchange(key, type="direct"),
+                                    routing_key=tkey,
+                                    message_ttl=processor_plug.target.queue.message_ttl,
+                                    durable=processor_plug.target.queue.durable,
+                                    expires=processor_plug.target.queue.expires,
+                                    # expires=30,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
+                                    queue_arguments={
+                                        "x-message-ttl": 30000,
+                                        "x-expires": 300,
+                                    },
+                                )
 
-                                    socket = processor_plug.target
+                                task_queue = KQueue(
+                                    tkey2,
+                                    Exchange(key, type="direct"),
+                                    routing_key=tkey2,
+                                    message_ttl=processor_plug.target.queue.message_ttl,
+                                    durable=processor_plug.target.queue.durable,
+                                    expires=processor_plug.target.queue.expires,
+                                    # expires=30,
+                                    # socket.queue.message_ttl
+                                    # socket.queue.expires
+                                    # TODO: These attributes need to come from Queue model
+                                    queue_arguments={
+                                        "x-message-ttl": 30000,
+                                        "x-expires": 300,
+                                    },
+                                )
 
-                                    logging.debug(
-                                        "Invoking {}=>{}({})".format(
-                                            key,
-                                            target_processor.module
+                                logging.debug("worker queue %s", worker_queue)
+                                logging.debug("task queue %s", worker_queue)
+                                task_sig = None
+
+                                # Create task signature
+                                try:
+                                    logging.debug("PASS_KWARGS: %s", pass_kwargs)
+
+                                    if processor_plug.argument:
+                                        logging.debug(
+                                            "Processor plug is connected to argument: %s",
+                                            processor_plug.argument,
+                                        )
+                                        argument = {
+                                            "name": processor_plug.argument.name,
+                                            "kind": processor_plug.argument.kind,
+                                            "key": processor_plug.target.processor.name
+                                            + "."
+                                            + processor_plug.target.task.module
                                             + "."
                                             + processor_plug.target.task.name,
-                                            msg,
+                                            "module": processor_plug.target.task.module,
+                                            "function": processor_plug.target.task.name,
+                                            "position": processor_plug.argument.position,
+                                        }
+                                        pass_kwargs["argument"] = argument
+                                    else:
+                                        logging.debug(
+                                            "Processor plug not connected to argument."
                                         )
-                                    )
 
-                                    plug_queue = KQueue(
-                                        processor_plug.queue.name,
-                                        Exchange(
-                                            processor_plug.queue.name, type="direct"
-                                        ),
-                                        routing_key=fix(processor.name)
-                                        + ".pyfi.celery.tasks.enqueue",
-                                        message_ttl=processor_plug.queue.message_ttl,
-                                        durable=processor_plug.queue.durable,
-                                        expires=processor_plug.queue.expires,
-                                        # expires=30,
-                                        # socket.queue.message_ttl
-                                        # socket.queue.expires
-                                        # TODO: These attributes need to come from Queue model
-                                        queue_arguments={
-                                            "x-message-ttl": 30000,
-                                            "x-expires": 300,
-                                        },
+                                    plug_task_sig = (
+                                        processor_plug.queue.name
+                                        + "."
+                                        + target_processor.module
+                                        + "."
+                                        + processor_plug.target.task.name
                                     )
 
                                     logging.info(
-                                        "postrun: built plug queue %s", plug_queue
+                                        "postrun: plug_task_sig %s", plug_task_sig
                                     )
-                                    # TODO: Task queue
-                                    plug_sig = self.celery.signature(
-                                        processor.name + ".pyfi.celery.tasks.enqueue",
+                                    # PLUG ROUTING
+                                    task_sig = self.celery.signature(
+                                        plug_task_sig,
                                         args=(msg,),
+                                        # TODO: QUEUENAME
+                                        # queue=plug_queue
+                                        # This will ensure that each "edge" in the flow, which is one plug connecting
+                                        # two sockets, has its own assigned queue for invoking the target task
+                                        # queue=worker_queue,
                                         queue=plug_queue,
                                         kwargs=pass_kwargs,
                                     )
-
-                                    plug_queue = KQueue(
-                                        processor_plug.queue.name,
-                                        Exchange(
-                                            processor_plug.queue.name, type="direct"
-                                        ),
-                                        routing_key=tkey,
-                                        message_ttl=processor_plug.queue.message_ttl,
-                                        durable=processor_plug.queue.durable,
-                                        expires=processor_plug.queue.expires,
-                                        # expires=30,
-                                        # socket.queue.message_ttl
-                                        # socket.queue.expires
-                                        # TODO: These attributes need to come from Queue model
-                                        # processor_plug.queue.ttl etc
-                                        queue_arguments={
-                                            "x-message-ttl": 30000,
-                                            "x-expires": 300,
-                                        },
+                                    """
+                                    task_sig = self.celery.signature(
+                                        target_processor.module
+                                        + "."
+                                        + processor_plug.target.task.name,
+                                        args=(msg,),
+                                        # TODO: QUEUENAME
+                                        # queue=plug_queue
+                                        # This will ensure that each "edge" in the flow, which is one plug connecting
+                                        # two sockets, has its own assigned queue for invoking the target task
+                                        #queue=worker_queue,
+                                        queue=plug_queue,
+                                        kwargs=pass_kwargs,
                                     )
-                                    # Declare worker queue using target queue properties
-                                    worker_queue = KQueue(
-                                        tkey,
-                                        Exchange(key, type="direct"),
-                                        routing_key=tkey,
-                                        message_ttl=processor_plug.target.queue.message_ttl,
-                                        durable=processor_plug.target.queue.durable,
-                                        expires=processor_plug.target.queue.expires,
-                                        # expires=30,
-                                        # socket.queue.message_ttl
-                                        # socket.queue.expires
-                                        # TODO: These attributes need to come from Queue model
-                                        queue_arguments={
-                                            "x-message-ttl": 30000,
-                                            "x-expires": 300,
-                                        },
+                                    """
+                                    delayed = pipeline(task_sig)
+                                    pipelines += [delayed]
+                                    logging.debug("   ADDED TASK SIG: %s", task_sig)
+                                except:
+                                    import traceback
+
+                                    print(traceback.format_exc())
+
+                                if task_sig:
+                                    logging.debug(
+                                        "call complete %s %s %s %s",
+                                        processor_plug.queue.name
+                                        + "."
+                                        + target_processor.module
+                                        + "."
+                                        + processor_plug.target.task.name,
+                                        (msg,),
+                                        plug_queue,
+                                        task_sig,
                                     )
 
-                                    task_queue = KQueue(
-                                        tkey2,
-                                        Exchange(key, type="direct"),
-                                        routing_key=tkey2,
-                                        message_ttl=processor_plug.target.queue.message_ttl,
-                                        durable=processor_plug.target.queue.durable,
-                                        expires=processor_plug.target.queue.expires,
-                                        # expires=30,
-                                        # socket.queue.message_ttl
-                                        # socket.queue.expires
-                                        # TODO: These attributes need to come from Queue model
-                                        queue_arguments={
-                                            "x-message-ttl": 30000,
-                                            "x-expires": 300,
-                                        },
-                                    )
-
-                                    logging.debug("worker queue %s", worker_queue)
-                                    logging.debug("task queue %s", worker_queue)
-                                    task_sig = None
-
-                                    # Create task signature
-                                    try:
-                                        logging.debug("PASS_KWARGS: %s", pass_kwargs)
-
-                                        if processor_plug.argument:
-                                            logging.debug(
-                                                "Processor plug is connected to argument: %s",
-                                                processor_plug.argument,
-                                            )
-                                            argument = {
-                                                "name": processor_plug.argument.name,
-                                                "kind": processor_plug.argument.kind,
-                                                "key": processor_plug.target.processor.name
-                                                + "."
-                                                + processor_plug.target.task.module
-                                                + "."
-                                                + processor_plug.target.task.name,
-                                                "module": processor_plug.target.task.module,
-                                                "function": processor_plug.target.task.name,
-                                                "position": processor_plug.argument.position,
-                                            }
-                                            pass_kwargs["argument"] = argument
-                                        else:
-                                            logging.debug(
-                                                "Processor plug not connected to argument."
-                                            )
-
-                                        plug_task_sig = (
-                                            processor_plug.queue.name
-                                            + "."
-                                            + target_processor.module
-                                            + "."
-                                            + processor_plug.target.task.name
-                                        )
-
-                                        logging.info(
-                                            "postrun: plug_task_sig %s", plug_task_sig
-                                        )
-                                        # PLUG ROUTING
-                                        task_sig = self.celery.signature(
-                                            plug_task_sig,
-                                            args=(msg,),
-                                            # TODO: QUEUENAME
-                                            # queue=plug_queue
-                                            # This will ensure that each "edge" in the flow, which is one plug connecting
-                                            # two sockets, has its own assigned queue for invoking the target task
-                                            # queue=worker_queue,
-                                            queue=plug_queue,
-                                            kwargs=pass_kwargs,
-                                        )
-                                        """
-                                        task_sig = self.celery.signature(
-                                            target_processor.module
-                                            + "."
-                                            + processor_plug.target.task.name,
-                                            args=(msg,),
-                                            # TODO: QUEUENAME
-                                            # queue=plug_queue
-                                            # This will ensure that each "edge" in the flow, which is one plug connecting
-                                            # two sockets, has its own assigned queue for invoking the target task
-                                            #queue=worker_queue,
-                                            queue=plug_queue,
-                                            kwargs=pass_kwargs,
-                                        )
-                                        """
-                                        delayed = pipeline(task_sig)
-                                        pipelines += [delayed]
-                                        logging.debug("   ADDED TASK SIG: %s", task_sig)
-                                    except:
-                                        import traceback
-
-                                        print(traceback.format_exc())
-
-                                    if task_sig:
-                                        logging.debug(
-                                            "call complete %s %s %s %s",
-                                            processor_plug.queue.name
-                                            + "."
-                                            + target_processor.module
-                                            + "."
-                                            + processor_plug.target.task.name,
-                                            (msg,),
-                                            plug_queue,
-                                            task_sig,
-                                        )
-
-                        logging.info("postrun: delayed = parallel(*pipelines).delay()")
-                        delayed = parallel(*pipelines).delay()
-                        logging.info("postrun: delayed %s", delayed)
+                    logging.info("postrun: delayed = parallel(*pipelines).delay()")
+                    delayed = parallel(*pipelines).delay()
+                    logging.info("postrun: delayed %s", delayed)
 
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
 
         def start_database_actions():
-            dbactions = Process(target=database_actions)
-            dbactions.daemon = False
+            dbactions = Thread(target=database_actions)
             dbactions.start()
             logging.debug("database_actions started...")
 
