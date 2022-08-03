@@ -287,7 +287,7 @@ class WorkerService:
 
         if not self._session:
             logging.debug("Creating scoped session")
-            self._session = get_ession()
+            self._session = get_session()
             # self._session = scoped_session(
             #    sessionmaker(autocommit=False, autoflush=True, bind=engine)
             # )
