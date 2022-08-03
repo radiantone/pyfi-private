@@ -327,8 +327,11 @@ class WorkerService:
 
         global HOSTNAME
 
-        self.processor = json.loads(str(processor))
+        self.processor = {}
+        for key, value in json.loads(str(processor)):
+            setattr(self.processor,key,value)
 
+        print("SELF.PROCESSOR",self.processor)
         self.worker = deployment.worker
         self.deployment = deployment
         self.backend = backend
