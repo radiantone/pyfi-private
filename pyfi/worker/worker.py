@@ -329,7 +329,6 @@ class WorkerService:
 
         self.processor = processor
 
-        print("SELF.PROCESSOR",self.processor)
         self.worker = deployment.worker
         self.deployment = deployment
         self.backend = backend
