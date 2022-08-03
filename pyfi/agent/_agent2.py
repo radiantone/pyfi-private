@@ -740,6 +740,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         else:
                                             self.workerclass = WorkerService
 
+                                        session.expunge(processor["processor"])
                                         workerproc = self.workerproc = self.workerclass(
                                             processor["processor"],
                                             size=self.agent_service.size,

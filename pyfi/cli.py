@@ -2740,6 +2740,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     logger.info("Creating WorkerService")
     try:
+        context.obj["database"].session.expunge(processor)
         workerproc = WorkerService(
             processor,
             workdir=dir,
