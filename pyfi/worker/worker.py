@@ -20,7 +20,7 @@ import redis
 tracemalloc.start()
 from functools import partial
 from inspect import Parameter
-from multiprocessing import Condition, Queue
+from multiprocessing import Condition, Queue, Process
 from pathlib import Path
 
 from flask import Flask
@@ -1330,8 +1330,8 @@ class WorkerService:
         # to perform all database interactions. Receives messages from queue
 
         def start_database_actions():
-            dbactions = threading.Thread(target=database_actions)
-            #dbactions.start()
+            dbactions = Process(target=database_actions)
+            dbactions.start()
             logging.debug("database_actions started...")
 
         """ Main worker process/thread"""
