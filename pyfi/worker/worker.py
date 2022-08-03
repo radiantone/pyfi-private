@@ -1331,7 +1331,7 @@ class WorkerService:
 
         def start_database_actions():
             dbactions = threading.Thread(target=database_actions)
-            dbactions.start()
+            #dbactions.start()
             logging.debug("database_actions started...")
 
         """ Main worker process/thread"""
