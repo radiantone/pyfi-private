@@ -1627,7 +1627,7 @@ def update_processor(
     """
     import inspect
 
-    id = context.obj["id"]
+    id = context.obj["id"] if "id" in context.obj else None
 
     if name is not None:
         processor = (

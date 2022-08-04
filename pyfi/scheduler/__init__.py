@@ -184,11 +184,12 @@ class DeployProcessorPlugin(SchedulerPlugin):
             processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
                 session.query(ProcessorModel)
-                .filter(
-                    ProcessorModel.deployments.any(
-                        DeploymentModel.cpus < ProcessorModel.concurrency
-                    )
-                )
+
+                #.filter(
+                #    ProcessorModel.deployments.any(
+                #        DeploymentModel.cpus != ProcessorModel.concurrency
+                #    )
+                #)
                 #.with_for_update()
                 .all()
                 # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
@@ -281,7 +282,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
             # Try to fulfill its concurrency
 
             for processor in processors:
-                logging.debug("Checking processor %s", processor.name)
+                logging.info("Checking processor %s", processor.name)
                 if len(processor.deployments) == 0:
                     # I need to add deployments for this processor
 
@@ -342,12 +343,47 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 logging.debug("No Deployments is: %s", nodeployments)
                 session.commit()
-
+                logging.info("Deployed CPUS %s, %s concurrency %s", deployed_cpus, processor.name, processor.concurrency)
                 if not nodeployments and (deployed_cpus > processor.concurrency):
                     overage_cpus = deployed_cpus - processor.concurrency
                     logging.info("Concurrency overage for processor %s", processor.name)
                     logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
                     logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
+
+                    fixed_deployment = False
+
+                    logging.info("Attempting match for overage....")
+                    for deployment in processor.deployments:
+                        if deployment.cpus == overage_cpus:
+                            # Delete this deployment
+                            processor.deployments.remove(deployment)
+                            session.commit()
+                            logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
+                            fixed_deployment = True
+                            break
+
+                    if not fixed_deployment:
+                        logging.info("Overage match not found. Attempting to reduce deployment CPUs....")
+                        for deployment in processor.deployments:
+                            if deployment.cpus > overage_cpus:
+                                logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
+                                deployment.cpus -= overage_cpus
+                                session.commit()
+                                fixed_deployment = True
+
+                    if not fixed_deployment:
+                        """ Scan all the deployments and if their cpus are less than the overage then
+                        remove that deployment and reduce the overage amount until it reaches zero or we
+                        run out of deployments """
+                        for deployment in processor.deployments:
+                            if deployment.cpus <= overage_cpus:
+                                # Delete this deployment
+                                processor.deployments.remove(deployment)
+                                session.commit()
+                                overage_cpus -= deployment.cpus
+                                logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
+
+                # TODO: Set affected workers status to 'kill' so they restart
 
                 if not nodeployments and (deployed_cpus < processor.concurrency):
                     needed_cpus = processor.concurrency - deployed_cpus
