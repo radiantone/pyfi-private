@@ -352,10 +352,13 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                     fixed_deployment = False
 
+                    kill_workers = []
+
                     logging.info("Attempting match for overage....")
                     for deployment in processor.deployments:
                         if deployment.cpus == overage_cpus:
                             # Delete this deployment
+                            kill_workers += [deployment.worker]
                             processor.deployments.remove(deployment)
                             session.commit()
                             logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
@@ -366,6 +369,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         logging.info("Overage match not found. Attempting to reduce deployment CPUs....")
                         for deployment in processor.deployments:
                             if deployment.cpus > overage_cpus:
+                                kill_workers += [deployment.worker]
                                 logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
                                 deployment.cpus -= overage_cpus
                                 session.commit()
@@ -378,12 +382,16 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         for deployment in processor.deployments:
                             if deployment.cpus <= overage_cpus:
                                 # Delete this deployment
+                                kill_workers += [deployment.worker]
                                 processor.deployments.remove(deployment)
                                 session.commit()
                                 overage_cpus -= deployment.cpus
                                 logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
 
                 # TODO: Set affected workers status to 'kill' so they restart
+                for worker in kill_workers:
+                    worker.status = 'kill'
+                    session.commit()
 
                 if not nodeployments and (deployed_cpus < processor.concurrency):
                     needed_cpus = processor.concurrency - deployed_cpus
