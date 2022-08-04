@@ -2711,7 +2711,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         logging.info("deployment.worker %s", deployment.worker)
         logging.info("workerModel %s", workerModel)
 
-        if deployment.worker.id == workerModel.id:
+        if deployment.worker and deployment.worker.id == workerModel.id:
             logging.info(
                 "Assigning worker deployment based on ID %s", deployment.worker
             )

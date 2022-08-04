@@ -610,7 +610,7 @@ class WorkerService:
                     .filter_by(id=self.processor.id)
                     .first()
                 )
-                logging.info("database_actions: Got processor %s", processor)
+                logging.info("database_actions: Got processor %s", processor.name)
                 # snapshot=tracemalloc.take_snapshot()
                 # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                 #    logging.debug("top_current %s %s", i, stat)
