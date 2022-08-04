@@ -2545,7 +2545,7 @@ class WorkerService:
                                 "taskid": task_id,
                                 "args": args,
                             }
-                            logging.info("POSTRUN PUTTING ON main_queue %s", postrun)
+                            logging.debug("POSTRUN PUTTING ON main_queue %s", postrun)
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 

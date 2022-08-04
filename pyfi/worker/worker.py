@@ -636,14 +636,14 @@ class WorkerService:
                     "database_actions: main_queue: Got messages %s", _signal
                 )
                 logging.debug("---")
-                logging.info("SIGNAL: %s", _signal)
+                logging.debug("SIGNAL: %s", _signal)
 
                 if _signal["signal"] == "received":
                     try:
-                        logging.info("RECEIVED SIGNAL %s", _signal)
+                        logging.debug("RECEIVED SIGNAL %s", _signal)
 
                         for _socket in processor.sockets:
-                            logging.info(
+                            logging.debug(
                                 "database_actions: Checking sender %s for task %s",
                                 _signal["sender"],
                                 _socket.task.name,
@@ -2596,7 +2596,7 @@ class WorkerService:
                                 "args": args,
                             }
 
-                            logging.info("POSTRUN PUTTING ON main_queue %s", postrun)
+                            logging.debug("POSTRUN PUTTING ON main_queue %s", postrun)
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 
