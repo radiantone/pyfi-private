@@ -970,10 +970,23 @@ class AgentMonitorPlugin(AgentPlugin):
                 node.cpus = CPUS
                 agent.node = node
 
+                cpu_percent = psutil.cpu_percent()
+                mem_total = psutil.virtual_memory().total
+                mem_used = psutil.virtual_memory().percent
+                mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
+                node.memsize = str(mem_total)
+                node.memused = mem_used
+                node.freemem = str(mem_free)
+                node.cpuload = cpu_percent
+
+                logging.info("NODE STATS: %s", node)
+
                 agent.status = "running"
                 # agent.cpus = node.cpus
                 agent.port = self.port
                 agent.updated = datetime.now()
+                session.add(node)
+                session.commit()
 
                 logger.debug(
                     "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
