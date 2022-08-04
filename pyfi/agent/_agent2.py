@@ -678,6 +678,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 #
 
                                 if worker_model not in agent.workers:
+                                    session.merge(worker_model)
                                     agent.workers += [worker_model]
 
                                 logging.info("Worker %s created.", worker_model.id)
@@ -978,8 +979,6 @@ class AgentMonitorPlugin(AgentPlugin):
                 node.memused = mem_used
                 node.freemem = str(mem_free)
                 node.cpuload = cpu_percent
-
-                logging.info("NODE STATS: %s", node)
 
                 agent.status = "running"
                 # agent.cpus = node.cpus
