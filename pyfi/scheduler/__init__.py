@@ -341,6 +341,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             )
                             # celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
+                kill_workers = []
+
                 logging.debug("No Deployments is: %s", nodeployments)
                 session.commit()
                 logging.info("Deployed CPUS %s, %s concurrency %s", deployed_cpus, processor.name, processor.concurrency)
@@ -351,8 +353,6 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
 
                     fixed_deployment = False
-
-                    kill_workers = []
 
                     logging.info("Attempting match for overage....")
                     for deployment in processor.deployments:
