@@ -229,7 +229,7 @@
             </div>
           </template>
           <template v-slot:two>
-            <div style="font-size: 0.5em; margin-left: 20px;"/>
+            <div style="font-size: 0.5em; margin-left: 20px;" />
 
             <q-tooltip
               content-style="font-size: 16px"
@@ -239,7 +239,7 @@
             </q-tooltip>
           </template>
         </q-btn-toggle>
-        <q-space/>
+        <q-space />
         <q-input
           dark
           dense
@@ -650,7 +650,7 @@
             {{ status }}
           </q-item-label>
         </q-btn>
-        <q-space/>
+        <q-space />
 
         <q-btn-toggle
           v-model="modeModel"
@@ -667,7 +667,7 @@
           ]"
         >
           <template v-slot:one>
-            <q-icon :name="mdiFlashOutline"/>
+            <q-icon :name="mdiFlashOutline" />
             <q-tooltip
               content-style="font-size: 16px"
               content-class="bg-black text-white"
@@ -677,7 +677,7 @@
           </template>
 
           <template v-slot:two>
-            <q-icon :name="mdiFlash"/>
+            <q-icon :name="mdiFlash" />
             <q-tooltip
               content-style="font-size: 16px"
               content-class="bg-black text-white"
@@ -687,7 +687,7 @@
           </template>
 
           <template v-slot:three>
-            <q-icon :name="mdiWavesArrowRight"/>
+            <q-icon :name="mdiWavesArrowRight" />
             <q-tooltip
               content-style="font-size: 16px"
               content-class="bg-black text-white"
@@ -742,7 +742,7 @@
                 {{ item.description }}
               </q-item-label>
             </q-item-section>
-            <q-space/>
+            <q-space />
           </q-item>
         </q-list>
       </q-scroll-area>
@@ -793,7 +793,7 @@
           >
             <q-toolbar>
               <q-item-label>Queue {{ queuename }}</q-item-label>
-              <q-space/>
+              <q-space />
               <q-btn
                 class="text-primary"
                 flat
@@ -941,7 +941,7 @@
           >
             <q-toolbar>
               <q-item-label>New Queue</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="far fa-envelope"
@@ -1023,11 +1023,11 @@ icon-processor:before {
 }
 </style>
 <script>
-const {v4: uuidv4} = require('uuid')
+const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
 
-import {QSpinnerOval} from 'quasar'
-import {defineComponent, ref} from '@vue/composition-api'
+import { QSpinnerOval } from 'quasar'
+import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'
 import ModelToolPalette from 'src/components/ModelToolPalette.vue'
@@ -1036,9 +1036,9 @@ import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
 
 var filesize = require('filesize')
-const size = filesize.partial({base: 2, standard: 'jedec'})
+const size = filesize.partial({ base: 2, standard: 'jedec' })
 
-import {mappedGetters, mappedActions, Actions, Getters, State, mappedState} from 'src/store/Store'
+import { mappedGetters, mappedActions, Actions, Getters, State, mappedState } from 'src/store/Store'
 
 import 'assets/css/font-awesome.min.css'
 import 'assets/css/flowfont.css'
@@ -1058,7 +1058,7 @@ import {
   mdiEmailCheck
 } from '@mdi/js'
 
-import {io, Socket} from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 
 const socket = io('http://localhost')
 
@@ -1072,10 +1072,10 @@ export default defineComponent({
     Processors,
     Library
   },
-  setup() {
+  setup () {
     return {}
   },
-  created() {
+  created () {
     this.mdiEmailAlert = mdiEmailAlert
     this.mdiEmailFast = mdiEmailFast
     this.mdiEmailCheck = mdiEmailCheck
@@ -1090,7 +1090,7 @@ export default defineComponent({
     const n = this.$q.notify
 
     this.$q.notify = function (opts) {
-      opts.message = new Date().toLocaleDateString('en-us', {hour: '2-digit', minute: '2-digit'}) + ' ' + opts.message
+      opts.message = new Date().toLocaleDateString('en-us', { hour: '2-digit', minute: '2-digit' }) + ' ' + opts.message
       me.$root.$emit('log.message', opts.message)
       n(opts)
     }
@@ -1146,10 +1146,10 @@ export default defineComponent({
   },
   computed: {
     modeModel: {
-      get() {
+      get () {
         return this.mode
       },
-      set(val) {
+      set (val) {
         var me = this
         this.mode = val
 
@@ -1168,25 +1168,25 @@ export default defineComponent({
         console.log('setMode', this.mode)
       }
     },
-    connected() {
+    connected () {
       return this.$store.state.designer.connected
     },
-    streaming() {
+    streaming () {
       return this.$store.state.designer.streaming
     },
-    status() {
+    status () {
       return this.$store.state.designer.message
     },
-    getSurfaceId() {
+    getSurfaceId () {
       return window.toolkit.surfaceId
     }
   },
   methods: {
-    showStats(name, objects) {
+    showStats (name, objects) {
       console.log('showStats', objects)
-      this.$root.$emit('show.objects', {name: name, objects: objects, columns: this.objectcolumns[objects]})
+      this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
-    purgeQueue(name) {
+    purgeQueue (name) {
       DataService.purgeQueue(name)
         .then((res) => {
           this.$q.notify({
@@ -1219,7 +1219,7 @@ export default defineComponent({
       const editor = this.$refs.queueDetailEditor.editor
       editor.setAutoScrollEditorIntoView(true)
     },
-    showQueueDetail(name) {
+    showQueueDetail (name) {
       this.queueDetailData = this.queueDetails[name]
       // const editor = this.$refs.queueDetailEditor.editor;
       this.detailedqueues.forEach((queue) => {
@@ -1229,7 +1229,7 @@ export default defineComponent({
         }
       })
     },
-    listenGlobal() {
+    listenGlobal () {
       var me = this
 
       socket.on('global', (msg) => {
@@ -1362,7 +1362,7 @@ export default defineComponent({
         }
       })
     },
-    showMessagePayload(payload) {
+    showMessagePayload (payload) {
       const editor = this.$refs.resultEditor.editor
       editor.session.setValue(payload)
     },
@@ -1378,10 +1378,9 @@ export default defineComponent({
       const editor = this.$refs.resultEditor.editor
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
-        console.log('edit event')
       })
     },
-    centerNode(id) {
+    centerNode (id) {
       window.toolkit.surface.centerOn(id, {
         doNotAnimate: true,
         onComplete: function () {
@@ -1389,7 +1388,7 @@ export default defineComponent({
         }
       })
     },
-    searchString() {
+    searchString () {
       console.log('Searching for', this.text)
       this.items = []
       this.graph.nodes.forEach((node) => {
@@ -1399,14 +1398,14 @@ export default defineComponent({
         }
       })
     },
-    transmitted() {
+    transmitted () {
       var me = this
       setTimeout(() => {
         me.transmittedSize = size(this.messageSize)
         me.transmitted()
       }, 3000)
     },
-    updateStats() {
+    updateStats () {
       console.log('UPDATE STATS')
 
       var running = 0
@@ -1430,10 +1429,10 @@ export default defineComponent({
       // this.running = running;
       // this.groups = objs['groups'].length;
     },
-    getUuid() {
+    getUuid () {
       return 'key_' + uuidv4()
     },
-    updateQueuedTasks() {
+    updateQueuedTasks () {
       var queued_tasks = 0
 
       this.queuedata.forEach((queue) => {
@@ -1444,7 +1443,7 @@ export default defineComponent({
       console.log('QUEUED TASKS', queued_tasks)
       this.queuedTasks = queued_tasks
     },
-    refreshQueues() {
+    refreshQueues () {
       this.queueloading = true
       console.log('QUEUES REFRESHING')
       DataService.getMessages(this.queuename)
@@ -1459,7 +1458,7 @@ export default defineComponent({
           // show error message
         })
     },
-    toggleSplitter() {
+    toggleSplitter () {
       this.librarydrawer = false
       if (this.splitterModel < 100) {
         this.splitterSave = this.splitterModel
@@ -1468,7 +1467,7 @@ export default defineComponent({
         this.splitterModel = this.splitterSave
       }
     },
-    updateFlow(name) {
+    updateFlow (name) {
       this.flow.filename = name
     },
     dataGenerator: function (el) {
@@ -1491,7 +1490,7 @@ export default defineComponent({
         id: jsPlumbUtil.uuid()
       }
     },
-    tabChanged(tab) {
+    tabChanged (tab) {
       console.log('REFS:', this.$refs)
       console.log('TAB:', tab, this.$refs[tab])
       for (var i = 0; i < this.flows.length; i++) {
@@ -1511,7 +1510,7 @@ export default defineComponent({
       }
     }
   },
-  mounted() {
+  mounted () {
     var me = this
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
@@ -1822,7 +1821,7 @@ export default defineComponent({
       me.$q.loading.hide()
     }, 500)
   },
-  data() {
+  data () {
     return {
       queueDetailContent: '',
       queueDetailColumns: [

@@ -2012,7 +2012,6 @@ export default {
   },
   watch: {
     'undoredo.undoStack': function () {
-      console.log("HISTORY CHANGED!")
     },
     versionsDialog: function (value) {
       if (value) {
@@ -3262,8 +3261,6 @@ export default {
             component: ScriptTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 if (
                   params.e.srcElement.localName == 'span' &&
                   params.e.srcElement.className === 'proc-title'
@@ -3383,8 +3380,6 @@ export default {
             component: RouterTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
@@ -3420,8 +3415,6 @@ export default {
             component: ParallelTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
@@ -3457,8 +3450,6 @@ export default {
             component: PipelineTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
@@ -3494,8 +3485,6 @@ export default {
             component: SegmentTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
@@ -3531,8 +3520,6 @@ export default {
             component: ChordTemplate,
             events: {
               tap: function (params) {
-                console.log('PARAMS:', params);
-
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (

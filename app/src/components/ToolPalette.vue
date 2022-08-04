@@ -1,7 +1,10 @@
 <template>
   <div>
     <q-toolbar class="sidebar node-palette">
-      <img src="~assets/images/pyfi.svg" style="padding-left: 15px; height: 45px; padding-right: 10px;" />
+      <img
+        src="~assets/images/pyfi.svg"
+        style="padding-left: 15px; height: 45px; padding-right: 10px;"
+      >
       <q-btn
         flat
         align="left"
@@ -12,7 +15,10 @@
         style="min-height: 56px; cursor: grabbing; font-size: 1.5em;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Data
         </q-tooltip>
       </q-btn>
@@ -26,7 +32,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Schema
         </q-tooltip>
       </q-btn>
@@ -40,7 +49,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Processor
         </q-tooltip>
       </q-btn>
@@ -55,7 +67,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Port In
         </q-tooltip>
       </q-btn>
@@ -69,7 +84,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Port Out
         </q-tooltip>
       </q-btn>
@@ -91,7 +109,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold sidebar-item"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Process Group
         </q-tooltip>
       </q-btn>
@@ -105,7 +126,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Parallel
         </q-tooltip>
       </q-btn>
@@ -119,7 +143,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Pipeline
         </q-tooltip>
       </q-btn>
@@ -134,7 +161,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Chord
         </q-tooltip>
       </q-btn>
@@ -148,7 +178,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Segment
         </q-tooltip>
       </q-btn>
@@ -196,7 +229,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Router
         </q-tooltip>
       </q-btn>
@@ -210,7 +246,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Database
         </q-tooltip>
       </q-btn>
@@ -224,7 +263,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Chart
         </q-tooltip>
       </q-btn>
@@ -238,7 +280,10 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Label
         </q-tooltip>
       </q-btn>
@@ -252,7 +297,10 @@
         class="text-dark text-bold"
         @click="$router.push('/app')"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           App
         </q-tooltip>
       </q-btn>
@@ -267,40 +315,95 @@
         class="text-dark text-bold"
         @click="openLibrary"
       >
-        <q-tooltip content-style="font-size: 16px" content-class="bg-black text-white">
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
           Library
         </q-tooltip>
       </q-btn>
       <q-space />
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Nodes', nodeStatsColumns, 'nodes')">Nodes:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
+        >Nodes:</a>
         <span class="text-dark">{{ nodes }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Agents', agentStatsColumns,'agents')">Agents:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Agents', agentStatsColumns,'agents')"
+        >Agents:</a>
         <span class="text-dark">{{ agents }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Queues', queueStatsColumns,'queues')">Queues:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Queues', queueStatsColumns,'queues')"
+        >Queues:</a>
         <span class="text-dark">{{ queues }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Processors', procStatsColumns, 'processors')">Processors:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Processors', procStatsColumns, 'processors')"
+        >Processors:</a>
         <span class="text-dark">{{ processors }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Deployments', deployStatsColumns, 'deployments')">Deployments:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Deployments', deployStatsColumns, 'deployments')"
+        >Deployments:</a>
         <span class="text-dark">{{ deployments }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('CPUs', workerStatsColumns, 'workers')">CPUS:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('CPUs', workerStatsColumns, 'workers')"
+        >CPUS:</a>
         <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px; margin-right: 20px;">
-        <a class="link-hover" href="#" @click="showStats('Tasks', taskStatsColumns, 'tasks')">Tasks:</a>
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px; margin-right: 20px;"
+      >
+        <a
+          class="link-hover"
+          href="#"
+          @click="showStats('Tasks', taskStatsColumns, 'tasks')"
+        >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
-      <q-item-label class="text-secondary" style="margin-top: 40px;">
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px;"
+      >
         System Usage:
       </q-item-label>
       <apexchart
@@ -310,8 +413,10 @@
         :options="chartOptions"
         :series="series"
         style="margin-right: 200px;"
-      ></apexchart>
-      <q-item-label class="text-dark">Welcome, Darren!</q-item-label>
+      />
+      <q-item-label class="text-dark">
+        Welcome, Darren!
+      </q-item-label>
       <q-btn
         flat
         aria-label="Menu"
@@ -322,130 +427,223 @@
       >
         <q-menu>
           <q-list dense>
-            <q-item clickable v-close-popup @click="newFlow">
+            <q-item
+              clickable
+              v-close-popup
+              @click="newFlow"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-plus"></q-icon>
+                <q-icon name="fas fa-plus" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 New Flow
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup @click="newQueue">
+            <q-item
+              clickable
+              v-close-popup
+              @click="newQueue"
+            >
               <q-item-section side>
-                <q-icon name="far fa-envelope"></q-icon>
+                <q-icon name="far fa-envelope" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 New Queue
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-table"></q-icon>
+                <q-icon name="fas fa-table" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Summary
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-calculator"></q-icon>
+                <q-icon name="fas fa-calculator" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Counters
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="loadPython">
+            <q-item
+              clickable
+              v-close-popup
+              @click="loadPython"
+            >
               <q-item-section side>
-                <q-icon name="fab fa-python"></q-icon>
+                <q-icon name="fab fa-python" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Load Python
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="far fa-sticky-note"></q-icon>
+                <q-icon name="far fa-sticky-note" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Bulletin Board
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-database"></q-icon>
+                <q-icon name="fas fa-database" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Data Provenance
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-wrench"></q-icon>
+                <q-icon name="fas fa-wrench" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Controller Settings
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-list-alt"></q-icon>
+                <q-icon name="fas fa-list-alt" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Parameter Contexts
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fa fa-history"></q-icon>
+                <q-icon name="fa fa-history" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Flow Configuration History
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fa fa-area-chart"></q-icon>
+                <q-icon name="fa fa-area-chart" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Node Status History
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-project-diagram"></q-icon>
+                <q-icon name="fas fa-project-diagram" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Templates
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-user"></q-icon>
+                <q-icon name="fas fa-user" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Profile
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-question-circle"></q-icon>
+                <q-icon name="fas fa-question-circle" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Help
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-info-circle"></q-icon>
+                <q-icon name="fas fa-info-circle" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 About
               </q-item-section>
             </q-item>
@@ -454,7 +652,10 @@
       </q-btn>
     </q-toolbar>
 
-    <q-dialog v-model="viewStatsDialog" persistent>
+    <q-dialog
+      v-model="viewStatsDialog"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;">
         <q-card-section
           class="bg-secondary"
@@ -483,16 +684,18 @@
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px; width: 100%;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        >
           <q-table
             dense
             :columns="viewStatsColumns"
             :data="viewStatsData"
             row-key="name"
-            flat 
+            flat
             style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
-          >
-          </q-table>
+          />
         </q-card-section>
         <q-card-actions align="right">
           <q-btn
@@ -504,12 +707,17 @@
             v-close-popup
           />
         </q-card-actions>
-                      <q-inner-loading :showing="viewStatsLoader" style="z-index: 9999999;">
-                    <q-spinner-gears size="50px" color="primary" />
-                  </q-inner-loading>
+        <q-inner-loading
+          :showing="viewStatsLoader"
+          style="z-index: 9999999;"
+        >
+          <q-spinner-gears
+            size="50px"
+            color="primary"
+          />
+        </q-inner-loading>
       </q-card>
     </q-dialog>
-
   </div>
 </template>
 <style scoped>
@@ -526,436 +734,438 @@
 }
 </style>
 <script>
-import { SurfaceDrop } from "jsplumbtoolkit-vue2-drop";
-import { mdiCodeBraces } from "@mdi/js";
-import DataService from "./util/DataService";
+/* eslint-disable @typescript-eslint/no-this-alias */
+import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop'
+import { mdiCodeBraces } from '@mdi/js'
+import DataService from './util/DataService'
 
 export default {
-  name: "ToolPalette",
-  props: ["nodes", "agents", "queues", "processors", "tasks", "deployments", "cpus_total", "cpus_running"],
-  created() {
-    this.braces = mdiCodeBraces;
+  name: 'ToolPalette',
+  props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
+  created () {
+    this.braces = mdiCodeBraces
   },
   mounted () {
-    var me = this;
+    var me = this
 
-    console.log("TOOLPALETTE STORE", this.$store);
-    this.$root.$on("show.objects", (objects) => {
-      console.log("show.objects ", objects)
-      me.showStats(objects['name'], objects['columns'], objects['objects'])  
+    console.log('TOOLPALETTE STORE', this.$store)
+    this.$root.$on('show.objects', (objects) => {
+      console.log('show.objects ', objects)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      me.showStats(objects.name, objects.columns, objects.objects)
     })
   },
   methods: {
     showStats (name, columns, objects) {
-      var me = this;
+      var me = this
 
-      this.statname = name;
-      this.viewStatsColumns = columns;
-      this.viewStatsLoading = true;
-      this.viewStatsDialog = true;
-
-      DataService.getObjects(objects).then( (response) => {
+      this.statname = name
+      this.viewStatsColumns = columns
+      this.viewStatsLoader = true
+      this.viewStatsDialog = true
+      me.viewStatsData = []
+      DataService.getObjects(objects).then((response) => {
         me.viewStatsData = response.data
-        console.log(name+" STATS:",response.data)
-        me.viewStatsLoading = false;
+        console.log(name + ' STATS:', response.data)
+        me.viewStatsLoader = false
       })
     },
-    loadPython() {
-      var head = document.getElementById("head");
-      let script = document.createElement("script");
-      script.setAttribute("src", "https://pyscript.net/alpha/pyscript.js");
-      script.setAttribute("type", "application/javascript");
-      head.appendChild(script);
+    loadPython () {
+      var head = document.getElementById('head')
+      const script = document.createElement('script')
+      script.setAttribute('src', 'https://pyscript.net/alpha/pyscript.js')
+      script.setAttribute('type', 'application/javascript')
+      head.appendChild(script)
     },
-    openLibrary() {
-      this.$root.$emit("open.library");
+    openLibrary () {
+      this.$root.$emit('open.library')
     },
-    newFlow() {
-      this.$root.$emit("new.flow");
+    newFlow () {
+      this.$root.$emit('new.flow')
     },
-    newQueue() {
-      this.$root.$emit("new.queue");
-    },
+    newQueue () {
+      this.$root.$emit('new.queue')
+    }
   },
-  data() {
+  data () {
     return {
       viewStatsLoader: false,
       deployStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "hostname",
-          label: "Host",
-          field: "hostname",
-          align: "left",
+          name: 'hostname',
+          label: 'Host',
+          field: 'hostname',
+          align: 'left'
         },
         {
-          name: "cpus",
-          label: "CPUS",
-          field: "cpus",
-          align: "left",
+          name: 'cpus',
+          label: 'CPUS',
+          field: 'cpus',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       taskStatsColumns: [
         {
-          name: "name",
-          label: "Function",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Function',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "module",
-          label: "Module",
-          field: "module",
-          align: "left",
+          name: 'module',
+          label: 'Module',
+          field: 'module',
+          align: 'left'
         },
         {
-          name: "deployments",
-          label: "Deployments",
-          field: "deployments",
-          align: "left",
+          name: 'deployments',
+          label: 'Deployments',
+          field: 'deployments',
+          align: 'left'
         }
       ],
       nodeStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "hostname",
-          label: "Host",
-          field: "hostname",
-          align: "left",
+          name: 'hostname',
+          label: 'Host',
+          field: 'hostname',
+          align: 'left'
         },
         {
-          name: "cpus",
-          label: "CPUS",
-          field: "cpus",
-          align: "left",
+          name: 'cpus',
+          label: 'CPUS',
+          field: 'cpus',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       agentStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "hostname",
-          label: "Host",
-          field: "hostname",
-          align: "left",
+          name: 'hostname',
+          label: 'Host',
+          field: 'hostname',
+          align: 'left'
         },
         {
-          name: "cpus",
-          label: "CPUS",
-          field: "cpus",
-          align: "left",
+          name: 'cpus',
+          label: 'CPUS',
+          field: 'cpus',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       queueStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "id",
-          label: "ID",
-          field: "id",
-          align: "left",
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left'
         },
         {
-          name: "type",
-          label: "Type",
-          field: "type",
-          align: "left",
+          name: 'type',
+          label: 'Type',
+          field: 'type',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       procStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "id",
-          label: "ID",
-          field: "id",
-          align: "left",
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left'
         },
         {
-          name: "concurrency",
-          label: "Concurrency",
-          field: "concurrency",
-          align: "left",
+          name: 'concurrency',
+          label: 'Concurrency',
+          field: 'concurrency',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       workerStatsColumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "owner",
-          label: "Owner",
-          field: "owner",
-          align: "left",
+          name: 'owner',
+          label: 'Owner',
+          field: 'owner',
+          align: 'left'
         },
         {
-          name: "id",
-          label: "ID",
-          field: "id",
-          align: "left",
+          name: 'id',
+          label: 'ID',
+          field: 'id',
+          align: 'left'
         },
         {
-          name: "concurrency",
-          label: "Concurrency",
-          field: "concurrency",
-          align: "left",
+          name: 'concurrency',
+          label: 'Concurrency',
+          field: 'concurrency',
+          align: 'left'
         },
         {
-          name: "created",
-          label: "Created On",
-          field: "created",
-          align: "left",
+          name: 'created',
+          label: 'Created On',
+          field: 'created',
+          align: 'left'
         },
         {
-          name: "lastupdated",
-          label: "Last Updated",
-          field: "lastupdated",
-          align: "left",
+          name: 'lastupdated',
+          label: 'Last Updated',
+          field: 'lastupdated',
+          align: 'left'
         },
         {
-          name: "status",
-          label: "Status",
-          field: "status",
-          align: "left",
+          name: 'status',
+          label: 'Status',
+          field: 'status',
+          align: 'left'
         }
       ],
       viewStatsColumns: [],
       viewStatsData: [],
       viewStatsDialog: false,
       statcolumns: [],
-      statname: "",
+      statname: '',
       statdata: [],
       variablecolumns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "value",
-          label: "Value",
-          field: "value",
-          align: "left",
+          name: 'value',
+          label: 'Value',
+          field: 'value',
+          align: 'left'
         },
         {
-          name: "scope",
-          label: "Scope",
-          field: "scope",
-          align: "left",
-        },
+          name: 'scope',
+          label: 'Scope',
+          field: 'scope',
+          align: 'left'
+        }
       ],
       variabledata: [],
-      mode: "code",
+      mode: 'code',
       series: [
         {
-          data: [12, 14, 2, 47, 42, 15, 47, 75, 65, 19, 14],
-        },
+          data: [12, 14, 2, 47, 42, 15, 47, 75, 65, 19, 14]
+        }
       ],
       chartOptions: {
-        colors: ["#e3e8ec", "#054848"],
+        colors: ['#e3e8ec', '#054848'],
         chart: {
-          type: "bar",
+          type: 'bar',
           width: 100,
           height: 35,
           sparkline: {
-            enabled: true,
-          },
+            enabled: true
+          }
         },
         plotOptions: {
           bar: {
-            columnWidth: "50%",
-          },
+            columnWidth: '50%'
+          }
         },
         labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
         xaxis: {
           crosshairs: {
-            width: 1,
-          },
+            width: 1
+          }
         },
         tooltip: {
           fixed: {
-            enabled: false,
+            enabled: false
           },
           x: {
-            show: false,
+            show: false
           },
           y: {
             title: {
               formatter: function (seriesName) {
-                return "Value";
-              },
-            },
+                return 'Value'
+              }
+            }
           },
           marker: {
-            show: false,
-          },
-        },
-      },
-    };
-  },
-};
+            show: false
+          }
+        }
+      }
+    }
+  }
+}
 </script>

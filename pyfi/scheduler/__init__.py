@@ -72,7 +72,7 @@ class SchedulerPlugin:
         self.interval = interval
         self.name = name
 
-        logging.info("Plugin starting...")
+        logging.debug("Plugin %s starting...", name)
         self.thread = thread = threading.Thread(
             target=self.schedule, args=(self.interval, self.run, args)
         )
@@ -104,7 +104,7 @@ class NodePlugin(SchedulerPlugin):
 
         session = get_session()
         try:
-            logging.info("NodePlugin: Schedule run %s %s", args, kwargs)
+            logging.debug("NodePlugin: Schedule run %s %s", args, kwargs)
 
             scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
 
@@ -118,14 +118,14 @@ class NodePlugin(SchedulerPlugin):
 
                     """Calculate any changes needed by inspecting the nodes, agents, workers, etc"""
                     """ If changes are needed, put read lock on table and make change """
-                    logging.info("Node %s", node)
+                    logging.debug("Node %s", node)
                     agent = node.agent
 
-                    logging.info("Agent %s CPUs", agent.cpus)
+                    logging.debug("Agent %s CPUs", agent.cpus)
                     try:
                         result = requests.get("http://" + agent.hostname + ":8002")
                         if result.status_code == 200:
-                            logging.info("Agent is alive.")
+                            logging.debug("Agent is alive.")
                         else:
                             raise
                     except:
@@ -136,7 +136,7 @@ class NodePlugin(SchedulerPlugin):
 
                     for worker in agent.workers:
                         processor = worker.processor
-                        logging.info(
+                        logging.debug(
                             "Processor %s %s CPU workers",
                             processor.name,
                             processor.concurrency,
@@ -173,11 +173,12 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
         redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
+        nodeployments = self.args
+
         session = get_session()
         try:
-
-            logging.info("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
-            logging.info("Fetching processors to be deployed")
+            logging.debug("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
+            logging.debug("Fetching processors to be deployed")
 
             # Get a random processor that either has less deployments than its concurrency needs
             processors = (
@@ -249,7 +250,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 }
 
             stats = update_stats()
-            logging.info("Publishing stats: %s", json.dumps(stats))
+            logging.debug("Publishing stats: %s", json.dumps(stats))
             redisclient.publish("global", json.dumps(stats))
 
             """
@@ -280,7 +281,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
             # Try to fulfill its concurrency
 
             for processor in processors:
-                logging.info("Checking processor %s", processor)
+                logging.debug("Checking processor %s", processor.name)
                 if len(processor.deployments) == 0:
                     # I need to add deployments for this processor
 
@@ -298,14 +299,14 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
                 # Each node will have n free CPUs. A set of deployments are needed that map the processor concurrency needs
                 # to all available CPUs across nodes.
-                logging.info("Processor concurrency is %s", processor.concurrency)
+                logging.debug("Processor concurrency is %s", processor.concurrency)
 
                 deployed_cpus = 0
 
                 worker_names = []
 
                 for deployment in processor.deployments:
-                    logging.info("   Deployment: CPU %s", deployment.cpus)
+                    logging.debug("   Deployment: CPU %s", deployment.cpus)
                     deployed_cpus += deployment.cpus
 
                     if deployment.worker and deployment.worker.status == "running":
@@ -332,19 +333,27 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             )
                             # celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
                         else:
-                            logging.info(
+                            logging.debug(
                                 "Setting rate limit global for task %s to %s",
                                 _taskp,
                                 processor.ratelimit + units,
                             )
                             # celery.control.rate_limit(_taskp, processor.ratelimit+units)
 
-                logging.info("No Deployments is: %s", self.args)
+                logging.debug("No Deployments is: %s", nodeployments)
                 session.commit()
 
-                if not self.args and (deployed_cpus < processor.concurrency):
+                if not nodeployments and (deployed_cpus > processor.concurrency):
+                    overage_cpus = deployed_cpus - processor.concurrency
+                    logging.info("Concurrency overage for processor %s", processor.name)
+                    logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
+                    logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
+
+                if not nodeployments and (deployed_cpus < processor.concurrency):
                     needed_cpus = processor.concurrency - deployed_cpus
-                    logging.info("Concurrency shortfall, finding %s CPUs", needed_cpus)
+                    logging.info("Concurrency shortfall for processor %s", processor.name)
+                    logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
+                    logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
 
                     if scheduler.nodes:
                         for node in scheduler.nodes:
@@ -363,14 +372,22 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 if worker.deployment:
                                     worker_cpus += worker.deployment.cpus
 
+                            occupied_cpus = 0
+                            #for worker in agent.workers:
+                            #    occupied_cpus += worker.deployment.cpus
+
+                            node_deployments = session.query(DeploymentModel).filter_by(hostname=node.hostname).all()
+                            for deployment in node_deployments:
+                                occupied_cpus += deployment.cpus
+
                             logging.info(
                                 "Agent %s is using %s of its %s cpus",
                                 agent.name,
-                                worker_cpus,
+                                occupied_cpus,
                                 agent.cpus,
                             )
 
-                            if agent.cpus - worker_cpus >= 1:
+                            if agent.cpus - occupied_cpus >= 1:
                                 _cpus = agent.cpus - worker_cpus
                                 if _cpus > needed_cpus:
                                     _cpus = needed_cpus
@@ -409,20 +426,11 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     needed_cpus -= _cpus
                                 else:
                                     logging.warning("_cpus is zero")
+                    else:
+                        logging.info("Scheduler has no nodes.")
 
-                elif deployed_cpus > processor.concurrency:
-                    # Downsize deployments
-                    """
-                    reduce_by = deployed_cpus - processor.concurrency
-
-                    for deployment in processor.deployments:
-                        if deployment.cpus > reduce_by:
-                            deployment.cpus -= reduce_by
-                            deployment.requested_status = "update"
-                    """
-                    pass
-                elif deployed_cpus == processor.concurrency:
-                    logging.info("Processor concurrency needs are met.")
+                if deployed_cpus == processor.concurrency:
+                    logging.info("Processor %s concurrency needs are met.", processor.name)
         finally:
             session.commit()
             session.close()
@@ -435,14 +443,14 @@ class WorkPlugin(SchedulerPlugin):
         session = get_session()
         try:
 
-            logging.info("WorkPlugin: Schedule run %s %s", args, kwargs)
-            logging.info("WorkPlugin: Fetching work")
+            logging.debug("WorkPlugin: Schedule run %s %s", args, kwargs)
+            logging.debug("WorkPlugin: Fetching work")
             all_work = session.query(WorkModel).all()
 
             for work in all_work:
                 # Determine the work request and schedule or run it
                 # Assign the workmodel to a worker
-                logging.info("WorkPlugin: Found work %s", work)
+                logging.debug("WorkPlugin: Found work %s", work)
         finally:
             session.close()
 
@@ -456,13 +464,13 @@ class WatchPlugin(SchedulerPlugin):
         session = get_session()
         try:
 
-            logging.info("WatchPlugin: Schedule run %s %s", args, kwargs)
-            logging.info("WatchPlugin: Checking nodes")
-            logging.info("WatchPlugin: Checking agents")
+            logging.debug("WatchPlugin: Schedule run %s %s", args, kwargs)
+            logging.debug("WatchPlugin: Checking nodes")
+            logging.debug("WatchPlugin: Checking agents")
             agents = session.query(AgentModel).all()
             for agent in agents:
                 try:
-                    logging.info(
+                    logging.debug(
                         "Contacting agent %s at http://%s:%s",
                         agent.name,
                         agent.hostname,
@@ -483,11 +491,11 @@ class WatchPlugin(SchedulerPlugin):
                     session.add(agent)
                     session.commit()
                     session.flush()
-                    logging.info("AGENT %s", agent.status)
-                    logging.error(ex)
+                    logging.debug("AGENT %s", agent.status)
+                    logging.debug(ex)
 
                 for worker in agent.workers:
-                    logging.info(
+                    logging.debug(
                         "Contacting agent worker %s at http://%s:%s",
                         worker.name,
                         worker.hostname,
@@ -508,9 +516,9 @@ class WatchPlugin(SchedulerPlugin):
                         session.add(worker)
                         session.commit()
 
-            logging.info("WatchPlugin: Checking workers")
-            logging.info("WatchPlugin: Checking processors")
-            logging.info("WatchPlugin: Checking plugs")
+            logging.debug("WatchPlugin: Checking workers")
+            logging.debug("WatchPlugin: Checking processors")
+            logging.debug("WatchPlugin: Checking plugs")
 
         finally:
             session.close()

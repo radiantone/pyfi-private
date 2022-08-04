@@ -37,7 +37,7 @@
               flat
               v-model="newfolder"
               class="bg-white text-primary"
-            ></q-input>
+            />
             <q-btn
               dense
               flat
@@ -121,8 +121,8 @@
               :class="darkStyle"
             />
           </q-item-section>
-          <q-item-section
-            ><a
+          <q-item-section>
+            <a
               class="text-secondary"
               style="
                 z-index: 99999;
@@ -132,13 +132,18 @@
                 font-size: 1.3em;
               "
               @click="selectFileOrFolder(item)"
-              >{{ ( item.filename ? item.filename : item.name )}}</a
-            >
+            >{{ ( item.filename ? item.filename : item.name ) }}</a>
           </q-item-section>
           <q-space />
           <q-toolbar>
             <q-space />
-            <q-btn flat dense rounded icon="edit" :class="darkStyle">
+            <q-btn
+              flat
+              dense
+              rounded
+              icon="edit"
+              :class="darkStyle"
+            >
               <q-tooltip
                 v-if="item.type === objecttype"
                 content-style="font-size: 16px"
@@ -169,7 +174,10 @@
       </q-list>
     </q-scroll-area>
 
-    <q-dialog v-model="saveflow" persistent>
+    <q-dialog
+      v-model="saveflow"
+      persistent
+    >
       <q-card
         style="padding: 10px; padding-top: 30px; width: 500px; height: 200px;"
       >
@@ -197,11 +205,17 @@
             <q-toolbar>
               <q-item-label>Save Flow</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-save" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-save"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -232,7 +246,10 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="deleteobject" persistent>
+    <q-dialog
+      v-model="deleteobject"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -258,11 +275,17 @@
             <q-toolbar>
               <q-item-label>Delete {{ deleteobjectname }}</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -295,7 +318,10 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="overwriteflow" persistent>
+    <q-dialog
+      v-model="overwriteflow"
+      persistent
+    >
       <q-card
         style="padding: 10px; padding-top: 30px; width: 500px; height: 200px;"
       >
@@ -323,11 +349,17 @@
             <q-toolbar>
               <q-item-label>Filename Exists</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -361,7 +393,10 @@
     </q-dialog>
 
     <q-inner-loading :showing="loading">
-      <q-spinner-gears size="50px" color="primary" />
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
   </div>
 </template>
@@ -376,46 +411,46 @@ a.text-secondary:hover {
 }
 </style>
 <script>
-import DataService from 'components/util/DataService';
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/restrict-plus-operands,@typescript-eslint/no-this-alias,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-floating-promises */
+import DataService from 'components/util/DataService'
 
-var dd = require('drip-drop');
+var dd = require('drip-drop')
 
 export default {
   components: {},
   computed: {
     darkStyle: function () {
-      if (this.$q.dark.mode) return 'text-grey-6';
-      else return 'text-primary';
-    },
+      if (this.$q.dark.mode) return 'text-grey-6'
+      else return 'text-primary'
+    }
   },
-  props: ['objecttype', 'collection', 'icon', 'toolbar','flowid'],
-  mounted() {
-    this.synchronize();
-    this.$root.$on('update.' + this.collection, this.synchronize);
-    this.$root.$on('save.flow.'+this.flowid, this.saveFlowEvent);
-    this.$root.$on('save.flow.to.folder.'+this.flowid, this.saveToFolderEvent);
+  props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
+  mounted () {
+    this.synchronize()
+    this.$root.$on('update.' + this.collection, this.synchronize)
+    this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
+    this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
   },
 
   beforeDestroy () {
-    this.$root.$off('save.flow'+this.flowid);
-    this.$root.$off('save.flow.to.folder.'+this.flowid);
+    this.$root.$off('save.flow' + this.flowid)
+    this.$root.$off('save.flow.to.folder.' + this.flowid)
   },
   methods: {
-    async doOverwriteFlow() {
-      console.log('doOverwriteFlow');
-      this.saveFlow();
+    async doOverwriteFlow () {
+      console.log('doOverwriteFlow')
+      await this.saveFlow()
     },
-    async saveFlow() {
-      console.log('saveFlow');
-      var me = this;
-      this.loading = true;
+    async saveFlow () {
+      let me = this
+      this.loading = true
       console.log(
         'flow',
         this.flowuuid,
         this.foldername,
         this.flowname,
         this.flowcode
-      );
+      )
       await DataService.newFile(
         'flows',
         this.foldername,
@@ -427,199 +462,196 @@ export default {
         this.flowcode
       )
         .then((response) => {
-          me.saveas = false;
-          me.synchronize();
-          console.log(response.data.id);
+          me.saveas = false
+          me.synchronize()
+          console.log(response.data.id)
           me.$q.notify({
             color: 'secondary',
             timeout: 2000,
             position: 'top',
             message: 'Save flow ' + this.flowname + ' succeeded!',
-            icon: 'save',
-          });
-          me.flowuuid = response.data.id;
-          console.log('this.flowuuid is', this.flowuuid);
-          this.$root.$emit('flow.uuid', this.flowid, this.flowuuid);
+            icon: 'save'
+          })
+          me.flowuuid = response.data.id
+          console.log('this.flowuuid is', this.flowuuid)
+          this.$root.$emit('flow.uuid', this.flowid, this.flowuuid)
         })
         .catch(({ response }) => {
-          console.log(response);
-          me.loading = false;
-          me.saveas = false;
+          console.log(response)
+          me.loading = false
+          me.saveas = false
           if (response.status === 409) {
-            console.log('File name exists ', response.data.id);
-            me.overwriteflow = true;
-            me.flowuuid = response.data.id;
-            me.notifyMessage('dark', 'error', 'The file name already exists.');
+            console.log('File name exists ', response.data.id)
+            me.overwriteflow = true
+            me.flowuuid = response.data.id
+            me.notifyMessage('dark', 'error', 'The file name already exists.')
           }
-        });
-      //DataService call to create or save flow in foldername
-      //with flowcode as the code
+        })
+      // DataService call to create or save flow in foldername
+      // with flowcode as the code
     },
-    saveToFolderEvent(name, uuid, id, flow) {
-      this.flowcode = flow;
-      this.flowname = name;
-      this.flowid = id;
-      this.flowuuid = uuid;
-      this.saveflow = true;
-      this.saveas = true;
-      console.log('saveFlowEvent', uuid, id);
+    saveToFolderEvent (name, uuid, id, flow) {
+      this.flowcode = flow
+      this.flowname = name
+      this.flowid = id
+      this.flowuuid = uuid
+      this.saveflow = true
+      this.saveas = true
     },
-    saveFlowEvent(name, uuid, id, flow) {
-      this.flowcode = flow;
-      this.flowname = name;
-      this.flowid = id;
-      this.flowuuid = uuid;
+    saveFlowEvent (name, uuid, id, flow) {
+      this.flowcode = flow
+      this.flowname = name
+      this.flowid = id
+      this.flowuuid = uuid
       if (uuid === undefined) {
-        this.saveflow = true;
+        this.saveflow = true
       } else {
-        this.saveFlow();
+        this.saveFlow()
       }
-      console.log('saveFlowEvent', uuid, id);
     },
-    addFolder() {
-      var me = this;
-      this.showaddfolder = false;
-      this.showpath = true;
-      this.loading = true;
-      console.log('FOLDERNAME', this.foldername + '/' + this.newfolder);
+    addFolder () {
+      var me = this
+      this.showaddfolder = false
+      this.showpath = true
+      this.loading = true
       DataService.newFolder('flows', this.foldername + '/' + this.newfolder)
         .then(() => {
-          me.synchronize();
+          me.synchronize()
         })
         .catch(function (error) {
-          console.log(error);
-          me.loading = false;
+          console.log(error)
+          me.loading = false
           me.notifyMessage(
             'dark',
             'error',
             'There was an error creating the folder.'
-          );
-        });
+          )
+        })
     },
-    breadcrumbClick(crumb) {
-      console.log('CRUMB:', crumb.path);
-      var path = crumb.path;
+    breadcrumbClick (crumb) {
+      console.log('CRUMB:', crumb.path)
+      var path = crumb.path
       if (crumb.path[0] === '/') {
-        path = path.substr(1);
+        path = path.substr(1)
       }
 
-      var p = path.split('/');
-      var paths = (this.paths = []);
-      var _path = '';
+      var p = path.split('/')
+      var paths = (this.paths = [])
+      var _path = ''
       p.forEach((path) => {
-        _path += '/' + path;
+        _path += '/' + path
         paths.push({
           text: path,
           path: _path,
-          id: paths.length,
-        });
-      });
-      paths[0].icon = 'home';
-      this.navigate(path);
+          id: paths.length
+        })
+      })
+      paths[0].icon = 'home'
+      this.navigate(path)
     },
-    selectFileOrFolder(item) {
-      var me = this;
+    selectFileOrFolder (item) {
+      var me = this
 
-      console.log('selectFileOrFolder ', item.id, item, this.objecttype);
-      item._id = item.id;
+      console.log('selectFileOrFolder ', item.id, item, this.objecttype)
+      item._id = item.id
 
-      this.flowuuid = item.id;
+      this.flowuuid = item.id
       if (item.type === this.objecttype) {
         DataService.getFile(item.id).then((code) => {
-          item.code = code.data;
-          me.flowcode = item.code;
-          console.log('FLOW CODE', item);
-          me.$root.$emit('load.flow', item);
-        });
+          item.code = code.data
+          me.flowcode = item.code
+          console.log('FLOW CODE', item)
+          me.$root.$emit('load.flow', item)
+        })
       } else if (item.type === 'folder') {
-        this.foldername = item.path + '/' + item.filename;
-        var p = this.foldername.split('/');
-        var paths = (this.paths = []);
-        var _path = '';
+        this.foldername = item.path + '/' + item.filename
+        var p = this.foldername.split('/')
+        var paths = (this.paths = [])
+        var _path = ''
         p.forEach((path) => {
-          _path += '/' + path;
+          _path += '/' + path
           paths.push({
             text: path,
             path: _path,
-            id: paths.length,
-          });
-        });
-        paths[0].icon = 'home';
-        this.paths = paths;
-        console.log('PATHS:', this.paths);
-        this.synchronize();
+            id: paths.length
+          })
+        })
+        paths[0].icon = 'home'
+        this.paths = paths
+        console.log('PATHS:', this.paths)
+        this.synchronize()
       }
     },
-    notifyMessage(color, icon, message) {
+    notifyMessage (color, icon, message) {
       this.$q.notify({
         color: color,
         timeout: 2000,
         position: 'top',
         message: message,
-        icon: icon,
-      });
+        icon: icon
+      })
     },
-    synchronize() {
-      this.loading = true;
-      var me = this;
+    synchronize () {
+      this.loading = true
+      var me = this
       try {
-        var files = DataService.getFiles(this.collection, this.foldername);
+        var files = DataService.getFiles(this.collection, this.foldername)
         files
           .then(function (result) {
             setTimeout(function () {
-              me.loading = false;
-            }, 100);
-            console.log('LIST FILES:', result);
-            result = result.data;
-            me.items = result;
+              me.loading = false
+            }, 100)
+            console.log('LIST FILES:', result)
+            result = result.data
+            me.items = result
 
             setTimeout(() => {
               for (let i = 0; i < result.length; i++) {
-                if (result[i].type === 'folder') continue;
-                //var el = document.querySelector("[id='" + result[i]._id + "']");
+                if (result[i].type === 'folder') continue
+                // var el = document.querySelector("[id='" + result[i]._id + "']");
                 var el = document.querySelector(
                   "[id='row" + result[i].id + "']"
-                );
+                )
                 if (el) {
-                  //console.log(result[i]._id, el);
+                  // console.log(result[i]._id, el);
 
                   var draghandle = dd.drag(el, {
-                    image: true, // default drag image
-                  });
-                  if (!result[i].columns) result[i].columns = [];
+                    image: true // default drag image
+                  })
+                  if (!result[i].columns) result[i].columns = []
                   draghandle.on('start', function (setData, e) {
-                    console.log('drag:start:', el, e);
-                    setData('object', JSON.stringify({ node: result[i] }));
-                  });
+                    console.log('drag:start:', el, e)
+                    setData('object', JSON.stringify({ node: result[i] }))
+                  })
                 }
               }
-            }, 800);
+            }, 800)
           })
           .catch(function (error) {
-            console.log(error);
-            me.loading = false;
+            console.log(error)
+            me.loading = false
             me.notifyMessage(
               'dark',
               'error',
               'There was an error synchronizing this view.'
-            );
-          });
+            )
+          })
       } catch (error) {
-        me.loading = false;
+        me.loading = false
         me.notifyMessage(
           'dark',
           'error',
           'There was an error synchronizing this view.'
-        );
+        )
       }
     },
-    navigate(folder) {
-      this.foldername = folder;
-      this.synchronize();
+    navigate (folder) {
+      this.foldername = folder
+      this.synchronize()
     },
-    async deleteObject() {
-      console.log('DELETE: ', this.deleteobjectid);
-      var me = this;
+    async deleteObject () {
+      console.log('DELETE: ', this.deleteobjectid)
+      var me = this
       var res = await DataService.deleteFile(this.deleteobjectid)
         .then((result) => {
           me.$q.notify({
@@ -627,24 +659,24 @@ export default {
             timeout: 2000,
             position: 'top',
             message: 'Delete flow ' + this.deleteobjectname + ' succeeded!',
-            icon: 'folder',
-          });
-          me.synchronize();
+            icon: 'folder'
+          })
+          me.synchronize()
         })
         .catch((error) => {
-          console.log(error.response);
-          me.loading = false;
-          me.notifyMessage('negative', 'error', error.response.data.message);
-        });
+          console.log(error.response)
+          me.loading = false
+          me.notifyMessage('negative', 'error', error.response.data.message)
+        })
     },
-    showDeleteObject(item) {
-      this.deleteobjectname = item.name;
-      this.deleteobjectid = item.id;
-      this.deleteobjecttype = item.type;
-      this.deleteobject = true;
-    },
+    showDeleteObject (item) {
+      this.deleteobjectname = item.name
+      this.deleteobjectid = item.id
+      this.deleteobjecttype = item.type
+      this.deleteobject = true
+    }
   },
-  data() {
+  data () {
     return {
       saveas: false,
       saveflow: false,
@@ -658,15 +690,15 @@ export default {
           label: 'Name',
           align: 'left',
           field: 'name',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'action',
           align: 'center',
           label: 'Action',
           icon: 'trashcan',
-          sortable: true,
-        },
+          sortable: true
+        }
       ],
       folderprompt: false,
       foldername: 'Home',
@@ -683,10 +715,10 @@ export default {
         {
           text: 'Home',
           icon: 'home',
-          id: 0,
-        },
-      ],
-    };
-  },
-};
+          id: 0
+        }
+      ]
+    }
+  }
+}
 </script>

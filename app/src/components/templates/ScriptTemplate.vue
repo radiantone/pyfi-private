@@ -2295,7 +2295,7 @@ View Status History - Show list of logs with change in status
 View State - Any persistent state/env variables set by the processor
 View Usage - Docs
 View Connections - Table showing source and target plugs
-Center in View 
+Center in View
 Change Color
 Group
 Copy
@@ -3386,7 +3386,6 @@ export default {
             if (arg.indexOf(":") > -1) {
               arg = arg.split(":")[0];
             }
-            console.log("ARG", arg);
             _args.push(arg);
           }
         }
@@ -3498,7 +3497,7 @@ export default {
     },
     saveProcessor() {
       var me = this;
-      
+
       this.refreshing = true;
       DataService.saveProcessor(this.obj)
         .then(() => {
@@ -3676,7 +3675,6 @@ export default {
       const editor = this.$refs.requirementsEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
       editor.on("change", function () {
-        console.log("edit event");
         me.obj.requirements = editor.getValue();
       });
     },
@@ -3692,7 +3690,6 @@ export default {
       const editor = this.$refs.notesEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
       editor.on("change", function () {
-        console.log("edit event");
         me.obj.notes = editor.getValue();
       });
     },
@@ -3708,7 +3705,6 @@ export default {
       const editor = this.$refs.resultEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
       editor.on("change", function () {
-        console.log("edit event");
         me.updateFunctions(editor.getValue());
       });
     },
@@ -3724,8 +3720,6 @@ export default {
       const editor = this.$refs.myEditor.editor;
       editor.setAutoScrollEditorIntoView(true);
       editor.on("change", function () {
-        console.log("edit event");
-
         me.updateFunctions(editor.getValue());
       });
       if (me.obj.code) {

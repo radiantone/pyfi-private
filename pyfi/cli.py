@@ -18,7 +18,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logging.getLogger("sqlalchemy_oso.session").setLevel(logging.CRITICAL)
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import sys
@@ -4009,6 +4009,7 @@ def ls_nodes(context):
         "Owner",
         "Last Updated",
         "CPUs",
+        "Load",
         "Mem Size",
         "Free Mem",
         "Used Mem",
@@ -4031,9 +4032,10 @@ def ls_nodes(context):
                 node.owner,
                 node.lastupdated,
                 node.cpus,
+                node.cpuload,
                 humanize.naturalsize(node.memsize, gnu=True),
-                humanize.naturalsize(node.freemem, gnu=True),
-                humanize.naturalsize(node.memused, gnu=True),
+                "{:.2f}%".format(round(float(node.freemem), 2)),
+                "{:.2f}%".format(round(float(node.memused), 2)),
                 agent_name,
             ]
         )

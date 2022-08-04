@@ -72,8 +72,9 @@ api = Api(
     description="LambdaFLOW Backend API",
 )
 from sqlalchemy import event
+from pyfi.db import get_session
 
-
+'''
 @contextmanager
 def get_session(**kwargs):
     session = sessionmaker(bind=engine, **kwargs)()
@@ -108,6 +109,7 @@ def get_session(**kwargs):
         session.expunge_all()
         session.close()
         gc.collect()
+'''
 
 
 def create_endpoint(modulename, taskname):
