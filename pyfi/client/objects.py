@@ -306,8 +306,12 @@ class Socket(Base):
 
         self.app.config_from_object(config)
         self.processor = None
+        self.socket = None
 
-        self.name = kwargs["name"]
+        if "name" in kwargs:
+            self.name = kwargs["name"]
+        else:
+            self.name = None
 
         interval = -1
 
@@ -331,17 +335,23 @@ class Socket(Base):
         if "loadbalanced" in kwargs:
             self.loadbalanced = kwargs["loadbalanced"]
 
-        self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
+        if self.name:
+            self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
 
-        if not self.processor:
+        if self.socket and not self.processor:
             self.processor = Processor(id=self.socket.processor.id)
 
-        if "task" in kwargs:
+        if "task" in kwargs and 'module' in kwargs:
             taskname = kwargs["task"]
+            modulename = kwargs["module"]
 
             if type(taskname) is str:
+                self.socket = self.session.query(SocketModel).join(TaskModel, SocketModel.task).filter(TaskModel.name == taskname and TaskModel.module == modulename).first()
+                logging.info("Socket from task %s and module %s: %s", taskname, modulename, self.socket)
+                if self.socket:
+                    self.processor = Processor(id=self.socket.processor.id)
                 self.task = (
-                    self.session.query(TaskModel).filter_by(name=taskname).first()
+                    self.session.query(TaskModel).filter_by(name=taskname, module=modulename).first()
                 )
                 if self.task is None:
                     self.task = TaskModel(name=taskname)

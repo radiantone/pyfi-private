@@ -19,6 +19,13 @@ class ProcessorA(ProcessorBase):
     def get_message(self):
         return "Self message!"
 
+    @socket(
+        name="proc1.do_something",
+        processor="proc1",
+        beat=False,
+        interval=15,
+        queue={"name": "sockq1"},
+    )
     def do_something(message):
         """do_something"""
         from random import randrange
