@@ -291,8 +291,8 @@ class AgentMonitorPlugin(AgentPlugin):
             logger.info(
                 "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
             )
-            if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
-                continue
+            #if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
+            #    continue
 
             try:
                 deployment_worker = mydeployment.worker
