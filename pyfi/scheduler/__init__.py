@@ -373,6 +373,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 kill_workers += [deployment.worker]
                                 logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
                                 deployment.cpus -= overage_cpus
+                                deployment.requested_status = 'update'
                                 session.commit()
                                 fixed_deployment = True
 
@@ -398,12 +399,12 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     session.commit()
 
                 if not nodeployments and (deployed_cpus < processor.concurrency):
-                    needed_cpus = processor.concurrency - deployed_cpus
                     logging.info("Concurrency shortfall for processor %s", processor.name)
                     logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
                     logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
 
                     if scheduler.nodes:
+                        shortfall = processor.concurrency - deployed_cpus
                         for node in scheduler.nodes:
                             agent = node.agent
                             logging.info(
@@ -425,6 +426,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             #    occupied_cpus += worker.deployment.cpus
 
                             node_deployments = session.query(DeploymentModel).filter_by(hostname=node.hostname).all()
+
                             for deployment in node_deployments:
                                 occupied_cpus += deployment.cpus
 
@@ -436,42 +438,52 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             )
 
                             if agent.cpus - occupied_cpus >= 1:
-                                _cpus = agent.cpus - worker_cpus
-                                if _cpus > needed_cpus:
-                                    _cpus = needed_cpus
+                                _cpus = agent.cpus - occupied_cpus
+                                if _cpus > shortfall:
+                                    _cpus = shortfall
                                 if _cpus > 0:
-                                    logging.info(
-                                        "Creating new deployment for %s CPUS", _cpus
-                                    )
-                                    _deployment = DeploymentModel(
-                                        cpus=_cpus,
-                                        processor=processor,
-                                        name=processor.name
-                                        + ".deploy"
-                                        + str(len(processor.deployments)),
-                                        hostname=node.hostname,
-                                    )
-                                    processor.deployments += [_deployment]
-                                    session.add(_deployment)
-                                    session.add(processor)
-                                    logging.info(
-                                        "Deploying processor %s to node %s with %s cpus",
-                                        processor.name,
-                                        node,
-                                        _cpus,
-                                    )
-                                    session.commit()
-                                    redisclient.publish(
-                                        "global",
-                                        json.dumps(
-                                            {
-                                                "processor": processor.id,
-                                                "deployment": str(_deployment),
-                                                "action": "add",
-                                            }
-                                        ),
-                                    )
-                                    needed_cpus -= _cpus
+                                    cpus_met = False
+
+                                    for deployment in processor.deployments:
+                                        deployment.cpus += shortfall
+                                        deployment.requested_status = 'update'
+                                        session.commit()
+                                        break
+
+                                    if not cpus_met:
+
+                                        logging.info(
+                                            "Creating new deployment for %s CPUS", _cpus
+                                        )
+                                        _deployment = DeploymentModel(
+                                            cpus=_cpus,
+                                            processor=processor,
+                                            name=processor.name
+                                            + ".deploy"
+                                            + str(len(processor.deployments)),
+                                            hostname=node.hostname,
+                                        )
+                                        processor.deployments += [_deployment]
+                                        session.add(_deployment)
+                                        session.add(processor)
+                                        logging.info(
+                                            "Deploying processor %s to node %s with %s cpus",
+                                            processor.name,
+                                            node,
+                                            _cpus,
+                                        )
+                                        session.commit()
+                                        redisclient.publish(
+                                            "global",
+                                            json.dumps(
+                                                {
+                                                    "processor": processor.id,
+                                                    "deployment": str(_deployment),
+                                                    "action": "add",
+                                                }
+                                            ),
+                                        )
+                                        shortfall -= _cpus
                                 else:
                                     logging.warning("_cpus is zero")
                     else:
