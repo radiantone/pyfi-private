@@ -270,7 +270,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
     def deployment_monitor(self, session, agent):
 
-        logger.debug("[DeploymentMonitor] Getting deployments %s", agent.hostname)
+        logger.info("[DeploymentMonitor] Getting deployments %s", agent.hostname)
         mydeployments = (
             session.query(DeploymentModel).filter_by(hostname=agent.hostname).all()
         )
@@ -278,8 +278,8 @@ class AgentMonitorPlugin(AgentPlugin):
         # Deploy new processors
         for mydeployment in mydeployments:
 
-            logger.debug(
-                "GOT DEPLOYMENT %s WORKER %s", mydeployment, mydeployment.worker
+            logger.info(
+                "Got deployment %s worker %s", mydeployment, mydeployment.worker
             )
             try:
                 deployment_worker = mydeployment.worker
@@ -287,7 +287,11 @@ class AgentMonitorPlugin(AgentPlugin):
                     deployment_worker
                     and deployment_worker.requested_status == "kill"
                 ):
+                    logging.info("Killing worker process %s",deployment_worker.process)
                     os.kill(deployment_worker.process, signal.SIGTERM)
+                else:
+                    logging.info("Not able to kill worker %s with process %s",deployment_worker.name, deployment_worker.process)
+
                 myprocessor = mydeployment.processor
                 logging.debug("MYPROCESSOR %s", myprocessor)
                 # self.database.session.refresh(
