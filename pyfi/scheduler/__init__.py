@@ -369,6 +369,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         logging.info("Overage match not found. Attempting to reduce deployment CPUs....")
                         for deployment in processor.deployments:
                             if deployment.cpus > overage_cpus:
+                                logging.info("Adding %s to kill_workers",deployment.worker)
                                 kill_workers += [deployment.worker]
                                 logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
                                 deployment.cpus -= overage_cpus
@@ -388,6 +389,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 overage_cpus -= deployment.cpus
                                 logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
 
+                logging.info("KILL WORKERS is %s",kill_workers)
                 # TODO: Set affected workers status to 'kill' so they restart
                 for worker in kill_workers:
                     logging.info("Killing worker %s",worker)
