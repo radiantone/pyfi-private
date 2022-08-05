@@ -329,6 +329,7 @@ class WorkerService:
 
         global HOSTNAME
 
+        self.database = DATABASE
         with self.get_session(self.database) as session:
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
@@ -371,7 +372,6 @@ class WorkerService:
         self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
-        self.database = DATABASE
 
         sm = sessionmaker(bind=self.database)
         self.sm = sm
