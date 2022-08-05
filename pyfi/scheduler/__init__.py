@@ -417,7 +417,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             worker_cpus = 0
                             for worker in agent.workers:
                                 logging.info(
-                                    "Agent worker with %s cpus", worker.concurrency
+                                    "Agent worker %s with %s cpus", worker.name, worker.concurrency
                                 )
                                 if worker.deployment:
                                     worker_cpus += worker.deployment.cpus
@@ -446,7 +446,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     cpus_met = False
 
                                     for deployment in processor.deployments:
-                                        deployment.cpus += shortfall
+                                        deployment.cpus += _cpus
                                         deployment.requested_status = 'update'
                                         session.commit()
                                         cpus_met = True
