@@ -283,13 +283,19 @@ class AgentMonitorPlugin(AgentPlugin):
             if myworker.requested_status == "kill":
                 logging.info("Killing worker process %s", myworker.process)
                 os.kill(myworker.process, signal.SIGTERM)
-                session.delete(myworker)
+                myworker.requested_status = 'remove'
+                session.commit()
 
         for mydeployment in mydeployments:
 
             logger.info(
                 "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
             )
+            if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
+                mydeployment.worker = None
+                agent.workers -= mydeployment.worker
+                session.commit()
+
             try:
                 deployment_worker = mydeployment.worker
                 if (
