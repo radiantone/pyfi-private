@@ -27,6 +27,7 @@ from flask import Flask
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy import exc as sa_exc
 from sqlalchemy import literal_column
+from sqlalchemy import inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 
@@ -739,7 +740,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                         else:
                                             self.workerclass = WorkerService
 
-                                        session.expunge(processor["processor"])
+                                        if not inspect(processor["processor"]).detached:
+                                            session.expunge(processor["processor"])
                                         workerproc = self.workerproc = self.workerclass(
                                             processor["processor"],
                                             size=self.agent_service.size,
