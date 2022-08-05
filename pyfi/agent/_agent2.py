@@ -279,7 +279,7 @@ class AgentMonitorPlugin(AgentPlugin):
         for mydeployment in mydeployments:
 
             logger.info(
-                "Got deployment %s worker %s", mydeployment, mydeployment.worker
+                "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
             )
             try:
                 deployment_worker = mydeployment.worker
@@ -289,8 +289,6 @@ class AgentMonitorPlugin(AgentPlugin):
                 ):
                     logging.info("Killing worker process %s",deployment_worker.process)
                     os.kill(deployment_worker.process, signal.SIGTERM)
-                else:
-                    logging.info("Not able to kill worker. deployment_worker is None")
 
                 myprocessor = mydeployment.processor
                 logging.debug("MYPROCESSOR %s", myprocessor)
