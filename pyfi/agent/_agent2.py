@@ -281,7 +281,7 @@ class AgentMonitorPlugin(AgentPlugin):
         # Deploy new processors
         for myworker in myworkers:
             if myworker.requested_status == "kill":
-                logging.info("Killing worker process %s", myworker.process)
+                logging.debug("Killing worker process %s", myworker.process)
                 os.kill(myworker.process, signal.SIGTERM)
                 myworker.requested_status = 'remove'
                 session.commit()
@@ -300,7 +300,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     deployment_worker
                     and deployment_worker.requested_status == "kill"
                 ):
-                    logging.info("Killing worker process %s",deployment_worker.process)
+                    logging.debug("Killing worker process %s",deployment_worker.process)
                     os.kill(deployment_worker.process, signal.SIGTERM)
 
                 myprocessor = mydeployment.processor
@@ -332,7 +332,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             session.commit()
                             # Restart the worker, which will pull the assigned deployment
                             # from database and restart with new configs
-                            logging.info("Killing worker")
+                            logging.debug("Killing worker")
                             processor["worker"]["process"].kill()
                             processor["worker"] = None
                             mydeployment.requested_status = "ready"
@@ -364,7 +364,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             "id": myprocessor.id,
                         }
                     ]
-                    logging.info("Added processor %s", myprocessor)
+                    logging.debug("Added processor %s", myprocessor)
 
                 # This block looks at the processors and creates a worker if needed
 
@@ -430,11 +430,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if processor["processor"].requested_status == "removed":
                         if processor["worker"] is not None:
-                            logging.info("Killing worker")
+                            logging.debug("Killing worker")
                             try:
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
-                                logging.info("Killed worker")
+                                logging.debug("Killed worker")
                             except:
                                 import traceback
 
@@ -452,18 +452,18 @@ class AgentMonitorPlugin(AgentPlugin):
                             )
                             shutil.rmtree("work/" + processor["processor"])
 
-                        logging.info("Processor is removed")
+                        logging.debug("Processor is removed")
 
                         continue
 
                     if processor["processor"].requested_status == "restart":
                         if processor["worker"] is not None:
-                            logging.info("Killing worker")
+                            logging.debug("Killing worker")
                             try:
 
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
-                                logging.info("Killed worker")
+                                logging.debug("Killed worker")
                             except:
                                 import traceback
 
@@ -475,17 +475,17 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["deployment"].worker.requested_status = "ready"
                         processor["status"] = "stopped"
 
-                        logging.info("Processor is stopped")
+                        logging.debug("Processor is stopped")
 
                         session.add(processor["deployment"].worker)
                         session.add(processor["processor"])
 
                     if processor["processor"].requested_status == "paused":
                         if processor["worker"] is not None:
-                            logging.info("Pausing worker")
+                            logging.debug("Pausing worker")
                             try:
                                 processor["worker"]["process"].suspend()
-                                logging.info("Paused worker")
+                                logging.debug("Paused worker")
                             except:
                                 import traceback
 
@@ -496,7 +496,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["deployment"].worker.status = "paused"
                         processor["deployment"].worker.requested_status = "ready"
 
-                        logging.info("Processor is paused")
+                        logging.debug("Processor is paused")
 
                         session.add(processor["deployment"].worker)
                         session.add(processor["processor"])
@@ -505,10 +505,10 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if processor["processor"].requested_status == "resumed":
                         if processor["worker"] is not None:
-                            logging.info("Resuming worker")
+                            logging.debug("Resuming worker")
                             try:
                                 processor["worker"]["process"].resume()
-                                logging.info("Paused worker")
+                                logging.debug("Paused worker")
                             except:
                                 import traceback
 
@@ -519,7 +519,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["deployment"].worker.status = "resumed"
                         processor["deployment"].worker.requested_status = "ready"
 
-                        logging.info("Processor is resumed")
+                        logging.debug("Processor is resumed")
 
                         session.add(processor["deployment"].worker)
                         session.add(processor["processor"])
@@ -528,11 +528,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     if processor["processor"].requested_status == "stopped":
                         if processor["worker"] is not None:
-                            logging.info("Killing worker")
+                            logging.debug("Killing worker")
                             try:
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
-                                logging.info("Killed worker")
+                                logging.debug("Killed worker")
                             except:
                                 import traceback
 
@@ -543,7 +543,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         processor["deployment"].worker.status = "stopped"
                         processor["deployment"].worker.requested_status = "ready"
 
-                        logging.info("Processor is stopped")
+                        logging.debug("Processor is stopped")
 
                         session.add(processor["deployment"].worker)
                         session.add(processor["processor"])
@@ -616,9 +616,9 @@ class AgentMonitorPlugin(AgentPlugin):
                         )
 
                         if processor["worker"] is None:
-                            logging.info("Worker is none")
+                            logging.debug("Worker is none")
 
-                        logging.info("Updating processor")
+                        logging.debug("Updating processor")
 
                         if processor["worker"] is not None:
                             processor["worker"]["process"].kill()
@@ -640,7 +640,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         ):
                             """If there is no worker model, create one and link to Processor"""
 
-                            logging.info("WORKER IS NONE. CORRECTING")
+                            logging.debug("WORKER IS NONE. CORRECTING")
 
                             worker_model = (
                                 session.query(WorkerModel)
@@ -656,7 +656,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             if worker_model is None:
                                 from uuid import uuid4
 
-                                logging.info("Creating worker model...")
+                                logging.debug("Creating worker model...")
                                 worker_model = WorkerModel(
                                     id=str(uuid4()),
                                     name=self.agent_service.name
@@ -684,8 +684,8 @@ class AgentMonitorPlugin(AgentPlugin):
                             # session.add(agent)
                             session.add(worker_model)
 
-                            logging.info("Worker model is %s", worker_model)
-                            logging.info("Agent workers is %s", agent.workers)
+                            logging.debug("Worker model is %s", worker_model)
+                            logging.debug("Agent workers is %s", agent.workers)
 
                             #
                             # Attach worker to agent
@@ -695,13 +695,13 @@ class AgentMonitorPlugin(AgentPlugin):
                                 session.merge(worker_model)
                                 agent.workers += [worker_model]
 
-                            logging.info("Worker %s created.", worker_model.id)
+                            logging.debug("Worker %s created.", worker_model.id)
                             session.commit()
 
                         if processor["worker"] is None or process_died:
                             # If there is no worker Process create it
                             worker = {}
-                            logging.info(
+                            logging.debug(
                                 "process_died %s and Worker is %s",
                                 process_died,
                                 processor["worker"],
@@ -710,7 +710,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                             os.makedirs(_dir, exist_ok=True)
 
-                            logging.info(
+                            logging.debug(
                                 "Agent: Creating Worker() queue size %s",
                                 self.agent_service.size,
                             )
@@ -742,10 +742,10 @@ class AgentMonitorPlugin(AgentPlugin):
                                     logging.debug(
                                         "-------------------------------------------------------"
                                     )
-                                    logging.info(
+                                    logging.debug(
                                         f"-----------------------Deploying processor {processor['processor'].name}"
                                     )
-                                    logging.info(
+                                    logging.debug(
                                         f"-----------------------Agent {agent.id}"
                                     )
                                     if self.workerclass:
@@ -776,7 +776,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     # deployment.worker = workerproc.worker_model
                                     # deployment.worker.processor = processor['processor']
                                     # Setup the virtualenv only
-                                    logging.info(
+                                    logging.debug(
                                         f"-----------------------Starting {processor['processor'].name}"
                                     )
                                     workerproc.start(start=False)
@@ -795,7 +795,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         continue
 
                                     # Launch from the virtualenv
-                                    logging.info(
+                                    logging.debug(
                                         f"-----------------------Launching {processor['processor'].name}"
                                     )
                                     wprocess = workerproc.launch(
@@ -815,12 +815,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                     try:
                                         deployment.worker.agent = agent
                                     except:
-                                        logging.info(
+                                        logging.debug(
                                             "deployment.worker.agent %s",
                                             deployment.worker.agent,
                                         )
 
-                                    logging.info(
+                                    logging.debug(
                                         "-----------------------Worker process %s started.",
                                         wprocess.pid,
                                     )
@@ -835,14 +835,14 @@ class AgentMonitorPlugin(AgentPlugin):
                                     print(
                                         "**** PROCESS WORKER 2", processor["worker"]
                                     )
-                                    logging.info(
+                                    logging.debug(
                                         "-----------------------workerproc is %s",
                                         workerproc,
                                     )
 
                                     self.workers += [worker]
 
-                                    logging.info(
+                                    logging.debug(
                                         "-------------------------------------------------------"
                                     )
 
@@ -896,7 +896,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent.requested_status = "starting"
                 agent.status = "starting"
                 agent.cpus = self.kwargs["cpus"]
-                logging.info("AgentMonitorPlugin: agent cpus %s", agent.cpus)
+                logging.debug("AgentMonitorPlugin: agent cpus %s", agent.cpus)
 
         def update_queues():
             import json
