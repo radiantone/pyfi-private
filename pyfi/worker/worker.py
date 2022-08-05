@@ -190,21 +190,21 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
         tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
         tkey = processor.module + "." + socket.task.name
         # tkey = socket.queue.name
-        logging.info("dispatcher: processor %s", processor.name)
-        logging.info("dispatcher: plug %s", plug.name)
-        logging.info(
+        loggin.debug("dispatcher: processor %s", processor.name)
+        loggin.debug("dispatcher: plug %s", plug.name)
+        loggin.debug(
             "dispatcher: plug: source %s:%s",
             plug.source.processor.name,
             plug.source.task.name,
         )
-        logging.info(
+        loggin.debug(
             "dispatcher: plug: target %s:%s",
             plug.target.processor.name,
             plug.target.task.name,
         )
-        logging.info("dispatcher: tkey %s", tkey)
-        logging.info("dispatcher: exchange %s", socket.queue.name)
-        logging.info("dispatcher: routing_key %s", tkey)
+        loggin.debug("dispatcher: tkey %s", tkey)
+        loggin.debug("dispatcher: exchange %s", socket.queue.name)
+        loggin.debug("dispatcher: routing_key %s", tkey)
 
         queue = KQueue(
             tkey,
@@ -600,17 +600,17 @@ class WorkerService:
             mongoclient = MongoClient(CONFIG.get("mongodb", "uri"))
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
-            logging.info("database_actions: Starting...")
+            loggin.debug("database_actions: Starting...")
             session = scoped_session(self.sm)
             while True:
-                logging.info("database_actions: loop")
-                logging.info("database_actions: Getting processor")
+                loggin.debug("database_actions: loop")
+                loggin.debug("database_actions: Getting processor")
                 processor = (
                     session.query(ProcessorModel)
                     .filter_by(id=self.processor.id)
                     .first()
                 )
-                logging.info("database_actions: Got processor %s", processor.name)
+                loggin.debug("database_actions: Got processor %s", processor.name)
                 # snapshot=tracemalloc.take_snapshot()
                 # for i, stat in enumerate(snapshot.statistics('filename')[:5], 1):
                 #    logging.debug("top_current %s %s", i, stat)
@@ -630,9 +630,9 @@ class WorkerService:
                     self.main_queue.qsize(),
                 )
                 logging.debug("---")
-                logging.info("database_actions: Waiting on main_queue")
+                loggin.debug("database_actions: Waiting on main_queue")
                 _signal = self.main_queue.get()
-                logging.info(
+                loggin.debug(
                     "database_actions: main_queue: Got messages %s", _signal
                 )
                 logging.debug("---")
@@ -729,7 +729,7 @@ class WorkerService:
                                 )
 
                                 self.queue.put(_data)
-                                logging.info(
+                                loggin.debug(
                                     "database_actions: Replying to received_queued %s",
                                     _signal["kwargs"],
                                 )
@@ -899,7 +899,7 @@ class WorkerService:
                             )
                             rb = redisclient.get(call.resultid)
                             rbjson = pickle.loads(rb)
-                            logging.info(
+                            loggin.debug(
                                 "database_actions: rb result %s %s",
                                 call.resultid,
                                 rbjson,
@@ -909,7 +909,7 @@ class WorkerService:
                             insert_res = celery_db.celery_taskmeta.insert_one(
                                 rbjson
                             )
-                            logging.info(
+                            loggin.debug(
                                 "database_actions: insert_res %s", insert_res
                             )
 
@@ -965,7 +965,7 @@ class WorkerService:
                             }
 
                             payload = json.dumps(data)
-                            logging.info("postrun: payload %s", data)
+                            loggin.debug("postrun: payload %s", data)
                             data["message"] = payload
                             break
 
@@ -998,7 +998,7 @@ class WorkerService:
                         "celery-task-result-" + _signal["taskid"],
                         _r,
                     )
-                    logging.info("postrun: result: %s", result)
+                    loggin.debug("postrun: result: %s", result)
                     if isinstance(_r, TaskInvokeException):
                         data["error"] = True
                         data["message"] = _r.tb
@@ -1046,7 +1046,7 @@ class WorkerService:
                             )
                             continue
 
-                        logging.info("postrun: Using PLUG: %s", processor_plug)
+                        loggin.debug("postrun: Using PLUG: %s", processor_plug)
 
                         if processor_plug is None:
                             logging.warning(
@@ -1056,7 +1056,7 @@ class WorkerService:
                             )
                             continue
 
-                        logging.info("postrun: Querying target processor")
+                        loggin.debug("postrun: Querying target processor")
                         target_processor = (
                             session.query(ProcessorModel)
                             .filter_by(id=processor_plug.target.processor_id)
@@ -1127,7 +1127,7 @@ class WorkerService:
                                 + processor_plug.target.task.name
                             )
 
-                            logging.info("postrun: tkey %s", tkey)
+                            loggin.debug("postrun: tkey %s", tkey)
                             tkey2 = key + "." + processor_plug.target.task.name
 
                             logging.debug(
@@ -1169,7 +1169,7 @@ class WorkerService:
                                     },
                                 )
 
-                                logging.info(
+                                loggin.debug(
                                     "postrun: built plug queue %s", plug_queue
                                 )
                                 # TODO: Task queue
@@ -1273,7 +1273,7 @@ class WorkerService:
                                         + processor_plug.target.task.name
                                     )
 
-                                    logging.info(
+                                    loggin.debug(
                                         "postrun: plug_task_sig %s", plug_task_sig
                                     )
                                     # PLUG ROUTING
@@ -1324,9 +1324,9 @@ class WorkerService:
                                         task_sig,
                                     )
 
-                    logging.info("postrun: delayed = parallel(*pipelines).delay()")
+                    loggin.debug("postrun: delayed = parallel(*pipelines).delay()")
                     delayed = parallel(*pipelines).delay()
-                    logging.info("postrun: delayed %s", delayed)
+                    loggin.debug("postrun: delayed %s", delayed)
 
         # Start database session thread. Provides a single thread and active session
         # to perform all database interactions. Receives messages from queue
@@ -2379,7 +2379,7 @@ class WorkerService:
                                 + socket.task.name,
                                 retries=_processor.retries,
                             )
-                            logging.info(
+                            loggin.debug(
                                 "PLUG TASK: %s",
                                 plug.queue.name
                                 + "."
@@ -2491,7 +2491,7 @@ class WorkerService:
                         @task_received.connect()
                         def pyfi_task_received(sender=None, request=None, **kwargs):
                             try:
-                                logging.info(
+                                loggin.debug(
                                     "Task RECEIVED REQUEST %s %s %s",
                                     request.id,
                                     sender,
@@ -2499,20 +2499,20 @@ class WorkerService:
                                 )
 
                                 _function_name = request.name.rsplit(".")[-1:]
-                                logging.info(
+                                loggin.debug(
                                     "Task Request Parent %s", request.parent_id
                                 )
                                 from datetime import datetime
 
                                 sender = request.task_name.rsplit(".")[-1]
-                                logging.info("RECEIVED SENDER: %s", sender)
+                                loggin.debug("RECEIVED SENDER: %s", sender)
 
                                 if sender == "enqueue":
                                     return
 
                                 tracking = str(uuid4())
-                                logging.info("KWARGS %s", kwargs)
-                                logging.info(
+                                loggin.debug("KWARGS %s", kwargs)
+                                loggin.debug(
                                     "RECEIVED KWARGS:",
                                     {
                                         "signal": "received",
@@ -2531,18 +2531,18 @@ class WorkerService:
                                     "taskparent": request.parent_id,
                                     "taskid": request.id,
                                 }
-                                logging.info(
+                                loggin.debug(
                                     "pyfi_task_received: main_queue: Put %s", message
                                 )
                                 self.main_queue.put(message)
-                                logging.info("PUT RECEIVED KWARGS on queue")
+                                loggin.debug("PUT RECEIVED KWARGS on queue")
 
                                 # Wait for reply
-                                logging.info("WAITING ON received_queue")
+                                loggin.debug("WAITING ON received_queue")
                                 _kwargs = self.received_queue.get()
                                 kwargs.update(_kwargs)
-                                logging.info("GOT RECEIVED REPLY %s", _kwargs)
-                                logging.info("New KWARGS ARE: %s", kwargs)
+                                loggin.debug("GOT RECEIVED REPLY %s", _kwargs)
+                                loggin.debug("New KWARGS ARE: %s", kwargs)
                             except:
                                 print(traceback.format_exc())
 
@@ -2701,7 +2701,7 @@ class WorkerService:
                     # If not using a container, then build the virtualenv
                     if not os.path.exists("venv"):
 
-                        logging.info("Building virtualenv...in %s", os.getcwd())
+                        loggin.debug("Building virtualenv...in %s", os.getcwd())
                         env = VirtualEnvironment(
                             "venv", python=sys.executable, system_site_packages=True
                         )  # inside git directory
