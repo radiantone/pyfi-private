@@ -274,8 +274,16 @@ class AgentMonitorPlugin(AgentPlugin):
         mydeployments = (
             session.query(DeploymentModel).filter_by(hostname=agent.hostname).all()
         )
+        myworkers = (
+            session.query(WorkerModel).filter_by(hostname=agent.hostname).all()
+        )
         session.commit()
         # Deploy new processors
+        for myworker in myworkers:
+            if myworker.requested_status == "kill":
+                logging.info("Killing worker process %s", myworker.process)
+                os.kill(myworker.process, signal.SIGTERM)
+
         for mydeployment in mydeployments:
 
             logger.info(
