@@ -2688,37 +2688,37 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         .filter_by(hostname=hostname)
         .all()
     )
-    logging.info("DEPLOYMENTS for %s are %s", hostname, deployments)
+    logging.debug("DEPLOYMENTS for %s are %s", hostname, deployments)
 
     for deployment in deployments:
-        logging.info("deployment.worker %s", deployment.worker)
-        logging.info("workerModel %s", workerModel)
+        logging.debug("deployment.worker %s", deployment.worker)
+        logging.debug("workerModel %s", workerModel)
 
         if deployment.worker is None and workerModel.deployment is None:
-            logging.info("Assigning deployment worker")
+            logging.debug("Assigning deployment worker")
             deployment.worker = workerModel
             workerModel.deployment = deployment
-            logging.info("Adding deployment worker to session")
+            logging.debug("Adding deployment worker to session")
             context.obj["database"].session.add(deployment)
             context.obj["database"].session.add(workerModel)
             context.obj["database"].session.commit()
             context.obj["database"].session.flush()
-            logging.info("Committed session")
-            logging.info("Assigned deployment %s to worker %s", deployment, workerModel)
+            logging.debug("Committed session")
+            logging.debug("Assigned deployment %s to worker %s", deployment, workerModel)
 
     for deployment in deployments:
         """Just finding the the deployment for the current worker name"""
-        logging.info("deployment.worker %s", deployment.worker)
-        logging.info("workerModel %s", workerModel)
+        logging.debug("deployment.worker %s", deployment.worker)
+        logging.debug("workerModel %s", workerModel)
 
         if deployment.worker and deployment.worker.id == workerModel.id:
-            logging.info(
+            logging.debug(
                 "Assigning worker deployment based on ID %s", deployment.worker
             )
             workerModel.deployment = deployment
             break
 
-        logger.info(
+        logger.debug(
             "Checking %s against worker.id %s", deployment.worker.id, workerModel.id
         )
 
@@ -2732,13 +2732,13 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     dir = "work/" + processor.id
     os.makedirs(dir, exist_ok=True)
-    logger.info("workerModel2 %s Deployment %s", workerModel, workerModel.deployment)
+    logger.debug("workerModel %s Deployment %s", workerModel, workerModel.deployment)
 
     if workerModel.deployment is None:
         logger.warning("This worker has no eligible deployments: %s", workerModel)
         return
 
-    logger.info("Creating WorkerService")
+    logger.debug("Creating WorkerService")
     try:
         context.obj["database"].session.expunge(processor)
         workerproc = WorkerService(
@@ -2761,8 +2761,8 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
         print(traceback.format_exc())
 
-    logger.info("Creating WorkerService Done")
-    logger.info("FLOW WORKER START")
+    logger.debug("Creating WorkerService Done")
+    logger.debug("FLOW WORKER START")
     wprocess = workerproc.start(start=True)
 
     workerModel.requested_status = "ready"
