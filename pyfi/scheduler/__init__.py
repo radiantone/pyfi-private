@@ -390,7 +390,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 # TODO: Set affected workers status to 'kill' so they restart
                 for worker in kill_workers:
+                    logging.info("Killing worker %s",worker)
                     worker.status = 'kill'
+                    session.add(worker)
                     session.commit()
 
                 if not nodeployments and (deployed_cpus < processor.concurrency):
