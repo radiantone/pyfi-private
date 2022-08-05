@@ -323,31 +323,10 @@ class WorkerService:
     ):
         """ """
         import multiprocessing
-        import json
-
-        from pyfi.db.model import Base
-
         global HOSTNAME
 
         self.database = DATABASE
-        """
-        with self.get_session(self.database) as session:
-            _deployment = (
-                session.query(DeploymentModel).filter_by(name=deployment).first()
-            )
-            self.worker = _deployment.worker
-
-            self.deployment = _deployment
-        """
-        with self.get_session(self.database) as session:
-            try:
-                session.add(deployment)
-                logging.info("Added deployment %s to session", deployment.name)
-            except:
-                pass
-
-            self.worker = deployment.worker
-
+        self.worker = deployment.worker
         self.deployment = deployment
         self.backend = backend
         self.broker = broker

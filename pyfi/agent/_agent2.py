@@ -64,8 +64,6 @@ ini = HOME + "/pyfi.ini"
 if os.path.exists(ini):
     CONFIG.read(ini)
 
-engine = create_engine(CONFIG.get("database", "uri"))
-
 
 @app.route("/")
 def health():
@@ -88,6 +86,7 @@ def get_session(**kwargs):
     from pyfi.db import get_session
 
     logger.debug("get_session: Creating session")
+
     session = get_session()
 
     try:
@@ -906,7 +905,6 @@ class AgentMonitorPlugin(AgentPlugin):
             )
 
         def monitor_processors():
-            import sched
             from datetime import datetime
 
             processor_workers = []

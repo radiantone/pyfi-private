@@ -21,7 +21,7 @@ def get_session():
     import configparser
 
     from sqlalchemy import create_engine, event
-    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.orm import sessionmaker, scoped_session
 
     CONFIG = configparser.ConfigParser()
 
@@ -34,7 +34,7 @@ def get_session():
     CONFIG.read(ini)
 
     _engine = create_engine(CONFIG.get("database", "uri"), isolation_level='READ UNCOMMITTED')
-    _session = sessionmaker(bind=_engine)()
+    _session = scoped_session(sessionmaker(autocommit=False, autoflush=True, bind=_engine))
 
     @event.listens_for(_session, "before_commit")
     def receive_after_commit(session):
