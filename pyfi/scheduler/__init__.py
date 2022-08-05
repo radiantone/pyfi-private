@@ -445,8 +445,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 if _cpus > 0:
                                     cpus_met = False
 
-                                    for deployment in processor.deployments:
+                                    for deployment in node_deployments:
                                         deployment.cpus += _cpus
+                                        logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
                                         deployment.requested_status = 'update'
                                         session.commit()
                                         cpus_met = True
