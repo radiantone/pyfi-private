@@ -318,7 +318,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 session.commit()
                                 # Restart the worker, which will pull the assigned deployment
                                 # from database and restart with new configs
-                                logging.info("Killing worker %s", processor["worker"])
+                                logging.info("Killing worker")
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
                                 mydeployment.requested_status = "ready"
