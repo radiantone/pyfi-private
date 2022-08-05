@@ -437,9 +437,9 @@ class WorkerService:
             return data
 
         with self.get_session(self.database) as session:
-            logging.debug("Retrieving deployment by name %s", deployment.name)
+            logging.debug("Retrieving deployment by name %s", _deployment.name)
             _deployment = (
-                session.query(DeploymentModel).filter_by(name=deployment.name).first()
+                session.query(DeploymentModel).filter_by(name=_deployment.name).first()
             )
             _processor = (
                 session.query(ProcessorModel).filter_by(name=processor.name).first()
