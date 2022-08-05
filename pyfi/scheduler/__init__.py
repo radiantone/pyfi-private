@@ -452,6 +452,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                         deployment.requested_status = 'update'
                                         session.commit()
                                         cpus_met = True
+                                        shortfall -= _cpus
                                         break
 
                                     if not cpus_met:
