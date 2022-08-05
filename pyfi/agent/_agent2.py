@@ -293,7 +293,7 @@ class AgentMonitorPlugin(AgentPlugin):
             )
             if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
                 mydeployment.worker = None
-                agent.workers -= mydeployment.worker
+                agent.workers.remove(mydeployment.worker)
                 session.commit()
 
             try:
