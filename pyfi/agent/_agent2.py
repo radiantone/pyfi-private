@@ -283,6 +283,7 @@ class AgentMonitorPlugin(AgentPlugin):
             if myworker.requested_status == "kill":
                 logging.info("Killing worker process %s", myworker.process)
                 os.kill(myworker.process, signal.SIGTERM)
+                session.delete(myworker)
 
         for mydeployment in mydeployments:
 
@@ -1025,7 +1026,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 update_queues()
                 monitor_processors()
 
-                time.sleep(3)
+                time.sleep(10)
 
         self.process = process = Process(target=thread_loop, daemon=True)
         process.start()
