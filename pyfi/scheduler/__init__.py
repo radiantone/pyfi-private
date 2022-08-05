@@ -358,7 +358,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     for deployment in processor.deployments:
                         if deployment.cpus == overage_cpus:
                             # Delete this deployment
-                            kill_workers += [deployment.worker]
+                            if deployment.worker:
+                                kill_workers += [deployment.worker]
                             processor.deployments.remove(deployment)
                             session.commit()
                             logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
@@ -448,6 +449,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                         deployment.cpus += shortfall
                                         deployment.requested_status = 'update'
                                         session.commit()
+                                        cpus_met = True
                                         break
 
                                     if not cpus_met:
