@@ -330,6 +330,7 @@ class WorkerService:
         global HOSTNAME
 
         self.database = DATABASE
+        """
         with self.get_session(self.database) as session:
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment).first()
@@ -337,7 +338,8 @@ class WorkerService:
             self.worker = _deployment.worker
 
             self.deployment = _deployment
-
+        """
+        self.deployment = deployment
         self.backend = backend
         self.broker = broker
         self.port = port
