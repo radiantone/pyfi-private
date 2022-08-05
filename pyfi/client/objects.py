@@ -341,18 +341,25 @@ class Socket(Base):
         if self.socket and not self.processor:
             self.processor = Processor(id=self.socket.processor.id)
 
-        if "task" in kwargs and 'module' in kwargs:
+        if "task" in kwargs:
             taskname = kwargs["task"]
-            modulename = kwargs["module"]
+            modulename = kwargs["module"] if "module" in kwargs else None
 
             if type(taskname) is str:
                 self.socket = self.session.query(SocketModel).join(TaskModel, SocketModel.task).filter(TaskModel.name == taskname and TaskModel.module == modulename).first()
                 logging.info("Socket from task %s and module %s: %s", taskname, modulename, self.socket)
                 if self.socket:
                     self.processor = Processor(id=self.socket.processor.id)
-                self.task = (
-                    self.session.query(TaskModel).filter_by(name=taskname, module=modulename).first()
-                )
+
+                if modulename:
+                    self.task = (
+                        self.session.query(TaskModel).filter_by(name=taskname, module=modulename).first()
+                    )
+                else:
+                    self.task = (
+                        self.session.query(TaskModel).filter_by(name=taskname).first()
+                    )
+
                 if self.task is None:
                     self.task = TaskModel(name=taskname)
 

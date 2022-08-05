@@ -270,7 +270,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
     def deployment_monitor(self, session, agent):
 
-        logger.info("[DeploymentMonitor] Getting deployments %s", agent.hostname)
+        logger.debug("[DeploymentMonitor] Getting deployments %s", agent.hostname)
         mydeployments = (
             session.query(DeploymentModel).filter_by(hostname=agent.hostname).all()
         )
@@ -288,7 +288,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
         for mydeployment in mydeployments:
 
-            logger.info(
+            logger.debug(
                 "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
             )
             #if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
