@@ -292,9 +292,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
             )
             if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
-                mydeployment.worker = None
-                agent.workers.remove(mydeployment.worker)
-                session.commit()
+                continue
 
             try:
                 deployment_worker = mydeployment.worker
