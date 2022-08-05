@@ -3929,20 +3929,20 @@ def ls_deployments(context):
         "Enabled",
     ]
     x.field_names = names
-    nodes = context.obj["database"].session.query(DeploymentModel).all()
-    for node in nodes:
+    deployments = context.obj["database"].session.query(DeploymentModel).all()
+    for deployment in deployments:
         x.add_row(
             [
-                node.name,
-                node.id,
-                node.owner,
-                node.worker.name if node.worker else "pending",
-                node.lastupdated,
-                node.hostname,
-                node.processor.name,
-                node.cpus,
-                node.requested_status,
-                node.status,
+                deployment.name,
+                deployment.id,
+                deployment.owner,
+                deployment.worker.name if deployment.worker else "pending",
+                deployment.lastupdated,
+                deployment.hostname,
+                deployment.processor.name,
+                deployment.cpus,
+                deployment.requested_status,
+                deployment.status,
                 "TBD",
             ]
         )
