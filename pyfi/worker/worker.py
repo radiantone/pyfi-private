@@ -340,7 +340,7 @@ class WorkerService:
             self.deployment = _deployment
         """
         with self.get_session(self.database) as session:
-            session.merge(deployment)
+            session.add(deployment)
             self.worker = deployment.worker
 
         self.deployment = deployment
