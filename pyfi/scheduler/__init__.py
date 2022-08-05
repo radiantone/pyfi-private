@@ -393,7 +393,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # TODO: Set affected workers status to 'kill' so they restart
                 for worker in kill_workers:
                     logging.info("Killing worker %s",worker)
-                    worker.status = 'kill'
+                    worker.requested_status = 'kill'
                     session.add(worker)
                     session.commit()
 
