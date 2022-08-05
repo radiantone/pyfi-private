@@ -438,12 +438,13 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 agent.cpus,
                             )
 
-                            if agent.cpus - occupied_cpus >= 1:
+                            if agent.cpus - occupied_cpus >= 1 and shortfall > 0:
                                 _cpus = agent.cpus - occupied_cpus
                                 if _cpus > shortfall:
                                     _cpus = shortfall
                                 if _cpus > 0:
                                     cpus_met = False
+                                    logging.info("Filling shortfall of %s cpus", _cpus)
 
                                     for deployment in node_deployments:
                                         deployment.cpus += _cpus
