@@ -334,9 +334,10 @@ class WorkerService:
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment).first()
             )
-            self.worker = deployment.worker
+            self.worker = _deployment.worker
 
-        self.deployment = deployment
+            self.deployment = _deployment
+
         self.backend = backend
         self.broker = broker
         self.port = port
