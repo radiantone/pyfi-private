@@ -340,7 +340,12 @@ class WorkerService:
             self.deployment = _deployment
         """
         with self.get_session(self.database) as session:
-            session.add(deployment)
+            try:
+                session.add(deployment)
+                logging.info("Added deployment %s to session", deployment.name)
+            except:
+                pass
+
             self.worker = deployment.worker
 
         self.deployment = deployment
