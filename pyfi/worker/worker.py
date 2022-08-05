@@ -339,7 +339,7 @@ class WorkerService:
 
             self.deployment = _deployment
         """
-
+        self.worker = deployment.worker
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
