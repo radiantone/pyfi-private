@@ -329,7 +329,12 @@ class WorkerService:
 
         global HOSTNAME
 
-        self.worker = deployment.worker
+        with self.get_session(self.database) as session:
+            _deployment = (
+                session.query(DeploymentModel).filter_by(name=deployment.name).first()
+            )
+            self.worker = deployment.worker
+
         self.deployment = deployment
         self.backend = backend
         self.broker = broker
