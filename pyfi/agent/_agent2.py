@@ -750,7 +750,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             database=self.agent_service.dburi,
                                             hostname=self.agent_service.name,
                                             agent=agent,
-                                            deployment=deployment.id,
+                                            deployment=deployment.name,
                                             celeryconfig=self.agent_service.config,
                                             backend=self.agent_service.backend,
                                             broker=self.agent_service.broker,
