@@ -326,8 +326,6 @@ class WorkerService:
         global HOSTNAME
 
         self.database = DATABASE
-        self.worker = deployment.worker
-        self.deployment = deployment
         self.backend = backend
         self.broker = broker
         self.port = port
@@ -336,10 +334,10 @@ class WorkerService:
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
         self.size = size
-        self.agent = agent
         self.port = workerport
 
         logging.debug("INIT WORKERSERVICE")
+
         if hostname:
             HOSTNAME = hostname
             self.hostname = hostname
@@ -371,6 +369,13 @@ class WorkerService:
             self.processor = _processor = (
                     session.query(ProcessorModel).filter_by(name=processor.name).first()
                 )
+            self.deployment = deployment = (
+                session.query(DeploymentModel).filter_by(name=deployment.name).first()
+            )
+            self.worker = deployment.worker
+            self.agent = agent = (
+                session.query(AgentModel).filter_by(name=agent.name).first()
+            )
 
         self.pool = pool
         self.user = user
