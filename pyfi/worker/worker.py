@@ -2887,7 +2887,7 @@ class WorkerService:
         """
         Docstring
         """
-        logging.info("Terminating worker")
+        logging.info("Terminating worker %s", self.workpath)
 
         process = psutil.Process(os.getpid())
 
@@ -2903,10 +2903,12 @@ class WorkerService:
         # os.killpg(os.getpgid(process.pid), 15)
         # os.kill(process.pid, signal.SIGKILL)
 
-        logging.info("Finishing.")
+        logging.info("Finishing %s", self.workpath)
 
         try:
+            logging.info("Waiting for process to finish")
             self.process.join()
+            logging.info("Process finished")
         except:
             pass
 
@@ -2914,7 +2916,7 @@ class WorkerService:
             logging.info("Removing working directory %s", self.workpath)
             shutil.rmtree(self.workpath)
 
-        logging.info("Done killing worker.")
+        logging.info("Done killing worker %s", self.workpath)
 
 
 @app.route("/")

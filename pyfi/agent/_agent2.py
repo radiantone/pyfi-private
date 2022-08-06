@@ -584,7 +584,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             print(traceback.format_exc())
 
                     if process_died:
-                        logging.error("Process died!")
+                        logging.error("Worker died for processor %s", processor["processor"].name)
 
                     #
                     # If no worker or the process died, (re)start it
@@ -603,6 +603,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             and processor["processor"].requested_status != "stopped"
                     )
                     ):
+                        logging.info("Restarting worker for processor %s", processor["processor"].name)
                         logging.debug("process_died %s", process_died)
                         logging.debug('processor["worker"] %s', processor["worker"])
                         logging.debug(
