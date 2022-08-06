@@ -282,7 +282,10 @@ class AgentMonitorPlugin(AgentPlugin):
         for myworker in myworkers:
             if myworker.requested_status == "kill":
                 logging.debug("Killing worker process %s", myworker.process)
-                os.kill(myworker.process, signal.SIGTERM)
+                try:
+                    os.kill(myworker.process, signal.SIGTERM)
+                except:
+                    pass
                 myworker.requested_status = 'remove'
                 session.commit()
 
