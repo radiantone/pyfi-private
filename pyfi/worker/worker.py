@@ -2866,7 +2866,7 @@ class WorkerService:
         """
         Docstring
         """
-        logging.debug("Terminating worker")
+        logging.info("Terminating worker")
 
         process = psutil.Process(os.getpid())
 
@@ -2882,7 +2882,7 @@ class WorkerService:
         # os.killpg(os.getpgid(process.pid), 15)
         # os.kill(process.pid, signal.SIGKILL)
 
-        logging.debug("Finishing.")
+        logging.info("Finishing.")
 
         try:
             self.process.join()
@@ -2893,7 +2893,7 @@ class WorkerService:
             logging.info("Removing working directory %s", self.workpath)
             shutil.rmtree(self.workpath)
 
-        logging.debug("Done killing worker.")
+        logging.info("Done killing worker.")
 
 
 @app.route("/")
