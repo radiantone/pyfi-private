@@ -628,11 +628,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"] = None
 
                         if "deployment" in processor:
-                            print("DEPLOYMENT", processor["deployment"])
                             session.refresh(processor["deployment"])
-                            print(
-                                "DEPLOYMENT.WORKER", processor["deployment"].worker
-                            )
 
                         #
                         # If there is a deployment, but no worker
