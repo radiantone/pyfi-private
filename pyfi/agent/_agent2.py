@@ -167,7 +167,8 @@ class AgentWebServerPlugin(AgentPlugin):
 
             try:
                 setproctitle("pyfi agent::web_server")
-                logger.info("Starting web server on %s", agent.port)
+                logger.info("[AgentWebServerPlugin] Starting web server on %s", agent.port)
+                logger.debug("[AgentWebServerPlugin] Startup Complete")
                 bjoern.run(app, "0.0.0.0", agent.port)
             except Exception as ex:
                 logging.error(ex)
@@ -175,7 +176,7 @@ class AgentWebServerPlugin(AgentPlugin):
 
         self.process = webserver = Process(target=web_server, daemon=True)
         webserver.start()
-        logger.debug("[AgentWebServerPlugin] Startup Complete")
+
 
     def wait(self):
         return self.process.join()
