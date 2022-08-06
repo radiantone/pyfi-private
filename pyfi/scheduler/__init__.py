@@ -312,7 +312,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 worker_names = []
 
                 for deployment in processor.deployments:
-                    logging.debug("   Deployment: CPU %s", deployment.cpus)
+                    logging.info("   Deployment %s: CPU %s", deployment.name, deployment.cpus)
                     deployed_cpus += deployment.cpus
 
                     if deployment.worker and deployment.worker.status == "running":
