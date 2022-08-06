@@ -2631,6 +2631,8 @@ class WorkerService:
                     raise NotImplementedError
                 else:
                     """Build our virtualenv and import the gitrepo for the processor"""
+                    logging.info("git clone for processor %s",self.processor.name)
+
                     logging.debug(
                         "git clone -b {} --single-branch {} git".format(
                             self.processor.branch, self.processor.gitrepo
