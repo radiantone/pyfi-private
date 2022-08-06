@@ -281,7 +281,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     os.kill(myworker.process, signal.SIGTERM)
                 except:
                     pass
-                myworker.requested_status = 'remove'
+                myworker.requested_status = 'restart'
                 session.commit()
 
         for mydeployment in mydeployments:
