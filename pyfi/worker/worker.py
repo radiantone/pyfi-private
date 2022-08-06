@@ -2668,12 +2668,14 @@ class WorkerService:
                         if not os.path.exists(self.workdir):
                             os.makedirs(self.workdir)
                         else:
-                            logging.info("Changing to %s for processor %s", self.workdir, self.processor.name)
+                            logging.info("Changing to %s/%s for processor %s", os.getcwd(), self.workdir, self.processor.name)
                             os.chdir(self.workdir)
 
                             if os.path.exists("git"):
                                 os.chdir("git")
                                 pull = True
+                            else:
+                                logging.info("No existing git directory....")
 
                         while True:
                             """Try 5 times to clone repo successfully"""
