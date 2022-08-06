@@ -226,7 +226,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 )
                 task_count = session.query(TaskModel).count()
                 deployments = session.query(DeploymentModel).all()
-
+                for d in deployments:
+                    print(d.name, d.cpus)
                 session.commit()
                 cpu_count = 0
                 cpu_running = 0
@@ -311,6 +312,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 worker_names = []
 
+                #pdeployments = session.query(DeploymentModel).filter_by(processor_id=processor.id).all()
                 for deployment in processor.deployments:
                     logging.info("   Deployment: %s", deployment)
                     logging.info("   Deployment %s: CPU %s", deployment.name, deployment.cpus)
