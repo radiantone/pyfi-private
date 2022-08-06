@@ -261,6 +261,7 @@ class AgentMonitorPlugin(AgentPlugin):
         self.processors = []
         self.agent_service = None
         self.workers = []
+        self.basedir = os.getcwd()
 
     def deployment_monitor(self, session, agent):
 
@@ -754,6 +755,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         processor["processor"],
                                         size=self.agent_service.size,
                                         workdir=_dir,
+                                        basedir=self.basedir,
                                         user=self.agent_service.user,
                                         pool=self.agent_service.pool,
                                         workerport=self.agent_service.workerport,

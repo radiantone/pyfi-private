@@ -299,6 +299,7 @@ class WorkerService:
         self,
         processor: ProcessorModel,
         workdir: str,
+        basedir: str,
         pool: int = 4,
         port: int = 8020,
         size: int = 10,
@@ -328,6 +329,8 @@ class WorkerService:
         self.usecontainer = usecontainer
         self.size = size
         self.port = workerport
+        self.basedir = basedir
+        self.workpath = self.basedir+"/"+self.workdir
 
         logging.debug("INIT WORKERSERVICE")
 
@@ -468,7 +471,7 @@ class WorkerService:
                     processor=_processor,
                     agent_id=self.agent.id,
                     deployment=_deployment,
-                    workerdir=self.workdir,
+                    workerdir=self.workpath,
                     hostname=HOSTNAME,
                     requested_status="start",
                 )
@@ -482,7 +485,7 @@ class WorkerService:
                 logging.debug("Added workerModel to session %s", workerModel)
                 session.commit()
 
-            workerModel.workerdir = self.workdir
+            workerModel.workerdir = self.workpath
             workerModel.port = self.port
 
             # logging.debug("Adding deployment %s to worker model", _deployment)
@@ -1794,7 +1797,7 @@ class WorkerService:
                 """ Find or create a WorkerModel for this worker """
                 try:
                     logging.debug(
-                        "Creating workerModel with worker dir %s", self.workdir
+                        "Creating workerModel with worker dir %s", self.workpath
                     )
 
                     if self.deployment.worker:
@@ -1816,7 +1819,7 @@ class WorkerService:
                             backend=self.backend,
                             processor=_processor,
                             broker=self.broker,
-                            workerdir=self.workdir,
+                            workerdir=self.workpath,
                             agent_id=self.agent.id,
                             hostname=HOSTNAME,
                             requested_status="start",
@@ -1825,7 +1828,7 @@ class WorkerService:
                         logging.debug("Created workerModel")
                         session.add(workerModel)
 
-                    workerModel.workerdir = self.workdir
+                    workerModel.workerdir = self.workpath
 
                     """ Attach worker to deployment """
                     self.deployment.worker = workerModel
@@ -2662,14 +2665,14 @@ class WorkerService:
                         """Clone gitrepo. Retry after 3 seconds if failure"""
                         count = 1
                         logging.debug("cwd is %s", os.getcwd())
-                        logging.debug("workdir is %s", self.workdir)
+                        logging.debug("workdir is %s", self.workpath)
 
                         pull = False
-                        if not os.path.exists(self.workdir):
-                            os.makedirs(self.workdir)
+                        if not os.path.exists(self.workpath):
+                            os.makedirs(self.workpath)
                         else:
-                            logging.info("Changing to %s/%s for processor %s", os.getcwd(), self.workdir, self.processor.name)
-                            os.chdir(self.workdir)
+                            logging.info("Changing to %s/%s for processor %s", os.getcwd(), self.workpath, self.processor.name)
+                            os.chdir(self.workpath)
 
                             if os.path.exists("git"):
                                 os.chdir("git")
@@ -2695,10 +2698,10 @@ class WorkerService:
                                             self.processor.gitrepo.split("#")[0],
                                         )
                                     )
-                                    sys.path.append(self.workdir + "/git")
+                                    sys.path.append(self.workpath + "/git")
                                     os.chdir("git")
                                 else:
-                                    sys.path.append(self.workdir + "/git")
+                                    sys.path.append(self.workpath + "/git")
                                     #os.system("git pull")
 
                                 os.system("git config credential.helper store")
@@ -2890,9 +2893,9 @@ class WorkerService:
         except:
             pass
 
-        if os.path.exists(self.workdir):
-            logging.debug("Removing working directory %s", self.workdir)
-            shutil.rmtree(self.workdir)
+        if os.path.exists(self.workpath):
+            logging.debug("Removing working directory %s", self.workpath)
+            shutil.rmtree(self.workpath)
 
         logging.debug("Done killing worker.")
 
