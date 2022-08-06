@@ -2667,7 +2667,7 @@ class WorkerService:
                         if not os.path.exists(self.workdir):
                             os.makedirs(self.workdir)
                         else:
-                            logging.info("Changing to %s", self.workdir)
+                            logging.info("Changing to %s for processor %s", self.workdir, self.processor.name)
                             os.chdir(self.workdir)
 
                         while True:
