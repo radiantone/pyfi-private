@@ -336,6 +336,10 @@ class WorkerService:
         self.size = size
         self.port = workerport
         self.basedir = basedir
+
+        print("BASEDIR",self.basedir)
+        print("WORKDIR",self.workdir)
+
         self.workpath = self.basedir+"/"+self.workdir
 
         logging.debug("INIT WORKERSERVICE")
