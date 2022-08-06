@@ -701,7 +701,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 process_died,
                                 processor["worker"],
                             )
-                            _dir = "work/" + processor["processor"].id
+                            _dir = self.basedir+"/work/" + processor["processor"].id
 
                             os.makedirs(_dir, exist_ok=True)
 
