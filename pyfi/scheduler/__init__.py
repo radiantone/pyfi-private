@@ -616,7 +616,7 @@ class BasicScheduler:
     def stop(self, *args, **kwargs):
         [plugin.stop() for plugin in self.plugins]
         logging.info("Stopped")
-        sys.exit(0)
+        os.kill(os.getpid(), signal.SIGINT)
 
     def run(self):
         [plugin.start(self.name, self.interval) for plugin in self.plugins]
