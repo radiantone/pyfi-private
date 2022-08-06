@@ -2625,6 +2625,10 @@ class WorkerService:
                     os.system("git checkout {}".format(self.processor.commit))
 
             if self.processor.gitrepo and not self.skipvenv:
+
+                if not os.path.exists(self.workpath):
+                    os.makedirs(self.workpath)
+
                 os.chdir(self.workpath)
 
                 if self.usecontainer:
@@ -2671,17 +2675,14 @@ class WorkerService:
                         logging.debug("workdir is %s", self.workpath)
 
                         pull = False
-                        if not os.path.exists(self.workpath):
-                            os.makedirs(self.workpath)
-                        else:
-                            logging.info("Changing to %s for processor %s", self.workpath, self.processor.name)
-                            os.chdir(self.workpath)
+                        logging.info("Changing to %s for processor %s", self.workpath, self.processor.name)
+                        os.chdir(self.workpath)
 
-                            if os.path.exists("git"):
-                                os.chdir("git")
-                                pull = True
-                            else:
-                                logging.info("No existing git directory....")
+                        if os.path.exists("git"):
+                            os.chdir("git")
+                            pull = True
+                        else:
+                            logging.info("No existing git directory....")
 
                         try:
                             if not pull:
