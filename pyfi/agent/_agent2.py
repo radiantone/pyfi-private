@@ -835,9 +835,6 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                     processor["worker"] = worker
                                     processor["worker.id"] = worker["model"].id
-                                    print(
-                                        "**** PROCESS WORKER 2", processor["worker"]
-                                    )
                                     logging.debug(
                                         "-----------------------workerproc is %s",
                                         workerproc,

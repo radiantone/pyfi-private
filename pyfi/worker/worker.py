@@ -81,6 +81,16 @@ POSTRUN_CONDITION = Condition()
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
 
+from celery.signals import setup_logging
+
+@setup_logging.connect
+def void(*args, **kwargs):
+    """ Override celery's logging setup to prevent it from altering our settings.
+    github.com/celery/celery/issues/1867
+
+    :return void:
+    """
+    pass
 
 # Set global vars
 HOME = str(Path.home())
