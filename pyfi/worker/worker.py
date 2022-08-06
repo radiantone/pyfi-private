@@ -525,7 +525,6 @@ class WorkerService:
 
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
-        os.chdir(self.workpath)
         logging.info("WORKER LAUNCH DIR is %s",os.getcwd())
 
         if not self.usecontainer:
