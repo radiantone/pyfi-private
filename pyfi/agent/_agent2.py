@@ -798,7 +798,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     os.chdir(self.basedir)
                                     if not os.path.exists("work/" + processor['processor'].id):
                                         os.makedirs("work/" + processor['processor'].id)
-                                        os.chdir("work/" + processor['processor'].id)
+                                    os.chdir("work/" + processor['processor'].id)
 
                                     logging.info("Launching from %s", self.basedir)
                                     wprocess = workerproc.launch(
