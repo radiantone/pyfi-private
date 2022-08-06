@@ -2895,6 +2895,7 @@ class WorkerService:
         except:
             pass
 
+        logging.info("KEEP_WORKER_DIRS is ",KEEP_WORKER_DIRS)
         if os.path.exists(self.workpath) and KEEP_WORKER_DIRS:
             logging.info("Removing working directory %s", self.workpath)
             shutil.rmtree(self.workpath)
