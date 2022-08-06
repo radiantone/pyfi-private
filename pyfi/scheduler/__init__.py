@@ -332,14 +332,14 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 _taskp,
                                 processor.ratelimit + units,
                             )
-                            # celery.control.rate_limit(_taskp, str(rate_per_worker)+units)
+                            celery.control.rate_limit(_taskp, str(rate_per_worker))
                         else:
                             logging.debug(
                                 "Setting rate limit global for task %s to %s",
                                 _taskp,
                                 processor.ratelimit + units,
                             )
-                            # celery.control.rate_limit(_taskp, processor.ratelimit+units)
+                            celery.control.rate_limit(_taskp, processor.ratelimit)
 
                 kill_workers = []
 
