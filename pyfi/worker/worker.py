@@ -2634,6 +2634,7 @@ class WorkerService:
             if self.processor.gitrepo and not self.skipvenv:
 
                 if not os.path.exists(self.workpath):
+                    logging.info("MAKING PATH %s",self.workpath)
                     os.makedirs(self.workpath)
 
                 os.chdir(self.workpath)
