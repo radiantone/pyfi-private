@@ -448,7 +448,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 "Removing work directory %s",
                                 "work/" + processor["processor"],
                             )
-                            shutil.rmtree("work/" + processor["processor"])
+                            shutil.rmtree("work/" + processor["processor"].id)
 
                         logging.debug("Processor is removed")
 

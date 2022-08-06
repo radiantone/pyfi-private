@@ -2,10 +2,8 @@
 Agent workerclass. Primary task/code execution context for processors. This is where all the magic happens
 """
 import configparser
-import gc
 import inspect
 import logging
-
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
@@ -18,9 +16,8 @@ import psutil
 import redis
 
 tracemalloc.start()
-from functools import partial
 from inspect import Parameter
-from multiprocessing import Condition, Queue, Process
+from multiprocessing import Condition, Queue
 from pathlib import Path
 
 from flask import Flask
@@ -29,7 +26,6 @@ from pytz import utc
 app = Flask(__name__)
 
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from kombu import Exchange
 from kombu import Queue as KQueue
@@ -42,7 +38,6 @@ from celery import chain as pipeline
 from celery import current_app
 from celery import group as parallel
 from celery.signals import (
-    after_task_publish,
     setup_logging,
     task_failure,
     task_internal_error,
@@ -53,25 +48,14 @@ from celery.signals import (
     worker_process_init,
 )
 from pyfi.db.model import (
-    ActionModel,
     AgentModel,
     CallModel,
     EventModel,
-    FlowModel,
-    JobModel,
-    LogModel,
-    NodeModel,
-    PlugModel,
     ProcessorModel,
-    QueueModel,
-    RoleModel,
-    SettingsModel,
-    SocketModel,
-    TaskModel,
     UserModel,
     WorkerModel,
 )
-from pyfi.db.model.models import DeploymentModel, use_identity
+from pyfi.db.model.models import DeploymentModel
 
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
@@ -130,7 +114,6 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     """Executor for container based tasks"""
     import importlib
     import pickle
-    from uuid import uuid4
 
     logging.debug("Execute function %s %s %s", taskid, mname, fname)
 
@@ -524,7 +507,6 @@ class WorkerService:
     # Launch worker in new shell
     #########################################################################
     def launch(self, name, agent, hostname, size):
-        from multiprocessing import Process
         from subprocess import Popen
 
         """
@@ -590,7 +572,6 @@ class WorkerService:
         """
         import json
         import os
-        import threading
         import time
         from threading import Thread
 
@@ -1356,13 +1337,11 @@ class WorkerService:
             import json
             import sys
             import time
-            from uuid import uuid4
+            import docker
 
-            from billiard.pool import Pool
-            from docker.types import Mount
+            from uuid import uuid4
             from setproctitle import setproctitle
 
-            import docker
 
             setproctitle("pyfi worker::worker_proc")
 
@@ -1509,8 +1488,7 @@ class WorkerService:
                             # to it. Sending a task to this queue delivers to all connected workers
                             # queues += []
 
-                            from kombu import Exchange, Queue, binding
-                            from kombu.common import Broadcast
+                            from kombu import Exchange, Queue
 
                             logging.debug(
                                 "socket.queue.expires %s", socket.queue.expires
@@ -2689,6 +2667,7 @@ class WorkerService:
                         if not os.path.exists(self.workdir):
                             os.makedirs(self.workdir)
                         else:
+                            logging.info("Changing to %s", self.workdir)
                             os.chdir(self.workdir)
 
                         while True:
