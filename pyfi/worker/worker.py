@@ -375,7 +375,7 @@ class WorkerService:
 
         self.pool = pool
         self.user = user
-        self.pwd = os.getcwd()
+        os.chdir(self.basedir)
 
         logging.debug("New Worker init: %s", processor)
 
@@ -556,7 +556,7 @@ class WorkerService:
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
             )
 
-            with open(self.pwd + "/worker.pid", "a") as pidfile:
+            with open(self.basedir + "/worker.pid", "a") as pidfile:
                 pidfile.write(str(process.pid))
 
             logging.debug("Worker launched successfully: process %s.", self.process.pid)
