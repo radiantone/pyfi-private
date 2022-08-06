@@ -325,6 +325,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     rate_limit = 60
                     units = "/m"
 
+                '''
                 if len(worker_names):
                     rate_per_worker = rate_limit / len(worker_names)
 
@@ -347,6 +348,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     processor.ratelimit,
                                 )
                                 celery.control.rate_limit(_taskp, processor.ratelimit)
+                '''
 
                 kill_workers = []
 
