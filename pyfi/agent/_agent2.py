@@ -795,6 +795,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                     logging.debug(
                                         f"-----------------------Launching {processor['processor'].name}"
                                     )
+
+                                    os.chdir(self.basedir)
+
                                     wprocess = workerproc.launch(
                                         worker_model.name,
                                         agent.name,
