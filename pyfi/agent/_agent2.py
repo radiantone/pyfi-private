@@ -603,7 +603,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             and processor["processor"].requested_status != "stopped"
                     )
                     ):
-                        logging.info("Restarting worker for processor %s", processor["processor"].name)
+                        logging.info("Restarting worker for processor %s because process_died:%s requested:%s worker:%s", processor["processor"].name, process_died, processor["processor"].requested_status, processor["worker"])
                         logging.debug("process_died %s", process_died)
                         logging.debug('processor["worker"] %s', processor["worker"])
                         logging.debug(
