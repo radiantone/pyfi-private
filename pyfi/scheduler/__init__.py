@@ -108,6 +108,8 @@ class NodePlugin(SchedulerPlugin):
 
             scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
 
+            if scheduler is None:
+                logging.error("No scheduler by name %s is registered.", self.name)
             # These are my nodes to manage
             if scheduler.nodes:
                 for node in scheduler.nodes:
