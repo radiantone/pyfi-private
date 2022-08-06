@@ -337,10 +337,14 @@ class WorkerService:
         self.port = workerport
         self.basedir = basedir
 
+
+        if os.path.isabs(self.workdir):
+            self.workpath = self.workdir
+        else:
+            self.workpath = self.basedir+"/"+self.workdir
+
         print("BASEDIR",self.basedir)
         print("WORKDIR",self.workdir)
-
-        self.workpath = self.basedir+"/"+self.workdir
 
         logging.debug("INIT WORKERSERVICE")
 
