@@ -67,6 +67,7 @@ def setup_celery_logging(**kwargs):
 
 from celery.signals import setup_logging
 
+
 @setup_logging.connect
 def void(*args, **kwargs):
     """ Override celery's logging setup to prevent it from altering our settings.
@@ -76,6 +77,7 @@ def void(*args, **kwargs):
     """
     pass
 
+
 # Set global vars
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
@@ -83,8 +85,11 @@ CONFIG = configparser.ConfigParser()
 # Load the config
 if os.path.exists(HOME + "/pyfi.ini"):
     CONFIG.read(HOME + "/pyfi.ini")
+try:
+    KEEP_WORKER_DIRS = CONFIG.get("worker", "keepdirs")
+except:
+    KEEP_WORKER_DIRS = False
 
-KEEP_WORKER_DIRS = CONFIG.get("worker", "keepdirs")
 DBURI = CONFIG.get("database", "uri")
 
 # Create database engine
@@ -2890,7 +2895,7 @@ class WorkerService:
         except:
             pass
 
-        if os.path.exists(self.workpath):
+        if os.path.exists(self.workpath) and KEEP_WORKER_DIRS:
             logging.info("Removing working directory %s", self.workpath)
             shutil.rmtree(self.workpath)
 
