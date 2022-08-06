@@ -2664,11 +2664,13 @@ class WorkerService:
                         logging.debug("cwd is %s", os.getcwd())
                         logging.debug("workdir is %s", self.workdir)
 
+                        pull=False
                         if not os.path.exists(self.workdir):
                             os.makedirs(self.workdir)
                         else:
                             logging.info("Changing to %s for processor %s", self.workdir, self.processor.name)
                             os.chdir(self.workdir)
+                            pull=True
 
                         while True:
                             """Try 5 times to clone repo successfully"""
@@ -2681,14 +2683,20 @@ class WorkerService:
                                         self.processor.gitrepo.split("#")[0],
                                     )
                                 )
-                                os.system(
-                                    "git clone -b {} --single-branch {} git".format(
-                                        self.processor.branch,
-                                        self.processor.gitrepo.split("#")[0],
+                                if not pull:
+                                    os.system(
+                                        "git clone -b {} --single-branch {} git".format(
+                                            self.processor.branch,
+                                            self.processor.gitrepo.split("#")[0],
+                                        )
                                     )
-                                )
-                                sys.path.append(self.workdir + "/git")
-                                os.chdir("git")
+                                    sys.path.append(self.workdir + "/git")
+                                    os.chdir("git")
+                                else:
+                                    sys.path.append(self.workdir + "/git")
+                                    os.chdir("git")
+                                    #os.system("git pull")
+
                                 os.system("git config credential.helper store")
                                 logging.info("Exited git setup")
                                 break
@@ -2701,7 +2709,7 @@ class WorkerService:
                     from virtualenvapi.manage import VirtualEnvironment
 
                     # If not using a container, then build the virtualenv
-                    if not os.path.exists("venv"):
+                    if not pull and not os.path.exists("venv"):
                         logging.info("Building virtualenv...in %s", os.getcwd())
                         env = VirtualEnvironment(
                             "venv", python=sys.executable, system_site_packages=True
@@ -2731,6 +2739,7 @@ class WorkerService:
                                 )
                     else:
                         logging.info("venv already exists")
+
                 if self.processor.commit and not self.processor.gittag:
                     os.system("git checkout {}".format(self.processor.commit))
 
