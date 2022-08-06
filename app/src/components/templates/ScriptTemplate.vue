@@ -1502,7 +1502,7 @@
               </q-tab-panel>
               <q-tab-panel name="throttling" style="padding-top: 0px; padding-bottom: 0px;">
                 <q-toolbar>
-                  <q-input style="width: 200px;" hint="Rate Limit" type="string" v-model.number="obj.ratelimit" />
+                  <q-input style="width: 100px;" hint="Rate Limit/m" type="number" v-model.number="obj.ratelimit" />
 
                   <q-checkbox v-model="obj.perworker" label="Per Worker" />
                 </q-toolbar>
@@ -3002,7 +3002,7 @@ export default {
         y: 0,
         version: "v1.2.2",
         perworker: true,
-        ratelimit: "60/m",
+        ratelimit: "60",
         websocket: "ws://localhost:3003",
         bandwidth: true,
         requirements: "",

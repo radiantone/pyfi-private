@@ -11,25 +11,18 @@ import os
 import platform
 import shutil
 import signal
-from typing import List, Literal
+from typing import List
 
 import psutil
 
 logger = logging.getLogger(__name__)
-logger.debug("Agent service")
 
 from contextlib import contextmanager
 from multiprocessing import Condition
 from pathlib import Path
-from threading import Thread
 
 from flask import Flask
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy import exc as sa_exc
-from sqlalchemy import literal_column
 from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_oso import authorized_sessionmaker
 
 from pyfi.blueprints.show import blueprint
 from pyfi.db.model import (
@@ -82,7 +75,6 @@ def import_class(name):
 
 @contextmanager
 def get_session(**kwargs):
-
     from pyfi.db import get_session
 
     logger.debug("get_session: Creating session")
@@ -257,6 +249,7 @@ class AgentMonitorPlugin(AgentPlugin):
     """ Check if agent is killed and update node resource stats """
 
     def __init__(self, *args, **kwargs):
+        self.workerproc = None
         import sched
         import time
 
@@ -292,18 +285,19 @@ class AgentMonitorPlugin(AgentPlugin):
         for mydeployment in mydeployments:
 
             logger.debug(
-                "Got deployment %s worker %s", mydeployment.name, mydeployment.worker.name if mydeployment.worker else None
+                "Got deployment %s worker %s", mydeployment.name,
+                mydeployment.worker.name if mydeployment.worker else None
             )
-            #if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
+            # if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
             #    continue
 
             try:
                 deployment_worker = mydeployment.worker
                 if (
-                    deployment_worker
-                    and deployment_worker.requested_status == "kill"
+                        deployment_worker
+                        and deployment_worker.requested_status == "kill"
                 ):
-                    logging.debug("Killing worker process %s",deployment_worker.process)
+                    logging.debug("Killing worker process %s", deployment_worker.process)
                     os.kill(deployment_worker.process, signal.SIGTERM)
 
                 myprocessor = mydeployment.processor
@@ -415,9 +409,9 @@ class AgentMonitorPlugin(AgentPlugin):
                     """
 
                     if (
-                        "worker" in processor
-                        and processor["worker"]
-                        and "model" in processor["worker"]
+                            "worker" in processor
+                            and processor["worker"]
+                            and "model" in processor["worker"]
                     ):
                         try:
                             session.refresh(processor["worker"]["model"])
@@ -575,12 +569,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                 processor["processor"].requested_status,
                             )
                             if (
-                                processor["worker"]
-                                and processor["worker"]["wprocess"]
+                                    processor["worker"]
+                                    and processor["worker"]["wprocess"]
                             ):
                                 process_died = (
-                                    processor["worker"]["wprocess"].poll()
-                                    is not None
+                                        processor["worker"]["wprocess"].poll()
+                                        is not None
                                 )
                         except:
                             import traceback
@@ -594,18 +588,18 @@ class AgentMonitorPlugin(AgentPlugin):
                     # If no worker or the process died, (re)start it
                     #
                     if (
-                        processor["processor"].requested_status == "start"
-                        or (
+                            processor["processor"].requested_status == "start"
+                            or (
                             process_died
                             or (
-                                processor["processor"].requested_status == "update"
-                                or processor["worker"] is None
+                                    processor["processor"].requested_status == "update"
+                                    or processor["worker"] is None
                             )
-                        )
-                        and (
+                    )
+                            and (
                             processor["processor"].status != "stopped"
                             and processor["processor"].requested_status != "stopped"
-                        )
+                    )
                     ):
                         logging.debug("process_died %s", process_died)
                         logging.debug('processor["worker"] %s', processor["worker"])
@@ -634,8 +628,8 @@ class AgentMonitorPlugin(AgentPlugin):
                         # If there is a deployment, but no worker
                         #
                         if (
-                            "deployment" in processor
-                            and processor["deployment"].worker is None
+                                "deployment" in processor
+                                and processor["deployment"].worker is None
                         ):
                             """If there is no worker model, create one and link to Processor"""
 
@@ -645,9 +639,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                 session.query(WorkerModel)
                                 .filter_by(
                                     name=self.agent_service.name
-                                    + ".agent."
-                                    + processor["processor"].name
-                                    + ".worker"
+                                         + ".agent."
+                                         + processor["processor"].name
+                                         + ".worker"
                                 )
                                 .first()
                             )
@@ -659,9 +653,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                 worker_model = WorkerModel(
                                     id=str(uuid4()),
                                     name=self.agent_service.name
-                                    + ".agent."
-                                    + processor["processor"].name
-                                    + ".worker",
+                                         + ".agent."
+                                         + processor["processor"].name
+                                         + ".worker",
                                     concurrency=processor["deployment"].cpus,
                                     status="ready",
                                     backend=self.agent_service.backend,
@@ -754,6 +748,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                     if not inspect(processor["processor"]).detached:
                                         session.expunge(processor["processor"])
+
                                     workerproc = self.workerproc = self.workerclass(
                                         processor["processor"],
                                         size=self.agent_service.size,
@@ -861,7 +856,6 @@ class AgentMonitorPlugin(AgentPlugin):
         self.agent_service = agent_service
         self.workerclass = kwargs["workerclass"]
         del kwargs["workerclass"]
-
         self.port = agent_service.port
 
         with get_session() as session:
@@ -896,7 +890,6 @@ class AgentMonitorPlugin(AgentPlugin):
 
         def update_queues():
             import json
-
             import redis
 
             from pyfi.util.rabbit import get_queues
@@ -928,105 +921,106 @@ class AgentMonitorPlugin(AgentPlugin):
 
             process = psutil.Process(os.getpid())
 
-            with get_session() as session:
-                # Put all the work here
-                logging.debug("Agent Service Name %s", agent_service.name)
-                logger.debug(
-                    "[AgentMonitorPlugin] main_loop Worker memory before: %s",
-                    process.memory_info().rss,
+            # Put all the work here
+            logging.debug("Agent Service Name %s", agent_service.name)
+            logger.debug(
+                "[AgentMonitorPlugin] main_loop Worker memory before: %s",
+                process.memory_info().rss,
+            )
+            # Get or create Agent
+            agent = (
+                session.query(AgentModel)
+                .filter_by(hostname=agent_service.name)
+                .first()
+            )
+            if agent and agent.requested_status == "kill":
+                import sys
+
+                logger.info("Killing agent process %s", agent.pid)
+                agent.requested_status = "ready"
+                agent.status = "killed"
+                session.commit()
+                os.kill(agent.pid, signal.SIGINT)
+                os.kill(os.getpid(), signal.SIGINT)
+                sys.exit(0)
+
+            # Get or create Node for this agent
+            if agent is None:
+                agent = AgentModel(
+                    hostname=agent_service.name,
+                    name=agent_service.name + ".agent",
+                    pid=os.getpid(),
+                    **self.kwargs,
                 )
-                # Get or create Agent
-                agent = (
-                    session.query(AgentModel)
-                    .filter_by(hostname=agent_service.name)
-                    .first()
+
+            if agent is None:
+                logger.error("No agent present.")
+
+                return
+
+            node = (
+                session.query(NodeModel).filter_by(hostname=agent.hostname).first()
+            )
+            logging.debug("NODE IS %s", node)
+            if node is None:
+                node = NodeModel(
+                    name=agent.name + ".node", agent=agent, hostname=agent.hostname
                 )
-                if agent and agent.requested_status == "kill":
-                    import sys
 
-                    logger.info("Killing agent process %s", agent.pid)
-                    agent.requested_status = "ready"
-                    agent.status = "killed"
-                    session.commit()
-                    os.kill(agent.pid, signal.SIGINT)
-                    os.kill(os.getpid(), signal.SIGINT)
-                    sys.exit(0)
-
-                # Get or create Node for this agent
-                if agent is None:
-                    agent = AgentModel(
-                        hostname=agent_service.name,
-                        name=agent_service.name + ".agent",
-                        pid=os.getpid(),
-                        **self.kwargs,
-                    )
-
-                if agent is None:
-                    logger.error("No agent present.")
-
-                    return
-
-                node = (
-                    session.query(NodeModel).filter_by(hostname=agent.hostname).first()
-                )
-                logging.debug("NODE IS %s", node)
-                if node is None:
-                    node = NodeModel(
-                        name=agent.name + ".node", agent=agent, hostname=agent.hostname
-                    )
-
-                    session.add(node)
-                    session.commit()
-
-                node.cpus = CPUS
-                agent.node = node
-
-                cpu_percent = psutil.cpu_percent()
-                mem_total = psutil.virtual_memory().total
-                mem_used = psutil.virtual_memory().percent
-                mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
-                node.memsize = str(mem_total)
-                node.memused = mem_used
-                node.freemem = str(mem_free)
-                node.cpuload = cpu_percent
-
-                agent.status = "running"
-                # agent.cpus = node.cpus
-                agent.port = self.port
-                agent.updated = datetime.now()
                 session.add(node)
                 session.commit()
 
-                logger.debug(
-                    "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
-                    agent.cpus,
-                    agent,
-                )
-                logger.debug("[AgentMonitorPlugin] main_loop node is %s", node)
+            node.cpus = CPUS
+            agent.node = node
 
-                logger.debug(
-                    "[AgentMonitorPlugin] main_loop Worker memory after: %s",
-                    process.memory_info().rss,
-                )
+            cpu_percent = psutil.cpu_percent()
+            mem_total = psutil.virtual_memory().total
+            mem_used = psutil.virtual_memory().percent
+            mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
+            node.memsize = str(mem_total)
+            node.memused = mem_used
+            node.freemem = str(mem_free)
+            node.cpuload = cpu_percent
 
-                # DeploymentMonitor
-                logging.debug("Invoking deployment_monitor")
-                self.deployment_monitor(session, agent)
+            agent.status = "running"
+            # agent.cpus = node.cpus
+            agent.port = self.port
+            agent.updated = datetime.now()
+            session.add(node)
+            session.commit()
 
-            # ProcessorMonitor
+            logger.debug(
+                "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
+                agent.cpus,
+                agent,
+            )
+            logger.debug("[AgentMonitorPlugin] main_loop node is %s", node)
 
-            # NodeMonitor
+            logger.debug(
+                "[AgentMonitorPlugin] main_loop Worker memory after: %s",
+                process.memory_info().rss,
+            )
 
-            gc.collect()
+            # DeploymentMonitor
+            logging.debug("Invoking deployment_monitor")
+            self.deployment_monitor(session, agent)
+
+        # ProcessorMonitor
+
+        # NodeMonitor
+
+        gc.collect()
 
         def thread_loop():
-            while True:
-                import time
 
-                update_queues()
-                monitor_processors()
+            with get_session() as session:
+                while True:
+                    import time
 
-                time.sleep(10)
+                    update_queues()
+                    monitor_processors(session)
+
+                    time.sleep(10)
 
         self.process = process = Process(target=thread_loop, daemon=True)
         process.start()
@@ -1037,28 +1031,26 @@ class AgentMonitorPlugin(AgentPlugin):
         return self.process.join()
 
 
-plugins = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
-
-
 class PluginAgentService(AgentService):
     """Agent class"""
 
     def __init__(
-        self,
-        database,
-        dburi,
-        port=8003,
-        config=None,
-        clean=False,
-        user=None,
-        pool=4,
-        cpus=-1,
-        backend="redis://localhost",
-        broker="pyamqp://localhost",
-        name=None,
-        workerclass=None,
-        size=10,
-        workerport=8020,
+            self,
+            database,
+            dburi,
+            port=8003,
+            config=None,
+            clean=False,
+            user=None,
+            pool=4,
+            cpus=-1,
+            backend="redis://localhost",
+            broker="pyamqp://localhost",
+            name=None,
+            workerclass=None,
+            size=10,
+            workerport=8020,
+            plugins={}
     ):
         self.port = port
         self.backend = backend
@@ -1077,7 +1069,7 @@ class PluginAgentService(AgentService):
         self.workerclass = workerclass
         self.name = name
         self.workers = []
-        self.plugins = {}
+        self.plugins = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
 
         logger.info("[PluginAgentService] Init, name %s cpus %s", name, cpus)
 
@@ -1085,17 +1077,15 @@ class PluginAgentService(AgentService):
             procfile.write(str(os.getpid()))
 
     def start(self):
-
         os.environ["AGENT_CWD"] = os.getcwd()
-        from datetime import datetime
 
-        for plugin in plugins:
+        for plugin in self.plugins:
             self.plugins[plugin.__class__.__name__] = plugin
             logging.debug(
                 "AgentService: Registered plugin %s", plugin.__class__.__name__
             )
 
         kwargs = {"cpus": self.cpus, "workerclass": self.workerclass}
-        [plugin.start(self, **kwargs) for plugin in plugins]
+        [plugin.start(self, **kwargs) for plugin in self.plugins]
 
-        [plugin.wait() for plugin in plugins]
+        [plugin.wait() for plugin in self.plugins]

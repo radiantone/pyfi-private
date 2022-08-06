@@ -2460,7 +2460,14 @@ class WorkerService:
                                 )
 
                                 logging.info("Prerun sleeping 12 seconds")
-                                time.sleep(12)
+                                # TODO: Implement throttling here, which is simply a time.sleep(x)
+                                # where x is a float that represents period of time. For example
+                                # To achieve a throttle of 10/m, x would be 6 seconds
+                                # To achieve a throttle of 60/m, x would be 1 second
+                                # To achieve a throttle of 1000/m, x would be 0.06 seconds
+                                # To achieve a throttle of 1000/h, x would be 0.27 seconds
+                                rate_limit = 60 / int(_processor.ratelimit)
+
                                 logging.info("Done sleeping")
 
                                 logging.debug("Waiting on PRERUN REPLY")
