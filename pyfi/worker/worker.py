@@ -2748,7 +2748,7 @@ class WorkerService:
                                     self.processor.gitrepo.strip(),
                                 )
                     else:
-                        logging.info("venv already exists")
+                        logging.info("venv already exists in %s", os.getcwd())
 
                 if self.processor.commit and not self.processor.gittag:
                     os.system("git checkout {}".format(self.processor.commit))
