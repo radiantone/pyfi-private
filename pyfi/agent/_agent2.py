@@ -1069,7 +1069,8 @@ class PluginAgentService(AgentService):
         self.workerclass = workerclass
         self.name = name
         self.workers = []
-        self.plugins = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
+        self.plugins = {}
+        self.pluginlist = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
 
         logger.info("[PluginAgentService] Init, name %s cpus %s", name, cpus)
 
@@ -1079,13 +1080,13 @@ class PluginAgentService(AgentService):
     def start(self):
         os.environ["AGENT_CWD"] = os.getcwd()
 
-        for plugin in self.plugins:
+        for plugin in self.pluginlist:
             self.plugins[plugin.__class__.__name__] = plugin
             logging.debug(
                 "AgentService: Registered plugin %s", plugin.__class__.__name__
             )
 
         kwargs = {"cpus": self.cpus, "workerclass": self.workerclass}
-        [plugin.start(self, **kwargs) for plugin in self.plugins]
+        [plugin.start(self, **kwargs) for plugin in self.pluginlist]
 
-        [plugin.wait() for plugin in self.plugins]
+        [plugin.wait() for plugin in self.pluginlist]
