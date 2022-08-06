@@ -272,7 +272,6 @@ class AgentMonitorPlugin(AgentPlugin):
         myworkers = (
             session.query(WorkerModel).filter_by(hostname=agent.hostname).all()
         )
-        session.commit()
         # Deploy new processors
         for myworker in myworkers:
             if myworker.requested_status == "kill":
@@ -858,6 +857,7 @@ class AgentMonitorPlugin(AgentPlugin):
             finally:
                 pass
 
+        session.commit()
     def start(self, agent_service: AgentService, **kwargs):
         from billiard.context import Process
 
