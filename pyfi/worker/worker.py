@@ -2647,7 +2647,7 @@ class WorkerService:
                     # if not 'clean' and path for self.worker.workdir exists
                     # then move to that directory
                     # Create git directory and pull the remote repo
-
+                    pull = False
                     if self.worker:
                         logging.debug("Worker directory: %s", self.worker.workerdir)
 
@@ -2674,7 +2674,6 @@ class WorkerService:
                         logging.debug("cwd is %s", os.getcwd())
                         logging.debug("workdir is %s", self.workpath)
 
-                        pull = False
                         logging.info("Changing to %s for processor %s", self.workpath, self.processor.name)
                         os.chdir(self.workpath)
 
@@ -2891,7 +2890,7 @@ class WorkerService:
             pass
 
         if os.path.exists(self.workpath):
-            logging.debug("Removing working directory %s", self.workpath)
+            logging.info("Removing working directory %s", self.workpath)
             shutil.rmtree(self.workpath)
 
         logging.debug("Done killing worker.")
