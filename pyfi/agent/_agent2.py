@@ -623,7 +623,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             processor["worker"]["process"].kill()
                             processor["worker"] = None
 
-                        if "deployment" in processor:
+                        if "deployment" in processor and not inspect(processor["deployment"]).detached:
                             session.refresh(processor["deployment"])
 
                         #
