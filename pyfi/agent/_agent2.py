@@ -907,7 +907,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 json.dumps({"type": "queues", "queues": queues}),
             )
 
-        def monitor_processors():
+        def monitor_processors(session):
             from datetime import datetime
 
             processor_workers = []
