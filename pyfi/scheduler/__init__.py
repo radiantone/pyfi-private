@@ -611,12 +611,12 @@ class BasicScheduler:
 
         self.plugins = [cls(deployments) for cls in _plugins]
 
-        signal.signal(signal.SIGINT, self.quit)
+        signal.signal(signal.SIGINT, self.stop)
 
-    def quit(self, *args, **kwargs):
+    def stop(self, *args, **kwargs):
         [plugin.stop() for plugin in self.plugins]
         logging.info("Stopped")
-        #os.kill(os.getpid(), signal.SIGINT)
+        os.kill(os.getpid(), signal.SIGTERM)
 
     def run(self):
         [plugin.start(self.name, self.interval) for plugin in self.plugins]
