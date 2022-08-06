@@ -1019,7 +1019,6 @@ class AgentMonitorPlugin(AgentPlugin):
                     import time
 
                     update_queues()
-                    logging.info("[AgentMonitorPlugin] monitor_processors")
                     monitor_processors(session)
 
                     time.sleep(10)
