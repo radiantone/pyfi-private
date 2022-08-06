@@ -457,7 +457,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     cpus_met = False
                                     logging.info("Filling shortfall of %s cpus", _cpus)
 
-                                    for deployment in node_deployments:
+                                    for deployment in processor.deployments:
                                         deployment.cpus += _cpus
                                         logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
                                         deployment.requested_status = 'update'
