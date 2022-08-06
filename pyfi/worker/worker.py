@@ -2675,7 +2675,7 @@ class WorkerService:
                             if count >= 5:
                                 break
                             try:
-                                logging.debug(
+                                logging.info(
                                     "git clone -b {} --single-branch {} git".format(
                                         self.processor.branch,
                                         self.processor.gitrepo.split("#")[0],
@@ -2690,6 +2690,7 @@ class WorkerService:
                                 sys.path.append(self.workdir + "/git")
                                 os.chdir("git")
                                 os.system("git config credential.helper store")
+                                logging.info("Exited git setup")
                                 break
                             except Exception as ex:
                                 logging.error(ex)
@@ -2701,8 +2702,7 @@ class WorkerService:
 
                     # If not using a container, then build the virtualenv
                     if not os.path.exists("venv"):
-
-                        logging.debug("Building virtualenv...in %s", os.getcwd())
+                        logging.info("Building virtualenv...in %s", os.getcwd())
                         env = VirtualEnvironment(
                             "venv", python=sys.executable, system_site_packages=True
                         )  # inside git directory
@@ -2729,7 +2729,8 @@ class WorkerService:
                                     "Could not install %s",
                                     self.processor.gitrepo.strip(),
                                 )
-
+                    else:
+                        logging.info("venv already exists")
                 if self.processor.commit and not self.processor.gittag:
                     os.system("git checkout {}".format(self.processor.commit))
 
