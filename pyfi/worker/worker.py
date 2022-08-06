@@ -2459,6 +2459,9 @@ class WorkerService:
                                     }
                                 )
 
+                                logging.info("Prerun sleeping 12 seconds")
+                                time.sleep(12)
+
                                 logging.debug("Waiting on PRERUN REPLY")
                                 response = self.prerun_queue.get()
                                 logging.debug("GOT PRERUN QUEUE MESSAGE %s", response)

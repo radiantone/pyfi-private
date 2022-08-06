@@ -325,21 +325,23 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                     for socket in processor.sockets:
                         """For each socket task, set the rate limit based on the processor and active workers"""
-                        _taskp = socket.task.module + "." + socket.task.name
-                        if processor.perworker:
-                            logging.info(
-                                "Setting rate limit per worker for task %s to %s",
-                                _taskp,
-                                processor.ratelimit + units,
-                            )
-                            celery.control.rate_limit(_taskp, str(rate_per_worker))
-                        else:
-                            logging.debug(
-                                "Setting rate limit global for task %s to %s",
-                                _taskp,
-                                processor.ratelimit + units,
-                            )
-                            celery.control.rate_limit(_taskp, processor.ratelimit)
+
+                        for plug in socket.sourceplugs:
+                            _taskp = plug.target.queue.name + "." + socket.task.module + "." + socket.task.name
+                            if processor.perworker:
+                                logging.info(
+                                    "Setting rate limit per worker for task %s to %s",
+                                    _taskp,
+                                    processor.ratelimit,
+                                )
+                                celery.control.rate_limit(_taskp, str(rate_per_worker))
+                            else:
+                                logging.debug(
+                                    "Setting rate limit global for task %s to %s",
+                                    _taskp,
+                                    processor.ratelimit,
+                                )
+                                celery.control.rate_limit(_taskp, processor.ratelimit)
 
                 kill_workers = []
 
