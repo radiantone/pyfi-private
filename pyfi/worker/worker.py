@@ -2625,6 +2625,7 @@ class WorkerService:
                     os.system("git checkout {}".format(self.processor.commit))
 
             if self.processor.gitrepo and not self.skipvenv:
+                os.chdir(self.workpath)
 
                 if self.usecontainer:
                     """Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
