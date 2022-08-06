@@ -84,6 +84,7 @@ CONFIG = configparser.ConfigParser()
 if os.path.exists(HOME + "/pyfi.ini"):
     CONFIG.read(HOME + "/pyfi.ini")
 
+KEEP_WORKER_DIRS = CONFIG.get("worker", "keepdirs")
 DBURI = CONFIG.get("database", "uri")
 
 # Create database engine
