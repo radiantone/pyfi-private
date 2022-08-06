@@ -2680,37 +2680,30 @@ class WorkerService:
                             else:
                                 logging.info("No existing git directory....")
 
-                        while True:
-                            """Try 5 times to clone repo successfully"""
-                            if count >= 5:
-                                break
-                            try:
-                                if not pull:
-                                    logging.info(
-                                        "git clone -b {} --single-branch {} git".format(
-                                            self.processor.branch,
-                                            self.processor.gitrepo.split("#")[0],
-                                        )
+                        try:
+                            if not pull:
+                                logging.info(
+                                    "git clone -b {} --single-branch {} git".format(
+                                        self.processor.branch,
+                                        self.processor.gitrepo.split("#")[0],
                                     )
-                                    os.system(
-                                        "git clone -b {} --single-branch {} git".format(
-                                            self.processor.branch,
-                                            self.processor.gitrepo.split("#")[0],
-                                        )
+                                )
+                                os.system(
+                                    "git clone -b {} --single-branch {} git".format(
+                                        self.processor.branch,
+                                        self.processor.gitrepo.split("#")[0],
                                     )
-                                    sys.path.append(self.workpath + "/git")
-                                    os.chdir("git")
-                                else:
-                                    sys.path.append(self.workpath + "/git")
-                                    #os.system("git pull")
+                                )
+                                sys.path.append(self.workpath + "/git")
+                                os.chdir("git")
+                            else:
+                                sys.path.append(self.workpath + "/git")
+                                #os.system("git pull")
 
-                                os.system("git config credential.helper store")
-                                logging.info("Exited git setup")
-                                break
-                            except Exception as ex:
-                                logging.error(ex)
-                                time.sleep(3)
-                                count += 1
+                            os.system("git config credential.helper store")
+                            logging.info("Exited git setup")
+                        except Exception as ex:
+                            logging.error(ex)
 
                     # Create or update venv
                     from virtualenvapi.manage import VirtualEnvironment
