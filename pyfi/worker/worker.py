@@ -2461,6 +2461,7 @@ class WorkerService:
 
                                 logging.info("Prerun sleeping 12 seconds")
                                 time.sleep(12)
+                                logging.info("Done sleeping")
 
                                 logging.debug("Waiting on PRERUN REPLY")
                                 response = self.prerun_queue.get()
