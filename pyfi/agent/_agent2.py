@@ -797,7 +797,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     )
 
                                     os.chdir(self.basedir)
-
+                                    logging.info("Launching from %s", self.basedir)
                                     wprocess = workerproc.launch(
                                         worker_model.name,
                                         agent.name,
