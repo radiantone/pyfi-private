@@ -2664,26 +2664,29 @@ class WorkerService:
                         logging.debug("cwd is %s", os.getcwd())
                         logging.debug("workdir is %s", self.workdir)
 
-                        pull=False
+                        pull = False
                         if not os.path.exists(self.workdir):
                             os.makedirs(self.workdir)
                         else:
                             logging.info("Changing to %s for processor %s", self.workdir, self.processor.name)
                             os.chdir(self.workdir)
-                            pull=True
+
+                            if os.path.exists("git"):
+                                os.chdir("git")
+                                pull = True
 
                         while True:
                             """Try 5 times to clone repo successfully"""
                             if count >= 5:
                                 break
                             try:
-                                logging.info(
-                                    "git clone -b {} --single-branch {} git".format(
-                                        self.processor.branch,
-                                        self.processor.gitrepo.split("#")[0],
-                                    )
-                                )
                                 if not pull:
+                                    logging.info(
+                                        "git clone -b {} --single-branch {} git".format(
+                                            self.processor.branch,
+                                            self.processor.gitrepo.split("#")[0],
+                                        )
+                                    )
                                     os.system(
                                         "git clone -b {} --single-branch {} git".format(
                                             self.processor.branch,
@@ -2694,7 +2697,6 @@ class WorkerService:
                                     os.chdir("git")
                                 else:
                                     sys.path.append(self.workdir + "/git")
-                                    os.chdir("git")
                                     #os.system("git pull")
 
                                 os.system("git config credential.helper store")
