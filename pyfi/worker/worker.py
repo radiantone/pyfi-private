@@ -2671,7 +2671,7 @@ class WorkerService:
                         if not os.path.exists(self.workpath):
                             os.makedirs(self.workpath)
                         else:
-                            logging.info("Changing to %s/%s for processor %s", os.getcwd(), self.workpath, self.processor.name)
+                            logging.info("Changing to %s for processor %s", self.workpath, self.processor.name)
                             os.chdir(self.workpath)
 
                             if os.path.exists("git"):
