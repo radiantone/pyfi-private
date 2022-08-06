@@ -305,13 +305,14 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
                 # Each node will have n free CPUs. A set of deployments are needed that map the processor concurrency needs
                 # to all available CPUs across nodes.
-                logging.debug("Processor concurrency is %s", processor.concurrency)
+                logging.info("Processor concurrency is %s", processor.concurrency)
 
                 deployed_cpus = 0
 
                 worker_names = []
 
                 for deployment in processor.deployments:
+                    logging.info("   Deployment: %s", deployment)
                     logging.info("   Deployment %s: CPU %s", deployment.name, deployment.cpus)
                     deployed_cpus += deployment.cpus
 
