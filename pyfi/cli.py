@@ -2744,6 +2744,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         workerproc = WorkerService(
             processor,
             workdir=dir,
+            basedir=os.getcwd(),
             hostname=hostname,
             deployment=workerModel.deployment,
             pool=pool,
