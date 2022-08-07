@@ -2627,10 +2627,10 @@ class WorkerService:
                 logging.debug(
                     "Preparing worker %s %s %s %s %s",
                     worker.name,
-                    worker.processor.name,
+                    deployment.processor.name,
                     self.backend,
                     self.broker,
-                    worker.processor.module,
+                    deployment.processor.module,
                 )
 
                 """ Install gitrepo and build virtualenv """
@@ -2651,11 +2651,11 @@ class WorkerService:
                         raise NotImplementedError
                     else:
                         """Build our virtualenv and import the gitrepo for the processor"""
-                        logging.info("git clone for processor %s", self.processor.name)
+                        logging.info("git clone for processor %s", deployment.processor.name)
 
                         logging.debug(
                             "git clone -b {} --single-branch {} git".format(
-                                self.processor.branch, self.processor.gitrepo
+                                deployment.processor.branch, deployment.processor.gitrepo
                             )
                         )
 
@@ -2664,21 +2664,21 @@ class WorkerService:
                         # Create git directory and pull the remote repo
                         pull = False
                         if self.worker:
-                            logging.debug("Worker directory: %s", self.worker.workerdir)
+                            logging.debug("Worker directory: %s", worker.workerdir)
 
                         logging.debug("Current directory: %s", os.getcwd())
 
                         if (
-                                self.worker
-                                and self.worker.workerdir
-                                and os.path.exists(self.worker.workerdir)
-                                and os.path.exists(self.worker.workerdir + "/git")
+                                worker
+                                and worker.workerdir
+                                and os.path.exists(worker.workerdir)
+                                and os.path.exists(worker.workerdir + "/git")
                         ):
                             logging.debug(
                                 "Changing to existing work directory %s",
-                                self.worker.workerdir,
+                                worker.workerdir,
                             )
-                            os.chdir(self.worker.workerdir + "/git")
+                            os.chdir(worker.workerdir + "/git")
                             os.system("git config --get remote.origin.url")
                             os.system("git config pull.rebase false")
                             logging.debug("Pulling update from git")
@@ -2689,7 +2689,7 @@ class WorkerService:
                             logging.debug("cwd is %s", os.getcwd())
                             logging.debug("workdir is %s", self.workpath)
 
-                            logging.info("Changing to %s for processor %s", self.workpath, self.processor.name)
+                            logging.info("Changing to %s for processor %s", self.workpath, deployment.processor.name)
                             os.chdir(self.workpath)
 
                             if os.path.exists("git"):
@@ -2702,14 +2702,14 @@ class WorkerService:
                                 if not pull:
                                     logging.info(
                                         "git clone -b {} --single-branch {} git".format(
-                                            self.processor.branch,
-                                            self.processor.gitrepo.split("#")[0],
+                                            deployment.processor.branch,
+                                            deployment.processor.gitrepo.split("#")[0],
                                         )
                                     )
                                     os.system(
                                         "git clone -b {} --single-branch {} git".format(
-                                            self.processor.branch,
-                                            self.processor.gitrepo.split("#")[0],
+                                            deployment.processor.branch,
+                                            deployment.processor.gitrepo.split("#")[0],
                                         )
                                     )
                                     sys.path.append(self.workpath + "/git")
@@ -2728,7 +2728,7 @@ class WorkerService:
 
                         # If not using a container, then build the virtualenv
                         if not pull and not os.path.exists("venv"):
-                            logging.info("Building virtualenv for %s...in %s", self.processor.name, os.getcwd())
+                            logging.info("Building virtualenv for %s...in %s", deployment.processor.name, os.getcwd())
                             env = VirtualEnvironment(
                                 "venv", python=sys.executable, system_site_packages=True
                             )  # inside git directory
@@ -2743,26 +2743,26 @@ class WorkerService:
                                 "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
                             )
 
-                            if not self.processor.use_container:
+                            if not deployment.processor.use_container:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
                                 try:
-                                    env.install("-e git+" + self.processor.gitrepo.strip())
+                                    env.install("-e git+" + deployment.processor.gitrepo.strip())
                                 except:
                                     import traceback
 
                                     print(traceback.format_exc())
                                     logging.error(
                                         "Could not install %s",
-                                        self.processor.gitrepo.strip(),
+                                        deployment.processor.gitrepo.strip(),
                                     )
                         else:
                             logging.info("venv already exists in %s", os.getcwd())
 
-                    if self.processor.commit and not self.processor.gittag:
-                        os.system("git checkout {}".format(self.processor.commit))
+                    if deployment.processor.commit and not deployment.processor.gittag:
+                        os.system("git checkout {}".format(deployment.processor.commit))
 
-                    if self.processor.gittag:
-                        os.system("git checkout {}".format(self.processor.gittag))
+                    if deployment.processor.gittag:
+                        os.system("git checkout {}".format(deployment.processor.gittag))
 
                 # Sometimes we just want to recreate the setup
                 if not start:
