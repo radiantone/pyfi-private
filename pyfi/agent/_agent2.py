@@ -349,7 +349,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     """ Now look at all my processors in my list and create workers if necessary """
                     for processor in self.processors:
                         myprocessor = (
-                            session.query(ProcessorModel).filter_by(id=processor["id"]).all()
+                            session.query(ProcessorModel).filter_by(id=processor["id"]).first()
                         )
                         logging.debug(
                             "Processor.requested_status START %s %s",
