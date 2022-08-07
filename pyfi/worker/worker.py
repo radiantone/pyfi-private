@@ -2619,10 +2619,11 @@ class WorkerService:
         def start_worker_proc():
 
             with self.get_session() as session:
-                deployment = deployment = (
+                deployment = (
                     session.query(DeploymentModel).filter_by(name=self.deploymentname).first()
                 )
                 worker = deployment.worker
+                session.add(worker)
 
                 logging.debug(
                     "Preparing worker %s %s %s %s %s",
