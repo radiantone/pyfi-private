@@ -278,6 +278,29 @@ class WorkerService:
     _session = None
     _connection = None
 
+    @contextmanager
+    def get_session(**kwargs):
+        from pyfi.db import get_session
+
+        logging.debug("get_session: Creating session")
+
+        session = get_session()
+
+        try:
+            logging.debug("get_session: Yielding session")
+            yield session
+        except:
+            logging.debug("get_session: Rollback session")
+            session.rollback()
+            raise
+        else:
+            logging.debug("get_session: Commit session")
+            session.commit()
+        finally:
+            logging.debug("get_session: Closing session")
+            session.expunge_all()
+            session.close()
+
     def __init__(
             self,
             processor: ProcessorModel,
@@ -303,7 +326,6 @@ class WorkerService:
         global HOSTNAME
         from pyfi.db import get_session
 
-        #self.database = DATABASE
         self.backend = backend
         self.broker = broker
         self.port = port
@@ -348,9 +370,6 @@ class WorkerService:
         self.postrun_queue = Queue()
 
         cpus = multiprocessing.cpu_count()
-
-        #sm = sessionmaker(bind=self.database)
-        #self.sm = sm
 
         with get_session() as session:
             self.processor = _processor = (
