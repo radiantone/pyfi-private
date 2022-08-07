@@ -691,7 +691,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             "-------------------------------------------------------"
                                         )
                                         logging.debug(
-                                            f"-----------------------Deploying processor {processor['processor'].name}"
+                                            f"-----------------------Deploying processor {myprocessor.name}"
                                         )
                                         logging.debug(
                                             f"-----------------------Agent {agent.id}"
