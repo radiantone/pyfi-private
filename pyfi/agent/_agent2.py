@@ -780,9 +780,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         # session.add(deployment.worker)
 
                                         """ Update worker process reference """
-                                        deployment.worker.processor_id = processor[
-                                            "processor"
-                                        ].id
+                                        deployment.worker.processor_id = myprocessor.id
 
                                         try:
                                             # Update worker agent reference
