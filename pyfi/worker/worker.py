@@ -619,7 +619,7 @@ class WorkerService:
                     logging.debug("database_actions: Getting processor")
                     processor = (
                         session.query(ProcessorModel)
-                        .filter_by(id=self.processor.id)
+                        .filter_by(id=self.processorid)
                         .first()
                     )
                     logging.debug("database_actions: Got processor %s", processor.name)
