@@ -343,9 +343,6 @@ class WorkerService:
         else:
             self.workpath = self.basedir + "/" + self.workdir
 
-        print("BASEDIR", self.basedir)
-        print("WORKDIR", self.workdir)
-
         logging.debug("INIT WORKERSERVICE")
 
         if hostname:
@@ -373,16 +370,20 @@ class WorkerService:
         cpus = multiprocessing.cpu_count()
 
         with self.get_session() as session:
-            self.processor = _processor = (
-                session.query(ProcessorModel).filter_by(name=processor.name).first()
+
+            _processor = (
+                session.query(ProcessorModel).filter_by(id=processorid).first()
             )
+            '''
             self.deployment = deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
             )
             self.worker = deployment.worker
-            self.agent = agent = (
+            '''
+            agent = (
                 session.query(AgentModel).filter_by(name=agent.name).first()
             )
+
             deployment.status = "running"
 
             self.pool = pool
@@ -400,11 +401,11 @@ class WorkerService:
                 jobstores = {
                     'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
                 }
-                """
                 executors = {
                     "default": ThreadPoolExecutor(20),
                     "processpool": ProcessPoolExecutor(5),
                 }
+                """
                 job_defaults = {"coalesce": False, "max_instances": 3}
 
                 self.scheduler = BackgroundScheduler(
@@ -423,7 +424,7 @@ class WorkerService:
 
                 module = importlib.import_module(celeryconfig.split["."][:-1])
                 celeryconfig = getattr(module, celeryconfig.split["."][-1:])
-                self.celery = Celery(include=self.processor.module)
+                self.celery = Celery(include=_processor.module)
                 self.celery.config_from_object(celeryconfig)
 
             else:
@@ -434,7 +435,7 @@ class WorkerService:
                 logging.debug("App config is %s", config)
                 self.celery.config_from_object(config)
 
-            @self.celery.task(name=self.processor.name + ".pyfi.celery.tasks.enqueue")
+            @self.celery.task(name=_processor.name + ".pyfi.celery.tasks.enqueue")
             def enqueue(data, *args, **kwargs):
                 logging.debug("ENQUEUE: %s", data)
                 return data
@@ -443,13 +444,10 @@ class WorkerService:
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
             )
-            _processor = (
-                session.query(ProcessorModel).filter_by(name=processor.name).first()
-            )
 
             workerModel = self.workerModel = (
                 session.query(WorkerModel)
-                .filter_by(name=hostname + ".agent." + self.processor.name + ".worker")
+                .filter_by(name=hostname + ".agent." + _processor.name + ".worker")
                 .first()
             )
             workers = session.query(WorkerModel).filter_by(hostname=hostname).all()
@@ -472,7 +470,7 @@ class WorkerService:
                 workerModel = self.workerModel = WorkerModel(
                     name=HOSTNAME
                          + ".agent."
-                         + self.processor.name
+                         + _processor.name
                          + ".worker."
                          + str(len(workers) + 1),
                     concurrency=int(_deployment.cpus),
@@ -480,7 +478,7 @@ class WorkerService:
                     backend=self.backend,
                     broker=self.broker,
                     processor=_processor,
-                    agent_id=self.agent.id,
+                    agent_id=agent.id,
                     deployment=_deployment,
                     workerdir=self.workpath,
                     hostname=HOSTNAME,
@@ -488,9 +486,9 @@ class WorkerService:
                 )
 
                 logging.debug("Created workerModel")
-                # session.merge(deployment)
+
                 if not workerModel.agent_id:
-                    workerModel.agent_id = self.agent.id
+                    workerModel.agent_id = agent.id
 
                 session.add(workerModel)
                 logging.debug("Added workerModel to session %s", workerModel)
@@ -499,15 +497,10 @@ class WorkerService:
                 workerModel.workerdir = self.workpath
                 workerModel.port = self.port
 
-                # logging.debug("Adding deployment %s to worker model", _deployment)
                 workerModel.deployment = _deployment
                 _deployment.worker = workerModel
                 _deployment.worker.processor = _processor
                 logging.debug("Refreshing processor")
-                # session.refresh(_processor)
-                # logging.debug("Printing processor")
-                # logging.debug("Attached worker to deployment and processor...%s",_processor)
-                # session.commit()
                 logging.debug("Attached worker: Done")
 
         self.process = None
