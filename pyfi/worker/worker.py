@@ -279,7 +279,7 @@ class WorkerService:
     _connection = None
 
     @contextmanager
-    def get_session(**kwargs):
+    def get_session(self, **kwargs):
         from pyfi.db import get_session
 
         logging.debug("get_session: Creating session")
