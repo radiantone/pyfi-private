@@ -372,7 +372,7 @@ class WorkerService:
         with self.get_session() as session:
 
             _processor = (
-                session.query(ProcessorModel).filter_by(id=processorid).first()
+                session.query(ProcessorModel).filter_by(id=self.processorid).first()
             )
             '''
             self.deployment = deployment = (
