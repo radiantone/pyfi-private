@@ -312,7 +312,7 @@ class AgentMonitorPlugin(AgentPlugin):
                     """ Update my list of processors with the deployment.processor """
                     for processor in self.processors:
 
-                        if processor["processor"].id == myprocessor.id:
+                        if processor["id"] == myprocessor.id:
                             processor["processor"] = myprocessor
                             found = True
 
