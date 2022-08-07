@@ -612,8 +612,8 @@ class WorkerService:
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             logging.debug("database_actions: Starting...")
-            session = scoped_session(self.sm)
-            while True:
+            with self.get_session() as session:
+                while True:
                 logging.debug("database_actions: loop")
                 logging.debug("database_actions: Getting processor")
                 processor = (
