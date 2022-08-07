@@ -729,7 +729,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         # deployment.worker.processor = processor['processor']
                                         # Setup the virtualenv only
                                         logging.debug(
-                                            f"-----------------------Starting {processor['processor'].name}"
+                                            f"-----------------------Starting {myprocessor.name}"
                                         )
 
                                         """ Start the worker service """
@@ -751,17 +751,17 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                         # Launch from the virtualenv
                                         logging.debug(
-                                            f"-----------------------Launching {processor['processor'].name}"
+                                            f"-----------------------Launching {myprocessor.name}"
                                         )
 
                                         """ Change into my base directory """
                                         os.chdir(self.basedir)
 
                                         """ Make directories for the worker to work inside of """
-                                        if not os.path.exists("work/" + processor['processor'].id):
-                                            os.makedirs("work/" + processor['processor'].id)
+                                        if not os.path.exists("work/" + myprocessor.id):
+                                            os.makedirs("work/" + myprocessor.id)
 
-                                        os.chdir("work/" + processor['processor'].id)
+                                        os.chdir("work/" + myprocessor.id)
 
                                         """Launch the task worker (which is not the same as the Worker service above 
                                         it """
