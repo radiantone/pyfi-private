@@ -2623,7 +2623,7 @@ class WorkerService:
                     session.query(DeploymentModel).filter_by(name=self.deploymentname).first()
                 )
                 worker = deployment.worker
-                session.add(worker)
+                session.merge(worker)
 
                 logging.debug(
                     "Preparing worker %s %s %s %s %s",
