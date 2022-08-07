@@ -2661,8 +2661,6 @@ class WorkerService:
                         # then move to that directory
                         # Create git directory and pull the remote repo
                         pull = False
-                        if self.worker:
-                            logging.debug("Worker directory: %s", worker.workerdir)
 
                         logging.debug("Current directory: %s", os.getcwd())
 
