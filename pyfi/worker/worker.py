@@ -2623,15 +2623,14 @@ class WorkerService:
                     session.query(DeploymentModel).filter_by(name=self.deploymentname).first()
                 )
                 worker = deployment.worker
-                session.merge(worker)
 
                 logging.debug(
                     "Preparing worker %s %s %s %s %s",
                     worker.name,
-                    self.worker.processor.name,
+                    worker.processor.name,
                     self.backend,
                     self.broker,
-                    self.worker.processor.module,
+                    worker.processor.module,
                 )
 
                 """ Install gitrepo and build virtualenv """
