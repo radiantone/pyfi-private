@@ -385,6 +385,7 @@ class WorkerService:
             self.agent = agent = (
                 session.query(AgentModel).filter_by(name=agent.name).first()
             )
+            deployment.status = "running"
 
         self.pool = pool
         self.user = user
