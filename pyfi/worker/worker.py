@@ -2628,7 +2628,7 @@ class WorkerService:
                 logging.debug(
                     "Preparing worker %s %s %s %s %s",
                     worker.name,
-                    self.worker.processor.plugs,
+                    self.worker.processor.name,
                     self.backend,
                     self.broker,
                     self.worker.processor.module,
