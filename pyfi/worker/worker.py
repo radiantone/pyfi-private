@@ -336,6 +336,7 @@ class WorkerService:
         self.port = workerport
         self.basedir = basedir
         self.deploymentname = deployment.name
+        self.processorid = processor.id
 
         if os.path.isabs(self.workdir):
             self.workpath = self.workdir
@@ -1370,92 +1371,96 @@ class WorkerService:
 
             queues = []
 
-            logging.debug("use_container %s", self.processor.use_container)
-            if self.processor.use_container:
-                agent_cwd = os.environ["AGENT_CWD"]
-
-                client = docker.from_env()
-                logging.debug(
-                    "Worker: Checking processor.detached....%s", self.processor.detached
-                )
-                if self.processor.detached:
-                    logging.debug(
-                        "Running container %s:%s....",
-                        self.processor.container_image,
-                        self.processor.container_version,
-                    )
-
-                    if not os.path.exists("out"):
-                        os.mkdir("out")
-                    try:
-                        self.container = client.containers.get(
-                            HOSTNAME + "." + self.processor.module
-                        )
-                    except Exception:
-                        self.container = client.containers.run(
-                            self.processor.container_image
-                            + ":"
-                            + self.processor.container_version,
-                            auto_remove=True,
-                            name=HOSTNAME + "." + self.processor.module,
-                            volumes={
-                                os.getcwd() + "/out": {"bind": "/tmp/", "mode": "rw"}
-                            },
-                            entrypoint="",
-                            command="tail -f /etc/hosts",
-                            detach=True,
-                        )
-
-                    # TODO: Create or Update ContainerModel
-                    # Add ContainerModel to self.deployment.container
-
-                    logging.debug("Working starting container....%s", self.container)
-                    logging.debug(
-                        "Container started %s:%s....%s",
-                        self.processor.container_image,
-                        self.processor.container_version,
-                        self.container,
-                    )
-
-                    logging.debug(
-                        "Installing repo inside container...%s",
-                        self.processor.gitrepo.strip(),
-                    )
-
-                    # TODO: Only install repo if processor has one
-                    # TODO: Install requirements.txt if processor has one
-                    # Install the repo inside the container
-                    res = self.container.exec_run(
-                        "pip install -e git+" + self.processor.gitrepo.strip()
-                    )
-
-                    logging.debug("OUTPUT: %s", res.output)
-
-                    with open(f"{agent_cwd}/{self.processor.name}.pid", "w") as cfile:
-                        cfile.write(str(self.container.short_id) + "\n")
-
-                    with open(f"{agent_cwd}/containers.pid", "a") as cfile:
-                        cfile.write(str(self.container.short_id) + "\n")
-                    # Append container id to containers.pid
-
-            logging.debug("Worker starting session....")
-
             with self.get_session() as session:
+                myprocessor = (
+                    session.query(ProcessorModel)
+                    .filter_by(id=self.processorid)
+                    .first()
+                )
+                logging.debug("use_container %s", myprocessor.use_container)
+
+                if myprocessor.use_container:
+                    agent_cwd = os.environ["AGENT_CWD"]
+
+                    client = docker.from_env()
+                    logging.debug(
+                        "Worker: Checking processor.detached....%s", myprocessor.detached
+                    )
+                    if myprocessor.detached:
+                        logging.debug(
+                            "Running container %s:%s....",
+                            myprocessor.container_image,
+                            myprocessor.container_version,
+                        )
+
+                        if not os.path.exists("out"):
+                            os.mkdir("out")
+                        try:
+                            self.container = client.containers.get(
+                                HOSTNAME + "." + myprocessor.module
+                            )
+                        except Exception:
+                            self.container = client.containers.run(
+                                myprocessor.container_image
+                                + ":"
+                                + myprocessor.container_version,
+                                auto_remove=True,
+                                name=HOSTNAME + "." + myprocessor.module,
+                                volumes={
+                                    os.getcwd() + "/out": {"bind": "/tmp/", "mode": "rw"}
+                                },
+                                entrypoint="",
+                                command="tail -f /etc/hosts",
+                                detach=True,
+                            )
+
+                        # TODO: Create or Update ContainerModel
+                        # Add ContainerModel to self.deployment.container
+
+                        logging.debug("Working starting container....%s", self.container)
+                        logging.debug(
+                            "Container started %s:%s....%s",
+                            myprocessor.container_image,
+                            myprocessor.container_version,
+                            self.container,
+                        )
+
+                        logging.debug(
+                            "Installing repo inside container...%s",
+                            myprocessor.gitrepo.strip(),
+                        )
+
+                        # TODO: Only install repo if processor has one
+                        # TODO: Install requirements.txt if processor has one
+                        # Install the repo inside the container
+                        res = self.container.exec_run(
+                            "pip install -e git+" + myprocessor.gitrepo.strip()
+                        )
+
+                        logging.debug("OUTPUT: %s", res.output)
+
+                        with open(f"{agent_cwd}/{myprocessor.name}.pid", "w") as cfile:
+                            cfile.write(str(self.container.short_id) + "\n")
+
+                        with open(f"{agent_cwd}/containers.pid", "a") as cfile:
+                            cfile.write(str(self.container.short_id) + "\n")
+                        # Append container id to containers.pid
+
+                logging.debug("Worker starting session....")
+
                 logging.debug("Worker got session....")
-                # session.refresh(self.processor)
-                logging.debug("================== WORKER PROCESSOR %s", self.processor)
-                logging.debug("Getting processor {}".format(self.processor.id))
+                # session.refresh(myprocessor)
+                logging.debug("================== WORKER PROCESSOR %s", myprocessor)
+                logging.debug("Getting processor {}".format(myprocessor.id))
                 task_queues = []
                 task_routes = {}
 
-                logging.debug("My processor is: {}".format(self.processor))
+                logging.debug("My processor is: {}".format(myprocessor))
 
-                _processor = (
-                    session.query(ProcessorModel)
-                    .filter_by(id=self.processor.id)
-                    .first()
-                )
+                _processor = myprocessor
+
                 session.commit()
+
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
                     """Set up task routes"""
                     logging.debug("Setting up sockets...")
