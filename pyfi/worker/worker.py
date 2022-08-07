@@ -30,7 +30,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from kombu import Exchange
 from kombu import Queue as KQueue
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session
 from sqlalchemy.pool import QueuePool
 
 from celery import Celery
@@ -324,7 +324,6 @@ class WorkerService:
         """ """
         import multiprocessing
         global HOSTNAME
-        from pyfi.db import get_session
 
         self.backend = backend
         self.broker = broker
@@ -1362,7 +1361,6 @@ class WorkerService:
 
             from uuid import uuid4
             from setproctitle import setproctitle
-            from pyfi.db import get_session
 
             setproctitle("pyfi worker::worker_proc")
 
