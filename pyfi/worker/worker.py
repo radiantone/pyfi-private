@@ -370,7 +370,7 @@ class WorkerService:
 
         cpus = multiprocessing.cpu_count()
 
-        with get_session() as session:
+        with self.get_session() as session:
             self.processor = _processor = (
                 session.query(ProcessorModel).filter_by(name=processor.name).first()
             )
@@ -437,7 +437,7 @@ class WorkerService:
             logging.debug("ENQUEUE: %s", data)
             return data
 
-        with get_session() as session:
+        with self.get_session() as session:
             logging.debug("Retrieving deployment by name %s", deployment.name)
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
@@ -1440,7 +1440,7 @@ class WorkerService:
 
             logging.debug("Worker starting session....")
 
-            with get_session() as session:
+            with self.get_session() as session:
                 logging.debug("Worker got session....")
                 # session.refresh(self.processor)
                 logging.debug("================== WORKER PROCESSOR %s", self.processor)
