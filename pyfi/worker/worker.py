@@ -2733,7 +2733,7 @@ class WorkerService:
 
                     # If not using a container, then build the virtualenv
                     if not pull and not os.path.exists("venv"):
-                        logging.info("Building virtualenv...in %s", os.getcwd())
+                        logging.info("Building virtualenv for %s...in %s", self.processing.name, os.getcwd())
                         env = VirtualEnvironment(
                             "venv", python=sys.executable, system_site_packages=True
                         )  # inside git directory
