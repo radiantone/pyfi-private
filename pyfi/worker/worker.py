@@ -383,61 +383,60 @@ class WorkerService:
             )
             deployment.status = "running"
 
-        self.pool = pool
-        self.user = user
-        os.chdir(self.basedir)
+            self.pool = pool
+            self.user = user
+            os.chdir(self.basedir)
 
-        logging.debug("New Worker init: %s", processor)
+            logging.debug("New Worker init: %s", processor)
 
-        if os.path.exists(HOME + "/pyfi.ini"):
-            CONFIG.read(HOME + "/pyfi.ini")
-            self.backend = CONFIG.get("backend", "uri")
-            self.broker = CONFIG.get("broker", "uri")
+            if os.path.exists(HOME + "/pyfi.ini"):
+                CONFIG.read(HOME + "/pyfi.ini")
+                self.backend = CONFIG.get("backend", "uri")
+                self.broker = CONFIG.get("broker", "uri")
 
-            """
-            jobstores = {
-                'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
-            }
-            """
-            executors = {
-                "default": ThreadPoolExecutor(20),
-                "processpool": ProcessPoolExecutor(5),
-            }
-            job_defaults = {"coalesce": False, "max_instances": 3}
+                """
+                jobstores = {
+                    'default': SQLAlchemyJobStore(url=CONFIG.get('database', 'uri'), metadata=Base.metadata, tablename=processor.name+'_jobs')
+                }
+                """
+                executors = {
+                    "default": ThreadPoolExecutor(20),
+                    "processpool": ProcessPoolExecutor(5),
+                }
+                job_defaults = {"coalesce": False, "max_instances": 3}
 
-            self.scheduler = BackgroundScheduler(
-                job_defaults=job_defaults, timezone=utc
-            )
+                self.scheduler = BackgroundScheduler(
+                    job_defaults=job_defaults, timezone=utc
+                )
 
-            self.jobs = {}
+                self.jobs = {}
 
-            logging.debug("JOBS %s", self.jobs)
+                logging.debug("JOBS %s", self.jobs)
 
-            self.scheduler.print_jobs()
+                self.scheduler.print_jobs()
 
-        if celeryconfig is not None:
-            logging.debug("Applying celeryconfig from %s", celeryconfig)
-            import importlib
+            if celeryconfig is not None:
+                logging.debug("Applying celeryconfig from %s", celeryconfig)
+                import importlib
 
-            module = importlib.import_module(celeryconfig.split["."][:-1])
-            celeryconfig = getattr(module, celeryconfig.split["."][-1:])
-            self.celery = Celery(include=self.processor.module)
-            self.celery.config_from_object(celeryconfig)
+                module = importlib.import_module(celeryconfig.split["."][:-1])
+                celeryconfig = getattr(module, celeryconfig.split["."][-1:])
+                self.celery = Celery(include=self.processor.module)
+                self.celery.config_from_object(celeryconfig)
 
-        else:
-            self.celery = Celery("pyfi", backend=backend, broker=broker)
+            else:
+                self.celery = Celery("pyfi", backend=backend, broker=broker)
 
-            from pyfi.celery import config
+                from pyfi.celery import config
 
-            logging.debug("App config is %s", config)
-            self.celery.config_from_object(config)
+                logging.debug("App config is %s", config)
+                self.celery.config_from_object(config)
 
-        @self.celery.task(name=self.processor.name + ".pyfi.celery.tasks.enqueue")
-        def enqueue(data, *args, **kwargs):
-            logging.debug("ENQUEUE: %s", data)
-            return data
+            @self.celery.task(name=self.processor.name + ".pyfi.celery.tasks.enqueue")
+            def enqueue(data, *args, **kwargs):
+                logging.debug("ENQUEUE: %s", data)
+                return data
 
-        with self.get_session() as session:
             logging.debug("Retrieving deployment by name %s", deployment.name)
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
@@ -495,19 +494,19 @@ class WorkerService:
                 logging.debug("Added workerModel to session %s", workerModel)
                 session.commit()
 
-            workerModel.workerdir = self.workpath
-            workerModel.port = self.port
+                workerModel.workerdir = self.workpath
+                workerModel.port = self.port
 
-            # logging.debug("Adding deployment %s to worker model", _deployment)
-            workerModel.deployment = _deployment
-            _deployment.worker = workerModel
-            _deployment.worker.processor = _processor
-            logging.debug("Refreshing processor")
-            # session.refresh(_processor)
-            # logging.debug("Printing processor")
-            # logging.debug("Attached worker to deployment and processor...%s",_processor)
-            # session.commit()
-            logging.debug("Attached worker: Done")
+                # logging.debug("Adding deployment %s to worker model", _deployment)
+                workerModel.deployment = _deployment
+                _deployment.worker = workerModel
+                _deployment.worker.processor = _processor
+                logging.debug("Refreshing processor")
+                # session.refresh(_processor)
+                # logging.debug("Printing processor")
+                # logging.debug("Attached worker to deployment and processor...%s",_processor)
+                # session.commit()
+                logging.debug("Attached worker: Done")
 
         self.process = None
         logging.debug(
