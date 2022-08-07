@@ -336,6 +336,7 @@ class WorkerService:
         self.port = workerport
         self.basedir = basedir
         self.deploymentname = deployment.name
+        self.agentname = agent.name
         self.processorid = processor.id
 
         if os.path.isabs(self.workdir):
@@ -1370,6 +1371,13 @@ class WorkerService:
                     .filter_by(id=self.processorid)
                     .first()
                 )
+                deployment = (
+                    session.query(DeploymentModel).filter_by(name=self.deploymentname).first()
+                )
+                agent = (
+                    session.query(AgentModel).filter_by(name=self.agentname).first()
+                )
+
                 logging.debug("use_container %s", myprocessor.use_container)
 
                 if myprocessor.use_container:
@@ -1771,7 +1779,7 @@ class WorkerService:
                     _processor.name + "@" + HOSTNAME,
                     self.backend,
                     self.broker,
-                    self.deployment.cpus,
+                    deployment.cpus,
                 )
 
                 """ Create celery worker """
@@ -1782,18 +1790,18 @@ class WorkerService:
                                  + "."
                                  + _processor.name
                                  + "."
-                                 + self.deployment.name
+                                 + deployment.name
                                  + "@"
-                                 + self.agent.hostname,
+                                 + agent.hostname,
                         backend=self.backend,
                         broker=self.broker,
                         beat=_processor.beat,
                         uid="pyfi",
                         without_mingle=True,
                         without_gossip=True,
-                        concurrency=int(self.deployment.cpus),
+                        concurrency=int(deployment.cpus),
                     )
-                    worker.concurrency = int(self.deployment.cpus)
+                    worker.concurrency = int(deployment.cpus)
                 except Exception as ex:
                     logging.error(ex)
 
@@ -1807,8 +1815,8 @@ class WorkerService:
                         "Creating workerModel with worker dir %s", self.workpath
                     )
 
-                    if self.deployment.worker:
-                        workerModel = self.deployment.worker
+                    if deployment.worker:
+                        workerModel = deployment.worker
                     else:
                         workerModel = (
                             session.query(WorkerModel)
@@ -1821,13 +1829,13 @@ class WorkerService:
                     if workerModel is None:
                         workerModel = WorkerModel(
                             name=HOSTNAME + ".agent." + _processor.name + ".worker",
-                            concurrency=int(self.deployment.cpus),
+                            concurrency=int(deployment.cpus),
                             status="ready",
                             backend=self.backend,
                             processor=_processor,
                             broker=self.broker,
                             workerdir=self.workpath,
-                            agent_id=self.agent.id,
+                            agent_id=agent.id,
                             hostname=HOSTNAME,
                             requested_status="start",
                         )
@@ -1838,9 +1846,9 @@ class WorkerService:
                     workerModel.workerdir = self.workpath
 
                     """ Attach worker to deployment """
-                    self.deployment.worker = workerModel
-                    self.deployment.worker.hostname = HOSTNAME
-                    workerModel.deployment = self.deployment
+                    deployment.worker = workerModel
+                    deployment.worker.hostname = HOSTNAME
+                    workerModel.deployment = deployment
                     workerModel.port = self.port
                     session.commit()
                 except Exception as ex:
