@@ -94,6 +94,7 @@ except:
 DBURI = CONFIG.get("database", "uri")
 
 # Create database engine
+# , isolation_level='READ UNCOMMITTED'
 DATABASE = create_engine(
     DBURI, pool_size=1, max_overflow=5, pool_recycle=3600, poolclass=QueuePool
 )
@@ -324,8 +325,9 @@ class WorkerService:
         """ """
         import multiprocessing
         global HOSTNAME
+        from pyfi.db import get_session
 
-        self.database = DATABASE
+        #self.database = DATABASE
         self.backend = backend
         self.broker = broker
         self.port = port
@@ -371,10 +373,10 @@ class WorkerService:
 
         cpus = multiprocessing.cpu_count()
 
-        sm = sessionmaker(bind=self.database)
-        self.sm = sm
+        #sm = sessionmaker(bind=self.database)
+        #self.sm = sm
 
-        with self.get_session(self.database) as session:
+        with get_session() as session:
             self.processor = _processor = (
                 session.query(ProcessorModel).filter_by(name=processor.name).first()
             )
@@ -441,7 +443,7 @@ class WorkerService:
             logging.debug("ENQUEUE: %s", data)
             return data
 
-        with self.get_session(self.database) as session:
+        with get_session() as session:
             logging.debug("Retrieving deployment by name %s", deployment.name)
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
@@ -1365,6 +1367,7 @@ class WorkerService:
 
             from uuid import uuid4
             from setproctitle import setproctitle
+            from pyfi.db import get_session
 
             setproctitle("pyfi worker::worker_proc")
 
@@ -1373,13 +1376,6 @@ class WorkerService:
             scheduler = BackgroundScheduler(job_defaults=job_defaults, timezone=utc)
 
             queues = []
-            engine = create_engine(
-                dburi,
-                pool_size=1,
-                max_overflow=5,
-                pool_recycle=3600,
-                poolclass=QueuePool,
-            )
 
             logging.debug("use_container %s", self.processor.use_container)
             if self.processor.use_container:
@@ -1451,7 +1447,7 @@ class WorkerService:
 
             logging.debug("Worker starting session....")
 
-            with self.get_session(self.database) as session:
+            with get_session() as session:
                 logging.debug("Worker got session....")
                 # session.refresh(self.processor)
                 logging.debug("================== WORKER PROCESSOR %s", self.processor)

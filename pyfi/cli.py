@@ -217,7 +217,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     context.obj["dburi"] = db
 
     try:
-        engine = create_engine(db)
+        engine = create_engine(db, isolation_level='READ UNCOMMITTED')
         engine.uri = db
         session = sessionmaker(bind=engine)()
 
