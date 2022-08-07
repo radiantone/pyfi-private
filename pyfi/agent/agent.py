@@ -11,11 +11,9 @@ import os
 import platform
 import shutil
 import signal
-from typing import List
-
 import psutil
 
-logger = logging.getLogger(__name__)
+from typing import List
 
 from contextlib import contextmanager
 from multiprocessing import Condition
@@ -33,6 +31,8 @@ from pyfi.db.model import (
     WorkerModel,
 )
 from pyfi.worker import WorkerService
+
+logger = logging.getLogger(__name__)
 
 lock = Condition()
 
@@ -278,10 +278,10 @@ class AgentMonitorPlugin(AgentPlugin):
             )
 
             """ Check for any killed workers """
-            for deployment in mydeployments:
-                if not deployment.worker:
+            for mydeployment in mydeployments:
+                if not mydeployment.worker:
                     continue
-                myworker = deployment.worker
+                myworker = mydeployment.worker
 
                 if myworker.requested_status == "kill":
                     logging.debug("Killing worker process %s", myworker.process)
@@ -348,9 +348,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     """ Now look at all my processors in my list and create workers if necessary """
                     for processor in self.processors:
+                        """ Retrieve my processor from database for this reference """
                         myprocessor = (
                             session.query(ProcessorModel).filter_by(id=processor["id"]).first()
                         )
+
                         logging.debug(
                             "Processor.requested_status START %s %s",
                             myprocessor.requested_status,
@@ -358,19 +360,6 @@ class AgentMonitorPlugin(AgentPlugin):
                         )
 
                         process_died = False
-
-                        if (
-                                "worker" in processor
-                                and processor["worker"]
-                                and "model" in processor["worker"]
-                        ):
-                            try:
-                                session.refresh(processor["worker"]["model"])
-                            except:
-                                try:
-                                    session.add(processor["worker"]["model"])
-                                except:
-                                    pass
 
                         """ Processor can be in one of many states """
 
@@ -387,9 +376,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                     print(traceback.format_exc())
 
                             processor["delete"] = True
-
-                            session.delete(processor["deployment"].worker)
-                            session.delete(processor["deployment"])
 
                             if os.path.exists("work/" + myprocessor.id):
                                 logging.debug(
@@ -417,13 +403,13 @@ class AgentMonitorPlugin(AgentPlugin):
 
                             myprocessor.requested_status = "start"
                             myprocessor.status = "stopped"
-                            processor["deployment"].worker.status = "stopped"
-                            processor["deployment"].worker.requested_status = "ready"
+                            mydeployment.worker.status = "stopped"
+                            mydeployment.worker.requested_status = "ready"
                             processor["status"] = "stopped"
 
                             logging.debug("Processor is stopped")
 
-                            session.add(processor["deployment"].worker)
+                            session.add(mydeployment.worker)
                             session.add(myprocessor)
 
                         if myprocessor.requested_status == "paused":
@@ -439,12 +425,12 @@ class AgentMonitorPlugin(AgentPlugin):
 
                             myprocessor.requested_status = "ready"
                             myprocessor.status = "paused"
-                            processor["deployment"].worker.status = "paused"
-                            processor["deployment"].worker.requested_status = "ready"
+                            mydeployment.worker.status = "paused"
+                            mydeployment.worker.requested_status = "ready"
 
                             logging.debug("Processor is paused")
 
-                            session.add(processor["deployment"].worker)
+                            session.add(mydeployment.worker)
                             session.add(myprocessor)
 
                             continue
@@ -462,12 +448,12 @@ class AgentMonitorPlugin(AgentPlugin):
 
                             myprocessor.requested_status = "ready"
                             myprocessor.status = "resumed"
-                            processor["deployment"].worker.status = "resumed"
-                            processor["deployment"].worker.requested_status = "ready"
+                            mydeployment.worker.status = "resumed"
+                            mydeployment.worker.requested_status = "ready"
 
                             logging.debug("Processor is resumed")
 
-                            session.add(processor["deployment"].worker)
+                            session.add(mydeployment.worker)
                             session.add(myprocessor)
 
                             continue
@@ -486,12 +472,12 @@ class AgentMonitorPlugin(AgentPlugin):
 
                             myprocessor.requested_status = "ready"
                             myprocessor.status = "stopped"
-                            processor["deployment"].worker.status = "stopped"
-                            processor["deployment"].worker.requested_status = "ready"
+                            mydeployment.worker.status = "stopped"
+                            mydeployment.worker.requested_status = "ready"
 
                             logging.debug("Processor is stopped")
 
-                            session.add(processor["deployment"].worker)
+                            session.add(mydeployment.worker)
                             session.add(myprocessor)
 
                         if myprocessor.requested_status == "started":
@@ -501,16 +487,9 @@ class AgentMonitorPlugin(AgentPlugin):
                                 # Add it to workers list
                                 pass
 
-                        """
-                        If the worker python Process is no longer alive, restart it as long as the processor is not in stopped state.
-                        Otherwise, if processor requested state is 'update', then restart process
-                        or if processor worker is None, restart it (e.g. on startup)
-                        """
-
-                        """ Check if worker is alive """
+                        """ If we have a worker process, poll it to see if its still alive  """
                         if "worker" in processor:
                             try:
-                                # process_died = not processor['worker']['wprocess'].is_alive()
                                 logging.debug(
                                     "Processor.requested_status 0 %s",
                                     myprocessor.requested_status,
@@ -531,9 +510,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         if process_died:
                             logging.error("Worker died for processor %s", myprocessor.name)
 
-                        #
-                        # If no worker or the process died, (re)start it
-                        #
+                        """ If no worker or the process died, (re)start it """
                         if (
                                 myprocessor.requested_status == "start"
                                 or (
@@ -580,7 +557,7 @@ class AgentMonitorPlugin(AgentPlugin):
                             #
                             if (
                                     "deployment" in processor
-                                    and processor["deployment"].worker is None
+                                    and mydeployment.worker is None
                             ):
                                 """If there is no worker model, find or create one and link to Processor"""
 
@@ -609,7 +586,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                              + ".agent."
                                              + myprocessor.name
                                              + ".worker",
-                                        concurrency=processor["deployment"].cpus,
+                                        concurrency=mydeployment.cpus,
                                         status="ready",
                                         backend=self.agent_service.backend,
                                         broker=self.agent_service.broker,
@@ -622,7 +599,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                     session.commit()
 
                                 # Attach worker model to deployment
-                                processor["deployment"].worker = worker_model
+                                mydeployment.worker = worker_model
                                 worker_model.lastupdated = datetime.datetime.now()
                                 worker_model.status = "running"
                                 worker_model.processor = myprocessor
@@ -717,7 +694,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             database=self.agent_service.dburi,
                                             hostname=self.agent_service.name,
                                             agent=agent,
-                                            deployment=deployment,
+                                            deployment=mydeployment,
                                             celeryconfig=self.agent_service.config,
                                             backend=self.agent_service.backend,
                                             broker=self.agent_service.broker,
