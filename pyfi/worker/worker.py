@@ -2656,7 +2656,8 @@ class WorkerService:
                     os.chdir(self.workpath)
 
                     if self.usecontainer:
-                        """Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to launched container"""
+                        """Launch pyfi:latest container passing in variables and gitrepo. Maintain reference to 
+                        launched container"""
                         raise NotImplementedError
                     else:
                         """Build our virtualenv and import the gitrepo for the processor"""
