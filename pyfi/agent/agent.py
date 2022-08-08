@@ -206,7 +206,11 @@ class AgentShutdownPlugin(AgentPlugin):
                         process.pid, child.pid
                     )
                 )
-                child.kill()
+                try:
+                    child.kill()
+                except:
+                    """ We can ignore exceptions here"""
+                    pass
 
             logger.info("CWD is %s %s", os.getcwd(), os.environ["AGENT_CWD"])
 
