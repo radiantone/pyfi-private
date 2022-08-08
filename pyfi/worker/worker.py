@@ -349,7 +349,7 @@ class WorkerService:
             self.workpath = self.basedir + "/" + self.workdir
             logging.info("Setting workpath to basedir %s + workdir %s ", self.basedir, self.workdir)
         else:
-            self.workpath = self.workdir
+            self.workpath = self.basedir
             logging.info("Setting workpath to %s", self.workpath)
 
 
