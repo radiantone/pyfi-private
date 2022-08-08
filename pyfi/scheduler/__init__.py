@@ -194,13 +194,13 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.debug("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
             logging.debug("Fetching processors to be deployed")
 
+            session.commit()
             # Get a random processor that either has less deployments than its concurrency needs
             processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
                 session.query(ProcessorModel)
                 .all()
             )
-            session.commit()
 
             def update_stats():
                 node_count = session.query(NodeModel).count()
