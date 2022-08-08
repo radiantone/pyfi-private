@@ -15,44 +15,58 @@ from .model.models import TaskModel as Task
 from .model.models import UserModel as User
 from .model.models import WorkerModel as Worker
 from .postgres import _compile_drop_table
+from sqlalchemy import create_engine, event
+import configparser
+
+CONFIG = configparser.ConfigParser()
+
+from pathlib import Path
+
+HOME = str(Path.home())
+
+ini = HOME + "/pyfi.ini"
+
+CONFIG.read(ini)
+
+
+@event.listens_for(Processor, 'after_update')
+def receive_after_update(mapper, connection, target):
+    import json
+    import logging
+    import redis
+    from sqlalchemy import inspect
+
+    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+
+    state = inspect(target)
+    # Publish to redis, pubsub, which gets sent to browser
+    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target))
+    changes = {}
+    has_changes = False
+
+    for attr in state.attrs:
+        hist = attr.load_history()
+
+        if not hist.has_changes():
+            continue
+
+        # hist.deleted holds old value
+        # hist.added holds new value
+        changes[attr.key] = hist.added
+        has_changes = True
+
+    if has_changes:
+        redisclient.publish(
+            "global",
+            json.dumps({"type": "processor", "name": target.name, "processor": json.loads(str(target))}),
+        )
 
 
 def get_session():
-    import configparser
-    import logging
-
-    from sqlalchemy import create_engine, event
     from sqlalchemy.orm import sessionmaker, scoped_session
-
-    CONFIG = configparser.ConfigParser()
-
-    from pathlib import Path
-
-    HOME = str(Path.home())
-
-    ini = HOME + "/pyfi.ini"
-
-    CONFIG.read(ini)
 
     _engine = create_engine(CONFIG.get("database", "uri"), isolation_level='READ UNCOMMITTED')
     _session = scoped_session(sessionmaker(autocommit=False, autoflush=True, bind=_engine))
-
-    @event.listens_for(_session, "before_commit")
-    def receive_after_commit(session):
-        import json
-
-        import redis
-
-        redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-
-        for obj in session:
-            if isinstance(obj, Processor):
-                # Publish to redis, pubsub, which gets sent to browser
-                logging.info("RECEIVE_AFTER_COMMIT [%s] Processor %s", str(session), str(obj))
-                redisclient.publish(
-                    "global",
-                    json.dumps({"type": "processor", "name": obj.name, "processor": json.loads(str(obj))}),
-                )
 
     return _session
 
