@@ -301,7 +301,7 @@ class AgentMonitorPlugin(AgentPlugin):
                 )
                 # if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
                 #    continue
-
+                session.refresh(mydeployment)
                 try:
                     logging.debug("Deployment Processor %s", mydeployment.processor)
 
