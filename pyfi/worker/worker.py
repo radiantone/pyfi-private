@@ -19,6 +19,7 @@ import redis
 tracemalloc.start()
 from inspect import Parameter
 from multiprocessing import Condition, Queue, Process
+from contextlib import contextmanager
 from pathlib import Path
 
 from flask import Flask
@@ -61,6 +62,29 @@ from pyfi.db.model.models import DeploymentModel
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
 
+
+@contextmanager
+def get_session(**kwargs):
+    from pyfi.db import get_session
+
+    logging.debug("get_session: Creating session")
+
+    session = get_session()
+
+    try:
+        logging.debug("get_session: Yielding session")
+        yield session
+    except:
+        logging.debug("get_session: Rollback session")
+        session.rollback()
+        raise
+    else:
+        logging.debug("get_session: Commit session")
+        session.commit()
+    finally:
+        logging.debug("get_session: Closing session")
+        session.expunge_all()
+        session.close()
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
@@ -171,7 +195,7 @@ signal.signal(signal.SIGINT, shutdown)
 run_times = {}
 
 
-def dispatcher(processor, plug, message, session, socket, **kwargs):
+def dispatcher(processorid, plugid, message, socketid, **kwargs):
     """Execute a task based on a schedule"""
     logging.debug("Dispatching %s PLUG %s", socket, plug)
     backend = CONFIG.get("backend", "uri")
@@ -179,86 +203,95 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     celery = Celery(backend=backend, broker=broker, include=processor.module)
     logging.debug("TASK NAMES: %s", celery.tasks.keys())
 
-    session.merge(processor)
-    session.merge(plug)
-    session.merge(socket)
-    try:
-        name = plug.name
+    # TODO: Figure out how to refresh processor, plug
 
-        if plug is None:
-            logging.warning("Plug %s does not exist", name)
-            return
-
-        logging.debug("PLUG RESULT %s", plug is not None)
-
-        # TODO: QUEUENAME
-        tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
-        tkey = processor.module + "." + socket.task.name
-        # tkey = socket.queue.name
-        logging.debug("dispatcher: processor %s", processor.name)
-        logging.debug("dispatcher: plug %s", plug.name)
-        logging.debug(
-            "dispatcher: plug: source %s:%s",
-            plug.source.processor.name,
-            plug.source.task.name,
+    with get_session() as session:
+        processor = (
+            session.query(ProcessorModel).filter_by(id=processorid).first()
         )
-        logging.debug(
-            "dispatcher: plug: target %s:%s",
-            plug.target.processor.name,
-            plug.target.task.name,
+        plug = (
+            session.query(ProcessorModel).filter_by(id=plugid).first()
         )
-        logging.debug("dispatcher: tkey %s", tkey)
-        logging.debug("dispatcher: exchange %s", socket.queue.name)
-        logging.debug("dispatcher: routing_key %s", tkey)
-
-        queue = KQueue(
-            tkey,
-            Exchange(socket.queue.name, type="direct"),
-            routing_key=tkey,
-            message_ttl=plug.target.queue.message_ttl,
-            durable=plug.target.queue.durable,
-            expires=plug.target.queue.expires,
-            # expires=30,
-            # socket.queue.message_ttl
-            # socket.queue.expires
-            # TODO: These attributes need to come from Queue model
-            queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
+        socket = (
+            session.query(ProcessorModel).filter_by(id=socketid).first()
         )
+        try:
+            name = plug.name
 
-        logging.debug("Plug.argument %s", plug.argument)
-        if plug.argument:
+            if plug is None:
+                logging.warning("Plug %s does not exist", name)
+                return
+
+            logging.debug("PLUG RESULT %s", plug is not None)
+
+            # TODO: QUEUENAME
+            tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
+            tkey = processor.module + "." + socket.task.name
+            # tkey = socket.queue.name
+            logging.debug("dispatcher: processor %s", processor.name)
+            logging.debug("dispatcher: plug %s", plug.name)
             logging.debug(
-                "Processor plug %s is connected to argument: %s", plug, plug.argument
+                "dispatcher: plug: source %s:%s",
+                plug.source.processor.name,
+                plug.source.task.name,
             )
-            argument = {
-                "name": plug.argument.name,
-                "kind": plug.argument.kind,
-                "key": plug.target.processor.name
-                       + "."
-                       + plug.target.task.module
-                       + "."
-                       + plug.target.task.name,
-                "module": plug.target.task.module,
-                "function": plug.target.task.name,
-                "position": plug.argument.position,
-            }
+            logging.debug(
+                "dispatcher: plug: target %s:%s",
+                plug.target.processor.name,
+                plug.target.task.name,
+            )
+            logging.debug("dispatcher: tkey %s", tkey)
+            logging.debug("dispatcher: exchange %s", socket.queue.name)
+            logging.debug("dispatcher: routing_key %s", tkey)
 
-            logging.debug("Plug argument %s", plug.argument)
-            kwargs["argument"] = argument
-        else:
-            logging.debug("Processor plug %s is not connected to argument.", plug)
+            queue = KQueue(
+                tkey,
+                Exchange(socket.queue.name, type="direct"),
+                routing_key=tkey,
+                message_ttl=plug.target.queue.message_ttl,
+                durable=plug.target.queue.durable,
+                expires=plug.target.queue.expires,
+                # expires=30,
+                # socket.queue.message_ttl
+                # socket.queue.expires
+                # TODO: These attributes need to come from Queue model
+                queue_arguments={"x-message-ttl": 30000, "x-expires": 300},
+            )
 
-        kwargs["function"] = socket.task.name
+            logging.debug("Plug.argument %s", plug.argument)
+            if plug.argument:
+                logging.debug(
+                    "Processor plug %s is connected to argument: %s", plug, plug.argument
+                )
+                argument = {
+                    "name": plug.argument.name,
+                    "kind": plug.argument.kind,
+                    "key": plug.target.processor.name
+                           + "."
+                           + plug.target.task.module
+                           + "."
+                           + plug.target.task.name,
+                    "module": plug.target.task.module,
+                    "function": plug.target.task.name,
+                    "position": plug.argument.position,
+                }
 
-        task_sig = celery.signature(
-            processor.module + "." + socket.task.name, queue=queue, kwargs=kwargs
-        )
+                logging.debug("Plug argument %s", plug.argument)
+                kwargs["argument"] = argument
+            else:
+                logging.debug("Processor plug %s is not connected to argument.", plug)
 
-        delayed = task_sig.delay(message)
+            kwargs["function"] = socket.task.name
 
-        logging.debug("dispatcher: Dispatched %s %s", task_sig, message)
-    finally:
-        pass
+            task_sig = celery.signature(
+                processor.module + "." + socket.task.name, queue=queue, kwargs=kwargs
+            )
+
+            delayed = task_sig.delay(message)
+
+            logging.debug("dispatcher: Dispatched %s %s", task_sig, message)
+        finally:
+            pass
 
 
 class TaskInvokeException(Exception):
@@ -276,8 +309,6 @@ class WorkerService:
     """
     Worker wrapper that manages task ingress/egress and celery worker processes
     """
-
-    from contextlib import contextmanager
 
     container = None
     _session = None
@@ -2018,11 +2049,10 @@ class WorkerService:
                                                             dispatcher,
                                                             socket.interval,
                                                             (
-                                                                _processor,
-                                                                plug,
+                                                                _processor.id,
+                                                                plug.id,
                                                                 "message",
-                                                                session,
-                                                                socket,
+                                                                socket.id,
                                                             ),
                                                         ),
                                                     )
