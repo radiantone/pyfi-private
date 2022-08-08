@@ -197,7 +197,6 @@ run_times = {}
 
 def dispatcher(processorid, plugid, message, socketid, **kwargs):
     """Execute a task based on a schedule"""
-    logging.debug("Dispatching %s PLUG %s", socket, plug)
     backend = CONFIG.get("backend", "uri")
     broker = CONFIG.get("broker", "uri")
     celery = Celery(backend=backend, broker=broker, include=processor.module)
@@ -215,6 +214,7 @@ def dispatcher(processorid, plugid, message, socketid, **kwargs):
         socket = (
             session.query(ProcessorModel).filter_by(id=socketid).first()
         )
+        logging.debug("Dispatching %s PLUG %s", socket, plug)
         try:
             name = plug.name
 
