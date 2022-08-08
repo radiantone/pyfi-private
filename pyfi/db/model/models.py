@@ -469,7 +469,7 @@ class ProcessorModel(HasLogs, BaseModel):
     gittag = Column(String(50), nullable=True)
     retries = Column(Integer)
     concurrency = Column(Integer)
-    ratelimit = Column(String(10), default="60/m")
+    ratelimit = Column(String(10), default=60)
     perworker = Column(Boolean, default=True)
     timelimit = Column(Integer)
     ignoreresult = Column(Boolean)

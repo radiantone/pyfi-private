@@ -319,12 +319,6 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     if deployment.worker and deployment.worker.status == "running":
                         worker_names += [deployment.worker]
 
-                try:
-                    units = "/" + processor.ratelimit.split("/")[1]
-                    rate_limit = int(processor.ratelimit.split("/")[0])
-                finally:
-                    rate_limit = 60
-                    units = "/m"
 
                 session.commit()
                 '''

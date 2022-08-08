@@ -774,14 +774,14 @@ class AgentMonitorPlugin(AgentPlugin):
                                         )
 
                                         """ Update internal worker reference dictionary """
-                                        worker["model"] = deployment.worker
-                                        worker["model"].process = workerproc.process.pid
+                                        #worker["model"] = deployment.worker
+                                        #worker["model"].process = workerproc.process.pid
                                         worker["process"] = workerproc
                                         worker["wprocess"] = wprocess
 
                                         """ Update internal process reference dictionary """
                                         processor["worker"] = worker
-                                        processor["worker.id"] = worker["model"].id
+                                        processor["worker.id"] = deployment.worker.id
 
                                         logging.debug(
                                             "-----------------------workerproc is %s",
