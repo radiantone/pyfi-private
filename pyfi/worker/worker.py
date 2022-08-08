@@ -339,6 +339,7 @@ class WorkerService:
         self.deploymentname = deployment.name
         self.agentname = agent.name
         self.processorid = processor.id
+        self.worker_process = None
         self.data = {}
 
         if os.path.isabs(self.workdir):
@@ -2775,7 +2776,7 @@ class WorkerService:
                     return
 
                 """ Start worker process"""
-                worker_process = self.worker_process = Thread(
+                worker_process = Thread(
                     target=worker_proc,
                     name="worker_proc",
                     args=(self.celery, self.queue, self.dburi),
@@ -2787,6 +2788,7 @@ class WorkerService:
                 logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
                 self.process = worker_process
+                self.worker_process = worker_process
 
         """ Send messages to redis pub/sub for consumers """
 
