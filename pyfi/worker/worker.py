@@ -344,8 +344,10 @@ class WorkerService:
 
         if os.path.isabs(self.workdir):
             self.workpath = self.workdir
+            logging.info("Setting workpath to %s",self.workpath)
         else:
             self.workpath = self.basedir + "/" + self.workdir
+            logging.info("Setting workpath to %s",self.workpath)
 
         logging.debug("INIT WORKERSERVICE")
 
@@ -2655,6 +2657,8 @@ class WorkerService:
                     if not os.path.exists(self.workpath):
                         logging.info("MAKING PATH %s", self.workpath)
                         os.makedirs(self.workpath)
+                    else:
+                        logging.info("WORKPATH %s exists",self.workpath)
 
                     os.chdir(self.workpath)
 
