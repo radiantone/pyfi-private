@@ -10,8 +10,8 @@ import time
 from multiprocessing import Process
 from pathlib import Path
 
+from contextlib import contextmanager
 from celery import Celery
-from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,
     DeploymentModel,
@@ -40,6 +40,30 @@ backend = CONFIG.get("backend", "uri")
 broker = CONFIG.get("broker", "uri")
 
 celery = Celery(backend=backend, broker=broker)
+
+
+@contextmanager
+def get_session(**kwargs):
+    from pyfi.db import get_session
+
+    logging.debug("get_session: Creating session")
+
+    session = get_session()
+
+    try:
+        logging.debug("get_session: Yielding session")
+        yield session
+    except:
+        logging.debug("get_session: Rollback session")
+        session.rollback()
+        raise
+    else:
+        logging.debug("get_session: Commit session")
+        session.commit()
+    finally:
+        logging.debug("get_session: Closing session")
+        session.expunge_all()
+        session.close()
 
 
 class SchedulerPlugin:
@@ -103,8 +127,7 @@ class NodePlugin(SchedulerPlugin):
     def run(self, *args, **kwargs):
         import requests
 
-        session = get_session()
-        try:
+        with get_session() as session:
             logging.debug("NodePlugin: Schedule run %s %s", args, kwargs)
 
             scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
@@ -147,25 +170,12 @@ class NodePlugin(SchedulerPlugin):
                             processor.concurrency,
                         )
 
-                    # Look at all the processors for this node, if the total CPUs exceeds the nodes CPUs
-                    # Then determine which processor to find a better home
-
-                    # Or, for example, if you have two nodes A and B and B has 2 processors but A has none,
-                    # The scheduler will move one of the processors to A if A node has enough CPUs
-
-                    # Processors with 6 sockets would optimally want a node with 6 CPUs so each socket task
-                    # can run on its own core. This allows the scheduler to determine the compute needs for
-                    # each processor and locate it accordingly.
-        finally:
-            session.close()
 
 
 class DeployProcessorPlugin(SchedulerPlugin):
     """Enforce, create, move, delete deployments"""
 
     def run(self, *args, **kwargs):
-        import random
-
         import redis
         from pymongo import MongoClient
 
@@ -180,8 +190,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
         nodeployments = self.args
 
-        session = get_session()
-        try:
+        with get_session() as session:
             logging.debug("DeployProcessorPlugin: Schedule run %s, %s", args, kwargs)
             logging.debug("Fetching processors to be deployed")
 
@@ -189,16 +198,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
             processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
                 session.query(ProcessorModel)
-
-                #.filter(
-                #    ProcessorModel.deployments.any(
-                #        DeploymentModel.cpus != ProcessorModel.concurrency
-                #    )
-                #)
-                #.with_for_update()
                 .all()
-                # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).all()
-                # session.query(ProcessorModel).filter(ProcessorModel.deployments.any(DeploymentModel.cpus < ProcessorModel.concurrency)).with_for_update().all()
             )
             session.commit()
 
@@ -258,31 +258,6 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.debug("Publishing stats: %s", json.dumps(stats))
             redisclient.publish("global", json.dumps(stats))
 
-            """
-            if processor is None:
-                # If we didn't get any processors above, try fetching one without deployments
-                processors = (
-                    session.query(ProcessorModel)
-                    .filter(~ProcessorModel.deployments.any())
-                    .with_for_update()
-                    .all()
-                )
-            if len(processors) == 0:
-                processor = None
-            else:
-                processor = random.choice(processors)
-
-            if not processor:
-                processors = (
-                    #session.query(ProcessorModel).with_for_update().all()
-                    session.query(ProcessorModel).all()
-                )
-                if len(processors) == 0:
-                    processor = None
-                else:
-                    processor = random.choice(processors)
-            """
-
             # Try to fulfill its concurrency
 
             for processor in processors:
@@ -301,16 +276,13 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 )
 
                 session.commit()
-                # For this processor, determine how many deployments are needed to satisfy the concurrency parameter
-                # Each node will have n free CPUs. A set of deployments are needed that map the processor concurrency needs
-                # to all available CPUs across nodes.
+
                 logging.info("Processor concurrency is %s", processor.concurrency)
 
                 deployed_cpus = 0
 
                 worker_names = []
 
-                #pdeployments = session.query(DeploymentModel).filter_by(processor_id=processor.id).all()
                 for deployment in processor.deployments:
                     logging.info("   Deployment: %s", deployment)
                     logging.info("   Deployment %s: CPU %s", deployment.name, deployment.cpus)
@@ -319,32 +291,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     if deployment.worker and deployment.worker.status == "running":
                         worker_names += [deployment.worker]
 
-
                 session.commit()
-                '''
-                if len(worker_names):
-                    rate_per_worker = rate_limit / len(worker_names)
-
-                    for socket in processor.sockets:
-                        """For each socket task, set the rate limit based on the processor and active workers"""
-
-                        for plug in socket.sourceplugs:
-                            _taskp = plug.target.queue.name + "." + socket.task.module + "." + socket.task.name
-                            if processor.perworker:
-                                logging.info(
-                                    "Setting rate limit per worker for task %s to %s",
-                                    _taskp,
-                                    processor.ratelimit,
-                                )
-                                celery.control.rate_limit(_taskp, str(rate_per_worker))
-                            else:
-                                logging.debug(
-                                    "Setting rate limit global for task %s to %s",
-                                    _taskp,
-                                    processor.ratelimit,
-                                )
-                                celery.control.rate_limit(_taskp, processor.ratelimit)
-                '''
 
                 kill_workers = []
 
@@ -501,18 +448,14 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 if deployed_cpus == processor.concurrency:
                     logging.info("Processor %s concurrency needs are met.", processor.name)
-        finally:
-            session.commit()
-            session.close()
 
 
 class WorkPlugin(SchedulerPlugin):
     """Process work records, which are queued or scheduled tasks"""
 
     def run(self, *args, **kwargs):
-        session = get_session()
-        try:
 
+        with get_session() as session:
             logging.debug("WorkPlugin: Schedule run %s %s", args, kwargs)
             logging.debug("WorkPlugin: Fetching work")
             all_work = session.query(WorkModel).all()
@@ -521,8 +464,6 @@ class WorkPlugin(SchedulerPlugin):
                 # Determine the work request and schedule or run it
                 # Assign the workmodel to a worker
                 logging.debug("WorkPlugin: Found work %s", work)
-        finally:
-            session.close()
 
 
 class WatchPlugin(SchedulerPlugin):
@@ -531,9 +472,7 @@ class WatchPlugin(SchedulerPlugin):
     def run(self, *args, **kwargs):
         import requests
 
-        session = get_session()
-        try:
-
+        with get_session() as session:
             logging.debug("WatchPlugin: Schedule run %s %s", args, kwargs)
             logging.debug("WatchPlugin: Checking nodes")
             logging.debug("WatchPlugin: Checking agents")
@@ -589,9 +528,6 @@ class WatchPlugin(SchedulerPlugin):
             logging.debug("WatchPlugin: Checking workers")
             logging.debug("WatchPlugin: Checking processors")
             logging.debug("WatchPlugin: Checking plugs")
-
-        finally:
-            session.close()
 
 
 _plugins = [NodePlugin, DeployProcessorPlugin, WorkPlugin, WatchPlugin]
