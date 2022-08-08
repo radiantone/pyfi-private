@@ -2927,8 +2927,8 @@ class WorkerService:
             # process.kill()
             # process.terminate()
 
-            #os.killpg(pid, 15)
-            #os.kill(pid, signal.SIGKILL)
+            os.killpg(pid, 15)
+            os.kill(pid, signal.SIGKILL)
 
             logging.info("Finishing %s", self.workpath)
 
