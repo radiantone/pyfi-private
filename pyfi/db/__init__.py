@@ -51,7 +51,7 @@ def get_session():
                 logging.info("RECEIVE_AFTER_COMMIT [%s] Processor %s", str(session), str(obj))
                 redisclient.publish(
                     "global",
-                    json.dumps({"type": "processor", "processor": json.loads(str(obj))}),
+                    json.dumps({"type": "processor", "name": obj.name, "processor": json.loads(str(obj))}),
                 )
 
     return _session
