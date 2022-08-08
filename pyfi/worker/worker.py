@@ -2906,7 +2906,7 @@ class WorkerService:
         logging.info("Terminating worker %s", self.workpath)
 
         with open(self.workpath + "/git/worker.pid") as pidfile:
-            pid = pidfile.read()
+            pid = int(pidfile.read())
 
             process = psutil.Process(pid)
 
@@ -2926,8 +2926,8 @@ class WorkerService:
             # process.kill()
             # process.terminate()
 
-            os.killpg(os.getpgid(process.pid), 15)
-            os.kill(process.pid, signal.SIGKILL)
+            #os.killpg(pid, 15)
+            #os.kill(pid, signal.SIGKILL)
 
             logging.info("Finishing %s", self.workpath)
 
