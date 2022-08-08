@@ -179,9 +179,9 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     celery = Celery(backend=backend, broker=broker, include=processor.module)
     logging.debug("TASK NAMES: %s", celery.tasks.keys())
 
-    session.refresh(processor)
-    session.refresh(plug)
-    session.refresh(socket)
+    session.merge(processor)
+    session.merge(plug)
+    session.merge(socket)
     try:
         name = plug.name
 
