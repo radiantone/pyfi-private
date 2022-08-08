@@ -2721,7 +2721,8 @@ class WorkerService:
                                     os.chdir("git")
                                 else:
                                     sys.path.append(self.workpath + "/git")
-                                    # os.system("git pull")
+                                    output = os.popen("git pull").read()
+                                    changes = not output == "Already up to date.\n"
 
                                 os.system("git config credential.helper store")
                                 logging.info("Exited git setup")
