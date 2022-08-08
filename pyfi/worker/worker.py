@@ -2791,7 +2791,7 @@ class WorkerService:
 
                 with open(self.workpath+"/worker.pid", "w") as pidfile:
                     pidfile.write(str(worker_process.pid))
-                    logging.info("WROTE PID FILE to %s", self.workpath+"/worker.pid")
+                    logging.info("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath+"/worker.pid")
 
                 worker_process.app = self.celery
                 #worker_process.daemon = True
