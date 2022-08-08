@@ -43,7 +43,7 @@ def receive_after_update(mapper, connection, target):
     has_changes = False
     logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target))
     for attr in state.attrs:
-        hist = attr.load_history()
+        hist = state.get_history(attr.key, True)
 
         if not hist.has_changes():
             continue
