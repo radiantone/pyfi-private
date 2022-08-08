@@ -2789,15 +2789,16 @@ class WorkerService:
                     args=(self.celery, self.queue, self.dburi),
                 )
 
+                logging.info("Starting worker_process for %s...%s", self.data['name'], self.worker_process)
+                worker_process.start()
+                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
+
                 with open(self.workpath+"/worker.pid", "w") as pidfile:
                     pidfile.write(str(worker_process.pid))
                     logging.info("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath+"/worker.pid")
 
                 worker_process.app = self.celery
                 #worker_process.daemon = True
-                logging.info("Starting worker_process for %s...%s", self.data['name'], self.worker_process)
-                worker_process.start()
-                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
                 self.process = worker_process
                 self.worker_process = worker_process
