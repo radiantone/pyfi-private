@@ -40,7 +40,6 @@ def receive_after_update(mapper, connection, target):
 
     state = inspect(target)
     # Publish to redis, pubsub, which gets sent to browser
-    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target))
     changes = {}
     has_changes = False
 
@@ -56,6 +55,7 @@ def receive_after_update(mapper, connection, target):
         has_changes = True
 
     if has_changes:
+        logging.info("RECEIVE_AFTER_COMMIT CHANGED! Processor %s", str(target))
         redisclient.publish(
             "global",
             json.dumps({"type": "processor", "name": target.name, "processor": json.loads(str(target))}),
