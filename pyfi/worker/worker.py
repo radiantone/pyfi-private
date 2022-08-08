@@ -352,7 +352,6 @@ class WorkerService:
             self.workpath = self.basedir
             logging.info("Setting workpath to %s", self.workpath)
 
-
         logging.debug("INIT WORKERSERVICE")
 
         if hostname:
@@ -2906,7 +2905,7 @@ class WorkerService:
         """
         logging.info("Terminating worker %s", self.workpath)
 
-        with open(self.workpath + "/worker.pid") as pidfile:
+        with open(self.workpath + "/git/worker.pid") as pidfile:
             pid = pidfile.read()
 
             process = psutil.Process(pid)
