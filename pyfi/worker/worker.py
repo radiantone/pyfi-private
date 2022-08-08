@@ -2771,8 +2771,8 @@ class WorkerService:
                             logging.info("No rebuild needed. venv already exists in %s", os.getcwd())
 
                 # Sometimes we just want to recreate the setup
-                if not start:
-                    return
+                #if not start:
+                #    return
 
                 """ Start worker process"""
                 worker_process = self.worker_process = Thread(
