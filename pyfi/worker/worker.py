@@ -2786,8 +2786,6 @@ class WorkerService:
                 worker_process.start()
                 logging.debug("worker_process started...")
 
-                self.process = worker_process
-
         """ Send messages to redis pub/sub for consumers """
 
         ####################################################
@@ -2895,8 +2893,8 @@ class WorkerService:
         #logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
 
         logging.info("Killing worker_proc thread for %s", self.data['name'])
-        self.process.raise_exception()
-        self.process.join()
+        self.worker_process.raise_exception()
+        self.worker_process.join()
         logging.info("Killed worker_proc thread for %s", self.data['name'])
         '''
         for child in process.children(recursive=True):
