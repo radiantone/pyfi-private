@@ -207,10 +207,10 @@ def dispatcher(processorid, plugid, message, socketid, **kwargs):
             session.query(ProcessorModel).filter_by(id=processorid).first()
         )
         plug = (
-            session.query(ProcessorModel).filter_by(id=plugid).first()
+            session.query(PlugModel).filter_by(id=plugid).first()
         )
         socket = (
-            session.query(ProcessorModel).filter_by(id=socketid).first()
+            session.query(SocketModel).filter_by(id=socketid).first()
         )
         logging.debug("Dispatching %s PLUG %s", socket, plug)
 
