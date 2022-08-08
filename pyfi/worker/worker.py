@@ -2892,8 +2892,12 @@ class WorkerService:
         logging.info("Terminating worker %s", self.workpath)
 
         process = psutil.Process(os.getpid())
-        logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+        #logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
 
+        logging.info("Killing worker_proc thread for %s", self.data['name'])
+        self.process.raise_exception()
+        self.process.join()
+        logging.info("Killed worker_proc thread for %s", self.data['name'])
         '''
         for child in process.children(recursive=True):
             try:
@@ -2904,8 +2908,8 @@ class WorkerService:
         # process.kill()
         # process.terminate()
 
-        os.killpg(os.getpgid(process.pid), 15)
-        os.kill(process.pid, signal.SIGKILL)
+        #os.killpg(os.getpgid(process.pid), 15)
+        #os.kill(process.pid, signal.SIGKILL)
 
         logging.info("Finishing %s", self.workpath)
 
