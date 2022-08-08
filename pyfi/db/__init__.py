@@ -19,6 +19,7 @@ from .postgres import _compile_drop_table
 
 def get_session():
     import configparser
+    import logging
 
     from sqlalchemy import create_engine, event
     from sqlalchemy.orm import sessionmaker, scoped_session
@@ -47,6 +48,8 @@ def get_session():
         for obj in session:
             if isinstance(obj, Processor):
                 # Publish to redis, pubsub, which gets sent to browser
+                logging.info("RECEIVE_AFTER_COMMIT Processor %s",str(obj))
+                print("RECEIVE_AFTER_COMMIT Processor",str(obj))
                 redisclient.publish(
                     "global",
                     json.dumps({"type": "processor", "processor": str(obj)}),
