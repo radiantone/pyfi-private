@@ -303,15 +303,17 @@ class AgentMonitorPlugin(AgentPlugin):
                     "Got deployment %s worker %s", mydeployment.name,
                     mydeployment.worker.name if mydeployment.worker else None
                 )
-                # if mydeployment.worker and mydeployment.worker.requested_status == 'remove':
-                #    continue
+
                 try:
                     session.refresh(mydeployment)
+                    logging.info("Refreshing deployment %s", mydeployment)
                 except:
                     try:
                         session.merge(mydeployment)
+                        logging.info("Merged deployment %s", mydeployment)
                     except:
                         session.add(mydeployment)
+                        logging.info("Add deployment %s", mydeployment)
 
                 try:
                     logging.debug("Deployment Processor %s", mydeployment.processor)
