@@ -2668,10 +2668,8 @@ class WorkerService:
                             )
                         )
 
-                        # if not 'clean' and path for self.worker.workdir exists
-                        # then move to that directory
-                        # Create git directory and pull the remote repo
                         pull = False
+                        changes = True
 
                         logging.debug("Current directory: %s", os.getcwd())
 
@@ -2689,10 +2687,10 @@ class WorkerService:
                             os.system("git config --get remote.origin.url")
                             os.system("git config pull.rebase false")
                             logging.debug("Pulling update from git")
-                            os.system("git pull")
+                            output = os.popen("git pull").read()
+                            changes = not output == "Already up to date.\n"
                         else:
                             """Clone gitrepo. Retry after 3 seconds if failure"""
-                            count = 1
                             logging.debug("cwd is %s", os.getcwd())
                             logging.debug("workdir is %s", self.workpath)
 
@@ -2730,11 +2728,17 @@ class WorkerService:
                             except Exception as ex:
                                 logging.error(ex)
 
+                        if deployment.processor.commit and not deployment.processor.gittag:
+                            os.system("git checkout {}".format(deployment.processor.commit))
+
+                        if deployment.processor.gittag:
+                            os.system("git checkout {}".format(deployment.processor.gittag))
+
                         # Create or update venv
                         from virtualenvapi.manage import VirtualEnvironment
 
                         # If not using a container, then build the virtualenv
-                        if not pull and not os.path.exists("venv"):
+                        if changes or not os.path.exists("venv"):
                             logging.info("Building virtualenv for %s...in %s", deployment.processor.name, os.getcwd())
                             env = VirtualEnvironment(
                                 "venv", python=sys.executable, system_site_packages=True
@@ -2763,13 +2767,7 @@ class WorkerService:
                                         deployment.processor.gitrepo.strip(),
                                     )
                         else:
-                            logging.info("venv already exists in %s", os.getcwd())
-
-                    if deployment.processor.commit and not deployment.processor.gittag:
-                        os.system("git checkout {}".format(deployment.processor.commit))
-
-                    if deployment.processor.gittag:
-                        os.system("git checkout {}".format(deployment.processor.gittag))
+                            logging.info("No rebuild needed. venv already exists in %s", os.getcwd())
 
                 # Sometimes we just want to recreate the setup
                 if not start:
