@@ -10,6 +10,7 @@ import platform
 import shutil
 import signal
 import sys
+import json
 import tracemalloc
 
 import psutil
@@ -338,6 +339,7 @@ class WorkerService:
         self.deploymentname = deployment.name
         self.agentname = agent.name
         self.processorid = processor.id
+        self.data = {}
 
         if os.path.isabs(self.workdir):
             self.workpath = self.workdir
@@ -375,6 +377,7 @@ class WorkerService:
             _processor = (
                 session.query(ProcessorModel).filter_by(id=self.processorid).first()
             )
+            self.data = json.loads(str(_processor))
             '''
             self.deployment = deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
@@ -2461,7 +2464,7 @@ class WorkerService:
                                 # To achieve a throttle of 60/m, x would be 1 second
                                 # To achieve a throttle of 1000/m, x would be 0.06 seconds
                                 # To achieve a throttle of 1000/h, x would be 0.27 seconds
-                                rate_limit = 60 / int(_processor.ratelimit)
+                                rate_limit = 60 / int(self.data['ratelimit'])
 
                                 logging.info("Done sleeping")
 
@@ -2642,7 +2645,7 @@ class WorkerService:
                 """ Install gitrepo and build virtualenv """
                 if deployment.processor.commit and self.skipvenv:
                     if deployment.processor.commit:
-                        os.system("git checkout {}".format(self.processor.commit))
+                        os.system("git checkout {}".format(deployment.processor.commit))
 
                 if deployment.processor.gitrepo and not self.skipvenv:
 
