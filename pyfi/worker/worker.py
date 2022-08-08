@@ -55,7 +55,7 @@ from pyfi.db.model import (
     EventModel,
     ProcessorModel,
     PlugModel,
-    SocketModel
+    SocketModel,
     UserModel,
     WorkerModel,
 )
