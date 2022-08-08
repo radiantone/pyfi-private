@@ -2788,11 +2788,12 @@ class WorkerService:
 
                 worker_process.app = self.celery
                 #worker_process.daemon = True
+                logging.info("Starting worker_process for %s...%s", self.data['name'], self.worker_process)
                 worker_process.start()
+                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
                 self.process = worker_process
                 self.worker_process = worker_process
-                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
         """ Send messages to redis pub/sub for consumers """
 
