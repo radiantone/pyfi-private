@@ -2784,7 +2784,7 @@ class WorkerService:
                 worker_process.app = self.celery
                 worker_process.daemon = True
                 worker_process.start()
-                logging.debug("worker_process started...")
+                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
                 self.process = worker_process
 
