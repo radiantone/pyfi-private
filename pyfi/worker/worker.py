@@ -2893,17 +2893,19 @@ class WorkerService:
 
         process = psutil.Process(os.getpid())
         logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+
+        '''
         for child in process.children(recursive=True):
             try:
                 child.kill()
             except:
                 pass
-
+        '''
         # process.kill()
         # process.terminate()
 
-        # os.killpg(os.getpgid(process.pid), 15)
-        # os.kill(process.pid, signal.SIGKILL)
+        os.killpg(os.getpgid(process.pid), 15)
+        os.kill(process.pid, signal.SIGKILL)
 
         logging.info("Finishing %s", self.workpath)
 
