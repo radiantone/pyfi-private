@@ -199,8 +199,6 @@ def dispatcher(processorid, plugid, message, socketid, **kwargs):
     """Execute a task based on a schedule"""
     backend = CONFIG.get("backend", "uri")
     broker = CONFIG.get("broker", "uri")
-    celery = Celery(backend=backend, broker=broker, include=processor.module)
-    logging.debug("TASK NAMES: %s", celery.tasks.keys())
 
     # TODO: Figure out how to refresh processor, plug
 
@@ -215,6 +213,9 @@ def dispatcher(processorid, plugid, message, socketid, **kwargs):
             session.query(ProcessorModel).filter_by(id=socketid).first()
         )
         logging.debug("Dispatching %s PLUG %s", socket, plug)
+
+        celery = Celery(backend=backend, broker=broker, include=processor.module)
+        logging.debug("TASK NAMES: %s", celery.tasks.keys())
         try:
             name = plug.name
 
