@@ -48,11 +48,10 @@ def get_session():
         for obj in session:
             if isinstance(obj, Processor):
                 # Publish to redis, pubsub, which gets sent to browser
-                logging.info("RECEIVE_AFTER_COMMIT Processor %s",str(obj))
-                print("RECEIVE_AFTER_COMMIT Processor",str(obj))
+                logging.info("RECEIVE_AFTER_COMMIT [%s] Processor %s", str(session), str(obj))
                 redisclient.publish(
                     "global",
-                    json.dumps({"type": "processor", "processor": str(obj)}),
+                    json.dumps({"type": "processor", "processor": json.loads(str(obj))}),
                 )
 
     return _session

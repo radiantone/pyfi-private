@@ -1234,6 +1234,9 @@ export default defineComponent({
 
       socket.on('global', (msg) => {
         // console.log('MAINLAYOUT', msg);
+        if (msg.type && msg.type === 'processor') {
+          console.log("PROCESSOR WAS UPDATED ",msg)
+        }
         if (msg.channel == 'task') {
           me.msglogs.unshift(msg)
           me.msglogs = me.msglogs.slice(0, 200)
@@ -1241,16 +1244,16 @@ export default defineComponent({
           window.root.$emit('message.count', 1)
           var bytes = JSON.stringify(msg).length
           window.root.$emit('message.size', bytes)
-        } else if (msg.type && msg.type == 'stats') {
+        } else if (msg.type && msg.type === 'stats') {
           me.stats = msg
         } else {
           var qs = []
 
-          if (msg.type && msg.type == 'queues') {
+          if (msg.type && msg.type === 'queues') {
             var queued_tasks = 0
             me.detailedqueues = msg.queues
             msg.queues.forEach((queue) => {
-              if (queue.name.indexOf('celery') == -1) {
+              if (queue.name.indexOf('celery') === -1) {
                 var ack_rate = 0
                 var deliver_rate = 0
 
