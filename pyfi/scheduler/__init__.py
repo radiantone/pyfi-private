@@ -195,6 +195,10 @@ class DeployProcessorPlugin(SchedulerPlugin):
             logging.debug("Fetching processors to be deployed")
 
             session.commit()
+
+            scheduler = (
+                session.query(SchedulerModel).filter_by(name=self.name).first()
+            )
             # Get a random processor that either has less deployments than its concurrency needs
             processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
@@ -271,9 +275,6 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     # separate deployments with smaller cpus spread across nodes
                     pass
 
-                scheduler = (
-                    session.query(SchedulerModel).filter_by(name=self.name).first()
-                )
 
                 session.commit()
 

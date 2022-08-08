@@ -513,7 +513,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             processor["worker"]["wprocess"].poll()
                                             is not None
                                     )
-                                    logging.info("PROCESS_DIED is %s for %s", process_died, processor["worker"])
+                                    logging.debug("PROCESS_DIED is %s for %s", process_died, processor["worker"])
                             except:
                                 import traceback
 

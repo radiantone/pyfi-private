@@ -178,6 +178,10 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
     broker = CONFIG.get("broker", "uri")
     celery = Celery(backend=backend, broker=broker, include=processor.module)
     logging.debug("TASK NAMES: %s", celery.tasks.keys())
+
+    session.refresh(processor)
+    session.refresh(plug)
+    session.refresh(socket)
     try:
         name = plug.name
 
@@ -188,7 +192,7 @@ def dispatcher(processor, plug, message, session, socket, **kwargs):
         logging.debug("PLUG RESULT %s", plug is not None)
 
         # TODO: QUEUENAME
-        tkey = socket.queue.name + "." + fix(processor.name) + "." + socket.task.name
+        tkey = socket.queue.name + "." + fix(processor) + "." + socket.task.name
         tkey = processor.module + "." + socket.task.name
         # tkey = socket.queue.name
         logging.debug("dispatcher: processor %s", processor.name)
