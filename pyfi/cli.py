@@ -18,7 +18,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logging.getLogger("sqlalchemy_oso.session").setLevel(logging.CRITICAL)
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import sys

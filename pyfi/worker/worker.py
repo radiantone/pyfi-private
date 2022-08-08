@@ -2626,6 +2626,8 @@ class WorkerService:
                 worker.start()
 
         def start_worker_proc():
+            # Create or update venv
+            from virtualenvapi.manage import VirtualEnvironment
 
             with self.get_session() as session:
                 deployment = (
@@ -2735,9 +2737,6 @@ class WorkerService:
 
                         if deployment.processor.gittag:
                             os.system("git checkout {}".format(deployment.processor.gittag))
-
-                        # Create or update venv
-                        from virtualenvapi.manage import VirtualEnvironment
 
                         # If not using a container, then build the virtualenv
                         if changes or not os.path.exists("venv"):
