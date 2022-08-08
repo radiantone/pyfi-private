@@ -56,6 +56,9 @@ def receive_after_update(mapper, connection, target):
             "global",
             json.dumps({"type": "processor", "name": target.name, "processor": json.loads(str(target))}),
         )
+    else:
+        logging.info("No changes!")
+
 
 
 def get_session():
