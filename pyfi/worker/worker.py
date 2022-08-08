@@ -2782,8 +2782,9 @@ class WorkerService:
                     args=(self.celery, self.queue, self.dburi),
                 )
 
-                with open(self.workpath+"/worker.pid","w") as pidfile:
+                with open(self.workpath+"/worker.pid", "w") as pidfile:
                     pidfile.write(str(worker_process.pid))
+                    logging.info("WROTE PID FILE to %s", self.workpath+"/worker.pid")
 
                 worker_process.app = self.celery
                 #worker_process.daemon = True
