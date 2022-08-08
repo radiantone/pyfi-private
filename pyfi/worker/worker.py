@@ -18,7 +18,7 @@ import redis
 
 tracemalloc.start()
 from inspect import Parameter
-from multiprocessing import Condition, Queue
+from multiprocessing import Condition, Queue, Process
 from pathlib import Path
 
 from flask import Flask
@@ -2776,14 +2776,17 @@ class WorkerService:
                     return
 
                 """ Start worker process"""
-                worker_process = Thread(
+                worker_process = Process(
                     target=worker_proc,
                     name="worker_proc",
                     args=(self.celery, self.queue, self.dburi),
                 )
 
+                with open(self.workpath+"/worker.pid","w") as pidfile:
+                    pidfile.write(str(worker_process.pid))
+
                 worker_process.app = self.celery
-                worker_process.daemon = True
+                #worker_process.daemon = True
                 worker_process.start()
 
                 self.process = worker_process
@@ -2893,40 +2896,44 @@ class WorkerService:
         """
         logging.info("Terminating worker %s", self.workpath)
 
-        process = psutil.Process(os.getpid())
-        #logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+        with open(self.workpath + "/worker.pid") as pidfile:
+            pid = pidfile.read()
 
-        logging.info("Killing worker_proc thread for %s", self.data['name'])
-        self.worker_process.raise_exception()
-        self.worker_process.join()
-        logging.info("Killed worker_proc thread for %s", self.data['name'])
-        '''
-        for child in process.children(recursive=True):
+            process = psutil.Process(pid)
+
+            #logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+
+            logging.info("Killing worker_proc thread for %s", self.data['name'])
+            #self.worker_process.raise_exception()
+            #self.worker_process.join()
+            logging.info("Killed worker_proc thread for %s", self.data['name'])
+
+            for child in process.children(recursive=True):
+                try:
+                    child.kill()
+                except:
+                    pass
+
+            # process.kill()
+            # process.terminate()
+
+            os.killpg(os.getpgid(process.pid), 15)
+            os.kill(process.pid, signal.SIGKILL)
+
+            logging.info("Finishing %s", self.workpath)
+
             try:
-                child.kill()
+                logging.info("Waiting for process to finish")
+                self.process.join()
+                logging.info("Process finished")
             except:
                 pass
-        '''
-        # process.kill()
-        # process.terminate()
 
-        #os.killpg(os.getpgid(process.pid), 15)
-        #os.kill(process.pid, signal.SIGKILL)
+            if os.path.exists(self.workpath) and not KEEP_WORKER_DIRS:
+                logging.info("Removing working directory %s", self.workpath)
+                shutil.rmtree(self.workpath)
 
-        logging.info("Finishing %s", self.workpath)
-
-        try:
-            logging.info("Waiting for process to finish")
-            self.process.join()
-            logging.info("Process finished")
-        except:
-            pass
-
-        if os.path.exists(self.workpath) and not KEEP_WORKER_DIRS:
-            logging.info("Removing working directory %s", self.workpath)
-            shutil.rmtree(self.workpath)
-
-        logging.info("Done killing worker %s", self.workpath)
+            logging.info("Done killing worker %s", self.workpath)
 
 
 @app.route("/")
