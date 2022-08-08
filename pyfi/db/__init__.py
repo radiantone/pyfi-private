@@ -40,22 +40,18 @@ def receive_after_update(mapper, connection, target):
 
     state = inspect(target)
     # Publish to redis, pubsub, which gets sent to browser
-    changes = {}
     has_changes = False
-
+    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target))
     for attr in state.attrs:
         hist = attr.load_history()
 
         if not hist.has_changes():
             continue
 
-        # hist.deleted holds old value
-        # hist.added holds new value
-        changes[attr.key] = hist.added
         has_changes = True
 
     if has_changes:
-        logging.info("RECEIVE_AFTER_COMMIT CHANGED! Processor %s", str(target))
+        logging.info("RECEIVE_AFTER_COMMIT CHANGED!")
         redisclient.publish(
             "global",
             json.dumps({"type": "processor", "name": target.name, "processor": json.loads(str(target))}),
