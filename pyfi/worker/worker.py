@@ -2786,6 +2786,7 @@ class WorkerService:
                 worker_process.start()
                 logging.debug("worker_process started...")
 
+                self.process_thread = worker_process
         """ Send messages to redis pub/sub for consumers """
 
         ####################################################
@@ -2854,7 +2855,7 @@ class WorkerService:
 
         logging.debug("Returning worker_process %s", self.process)
 
-        return self.process
+        return self.process_thread
 
     def busy(self):
         """
