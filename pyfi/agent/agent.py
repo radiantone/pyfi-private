@@ -308,7 +308,10 @@ class AgentMonitorPlugin(AgentPlugin):
                 try:
                     session.refresh(mydeployment)
                 except:
-                    session.merge(mydeployment)
+                    try:
+                        session.merge(mydeployment)
+                    except:
+                        session.add(mydeployment)
 
                 try:
                     logging.debug("Deployment Processor %s", mydeployment.processor)
