@@ -2892,7 +2892,7 @@ class WorkerService:
         logging.info("Terminating worker %s", self.workpath)
 
         process = psutil.Process(os.getpid())
-
+        logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
         for child in process.children(recursive=True):
             try:
                 child.kill()
