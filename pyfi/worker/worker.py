@@ -2771,8 +2771,8 @@ class WorkerService:
                             logging.info("No rebuild needed. venv already exists in %s", os.getcwd())
 
                 # Sometimes we just want to recreate the setup
-                #if not start:
-                #    return
+                if not start:
+                    return
 
                 """ Start worker process"""
                 worker_process = self.worker_process = Thread(
@@ -2786,7 +2786,8 @@ class WorkerService:
                 worker_process.start()
                 logging.debug("worker_process started...")
 
-                self.process_thread = worker_process
+                self.process = worker_process
+
         """ Send messages to redis pub/sub for consumers """
 
         ####################################################
@@ -2855,7 +2856,7 @@ class WorkerService:
 
         logging.debug("Returning worker_process %s", self.process)
 
-        return self.process_thread
+        return self.process
 
     def busy(self):
         """
