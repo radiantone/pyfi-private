@@ -306,14 +306,14 @@ class AgentMonitorPlugin(AgentPlugin):
 
                 try:
                     session.refresh(mydeployment)
-                    logging.info("Refreshing deployment %s", mydeployment)
+                    logging.debug("Refreshing deployment %s", mydeployment.name)
                 except:
                     try:
                         session.merge(mydeployment)
-                        logging.info("Merged deployment %s", mydeployment)
+                        logging.debug("Merged deployment %s", mydeployment.name)
                     except:
                         session.add(mydeployment)
-                        logging.info("Add deployment %s", mydeployment)
+                        logging.debug("Add deployment %s", mydeployment.name)
 
                 try:
                     logging.debug("Deployment Processor %s", mydeployment.processor)

@@ -41,7 +41,7 @@ def receive_after_update(mapper, connection, target):
     state = inspect(target)
     # Publish to redis, pubsub, which gets sent to browser
     has_changes = False
-    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target))
+    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target.name))
     for attr in state.attrs:
         hist = state.get_history(attr.key, True)
 
