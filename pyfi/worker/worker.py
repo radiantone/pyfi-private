@@ -3,6 +3,7 @@ Agent workerclass. Primary task/code execution context for processors. This is w
 """
 import configparser
 import inspect
+import json
 import logging
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
@@ -10,13 +11,11 @@ import platform
 import shutil
 import signal
 import sys
-import json
 import tracemalloc
 
 import psutil
 import redis
 
-tracemalloc.start()
 from inspect import Parameter
 from multiprocessing import Condition, Queue, Process
 from contextlib import contextmanager
@@ -25,14 +24,10 @@ from pathlib import Path
 from flask import Flask
 from pytz import utc
 
-app = Flask(__name__)
-
-from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
 from kombu import Exchange
 from kombu import Queue as KQueue
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session
 from sqlalchemy.pool import QueuePool
 
 from celery import Celery
@@ -64,6 +59,10 @@ from pyfi.db.model.models import DeploymentModel
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
 
+app = Flask(__name__)
+
+tracemalloc.start()
+
 
 @contextmanager
 def get_session(**kwargs):
@@ -88,6 +87,7 @@ def get_session(**kwargs):
         session.expunge_all()
         session.close()
 
+
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
     logging.debug("DISABLE LOGGING SETUP")
@@ -106,7 +106,7 @@ def void(*args, **kwargs):
     pass
 
 
-# Set global vars
+""" Prepare the module with some constants """
 HOME = str(Path.home())
 CONFIG = configparser.ConfigParser()
 
@@ -136,8 +136,6 @@ HOSTNAME = platform.node()
 
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
-
-logging.debug("OS PID is {}".format(os.getpid()))
 
 
 def fix(name):
@@ -2698,7 +2696,7 @@ class WorkerService:
                         logging.info("MAKING PATH %s", self.workpath)
                         os.makedirs(self.workpath)
                     else:
-                        logging.info("WORKPATH %s exists",self.workpath)
+                        logging.info("WORKPATH %s exists", self.workpath)
 
                     os.chdir(self.workpath)
 
@@ -2830,12 +2828,12 @@ class WorkerService:
                 worker_process.start()
                 logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
-                with open(self.workpath+"/worker.pid", "w") as pidfile:
+                with open(self.workpath + "/worker.pid", "w") as pidfile:
                     pidfile.write(str(worker_process.pid))
-                    logging.info("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath+"/worker.pid")
+                    logging.info("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath + "/worker.pid")
 
                 worker_process.app = self.celery
-                #worker_process.daemon = True
+                # worker_process.daemon = True
 
                 self.process = worker_process
                 self.worker_process = worker_process
@@ -2948,11 +2946,11 @@ class WorkerService:
 
             process = psutil.Process(pid)
 
-            #logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+            # logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
 
             logging.info("Killing worker_proc thread for %s", self.data['name'])
-            #self.worker_process.raise_exception()
-            #self.worker_process.join()
+            # self.worker_process.raise_exception()
+            # self.worker_process.join()
             logging.info("Killed worker_proc thread for %s", self.data['name'])
 
             for child in process.children(recursive=True):
@@ -2964,8 +2962,8 @@ class WorkerService:
             # process.kill()
             process.terminate()
 
-            #os.killpg(pid, 15)
-            #os.kill(pid, signal.SIGKILL)
+            # os.killpg(pid, 15)
+            # os.kill(pid, signal.SIGKILL)
 
             logging.info("Finishing %s", self.workpath)
 

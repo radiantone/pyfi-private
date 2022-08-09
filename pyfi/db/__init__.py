@@ -5,6 +5,7 @@ from .model.models import FlowModel as Flow
 from .model.models import LogModel as Log
 from .model.models import NodeModel as Node
 from .model.models import PlugModel as Plug
+from .model.models import BaseModel
 from .model.models import ProcessorModel as Processor
 from .model.models import QueueModel as Queue
 from .model.models import RoleModel as Role
@@ -29,7 +30,7 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 
-@event.listens_for(Processor, 'after_update')
+@event.listens_for(BaseModel, 'after_update')
 def receive_after_update(mapper, connection, target):
     import json
     import logging
@@ -51,10 +52,10 @@ def receive_after_update(mapper, connection, target):
         has_changes = True
 
     if has_changes:
-        logging.info("RECEIVE_AFTER_COMMIT CHANGED!")
+        logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
         redisclient.publish(
             "global",
-            json.dumps({"type": "processor", "name": target.name, "processor": json.loads(str(target))}),
+            json.dumps({"type": target.__class__.__name__, "name": target.name, "processor": json.loads(str(target))})
         )
     else:
         logging.info("No changes!")
