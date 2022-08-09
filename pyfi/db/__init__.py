@@ -46,14 +46,14 @@ def receive_before_update(mapper, connection, target):
     has_changes = object_session(target).is_modified(target, include_collections=False)
     logging.info("receive_after_update: %s",target)
 
-    if has_changes:
+    if has_changes or isinstance(target, Processor):
         logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
         redisclient.publish(
             "global",
             json.dumps({"type": target.__class__.__name__, "name": target.name, "processor": json.loads(str(target))})
         )
     else:
-        logging.info("No changes!")
+        logging.debug("No changes!")
 
 
 def get_session():
