@@ -35,21 +35,11 @@ def receive_after_update(mapper, connection, target):
     import json
     import logging
     import redis
-    from sqlalchemy import inspect
+    from sqlalchemy import inspect, object_session
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
-    state = inspect(target)
-    # Publish to redis, pubsub, which gets sent to browser
-    has_changes = False
-    logging.info("RECEIVE_AFTER_COMMIT Processor %s", str(target.name))
-    for attr in state.attrs:
-        hist = state.get_history(attr.key, True)
-
-        if not hist.has_changes():
-            continue
-
-        has_changes = True
+    has_changes = object_session(target).is_modified(target, include_collections=False)
 
     if has_changes:
         logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
