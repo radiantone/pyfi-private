@@ -71,32 +71,13 @@ api = Api(
     title="LambdaFLOW API",
     description="LambdaFLOW Backend API",
 )
-from sqlalchemy import event
-from pyfi.db import get_session
 
-'''
+
 @contextmanager
 def get_session(**kwargs):
-    session = sessionmaker(bind=engine, **kwargs)()
+    from pyfi.db import get_session
 
-    @event.listens_for(session, "before_commit")
-    def receive_after_commit(session):
-        import json
-
-        import redis
-
-        logging.debug("commit UPDATED", session)
-        redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-
-        for obj in session:
-            logging.debug("OBJ IN SESSION", type(obj), obj)
-
-            if isinstance(obj, ProcessorModel):
-                # Publish to redis, pubsub, which gets sent to browser
-                redisclient.publish(
-                    "global",
-                    json.dumps({"type": "processor", "processor": str(obj)}),
-                )
+    session = get_session()
 
     try:
         yield session
@@ -109,7 +90,6 @@ def get_session(**kwargs):
         session.expunge_all()
         session.close()
         gc.collect()
-'''
 
 
 def create_endpoint(modulename, taskname):

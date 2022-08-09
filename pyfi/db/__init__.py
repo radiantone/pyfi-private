@@ -60,7 +60,6 @@ def receive_after_update(mapper, connection, target):
         logging.info("No changes!")
 
 
-
 def get_session():
     from sqlalchemy.orm import sessionmaker, scoped_session
 
