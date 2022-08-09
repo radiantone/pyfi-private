@@ -30,7 +30,7 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 
-@event.listens_for(Processor, 'after_update')
+@event.listens_for(BaseModel, 'after_update')
 def receive_after_update(mapper, connection, target):
     import json
     import logging
@@ -40,6 +40,7 @@ def receive_after_update(mapper, connection, target):
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
     has_changes = object_session(target).is_modified(target, include_collections=False)
+    logging.info("receive_after_update: %s",target)
 
     if has_changes:
         logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
