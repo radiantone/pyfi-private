@@ -30,8 +30,8 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 
-@event.listens_for(BaseModel, 'after_update')
-def receive_after_update(mapper, connection, target):
+@event.listens_for(BaseModel, 'before_update')
+def receive_before_update(mapper, connection, target):
     import json
     import logging
     import redis
