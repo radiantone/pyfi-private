@@ -35,7 +35,7 @@ def receive_after_update(mapper, connection, target):
     import json
     import logging
     import redis
-    from sqlalchemy import inspect, object_session
+    from sqlalchemy.orm import object_session
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
