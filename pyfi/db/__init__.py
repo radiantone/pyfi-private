@@ -30,7 +30,7 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 
-@event.listens_for(BaseModel, 'after_update')
+@event.listens_for(Processor, 'after_update')
 def receive_after_update(mapper, connection, target):
     import json
     import logging
