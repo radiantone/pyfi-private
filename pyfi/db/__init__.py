@@ -5,7 +5,7 @@ from .model.models import FlowModel as Flow
 from .model.models import LogModel as Log
 from .model.models import NodeModel as Node
 from .model.models import PlugModel as Plug
-from .model.models import BaseModel
+from .model.models import BaseModel, AgentModel, NodeModel, WorkerModel, DeploymentModel
 from .model.models import ProcessorModel as Processor
 from .model.models import QueueModel as Queue
 from .model.models import RoleModel as Role
@@ -38,6 +38,10 @@ def receive_before_update(mapper, connection, target):
     from sqlalchemy.orm import object_session
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+
+    if not isinstance(target, (Processor, DeploymentModel, WorkerModel, NodeModel, AgentModel)):
+        logging.info("receive_after_update: Skipping for %s", target.__class__.__name__)
+        return
 
     has_changes = object_session(target).is_modified(target, include_collections=False)
     logging.info("receive_after_update: %s",target)
