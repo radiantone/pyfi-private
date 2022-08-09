@@ -30,7 +30,7 @@ ini = HOME + "/pyfi.ini"
 CONFIG.read(ini)
 
 
-@event.listens_for(Processor, 'before_update', propagate=True)
+@event.listens_for(BaseModel, 'before_update', propagate=True)
 def receive_before_update(mapper, connection, target):
     import json
     import logging
