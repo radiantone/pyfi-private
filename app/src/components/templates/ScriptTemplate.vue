@@ -48,13 +48,13 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup v-if="obj.status == 'running'" @click="obj.status = 'stopped'">
+        <q-item clickable v-close-popup v-if="obj.status === 'running'" @click="obj.status = 'stopped'">
           <q-item-section side>
             <q-icon name="fas fa-stop"></q-icon>
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Stop</q-item-section>
         </q-item>
-        <q-item clickable v-close-popup v-if="obj.status == 'stopped'" @click="obj.status = 'running'">
+        <q-item clickable v-close-popup v-if="obj.status === 'stopped'" @click="obj.status = 'running'">
           <q-item-section side>
             <q-icon name="fas fa-play"></q-icon>
           </q-item-section>
@@ -500,7 +500,7 @@
             icon="fa fa-play"
             size="xs"
             dense
-            v-if="obj.status == 'stopped'"
+            v-if="obj.status === 'stopped'"
             flat
             class="edit-name text-secondary"
             @click="obj.status = 'running'"
@@ -520,7 +520,7 @@
             size="xs"
             dense
             flat
-            v-if="obj.status == 'running'"
+            v-if="obj.status === 'running'"
             @click="obj.status = 'stopped'"
             class="edit-name text-secondary text-green"
             style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
@@ -689,7 +689,7 @@
         </q-btn-dropdown>
       </div>
     </div>
-    <ul v-if="obj.icon == 'fas fa-database'" class="table-columns" v-for="column in obj.columns" :key="column.id">
+    <ul v-if="obj.icon === 'fas fa-database'" class="table-columns" v-for="column in obj.columns" :key="column.id">
       <li
         :class="'table-column jtk-droppable table-column-type-' + column.datatype"
         :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
@@ -753,7 +753,7 @@
     </ul>
 
     <ul
-      v-if="obj.icon == 'fab fa-python' || obj.icon == 'fas fa-plug'"
+      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -828,7 +828,7 @@
           <q-select
             dense
             borderless
-            v-if="column.type == 'Input'"
+            v-if="column.type === 'Input'"
             :options-dense="true"
             style="font-size: 1em; margin-right: 5px;"
             label-color="orange"
@@ -845,13 +845,13 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
-              <q-popup-edit v-model="column.name" buttons v-if="column.icon == 'fas fa-plug'">
+              <q-popup-edit v-model="column.name" buttons v-if="column.icon === 'fas fa-plug'">
                 <q-input type="string" v-model="column.name" dense autofocus />
               </q-popup-edit>
             </span>
           </span>
         </div>
-        <div v-if="column.type == 'Input'" style="margin-left: 30px;">
+        <div v-if="column.type === 'Input'" style="margin-left: 30px;">
           <div class="float-left text-secondary">
             <i :class="column.icon" :title="column.name" style="margin-right: 5px;" />
           </div>
@@ -872,7 +872,7 @@
         />
 
         <jtk-target
-          v-if="column.type == 'Input'"
+          v-if="column.type === 'Input'"
           name="target"
           :port-id="column.id"
           type="Input"
@@ -901,7 +901,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'inBytes'"
+              v-if="props.cols[1].value === 'inBytes'"
             >
               {{ inBytes }}
             </q-td>
@@ -909,7 +909,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'totalBytes'"
+              v-if="props.cols[1].value === 'totalBytes'"
             >
               {{ totalBytes }}
             </q-td>
@@ -917,7 +917,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'outBytes'"
+              v-if="props.cols[1].value === 'outBytes'"
             >
               {{ outBytes }}
             </q-td>
@@ -925,13 +925,13 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'taskTime'"
+              v-if="props.cols[1].value === 'taskTime'"
             >
               {{ taskTime }}
             </q-td>
             <q-td :key="props.cols[3].name" :props="props" :style="rowStripe(props.row.index) + ';width:80px'">
               <v-sparkline
-                v-if="props.cols[1].value == 'inBytes'"
+                v-if="props.cols[1].value === 'inBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_in_5min"
                 color="white"
@@ -939,7 +939,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'outBytes'"
+                v-if="props.cols[1].value === 'outBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_out_5min"
                 color="white"
@@ -947,7 +947,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'totalBytes'"
+                v-if="props.cols[1].value === 'totalBytes'"
                 :labels="props.row.spark.labels"
                 :value="totalbytes_5min"
                 color="white"
@@ -955,7 +955,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'taskTime'"
+                v-if="props.cols[1].value === 'taskTime'"
                 :labels="props.row.spark.labels"
                 :value="tasktime_out_5min"
                 color="white"
@@ -1396,8 +1396,8 @@
               <q-tab name="apisettings" label="API" />
               <q-tab name="throttling" label="Throttling" />
               <q-tab name="versions" label="Version" />
-              <q-tab v-if="obj.icon == lambdaIcon" name="lambda" label="Lambda" />
-              <q-tab v-if="obj.icon == 'fas fa-database'" name="database" label="Database" />
+              <q-tab v-if="obj.icon === lambdaIcon" name="lambda" label="Lambda" />
+              <q-tab v-if="obj.icon === 'fas fa-database'" name="database" label="Database" />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
               <q-tab-panel name="settings" style="padding-top: 0px; padding-bottom: 0px;">
@@ -1513,7 +1513,7 @@
                   <q-input style="width: 200px;" hint="Version" type="string" v-model.number="obj.version" />
                 </q-toolbar>
               </q-tab-panel>
-              <q-tab-panel name="lambda" v-if="obj.icon == lambdaIcon" style="padding-top: 0px;">
+              <q-tab-panel name="lambda" v-if="obj.icon === lambdaIcon" style="padding-top: 0px;">
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
                     <q-input
@@ -1527,7 +1527,7 @@
                   </q-form>
                 </div>
               </q-tab-panel>
-              <q-tab-panel name="database" v-if="obj.icon == 'fas fa-database'" style="padding-top: 0px;">
+              <q-tab-panel name="database" v-if="obj.icon === 'fas fa-database'" style="padding-top: 0px;">
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
                     <q-input
@@ -1857,7 +1857,7 @@
               <pre>{{ log["output"] }}</pre>
             </div>
             <vue-typed-js
-              v-if="!consolehistory && index == consolelogs.length - 1"
+              v-if="!consolehistory && index === consolelogs.length - 1"
               :showCursor="false"
               :typeSpeed="1"
               :strings="[
@@ -2336,8 +2336,8 @@ export default {
     });
 
     this.$on("message.received", (msg) => {
-      if (msg["type"] && msg["type"] == "output") {
-        if (msg["processor"] == this.obj.name) {
+      if (msg["type"] && msg["type"] === "output") {
+        if (msg["processor"] === this.obj.name) {
           me.consolelogs.push({ date: new Date(), output: msg["output"] });
           me.consolelogs = me.consolelogs.slice(0, 100);
         }
@@ -2345,7 +2345,7 @@ export default {
       if (msg["room"] && msg["room"] != me.obj.name) {
         return;
       }
-      if (msg["channel"] == "task" && msg["state"]) {
+      if (msg["channel"] === "task" && msg["state"]) {
         var bytes = JSON.stringify(msg).length;
         window.root.$emit("message.count", 1);
         window.root.$emit("message.size", bytes);
@@ -2374,7 +2374,7 @@ export default {
         me.tasklogs.unshift(msg);
         me.tasklogs = me.tasklogs.slice(0, 100);
       }
-      if (msg["channel"] == "task" && msg["message"]) {
+      if (msg["channel"] === "task" && msg["message"]) {
         var timedata = tsdb.series("outBytes").query({
           metrics: { data: TSDB.map("bytes") },
           where: {
@@ -2390,7 +2390,7 @@ export default {
         var json = JSON.parse(msg["message"]);
         me.bytes_out += msg["message"].length;
         me.bytes_out_5min.unshift(msg["message"].length);
-        if (msg["state"] == "postrun" && msg["duration"]) {
+        if (msg["state"] === "postrun" && msg["duration"]) {
           const moment = Moment(msg["duration"], "H:mm:ss.SSS");
           //console.log('MOMENT', moment);
           me.tasktime_out_5min.unshift(moment.seconds() + moment.milliseconds());
@@ -2404,7 +2404,7 @@ export default {
         me.resultlogs.unshift(json);
         me.resultlogs = me.resultlogs.slice(0, 100);
       }
-      if (msg["channel"] == "log" && msg["message"]) {
+      if (msg["channel"] === "log" && msg["message"]) {
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 100);
       }
@@ -2433,7 +2433,7 @@ export default {
 
       var myhist = [];
       window.toolkit.undoredo.undoStack.forEach((entry) => {
-        if (entry.obj.data.id == me.obj.id) {
+        if (entry.obj.data.id === me.obj.id) {
           myhist.push(entry);
         }
       });
@@ -3532,7 +3532,7 @@ export default {
         });
     },
     sizeOf(bytes) {
-      if (bytes == 0) {
+      if (bytes === 0) {
         return "0.00 B";
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -3585,7 +3585,7 @@ export default {
       return "key_" + uuidv4();
     },
     rowStripe(row) {
-      if (row % 2 == 0) {
+      if (row % 2 === 0) {
         return "background-color:white";
       }
     },
@@ -3618,10 +3618,10 @@ export default {
         //window.toolkit.surface.setZoom(1.0);
 
         var node = this.toolkit.getNode(this.obj);
-        if (view == "historyview") {
+        if (view === "historyview") {
           console.log(this.myhistory);
         }
-        if (view == "gitview") {
+        if (view === "gitview") {
           this.getCommits();
         }
         /*
@@ -3754,7 +3754,7 @@ export default {
       for (var i = 0; i < this.obj.columns.length; i++) {
         var col = this.obj.columns[i];
         console.log(col);
-        if (col.id == column) {
+        if (col.id === column) {
           console.log("Deleted column");
           this.obj.columns.splice(i, 1);
           break;
@@ -3767,7 +3767,7 @@ export default {
         console.log(edge);
         const edge = edges[i];
         console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column);
-        if (edge.source.getNode().id === this.obj.id && edge.data.label == column) {
+        if (edge.source.getNode().id === this.obj.id && edge.data.label === column) {
           window.toolkit.removeEdge(edge);
         }
       }
@@ -3814,7 +3814,7 @@ export default {
         var schemas = [];
 
         graph["nodes"].forEach((node) => {
-          if (node["type"] == "schema") {
+          if (node["type"] === "schema") {
             schemas.push(node["name"]);
           }
         });
@@ -3835,7 +3835,7 @@ export default {
 
       this.updateSchemas();
 
-      if (type == "Error") {
+      if (type === "Error") {
         return;
       }
 

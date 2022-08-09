@@ -383,7 +383,7 @@ export default {
   mixins: [BaseGroupComponent],
   components: {},
   computed: {
-    myWidth() {      
+    myWidth() {
       var mywidth = this.obj.w > 0 ? this.obj.w : 'auto'
       return mywidth;
     },
@@ -393,7 +393,7 @@ export default {
   },
   mounted() {
     var me = this;
-    this.toolkit = window.toolkit;    
+    this.toolkit = window.toolkit;
   },
   created() {
     console.log('GROUP IS', this.obj);
@@ -437,16 +437,16 @@ export default {
       var nodes = [];
 
       code['nodes'].forEach((node) => {
-        if (node.group && node.group == gid) {
+        if (node.group && node.group === gid) {
           nodes.push(node);
 
           code['edges'].forEach((edge) => {
-            if (edge['source'].indexOf(node.id) == 0) {
+            if (edge['source'].indexOf(node.id) === 0) {
               edges.push(edge);
             }
           });
           code['ports'].forEach((port) => {
-            if (port['id'].indexOf(node.id) == 0) {
+            if (port['id'].indexOf(node.id) === 0) {
               ports.push(port);
             }
           });

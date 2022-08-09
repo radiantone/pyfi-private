@@ -1024,7 +1024,7 @@ export default {
       for (var i = 0; i < this.obj.columns.length; i++) {
         var col = this.obj.columns[i];
         console.log(col);
-        if (col.id == column) {
+        if (col.id === column) {
           console.log('Deleted column');
           this.obj.columns.splice(i, 1);
           break;
@@ -1044,7 +1044,7 @@ export default {
         );
         if (
           edge.source.getNode().id === this.obj.id &&
-          edge.data.label == column
+          edge.data.label === column
         ) {
           window.toolkit.removeEdge(edge);
         }

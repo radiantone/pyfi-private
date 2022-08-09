@@ -274,7 +274,7 @@ export default {
     var me = this;
     socket.on("global", (data) => {
       //console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      if (data["type"] && data["type"] == "queues") {
+      if (data["type"] && data["type"] === "queues") {
         me.messageReceived(data);
       }
     });
@@ -301,7 +301,7 @@ export default {
       window.root.$emit("view.queue", this.queueName);
     },
     sizeOf(bytes) {
-      if (bytes == 0) {
+      if (bytes === 0) {
         return "0.00 B";
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -311,7 +311,7 @@ export default {
       //console.log("QUEUES RECEIVED",msg);
       msg["queues"].forEach((queue) => {
         //console.log("QUEUE NAME",queue['name'],this.name)
-        if (queue["name"] == this.queueName) {
+        if (queue["name"] === this.queueName) {
           //console.log("FOUND MY QUEUE",queue['messages'])
           this.messages = queue["messages"];
           this.bytes = this.sizeOf(queue["message_bytes"]);

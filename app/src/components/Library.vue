@@ -26,7 +26,7 @@
             style="margin-left:10px"
           />
         </q-toolbar>
-          
+
         </div>
         <div
           v-if="showaddfolder"
@@ -48,7 +48,7 @@
               flat
               label="Add"
               @click="addFolder"
-              :disabled="newfolder.length == 0"
+              :disabled="newfolder.length === 0"
             />
             <q-space />
             <q-btn
@@ -117,9 +117,9 @@
             <q-icon
               :name="item.icon"
               color="secondary"
-              v-if="item.type == 'folder'"
+              v-if="item.type === 'folder'"
               :class="darkStyle"
-              
+
             />
             <q-icon
               :name="item.icon"
@@ -303,7 +303,7 @@ export default {
 
       console.log('selectFileOrFolder ', item.id, item, this.objecttype);
       item._id = item.id;
-      
+
       this.flowuuid = item.id;
       if (item.type === 'folder') {
         this.foldername = item.path+"/"+item.filename;

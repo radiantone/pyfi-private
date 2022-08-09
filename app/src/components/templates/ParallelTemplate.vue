@@ -635,7 +635,7 @@
       </div>
     </div>
     <ul
-      v-if="obj.icon == 'fas fa-database'"
+      v-if="obj.icon === 'fas fa-database'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -719,7 +719,7 @@
     </ul>
 
     <ul
-      v-if="obj.icon == 'fab fa-python'"
+      v-if="obj.icon === 'fab fa-python'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -837,7 +837,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'inBytes'"
+              v-if="props.cols[1].value === 'inBytes'"
             >
               {{ inBytes }}
             </q-td>
@@ -845,7 +845,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'totalBytes'"
+              v-if="props.cols[1].value === 'totalBytes'"
             >
               {{ totalBytes }}
             </q-td>
@@ -853,7 +853,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'outBytes'"
+              v-if="props.cols[1].value === 'outBytes'"
             >
               {{ outBytes }}
             </q-td>
@@ -861,7 +861,7 @@
               :key="props.cols[1].name"
               :props="props"
               :style="rowStripe(props.row.index)"
-              v-if="props.cols[1].value == 'taskTime'"
+              v-if="props.cols[1].value === 'taskTime'"
             >
               {{ taskTime }}
             </q-td>
@@ -871,7 +871,7 @@
               :style="rowStripe(props.row.index) + ';width:80px'"
             >
               <v-sparkline
-                v-if="props.cols[1].value == 'inBytes'"
+                v-if="props.cols[1].value === 'inBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_in_5min"
                 color="white"
@@ -879,7 +879,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'outBytes'"
+                v-if="props.cols[1].value === 'outBytes'"
                 :labels="props.row.spark.labels"
                 :value="bytes_out_5min"
                 color="white"
@@ -887,7 +887,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'totalBytes'"
+                v-if="props.cols[1].value === 'totalBytes'"
                 :labels="props.row.spark.labels"
                 :value="totalbytes_5min"
                 color="white"
@@ -895,7 +895,7 @@
                 padding="0"
               ></v-sparkline>
               <v-sparkline
-                v-if="props.cols[1].value == 'taskTime'"
+                v-if="props.cols[1].value === 'taskTime'"
                 :labels="props.row.spark.labels"
                 :value="tasktime_out_5min"
                 color="white"
@@ -1363,11 +1363,11 @@
               <q-tab name="containersettings" label="Container" />
               <q-tab name="apisettings" label="API" />
               <q-tab
-                v-if="obj.icon == lambdaIcon"
+                v-if="obj.icon === lambdaIcon"
                 name="lambda"
                 label="Lambda"
               /><q-tab
-                v-if="obj.icon == 'fas fa-database'"
+                v-if="obj.icon === 'fas fa-database'"
                 name="database"
                 label="Database"
               />
@@ -1521,7 +1521,7 @@
               </q-tab-panel>
               <q-tab-panel
                 name="lambda"
-                v-if="obj.icon == lambdaIcon"
+                v-if="obj.icon === lambdaIcon"
                 style="padding-top: 0px;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">
@@ -1546,7 +1546,7 @@
               </q-tab-panel>
               <q-tab-panel
                 name="database"
-                v-if="obj.icon == 'fas fa-database'"
+                v-if="obj.icon === 'fas fa-database'"
                 style="padding-top: 0px;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">

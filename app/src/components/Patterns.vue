@@ -43,7 +43,7 @@
               flat
               label="Add"
               @click="addFolder"
-              :disabled="newfolder.length == 0"
+              :disabled="newfolder.length === 0"
             />
             <q-space />
             <q-btn

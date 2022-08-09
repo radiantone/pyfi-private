@@ -43,7 +43,7 @@
               flat
               label="Add"
               @click="addFolder"
-              :disabled="newfolder.length == 0"
+              :disabled="newfolder.length === 0"
             />
             <q-space />
             <q-btn
@@ -112,7 +112,7 @@
             <q-icon
               :name="item.icon"
               color="secondary"
-              v-if="item.type == 'folder'"
+              v-if="item.type === 'folder'"
               :class="darkStyle"
             />
             <q-icon

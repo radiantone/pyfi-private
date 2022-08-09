@@ -820,7 +820,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-cog"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -831,7 +831,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-book"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -841,7 +841,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="far fa-times-circle"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -851,7 +851,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-play"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -861,7 +861,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-stop"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -872,7 +872,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-save"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -882,7 +882,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-upload"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -894,7 +894,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="fas fa-copy"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -908,7 +908,7 @@
                 dense
                 flat
                 size="sm"
-                :disable="node == null"
+                :disable="node === null"
                 icon="far fa-object-group"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
@@ -916,7 +916,7 @@
               <q-btn
                 dense
                 flat
-                :disable="node == null"
+                :disable="node === null"
                 size="sm"
                 icon="fas fa-paint-brush"
                 class="text-dark"
@@ -926,7 +926,7 @@
               <q-btn
                 dense
                 flat
-                :disable="node == null"
+                :disable="node === null"
                 size="sm"
                 label="Delete"
                 icon="far fa-trash-alt"
@@ -2100,7 +2100,7 @@ export default {
       console.log('preview', version, this.versiondata);
       this.versiondata.forEach((row) => {
         console.log('row', row);
-        if (row.version == version) {
+        if (row.version === version) {
           console.log('PREVIEW', row.code);
           this.$refs.previewdesigner.toolkit.clear();
           this.$refs.previewdesigner.toolkit.load({
@@ -2338,10 +2338,10 @@ export default {
       if (this.deleteCount > 1) {
         this.deletText = 'nodes';
         this.deleteConfirm = true;
-      } else if (this.deleteCount == 1) {
+      } else if (this.deleteCount === 1) {
         this.deleteText = 'node';
         this.deleteConfirm = true;
-      } else if (this.deleteCount == 0) {
+      } else if (this.deleteCount === 0) {
         this.selectAlert = true;
       }
     },
@@ -2438,7 +2438,7 @@ export default {
         window.toolkit.surface = me.surface;
         window.designer = me;
         me.$root.$on('flow.uuid', (flowid, flowuuid) => {
-          if (flowid == me.flowid) {
+          if (flowid === me.flowid) {
             me.flowuuid = flowuuid;
           }
         });
@@ -2453,7 +2453,7 @@ export default {
           me.node = node;
           console.log('Animate node');
           var adhocSelection = toolkit.filter(function (obj) {
-            return obj == node;
+            return obj === node;
           });
           if (node != null) {
             //me.surface.setZoom(0.001);
@@ -2498,7 +2498,7 @@ export default {
               var data = JSON.parse(JSON.stringify(node.node));
               console.log('DROP DATA:', data);
               console.log('SURFACE', me.surface);
-              if (data.type == 'pattern') {
+              if (data.type === 'pattern') {
                 console.log('DROP PATTERN', data.code);
                 if (data.code) {
                   me.showing = false;
@@ -3174,7 +3174,7 @@ export default {
               var targetType = params.target.data['type'];
 
               console.log(sourceType, targetType);
-              if (!(sourceType == 'Output' && targetType == 'Input')) {
+              if (!(sourceType === 'Output' && targetType === 'Input')) {
                 window.toolkit.removeEdge(params.edge);
               }
 
@@ -3262,14 +3262,14 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName == 'span' &&
+                  params.e.srcElement.localName === 'span' &&
                   params.e.srcElement.className === 'proc-title'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3279,7 +3279,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);
@@ -3307,7 +3307,7 @@ export default {
                   });
                   params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
-                  if (nodes.length == 0) {
+                  if (nodes.length === 0) {
                     window.root.$emit('node.selected', null);
                   } else {
                     window.root.$emit('node.selected', params.node);
@@ -3333,7 +3333,7 @@ export default {
                   });
                   params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
-                  if (nodes.length == 0) {
+                  if (nodes.length === 0) {
                     window.root.$emit('node.selected', null);
                   } else {
                     window.root.$emit('node.selected', params.node);
@@ -3359,7 +3359,7 @@ export default {
                   });
                   params.el.style['z-index'] = 99999;
                   var nodes = toolkit.getSelection().getAll();
-                  if (nodes.length == 0) {
+                  if (nodes.length === 0) {
                     window.root.$emit('node.selected', null);
                   } else {
                     window.root.$emit('node.selected', params.node);
@@ -3383,14 +3383,14 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
-                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3400,7 +3400,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);
@@ -3418,14 +3418,14 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
-                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3435,7 +3435,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);
@@ -3453,14 +3453,14 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
-                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3470,7 +3470,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);
@@ -3488,14 +3488,14 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
-                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3505,7 +3505,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);
@@ -3523,14 +3523,14 @@ export default {
                 // params.e.srcElement.localName != "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
-                  params.e.srcElement.localName == 'span' ||
+                  params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
                 ) {
                   var parentId = params.e.srcElement.firstChild.parentNode.id;
                   var childId = params.e.srcElement.firstChild.id;
                   if (
-                    ((childId && childId.indexOf('port') == -1) || !childId) &&
-                    ((parentId && parentId.indexOf('port') == -1) || !parentId)
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
                   ) {
                     toolkit.toggleSelection(params.node);
                     var elems = document.querySelectorAll('.jtk-node');
@@ -3540,7 +3540,7 @@ export default {
                     });
                     params.el.style['z-index'] = 99999;
                     var nodes = toolkit.getSelection().getAll();
-                    if (nodes.length == 0) {
+                    if (nodes.length === 0) {
                       window.root.$emit('node.selected', null);
                     } else {
                       window.root.$emit('node.selected', params.node);

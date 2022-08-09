@@ -159,7 +159,7 @@
               Code
             </q-tooltip>
           </q-btn>
-         
+
           <q-btn
             icon="fas fa-times"
             size="xs"
@@ -479,7 +479,7 @@ export default {
         //console.log('MESSAGE NOT FOR ME');
         return;
       }
-      if (msg['channel'] == 'task' && msg['state']) {
+      if (msg['channel'] === 'task' && msg['state']) {
         //console.log('MESSAGE STATUS received', msg);
         var bytes = JSON.stringify(msg).length;
 
@@ -508,7 +508,7 @@ export default {
         me.tasklogs.unshift(msg);
         me.tasklogs = me.tasklogs.slice(0, 100);
       }
-      if (msg['channel'] == 'task' && msg['message']) {
+      if (msg['channel'] === 'task' && msg['message']) {
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes') },
           where: {
@@ -524,7 +524,7 @@ export default {
         var json = JSON.parse(msg['message']);
         me.bytes_out += msg['message'].length;
         me.bytes_out_5min.unshift(msg['message'].length);
-        if (msg['state'] == 'postrun' && msg['duration']) {
+        if (msg['state'] === 'postrun' && msg['duration']) {
           const moment = Moment(msg['duration'], 'H:mm:ss.SSS');
           //console.log('MOMENT', moment);
           me.tasktime_out_5min.unshift(
@@ -540,7 +540,7 @@ export default {
         me.resultlogs.unshift(json);
         me.resultlogs = me.resultlogs.slice(0, 100);
       }
-      if (msg['channel'] == 'log' && msg['message']) {
+      if (msg['channel'] === 'log' && msg['message']) {
         me.msglogs.unshift(msg);
         me.msglogs = me.msglogs.slice(0, 100);
       }
@@ -1324,7 +1324,7 @@ export default {
     },
     saveProcessor () {
       this.saving = true;
-      
+
     },
     refreshDeployments () {
       this.deployLoading = true;
@@ -1340,7 +1340,7 @@ export default {
         });
     },
     sizeOf(bytes) {
-      if (bytes == 0) {
+      if (bytes === 0) {
         return '0.00 B';
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -1389,7 +1389,7 @@ export default {
       return 'key_' + uuidv4();
     },
     rowStripe(row) {
-      if (row % 2 == 0) {
+      if (row % 2 === 0) {
         return 'background-color:white';
       }
     },
@@ -1495,7 +1495,7 @@ export default {
       for (var i = 0; i < this.obj.columns.length; i++) {
         var col = this.obj.columns[i];
         console.log(col);
-        if (col.id == column) {
+        if (col.id === column) {
           console.log('Deleted column');
           this.obj.columns.splice(i, 1);
           break;
@@ -1515,7 +1515,7 @@ export default {
         );
         if (
           edge.source.getNode().id === this.obj.id &&
-          edge.data.label == column
+          edge.data.label === column
         ) {
           window.toolkit.removeEdge(edge);
         }

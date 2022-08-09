@@ -26,7 +26,7 @@
             style="margin-left:10px"
           />
         </q-toolbar>
-          
+
         </div>
         <div
           v-if="showaddfolder"
@@ -48,7 +48,7 @@
               flat
               label="Add"
               @click="addFolder"
-              :disabled="newfolder.length == 0"
+              :disabled="newfolder.length === 0"
             />
             <q-space />
             <q-btn
@@ -82,7 +82,7 @@
             Refresh
           </q-tooltip>
         </q-btn>
-       
+
       </q-breadcrumbs>
     </div>
     <q-scroll-area style="height: calc(100vh - 300px); width: 100%;">
@@ -177,7 +177,7 @@ export default {
 
       console.log('selectFileOrFolder ', item.id, item, this.objecttype);
       item._id = item.id;
-      
+
       this.flowuuid = item.id;
       if (item.type === this.objecttype) {
         DataService.getFile(item.id).then((code) => {

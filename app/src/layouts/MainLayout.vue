@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <ToolPalette
-        v-if="tools == 'code'"
+        v-if="tools === 'code'"
         :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
@@ -16,7 +16,7 @@
         :cpus_running="this.stats.cpus_running"
       />
       <ModelToolPalette
-        v-if="tools == 'model'"
+        v-if="tools === 'model'"
         :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
@@ -1153,15 +1153,15 @@ export default defineComponent({
         var me = this
         this.mode = val
 
-        if (val == 'disconnected') {
+        if (val === 'disconnected') {
           me.$store.commit('designer/setConnected', false)
           me.$store.commit('designer/setStreaming', false)
         }
-        if (val == 'connected') {
+        if (val === 'connected') {
           me.$store.commit('designer/setConnected', true)
           me.$store.commit('designer/setStreaming', false)
         }
-        if (val == 'streaming') {
+        if (val === 'streaming') {
           me.$store.commit('designer/setConnected', true)
           me.$store.commit('designer/setStreaming', true)
         }
@@ -1223,7 +1223,7 @@ export default defineComponent({
       this.queueDetailData = this.queueDetails[name]
       // const editor = this.$refs.queueDetailEditor.editor;
       this.detailedqueues.forEach((queue) => {
-        if (queue.name == name) {
+        if (queue.name === name) {
           // editor.session.setValue(JSON.stringify(queue, null, "\t"));
           this.queueDetailContent = JSON.stringify(queue, null, '\t')
         }
@@ -1233,11 +1233,11 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        // console.log('MAINLAYOUT', msg);
-        if (msg.type && msg.type === 'processor') {
-          console.log("PROCESSOR WAS UPDATED ",msg)
+        console.log('MAINLAYOUT', msg);
+        if (msg.type && msg.type === 'ProcessorModel') {
+          console.log("PROCESSOR WAS UPDATED ", msg)
         }
-        if (msg.channel == 'task') {
+        if (msg.channel === 'task') {
           me.msglogs.unshift(msg)
           me.msglogs = me.msglogs.slice(0, 200)
 
@@ -1420,10 +1420,10 @@ export default defineComponent({
         console.log('OBJS', objs)
         objs.nodes.forEach((node) => {
           console.log('NODE', node)
-          if (node.status == 'running') {
+          if (node.status === 'running') {
             running += 1
           }
-          if (node.status == 'stopped') {
+          if (node.status === 'stopped') {
             stopped += 1
           }
         })
@@ -1498,7 +1498,7 @@ export default defineComponent({
       console.log('TAB:', tab, this.$refs[tab])
       for (var i = 0; i < this.flows.length; i++) {
         var flow = this.flows[i]
-        if (tab == 'flow' + flow.id) {
+        if (tab === 'flow' + flow.id) {
           this.flow = flow
         }
       }
@@ -1544,7 +1544,7 @@ export default defineComponent({
     this.$root.$on('flow.uuid', (flowid, flowuuid) => {
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i]
-        if (flow.id == flowid) {
+        if (flow.id === flowid) {
           flow._id = flowuuid
           console.log('Updated flow', flow, ' with uuid', flowuuid)
         }
@@ -1570,7 +1570,7 @@ export default defineComponent({
       var index = -1
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i]
-        if (flow.id == flowid) {
+        if (flow.id === flowid) {
           index = i
           break
         }
@@ -1592,7 +1592,7 @@ export default defineComponent({
       })
       for (var i = 0; i < me.flows.length; i++) {
         var flow = me.flows[i]
-        if (flow.id == id) {
+        if (flow.id === id) {
           me.flow = flow
         }
       }
