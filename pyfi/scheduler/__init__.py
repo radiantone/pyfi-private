@@ -130,6 +130,7 @@ class NodePlugin(SchedulerPlugin):
         with get_session() as session:
             logging.debug("NodePlugin: Schedule run %s %s", args, kwargs)
 
+            logging.info("NodePlugin: Getting scheduler...")
             scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
 
             if scheduler is None:
@@ -196,6 +197,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
             session.commit()
 
+            logging.info("DeployProcessorPlugin: Getting scheduler...")
             scheduler = (
                 session.query(SchedulerModel).filter_by(name=self.name).first()
             )
@@ -338,7 +340,8 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         for deployment in processor.deployments:
                             if deployment.cpus <= overage_cpus:
                                 # Delete this deployment
-                                kill_workers += [deployment.worker]
+                                if deployment.worker is not None:
+                                    kill_workers += [deployment.worker]
                                 processor.deployments.remove(deployment)
                                 session.commit()
                                 overage_cpus -= deployment.cpus
@@ -476,7 +479,7 @@ class WatchPlugin(SchedulerPlugin):
         with get_session() as session:
             logging.debug("WatchPlugin: Schedule run %s %s", args, kwargs)
             logging.debug("WatchPlugin: Checking nodes")
-            logging.debug("WatchPlugin: Checking agents")
+            logging.info("WatchPlugin: Checking agents")
             agents = session.query(AgentModel).all()
             for agent in agents:
                 try:

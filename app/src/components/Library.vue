@@ -123,7 +123,7 @@
             />
             <q-icon
               :name="item.icon"
-              v-if="item.type != 'folder'"
+              v-if="item.type !== 'folder'"
               :class="darkStyle"
               size="sm"
             />

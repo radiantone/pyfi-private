@@ -275,7 +275,7 @@
           size="sm"
           icon="fas fa-close"
           @click="showconfirmclose = true"
-          v-if="flowid != 1"
+          v-if="flowid !== 1"
         >
           <q-tooltip
             content-class
@@ -759,7 +759,7 @@
             >
               <q-popup-edit
                 v-model="node.data.name"
-                v-if="node != null"
+                v-if="node !== null"
                 title="Name"
                 buttons
               >
@@ -770,7 +770,7 @@
                   autofocus
                 />
               </q-popup-edit>
-              {{ node != null ? node.data.name : 'No Selection' }}
+              {{ node !== null ? node.data.name : 'No Selection' }}
             </div>
             <div
               class="text-info"
@@ -784,7 +784,7 @@
             >
               <q-popup-edit
                 v-model="node.data.description"
-                v-if="node != null"
+                v-if="node !== null"
                 title="Description"
                 buttons
               >
@@ -795,7 +795,7 @@
                   autofocus
                 />
               </q-popup-edit>
-              {{ node != null ? node.data.description : '' }}
+              {{ node !== null ? node.data.description : '' }}
             </div>
             <div
               class="text-primary"
@@ -807,7 +807,7 @@
                 left: 45px;
               "
             >
-              {{ node != null ? node.id : '' }}
+              {{ node !== null ? node.id : '' }}
             </div>
 
             <img src="~assets/images/droplet.svg" style="width: 30px;" />
@@ -2455,7 +2455,7 @@ export default {
           var adhocSelection = toolkit.filter(function (obj) {
             return obj === node;
           });
-          if (node != null) {
+          if (node !== null) {
             //me.surface.setZoom(0.001);
           }
         });
@@ -3296,8 +3296,8 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != 'i' &&
-                  params.e.srcElement.localName != 'td'
+                  params.e.srcElement.localName !== 'i' &&
+                  params.e.srcElement.localName !== 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
                   var elems = document.querySelectorAll('.jtk-node');
@@ -3322,8 +3322,8 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != 'i' &&
-                  params.e.srcElement.localName != 'td'
+                  params.e.srcElement.localName !== 'i' &&
+                  params.e.srcElement.localName !== 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
                   var elems = document.querySelectorAll('.jtk-node');
@@ -3348,8 +3348,8 @@ export default {
             events: {
               tap: function (params) {
                 if (
-                  params.e.srcElement.localName != 'i' &&
-                  params.e.srcElement.localName != 'td'
+                  params.e.srcElement.localName !== 'i' &&
+                  params.e.srcElement.localName !== 'td'
                 ) {
                   toolkit.toggleSelection(params.node);
                   var elems = document.querySelectorAll('.jtk-node');
@@ -3380,8 +3380,8 @@ export default {
             component: RouterTemplate,
             events: {
               tap: function (params) {
-                // params.e.srcElement.localName != "i" &&
-                // params.e.srcElement.localName != "td"
+                // params.e.srcElement.localName !== "i" &&
+                // params.e.srcElement.localName !== "td"
                 if (
                   params.e.srcElement.localName === 'span' ||
                   params.e.srcElement.className === 'jtk-draw-skeleton'
@@ -3415,7 +3415,7 @@ export default {
             component: ParallelTemplate,
             events: {
               tap: function (params) {
-                // params.e.srcElement.localName != "i" &&
+                // params.e.srcElement.localName !== "i" &&
                 // params.e.srcElement.localName != "td"
                 if (
                   params.e.srcElement.localName === 'span' ||

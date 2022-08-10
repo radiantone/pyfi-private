@@ -1581,7 +1581,7 @@ export default defineComponent({
       }
       me.flows = me.flows.filter(function (value, index, arr) {
         console.log(value.id, flowid)
-        return value.id != flowid
+        return value.id !== flowid
       })
       this.tab = 'flow' + me.flows[index - 1].id
       this.$refs[this.tab + 'designer'][0].refresh()

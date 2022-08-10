@@ -560,7 +560,7 @@
           class="text-primary"
           style="margin-right: 30px;"
         >
-          {{ obj.ratelimit }}
+          {{ obj.ratelimit }}/m
         </q-item-label>
         <div
           class="text-secondary"
@@ -1133,7 +1133,7 @@
           <q-select
             dense
             borderless
-            v-if="column.type != 'Input'"
+            v-if="column.type !== 'Input'"
             :options-dense="true"
             style="font-size: 1em; margin-right: 20px;"
             label-color="orange"
@@ -1145,7 +1145,7 @@
         </template></q-select>-->
           </div>
           <i
-            v-if="column.type != 'Input'"
+            v-if="column.type !== 'Input'"
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
             style="margin-right: 5px;"
@@ -1202,7 +1202,7 @@
             :menu-offset="[5, -9]"
           />
         </div>
-        <div v-if="column.type != 'Input'">
+        <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
             <i
               :class="column.icon"
@@ -1246,7 +1246,7 @@
           </span>
         </div>
         <jtk-source
-          v-if="column.type != 'Input'"
+          v-if="column.type !== 'Input'"
           name="source"
           :port-id="column.id"
           :scope="column.datatype"
@@ -2274,10 +2274,10 @@
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
           label="Save"
-          class="bg-secondary text-white"
+          class="bg-accent text-primary"
           color="primary"
           @click="saveProcessor"
         >
@@ -2294,9 +2294,9 @@
       <q-card-actions align="right">
         <q-btn
           flat
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
           label="Close"
-          class="bg-accent text-primary"
+          class="bg-secondary text-white"
           color="primary"
           @click="configview = false"
         />
@@ -3114,7 +3114,6 @@ import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
 
-import { urlencoded } from 'body-parser'
 import http from 'src/http-common'
 
 var Moment = require('moment') // require
@@ -3180,17 +3179,19 @@ export default {
       console.log('TOOLTIPS', me.tooltips)
     })
 
+    const avoid = ['icon', 'id', 'concurrency']
+
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         if(msg.object['processor_id'] === me.obj.id) {
-          me.refreshDeployments();
+          me.refreshDeployments()
         }
       }
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
           console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
           for (var key in me.obj) {
-            if (key in msg.object && key != 'icon') {
+            if (key in msg.object && !(key in avoid)) {
               me.obj[key] = msg.object[key]
             }
           }
@@ -3199,13 +3200,13 @@ export default {
       }
 
       if (msg.type && msg.type === 'output') {
-        if (msg.object === this.obj.name) {
+        if (msg.processor === this.obj.name) {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
       }
 
-      if (msg.room && msg.room != me.obj.name) {
+      if (msg.room && msg.room !== me.obj.name) {
         return
       }
 
@@ -4497,6 +4498,8 @@ export default {
         if (view === 'gitview') {
           this.getCommits()
         }
+
+        this.refreshDeployments();
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,

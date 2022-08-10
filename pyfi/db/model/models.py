@@ -324,6 +324,7 @@ class FileModel(BaseModel):
     code = Column(Text)
     type = Column(String(40))
     icon = Column(String(40))
+    versions = relationship("VersionModel", cascade="all, delete-orphan")
 
 
 flows_versions = Table(

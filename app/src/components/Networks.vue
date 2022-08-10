@@ -56,7 +56,7 @@
             content-style="font-size: 16px"
             :offset="[10, 10]"
           >
-            Show Card 
+            Show Card
           </q-tooltip>
         </q-btn>
         <q-space />
@@ -111,7 +111,7 @@
                 :offset="[10, 10]"
               >
                 {{ prop.node.tooltip }}
-                
+
               </q-tooltip>
             </div>
           </div>
@@ -216,7 +216,7 @@ function getNodeFromKey(key, nodes) {
     if (node && node.id && node.id === key) return node;
     if (node && node.children && node.children.length > 0) {
       var n = getNodeFromKey(key, node.children);
-      if (n != null) return n;
+      if (n !== null) return n;
     }
   }
   return null;
