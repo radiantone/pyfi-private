@@ -141,7 +141,7 @@ class Worker(Base):
         super().__init__()
 
         print("HOSTNAME,PROCNAME", hostname, processor)
-        name = hostname + ".agent." + processor.name + ".worker"
+        name = hostname + processor.name + ".worker"
         self.worker = self.session.query(WorkerModel).filter_by(name=name).first()
         self.app = Celery(backend=self.backend, broker=self.broker)
 

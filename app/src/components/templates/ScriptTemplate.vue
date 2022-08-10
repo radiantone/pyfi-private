@@ -3190,7 +3190,7 @@ export default {
         if (msg.name === me.obj.name) {
           console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
           for (var key in me.obj) {
-            if (msg.object[key]) {
+            if (key in msg.object && key != 'icon') {
               me.obj[key] = msg.object[key]
             }
           }

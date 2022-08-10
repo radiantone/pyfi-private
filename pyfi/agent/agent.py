@@ -582,7 +582,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                     session.query(WorkerModel)
                                     .filter_by(
                                         name=self.agent_service.name
-                                             + ".agent."
                                              + myprocessor.name
                                              + ".worker"
                                     )
@@ -597,7 +596,6 @@ class AgentMonitorPlugin(AgentPlugin):
                                     worker_model = WorkerModel(
                                         id=str(uuid4()),
                                         name=self.agent_service.name
-                                             + ".agent."
                                              + myprocessor.name
                                              + ".worker",
                                         concurrency=mydeployment.cpus,

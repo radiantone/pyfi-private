@@ -460,7 +460,6 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     logging.info(
                         "Creating worker %s ",
                         node["hostname"]
-                        + ".agent."
                         + socket.socket.processor.name
                         + ".worker",
                     )
@@ -469,7 +468,6 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                         processor=socket.processor.processor,
                         agent=_agent.agent,
                         name=node["hostname"]
-                        + ".agent."
                         + socket.socket.processor.name
                         + ".worker",
                     )

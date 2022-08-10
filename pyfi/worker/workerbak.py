@@ -434,7 +434,7 @@ class WorkerService:
 
             workerModel = self.workerModel = (
                 session.query(WorkerModel)
-                .filter_by(name=hostname + ".agent." + self.processor.name + ".worker")
+                .filter_by(name=hostname + self.processor.name + ".worker")
                 .first()
             )
             workers = session.query(WorkerModel).filter_by(hostname=hostname).all()
@@ -456,7 +456,6 @@ class WorkerService:
                 logging.debug("Creating new worker for %s", _deployment)
                 workerModel = self.workerModel = WorkerModel(
                     name=HOSTNAME
-                    + ".agent."
                     + self.processor.name
                     + ".worker."
                     + str(len(workers) + 1),
@@ -1771,7 +1770,7 @@ class WorkerService:
                         workerModel = (
                             session.query(WorkerModel)
                             .filter_by(
-                                name=HOSTNAME + ".agent." + _processor.name + ".worker"
+                                name=HOSTNAME + _processor.name + ".worker"
                             )
                             .first()
                         )
