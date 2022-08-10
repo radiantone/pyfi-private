@@ -50,7 +50,7 @@ def receive_before_update(mapper, connection, target):
         logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
         redisclient.publish(
             "global",
-            json.dumps({"type": target.__class__.__name__, "name": target.name, "processor": json.loads(str(target))})
+            json.dumps({"type": target.__class__.__name__, "name": target.name, "object": json.loads(str(target))})
         )
     else:
         logging.debug("No changes!")

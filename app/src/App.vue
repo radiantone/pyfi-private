@@ -13,11 +13,15 @@ import StreamPlugin from './plugins/stream-plugin'
 // import FloatingVue from 'floating-vue';
 import Vue from 'vue'
 import Vuetify from 'vuetify'
+//import { createApp } from 'vue'
+//import { createPinia } from 'pinia'
 
 // import { VueTypedJs } from 'vue-typed-js';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires
 const VueTypedJs = require('vue-typed-js')
+//const pinia = createPinia()
 
+//Vue.use(pinia)
 Vue.use(VueTypedJs)
 // import VueD3 from 'vue2-d3';
 // Vue.use(VueD3)

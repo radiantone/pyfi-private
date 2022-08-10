@@ -768,6 +768,19 @@ export default {
         me.viewStatsData = response.data
         console.log(name + ' STATS:', response.data)
         me.viewStatsLoader = false
+      }).catch((error) => {
+        me.notifyMessage('dark', 'error', 'Something went wrong')
+        me.viewStatsLoader = false
+      })
+    },
+
+    notifyMessage (color, icon, message) {
+      this.$q.notify({
+        color: color,
+        timeout: 2000,
+        position: 'top',
+        message: message,
+        icon: icon
       })
     },
     loadPython () {

@@ -1073,6 +1073,10 @@ export default defineComponent({
     Library
   },
   setup () {
+    //const counter = useCounterStore()
+
+    //counter.count++
+    //console.log("COUNTER is ",counter)
     return {}
   },
   created () {
@@ -1233,7 +1237,7 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        console.log('MAINLAYOUT', msg);
+        //console.log('MAINLAYOUT', msg);
         if (msg.type && msg.type === 'ProcessorModel') {
           console.log("PROCESSOR WAS UPDATED ", msg)
         }
