@@ -511,7 +511,14 @@
         <a
           href="#"
           style="color: red;"
-        >{{ errorMsg }}</a>
+        >Error        <q-tooltip
+          anchor="top middle"
+          :offset="[-30, 40]"
+          content-style="font-size: 16px"
+          content-class="bg-red text-black"
+        >
+          {{ errorMsg }}
+        </q-tooltip></a>
       </span>
       <span
         class="text-secondary pull-right table-column-edit"
