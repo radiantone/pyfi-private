@@ -1,0 +1,9 @@
+elasticcode
+
+- Embeds qualities of service into the network strata that are seamlessly inherited by the code base
+- Manages isolation how and where code runs:
+    - Creates containers to inject code into, and runs it there
+    - Creates virtualenvironments using the code's dependencies and runs the code in that venv (possibly also inside a container)
+- Manages where code runs by scheduling/moving/updating/deleting deployments of workers and concurrency levels
+- Can scale out/in on the fly without loss of data
+-
