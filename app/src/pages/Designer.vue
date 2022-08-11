@@ -541,7 +541,15 @@
                 Disable
               </q-item-section>
             </q-item>
-
+            <q-separator />
+            <q-item clickable v-close-popup @click="pasteNodes">
+              <q-item-section side>
+                <q-icon name="fas fa-paste"></q-icon>
+              </q-item-section>
+              <q-item-section side class="text-blue-grey-8">
+                Paste
+              </q-item-section>
+            </q-item>
             <q-separator />
             <q-item clickable v-close-popup @click="downloadFlow">
               <q-item-section side>

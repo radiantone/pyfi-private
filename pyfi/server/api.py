@@ -247,8 +247,16 @@ def login_processor(id):
     return jsonify({"status": "ok"})
 
 
-@app.route("/processor/<id>", methods=["POST", "GET", "DELETE"])
-def do_processor(id):
+@app.route("/processor/<name>", methods=["POST", "GET", "DELETE"])
+def do_processor(name):
+
+    if request.method == "GET":
+        with get_session() as session:
+            _processor = session.query(ProcessorModel).filter_by(name=name).first()
+            if _processor is None:
+                return f"Processor {name} not found", 404
+
+            return jsonify(_processor)
 
     if request.method == "POST":
         processor: Any = request.get_json()
@@ -256,7 +264,7 @@ def do_processor(id):
         with get_session() as session:
             logging.info("POSTING processor: %s", processor)
             _processor = (
-                session.query(ProcessorModel).filter_by(name=processor["name"]).first()
+                session.query(ProcessorModel).filter_by(name=name).first()
             )
 
             if not _processor:

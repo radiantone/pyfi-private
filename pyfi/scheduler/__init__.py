@@ -325,8 +325,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         logging.info("Overage match not found. Attempting to reduce deployment CPUs....")
                         for deployment in processor.deployments:
                             if deployment.cpus > overage_cpus:
-                                logging.info("Adding %s to kill_workers",deployment.worker)
-                                kill_workers += [deployment.worker]
+                                if deployment.worker:
+                                    kill_workers += [deployment.worker]
+                                    logging.info("Adding %s to kill_workers",deployment.worker)
                                 logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
                                 deployment.cpus -= overage_cpus
                                 deployment.requested_status = 'update'
@@ -340,7 +341,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         for deployment in processor.deployments:
                             if deployment.cpus <= overage_cpus:
                                 # Delete this deployment
-                                if deployment.worker is not None:
+                                if deployment.worker:
                                     kill_workers += [deployment.worker]
                                 processor.deployments.remove(deployment)
                                 session.commit()

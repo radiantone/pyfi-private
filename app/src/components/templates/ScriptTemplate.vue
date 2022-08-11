@@ -511,11 +511,11 @@
         <a
           href="#"
           style="color: red;"
-        >Error        <q-tooltip
+        >Error<q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
           content-style="font-size: 16px"
-          content-class="bg-red text-black"
+          content-class="bg-black text-white"
         >
           {{ errorMsg }}
         </q-tooltip></a>
@@ -2219,7 +2219,6 @@
                 type="number"
                 v-model.number="obj.concurrency"
               />
-
             </q-toolbar>
             <q-inner-loading
               :showing="deployLoading"
@@ -3190,7 +3189,7 @@ export default {
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
-        if(msg.object['processor_id'] === me.obj.id) {
+        if (msg.object.processor_id === me.obj.id) {
           me.refreshDeployments()
         }
       }
@@ -3198,7 +3197,7 @@ export default {
         if (msg.name === me.obj.name) {
           console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
           for (var key in me.obj) {
-            if (key in msg.object && !(key in avoid)) {
+            if (key in msg.object && !avoid.includes(key)) {
               me.obj[key] = msg.object[key]
             }
           }
@@ -4458,9 +4457,23 @@ export default {
     refreshProcessor () {
       var me = this
       this.refreshing = true
-      setTimeout(() => {
+      DataService.getProcessor(this.obj.name).then((proc) => {
         me.refreshing = false
-      }, 2000)
+        console.log('REFRESH PROCESSOR', proc)
+        const avoid = ['icon']
+        for (var key in me.obj) {
+          if (key in proc.data && !avoid.includes(key)) {
+            console.log("Updating key ",key)
+            me.obj[key] = proc.data[key]
+          }
+        }
+        me.error = false
+      }).catch((error) => {
+        console.log('ERROR', error)
+        me.refreshing = false
+        me.errorMsg = error
+        me.error = true
+      })
     },
     getUuid () {
       return 'key_' + uuidv4()
@@ -4506,7 +4519,7 @@ export default {
           this.getCommits()
         }
 
-        this.refreshDeployments();
+        this.refreshDeployments()
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,

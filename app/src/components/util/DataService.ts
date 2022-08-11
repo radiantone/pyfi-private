@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import http from 'src/http-common'
-const crypto = require('crypto')
-
 
 class DataService {
   getFiles (collection: string, folder: string): Promise<any> {
@@ -58,8 +56,9 @@ class DataService {
   }
 
   saveProcessor (processor: any): Promise<any> {
-    processor['receipt'] = crypto.randomUUID()
-    return http.post('/api/processor/' + processor.id, processor)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+    const pid : string = processor.id
+    return http.post('/api/processor/' + pid, processor)
   }
 
   emptyAllQueues (): Promise<any> {

@@ -120,7 +120,6 @@ class BaseModel(Base):
     status = Column(String(20), nullable=False, default="ready")
     requested_status = Column(String(40), default="ready")
 
-    receipt = Column(String(80), nullable=True)
     enabled = Column(Boolean)
     created = Column(DateTime, default=datetime.now, nullable=False)
     lastupdated = Column(
@@ -471,6 +470,7 @@ class ProcessorModel(HasLogs, BaseModel):
     gittag = Column(String(50), nullable=True)
     retries = Column(Integer)
     concurrency = Column(Integer)
+    receipt = Column(String(80), nullable=True)
     ratelimit = Column(String(10), default=60)
     perworker = Column(Boolean, default=True)
     timelimit = Column(Integer)
