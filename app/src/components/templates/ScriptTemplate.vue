@@ -1158,9 +1158,16 @@
             style="margin-right: 5px;"
           />
           <i
+            v-if="column.type !== 'Input'"
             class="fa fa-times table-column-delete-icon"
             title="Delete Port"
             @click="confirmDeletePort(column.id)"
+          />
+
+          <i
+            v-if="column.type === 'Input'"
+            class="fa fa-list"
+            title="Default Input"
           />
         </div>
         <div
@@ -3185,7 +3192,7 @@ export default {
       console.log('TOOLTIPS', me.tooltips)
     })
 
-    const avoid = ['icon', 'id', 'concurrency']
+    const avoid = ['icon', 'id']
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
@@ -3195,11 +3202,15 @@ export default {
       }
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
-          console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-          for (var key in me.obj) {
-            if (key in msg.object && !avoid.includes(key)) {
-              me.obj[key] = msg.object[key]
+          if(msg.object.receipt > me.obj.receipt) {
+            console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
+            for (var key in me.obj) {
+              if (key in msg.object && !avoid.includes(key)) {
+                me.obj[key] = msg.object[key]
+              }
             }
+          } else {
+            console.log("Ignoring update since receipt is obsolete", msg.object, me.obj)
           }
           console.log('PROCESSOR ID', me.obj.id)
         }
@@ -3868,6 +3879,7 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
         titletab: false,
+        receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
@@ -4375,6 +4387,8 @@ export default {
       var me = this
 
       this.refreshing = true
+
+      this.obj.receipt = new Date()
       DataService.saveProcessor(this.obj)
         .then(() => {
           this.refreshing = false

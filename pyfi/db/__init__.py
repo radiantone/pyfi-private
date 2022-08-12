@@ -40,11 +40,11 @@ def receive_before_update(mapper, connection, target):
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
     if not isinstance(target, (Processor, DeploymentModel, WorkerModel, NodeModel, AgentModel)):
-        logging.info("receive_after_update: Skipping for %s", target.__class__.__name__)
+        logging.debug("receive_after_update: Skipping for %s", target.__class__.__name__)
         return
 
     has_changes = object_session(target).is_modified(target, include_collections=False)
-    logging.info("receive_after_update: %s",target)
+    logging.debug("receive_after_update: %s",target)
 
     if has_changes or isinstance(target, Processor):
         logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)

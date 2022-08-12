@@ -4851,6 +4851,7 @@ def api_start(context, ip, port):
         click.echo("Starting API process.")
         process.start()
         click.echo("API process started.")
+        process.join()
         time.sleep(15)
         click.echo("Terminating API server and restarting...")
         process.terminate()

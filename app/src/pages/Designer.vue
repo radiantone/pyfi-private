@@ -3646,14 +3646,14 @@ export default {
             component: GroupTemplate,
             constrain: false,
             orphan: true,
-            autoSize: false,
+            autoSize: true
           },
           pattern: {
             component: PatternTemplate,
             constrain: false,
             orphan: true,
-            autoSize: false,
-          },
+            autoSize: true
+          }
         },
         ports: {
           default: {

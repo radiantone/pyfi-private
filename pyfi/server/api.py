@@ -278,6 +278,7 @@ def do_processor(name):
                     "use_container": processor["container"],
                     "module": processor["package"],
                     "ratelimit": processor["ratelimit"],
+                    "receipt": processor["receipt"],
                     "perworker": processor["perworker"],
                 }
                 _processor = ProcessorModel(**props, user=USER)
