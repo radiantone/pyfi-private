@@ -1,3 +1,7 @@
+## Aug 12, 2022
+
+- RabbitMQ cluster now entirely concealed behind nginx
+
 ## Aug 10, 2022
 
 - BUG: After syncing, search click on processor doesn't jump to that processor
@@ -9,6 +13,17 @@
     - When an object is waiting on its receipt, save is disabled and message indicator says "Syncing...." in blue
   - When a refresh occurs the receipt id is pulled from the database along with entire object.
 
+EPICS
+
+- Seamless data state management, streaming etc. Has to be obvious to the user what's happening with the flow state
+  - Is it saved? Is it updated? Is it dirty? Is it pending?
+- Statistics viewing
+- Monitoring Charts
+- Task Management
+- Queue Management
+- Starting/Stopping Processors & Flows
+- Render current state of a network
+- 
 
 ## Aug 9, 2022
 
@@ -23,6 +38,7 @@ LEFT TO DO
 - Drag n drop from library and other panels
 - Edit file names in various panels
 - Selection panel buttons
+- Add config and environment to flow state
 - Statistics table dialog
 - Processor Tool types (using decorator classes and modified scriptemplate UI)
 - Save processor updates models and triggers reactive behavior from scheduler
