@@ -73,10 +73,6 @@ def get_session(**kwargs):
 
     session = get_session()
 
-    session.begin()
-    yield session
-    gc.collect()
-    '''
     try:
         logging.debug("get_session: Yielding session")
         yield session
@@ -91,7 +87,6 @@ def get_session(**kwargs):
         logging.debug("get_session: Closing session")
         session.expunge_all()
         session.close()
-    '''
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
