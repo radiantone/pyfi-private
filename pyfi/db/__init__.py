@@ -63,7 +63,7 @@ def receive_before_update(mapper, connection, target):
 def get_db_session():
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-    _session = scoped_session(sessionmaker(autocommit=False, autoflush=True, bind=_engine))
+    _session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=_engine))
 
     return _session
 

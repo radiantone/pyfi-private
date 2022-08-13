@@ -2761,6 +2761,7 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
         import traceback
 
         print(traceback.format_exc())
+        return
 
     logger.debug("Creating WorkerService Done")
     logger.debug("FLOW WORKER START")

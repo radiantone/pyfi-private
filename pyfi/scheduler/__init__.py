@@ -22,6 +22,7 @@ from pyfi.db.model import (
     TaskModel,
     WorkModel,
 )
+from pyfi.db import get_session
 
 HOSTNAME = platform.node()
 
@@ -40,30 +41,6 @@ backend = CONFIG.get("backend", "uri")
 broker = CONFIG.get("broker", "uri")
 
 celery = Celery(backend=backend, broker=broker)
-
-
-@contextmanager
-def get_session(**kwargs):
-    from pyfi.db import get_session
-
-    logging.debug("get_session: Creating session")
-
-    session = get_session()
-
-    try:
-        logging.debug("get_session: Yielding session")
-        yield session
-    except:
-        logging.debug("get_session: Rollback session")
-        session.rollback()
-        raise
-    else:
-        logging.debug("get_session: Commit session")
-        session.commit()
-    finally:
-        logging.debug("get_session: Closing session")
-        session.expunge_all()
-        session.close()
 
 
 class SchedulerPlugin:
