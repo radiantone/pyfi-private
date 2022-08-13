@@ -902,86 +902,87 @@ class AgentMonitorPlugin(AgentPlugin):
                 process.memory_info().rss,
             )
 
-            """ Get myself from database """
-            agent = (
-                session.query(AgentModel)
-                .filter_by(hostname=agent_service.name)
-                .first()
-            )
-            if agent and agent.requested_status == "kill":
-                import sys
+            with get_session() as session:
+                """ Get myself from database """
+                agent = (
+                    session.query(AgentModel)
+                    .filter_by(hostname=agent_service.name)
+                    .first()
+                )
+                if agent and agent.requested_status == "kill":
+                    import sys
 
-                logger.info("Killing agent process %s", agent.pid)
-                agent.requested_status = "ready"
-                agent.status = "killed"
-                session.commit()
-                os.kill(agent.pid, signal.SIGINT)
-                os.kill(os.getpid(), signal.SIGINT)
-                sys.exit(0)
+                    logger.info("Killing agent process %s", agent.pid)
+                    agent.requested_status = "ready"
+                    agent.status = "killed"
+                    session.commit()
+                    os.kill(agent.pid, signal.SIGINT)
+                    os.kill(os.getpid(), signal.SIGINT)
+                    sys.exit(0)
 
-            """ If I don't yet exist in database, create me """
-            if agent is None:
-                agent = AgentModel(
-                    hostname=agent_service.name,
-                    name=agent_service.name + ".agent",
-                    pid=os.getpid(),
-                    **self.kwargs,
+                """ If I don't yet exist in database, create me """
+                if agent is None:
+                    agent = AgentModel(
+                        hostname=agent_service.name,
+                        name=agent_service.name + ".agent",
+                        pid=os.getpid(),
+                        **self.kwargs,
+                    )
+
+                """ Find a node that might already be associated with me """
+                node = (
+                    session.query(NodeModel).filter_by(hostname=agent.hostname).first()
                 )
 
-            """ Find a node that might already be associated with me """
-            node = (
-                session.query(NodeModel).filter_by(hostname=agent.hostname).first()
-            )
+                logging.debug("NODE IS %s", node)
 
-            logging.debug("NODE IS %s", node)
+                """ Create a new node for me if none exists already """
+                if node is None:
+                    node = NodeModel(
+                        name=agent.name + ".node", agent=agent, hostname=agent.hostname
+                    )
 
-            """ Create a new node for me if none exists already """
-            if node is None:
-                node = NodeModel(
-                    name=agent.name + ".node", agent=agent, hostname=agent.hostname
-                )
+                    session.add(node)
+                    session.commit()
 
+                """ Add node attributes """
+                node.cpus = CPUS
+                agent.node = node
+
+                cpu_percent = psutil.cpu_percent()
+                mem_total = psutil.virtual_memory().total
+                mem_used = psutil.virtual_memory().percent
+                mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
+                node.memsize = str(mem_total)
+                node.memused = mem_used
+                node.freemem = str(mem_free)
+                node.cpuload = cpu_percent
+
+                """ Set my status to running """
+                agent.status = "running"
+                # agent.cpus = node.cpus
+                agent.port = self.port
+                agent.updated = datetime.now()
                 session.add(node)
                 session.commit()
 
-            """ Add node attributes """
-            node.cpus = CPUS
-            agent.node = node
+                logger.debug(
+                    "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
+                    agent.cpus,
+                    agent,
+                )
+                logger.debug("[AgentMonitorPlugin] main_loop node is %s", node)
 
-            cpu_percent = psutil.cpu_percent()
-            mem_total = psutil.virtual_memory().total
-            mem_used = psutil.virtual_memory().percent
-            mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
-            node.memsize = str(mem_total)
-            node.memused = mem_used
-            node.freemem = str(mem_free)
-            node.cpuload = cpu_percent
+                logger.debug(
+                    "[AgentMonitorPlugin] main_loop Worker memory after: %s",
+                    process.memory_info().rss,
+                )
 
-            """ Set my status to running """
-            agent.status = "running"
-            # agent.cpus = node.cpus
-            agent.port = self.port
-            agent.updated = datetime.now()
-            session.add(node)
-            session.commit()
+                # DeploymentMonitor
+                logging.debug("Invoking deployment_monitor")
 
-            logger.debug(
-                "[AgentMonitorPlugin] main_loop cpus[%s] agent is %s",
-                agent.cpus,
-                agent,
-            )
-            logger.debug("[AgentMonitorPlugin] main_loop node is %s", node)
-
-            logger.debug(
-                "[AgentMonitorPlugin] main_loop Worker memory after: %s",
-                process.memory_info().rss,
-            )
-
-            # DeploymentMonitor
-            logging.debug("Invoking deployment_monitor")
-
-            """ Define core deployment monitoring function """
-            self.deployment_monitor(agent)
+                """ Define core deployment monitoring function """
+                self.deployment_monitor(agent)
 
         gc.collect()
 
