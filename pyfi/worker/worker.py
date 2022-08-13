@@ -73,6 +73,7 @@ def get_session(**kwargs):
 
     session = get_session()
 
+    session.begin()
     yield session
     gc.collect()
     '''
@@ -319,29 +320,6 @@ class WorkerService:
     _session = None
     _connection = None
 
-    @contextmanager
-    def get_session(self, **kwargs):
-        from pyfi.db import get_session
-
-        logging.debug("get_session: Creating session")
-
-        session = get_session()
-
-        try:
-            logging.debug("get_session: Yielding session")
-            yield session
-        except:
-            logging.debug("get_session: Rollback session")
-            session.rollback()
-            raise
-        else:
-            logging.debug("get_session: Commit session")
-            session.commit()
-        finally:
-            logging.debug("get_session: Closing session")
-            session.expunge_all()
-            session.close()
-
     def __init__(
             self,
             processor: ProcessorModel,
@@ -418,7 +396,7 @@ class WorkerService:
 
         cpus = multiprocessing.cpu_count()
 
-        with self.get_session() as session:
+        with get_session() as session:
 
             _processor = (
                 session.query(ProcessorModel).filter_by(id=self.processorid).first()
@@ -655,7 +633,7 @@ class WorkerService:
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             logging.debug("database_actions: Starting...")
-            with self.get_session() as session:
+            with get_session() as session:
                 while True:
                     logging.debug("database_actions: loop")
                     logging.debug("database_actions: Getting processor")
@@ -1413,7 +1391,7 @@ class WorkerService:
 
             queues = []
 
-            with self.get_session() as session:
+            with get_session() as session:
                 myprocessor = (
                     session.query(ProcessorModel)
                     .filter_by(id=self.processorid)
@@ -2673,7 +2651,7 @@ class WorkerService:
             # Create or update venv
             from virtualenvapi.manage import VirtualEnvironment
 
-            with self.get_session() as session:
+            with get_session() as session:
                 deployment = (
                     session.query(DeploymentModel).filter_by(name=self.deploymentname).first()
                 )
