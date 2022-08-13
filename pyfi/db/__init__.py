@@ -31,7 +31,7 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
-_engine = create_engine(CONFIG.get("database", "uri"), isolation_level='READ UNCOMMITTED')
+_engine = create_engine(CONFIG.get("database", "uri"), isolation_level='AUTOCOMMIT')
 
 
 @event.listens_for(BaseModel, 'before_update', propagate=True)
@@ -63,7 +63,7 @@ def receive_before_update(mapper, connection, target):
 def get_db_session():
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-    _session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=_engine))
+    _session = scoped_session(sessionmaker(bind=_engine))
 
     return _session
 
