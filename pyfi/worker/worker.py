@@ -7,7 +7,6 @@ import json
 import logging
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
-import gc
 import platform
 import shutil
 import signal
@@ -19,7 +18,7 @@ import redis
 
 from inspect import Parameter
 from multiprocessing import Condition, Queue, Process
-from contextlib import contextmanager
+from pyfi.db import get_session
 from pathlib import Path
 
 from flask import Flask
@@ -64,29 +63,6 @@ app = Flask(__name__)
 
 tracemalloc.start()
 
-
-@contextmanager
-def get_session(**kwargs):
-    from pyfi.db import get_session
-
-    logging.debug("get_session: Creating session")
-
-    session = get_session()
-
-    try:
-        logging.debug("get_session: Yielding session")
-        yield session
-    except:
-        logging.debug("get_session: Rollback session")
-        session.rollback()
-        raise
-    else:
-        logging.debug("get_session: Commit session")
-        session.commit()
-    finally:
-        logging.debug("get_session: Closing session")
-        session.expunge_all()
-        session.close()
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):

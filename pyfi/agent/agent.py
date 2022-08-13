@@ -15,7 +15,6 @@ import psutil
 
 from typing import List
 
-from contextlib import contextmanager
 from multiprocessing import Condition
 from pathlib import Path
 
@@ -30,6 +29,7 @@ from pyfi.db.model import (
     NodeModel,
     WorkerModel,
 )
+from pyfi.db import get_session
 from pyfi.worker import WorkerService
 
 logger = logging.getLogger(__name__)
@@ -71,31 +71,6 @@ def import_class(name):
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
-
-
-@contextmanager
-def get_session(**kwargs):
-    from pyfi.db import get_session
-
-    logger.debug("get_session: Creating session")
-
-    session = get_session()
-
-    try:
-        logger.debug("get_session: Yielding session")
-        yield session
-    except:
-        logger.debug("get_session: Rollback session")
-        session.rollback()
-        raise
-    else:
-        logger.debug("get_session: Commit session")
-        session.commit()
-    finally:
-        logger.debug("get_session: Closing session")
-        session.expunge_all()
-        session.close()
-        gc.collect()
 
 
 def kill_containers():

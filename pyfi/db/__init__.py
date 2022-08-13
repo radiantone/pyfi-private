@@ -1,3 +1,5 @@
+import configparser
+import logging
 from .model.models import ActionModel as Action
 from .model.models import AgentModel as Agent
 from .model.models import Base
@@ -17,17 +19,19 @@ from .model.models import UserModel as User
 from .model.models import WorkerModel as Worker
 from .postgres import _compile_drop_table
 from sqlalchemy import create_engine, event
-import configparser
+from contextlib import contextmanager
+from pathlib import Path
 
 CONFIG = configparser.ConfigParser()
 
-from pathlib import Path
 
 HOME = str(Path.home())
 
 ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
+
+_engine = create_engine(CONFIG.get("database", "uri"), isolation_level='READ UNCOMMITTED')
 
 
 @event.listens_for(BaseModel, 'before_update', propagate=True)
@@ -56,13 +60,35 @@ def receive_before_update(mapper, connection, target):
         logging.debug("No changes!")
 
 
-def get_session():
+def get_db_session():
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-    _engine = create_engine(CONFIG.get("database", "uri"), isolation_level='READ UNCOMMITTED')
     _session = scoped_session(sessionmaker(autocommit=False, autoflush=True, bind=_engine))
 
     return _session
+
+
+@contextmanager
+def get_session(**kwargs):
+
+    logging.debug("get_session: Creating session")
+
+    session = get_db_session()
+
+    try:
+        logging.debug("get_session: Yielding session")
+        yield session
+    except:
+        logging.debug("get_session: Rollback session")
+        session.rollback()
+        raise
+    else:
+        logging.debug("get_session: Commit session")
+        session.commit()
+    finally:
+        logging.debug("get_session: Closing session")
+        session.expunge_all()
+        session.close()
 
 
 __all__ = (
