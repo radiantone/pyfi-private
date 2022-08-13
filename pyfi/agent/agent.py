@@ -80,7 +80,7 @@ def get_session(**kwargs):
     logger.debug("get_session: Creating session")
 
     session = get_session()
-
+    session.begin()
     yield session
     gc.collect()
     '''
