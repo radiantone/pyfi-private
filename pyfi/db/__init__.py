@@ -66,7 +66,7 @@ def get_session():
     global session
 
     _engine = create_engine(CONFIG.get("database", "uri"), isolation_level="AUTOCOMMIT", poolclass=NullPool)
-    _session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=_engine))
+    _session = scoped_session(sessionmaker(autocommit=True, bind=_engine))
 
     #if session:
     #    return session
