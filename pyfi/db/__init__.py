@@ -65,7 +65,7 @@ def get_session():
     from sqlalchemy.pool import NullPool
     global session
 
-    _engine = create_engine(CONFIG.get("database", "uri"), isolation_level="READ UNCOMMITTED", poolclass=NullPool)
+    _engine = create_engine(CONFIG.get("database", "uri"), isolation_level="READ UNCOMMITTED")
     _session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=_engine))
 
     #if session:
