@@ -81,6 +81,9 @@ def get_session(**kwargs):
 
     session = get_session()
 
+    yield session
+    gc.collect()
+    '''
     try:
         logger.debug("get_session: Yielding session")
         yield session
@@ -96,6 +99,7 @@ def get_session(**kwargs):
         session.expunge_all()
         session.close()
         gc.collect()
+    '''
 
 
 def kill_containers():

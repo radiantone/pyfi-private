@@ -7,6 +7,7 @@ import json
 import logging
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
+import gc
 import platform
 import shutil
 import signal
@@ -72,6 +73,9 @@ def get_session(**kwargs):
 
     session = get_session()
 
+    yield session
+    gc.collect()
+    '''
     try:
         logging.debug("get_session: Yielding session")
         yield session
@@ -86,7 +90,7 @@ def get_session(**kwargs):
         logging.debug("get_session: Closing session")
         session.expunge_all()
         session.close()
-
+    '''
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
