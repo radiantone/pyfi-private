@@ -31,7 +31,6 @@ ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
 
-_engine = create_engine(CONFIG.get("database", "uri"), isolation_level='AUTOCOMMIT')
 
 
 @event.listens_for(BaseModel, 'before_update', propagate=True)
@@ -61,9 +60,6 @@ def receive_before_update(mapper, connection, target):
 
 
 def get_db_session():
-    from sqlalchemy.orm import sessionmaker, scoped_session
-
-    _session = scoped_session(sessionmaker(bind=_engine))
 
     return _session
 
@@ -71,21 +67,25 @@ def get_db_session():
 @contextmanager
 def get_session(**kwargs):
 
-    logging.info("get_session: Creating session")
+    logging.debug("get_session: Creating session")
 
-    session = get_db_session()
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    from sqlalchemy.pool import NullPool
+
+    _engine = create_engine(CONFIG.get("database", "uri"), isolation_level='AUTOCOMMIT', poolclass=NullPool)
+    session = scoped_session(sessionmaker(bind=_engine))
 
     try:
-        logging.info("get_session: Yielding session")
+        logging.debug("get_session: Yielding session")
         yield session
     except:
-        logging.info("get_session: Rollback session")
+        logging.debug("get_session: Rollback session")
         session.rollback()
     else:
-        logging.info("get_session: Commit session")
+        logging.debug("get_session: Commit session")
         session.commit()
     finally:
-        logging.info("get_session: Closing session")
+        logging.debug("get_session: Closing session")
         session.expunge_all()
         session.close()
 
