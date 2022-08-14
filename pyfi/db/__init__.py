@@ -73,6 +73,7 @@ def get_session(**kwargs):
     from sqlalchemy.pool import NullPool
 
     _engine = create_engine(CONFIG.get("database", "uri"), isolation_level='AUTOCOMMIT', poolclass=NullPool)
+    conn = _engine.connect()
     session = scoped_session(sessionmaker(bind=_engine))
 
     try:
@@ -88,6 +89,9 @@ def get_session(**kwargs):
         logging.debug("get_session: Closing session")
         session.expunge_all()
         session.close()
+        logging.debug("get_session: Closing connection")
+        conn.close()
+
 
 
 __all__ = (
