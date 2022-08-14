@@ -71,22 +71,21 @@ def get_db_session():
 @contextmanager
 def get_session(**kwargs):
 
-    logging.debug("get_session: Creating session")
+    logging.info("get_session: Creating session")
 
     session = get_db_session()
 
     try:
-        logging.debug("get_session: Yielding session")
+        logging.info("get_session: Yielding session")
         yield session
     except:
-        logging.debug("get_session: Rollback session")
+        logging.info("get_session: Rollback session")
         session.rollback()
-        raise
     else:
-        logging.debug("get_session: Commit session")
+        logging.info("get_session: Commit session")
         session.commit()
     finally:
-        logging.debug("get_session: Closing session")
+        logging.info("get_session: Closing session")
         session.expunge_all()
         session.close()
 

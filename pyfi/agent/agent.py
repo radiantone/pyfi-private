@@ -514,7 +514,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 and myprocessor.requested_status != "stopped"
                         )
                         ):
-                            logging.info(
+                            logging.debug(
                                 "Restarting worker for processor %s because process_died:%s requested:%s worker:%s",
                                 myprocessor.name, process_died, myprocessor.requested_status,
                                 processor["worker"])
@@ -729,7 +729,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                         """Launch the task worker (which is not the same as the Worker service above 
                                         it """
-                                        logging.info("Launching from %s", self.basedir)
+                                        logging.debug("Launching from %s", self.basedir)
                                         wprocess = workerproc.launch(
                                             worker_model.name,
                                             agent.name,

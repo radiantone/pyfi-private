@@ -333,13 +333,13 @@ class WorkerService:
 
         if os.path.isabs(self.workdir):
             self.workpath = self.workdir
-            logging.info("Setting workpath to %s", self.workpath)
+            logging.debug("Setting workpath to %s", self.workpath)
         elif self.basedir.find(self.workdir) == -1:
             self.workpath = self.basedir + "/" + self.workdir
-            logging.info("Setting workpath to basedir %s + workdir %s ", self.basedir, self.workdir)
+            logging.debug("Setting workpath to basedir %s + workdir %s ", self.basedir, self.workdir)
         else:
             self.workpath = self.basedir
-            logging.info("Setting workpath to %s", self.workpath)
+            logging.debug("Setting workpath to %s", self.workpath)
 
         logging.debug("INIT WORKERSERVICE")
 
@@ -521,10 +521,10 @@ class WorkerService:
 
         workerproc = Popen(["venv/bin/pyfi","worker","start","-n",processor['processor'].worker.name])
         """
-        logging.info("WORKER LAUNCH DIR is %s", os.getcwd())
+        logging.debug("WORKER LAUNCH DIR is %s", os.getcwd())
 
         if os.path.exists("git"):
-            logging.info("Changing to git directory")
+            logging.debug("Changing to git directory")
             os.chdir("git")
 
         if not self.usecontainer:
@@ -2645,10 +2645,10 @@ class WorkerService:
                 if deployment.processor.gitrepo and not self.skipvenv:
 
                     if not os.path.exists(self.workpath):
-                        logging.info("MAKING PATH %s", self.workpath)
+                        logging.debug("MAKING PATH %s", self.workpath)
                         os.makedirs(self.workpath)
                     else:
-                        logging.info("WORKPATH %s exists", self.workpath)
+                        logging.debug("WORKPATH %s exists", self.workpath)
 
                     os.chdir(self.workpath)
 
@@ -2658,7 +2658,7 @@ class WorkerService:
                         raise NotImplementedError
                     else:
                         """Build our virtualenv and import the gitrepo for the processor"""
-                        logging.info("git clone for processor %s", deployment.processor.name)
+                        logging.debug("git clone for processor %s", deployment.processor.name)
 
                         logging.debug(
                             "git clone -b {} --single-branch {} git".format(
@@ -2692,18 +2692,18 @@ class WorkerService:
                             logging.debug("cwd is %s", os.getcwd())
                             logging.debug("workdir is %s", self.workpath)
 
-                            logging.info("Changing to %s for processor %s", self.workpath, deployment.processor.name)
+                            logging.debug("Changing to %s for processor %s", self.workpath, deployment.processor.name)
                             os.chdir(self.workpath)
 
                             if os.path.exists("git"):
                                 os.chdir("git")
                                 pull = True
                             else:
-                                logging.info("No existing git directory....")
+                                logging.debug("No existing git directory....")
 
                             try:
                                 if not pull:
-                                    logging.info(
+                                    logging.debug(
                                         "git clone -b {} --single-branch {} git".format(
                                             deployment.processor.branch,
                                             deployment.processor.gitrepo.split("#")[0],
@@ -2723,7 +2723,7 @@ class WorkerService:
                                     changes = not output == "Already up to date.\n"
 
                                 os.system("git config credential.helper store")
-                                logging.info("Exited git setup")
+                                logging.debug("Exited git setup")
                             except Exception as ex:
                                 logging.error(ex)
 
@@ -2735,7 +2735,7 @@ class WorkerService:
 
                         # If not using a container, then build the virtualenv
                         if changes or not os.path.exists("venv"):
-                            logging.info("Building virtualenv for %s...in %s", deployment.processor.name, os.getcwd())
+                            logging.debug("Building virtualenv for %s...in %s", deployment.processor.name, os.getcwd())
                             env = VirtualEnvironment(
                                 "venv", python=sys.executable, system_site_packages=True
                             )  # inside git directory
@@ -2763,7 +2763,7 @@ class WorkerService:
                                         deployment.processor.gitrepo.strip(),
                                     )
                         else:
-                            logging.info("No rebuild needed. venv already exists in %s", os.getcwd())
+                            logging.debug("No rebuild needed. venv already exists in %s", os.getcwd())
 
                 # Sometimes we just want to recreate the setup
                 if not start:
@@ -2776,13 +2776,13 @@ class WorkerService:
                     args=(self.celery, self.queue, self.dburi),
                 )
 
-                logging.info("Starting worker_process for %s...%s", self.data['name'], self.worker_process)
+                logging.debug("Starting worker_process for %s...%s", self.data['name'], self.worker_process)
                 worker_process.start()
-                logging.info("worker_process started for %s...%s", self.data['name'], self.worker_process)
+                logging.debug("worker_process started for %s...%s", self.data['name'], self.worker_process)
 
                 with open(self.workpath + "/worker.pid", "w") as pidfile:
                     pidfile.write(str(worker_process.pid))
-                    logging.info("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath + "/worker.pid")
+                    logging.debug("WROTE PID %s to FILE %s", str(worker_process.pid), self.workpath + "/worker.pid")
 
                 worker_process.app = self.celery
                 # worker_process.daemon = True
@@ -2891,19 +2891,19 @@ class WorkerService:
         """
         Docstring
         """
-        logging.info("Terminating worker %s", self.workpath)
+        logging.debug("Terminating worker %s", self.workpath)
 
         with open(self.workpath + "/git/worker.pid") as pidfile:
             pid = int(pidfile.read())
 
             process = psutil.Process(pid)
 
-            # logging.info("Killing worker PID %s for %s",self.process.pid, self.data['name'])
+            # logging.debug("Killing worker PID %s for %s",self.process.pid, self.data['name'])
 
-            logging.info("Killing worker_proc thread for %s", self.data['name'])
+            logging.debug("Killing worker_proc thread for %s", self.data['name'])
             # self.worker_process.raise_exception()
             # self.worker_process.join()
-            logging.info("Killed worker_proc thread for %s", self.data['name'])
+            logging.debug("Killed worker_proc thread for %s", self.data['name'])
 
             for child in process.children(recursive=True):
                 try:
@@ -2917,20 +2917,20 @@ class WorkerService:
             # os.killpg(pid, 15)
             # os.kill(pid, signal.SIGKILL)
 
-            logging.info("Finishing %s", self.workpath)
+            logging.debug("Finishing %s", self.workpath)
 
             try:
-                logging.info("Waiting for process to finish")
+                logging.debug("Waiting for process to finish")
                 self.process.join()
-                logging.info("Process finished")
+                logging.debug("Process finished")
             except:
                 pass
 
             if os.path.exists(self.workpath) and not KEEP_WORKER_DIRS:
-                logging.info("Removing working directory %s", self.workpath)
+                logging.debug("Removing working directory %s", self.workpath)
                 shutil.rmtree(self.workpath)
 
-            logging.info("Done killing worker %s", self.workpath)
+            logging.debug("Done killing worker %s", self.workpath)
 
 
 @app.route("/kill")
