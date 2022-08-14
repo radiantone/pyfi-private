@@ -51,7 +51,7 @@ def receive_before_update(mapper, connection, target):
     logging.debug("receive_after_update: %s",target)
 
     if has_changes or isinstance(target, Processor):
-        logging.info("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
+        logging.debug("RECEIVE_AFTER_COMMIT CHANGED! Class %s",target.__class__.__name__)
         redisclient.publish(
             "global",
             json.dumps({"type": target.__class__.__name__, "name": target.name, "object": json.loads(str(target))})
