@@ -77,19 +77,19 @@ def get_session(**kwargs):
     session = scoped_session(sessionmaker(bind=_engine))
 
     try:
-        logging.debug("get_session: Yielding session")
+        logging.info("get_session: Yielding session")
         yield session
     except:
-        logging.debug("get_session: Rollback session")
+        logging.info("get_session: Rollback session")
         session.rollback()
     else:
-        logging.debug("get_session: Commit session")
+        logging.info("get_session: Commit session")
         session.commit()
     finally:
-        logging.debug("get_session: Closing session")
+        logging.info("get_session: Closing session")
         session.expunge_all()
         session.close()
-        logging.debug("get_session: Closing connection")
+        logging.info("get_session: Closing connection")
         conn.close()
 
 
