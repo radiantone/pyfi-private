@@ -218,7 +218,7 @@ def plug(*args, **kwargs):
     stack.append(kwargs)
 
     def decorator(socket):
-        logging.debug("plug:socket %s  %s ", socket, socket.task)
+        logging.info("plug:socket %s  %s ", socket, socket.task)
         target = Socket(name=kwargs["target"], processor=model, user=USER)
 
         _plug = Plug(

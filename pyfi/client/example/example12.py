@@ -1,7 +1,8 @@
 """
 Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 """
-from pyfi.client.api import ProcessorBase, agent, network, node, plug, processor, socket
+from pyfi.client.api import ProcessorBase
+from pyfi.client.decorators import agent, network, node, plug, processor, socket
 
 
 @network(name="network-1")

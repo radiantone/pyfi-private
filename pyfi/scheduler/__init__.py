@@ -10,7 +10,6 @@ import time
 from multiprocessing import Process
 from pathlib import Path
 
-from contextlib import contextmanager
 from celery import Celery
 from pyfi.db.model import (
     AgentModel,
@@ -376,18 +375,20 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 _cpus = agent.cpus - occupied_cpus
                                 if _cpus > shortfall:
                                     _cpus = shortfall
+
                                 if _cpus > 0:
                                     cpus_met = False
                                     logging.info("Filling shortfall of %s cpus", _cpus)
 
                                     for deployment in processor.deployments:
-                                        deployment.cpus += _cpus
-                                        logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
-                                        deployment.requested_status = 'update'
-                                        session.commit()
-                                        cpus_met = True
-                                        shortfall -= _cpus
-                                        break
+                                        if deployment.worker and deployment.worker.agent_id == agent.id:
+                                            deployment.cpus += _cpus
+                                            logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
+                                            deployment.requested_status = 'update'
+                                            session.commit()
+                                            cpus_met = True
+                                            shortfall -= _cpus
+                                            break
 
                                     if not cpus_met:
 

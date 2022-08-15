@@ -324,7 +324,7 @@ class FileModel(BaseModel):
     code = Column(Text)
     type = Column(String(40))
     icon = Column(String(40))
-    versions = relationship("VersionModel", cascade="all, delete-orphan")
+    versions = relationship("VersionModel", back_populates="file", cascade="all, delete-orphan")
 
 
 flows_versions = Table(
@@ -401,8 +401,8 @@ class WorkerModel(BaseModel):
 
     workerdir = Column(String(256))
 
-    processor = relationship("ProcessorModel", cascade="all, delete")
-    processor_id = Column(String(40), ForeignKey("processor.id"), nullable=False)
+    processor = relationship("ProcessorModel")
+    processor_id = Column(String(40), ForeignKey("processor.id", ondelete="CASCADE"), nullable=False)
 
     deployment_id = Column(String(40), ForeignKey("deployment.id"), nullable=True)
 

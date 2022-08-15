@@ -6,7 +6,7 @@ import os
 from pyfi.client.api import ProcessorBase
 from pyfi.client.decorators import agent, network, node, plug, processor, socket
 
-
+'''
 @processor(
     name="proc2",
     gitrepo=os.environ["GIT_REPO"],
@@ -33,13 +33,13 @@ class ProcessorB(ProcessorBase):
             "value": randrange(50),
         }
         return {"message": message, "graph": graph}
-
+'''
 
 @processor(
     name="proc1",
     gitrepo=os.environ["GIT_REPO"],
     module="pyfi.processors.sample",
-    concurrency=2,
+    concurrency=7,
 )
 class ProcessorA(ProcessorBase):
     """Description"""
@@ -76,7 +76,7 @@ class ProcessorA(ProcessorBase):
         }
         return {"message": message, "graph": graph}
 
-
+'''
 @processor(
     name="proc3",
     gitrepo=os.environ["GIT_REPO"],
@@ -118,6 +118,7 @@ class ProcessorC(ProcessorBase):
         }
         return {"message": message, "graph": graph}
 
+'''
 
 if __name__ == "__main__":
     print("Network created.")

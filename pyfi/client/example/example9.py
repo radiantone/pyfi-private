@@ -8,8 +8,6 @@ from pyfi.client.user import USER
 from pyfi.config import CONFIG
 from pyfi.db.model import AlchemyEncoder
 
-# Log in a user first
-print("USER", USER)
 # Create a socket on the processor to receive requests for the do_something python function(task)
 do_something = Task(
     name="do_something",
