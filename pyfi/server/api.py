@@ -45,6 +45,7 @@ from pyfi.db.model import (
     WorkerModel,
     oso,
 )
+from pyfi.db import get_session
 
 CONFIG = configparser.ConfigParser()
 
@@ -71,25 +72,6 @@ api = Api(
     title="LambdaFLOW API",
     description="LambdaFLOW Backend API",
 )
-
-
-@contextmanager
-def get_session(**kwargs):
-    from pyfi.db import get_session
-
-    session = get_session()
-
-    try:
-        yield session
-    except:
-        session.rollback()
-        raise
-    else:
-        session.commit()
-    finally:
-        session.expunge_all()
-        session.close()
-        gc.collect()
 
 
 def create_endpoint(modulename, taskname):
