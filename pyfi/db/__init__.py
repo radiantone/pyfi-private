@@ -87,7 +87,7 @@ def get_session(**kwargs):
         session.commit()
     finally:
         logging.info("get_session: Closing session")
-        session.expunge_all()
+        #session.expunge_all()
         session.close()
         logging.info("get_session: Closing connection")
         conn.close()
