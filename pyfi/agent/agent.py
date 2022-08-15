@@ -590,7 +590,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                 worker_model.lastupdated = datetime.datetime.now()
                                 worker_model.status = "running"
                                 worker_model.processor = myprocessor
-
+                                mydeployment.status = "starting"
                                 session.add(worker_model)
 
                                 logging.debug("Worker model is %s", worker_model)

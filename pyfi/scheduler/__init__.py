@@ -401,6 +401,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                             name=processor.name
                                             + ".deploy"
                                             + str(len(processor.deployments)),
+                                            requested_status="update",
                                             hostname=node.hostname,
                                         )
                                         processor.deployments += [_deployment]
@@ -501,6 +502,7 @@ class WatchPlugin(SchedulerPlugin):
                         status = response.json()
                         if status["status"] == "green":
                             worker.status = "running"
+                            worker.deployment.status = "running"
                             session.add(worker)
                             session.commit()
                     except Exception as ex:
