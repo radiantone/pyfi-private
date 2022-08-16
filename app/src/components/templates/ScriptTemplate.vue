@@ -69,7 +69,7 @@
           @click="saveProcessor"
         >
           <q-item-section side>
-            <q-icon name="fas fa-save" />
+            <q-icon name="fas fa-save"/>
           </q-item-section>
           <q-item-section
             side
@@ -78,14 +78,14 @@
             Save
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
           @click="configview = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-cog" />
+            <q-icon name="fas fa-cog"/>
           </q-item-section>
           <q-item-section
             side
@@ -94,7 +94,7 @@
             Configure
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
@@ -102,7 +102,7 @@
           @click="obj.status = 'stopped'"
         >
           <q-item-section side>
-            <q-icon name="fas fa-stop" />
+            <q-icon name="fas fa-stop"/>
           </q-item-section>
           <q-item-section
             side
@@ -118,7 +118,7 @@
           @click="obj.status = 'running'"
         >
           <q-item-section side>
-            <q-icon name="fas fa-play" />
+            <q-icon name="fas fa-play"/>
           </q-item-section>
           <q-item-section
             side
@@ -127,14 +127,14 @@
             Run
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
           @click="addToLibrary"
         >
           <q-item-section side>
-            <q-icon name="fas fa-book" />
+            <q-icon name="fas fa-book"/>
           </q-item-section>
           <q-item-section
             side
@@ -143,14 +143,14 @@
             Add to Library
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
           @click="addToLibrary"
         >
           <q-item-section side>
-            <q-icon name="fas fa-power-off" />
+            <q-icon name="fas fa-power-off"/>
           </q-item-section>
           <q-item-section
             side
@@ -159,14 +159,14 @@
             Power Cycle
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
           disabled
         >
           <q-item-section side>
-            <q-icon :name="this.abacusIcon" />
+            <q-icon :name="this.abacusIcon"/>
           </q-item-section>
           <q-item-section
             side
@@ -181,7 +181,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-book" />
+            <q-icon name="fas fa-book"/>
           </q-item-section>
           <q-item-section
             side
@@ -196,7 +196,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-plug" />
+            <q-icon name="fas fa-plug"/>
           </q-item-section>
           <q-item-section
             side
@@ -205,14 +205,14 @@
             View Connections
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
         <q-item
           clickable
           v-close-popup
           @click="centerOnNode"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group" />
+            <q-icon name="far fa-object-group"/>
           </q-item-section>
           <q-item-section
             side
@@ -227,7 +227,7 @@
           @click="cornerInView"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group" />
+            <q-icon name="far fa-object-group"/>
           </q-item-section>
           <q-item-section
             side
@@ -252,7 +252,7 @@
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Group</q-item-section>
         </q-item>-->
-        <q-separator />
+        <q-separator/>
 
         <q-item
           clickable
@@ -260,7 +260,7 @@
           @click="copyNode"
         >
           <q-item-section side>
-            <q-icon name="fas fa-copy" />
+            <q-icon name="fas fa-copy"/>
           </q-item-section>
           <q-item-section
             side
@@ -269,7 +269,7 @@
             Copy
           </q-item-section>
         </q-item>
-        <q-separator />
+        <q-separator/>
 
         <q-item
           clickable
@@ -277,7 +277,7 @@
           @click="deleteConfirm = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-trash" />
+            <q-icon name="fas fa-trash"/>
           </q-item-section>
           <q-item-section
             side
@@ -322,7 +322,7 @@
               "
             >
               <q-item-section side>
-                <q-icon name="fas fa-database" />
+                <q-icon name="fas fa-database"/>
               </q-item-section>
               <q-item-section
                 side
@@ -340,7 +340,7 @@
               "
             >
               <q-item-section side>
-                <q-icon name="fab fa-python" />
+                <q-icon name="fab fa-python"/>
               </q-item-section>
               <q-item-section
                 side
@@ -355,7 +355,7 @@
               @click="obj.icon = 'fas fa-cloud'"
             >
               <q-item-section side>
-                <q-icon name="fas fa-cloud" />
+                <q-icon name="fas fa-cloud"/>
               </q-item-section>
               <q-item-section
                 side
@@ -370,7 +370,7 @@
               @click="obj.icon = 'fas fa-file'"
             >
               <q-item-section side>
-                <q-icon name="fas fa-file" />
+                <q-icon name="fas fa-file"/>
               </q-item-section>
               <q-item-section
                 side
@@ -385,7 +385,7 @@
               @click="obj.icon = 'fas fa-link'"
             >
               <q-item-section side>
-                <q-icon name="fas fa-link" />
+                <q-icon name="fas fa-link"/>
               </q-item-section>
               <q-item-section
                 side
@@ -400,7 +400,7 @@
               @click="obj.icon = 'fas fa-table'"
             >
               <q-item-section side>
-                <q-icon name="fas fa-table" />
+                <q-icon name="fas fa-table"/>
               </q-item-section>
               <q-item-section
                 side
@@ -436,7 +436,7 @@
               @click="obj.icon = 'alt_route'"
             >
               <q-item-section side>
-                <q-icon name="alt_route" />
+                <q-icon name="alt_route"/>
               </q-item-section>
               <q-item-section
                 side
@@ -667,7 +667,7 @@
                 @click="addNewPort({ function: 'function: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
               >
                 <q-item-section side>
-                  <q-icon name="fab fa-python" />
+                  <q-icon name="fab fa-python"/>
                 </q-item-section>
                 <q-item-section
                   side
@@ -715,7 +715,7 @@
                 @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
               >
                 <q-item-section side>
-                  <q-icon name="fab fa-python" />
+                  <q-icon name="fab fa-python"/>
                 </q-item-section>
                 <q-item-section
                   side
@@ -900,7 +900,7 @@
               @click="showPanel('workerview', !workerview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-hard-hat" />
+                <q-icon name="fas fa-hard-hat"/>
               </q-item-section>
               <q-item-section
                 side
@@ -909,7 +909,7 @@
                 Workers
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
 
             <q-item
               clickable
@@ -917,7 +917,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list-alt" />
+                <q-icon name="far fa-list-alt"/>
               </q-item-section>
               <q-item-section
                 side
@@ -926,7 +926,7 @@
                 Environment
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
 
             <q-item
               clickable
@@ -934,7 +934,7 @@
               @click="showPanel('notesview', !notesview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-sticky-note" />
+                <q-icon name="far fa-sticky-note"/>
               </q-item-section>
               <q-item-section
                 side
@@ -949,7 +949,7 @@
               @click="loginProcessor"
             >
               <q-item-section side>
-                <q-icon name="fas fa-lock" />
+                <q-icon name="fas fa-lock"/>
               </q-item-section>
               <q-item-section
                 side
@@ -958,14 +958,14 @@
                 Lock
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               @click="showPanel('gitview', !gitview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-github" />
+                <q-icon name="fab fa-github"/>
               </q-item-section>
               <q-item-section
                 side
@@ -980,7 +980,7 @@
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-history" />
+                <q-icon name="fas fa-history"/>
               </q-item-section>
               <q-item-section
                 side
@@ -995,7 +995,7 @@
               @click="showPanel('logsview', !logsview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-glasses" />
+                <q-icon name="fas fa-glasses"/>
               </q-item-section>
               <q-item-section
                 side
@@ -1010,7 +1010,7 @@
               @click="showPanel('requirementsview', !requirementsview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-python" />
+                <q-icon name="fab fa-python"/>
               </q-item-section>
               <q-item-section
                 side
@@ -1071,7 +1071,7 @@
                     v-close-popup
                   >
                     <q-item-section side>
-                      <q-icon name="fas fa-question" />
+                      <q-icon name="fas fa-question"/>
                     </q-item-section>
                     <q-item-section
                       side
@@ -1085,7 +1085,7 @@
                     v-close-popup
                   >
                     <q-item-section side>
-                      <q-icon name="fas fa-question" />
+                      <q-icon name="fas fa-question"/>
                     </q-item-section>
                     <q-item-section
                       side
@@ -1279,7 +1279,7 @@
       </li>
     </ul>
 
-    <q-separator />
+    <q-separator/>
     <div
       class="row"
       id="bandwidth"
@@ -1410,7 +1410,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Socket</q-item-label>
-              <q-space />
+              <q-space/>
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -1477,7 +1477,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Processor</q-item-label>
-              <q-space />
+              <q-space/>
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -1780,7 +1780,7 @@
           </template>
         </q-splitter>
       </q-card-section>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;" />
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;"/>
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -1803,7 +1803,7 @@
       </q-card-actions>
       <q-item-label style="position: absolute; left: 120px; bottom: 5px; font-size: 1.5em;">
         {{ gitcommit }}
-        <span style="margin-right: 40px;" />
+        <span style="margin-right: 40px;"/>
         {{ gitdate }}
       </q-item-label>
       <q-card-actions align="right">
@@ -1823,7 +1823,7 @@
       style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
       v-if="editPort"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;"/>
 
       <q-card-actions align="right">
         <q-btn
@@ -1974,7 +1974,7 @@
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
                     <q-toolbar style="margin-left: -30px;">
-                      <q-space />
+                      <q-space/>
                       <q-checkbox
                         v-model="obj.usegit"
                         label="GIT"
@@ -2242,7 +2242,7 @@
               icon="refresh"
               class="bg-primary text-white"
               color="primary"
-              @click="refreshDeployments"
+              @click="refreshDeployments(true)"
               v-close-popup
             />
           </q-tab-panel>
@@ -2629,7 +2629,7 @@
               ]"
               :content-type="'html'"
             >
-              <pre class="typing" />
+              <pre class="typing"/>
             </vue-typed-js>
           </div>
         </q-scroll-area>
@@ -2880,7 +2880,7 @@
           ></apexchart>-->
         </div>
       </q-card-section>
-      <q-card-actions align="left" />
+      <q-card-actions align="left"/>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2917,7 +2917,7 @@
           >
             <q-toolbar>
               <q-item-label>Results for {{ obj.name }}</q-item-label>
-              <q-space />
+              <q-space/>
               <q-select
                 dense
                 borderless
@@ -3115,13 +3115,13 @@ tbody tr:nth-child(odd) {
 </style>
 <script>
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
-import { v4 as uuidv4 } from 'uuid'
+import {BaseNodeComponent} from 'jsplumbtoolkit-vue2'
+import {v4 as uuidv4} from 'uuid'
 import VueResizable from 'vue-resizable'
 import Vuetify from 'vuetify'
-import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
+import {mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces} from '@mdi/js'
 
-import { TSDB } from 'uts'
+import {TSDB} from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
@@ -3174,7 +3174,7 @@ export default {
       // console.log('inBytes', val);
     }
   },
-  created () {
+  created() {
     var me = this
 
     this.plugIcon = mdiPowerSocketUs
@@ -3196,13 +3196,14 @@ export default {
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
-        if (msg.object.processor_id === me.obj.id) {
-          me.refreshDeployments()
-        }
+        console.log("DEPLOYMENT UPDATED")
+        //if (msg.name.split('.')[0] === me.obj.name) {
+          me.refreshDeployments(false)
+        //}
       }
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
-          if(msg.object.receipt > me.obj.receipt) {
+          if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
             for (var key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
@@ -3218,7 +3219,7 @@ export default {
 
       if (msg.type && msg.type === 'output') {
         if (msg.processor === this.obj.name) {
-          me.consolelogs.push({ date: new Date(), output: msg.output })
+          me.consolelogs.push({date: new Date(), output: msg.output})
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
       }
@@ -3239,9 +3240,9 @@ export default {
         )
 
         var timedata = tsdb.series('inBytes').query({
-          metrics: { data: TSDB.map('bytes') },
+          metrics: {data: TSDB.map('bytes')},
           where: {
-            time: { is: '<', than: Date.now() - 5 * 60 }
+            time: {is: '<', than: Date.now() - 5 * 60}
           }
         })
 
@@ -3258,9 +3259,9 @@ export default {
       }
       if (msg.channel === 'task' && msg.message) {
         var timedata = tsdb.series('outBytes').query({
-          metrics: { data: TSDB.map('bytes') },
+          metrics: {data: TSDB.map('bytes')},
           where: {
-            time: { is: '<', than: Date.now() - 5 * 60 }
+            time: {is: '<', than: Date.now() - 5 * 60}
           }
         })
         tsdb.series('outBytes').insert(
@@ -3310,7 +3311,7 @@ export default {
     }, 3000)
   },
   computed: {
-    myhistory () {
+    myhistory() {
       var me = this
 
       var myhist = []
@@ -3322,31 +3323,31 @@ export default {
 
       return myhist
     },
-    rateLimit (val) {
+    rateLimit(val) {
     },
-    taskTime () {
+    taskTime() {
       return this.task_time
     },
-    inBytes () {
+    inBytes() {
       return this.calls_in + ' (' + this.bytes_in_human + ' bytes)'
     },
-    outBytes () {
+    outBytes() {
       return this.calls_out + ' (' + this.bytes_out_human + ' bytes)'
     },
-    totalBytes () {
+    totalBytes() {
       return this.calls_out + this.calls_in + ' (' + this.sizeOf(this.bytes_out + this.bytes_in) + ' bytes)'
     },
-    bytes_in_human () {
+    bytes_in_human() {
       return this.sizeOf(this.bytes_in)
     },
-    bytes_out_human () {
+    bytes_out_human() {
       return this.sizeOf(this.bytes_out)
     },
-    readwrite () {
+    readwrite() {
       return this.obj.readwrite
     }
   },
-  mounted () {
+  mounted() {
     var me = this
 
     console.log('MOUNTED STORE', this.$store)
@@ -3355,7 +3356,7 @@ export default {
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({ name: 'darren', age: 51 })
+    this.sayHello({name: 'darren', age: 51})
 
     setTimeout(() => {
       console.log('ME.getNode()', me.getNode())
@@ -3370,7 +3371,11 @@ export default {
       console.log('NODE ADDED', node)
       this.updateSchemas()
     })
-
+    window.designer.$root.$on(this.obj.id, (action) => {
+      if (action === 'configure') {
+        this.configview = !this.configview
+      }
+    })
     window.designer.$root.$on('toolkit.dirty', (val) => {
       this.updateSchemas()
     })
@@ -3392,7 +3397,7 @@ export default {
 
     this.fetchCode()
   },
-  data () {
+  data() {
     return {
       resulttype: 'finished',
       queues: [],
@@ -4154,23 +4159,23 @@ export default {
     }
   },
   methods: {
-    showCommit (hash, date) {
+    showCommit(hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
       this.gitdate = date
     },
-    showGit () {
+    showGit() {
       this.getCommits()
       this.gitview = true
     },
-    getCommits () {
+    getCommits() {
       DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath).then((result) => {
         this.gitdata = result.data
       })
     },
-    doLogin () {
+    doLogin() {
       var me = this
 
       DataService.loginProcessor(this.obj.id, this.password)
@@ -4181,17 +4186,17 @@ export default {
         .catch((error) => {
         })
     },
-    addVariable () {
+    addVariable() {
       this.variabledata.push({
         name: 'NAME',
         value: 'VALUE',
         scope: 'FLOW'
       })
     },
-    addToLibrary () {
+    addToLibrary() {
       window.root.$emit('add.library', this.obj)
     },
-    cornerInView () {
+    cornerInView() {
       var node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
@@ -4201,7 +4206,7 @@ export default {
         }
       })
     },
-    centerOnNode () {
+    centerOnNode() {
       var node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
@@ -4214,11 +4219,11 @@ export default {
         }
       })
     },
-    addFunc (func) {
+    addFunc(func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
+      addNewPort({function: 'function: ' + func.name, args: func.args}, 'Output', 'outlet-icon')
     },
-    showOutput (resultid) {
+    showOutput(resultid) {
       this.resultdataloading = true
 
       DataService.getOutput(resultid).then((result) => {
@@ -4228,7 +4233,7 @@ export default {
         editor.session.setValue(result.data)
       })
     },
-    showResult (resultid) {
+    showResult(resultid) {
       this.resultdataloading = true
 
       DataService.getResult(resultid).then((result) => {
@@ -4238,7 +4243,7 @@ export default {
         editor.session.setValue(JSON.stringify(result.data, null, 2))
       })
     },
-    refreshResultsData () {
+    refreshResultsData() {
       this.resultloading = true
       DataService.getCalls(this.obj.name)
         .then((calls) => {
@@ -4249,11 +4254,11 @@ export default {
           this.resultloading = false
         })
     },
-    showResultsDialog () {
+    showResultsDialog() {
       this.viewResultsDialog = true
       this.refreshResultsData()
     },
-    updateFunctions (data) {
+    updateFunctions(data) {
       const re = /def (\w+)\s*\((.*?)\):/g
 
       var matches = data.matchAll(re)
@@ -4274,10 +4279,10 @@ export default {
             _args.push(arg)
           }
         }
-        this.funcs.push({ name: name, args: _args })
+        this.funcs.push({name: name, args: _args})
       }
     },
-    fetchCode () {
+    fetchCode() {
       var me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
@@ -4300,10 +4305,10 @@ export default {
         }
       })
     },
-    copyNode () {
+    copyNode() {
       console.log('COPY NODE')
 
-      function findMatch (list, obj) {
+      function findMatch(list, obj) {
         for (var i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
@@ -4313,7 +4318,7 @@ export default {
         return false
       }
 
-      function findEdge (list, edge) {
+      function findEdge(list, edge) {
         for (var i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
@@ -4323,7 +4328,7 @@ export default {
         return false
       }
 
-      function haveAllNodes (nodes, edge) {
+      function haveAllNodes(nodes, edge) {
         var source = false
         var target = false
         for (var i = 0; i < nodes.length; i++) {
@@ -4380,10 +4385,10 @@ export default {
       console.log('jsonData:', jsonData)
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
-    closePortEdit () {
+    closePortEdit() {
       editPort = false
     },
-    saveProcessor () {
+    saveProcessor() {
       var me = this
 
       this.refreshing = true
@@ -4408,8 +4413,8 @@ export default {
           this.refreshing = false
         })
     },
-    refreshDeployments () {
-      this.deployLoading = true
+    refreshDeployments(mask) {
+      this.deployLoading = mask
 
       console.log('Refreshing deployments!')
       DataService.getDeployments(this.obj.name)
@@ -4423,36 +4428,36 @@ export default {
           this.deployLoading = false
         })
     },
-    sizeOf (bytes) {
+    sizeOf(bytes) {
       if (bytes === 0) {
         return '0.00 B'
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024))
       return (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
     },
-    mouseEnter (event) {
+    mouseEnter(event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       this.mousecard = true
     },
-    mouseExit (event) {
+    mouseExit(event) {
       console.log('mouseExit')
       // this.mousecard = false;
     },
-    mouseMove (event) {
+    mouseMove(event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       console.log(this.cardX, this.cardY)
     },
-    setBandwidth (value) {
+    setBandwidth(value) {
       console.log('SET BANDWIDTH', value)
       this.obj.bandwidth = value
     },
-    onSubmit () {
+    onSubmit() {
     },
-    onReset () {
+    onReset() {
     },
-    refreshWorkers () {
+    refreshWorkers() {
       var me = this
       this.workersLoading = true
 
@@ -4465,10 +4470,10 @@ export default {
           me.workersLoading = false
         })
     },
-    loginProcessor () {
+    loginProcessor() {
       this.login = true
     },
-    refreshProcessor () {
+    refreshProcessor() {
       var me = this
       this.refreshing = true
       DataService.getProcessor(this.obj.name).then((proc) => {
@@ -4477,7 +4482,7 @@ export default {
         const avoid = ['icon']
         for (var key in me.obj) {
           if (key in proc.data && !avoid.includes(key)) {
-            console.log("Updating key ",key)
+            console.log("Updating key ", key)
             me.obj[key] = proc.data[key]
           }
         }
@@ -4489,21 +4494,21 @@ export default {
         me.error = true
       })
     },
-    getUuid () {
+    getUuid() {
       return 'key_' + uuidv4()
     },
-    rowStripe (row) {
+    rowStripe(row) {
       if (row % 2 === 0) {
         return 'background-color:white'
       }
     },
-    workerviewSetup () {
+    workerviewSetup() {
       var me = this
       setTimeout(() => {
         me.workersLoading = false
       }, 2000)
     },
-    showPanel (view, show) {
+    showPanel(view, show) {
       this.configview = false
       this.codeview = false
       this.dataview = false
@@ -4533,7 +4538,7 @@ export default {
           this.getCommits()
         }
 
-        this.refreshDeployments()
+        this.refreshDeployments(true)
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
@@ -4545,13 +4550,13 @@ export default {
         }); */
       }
     },
-    updateDescription (value, initialValue) {
+    updateDescription(value, initialValue) {
       console.log('updateDesc', value, initialValue)
       this.renameConfirm = true
       this.renameValue = value
       this.initialValue = initialValue
     },
-    updateName (value, initialValue, column) {
+    updateName(value, initialValue, column) {
       console.log('column edited ', column)
       console.log('updateName', value, initialValue)
       this.renameConfirm = true
@@ -4636,28 +4641,28 @@ export default {
         editor.session.setValue(me.obj.code)
       }
     },
-    showCode () {
+    showCode() {
       // this.code = true;
     },
-    showTooltip (show) {
+    showTooltip(show) {
       this.tooltip = show
     },
-    confirmDeletePort (id) {
+    confirmDeletePort(id) {
       this.deletePortID = id
       this.deleteItem = true
     },
-    resetToolkit () {
+    resetToolkit() {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged () {
+    valueChanged() {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode () {
+    deleteNode() {
       window.toolkit.removeNode(this.obj)
     },
-    removeColumn (column) {
+    removeColumn(column) {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
@@ -4693,7 +4698,7 @@ export default {
       }
       // window.renderer.repaint(this.obj);
     },
-    addPort (port) {
+    addPort(port) {
       debugger
       port.background = 'white'
       port.datatype = 'Column'
@@ -4717,7 +4722,7 @@ export default {
 
       return port
     },
-    updateSchemas () {
+    updateSchemas() {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
@@ -4731,7 +4736,7 @@ export default {
         this.types = schemas
       })
     },
-    addNewPort (func, type, icon) {
+    addNewPort(func, type, icon) {
       var me = this
 
       var port = this.addPort({
@@ -4759,7 +4764,7 @@ export default {
         this.argports[port.id].push(arg.id)
       })
     },
-    addErrorPort () {
+    addErrorPort() {
       if (this.error) {
         this.$q.notify({
           color: 'negative',

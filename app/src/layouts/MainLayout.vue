@@ -1084,9 +1084,9 @@ export default defineComponent({
     const n = this.$q.notify
 
     this.$q.notify = function (opts) {
+      n(opts)
       opts.message = new Date().toLocaleDateString('en-us', { hour: '2-digit', minute: '2-digit' }) + ' ' + opts.message
       me.$root.$emit('log.message', opts.message)
-      n(opts)
     }
 
     this.schemaIcon = mdiCodeBraces
@@ -1227,9 +1227,14 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        //console.log('MAINLAYOUT', msg);
+        console.log('MAINLAYOUT', msg);
+        if (msg.type && msg.type === 'DeploymentModel') {
+          console.log("DEPLOYMENT WAS UPDATED ", msg)
+          window.root.$emit('message.received', msg)
+        }
         if (msg.type && msg.type === 'ProcessorModel') {
           console.log("PROCESSOR WAS UPDATED ", msg)
+          window.root.$emit('message.received', msg)
         }
         if (msg.channel === 'task') {
           me.msglogs.unshift(msg)

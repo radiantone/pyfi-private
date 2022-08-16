@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Wrapper } from '../util';
-import Vue from 'vue';
-import mixins from 'vue-typed-mixins';
-import { io, Socket } from 'socket.io-client';
+import { Wrapper } from '../util'
+import Vue from 'vue'
+import mixins from 'vue-typed-mixins'
+import { io, Socket } from 'socket.io-client'
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -25,12 +25,12 @@ export interface ProcessorState {
 }
 
 export const ProcessorMixin = Vue.extend({
-  data() {
+  data () {
     return {
-      name: 'Processor',
-    };
-  },
-});
+      name: 'Processor'
+    }
+  }
+})
 
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
@@ -38,90 +38,88 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   'http://localhost'
-);
+)
 
-export default mixins(ProcessorBase).extend<
-  ProcessorState,
+export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
   Computed,
-  Props
->({
-  data() {
-    return {
-      name: 'MyProcessor',
-    };
-  },
+  Props>({
+    data () {
+      return {
+        name: 'MyProcessor'
+      }
+    },
 
-  created() {
-    var me = this;
+    created () {
+      var me = this
 
-    socket.on('basicEmit', (a, b, c) => {
-      console.log('SERVER EMIT', a, b, c);
-      me.$store.commit('designer/setMessage', b);
-    });
-    me.listenMessages();
-
-  },
-  computed: {
+      socket.on('basicEmit', (a, b, c) => {
+        console.log('SERVER EMIT', a, b, c)
+        me.$store.commit('designer/setMessage', b)
+      })
+      me.listenMessages()
+    },
+    computed: {
     /*
     connected() {
       return this.$store.state.designer.connected;
     },
     streaming() {
       return this.$store.state.designer.streaming;
-    },*/
-  },
-  watch: {
-    connected: function (newv, oldv) {
-      console.log('PROCESSOR CONNECTED', oldv, newv);
-      if (newv) {
+    }, */
+    },
+    watch: {
+      connected: function (newv, oldv) {
+        console.log('PROCESSOR CONNECTED', oldv, newv)
+        if (newv) {
         // This means that changes to the flow are committed back
         // to the database as they happen
-      }
-    },
-    streaming: function (newv, oldv) {
-      console.log('PROCESSOR STREAMING', oldv, newv);
-      if (newv) {
+        }
+      },
+      streaming: function (newv, oldv) {
+        console.log('PROCESSOR STREAMING', oldv, newv)
+        if (newv) {
         // This means the flow is receiving streaming messages in real-time
-        console.log('PROCESSOR: Turning on messages');
-      } else {
-        socket.off('global');
-        console.log('PROCESSOR:  Turning off messages');
+          console.log('PROCESSOR: Turning on messages')
+        } else {
+          socket.off('global')
+          console.log('PROCESSOR:  Turning off messages')
+        }
       }
     },
-  },
-  mounted() {},
+    mounted () {
+    },
 
-  methods: {
-    listenMessages() {
-      var me = this;
-      socket.on('global', (data) => {
-        //console.log("SERVER GLOBAL MESSAGE",data);
-        me.messageReceived(data);
-      });
-    },
-    messageReceived(msg) {
-      if (this.$store.state.designer.streaming) {
-        this.$emit('message.received', msg);
-      } else {
+    methods: {
+      listenMessages () {
+        var me = this
+        socket.on('global', (data) => {
+          console.log('PROCESSOR GLOBAL MESSAGE', data)
+          me.messageReceived(data)
+        })
+      },
+      messageReceived (msg) {
+        this.$emit('message.received', msg)
+      },
+      messageSend (msg) {
+        const person = <SocketData>msg
+        socket.emit('hello', person)
       }
-    },
-    messageSend(msg) {
-      const person = <SocketData>msg;
-      socket.emit('hello', person);
-    },
-  },
-});
+    }
+  })
 
 interface MessageListener {
   messageReceived(message: any): void;
-  messageSend (message: any): void;
-  listenMessages (): void;
+
+  messageSend(message: any): void;
+
+  listenMessages(): void;
 }
 
-interface Methods extends MessageListener {}
+type Methods = MessageListener
 
-interface Computed {}
+interface Computed {
+}
 
 interface Props {
   wrapper: Wrapper;

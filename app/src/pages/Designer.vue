@@ -832,6 +832,7 @@
                 icon="fas fa-cog"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'configure')"
                 ><q-tooltip>Configure</q-tooltip></q-btn
               >
               <q-separator style="margin-right: 8px;" />
@@ -843,6 +844,7 @@
                 icon="fas fa-book"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'savetolibrary')"
                 ><q-tooltip>Save to Library</q-tooltip></q-btn
               >
               <q-btn
@@ -863,6 +865,7 @@
                 icon="fas fa-play"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'start')"
                 ><q-tooltip>Run Processor</q-tooltip></q-btn
               >
               <q-btn
@@ -873,6 +876,7 @@
                 icon="fas fa-stop"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'stop')"
                 ><q-tooltip>Stop Processor</q-tooltip></q-btn
               >
               <q-separator style="margin-right: 8px;" />
@@ -884,6 +888,7 @@
                 icon="fas fa-save"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'save')"
                 ><q-tooltip>Save Processor</q-tooltip></q-btn
               >
               <q-btn
@@ -906,6 +911,7 @@
                 icon="fas fa-copy"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="copyNodes"
                 ><q-tooltip>Copy Processor</q-tooltip></q-btn
               >
               <q-separator style="margin-right: 8px;" />
@@ -920,6 +926,7 @@
                 icon="far fa-object-group"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'corner')"
               ></q-btn>
               <q-btn
                 dense
@@ -940,6 +947,7 @@
                 icon="far fa-trash-alt"
                 class="text-dark"
                 style="margin: 3px; padding: 2px; border: 1px solid #abbcc3;"
+                @click="notifyNode(node.data.id,'delete')"
                 ><q-tooltip>Delete Processor</q-tooltip></q-btn
               >
             </q-toolbar>
@@ -2076,6 +2084,10 @@ export default {
     },
   },
   methods: {
+    notifyNode(id) {
+      console.log("Notifying",id)
+      this.$root.$emit(id,'configure')
+    },
     addVariable() {
       this.variabledata.push({
         'name': 'NAME',

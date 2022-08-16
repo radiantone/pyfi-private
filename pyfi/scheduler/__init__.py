@@ -385,6 +385,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                             deployment.cpus += _cpus
                                             logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
                                             deployment.requested_status = 'update'
+                                            deployment.status = 'updating'
                                             session.commit()
                                             cpus_met = True
                                             shortfall -= _cpus
@@ -502,7 +503,7 @@ class WatchPlugin(SchedulerPlugin):
                         status = response.json()
                         if status["status"] == "green":
                             worker.status = "running"
-                            worker.deployment.status = "running"
+                            #worker.deployment.status = "running"
                             session.add(worker)
                             session.commit()
                     except Exception as ex:

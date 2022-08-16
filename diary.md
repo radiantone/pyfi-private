@@ -1,6 +1,10 @@
+## Aug 16, 2022
+
+- BUG: When syncing a processor, it overwrites id and won't load after save
+
 ## Aug 15, 2022
 
-- Scheduler needs to spread deployments across agents to not overfill
+- Scheduler needs to spread deployments across agents to not overfill FIXED
 - Cannot delete processor that has workers: stop and delete worker first?
 - BUG: When deployment is removed, UI list doesn't update?
 - BUG: Drop from processors tab doesn't place under mouse
@@ -12,8 +16,8 @@
 
 ## Aug 12, 2022
 
-- RabbitMQ cluster now entirely concealed behind nginx
-- TODO: Fix rabbitmq2 join cluster
+- RabbitMQ cluster now entirely concealed behind nginx TBD
+- TODO: Fix rabbitmq2 join cluster DONE
 - 
 
 ## Aug 10, 2022
@@ -55,7 +59,7 @@ LEFT TO DO
 - Add config and environment to flow state
 - Statistics table dialog
 - Processor Tool types (using decorator classes and modified scriptemplate UI)
-- Save processor updates models and triggers reactive behavior from scheduler
+- Save processor updates models and triggers reactive behavior from scheduler DONE
 - Publish flow. Creates all the objects in the flow and submits transactionally.
 - Stream database updates back to browser DONE
 - Execution state in UI
@@ -90,14 +94,14 @@ LEFT TO DO
 - Scheduled dispatcher jobs now obtain their own session and objects
 - Individual processor scaling tests work
 - Agent only restarts the worker for the changed processor
-- Database change events showing up in browser, but seems to have redundant duplicates
+- Database change events showing up in browser, but seems to have redundant duplicates FIXED
 
 ## Aug 7, 2022
 
 - Re-writes of agent.py and worker.py to remove stale object references
 - Scheduler should read lock tables when making changes
-- There is a deadlock between scheduler and agent after 2 scaling events
-- BUG: Agent kills proc3 and proc1 workers when it should only scale one
+- There is a deadlock between scheduler and agent after 2 scaling events FIXED
+- BUG: Agent kills proc3 and proc1 workers when it should only scale one FIXED
 
 ## Aug 6, 2022
 

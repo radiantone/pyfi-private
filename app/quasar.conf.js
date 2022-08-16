@@ -147,7 +147,7 @@ module.exports = configure(function (ctx) {
         'QBreadcrumbs',
         'Dialog',
         'QDrawer',
-        'LoadingBar',
+        //'LoadingBar',
         'QTree',
         'QBtnToggle',
         'QSpinnerOval',
