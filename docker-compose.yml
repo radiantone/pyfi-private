@@ -226,8 +226,10 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 15672:15672
-      - 5672:5672
+      #- 15672:15672
+      #- 5672:5672
+      #- 5671:5671
+      #- 4369:4369
 
   # Admin UI - http://localhost:15672/
   rabbitmq:
@@ -240,11 +242,12 @@ services:
       - ./data:/var/lib/rabbitmq/mnesia/
     environment:
       - RABBITMQ_ERLANG_COOKIE=cluster_cookie
-    #ports:
-      #- 5671:5671
-      #- 5672:5672
-      #- 15672:15672
-      #- 4369:4369
+      - CLUSTERED=true
+    ports:
+      - 5671:5671
+      - 5672:5672
+      - 15672:15672
+      - 4369:4369
 
   rabbitmq2:
     container_name: rabbitmq2
@@ -252,31 +255,40 @@ services:
     image: rabbitmq:management
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./conf/rabbit-cluster.sh:/tmp/rabbit-cluster.sh
     links:
+      - rabbitmq
+    depends_on:
       - rabbitmq
     environment:
       - RABBITMQ_ERLANG_COOKIE=cluster_cookie
-    #ports:
-      #- "5673:5672"
-      #- "15673:15672"
+      - CLUSTERED=true
+      - CLUSTER_WITH=rabbitmq
+      - RAM_NODE=true
+    ports:
+      - "5673:5672"
+      - "15673:15672"
 
   postgres:
     container_name: postgres
-    image: edoburu/pgbouncer
+    image: edoburu/pgbouncer:latest
     hostname: postgres
     environment:
        - DB_USER=postgres
        - DB_PASSWORD=pyfi101
        - DB_HOST=postgresdb
+       - POOL_MODE=session
        - DB_NAME=pyfi 
        - LISTEN_PORT=6432
-       - POOL_MODE=transaction
        - AUTH_TYPE=trust
+       - CONN_MAX_AGE = 60
        - ADMIN_USERS=postgres
     ports:
       - "6432:6432"
     depends_on:
       - postgresdb
+    volumes:
+      - ./conf/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
 
   postgresdb:
     container_name: postgresdb

@@ -161,7 +161,7 @@ setup(
         'redis',
         'flask-restx',
         'prettytable',
-        'sqlalchemy==1.4.23',
+        'sqlalchemy',
         'alembic',
         'eventlet',
         'pptree',

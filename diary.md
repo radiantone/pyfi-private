@@ -1,6 +1,20 @@
+## Aug 15, 2022
+
+- Scheduler needs to spread deployments across agents to not overfill
+- Cannot delete processor that has workers: stop and delete worker first?
+- BUG: When deployment is removed, UI list doesn't update?
+- BUG: Drop from processors tab doesn't place under mouse
+
+## Aug 14, 2022
+
+- FIX: Need to resolve pgbouncer/sqlalchemy closing/releasing connections
+- 
+
 ## Aug 12, 2022
 
 - RabbitMQ cluster now entirely concealed behind nginx
+- TODO: Fix rabbitmq2 join cluster
+- 
 
 ## Aug 10, 2022
 
