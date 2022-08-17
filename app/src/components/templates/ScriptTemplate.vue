@@ -2871,6 +2871,7 @@
             height="390"
             :options="chartOptions"
             :series="series"
+            ref="bandwidthChart"
           />
         </div>
       </q-card-section>
@@ -3252,7 +3253,7 @@ export default {
         me.tasklogs = me.tasklogs.slice(0, 100)
       }
       if (msg.channel === 'task' && msg.message) {
-        let now =  Date.now()
+        const now = Date.now()
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
@@ -3608,18 +3609,6 @@ export default {
       splitterModel: 50,
       codeSplitterModel: 50,
       series: [
-        {
-          name: 'Bytes In',
-          data: [45, 52, 38, 24, 33, 26, 21, 20, 6, 8, 15, 10]
-        },
-        {
-          name: 'Bytes Out',
-          data: [35, 41, 62, 42, 13, 18, 29, 37, 36, 51, 32, 35]
-        },
-        {
-          name: 'Task Time',
-          data: [87, 57, 74, 99, 75, 38, 62, 47, 82, 56, 45, 47]
-        }
 
       ],
       chartOptions: {
@@ -3653,11 +3642,6 @@ export default {
           hover: {
             sizeOffset: 6
           }
-        },
-        xaxis: {
-          categories: ['01 Jan', '02 Jan', '03 Jan', '04 Jan', '05 Jan', '06 Jan', '07 Jan', '08 Jan', '09 Jan',
-            '10 Jan', '11 Jan', '12 Jan'
-          ]
         },
         tooltip: {
           y: [
@@ -3974,26 +3958,34 @@ export default {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
-      this.series[1].data = outBytes[0].results.outBytes
+      // this.series[1].data = outBytes[0].results.outBytes
       var inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
-      this.series[0].data = inBytes[0].results.inBytes
+      // this.series[0].data = inBytes[0].results.inBytes
       var durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
-      this.series[2].data = durations[0].results.data
-      console.log("CATEGORIES",inBytes[0].results.time.map((x) => { let d = new Date(x); return d.getHours()+":"+d.getMinutes() }))
-      this.chartOptions.xaxis.categories = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.getHours()+":"+d.getMinutes() })
+      //this.series[2].data = durations[0].results.data
+      console.log('CATEGORIES', inBytes[0].results.time.map((x) => { const d = new Date(x); return d.getHours() + ':' + d.getMinutes() }))
+      // this.chartOptions.xaxis.categories = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.getHours()+":"+d.getMinutes() })
       console.log('updateBandwidthChart: inBytes', inBytes)
       console.log('updateBandwidthChart: outBytes', outBytes)
       console.log('updateBandwidthChart: durations', durations)
+      this.$refs.bandwidthChart.updateSeries([{
+        name: 'Bytes Out',
+        data: outBytes[0].results.outBytes.slice(0, 25)
+      },{
+        name: 'Bytes In',
+        data: inBytes[0].results.inBytes.slice(0, 25)
+      }])
+
     },
     showCommit (hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
