@@ -1,12 +1,17 @@
+## Aug 18, 2022
+
+- When API starts, create rabbit queues from queue models. 
+- Load queue models in Queue component
+- 
 ## Aug 16, 2022
 
-- BUG: When syncing a processor, it overwrites id and won't load after save
+- BUG: When syncing a processor, it overwrites id and won't load after save FIXED
 
 ## Aug 15, 2022
 
 - Scheduler needs to spread deployments across agents to not overfill FIXED
 - Cannot delete processor that has workers: stop and delete worker first?
-- BUG: When deployment is removed, UI list doesn't update?
+- BUG: When deployment is removed, UI list doesn't update? FIXED
 - BUG: Drop from processors tab doesn't place under mouse
 
 ## Aug 14, 2022

@@ -543,7 +543,7 @@ def get_queues():
 
         print("DONE MATCHING QUEUES")
         print(_queues)
-        return jsonify(_queues)
+        return jsonify(queues)
 
 
 @app.route("/agents", methods=["GET"])
