@@ -24,6 +24,7 @@ def purge_queue(queue):
     response = session.delete(f"{api}/queues/%2F/{queue}/contents",)
     return response.content
 
+
 def get_queues():
     session = requests.Session()
     session.auth = (user, password)

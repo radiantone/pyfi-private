@@ -2458,7 +2458,7 @@ class WorkerService:
                                 # To achieve a throttle of 1000/h, x would be 0.27 seconds
                                 rate_limit = 60 / int(self.data['ratelimit'])
                                 logging.debug("Prerun sleeping %s seconds", rate_limit)
-                                #time.sleep(rate_limit)
+                                time.sleep(rate_limit)
                                 logging.debug("Done sleeping")
 
                                 logging.debug("Waiting on PRERUN REPLY")

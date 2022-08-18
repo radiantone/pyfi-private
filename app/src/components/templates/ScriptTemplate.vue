@@ -1843,7 +1843,7 @@
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 470px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1970,6 +1970,14 @@
                       v-model="obj.icon"
                       dense
                       hint="Icon Class"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.middleware"
+                      dense
+                      hint="Middleware"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -3165,6 +3173,11 @@ export default {
     'obj.status': function (val) {
       window.designer.$root.$emit('toolkit.dirty')
     },
+    workerview: function(newv, oldv) {
+      if(newv) {
+        this.refreshWorkers();
+      }
+    },
     inBytes: function (val) {
       // console.log('inBytes', val);
     }
@@ -3691,7 +3704,7 @@ export default {
         container: true,
         imagerepo: 'local',
         containerimage: 'pyfi/processors:latest',
-        streaming: true,
+        environment: '',
         usegit: true,
         enabled: true,
         endpoint: false,
@@ -3978,13 +3991,15 @@ export default {
       console.log('updateBandwidthChart: inBytes', inBytes)
       console.log('updateBandwidthChart: outBytes', outBytes)
       console.log('updateBandwidthChart: durations', durations)
-      this.$refs.bandwidthChart.updateSeries([{
-        name: 'Bytes Out',
-        data: outBytes[0].results.outBytes.slice(0, 25)
-      },{
-        name: 'Bytes In',
-        data: inBytes[0].results.inBytes.slice(0, 25)
-      }])
+      if(this.$refs.bandwidthChart) {
+        this.$refs.bandwidthChart.updateSeries([{
+          name: 'Bytes Out',
+          data: outBytes[0].results.outBytes.slice(0, 25)
+        }, {
+          name: 'Bytes In',
+          data: inBytes[0].results.inBytes.slice(0, 25)
+        }])
+      }
 
     },
     showCommit (hash, date) {
@@ -4222,6 +4237,9 @@ export default {
       this.refreshing = true
 
       this.obj.receipt = new Date()
+
+      // embed variabledata, requirements into this.obj.uistate
+
       DataService.saveProcessor(this.obj)
         .then(() => {
           this.refreshing = false
@@ -4307,7 +4325,7 @@ export default {
       DataService.getProcessor(this.obj.name).then((proc) => {
         me.refreshing = false
         console.log('REFRESH PROCESSOR', proc)
-        const avoid = ['icon']
+        const avoid = ['icon', 'id']
         for (var key in me.obj) {
           if (key in proc.data && !avoid.includes(key)) {
             console.log('Updating key ', key)

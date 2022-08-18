@@ -262,6 +262,7 @@ def do_processor(name):
                     "ratelimit": processor["ratelimit"],
                     "receipt": processor["receipt"],
                     "perworker": processor["perworker"],
+                    "uistate": processor["uistate"]
                 }
                 _processor = ProcessorModel(**props, user=USER)
                 session.add(_processor)
@@ -271,7 +272,7 @@ def do_processor(name):
                 for key, value in processor.items():
                     if(key != 'id' and hasattr(_processor, key)):
                         setattr(_processor, key, value)
-                        logging.info("Updated processor field %s with %s",key, value)
+                        logging.debug("Updated processor field %s with %s",key, value)
 
                 session.add(_processor)
                 return jsonify({"status": "ok"})
@@ -524,10 +525,25 @@ def get_deploys():
 
 @app.route("/queues", methods=["GET"])
 def get_queues():
+    from pyfi.util.rabbit import get_queues as rabbit_queue_queues
 
+    rabbit_queues = rabbit_queue_queues()
+
+    print("/queues",rabbit_queues)
     with get_session() as session:
         queues = session.query(QueueModel).all()
-        return jsonify(queues)
+        names = [queue.name for queue in queues]
+        print("NAMES",names)
+        _queues = []
+
+        print("MATCHING QUEUES")
+        for rabbit_queue in rabbit_queues:
+            if rabbit_queue['name'] in names:
+                _queues += [rabbit_queue]
+
+        print("DONE MATCHING QUEUES")
+        print(_queues)
+        return jsonify(_queues)
 
 
 @app.route("/agents", methods=["GET"])

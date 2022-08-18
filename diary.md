@@ -50,6 +50,8 @@ LEFT TO DO
 - ~~Servers~~, Monitor, Errors tab
 - Exception handling in processors, errors tab in console?
 - Upper right menu options
+- Environment UI gets injected into processors
+  - Processor loads flow state JSON and inspects the "environment" field
 - Ingress/Egress activity dots on script templates
 - Create/Manage queues *PENDING*
 - Processor decorator classes

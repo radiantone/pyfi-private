@@ -57,6 +57,11 @@ class DataService {
     return http.get('/api/queue/messages/' + queue)
   }
 
+  getQueues (): Promise<any> {
+    return http.get('/api/queues')
+  }
+
+
   saveProcessor (processor: any): Promise<any> {
     return http.post('/api/processor/' + processor.name, processor)
   }

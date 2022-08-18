@@ -349,6 +349,7 @@
             dense
             class="bg-primary"
             align="left"
+            @input="tabChanged"
             narrow-indicator
             active-color="dark"
             indicator-color="primary"
@@ -1063,10 +1064,10 @@ export default defineComponent({
     Library
   },
   setup () {
-    //const counter = useCounterStore()
+    // const counter = useCounterStore()
 
-    //counter.count++
-    //console.log("COUNTER is ",counter)
+    // counter.count++
+    // console.log("COUNTER is ",counter)
     return {}
   },
   created () {
@@ -1227,13 +1228,13 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        console.log('MAINLAYOUT', msg);
+        console.log('MAINLAYOUT', msg)
         if (msg.type && msg.type === 'DeploymentModel') {
-          console.log("DEPLOYMENT WAS UPDATED ", msg)
+          console.log('DEPLOYMENT WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.type && msg.type === 'ProcessorModel') {
-          console.log("PROCESSOR WAS UPDATED ", msg)
+          console.log('PROCESSOR WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.channel === 'task') {
@@ -1358,8 +1359,8 @@ export default defineComponent({
               }
             })
 
-            me.queues = qs
-            window.root.$emit('update.queues', qs)
+            // me.queues = qs
+            // window.root.$emit('update.queues', qs)
           }
         }
       })
@@ -1452,7 +1453,6 @@ export default defineComponent({
         .then((messages) => {
           this.queueloading = false
           this.queuedata = messages.data
-          console.log('QUEUEDATA', this.queuedata)
           this.updateQueuedTasks()
         })
         .catch((err) => {
@@ -1493,6 +1493,8 @@ export default defineComponent({
       }
     },
     tabChanged (tab) {
+      var me = this;
+
       console.log('REFS:', this.$refs)
       console.log('TAB:', tab, this.$refs[tab])
       for (var i = 0; i < this.flows.length; i++) {
@@ -1501,6 +1503,16 @@ export default defineComponent({
           this.flow = flow
         }
       }
+
+      if (tab === 'queues') {
+        console.log("UPDATING QUEUES")
+        DataService.getQueues().then((queues) => {
+          console.log("GOT QUEUES", queues)
+          me.queues = queues.data
+          window.root.$emit('update.queues', queues.data)
+        })
+      }
+
       console.log('GRAPH', this.graph)
       if (this.$refs[tab + 'designer']) {
         window.toolkit = this.$refs[tab + 'designer'][0].toolkit
