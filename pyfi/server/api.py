@@ -529,21 +529,20 @@ def get_queues():
 
     rabbit_queues = rabbit_queue_queues()
 
-    print("/queues",rabbit_queues)
     with get_session() as session:
         queues = session.query(QueueModel).all()
-        names = [queue.name for queue in queues]
-        print("NAMES",names)
         _queues = []
 
-        print("MATCHING QUEUES")
-        for rabbit_queue in rabbit_queues:
-            if rabbit_queue['name'] in names:
-                _queues += [rabbit_queue]
+        for queue in queues:
+            q = queue
+            print("queue", queue.name)
+            for rabbit_queue in rabbit_queues:
+                if rabbit_queue['name'] == queue.name:
+                    q = rabbit_queue
+            _queues += [q]
 
-        print("DONE MATCHING QUEUES")
         print(_queues)
-        return jsonify(queues)
+        return jsonify(_queues)
 
 
 @app.route("/agents", methods=["GET"])

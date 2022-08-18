@@ -1106,6 +1106,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
     <q-dialog v-model="deleteConfirm" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section

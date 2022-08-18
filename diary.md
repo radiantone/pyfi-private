@@ -2,7 +2,12 @@
 
 - When API starts, create rabbit queues from queue models. 
 - Load queue models in Queue component
+- When existing processor is dragged and dropped fetch the sockets connected to it and add the ports
+  - Adding port methods doesn't do anything
+- Queues don't update unless streaming mode is on
+- Adding a method port without an argument creates a css glitch
 - 
+
 ## Aug 16, 2022
 
 - BUG: When syncing a processor, it overwrites id and won't load after save FIXED

@@ -484,7 +484,7 @@
                             :id="props.row.name"
                             width="100"
                             icon="remove_circle"
-                            @click="purgeQueue(props.row.name)"
+                            @click="showPurgeConfirm(props.row.name)"
                           >
                             <q-tooltip
                               content-class=""
@@ -968,6 +968,70 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+
+    <q-dialog v-model="confirmQueuePurge" persistent>
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Purge Queue</q-item-label>
+              <q-space />
+              <q-icon class="text-primary" name="fas fa-trash" />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section class="row items-center" style="height: 120px;">
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to purge queue {{purgeQueueName}}?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Clear"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="purgeQueue(purgeQueueName)"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 <style>
@@ -1177,6 +1241,10 @@ export default defineComponent({
     }
   },
   methods: {
+    showPurgeConfirm(name) {
+      this.purgeQueueName = name
+      this.confirmQueuePurge = true
+    },
     showStats (name, objects) {
       console.log('showStats', objects)
       this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
@@ -1359,8 +1427,8 @@ export default defineComponent({
               }
             })
 
-            // me.queues = qs
-            // window.root.$emit('update.queues', qs)
+            me.queues = qs
+            window.root.$emit('update.queues', qs)
           }
         }
       })
@@ -1504,15 +1572,6 @@ export default defineComponent({
         }
       }
 
-      if (tab === 'queues') {
-        console.log("UPDATING QUEUES")
-        DataService.getQueues().then((queues) => {
-          console.log("GOT QUEUES", queues)
-          me.queues = queues.data
-          window.root.$emit('update.queues', queues.data)
-        })
-      }
-
       console.log('GRAPH', this.graph)
       if (this.$refs[tab + 'designer']) {
         window.toolkit = this.$refs[tab + 'designer'][0].toolkit
@@ -1543,6 +1602,10 @@ export default defineComponent({
 
     }
     setconnected(); */
+    DataService.getQueues().then((queues) => {
+      me.queues = queues.data
+      window.root.$emit('update.queues', queues.data)
+    })
 
     this.transmitted()
 
@@ -1837,6 +1900,8 @@ export default defineComponent({
   },
   data () {
     return {
+      purgeQueueName: null,
+      confirmQueuePurge: false,
       queueDetailContent: '',
       queueDetailColumns: [
         {
