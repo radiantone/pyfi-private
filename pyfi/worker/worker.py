@@ -2843,7 +2843,7 @@ class WorkerService:
                 setproctitle("pyfi worker::web_server")
                 if not self.port or self.port == -1:
                     self.port = find_free_port()
-                logging.debug("Starting worker web server on %s", self.port)
+                logging.info("Starting worker web server on %s", self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
