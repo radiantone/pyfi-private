@@ -339,6 +339,9 @@ class WorkerService:
         self.worker_process = None
         self.data = {}
 
+        if not self.port or self.port == -1:
+            self.port = find_free_port()
+
         if os.path.isabs(self.workdir):
             self.workpath = self.workdir
             logging.debug("Setting workpath to %s", self.workpath)
@@ -501,9 +504,6 @@ class WorkerService:
                 session.commit()
 
                 workerModel.workerdir = self.workpath
-
-                if not self.port or self.port == -1:
-                    self.port = find_free_port()
 
                 workerModel.port = self.port
 
