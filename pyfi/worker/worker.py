@@ -2827,6 +2827,14 @@ class WorkerService:
             logging.debug("emit_messages started...")
 
         """ Health check web server """
+        import socket
+        from contextlib import closing
+
+        def find_free_port():
+            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+                s.bind(('', 0))
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                return s.getsockname()[1]
 
         ###############################
         def web_server():
@@ -2835,6 +2843,8 @@ class WorkerService:
 
             try:
                 setproctitle("pyfi worker::web_server")
+                if not self.port:
+                    self.port = find_free_port()
                 logging.debug("Starting worker web server on %s", self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:

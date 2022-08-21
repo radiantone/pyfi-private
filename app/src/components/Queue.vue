@@ -271,7 +271,7 @@ export default {
     });
   },
   created() {
-    var me = this;
+    var me = this
     socket.on("global", (data) => {
       //console.log('QUEUE SERVER GLOBAL MESSAGE', data);
       if (data["type"] && data["type"] === "queues") {

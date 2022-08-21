@@ -3417,7 +3417,7 @@ export default {
         this.deployLoading = false
       })
 
-    this.fetchCode()
+    //this.fetchCode()
     this.updateBandwidthChart()
   },
   data () {
