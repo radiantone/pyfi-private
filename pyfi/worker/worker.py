@@ -501,6 +501,10 @@ class WorkerService:
                 session.commit()
 
                 workerModel.workerdir = self.workpath
+
+                if not self.port or self.port == -1:
+                    self.port = find_free_port()
+
                 workerModel.port = self.port
 
                 workerModel.deployment = _deployment
