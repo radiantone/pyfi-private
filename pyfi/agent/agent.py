@@ -833,24 +833,6 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent.cpus = self.kwargs["cpus"]
                 logging.debug("AgentMonitorPlugin: agent cpus %s", agent.cpus)
 
-        def update_queues():
-            import json
-            import redis
-
-            from pyfi.util.rabbit import get_queues
-
-            queues = get_queues()
-            logging.debug("QUEUES %s", queues)
-            redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-
-            redisclient.publish(
-                "global",
-                json.dumps({"type": "queues", "queues": queues}),
-            )
-            redisclient.publish(
-                "queues",
-                json.dumps({"type": "queues", "queues": queues}),
-            )
 
         def monitor_processors():
             from datetime import datetime
@@ -963,7 +945,6 @@ class AgentMonitorPlugin(AgentPlugin):
             import time
 
             while True:
-                update_queues()
                 monitor_processors()
 
                 time.sleep(10)

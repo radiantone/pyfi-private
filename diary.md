@@ -6,7 +6,8 @@
   - Adding port methods doesn't do anything
 - Queues don't update unless streaming mode is on
 - Adding a method port without an argument creates a css glitch
-- 
+- Monitor tab plots a graph for each processor on the current flow
+- Errors tab shows any aggregate error logs from any processor on the current canvas
 
 ## Aug 16, 2022
 

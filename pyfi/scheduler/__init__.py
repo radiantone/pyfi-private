@@ -148,7 +148,6 @@ class NodePlugin(SchedulerPlugin):
                         )
 
 
-
 class DeployProcessorPlugin(SchedulerPlugin):
     """Enforce, create, move, delete deployments"""
 
@@ -183,6 +182,25 @@ class DeployProcessorPlugin(SchedulerPlugin):
                 session.query(ProcessorModel)
                 .all()
             )
+
+            def update_queues():
+                import json
+                import redis
+
+                from pyfi.util.rabbit import get_queues
+
+                queues = get_queues()
+                logging.debug("QUEUES %s", queues)
+                redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+
+                redisclient.publish(
+                    "global",
+                    json.dumps({"type": "queues", "queues": queues}),
+                )
+                redisclient.publish(
+                    "queues",
+                    json.dumps({"type": "queues", "queues": queues}),
+                )
 
             def update_stats():
                 node_count = session.query(NodeModel).count()
@@ -236,6 +254,7 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     "type": "stats",
                 }
 
+            update_queues()
             stats = update_stats()
             logging.debug("Publishing stats: %s", json.dumps(stats))
             redisclient.publish("global", json.dumps(stats))

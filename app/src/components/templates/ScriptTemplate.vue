@@ -2,7 +2,7 @@
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
-    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; '"
+    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; z-index: 99999999'"
     @touchstart.stop
     @contextmenu.stop
     @mousemove1="mouseMove"
@@ -3656,6 +3656,11 @@ export default {
             sizeOffset: 6
           }
         },
+        xaxis: {
+          type: 'category',
+          tickAmount: 6,
+          categories: []
+        },
         tooltip: {
           y: [
             {
@@ -3986,11 +3991,13 @@ export default {
         }
       })
       //this.series[2].data = durations[0].results.data
-      console.log('CATEGORIES', inBytes[0].results.time.map((x) => { const d = new Date(x); return d.getHours() + ':' + d.getMinutes() }))
-      // this.chartOptions.xaxis.categories = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.getHours()+":"+d.getMinutes() })
-      console.log('updateBandwidthChart: inBytes', inBytes)
-      console.log('updateBandwidthChart: outBytes', outBytes)
-      console.log('updateBandwidthChart: durations', durations)
+
+      let xaxis = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
+      console.log("XAXIS", xaxis)
+      this.chartOptions.xaxis.categories = xaxis
+      //console.log('updateBandwidthChart: inBytes', inBytes)
+      //console.log('updateBandwidthChart: outBytes', outBytes)
+      //console.log('updateBandwidthChart: durations', durations)
       if(this.$refs.bandwidthChart) {
         this.$refs.bandwidthChart.updateSeries([{
           name: 'Bytes Out',

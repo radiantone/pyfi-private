@@ -224,7 +224,6 @@ export default {
             setTimeout(function () {
               me.loading = false;
             }, 100);
-            console.log('LIST FILES:', result);
             result = result.data;
             me.items = result;
 

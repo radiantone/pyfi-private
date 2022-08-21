@@ -1296,13 +1296,13 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        console.log('MAINLAYOUT', msg)
+        //console.log('MAINLAYOUT', msg)
         if (msg.type && msg.type === 'DeploymentModel') {
           console.log('DEPLOYMENT WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.type && msg.type === 'ProcessorModel') {
-          console.log('PROCESSOR WAS UPDATED ', msg)
+          //console.log('PROCESSOR WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.channel === 'task') {

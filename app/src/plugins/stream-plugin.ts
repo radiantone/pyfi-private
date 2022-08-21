@@ -27,7 +27,7 @@ export default {
       'http://localhost'
     );
     socket.on("basicEmit", (a, b, c) => {
-      console.log("STREAM PLUGIN: SERVER EMIT", a, b, c)
+      //console.log("STREAM PLUGIN: SERVER EMIT", a, b, c)
     });
     Vue.mixin({
       created() {
