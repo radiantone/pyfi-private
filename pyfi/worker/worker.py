@@ -56,6 +56,9 @@ from pyfi.db.model import (
 )
 from pyfi.db.model.models import DeploymentModel
 
+import socket
+from contextlib import closing
+
 PRERUN_CONDITION = Condition()
 POSTRUN_CONDITION = Condition()
 
@@ -116,6 +119,13 @@ if "PYFI_HOSTNAME" in os.environ:
 
 def fix(name):
     return name.replace(" ", ".")
+
+
+def find_free_port():
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(('', 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
 
 
 def execute_function(taskid, mname, fname, *args, **kwargs):
@@ -1832,6 +1842,7 @@ class WorkerService:
                             workerdir=self.workpath,
                             agent_id=agent.id,
                             hostname=HOSTNAME,
+                            port=self.port,
                             requested_status="start",
                         )
 
@@ -2825,14 +2836,7 @@ class WorkerService:
             logging.debug("emit_messages started...")
 
         """ Health check web server """
-        import socket
-        from contextlib import closing
 
-        def find_free_port():
-            with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-                s.bind(('', 0))
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                return s.getsockname()[1]
 
         ###############################
         def web_server():
@@ -2841,9 +2845,8 @@ class WorkerService:
 
             try:
                 setproctitle("pyfi worker::web_server")
-                if not self.port or self.port == -1:
-                    self.port = find_free_port()
                 logging.info("Starting worker web server on %s", self.port)
+
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
