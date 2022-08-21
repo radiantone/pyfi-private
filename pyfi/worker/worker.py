@@ -1796,8 +1796,8 @@ class WorkerService:
                 try:
                     worker = app.Worker(
                         hostname=self.hostname
-                                 + "."
-                                 + _processor.name
+                                 #+ "."
+                                 #+ _processor.name
                                  + "."
                                  + deployment.name
                                  + "@"
