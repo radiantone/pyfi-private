@@ -297,7 +297,7 @@ class WorkerService:
             workdir: str,
             basedir: str,
             pool: int = 4,
-            port: int = 8020,
+            port: int = -1,
             size: int = 10,
             deployment: DeploymentModel = DeploymentModel,
             database=None,

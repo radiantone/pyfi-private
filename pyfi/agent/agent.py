@@ -976,7 +976,7 @@ class PluginAgentService(AgentService):
             name=None,
             workerclass=None,
             size=10,
-            workerport=8020,
+            workerport=-1,
             plugins={}
     ):
         self.port = port
