@@ -677,7 +677,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             basedir=self.basedir,
                                             user=self.agent_service.user,
                                             pool=self.agent_service.pool,
-                                            workerport=self.agent_service.workerport,
+                                            port=self.agent_service.workerport,
                                             database=self.agent_service.dburi,
                                             hostname=self.agent_service.name,
                                             agent=agent,

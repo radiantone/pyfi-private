@@ -4887,7 +4887,7 @@ def api_start(context, ip, port):
     help="Maximum number of messages on worker internal queue",
 )
 @click.option("-h", "--host", help="Remote hostname to start the agent via ssh")
-@click.option("-wp", "--workerport", default=8001, help="Healthcheck port for worker")
+@click.option("-wp", "--workerport", default=-1, help="Healthcheck port for worker")
 @click.pass_context
 def start_agent(
     context,

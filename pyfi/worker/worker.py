@@ -303,7 +303,6 @@ class WorkerService:
             database=None,
             user: UserModel = UserModel,
             usecontainer: bool = False,
-            workerport: int = 8020,
             skipvenv: bool = False,
             backend: str = "redis://localhost",
             hostname: str = None,
@@ -323,7 +322,6 @@ class WorkerService:
         self.skipvenv = skipvenv
         self.usecontainer = usecontainer
         self.size = size
-        self.port = workerport
         self.basedir = basedir
         self.deploymentname = deployment.name
         self.agentname = agent.name
@@ -2843,7 +2841,7 @@ class WorkerService:
 
             try:
                 setproctitle("pyfi worker::web_server")
-                if not self.port:
+                if not self.port or self.port == -1:
                     self.port = find_free_port()
                 logging.debug("Starting worker web server on %s", self.port)
                 bjoern.run(app, "0.0.0.0", self.port)
