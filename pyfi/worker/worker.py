@@ -609,7 +609,18 @@ class WorkerService:
         """ Spawn this as a managed sub process. """
 
         def start_api():
+            from flask_restx import Api, Resource, fields, reqparse
+
             cpus = multiprocessing.cpu_count()
+            wapp = Flask(__name__)
+            wapp.register_blueprint(blueprint)
+
+            api = Api(
+                app,
+                version="1.0",
+                title="Worker API",
+                description="LambdaFLOW Worker API",
+            )
 
             class StandaloneApplication(gunicorn.app.base.BaseApplication):
                 def __init__(self, app, options=None):
@@ -630,8 +641,6 @@ class WorkerService:
                 def load(self):
                     return self.application
 
-            server.register_blueprint(blueprint)
-
             with get_session() as session:
                 tasks = session.query(TaskModel).all()
 
@@ -649,7 +658,7 @@ class WorkerService:
                         # 'threads': number_of_workers(),
                         "timeout": 120,
                     }
-                    StandaloneApplication(server, options).run()
+                    StandaloneApplication(api, options).run()
                     #bjoern.run(server, "0.0.0.0", port)
                 except Exception as ex:
                     logging.error(ex)
