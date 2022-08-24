@@ -596,74 +596,6 @@ class WorkerService:
         import os
         import time
         from threading import Thread
-        import multiprocessing
-
-        import gunicorn.app.base
-
-        from pyfi.api import blueprint
-        from pyfi.server.api import app as server
-        from pyfi.server.api import create_endpoint
-        from pyfi.db.model import TaskModel
-
-        """ Spawn this as a managed sub process. """
-
-        logging.info("Starting worker...")
-
-        def start_api():
-            from flask_restx import Api, Resource, fields, reqparse
-
-            cpus = multiprocessing.cpu_count()
-            wapp = Flask(__name__)
-            wapp.register_blueprint(blueprint)
-
-            api = Api(
-                app,
-                version="1.0",
-                title="Worker API",
-                description="LambdaFLOW Worker API",
-            )
-
-            class StandaloneApplication(gunicorn.app.base.BaseApplication):
-                def __init__(self, app, options=None):
-                    self.options = options or {}
-                    self.application = app
-                    super().__init__()
-                    print("GUNICORN APP START")
-
-                def load_config(self):
-                    config = {
-                        key: value
-                        for key, value in self.options.items()
-                        if key in self.cfg.settings and value is not None
-                    }
-                    for key, value in config.items():
-                        self.cfg.set(key.lower(), value)
-
-                def load(self):
-                    return self.application
-
-            with get_session() as session:
-                tasks = session.query(TaskModel).all()
-
-                for task in tasks:
-                    create_endpoint(task.module, task.name)
-
-                server.app_context().push()
-
-                try:
-                    port = find_free_port()
-                    logging.info("Starting API server on port %s", port)
-                    options = {
-                        "bind": "%s:%s" % ("0.0.0.0", str(port)),
-                        "workers": cpus,
-                        # 'threads': number_of_workers(),
-                        "timeout": 120,
-                    }
-                    #StandaloneApplication(api, options).run()
-                    #bjoern.run(server, "0.0.0.0", port)
-                except Exception as ex:
-                    logging.error(ex)
-                    logging.info("Shutting down...")
 
         def do_work():
             # Retrieve workmodels where worker=me and execute them
@@ -1864,8 +1796,8 @@ class WorkerService:
                 try:
                     worker = app.Worker(
                         hostname=self.hostname
-                                 #+ "."
-                                 #+ _processor.name
+                                 + "."
+                                 + _processor.name
                                  + "."
                                  + deployment.name
                                  + "@"
@@ -2827,8 +2759,6 @@ class WorkerService:
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
-                            env.install("flask")
-                            env.install("flask_restx")
                             env.install(
                                 "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
                             )
@@ -2924,31 +2854,24 @@ class WorkerService:
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
-                logging.info("worker web_server: exiting...")
+                logging.debug("worker web_server: exiting...")
 
         def start_web_server():
             webserver = Thread(target=web_server)
             webserver.start()
             logging.debug("web_server started...")
 
-        def start_api_server():
-            logging.info("Starting API server")
-            #process = multiprocessing.Process(target=start_api)
-            #process.start()
-            logging.info("Started API server")
-
         ops = [
             start_database_actions,
             start_worker_proc,
             start_emit_messages,
-            #start_web_server,
-            start_api_server
+            start_web_server,
         ]
 
         # Start all the operations
         [op() for op in ops]
 
-        logging.info("Returning worker_process %s", self.process)
+        logging.debug("Returning worker_process %s", self.process)
 
         return self.process
 
