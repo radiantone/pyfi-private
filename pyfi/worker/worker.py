@@ -52,9 +52,12 @@ from pyfi.db.model import (
     PlugModel,
     SocketModel,
     UserModel,
+    TaskModel,
     WorkerModel,
 )
 from pyfi.db.model.models import DeploymentModel
+
+from flask_restx import Api, Resource, fields, reqparse
 
 import socket
 from contextlib import closing
@@ -66,6 +69,12 @@ app = Flask(__name__)
 
 tracemalloc.start()
 
+api = Api(
+    app,
+    version="1.0",
+    title="LambdaFLOW Worker API",
+    description="LambdaFLOW Worker API",
+)
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
@@ -115,6 +124,86 @@ HOSTNAME = platform.node()
 
 if "PYFI_HOSTNAME" in os.environ:
     HOSTNAME = os.environ["PYFI_HOSTNAME"]
+
+
+def create_endpoint(modulename, taskname):
+    # Query all processors with hasapi=True
+    # for each proc
+    # create namespace with proc.endpoint
+    # Add wrapper class to dispatch call to processor task socket
+    # Use decorator over class post method with parameters to the socket task
+    # So it will invoke the class method with the correct runtime parameters
+
+    def decorator(module="", task=""):
+        import io
+        from types import ModuleType
+
+        with get_session() as session:
+            _task = session.query(TaskModel).filter_by(name=task).first()
+
+            if not _task:
+                return
+
+            code = _task.source
+
+        code_lines = []
+        inside_dec = False
+        lines = io.StringIO(code).readlines()
+
+        for line in lines:
+            if line[0] == "@":
+                inside_dec = True
+            if inside_dec and line.find("def") != 0:
+                continue
+            else:
+                code_lines += [line]
+                inside_dec = False
+
+        code = "".join(code_lines)
+        mod = ModuleType(module, "doc string here")
+        exec(code, mod.__dict__)
+        func = getattr(mod, task)
+
+        def wrapper(cls, *args, **kwargs):
+
+            cls.funcs[task] = func
+            return cls
+
+        return wrapper
+
+    ns = api.namespace(modulename + "/" + taskname, description=taskname)
+    route = ns.route("/")
+
+    model = api.model(
+        "Message",
+        {
+            "message": fields.String,
+        },
+    )
+
+    @decorator(module=modulename, task=taskname)
+    class FlowDelegate(Resource):
+        funcs = {}
+
+        @ns.expect(model)
+        def post(self):
+            # Fetch the socket and invoke that
+            from pyfi.client.api import Socket
+            from pyfi.client.user import USER
+
+            logging.info("PAYLOAD", api.payload)
+            socket = Socket(name=modulename + "." + taskname, user=USER)
+            if socket:
+                logging.info(
+                    "Invoking socket %s %s", modulename + "." + taskname, socket
+                )
+                result = socket(api.payload["message"])
+                logging.info("Result %s", result)
+                return result
+            else:
+                return self.funcs[taskname](api.payload)
+
+    return route(FlowDelegate)
 
 
 def fix(name):
@@ -383,6 +472,12 @@ class WorkerService:
             _processor = (
                 session.query(ProcessorModel).filter_by(id=self.processorid).first()
             )
+
+            for asocket in _processor.sockets:
+                task = asocket.task
+                logging.info("Creating endpoint for socket %s", asocket.name)
+                create_endpoint(task.module, task.name)
+
             self.data = json.loads(str(_processor))
             '''
             self.deployment = deployment = (
@@ -454,6 +549,7 @@ class WorkerService:
             _deployment = (
                 session.query(DeploymentModel).filter_by(name=deployment.name).first()
             )
+
 
             workerModel = self.workerModel = (
                 session.query(WorkerModel)
