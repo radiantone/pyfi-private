@@ -2932,8 +2932,8 @@ class WorkerService:
 
         def start_api_server():
             logging.info("Starting API server")
-            process = multiprocessing.Process(target=start_api)
-            process.start()
+            #process = multiprocessing.Process(target=start_api)
+            #process.start()
             logging.info("Started API server")
 
         ops = [
@@ -2947,7 +2947,7 @@ class WorkerService:
         # Start all the operations
         [op() for op in ops]
 
-        logging.debug("Returning worker_process %s", self.process)
+        logging.info("Returning worker_process %s", self.process)
 
         return self.process
 
