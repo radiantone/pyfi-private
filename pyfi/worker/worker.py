@@ -2920,6 +2920,7 @@ class WorkerService:
             logging.debug("web_server started...")
 
         def start_api_server():
+            logging.info("Starting API server")
             process = multiprocessing.Process(target=start_api)
             process.start()
             logging.info("Started API server")
