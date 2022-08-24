@@ -635,12 +635,12 @@ class AgentMonitorPlugin(AgentPlugin):
                                 # For all my deployments, update processor deployment and create WorkerService
                                 #
                                 for deployment in myprocessor.deployments:
-                                    logger.debug(
+                                    logger.info(
                                         "Worker is none %s and died %s",
                                         processor["worker"] is None,
                                         process_died,
                                     )
-                                    logging.debug("Deployment worker %s", deployment)
+                                    logging.info("Deployment worker %s", deployment)
 
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == self.agent_service.name:
@@ -692,7 +692,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         # deployment.worker = workerproc.worker_model
                                         # deployment.worker.processor = processor['processor']
                                         # Setup the virtualenv only
-                                        logging.debug(
+                                        logging.info(
                                             f"-----------------------Starting {myprocessor.name}"
                                         )
 

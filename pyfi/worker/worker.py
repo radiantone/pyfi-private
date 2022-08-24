@@ -608,6 +608,8 @@ class WorkerService:
 
         """ Spawn this as a managed sub process. """
 
+        logging.info("Starting worker...")
+
         def start_api():
             from flask_restx import Api, Resource, fields, reqparse
 
