@@ -4329,6 +4329,8 @@ export default {
     refreshProcessor () {
       var me = this
       this.refreshing = true
+
+      this.fetchCode()
       DataService.getProcessor(this.obj.name).then((proc) => {
         me.refreshing = false
         console.log('REFRESH PROCESSOR', proc)

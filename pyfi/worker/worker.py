@@ -596,6 +596,64 @@ class WorkerService:
         import os
         import time
         from threading import Thread
+        import multiprocessing
+
+        import bjoern
+        import gunicorn.app.base
+
+        from pyfi.api import blueprint
+        from pyfi.server.api import app as server
+        from pyfi.server.api import create_endpoint
+        from pyfi.db.model import TaskModel
+
+        """ Spawn this as a managed sub process. """
+
+        def start_api():
+            cpus = multiprocessing.cpu_count()
+
+            class StandaloneApplication(gunicorn.app.base.BaseApplication):
+                def __init__(self, app, options=None):
+                    self.options = options or {}
+                    self.application = app
+                    super().__init__()
+                    print("GUNICORN APP START")
+
+                def load_config(self):
+                    config = {
+                        key: value
+                        for key, value in self.options.items()
+                        if key in self.cfg.settings and value is not None
+                    }
+                    for key, value in config.items():
+                        self.cfg.set(key.lower(), value)
+
+                def load(self):
+                    return self.application
+
+            server.register_blueprint(blueprint)
+
+            with get_session() as session:
+                tasks = session.query(TaskModel).all()
+
+                for task in tasks:
+                    create_endpoint(task.module, task.name)
+
+                server.app_context().push()
+
+                try:
+                    port = find_free_port()
+                    logging.info("Starting API server on port %s", port)
+                    options = {
+                        "bind": "%s:%s" % ("0.0.0.0", str(port)),
+                        "workers": cpus,
+                        # 'threads': number_of_workers(),
+                        "timeout": 120,
+                    }
+                    StandaloneApplication(server, options).run()
+                    #bjoern.run(server, "0.0.0.0", port)
+                except Exception as ex:
+                    logging.error(ex)
+                    logging.info("Shutting down...")
 
         def do_work():
             # Retrieve workmodels where worker=me and execute them
@@ -2861,11 +2919,17 @@ class WorkerService:
             webserver.start()
             logging.debug("web_server started...")
 
+        def start_api_server():
+            process = multiprocessing.Process(target=start_api)
+            process.start()
+            logging.info("Started API server")
+
         ops = [
             start_database_actions,
             start_worker_proc,
             start_emit_messages,
             start_web_server,
+            start_api_server
         ]
 
         # Start all the operations
