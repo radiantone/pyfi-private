@@ -2912,7 +2912,7 @@ class WorkerService:
                 bjoern.run(app, "0.0.0.0", self.port)
             except Exception as ex:
                 logging.error(ex)
-                logging.debug("worker web_server: exiting...")
+                logging.info("worker web_server: exiting...")
 
         def start_web_server():
             webserver = Thread(target=web_server)
