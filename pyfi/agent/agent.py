@@ -640,7 +640,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         processor["worker"] is None,
                                         process_died,
                                     )
-                                    logging.info("Deployment worker %s", deployment)
+                                    logging.debug("Deployment worker %s", deployment)
 
                                     # Only launch worker if we have a deployment for our host
                                     if deployment.hostname == self.agent_service.name:
