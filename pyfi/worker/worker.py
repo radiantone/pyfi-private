@@ -660,7 +660,7 @@ class WorkerService:
                         # 'threads': number_of_workers(),
                         "timeout": 120,
                     }
-                    StandaloneApplication(api, options).run()
+                    #StandaloneApplication(api, options).run()
                     #bjoern.run(server, "0.0.0.0", port)
                 except Exception as ex:
                     logging.error(ex)
