@@ -598,7 +598,6 @@ class WorkerService:
         from threading import Thread
         import multiprocessing
 
-        import bjoern
         import gunicorn.app.base
 
         from pyfi.api import blueprint
@@ -2828,6 +2827,8 @@ class WorkerService:
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
+                            env.install("flask")
+                            env.install("flask_restx")
                             env.install(
                                 "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
                             )
