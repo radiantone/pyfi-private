@@ -2938,7 +2938,7 @@ class WorkerService:
             start_database_actions,
             start_worker_proc,
             start_emit_messages,
-            start_web_server,
+            #start_web_server,
             start_api_server
         ]
 
