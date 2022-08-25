@@ -52,12 +52,9 @@ from pyfi.db.model import (
     PlugModel,
     SocketModel,
     UserModel,
-    TaskModel,
     WorkerModel,
 )
 from pyfi.db.model.models import DeploymentModel
-
-from flask_restx import Api, Resource, fields, reqparse
 
 import socket
 from contextlib import closing
@@ -69,12 +66,6 @@ app = Flask(__name__)
 
 tracemalloc.start()
 
-api = Api(
-    app,
-    version="1.0",
-    title="LambdaFLOW Worker API",
-    description="LambdaFLOW Worker API",
-)
 
 @setup_logging.connect
 def setup_celery_logging(**kwargs):
@@ -2855,7 +2846,6 @@ class WorkerService:
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
-                            env.install("werkzeug")
                             env.install(
                                 "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
                             )
