@@ -2,50 +2,30 @@
 pyfi API server Flask app
 """
 import configparser
-import gc
 import json
 import logging
 import platform
-from contextlib import contextmanager
 from typing import Any
 
-from flask import (
-    Flask,
-    current_app,
-    jsonify,
-    make_response,
-    request,
-    send_from_directory,
-)
+from flask import Flask, jsonify, make_response, request, send_from_directory
 from flask_restx import Api, Resource, fields, reqparse
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from pyfi.blueprints.show import blueprint
-from pyfi.client.user import USER, engine, sessionmaker
+from pyfi.client.user import USER
+from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,
-    ArgumentModel,
     CallModel,
     DeploymentModel,
-    EventModel,
     FileModel,
-    LoginModel,
-    LogModel,
     NetworkModel,
     NodeModel,
-    PlugModel,
     ProcessorModel,
     QueueModel,
-    RoleModel,
-    SchedulerModel,
-    SocketModel,
     TaskModel,
-    UserModel,
     VersionModel,
     WorkerModel,
-    oso,
 )
-from pyfi.db import get_session
 
 CONFIG = configparser.ConfigParser()
 
@@ -156,7 +136,7 @@ def create_endpoint(modulename, taskname):
 
 from pyfi.db.model import AlchemyEncoder
 
-app.json_encoder = AlchemyEncoder
+setattr(app, "json_encodore", AlchemyEncoder)
 
 
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
@@ -245,9 +225,7 @@ def do_processor(name):
 
         with get_session() as session:
             logging.info("POSTING processor: %s", processor)
-            _processor = (
-                session.query(ProcessorModel).filter_by(name=name).first()
-            )
+            _processor = session.query(ProcessorModel).filter_by(name=name).first()
 
             if not _processor:
 
@@ -262,7 +240,7 @@ def do_processor(name):
                     "ratelimit": processor["ratelimit"],
                     "receipt": processor["receipt"],
                     "perworker": processor["perworker"],
-                    "uistate": processor["uistate"]
+                    "uistate": processor["uistate"],
                 }
                 _processor = ProcessorModel(**props, user=USER)
                 session.add(_processor)
@@ -270,9 +248,9 @@ def do_processor(name):
             else:
                 logging.info("Updating processor %s with %s", _processor, processor)
                 for key, value in processor.items():
-                    if(key != 'id' and hasattr(_processor, key)):
+                    if key != "id" and hasattr(_processor, key):
                         setattr(_processor, key, value)
-                        logging.debug("Updated processor field %s with %s",key, value)
+                        logging.debug("Updated processor field %s with %s", key, value)
 
                 session.add(_processor)
                 return jsonify({"status": "ok"})
@@ -289,10 +267,7 @@ def get_processors():
 
 @app.route("/output/<resultid>", methods=["GET"])
 def get_output(resultid):
-    import pickle
-
     import redis
-    from pymongo import MongoClient
 
     redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     resultid = resultid.replace("celery-task-meta-", "")
@@ -305,8 +280,6 @@ def get_output(resultid):
 
 @app.route("/result/<resultid>", methods=["GET"])
 def get_result(resultid):
-    import pickle
-
     from pymongo import MongoClient
 
     # TODO: Change to mongo
@@ -486,7 +459,7 @@ def get_deployments(processor):
                         "owner": dep.owner,
                         "hostname": dep.hostname,
                         "cpus": dep.cpus,
-                        "status": dep.worker.status if dep.worker else 'None',
+                        "status": dep.worker.status if dep.worker else "None",
                         "worker": worker,
                     }
                 ]
@@ -537,7 +510,7 @@ def get_queues():
             q = queue
             print("queue", queue.name)
             for rabbit_queue in rabbit_queues:
-                if rabbit_queue['name'] == queue.name:
+                if rabbit_queue["name"] == queue.name:
                     q = rabbit_queue
             _queues += [q]
 

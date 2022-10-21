@@ -1,9 +1,7 @@
 """ Example"""
-import json
 
-from pyfi.client.api import funnel, parallel, pipeline
+from pyfi.client.api import parallel
 from pyfi.client.example.api import do_something_p as do_something
-from pyfi.client.example.api import do_this_p as do_this
 
 """
 An example app on top of pyfi. References existing infrastructure and then runs complex workflows and parallel operations on it

@@ -1,12 +1,4 @@
-import configparser
-import json
-import os
-from pathlib import Path
-
 from pyfi.client.api import Task
-from pyfi.client.user import USER
-from pyfi.config import CONFIG
-from pyfi.db.model import AlchemyEncoder
 
 # Create a socket on the processor to receive requests for the do_something python function(task)
 do_something = Task(

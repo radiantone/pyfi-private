@@ -1,6 +1,6 @@
-from example12 import ProcessorA, ProcessorB
+from example12 import ProcessorA
 
-from pyfi.client.api import parallel, pipeline, select, where
+from pyfi.client.api import parallel, pipeline, where
 
 proca = ProcessorA()
 

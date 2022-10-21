@@ -2,7 +2,7 @@ import configparser
 import logging
 from pathlib import Path
 
-from celery import Celery, signature
+from celery import Celery
 from pyfi.client.user import USER
 
 from .objects import Socket
@@ -45,7 +45,7 @@ class ProcessorBase:
                 backend = CONFIG.get("backend", "uri")
                 broker = CONFIG.get("broker", "uri")
                 app = Celery(backend=backend, broker=broker)
-                from pyfi.celery import config
+                from ..util import config
 
                 app.config_from_object(config)
                 """ Given the taskid, return an asynchronous result """

@@ -1,5 +1,4 @@
 """ Example"""
-import json
 
 from pyfi.client.api import funnel, parallel, pipeline
 from pyfi.client.example.api import do_something_p as do_something

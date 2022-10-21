@@ -1,3 +1,7 @@
+## Oct 21, 2022
+
+- Get linting, formatting and typing in place
+
 ## Aug 18, 2022
 
 - When API starts, create rabbit queues from queue models. 

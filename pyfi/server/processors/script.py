@@ -1,7 +1,3 @@
-import logging
-
-import redis
-
 '''
 from celery.signals import (
     after_task_publish,

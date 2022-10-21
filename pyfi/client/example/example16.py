@@ -1,7 +1,7 @@
 """
 Create subclass of HTTPProcessor
 """
-from pyfi.client.api import agent, network, node, plug, processor, socket
+from pyfi.client.decorators import agent, network, node, processor, socket
 from pyfi.client.library import HTTPProcessor
 
 

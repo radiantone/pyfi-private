@@ -3,23 +3,22 @@ import logging
 
 # logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
-from functools import wraps
 from pathlib import Path
+from typing import Any, Dict, List
 
-from celery import Celery
 from pyfi.client.user import USER
 
-from .api import Agent, Deployment, Network, Node, Plug, Processor, Socket, Task, Worker
-from .library import ProcessorBase, TheMeta
+from .api import Agent, Deployment, Network, Node, Plug, Processor, Socket, Worker
+from .library import TheMeta
 
-stack = []
-processors = {}
-nodes = {}
-agents = {}
-workers = {}
-sockets = {}
-plugs = {}
-tasks = {}
+stack: List[Any] = []
+processors: Dict[str, Processor] = {}
+nodes: Dict[str, Any] = {}
+agents: Dict[str, Any] = {}
+workers: Dict[str, Any] = {}
+sockets: Dict[str, Any] = {}
+plugs: Dict[str, Any] = {}
+tasks: Dict[str, Any] = {}
 
 CONFIG = configparser.ConfigParser()
 HOME = str(Path.home())
@@ -162,7 +161,7 @@ def worker(*args, **kwargs):
     kwargs["user"] = USER
     agent = stack.pop()
     _worker = Worker(hostname=agent.hostname)  # , user=USER
-    #agent.worker = _worker
+    # agent.worker = _worker
     stack.append(_worker)
 
     def decorator(processor):
@@ -185,7 +184,6 @@ def socket(*args, **kwargs):
         import inspect
         import re
         from textwrap import dedent
-        from types import ModuleType
 
         logging.debug("socket:task %s ", task)
         logging.debug("task:name %s ", task.__name__)

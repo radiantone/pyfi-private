@@ -3,26 +3,8 @@ Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 """
 import os
 
-from pyfi.client.api import (
-    Agent,
-    Deployment,
-    Network,
-    Node,
-    Plug,
-    Processor,
-    ProcessorBase,
-    Registry,
-    Socket,
-    Task,
-    Worker,
-    agent,
-    network,
-    node,
-    plug,
-    processor,
-    socket,
-    worker,
-)
+from pyfi.client.api import Agent, Deployment, Network, Node, ProcessorBase, Worker
+from pyfi.client.decorators import plug, processor, socket
 from pyfi.client.user import USER
 
 
@@ -114,7 +96,9 @@ if __name__ == "__main__":
     worker3 = Worker(name="worker3", hostname="agent3")
     agent3.worker = worker3
 
+    processorA = ProcessorA()
+
     deployment = Deployment(
-        hostname="agent2", name="agent2.deploy.proc1", processor_id="proc1id", cpus=2
+        hostname="agent2", name="agent2.deploy.proc1", processor=processorA, cpus=2
     )
     print("Network created.")

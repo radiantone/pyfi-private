@@ -11,25 +11,23 @@ import os
 import platform
 import shutil
 import signal
-import psutil
-
-from typing import List
-
 from multiprocessing import Condition
 from pathlib import Path
+from typing import Any, List, Tuple
 
+import psutil
 from flask import Flask
 from sqlalchemy import inspect
 
 from pyfi.blueprints.show import blueprint
+from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,
     DeploymentModel,
-    ProcessorModel,
     NodeModel,
+    ProcessorModel,
     WorkerModel,
 )
-from pyfi.db import get_session
 from pyfi.worker import WorkerService
 
 logger = logging.getLogger(__name__)
@@ -107,17 +105,17 @@ class AgentPlugin:
 
 class AgentService:
     dburi: str = "postgresql://postgres:postgres@" + HOSTNAME + ":5432/pyfi"
-    port: int = (8003,)
-    config = (None,)
-    clean: bool = (False,)
-    user = (None,)
-    pool: int = (4,)
-    cpus: int = (-1,)
-    backend: str = ("redis://localhost",)
-    broker: str = ("pyamqp://localhost",)
-    name: str = (None,)
-    size: int = (10,)
-    plugins: List[AgentPlugin] = ([],)
+    port: int = 8003
+    config = None
+    clean: bool = False
+    user = None
+    name: str
+    pool: int = 4
+    cpus: int = -1
+    backend: str = "redis://localhost"
+    broker: str = "pyamqp://localhost"
+    size: int = 10
+    plugins: List[AgentPlugin] = []
     workerport: int = 8020
 
 
@@ -142,7 +140,9 @@ class AgentWebServerPlugin(AgentPlugin):
 
             try:
                 setproctitle("pyfi agent::web_server")
-                logger.info("[AgentWebServerPlugin] Starting web server on %s", agent.port)
+                logger.info(
+                    "[AgentWebServerPlugin] Starting web server on %s", agent.port
+                )
                 logger.debug("[AgentWebServerPlugin] Startup Complete")
                 bjoern.run(app, "0.0.0.0", agent.port)
             except Exception as ex:
@@ -184,7 +184,7 @@ class AgentShutdownPlugin(AgentPlugin):
                 try:
                     child.kill()
                 except:
-                    """ We can ignore exceptions here"""
+                    """We can ignore exceptions here"""
                     pass
 
             logger.info("CWD is %s %s", os.getcwd(), os.environ["AGENT_CWD"])
@@ -226,7 +226,7 @@ class AgentShutdownPlugin(AgentPlugin):
 
 
 class AgentMonitorPlugin(AgentPlugin):
-    """ Check if agent is killed and update node resource stats """
+    """Check if agent is killed and update node resource stats"""
 
     def __init__(self, *args, **kwargs):
         self.process = None
@@ -268,15 +268,16 @@ class AgentMonitorPlugin(AgentPlugin):
                         os.kill(myworker.process, signal.SIGTERM)
                     except:
                         pass
-                    myworker.requested_status = 'restart'
+                    myworker.requested_status = "restart"
                     session.commit()
 
             """ Monitor deployments """
             for mydeployment in mydeployments:
 
                 logger.debug(
-                    "Got deployment %s worker %s", mydeployment.name,
-                    mydeployment.worker.name if mydeployment.worker else None
+                    "Got deployment %s worker %s",
+                    mydeployment.name,
+                    mydeployment.worker.name if mydeployment.worker else None,
                 )
 
                 try:
@@ -325,7 +326,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     """ If I don't already manage the processor for this deployment in my list. """
                     if not found:
-                        """ Add a new processor object to my list """
+                        """Add a new processor object to my list"""
                         self.processors += [
                             {
                                 "worker": None,
@@ -336,9 +337,11 @@ class AgentMonitorPlugin(AgentPlugin):
 
                     """ Now look at all my processors in my list and create workers if necessary """
                     for processor in self.processors:
-                        """ Retrieve my processor from database for this reference """
+                        """Retrieve my processor from database for this reference"""
                         myprocessor = (
-                            session.query(ProcessorModel).filter_by(id=processor["id"]).first()
+                            session.query(ProcessorModel)
+                            .filter_by(id=processor["id"])
+                            .first()
                         )
 
                         logging.debug(
@@ -483,49 +486,58 @@ class AgentMonitorPlugin(AgentPlugin):
                                     myprocessor.requested_status,
                                 )
                                 if (
-                                        processor["worker"]
-                                        and processor["worker"]["wprocess"]
+                                    processor["worker"]
+                                    and processor["worker"]["wprocess"]
                                 ):
                                     process_died = (
-                                            processor["worker"]["wprocess"].poll()
-                                            is not None
+                                        processor["worker"]["wprocess"].poll()
+                                        is not None
                                     )
-                                    logging.debug("PROCESS_DIED is %s for %s", process_died, processor["worker"])
+                                    logging.debug(
+                                        "PROCESS_DIED is %s for %s",
+                                        process_died,
+                                        processor["worker"],
+                                    )
                             except:
                                 import traceback
 
                                 print(traceback.format_exc())
 
                         if process_died:
-                            logging.error("Worker died for processor %s", myprocessor.name)
+                            logging.error(
+                                "Worker died for processor %s", myprocessor.name
+                            )
 
                         """ If no worker or the process died, (re)start it """
                         if (
-                                myprocessor.requested_status == "start"
-                                or (
+                            myprocessor.requested_status == "start"
+                            or (
                                 process_died
                                 or (
-                                        myprocessor.requested_status == "update"
-                                        or processor["worker"] is None
+                                    myprocessor.requested_status == "update"
+                                    or processor["worker"] is None
                                 )
-                        )
-                                and (
+                            )
+                            and (
                                 myprocessor.status != "stopped"
                                 and myprocessor.requested_status != "stopped"
-                        )
+                            )
                         ):
                             logging.debug(
                                 "Restarting worker for processor %s because process_died:%s requested:%s worker:%s",
-                                myprocessor.name, process_died, myprocessor.requested_status,
-                                processor["worker"])
+                                myprocessor.name,
+                                process_died,
+                                myprocessor.requested_status,
+                                processor["worker"],
+                            )
                             logging.debug("process_died %s", process_died)
                             logging.debug('processor["worker"] %s', processor["worker"])
                             logging.debug(
-                                'myprocessor.requested_status %s',
+                                "myprocessor.requested_status %s",
                                 myprocessor.requested_status,
                             )
                             logging.debug(
-                                'myprocessor.status %s',
+                                "myprocessor.status %s",
                                 myprocessor.status,
                             )
 
@@ -538,15 +550,18 @@ class AgentMonitorPlugin(AgentPlugin):
                                 processor["worker"]["process"].kill()
                                 processor["worker"] = None
 
-                            if "deployment" in processor and not inspect(processor["deployment"]).detached:
+                            if (
+                                "deployment" in processor
+                                and not inspect(processor["deployment"]).detached
+                            ):
                                 session.refresh(processor["deployment"])
 
                             #
                             # If there is a deployment, but no worker
                             #
                             if (
-                                    "deployment" in processor
-                                    and mydeployment.worker is None
+                                "deployment" in processor
+                                and mydeployment.worker is None
                             ):
                                 """If there is no worker model, find or create one and link to Processor"""
 
@@ -557,8 +572,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                     session.query(WorkerModel)
                                     .filter_by(
                                         name=self.agent_service.name
-                                             + myprocessor.name
-                                             + ".worker"
+                                        + myprocessor.name
+                                        + ".worker"
                                     )
                                     .first()
                                 )
@@ -571,8 +586,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                     worker_model = WorkerModel(
                                         id=str(uuid4()),
                                         name=self.agent_service.name
-                                             + myprocessor.name
-                                             + ".worker",
+                                        + myprocessor.name
+                                        + ".worker",
                                         concurrency=mydeployment.cpus,
                                         status="ready",
                                         backend=self.agent_service.backend,
@@ -624,13 +639,13 @@ class AgentMonitorPlugin(AgentPlugin):
                                     self.agent_service.size,
                                 )
 
-                                '''
+                                """
                                 session.merge(myprocessor)
                                 try:
                                     session.add(myprocessor)
                                 except:
                                     pass
-                                '''
+                                """
                                 #
                                 # For all my deployments, update processor deployment and create WorkerService
                                 #
@@ -727,8 +742,7 @@ class AgentMonitorPlugin(AgentPlugin):
 
                                         os.chdir("work/" + myprocessor.id)
 
-                                        """Launch the task worker (which is not the same as the Worker service above 
-                                        it """
+                                        """Launch the task worker"""
                                         logging.debug("Launching from %s", self.basedir)
                                         wprocess = workerproc.launch(
                                             worker_model.name,
@@ -761,8 +775,8 @@ class AgentMonitorPlugin(AgentPlugin):
                                         )
 
                                         """ Update internal worker reference dictionary """
-                                        #worker["model"] = deployment.worker
-                                        #worker["model"].process = workerproc.process.pid
+                                        # worker["model"] = deployment.worker
+                                        # worker["model"].process = workerproc.process.pid
                                         worker["process"] = workerproc
                                         worker["wprocess"] = wprocess
 
@@ -804,7 +818,7 @@ class AgentMonitorPlugin(AgentPlugin):
         self.port = agent_service.port
 
         with get_session() as session:
-            node = (
+            node: Any = (
                 session.query(NodeModel)
                 .filter_by(name=agent_service.name + ".agent.node")
                 .first()
@@ -833,7 +847,6 @@ class AgentMonitorPlugin(AgentPlugin):
                 agent.cpus = self.kwargs["cpus"]
                 logging.debug("AgentMonitorPlugin: agent cpus %s", agent.cpus)
 
-
         def monitor_processors():
             from datetime import datetime
 
@@ -856,7 +869,7 @@ class AgentMonitorPlugin(AgentPlugin):
             )
 
             with get_session() as session:
-                """ Get myself from database """
+                """Get myself from database"""
                 agent = (
                     session.query(AgentModel)
                     .filter_by(hostname=agent_service.name)
@@ -905,7 +918,11 @@ class AgentMonitorPlugin(AgentPlugin):
                 cpu_percent = psutil.cpu_percent()
                 mem_total = psutil.virtual_memory().total
                 mem_used = psutil.virtual_memory().percent
-                mem_free = psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
+                mem_free = (
+                    psutil.virtual_memory().available
+                    * 100
+                    / psutil.virtual_memory().total
+                )
                 node.memsize = str(mem_total)
                 node.memused = mem_used
                 node.freemem = str(mem_free)
@@ -962,22 +979,22 @@ class PluginAgentService(AgentService):
     """Agent class"""
 
     def __init__(
-            self,
-            database,
-            dburi,
-            port=8003,
-            config=None,
-            clean=False,
-            user=None,
-            pool=4,
-            cpus=-1,
-            backend="redis://localhost",
-            broker="pyamqp://localhost",
-            name=None,
-            workerclass=None,
-            size=10,
-            workerport=-1,
-            plugins={}
+        self,
+        database,
+        dburi,
+        port=8003,
+        config=None,
+        clean=False,
+        user=None,
+        pool=4,
+        cpus=-1,
+        backend="redis://localhost",
+        broker="pyamqp://localhost",
+        name=None,
+        workerclass=None,
+        size=10,
+        workerport=-1,
+        plugins={},
     ):
         self.port = port
         self.backend = backend
@@ -997,7 +1014,11 @@ class PluginAgentService(AgentService):
         self.name = name
         self.workers = []
         self.plugins = {}
-        self.pluginlist = [AgentWebServerPlugin(), AgentShutdownPlugin(), AgentMonitorPlugin()]
+        self.pluginlist = [
+            AgentWebServerPlugin(),
+            AgentShutdownPlugin(),
+            AgentMonitorPlugin(),
+        ]
 
         logger.info("[PluginAgentService] Init, name %s cpus %s", name, cpus)
 

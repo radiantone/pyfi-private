@@ -4,7 +4,7 @@ Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 import os
 
 from pyfi.client.api import ProcessorBase
-from pyfi.client.decorators import agent, network, node, plug, processor, socket
+from pyfi.client.decorators import processor, socket
 
 
 @processor(

@@ -1,6 +1,5 @@
-from pyfi.client.api import parallel, pipeline
+from pyfi.client.api import parallel
 from pyfi.client.example.api import do_something_p as do_something
-from pyfi.client.example.api import do_this_p as do_this
 
 _fork = parallel(
     [

@@ -1,16 +1,18 @@
 import configparser
 import json
-import sys
 import logging
 import os
 import platform
 import sched
 import signal
+import sys
 import time
 from multiprocessing import Process
 from pathlib import Path
+from typing import List
 
 from celery import Celery
+from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,
     DeploymentModel,
@@ -21,7 +23,6 @@ from pyfi.db.model import (
     TaskModel,
     WorkModel,
 )
-from pyfi.db import get_session
 
 HOSTNAME = platform.node()
 
@@ -51,7 +52,7 @@ class SchedulerPlugin:
     _stop = False
     event = None
 
-    def __init__(self,args):
+    def __init__(self, args):
         self.args = args
 
     def run(self, *args, **kwargs):
@@ -173,18 +174,16 @@ class DeployProcessorPlugin(SchedulerPlugin):
             session.commit()
 
             logging.info("DeployProcessorPlugin: Getting scheduler...")
-            scheduler = (
-                session.query(SchedulerModel).filter_by(name=self.name).first()
-            )
+            scheduler = session.query(SchedulerModel).filter_by(name=self.name).first()
             # Get a random processor that either has less deployments than its concurrency needs
             processors = (
                 # Read lock the processor so others cannot change it while we're looking at it
-                session.query(ProcessorModel)
-                .all()
+                session.query(ProcessorModel).all()
             )
 
             def update_queues():
                 import json
+
                 import redis
 
                 from pyfi.util.rabbit import get_queues
@@ -272,7 +271,6 @@ class DeployProcessorPlugin(SchedulerPlugin):
                     # separate deployments with smaller cpus spread across nodes
                     pass
 
-
                 session.commit()
 
                 logging.info("Processor concurrency is %s", processor.concurrency)
@@ -283,7 +281,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 for deployment in processor.deployments:
                     logging.info("   Deployment: %s", deployment)
-                    logging.info("   Deployment %s: CPU %s", deployment.name, deployment.cpus)
+                    logging.info(
+                        "   Deployment %s: CPU %s", deployment.name, deployment.cpus
+                    )
                     deployed_cpus += deployment.cpus
 
                     if deployment.worker and deployment.worker.status == "running":
@@ -295,12 +295,21 @@ class DeployProcessorPlugin(SchedulerPlugin):
 
                 logging.debug("No Deployments is: %s", nodeployments)
                 session.commit()
-                logging.info("Deployed CPUS %s, %s concurrency %s", deployed_cpus, processor.name, processor.concurrency)
+                logging.info(
+                    "Deployed CPUS %s, %s concurrency %s",
+                    deployed_cpus,
+                    processor.name,
+                    processor.concurrency,
+                )
                 if not nodeployments and (deployed_cpus > processor.concurrency):
                     overage_cpus = deployed_cpus - processor.concurrency
                     logging.info("Concurrency overage for processor %s", processor.name)
-                    logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
-                    logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
+                    logging.info(
+                        "    %s:concurrency: %s", processor.name, processor.concurrency
+                    )
+                    logging.info(
+                        "    %s:deployments: %s", processor.name, deployed_cpus
+                    )
 
                     fixed_deployment = False
 
@@ -312,27 +321,40 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 kill_workers += [deployment.worker]
                             processor.deployments.remove(deployment)
                             session.commit()
-                            logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
+                            logging.info(
+                                "Deleted deployment %s with %s cpus",
+                                deployment.name,
+                                deployment.cpus,
+                            )
                             fixed_deployment = True
                             break
 
                     if not fixed_deployment:
-                        logging.info("Overage match not found. Attempting to reduce deployment CPUs....")
+                        logging.info(
+                            "Overage match not found. Attempting to reduce deployment CPUs...."
+                        )
                         for deployment in processor.deployments:
                             if deployment.cpus > overage_cpus:
                                 if deployment.worker:
                                     kill_workers += [deployment.worker]
-                                    logging.info("Adding %s to kill_workers",deployment.worker)
-                                logging.info("Reducing CPUs for deployment %s from %s to %s", deployment.name, deployment.cpus, deployment.cpus-overage_cpus)
+                                    logging.info(
+                                        "Adding %s to kill_workers", deployment.worker
+                                    )
+                                logging.info(
+                                    "Reducing CPUs for deployment %s from %s to %s",
+                                    deployment.name,
+                                    deployment.cpus,
+                                    deployment.cpus - overage_cpus,
+                                )
                                 deployment.cpus -= overage_cpus
-                                deployment.requested_status = 'update'
+                                deployment.requested_status = "update"
                                 session.commit()
                                 fixed_deployment = True
 
                     if not fixed_deployment:
-                        """ Scan all the deployments and if their cpus are less than the overage then
+                        """Scan all the deployments and if their cpus are less than the overage then
                         remove that deployment and reduce the overage amount until it reaches zero or we
-                        run out of deployments """
+                        run out of deployments"""
                         for deployment in processor.deployments:
                             if deployment.cpus <= overage_cpus:
                                 # Delete this deployment
@@ -341,20 +363,30 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                 processor.deployments.remove(deployment)
                                 session.commit()
                                 overage_cpus -= deployment.cpus
-                                logging.info("Deleted deployment %s with %s cpus", deployment.name, deployment.cpus)
+                                logging.info(
+                                    "Deleted deployment %s with %s cpus",
+                                    deployment.name,
+                                    deployment.cpus,
+                                )
 
-                logging.info("KILL WORKERS is %s",kill_workers)
+                logging.info("KILL WORKERS is %s", kill_workers)
                 # TODO: Set affected workers status to 'kill' so they restart
                 for worker in kill_workers:
-                    logging.info("Killing worker %s",worker)
-                    worker.requested_status = 'kill'
+                    logging.info("Killing worker %s", worker)
+                    worker.requested_status = "kill"
                     session.add(worker)
                     session.commit()
 
                 if not nodeployments and (deployed_cpus < processor.concurrency):
-                    logging.info("Concurrency shortfall for processor %s", processor.name)
-                    logging.info("    %s:concurrency: %s", processor.name, processor.concurrency)
-                    logging.info("    %s:deployments: %s", processor.name, deployed_cpus)
+                    logging.info(
+                        "Concurrency shortfall for processor %s", processor.name
+                    )
+                    logging.info(
+                        "    %s:concurrency: %s", processor.name, processor.concurrency
+                    )
+                    logging.info(
+                        "    %s:deployments: %s", processor.name, deployed_cpus
+                    )
 
                     if scheduler.nodes:
                         shortfall = processor.concurrency - deployed_cpus
@@ -369,16 +401,22 @@ class DeployProcessorPlugin(SchedulerPlugin):
                             worker_cpus = 0
                             for worker in agent.workers:
                                 logging.info(
-                                    "Agent worker %s with %s cpus", worker.name, worker.concurrency
+                                    "Agent worker %s with %s cpus",
+                                    worker.name,
+                                    worker.concurrency,
                                 )
                                 if worker.deployment:
                                     worker_cpus += worker.deployment.cpus
 
                             occupied_cpus = 0
-                            #for worker in agent.workers:
+                            # for worker in agent.workers:
                             #    occupied_cpus += worker.deployment.cpus
 
-                            node_deployments = session.query(DeploymentModel).filter_by(hostname=node.hostname).all()
+                            node_deployments = (
+                                session.query(DeploymentModel)
+                                .filter_by(hostname=node.hostname)
+                                .all()
+                            )
 
                             for deployment in node_deployments:
                                 occupied_cpus += deployment.cpus
@@ -400,11 +438,18 @@ class DeployProcessorPlugin(SchedulerPlugin):
                                     logging.info("Filling shortfall of %s cpus", _cpus)
 
                                     for deployment in processor.deployments:
-                                        if deployment.worker and deployment.worker.agent_id == agent.id:
+                                        if (
+                                            deployment.worker
+                                            and deployment.worker.agent_id == agent.id
+                                        ):
                                             deployment.cpus += _cpus
-                                            logging.info("Added %s cpus to deployment %s", _cpus, deployment.name)
-                                            deployment.requested_status = 'update'
-                                            deployment.status = 'updating'
+                                            logging.info(
+                                                "Added %s cpus to deployment %s",
+                                                _cpus,
+                                                deployment.name,
+                                            )
+                                            deployment.requested_status = "update"
+                                            deployment.status = "updating"
                                             session.commit()
                                             cpus_met = True
                                             shortfall -= _cpus
@@ -451,7 +496,9 @@ class DeployProcessorPlugin(SchedulerPlugin):
                         logging.info("Scheduler has no nodes.")
 
                 if deployed_cpus == processor.concurrency:
-                    logging.info("Processor %s concurrency needs are met.", processor.name)
+                    logging.info(
+                        "Processor %s concurrency needs are met.", processor.name
+                    )
 
 
 class WorkPlugin(SchedulerPlugin):
@@ -522,7 +569,7 @@ class WatchPlugin(SchedulerPlugin):
                         status = response.json()
                         if status["status"] == "green":
                             worker.status = "running"
-                            #worker.deployment.status = "running"
+                            # worker.deployment.status = "running"
                             session.add(worker)
                             session.commit()
                     except Exception as ex:
@@ -542,7 +589,7 @@ class BasicScheduler:
     """Basic Scheduler"""
 
     process = None
-    nodes = []
+    nodes: List[NodeModel] = []
 
     def __init__(self, name, deployments, interval):
         self.name = name

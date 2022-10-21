@@ -1,7 +1,7 @@
 """ Example workflow primitives """
 
 # Import workflow primitives
-from pyfi.client.api import funnel, parallel, pipeline, select, where
+from pyfi.client.api import parallel, select, where
 
 # Import socket functions
 from pyfi.client.example.api import do_something_p as do_something

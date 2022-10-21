@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := all
 black = black --target-version py39 pyfi
 isort = isort --profile black pyfi
+flake8 = flake8 --ignore=E203,F401,E402,F841,E501,E722,W503 pyfi
 
 .PHONY: depends
 depends:
@@ -13,14 +14,14 @@ init: depends
 	echo "Virtual environment complete."
 
 .PHONY: format
-format:
+format: lint
 	$(isort)
 	$(black)
 
 .PHONY: lint
 lint:
-	#mypy --show-error-codes pyfi
-	flake8 --ignore=E203,F401,E402,F841,E501,E722,W503  pyfi
+	mypy --show-error-codes pyfi
+	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
 

@@ -349,9 +349,6 @@ def compose_agent(node, agent, deploy, _agent):
 
 
 def build_queue(name, queue):
-    from kombu import Exchange
-    from kombu import Queue as KQueue
-
     logging.info("Building queue %s %s", name, queue)
     message_ttl = int(queue["message_ttl"]) if "message_ttl" in queue else 300000
     durable = queue["durable"] if "durable" in queue else True
@@ -459,9 +456,7 @@ def compose_network(detail, command="build", deploy=True, nodes=[]):
                     ] = socket.processor.processor
                     logging.info(
                         "Creating worker %s ",
-                        node["hostname"]
-                        + socket.socket.processor.name
-                        + ".worker",
+                        node["hostname"] + socket.socket.processor.name + ".worker",
                     )
                     worker = Worker(
                         hostname=node["hostname"],

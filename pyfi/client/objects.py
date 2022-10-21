@@ -11,37 +11,27 @@ import logging
 logger = logging.getLogger(__name__)
 
 import configparser
-import os
-import platform
 from pathlib import Path
+from typing import List
 
 from kombu import Exchange
 from kombu import Queue as KQueue
-from kombu import binding, serialization
-from prettytable import PrettyTable
-from sqlalchemy import MetaData, create_engine, literal_column
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from celery import Celery, signature
-from pyfi.config.celery import Config
+from celery import Celery
 from pyfi.db.model import (
-    ActionModel,
     AgentModel,
     ArgumentModel,
     DeploymentModel,
-    FlowModel,
-    LogModel,
     NetworkModel,
     NodeModel,
     PlugModel,
     ProcessorModel,
     QueueModel,
-    RoleModel,
     SchedulerModel,
-    SettingsModel,
     SocketModel,
     TaskModel,
-    UserModel,
     WorkerModel,
 )
 
@@ -84,7 +74,7 @@ class Base:
     broker = CONFIG.get("broker", "uri")
     database = create_engine(db)
     session = sessionmaker(bind=database)()
-    database.session = session
+    setattr(database, "session", session)
 
     def __init__(self):
         pass
@@ -96,40 +86,6 @@ class Work(Base):
     # Some users may only have permission to create Work objects and not
     # reference Sockets/Plugs directly
     pass
-
-
-class Network(Base):
-    """
-    Docstring
-    """
-
-    def __init__(self, name=None, user=None):
-        super().__init__()
-
-        self.network = self.session.query(NetworkModel).filter_by(name=name).first()
-
-        if self.network is None:
-            self.network = NetworkModel(name=name, user=user)
-
-        self.session.add(self.network)
-        self.session.commit()
-
-
-class Node(Base):
-    """
-    Docstring
-    """
-
-    def __init__(self, name=None, hostname=None):
-        super().__init__()
-
-        self.node = self.session.query(NodeModel).filter_by(name=name).first()
-
-        if self.node is None:
-            self.node = _node = NodeModel(name=name, hostname=hostname)
-
-        self.session.add(self.node)
-        self.session.commit()
 
 
 class Worker(Base):
@@ -155,6 +111,75 @@ class Worker(Base):
             )
 
         self.session.add(self.worker)
+        self.session.commit()
+
+
+class Agent(Base):
+    """
+    Docstring
+    """
+
+    worker: Worker
+
+    @classmethod
+    def find(cls, name):
+        return cls.session.query(AgentModel).filter_by(name=name).first()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+        self.agent = None
+
+        self.name = kwargs["name"]
+        self.hostname = kwargs["hostname"]
+        self.node = kwargs["node"]
+
+        self.agent = self.session.query(AgentModel).filter_by(name=self.name).first()
+
+        if self.agent is None:
+            self.agent = AgentModel(
+                name=self.name, node_id=self.node.node.id, hostname=self.hostname
+            )
+
+        self.session.add(self.agent)
+        self.session.commit()
+
+
+class Node(Base):
+    """
+    Docstring
+    """
+
+    agent: Agent
+
+    def __init__(self, name=None, hostname=None):
+        super().__init__()
+
+        self.node = self.session.query(NodeModel).filter_by(name=name).first()
+
+        if self.node is None:
+            self.node = _node = NodeModel(name=name, hostname=hostname)
+
+        self.session.add(self.node)
+        self.session.commit()
+
+
+class Network(Base):
+    """
+    Docstring
+    """
+
+    nodes: List[Node] = []
+
+    def __init__(self, name=None, user=None):
+        super().__init__()
+
+        self.network = self.session.query(NetworkModel).filter_by(name=name).first()
+
+        if self.network is None:
+            self.network = NetworkModel(name=name, user=user)
+
+        self.session.add(self.network)
         self.session.commit()
 
 
@@ -217,35 +242,6 @@ class Argument(Base):
         )
 
 
-class Agent(Base):
-    """
-    Docstring
-    """
-
-    @classmethod
-    def find(cls, name):
-        return cls.session.query(AgentModel).filter_by(name=name).first()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-
-        self.agent = None
-
-        self.name = kwargs["name"]
-        self.hostname = kwargs["hostname"]
-        self.node = kwargs["node"]
-
-        self.agent = self.session.query(AgentModel).filter_by(name=self.name).first()
-
-        if self.agent is None:
-            self.agent = AgentModel(
-                name=self.name, node_id=self.node.node.id, hostname=self.hostname
-            )
-
-        self.session.add(self.agent)
-        self.session.commit()
-
-
 class Scheduler(Base):
     """
     Docstring
@@ -301,7 +297,7 @@ class Socket(Base):
         logging.debug("Socket: %s %s", backend, broker)
         self.app = Celery(backend=backend, broker=broker)
 
-        from pyfi.celery import config
+        from pyfi.util import config
 
         self.app.config_from_object(config)
         self.processor = None
@@ -335,7 +331,9 @@ class Socket(Base):
             self.loadbalanced = kwargs["loadbalanced"]
 
         if self.name:
-            self.socket = self.session.query(SocketModel).filter_by(name=self.name).first()
+            self.socket = (
+                self.session.query(SocketModel).filter_by(name=self.name).first()
+            )
 
         if self.socket and not self.processor:
             self.processor = Processor(id=self.socket.processor.id)
@@ -345,14 +343,28 @@ class Socket(Base):
             modulename = kwargs["module"] if "module" in kwargs else None
 
             if type(taskname) is str:
-                self.socket = self.session.query(SocketModel).join(TaskModel, SocketModel.task).filter(TaskModel.name == taskname and TaskModel.module == modulename).first()
-                logging.info("Socket from task %s and module %s: %s", taskname, modulename, self.socket)
+                self.socket = (
+                    self.session.query(SocketModel)
+                    .join(TaskModel, SocketModel.task)
+                    .filter(
+                        TaskModel.name == taskname and TaskModel.module == modulename
+                    )
+                    .first()
+                )
+                logging.info(
+                    "Socket from task %s and module %s: %s",
+                    taskname,
+                    modulename,
+                    self.socket,
+                )
                 if self.socket:
                     self.processor = Processor(id=self.socket.processor.id)
 
                 if modulename:
                     self.task = (
-                        self.session.query(TaskModel).filter_by(name=taskname, module=modulename).first()
+                        self.session.query(TaskModel)
+                        .filter_by(name=taskname, module=modulename)
+                        .first()
                     )
                 else:
                     self.task = (
@@ -573,11 +585,8 @@ class Plug(Base):
     Docstring
     """
 
-    import inspect
-
     def __init__(self, *args, **kwargs):
         super().__init__()
-        from sqlalchemy.orm import Session
 
         self.name = kwargs["name"]
 
@@ -741,9 +750,7 @@ class Processor(Base):
 
         super().__init__()
 
-        from kombu.common import Broadcast
-
-        from pyfi.celery import config
+        from pyfi.util import config
 
         """
         Load the processor by name and match the queue by name, then use

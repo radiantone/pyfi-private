@@ -18,7 +18,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logging.getLogger("sqlalchemy_oso.session").setLevel(logging.CRITICAL)
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 import os
 import platform
 import sys
@@ -96,16 +96,16 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;21m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = (
+    _format = (
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
     )
 
     FORMATS = {
-        logging.DEBUG: grey + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset,
+        logging.DEBUG: grey + _format + reset,
+        logging.INFO: grey + _format + reset,
+        logging.WARNING: yellow + _format + reset,
+        logging.ERROR: red + _format + reset,
+        logging.CRITICAL: bold_red + _format + reset,
     }
 
     def format(self, record):
@@ -217,7 +217,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
     context.obj["dburi"] = db
 
     try:
-        engine = create_engine(db, isolation_level='READ UNCOMMITTED')
+        engine = create_engine(db, isolation_level="READ UNCOMMITTED")
         engine.uri = db
         session = sessionmaker(bind=engine)()
 
@@ -1269,8 +1269,6 @@ def update(context, id):
 )
 @click.pass_context
 def start_scheduler(context, name, interval, nodeployments, clazz):
-    from pyfi.scheduler import BasicScheduler
-
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
     try:
         scheduler_class = import_class(clazz)
@@ -2601,7 +2599,6 @@ def agent():
 @click.pass_context
 def kill_agent(context, name):
     """Kill an agent"""
-    import os
 
     agent = (
         context.obj["database"].session.query(AgentModel).filter_by(name=name).first()
@@ -2702,7 +2699,9 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
             context.obj["database"].session.commit()
             context.obj["database"].session.flush()
             logging.debug("Committed session")
-            logging.debug("Assigned deployment %s to worker %s", deployment, workerModel)
+            logging.debug(
+                "Assigned deployment %s to worker %s", deployment, workerModel
+            )
 
     for deployment in deployments:
         """Just finding the the deployment for the current worker name"""
@@ -2805,7 +2804,6 @@ def ls_queue(context, id, name, task):
     List a queue
     """
     import json
-    from urllib.parse import urlparse
 
     # Combine info from database and rabbitmq about this queue
     import requests
@@ -2934,8 +2932,6 @@ def ls_call(context, id, name, result, tree, graph, flow):
     """
     import json
 
-    import redis
-
     x = PrettyTable()
 
     names = [
@@ -3057,7 +3053,7 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
             root = Node(call.name)
 
-            def get_call_graph(root, _call):
+            def get_call_graph_root(root, _call):
                 _calls = (
                     context.obj["database"]
                     .session.query(CallModel)
@@ -3067,11 +3063,11 @@ def ls_call(context, id, name, result, tree, graph, flow):
 
                 for _child in _calls:
                     _child_node = Node(_child.name, root)
-                    _child_node = get_call_graph(_child_node, _child)
+                    _child_node = get_call_graph_root(_child_node, _child)
 
                 return root
 
-            root = get_call_graph(root, call)
+            root = get_call_graph_root(root, call)
             print_tree(root, horizontal=False)
             return
 
@@ -3748,7 +3744,6 @@ def ls_task(context, name, source, code, plugs, sockets):
     """
     List a task
     """
-    from pptree import Node, print_tree
 
     task = context.obj["database"].session.query(TaskModel).filter_by(name=name).first()
 
@@ -4061,7 +4056,7 @@ def ls_queues(context):
     session = requests.Session()
     session.auth = (user, pwd)
 
-    auth = session.post(uri)
+    session.post(uri)
 
     names = [
         "Name",
@@ -4121,7 +4116,7 @@ def ls_users(context):
     names = ["Name", "ID", "Owner", "Email", "Password"]
     x.field_names = names
 
-    w = context.obj["database"].session.execute("select current_user").first()
+    context.obj["database"].session.execute("select current_user").first()
     users = context.obj["database"].session.query(UserModel).all()
     for user in users:
         x.add_row([user.name, user.id, user.owner, user.email, user.password])
@@ -4418,7 +4413,6 @@ def ls_agents(context):
     """
     List agents
     """
-    import requests
 
     x = PrettyTable()
 
@@ -4824,13 +4818,15 @@ def api_start(context, ip, port):
         server.app_context().push()
 
         try:
+            """
             options = {
                 "bind": "%s:%s" % ("0.0.0.0", str(port)),
                 "workers": cpus,
                 # 'threads': number_of_workers(),
                 "timeout": 120,
             }
-            # StandaloneApplication(server, options).run()
+            StandaloneApplication(server, options).run()
+            """
             bjoern.run(server, ip, port)
         except Exception as ex:
             logging.error(ex)

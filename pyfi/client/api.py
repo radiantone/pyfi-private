@@ -1,7 +1,6 @@
 """
 Python client API for invoking and building flows and manipulating data results
 """
-import pydash as data
 from pipe import select, where
 from pydash import chunk
 from pydash import filter_ as filter

@@ -2,11 +2,10 @@
 Basic HTTP web server to test the UI from
 """
 import functools
-import http
 import logging
 import signal
 import socketserver
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
 
 DIRECTORY = "app/dist/spa"
 
@@ -22,7 +21,6 @@ def run_http(port):
     """
     Run web server to serve UI
     """
-    import http.server
 
     PORT = port
 

@@ -3,10 +3,10 @@ Class database model definitions
 """
 import json
 from datetime import datetime
+from typing import Any, Optional
 
 from oso import Oso
 from sqlalchemy import (
-    INTEGER,
     Boolean,
     Column,
     DateTime,
@@ -15,30 +15,19 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     LargeBinary,
-    Sequence,
     String,
     Table,
     Text,
-    UniqueConstraint,
     and_,
-    column,
     literal_column,
-    select,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.ext.declarative import DeclarativeMeta, declared_attr
-from sqlalchemy.ext.mutable import MutableList
-from sqlalchemy.orm import (
-    declarative_base,
-    declarative_mixin,
-    foreign,
-    relationship,
-    remote,
-)
+from sqlalchemy.orm import declarative_base, foreign, relationship
 from sqlalchemy.schema import CreateColumn
 
-Base = declarative_base(name="Base")
+Base: Any = declarative_base(name="Base")
 
 oso = Oso()
 
@@ -324,7 +313,9 @@ class FileModel(BaseModel):
     code = Column(Text)
     type = Column(String(40))
     icon = Column(String(40))
-    versions = relationship("VersionModel", back_populates="file", cascade="all, delete-orphan")
+    versions = relationship(
+        "VersionModel", back_populates="file", cascade="all, delete-orphan"
+    )
 
 
 flows_versions = Table(
@@ -402,7 +393,9 @@ class WorkerModel(BaseModel):
     workerdir = Column(String(256))
 
     processor = relationship("ProcessorModel")
-    processor_id = Column(String(40), ForeignKey("processor.id", ondelete="CASCADE"), nullable=False)
+    processor_id = Column(
+        String(40), ForeignKey("processor.id", ondelete="CASCADE"), nullable=False
+    )
 
     deployment_id = Column(String(40), ForeignKey("deployment.id"), nullable=True)
 
