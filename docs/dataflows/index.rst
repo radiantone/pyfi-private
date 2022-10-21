@@ -4,9 +4,9 @@ Data Flows
 .. toctree::
    :maxdepth: 2
 
-PYFI provides a unique and easy way to deploy distributed data flows (sometimes called workflows). These flows are contructed by using the PYFI object model and linking them together.
+ElasticCode provides a unique and easy way to deploy distributed data flows (sometimes called workflows). These flows are contructed by using the ElasticCode object model and linking them together.
 
-To review the PYFI object model, we have the following taxonomy used in a PYFI network.
+To review the ElasticCode object model, we have the following taxonomy used in an ElasticCode network.
 
 - Nodes
     - Agents

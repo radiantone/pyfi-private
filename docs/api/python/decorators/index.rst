@@ -8,7 +8,7 @@ Decorators
 .. code-block:: python
       :caption: ElasticCode Python decorator API
         """
-        Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
+        Decorator API for Flow. Defines network from plain old classes and methods.
         """
         import os
 

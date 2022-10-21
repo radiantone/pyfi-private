@@ -6,7 +6,7 @@ Examples
  
 
 .. code-block:: bash
-      :caption: The 'pyfi' command is the single command for building and managing a PYFI network.
+      :caption: The 'flow' command is the single command for building and managing a ElasticCode network.
 
       $ flow
       Usage: flow [OPTIONS] COMMAND [ARGS]...
@@ -51,7 +51,7 @@ Examples
 Database
 -----------------
 .. code-block:: bash
-      :caption: PYFI database sub-commands
+      :caption: Flow database sub-commands
 
       $ flow db
       Usage: flow db [OPTIONS] COMMAND [ARGS]...
@@ -72,8 +72,8 @@ Database
 Objects
 -------------------------
 
-There are numerous objects within a PYFI network. Some are infrastructure related, others are service related. Using the PYFI CLI you create, update and manage these objects in the database, which acts as a **single source of truth** for the entire PYFI network.
-All the deployed PYFI services (e.g. agents) *react* to changes in the PYFI database. So you could say that PYFI is *reactive* on a distributed, network-scale.
+There are numerous objects within an ElasticCode network. Some are infrastructure related, others are service related. Using the ElasticCode CLI you create, update and manage these objects in the database, which acts as a **single source of truth** for the entire ElasticCode network.
+All the deployed ElasticCode services (e.g. agents) *react* to changes in the ElasticCode database. So you could say that ElasticCode is *reactive* on a distributed, network-scale.
 
 Some of the system objects and CLI commands are shown below.
 
@@ -286,7 +286,7 @@ Running an Agent
 
 
 .. code-block:: bash
-      :caption: PYFI agent subcommand
+      :caption: Flow agent subcommand
 
       $ flow agent start --help
       Usage: flow agent start [OPTIONS]
