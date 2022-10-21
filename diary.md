@@ -1,6 +1,7 @@
 ## Oct 21, 2022
 
 - Get linting, formatting and typing in place FIXED
+- Need to update sphinx docs DONE
 
 ## Aug 18, 2022
 

@@ -4534,7 +4534,7 @@ def ls_node(context, name, tree, horizontal):
     if tree:
         root = Node("node::" + node.name)
         agent = Node("agent::" + node.agent.name, root)
-        for _worker in agent.workers:
+        for _worker in node.agent.workers:
             worker = Node("worker::" + _worker.name, agent)
             processor = Node("processor::" + _worker.processor.name, worker)
 
