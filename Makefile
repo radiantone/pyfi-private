@@ -14,7 +14,7 @@ init: depends
 	echo "Virtual environment complete."
 
 .PHONY: format
-format: lint
+format:
 	$(isort)
 	$(black)
 
