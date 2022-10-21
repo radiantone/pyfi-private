@@ -23,13 +23,6 @@ from typing import Type
 import psutil
 import redis
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask
-from kombu import Exchange
-from kombu import Queue as KQueue
-from pytz import utc
-from sqlalchemy import create_engine
-from sqlalchemy.pool import QueuePool
-
 from celery import Celery
 from celery import chain as pipeline
 from celery import current_app
@@ -44,6 +37,13 @@ from celery.signals import (
     task_success,
     worker_process_init,
 )
+from flask import Flask
+from kombu import Exchange
+from kombu import Queue as KQueue
+from pytz import utc
+from sqlalchemy import create_engine
+from sqlalchemy.pool import QueuePool
+
 from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,

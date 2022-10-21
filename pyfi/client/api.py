@@ -1,15 +1,14 @@
 """
 Python client API for invoking and building flows and manipulating data results
 """
-from pipe import select, where
-from pydash import chunk
-from pydash import filter_ as filter
-from pydash import flatten, get, omit
-
 from celery import chain as pipeline
 from celery import chord as funnel
 from celery import chunks as segment
 from celery import group as parallel
+from pipe import select, where
+from pydash import chunk
+from pydash import filter_ as filter
+from pydash import flatten, get, omit
 
 # from .decorators import agent, network, node, plug, processor, socket, task, worker
 from .library import ProcessorBase

@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 from celery import Celery
+
 from pyfi.client.user import USER
 
 from .objects import Socket

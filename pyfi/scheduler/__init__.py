@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List
 
 from celery import Celery
+
 from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,

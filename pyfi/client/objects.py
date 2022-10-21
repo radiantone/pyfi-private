@@ -14,12 +14,12 @@ import configparser
 from pathlib import Path
 from typing import List
 
+from celery import Celery
 from kombu import Exchange
 from kombu import Queue as KQueue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from celery import Celery
 from pyfi.db.model import (
     AgentModel,
     ArgumentModel,
