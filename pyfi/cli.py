@@ -2332,7 +2332,7 @@ def update_task(context, name, module, code):
 @update.command(name="socket")
 @click.option("-n", "--name", required=True)
 @click.option("-q", "--queue", default=None, help="Queue name")
-@click.option("-i", "--interval", default=None, required=False)
+@click.option("-i", "--interval", default=-1, required=False)
 @click.option("-pi", "--procid", default=None, required=False, help="Processor id")
 @click.option("-pn", "--procname", default=None, required=False, help="Processor name")
 @click.option("-t", "--task", default=None, required=False, help="Task name")
@@ -2341,7 +2341,6 @@ def update_socket(context, name, queue, interval, procid, procname, task):
     """
     Update a socket in the database
     """
-    id = context.obj["id"]
 
     # Get the named or id of the plug model
     if name is not None:
@@ -2351,10 +2350,9 @@ def update_socket(context, name, queue, interval, procid, procname, task):
             .filter_by(name=name)
             .first()
         )
-    elif id is not None:
-        socket = (
-            context.obj["database"].session.query(SocketModel).filter_by(id=id).first()
-        )
+    else:
+        click.echo("Must provide socket name")
+        return
 
     processor = (
         context.obj["database"]

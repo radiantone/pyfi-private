@@ -26,12 +26,20 @@
     <h4 class="group-title">
       <span style="min-width: 500px;">
         {{ obj.name }}
-        <i class="fas fa-edit text-primary" style="cursor: pointer;">
+        <i
+          class="fas fa-edit text-primary"
+          style="cursor: pointer;"
+        >
           <q-popup-edit
             style="font-size: 15px; margin-top: 5px;"
             v-model="obj.name"
           >
-            <q-input style="" v-model="obj.name" dense autofocus />
+            <q-input
+              style=""
+              v-model="obj.name"
+              dense
+              autofocus
+            />
           </q-popup-edit>
         </i>
       </span>
@@ -52,9 +60,22 @@
             Save as Pattern
           </q-tooltip>
         </q-btn>
-        <q-btn flat size="xs" icon="colorize" class="bg-secondary">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-color no-header no-footer v-model="obj.color" />
+        <q-btn
+          flat
+          size="xs"
+          icon="colorize"
+          class="bg-secondary"
+        >
+          <q-popup-proxy
+            cover
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <q-color
+              no-header
+              no-footer
+              v-model="obj.color"
+            />
           </q-popup-proxy>
           <q-tooltip
             content-class=""
@@ -69,15 +90,15 @@
           size="xs"
           class="bg-secondary"
           icon="fas fa-expand-arrows-alt"
-        >
-        </q-btn>
+        />
         <q-btn
           flat
           size="xs"
           class="bg-secondary"
           icon="settings"
           @click="groupSettings"
-          ><q-tooltip
+        >
+          <q-tooltip
             content-class=""
             content-style="font-size: 16px"
             :offset="[10, 10]"
@@ -85,7 +106,13 @@
             Settings
           </q-tooltip>
         </q-btn>
-        <q-btn flat size="xs" :icon="icon" class="bg-secondary" @click="click">
+        <q-btn
+          flat
+          size="xs"
+          :icon="icon"
+          class="bg-secondary"
+          @click="click"
+        >
           <q-tooltip
             content-class=""
             content-style="font-size: 16px"
@@ -100,7 +127,8 @@
           icon="fas fa-close"
           class="bg-secondary"
           @click="deleteGroup = true"
-          ><q-tooltip
+        >
+          <q-tooltip
             content-class=""
             content-style="font-size: 16px"
             :offset="[10, 10]"
@@ -121,19 +149,28 @@
       :data-key="key"
       :style="
         'background-color:' +
-        obj.color +
-        ';width:' +
-        myWidth +
-        'px !important;height:' +
-        myHeight +
-        'px;'
+          obj.color +
+          ';width:' +
+          myWidth +
+          'px !important;height:' +
+          myHeight +
+          'px;'
       "
-    ></div>
-    <q-inner-loading :showing="showing" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
+    />
+    <q-inner-loading
+      :showing="showing"
+      style="z-index: 999999;"
+    >
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
 
-    <q-dialog v-model="savePatternDialog" persistent>
+    <q-dialog
+      v-model="savePatternDialog"
+      persistent
+    >
       <q-card
         style="width:400px; height:200px; padding: 10px; padding-left:30px;padding-top: 30px;"
       >
@@ -161,11 +198,17 @@
             <q-toolbar>
               <q-item-label>Save Pattern</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-save" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-save"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -191,8 +234,10 @@
             v-close-popup
           />
         </q-card-actions>
-        <q-card-actions align="right"
-          ><q-btn
+        <q-card-actions
+          align="right"
+        >
+          <q-btn
             flat
             style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
             label="Save"
@@ -205,7 +250,10 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="deleteGroup" persistent>
+    <q-dialog
+      v-model="deleteGroup"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -231,11 +279,17 @@
             <q-toolbar>
               <q-item-label>Delete Group</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -373,40 +427,40 @@
 }
 </style>
 <script>
-import { BaseGroupComponent } from 'jsplumbtoolkit-vue2';
-import * as htmlToImage from 'html-to-image';
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
-import { v4 as uuidv4 } from 'uuid';
+import { BaseGroupComponent } from 'jsplumbtoolkit-vue2'
+import * as htmlToImage from 'html-to-image'
+import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   name: 'GroupTemplate',
   mixins: [BaseGroupComponent],
   components: {},
   computed: {
-    myWidth() {
+    myWidth () {
       var mywidth = this.obj.w > 0 ? this.obj.w : 'auto'
-      return mywidth;
+      return mywidth
     },
-    myHeight() {
+    myHeight () {
       return this.obj.h ? this.obj.h : 'auto'
     }
   },
-  mounted() {
-    var me = this;
-    this.toolkit = window.toolkit;
+  mounted () {
+    var me = this
+    this.toolkit = window.toolkit
   },
-  created() {
-    console.log('GROUP IS', this.obj);
+  created () {
+    console.log('GROUP IS', this.obj)
   },
   watch: {
   },
-  data() {
+  data () {
     return {
       key: 1,
       obj: {
-        width:'100%',
-        height:'100%',
-        color: '',
+        width: '100%',
+        height: '100%',
+        color: ''
       },
       showing: false,
       title: 'Chapter 1',
@@ -415,106 +469,106 @@ export default {
       disabled: false,
       dimension: 500,
       deleteGroup: false,
-      icon: 'fas fa-minus',
-    };
+      icon: 'fas fa-minus'
+    }
   },
   methods: {
-    savePattern() {
-      var me = this;
-      this.savePatternDialog = false;
-      var el = document.getElementById(this.obj.id + 'inner');
-      this.showing = true;
+    savePattern () {
+      var me = this
+      this.savePatternDialog = false
+      var el = document.getElementById(this.obj.id + 'inner')
+      this.showing = true
 
       var code = JSON.parse(
         JSON.stringify(window.toolkit.getGraph().serialize(), null, '\t')
-      );
+      )
 
       // Got to find the id of this group
-      var gid = this.getGroup().id;
+      var gid = this.getGroup().id
 
-      var edges = [];
-      var ports = [];
-      var nodes = [];
+      var edges = []
+      var ports = []
+      var nodes = []
 
-      code['nodes'].forEach((node) => {
+      code.nodes.forEach((node) => {
         if (node.group && node.group === gid) {
-          nodes.push(node);
+          nodes.push(node)
 
-          code['edges'].forEach((edge) => {
-            if (edge['source'].indexOf(node.id) === 0) {
-              edges.push(edge);
+          code.edges.forEach((edge) => {
+            if (edge.source.indexOf(node.id) === 0) {
+              edges.push(edge)
             }
-          });
-          code['ports'].forEach((port) => {
-            if (port['id'].indexOf(node.id) === 0) {
-              ports.push(port);
+          })
+          code.ports.forEach((port) => {
+            if (port.id.indexOf(node.id) === 0) {
+              ports.push(port)
             }
-          });
+          })
         }
-      });
+      })
       var pattern = {
         groups: [this.getGroup().data],
         edges: edges,
         ports: ports,
-        nodes: nodes,
-      };
+        nodes: nodes
+      }
 
-      console.log('SAVE PATTERN CODE', code);
-      console.log('SAVE PATTERN', pattern);
+      console.log('SAVE PATTERN CODE', code)
+      console.log('SAVE PATTERN', pattern)
 
       htmlToImage
         .toPng(el)
         .then(function (dataUrl) {
-          var img = new Image();
-          img.src = dataUrl;
+          var img = new Image()
+          img.src = dataUrl
           window.root.$emit(
             'save.pattern',
             uuidv4(),
             me.patternName,
             img.src,
             pattern
-          );
-          console.log('IMAGE2', me.patternName, img);
-          me.showing = false;
+          )
+          console.log('IMAGE2', me.patternName, img)
+          me.showing = false
         })
         .catch(function (error) {
-          me.showing = false;
-          console.error('oops, something went wrong!', error);
-        });
+          me.showing = false
+          console.error('oops, something went wrong!', error)
+        })
     },
-    deleteAGroup(all) {
-      debugger;
-      console.log('Removing group', this.obj);
-      window.toolkit.removeGroup(this.obj, all);
+    deleteAGroup (all) {
+      debugger
+      console.log('Removing group', this.obj)
+      window.toolkit.removeGroup(this.obj, all)
     },
     resize: function () {},
-    saveTrope() {},
+    saveTrope () {},
     groupSettings: function () {
-      var me = this;
-      console.log('new.group.dialog', this.obj);
+      var me = this
+      console.log('new.group.dialog', this.obj)
       this.$root.$emit('new.group.dialog', {
         obj: this.obj,
         callback: (object) => {
-          console.log(object);
-          me.obj = object;
-        },
-      });
+          console.log(object)
+          me.obj = object
+        }
+      })
     },
     remove: function () {
-      console.log(this.obj);
-      var group = this.toolkit.getObjectInfo(this.obj);
+      console.log(this.obj)
+      var group = this.toolkit.getObjectInfo(this.obj)
 
-      this.toolkit.removeGroup(group.obj, true);
+      this.toolkit.removeGroup(group.obj, true)
     },
     click: function () {
-      this.toolkit.renderer.toggleGroup(this.obj);
+      this.toolkit.renderer.toggleGroup(this.obj)
       if (this.icon === 'fas fa-minus') {
-        this.icon = 'fas fa-plus';
+        this.icon = 'fas fa-plus'
       } else {
-        this.icon = 'fas fa-minus';
+        this.icon = 'fas fa-minus'
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 saveTrope

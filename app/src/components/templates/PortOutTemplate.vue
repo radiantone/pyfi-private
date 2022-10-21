@@ -9,113 +9,202 @@
     @touchstart.stop
     @contextmenu.stop
   >
-    <q-menu context-menu style="border: 1px solid black;">
+    <q-menu
+      context-menu
+      style="border: 1px solid black;"
+    >
       <q-list dense>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-cog"></q-icon>
+            <q-icon name="fas fa-cog" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Configure
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-times-circle"></q-icon>
+            <q-icon name="far fa-times-circle" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Disable</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Disable
+          </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-database"></q-icon>
+            <q-icon name="fas fa-database" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Provenance Data
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fa fa-area-chart"></q-icon>
+            <q-icon name="fa fa-area-chart" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Status History
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-list"></q-icon>
+            <q-icon name="fas fa-list" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View State
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-book"></q-icon>
+            <q-icon name="fas fa-book" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Usage
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-plug"></q-icon>
+            <q-icon name="fas fa-plug" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Connections
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Center in View
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-palette"></q-icon>
+            <q-icon name="fas fa-palette" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Change Color
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Group</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Group
+          </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-project-diagram"></q-icon>
+            <q-icon name="fas fa-project-diagram" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Create Template
           </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-copy"></q-icon>
+            <q-icon name="fas fa-copy" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Copy</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Copy
+          </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-trash"></q-icon>
+            <q-icon name="fas fa-trash" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Delete</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Delete
+          </q-item-section>
         </q-item>
       </q-list>
     </q-menu>
@@ -169,13 +258,19 @@
       >
         v1.2.2
       </span>
-      <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
+      <div
+        class="buttons"
+        style="position: absolute; right: 00px; top: 68px;"
+      >
         <div
           class="text-secondary"
           @click="bandwidth = !bandwidth"
           style="margin-right: 10px;"
         >
-          <i class="fas fa-tachometer-alt" style="cursor: pointer;" />
+          <i
+            class="fas fa-tachometer-alt"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -190,7 +285,10 @@
           @click="addNewPort('Input', 'outlet-icon')"
           style="margin-right: 10px;"
         >
-          <i class="outlet-icon" style="cursor: pointer;" />
+          <i
+            class="outlet-icon"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -266,79 +364,133 @@
           "
         >
           <q-list dense>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-save"></q-icon>
+                <q-icon name="fas fa-save" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Save
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-refresh"></q-icon>
+                <q-icon name="fas fa-refresh" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Refresh
               </q-item-section>
             </q-item>
             <q-separator />
 
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="far fa-comments"></q-icon>
+                <q-icon name="far fa-comments" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Comments
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fab fa-github"></q-icon>
+                <q-icon name="fab fa-github" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Git
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-history"></q-icon>
+                <q-icon name="fas fa-history" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 History
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-glasses"></q-icon>
+                <q-icon name="fas fa-glasses" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Logs
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-lock"></q-icon>
+                <q-icon name="fas fa-lock" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Security
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="far fa-list-alt"></q-icon>
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Environment
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-server"></q-icon>
+                <q-icon name="fas fa-server" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Scaling
               </q-item-section>
             </q-item>
@@ -346,15 +498,19 @@
         </q-btn-dropdown>
       </div>
     </div>
-    <ul class="table-columns" v-for="column in obj.columns" :key="column.id">
+    <ul
+      class="table-columns"
+      v-for="column in obj.columns"
+      :key="column.id"
+    >
       <li
         :class="
           'table-column jtk-droppable table-column-type-' + column.datatype
         "
         :style="
           'background:' +
-          column.background +
-          ';border-top: 1px dashed lightgrey'
+            column.background +
+            ';border-top: 1px dashed lightgrey'
         "
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
@@ -425,7 +581,12 @@
     </ul>
 
     <q-separator />
-    <div class="row" id="bandwidth" style="" v-if="bandwidth">
+    <div
+      class="row"
+      id="bandwidth"
+      style=""
+      v-if="bandwidth"
+    >
       <q-table
         dense
         hide-header
@@ -442,7 +603,10 @@
         "
       />
     </div>
-    <q-dialog v-model="deleteItem" persistent>
+    <q-dialog
+      v-model="deleteItem"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -468,11 +632,17 @@
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -505,7 +675,10 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="code" persistent>
+    <q-dialog
+      v-model="code"
+      persistent
+    >
       <q-card style="max-width: 100vw; width: 1500px;">
         <q-card-section class="row items-center bg-primary text-white">
           <q-toolbar>
@@ -520,7 +693,7 @@
               icon="close"
               class="text-white"
               v-close-popup
-            ></q-btn>
+            />
           </q-toolbar>
         </q-card-section>
         <q-card-section class="row items-center">
@@ -533,7 +706,7 @@
             ref="myEditor"
             width="100%"
             height="fit"
-          ></editor>
+          />
           <q-btn>Save</q-btn>
         </q-card-section>
 
@@ -548,7 +721,10 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="deleteConfirm" persistent>
+    <q-dialog
+      v-model="deleteConfirm"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -574,11 +750,17 @@
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -635,7 +817,7 @@
           ref="myEditor"
           width="100%"
           height="fit"
-        ></editor>
+        />
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -797,83 +979,83 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
-import { v4 as uuidv4 } from "uuid";
-import VueResizable from "vue-resizable";
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import { v4 as uuidv4 } from 'uuid'
+import VueResizable from 'vue-resizable'
 
 export default {
-  name: "PortOutTemplate",
+  name: 'PortOutTemplate',
   mixins: [BaseNodeComponent],
   components: {
-    editor: require("vue2-ace-editor"),
-    VueResizable,
+    editor: require('vue2-ace-editor'),
+    VueResizable
   },
-  created() {
-    var me = this;
-    console.log("me.tooltips ", me.tooltips);
-    console.log("start listening for show.tooltips");
-    window.root.$on("show.tooltips", (value) => {
-      console.log("start tooltips:", value);
-      me.tooltips = value;
-      console.log("ME:", me);
-      console.log("TOOLTIPS", me.tooltips);
-    });
+  created () {
+    var me = this
+    console.log('me.tooltips ', me.tooltips)
+    console.log('start listening for show.tooltips')
+    window.root.$on('show.tooltips', (value) => {
+      console.log('start tooltips:', value)
+      me.tooltips = value
+      console.log('ME:', me)
+      console.log('TOOLTIPS', me.tooltips)
+    })
   },
-  data() {
+  data () {
     return {
       obj: {},
-      text: "",
+      text: '',
       configview: false,
       deleteSpeechID: null,
       sidecode: true,
       bandwidth: true,
       columns: [
         {
-          name: "name",
-          label: "Name",
-          field: "name",
-          align: "left",
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
         },
         {
-          name: "bytes",
-          align: "center",
-          label: "Bytes",
-          field: "bytes",
+          name: 'bytes',
+          align: 'center',
+          label: 'Bytes',
+          field: 'bytes'
         },
         {
-          name: "time",
-          align: "right",
-          classes: "text-secondary",
-          label: "Time",
-          field: "time",
-        },
+          name: 'time',
+          align: 'right',
+          classes: 'text-secondary',
+          label: 'Time',
+          field: 'time'
+        }
       ],
       data: [
         {
-          name: "In",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'In',
+          bytes: '0 (0 bytes)',
+          time: '5 min'
         },
         {
-          name: "Read/Write",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'Read/Write',
+          bytes: '0 (0 bytes)',
+          time: '5 min'
         },
         {
-          name: "Out",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
+          name: 'Out',
+          bytes: '0 (0 bytes)',
+          time: '5 min'
         },
         {
-          name: "Tasks/Time",
-          bytes: "0 (0 bytes)",
-          time: "5 min",
-        },
+          name: 'Tasks/Time',
+          bytes: '0 (0 bytes)',
+          time: '5 min'
+        }
       ],
       codeview: false,
-      entityName: "",
-      columnName: "",
-      thecode: "",
+      entityName: '',
+      columnName: '',
+      thecode: '',
       tooltips: false,
       tooltip: false,
       code: false,
@@ -882,209 +1064,209 @@ export default {
         error: false,
         join: false,
         split: false,
-        complete: false,
+        complete: false
       },
       confirm: false,
       deleteItem: false,
       deleteConfirm: false,
       prompt: false,
       contentStyle: {
-        backgroundColor: "rgba(0,0,0,0.02)",
-        color: "#555",
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        color: '#555'
       },
 
       contentActiveStyle: {
-        backgroundColor: "#eee",
-        color: "black",
+        backgroundColor: '#eee',
+        color: 'black'
       },
 
       thumbStyle: {
-        right: "2px",
-        borderRadius: "5px",
-        backgroundColor: "#027be3",
-        width: "5px",
-        opacity: 0.75,
-      },
-    };
+        right: '2px',
+        borderRadius: '5px',
+        backgroundColor: '#027be3',
+        width: '5px',
+        opacity: 0.75
+      }
+    }
   },
   methods: {
-    showPanel(view, show) {
-      this.configview = false;
-      this.codeview = false;
-      this[view] = show;
+    showPanel (view, show) {
+      this.configview = false
+      this.codeview = false
+      this[view] = show
     },
-    updateDescription(value, initialValue) {
-      console.log("updateDesc", value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
+    updateDescription (value, initialValue) {
+      console.log('updateDesc', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
     },
-    updateName(value, initialValue) {
-      console.log("updateName", value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
+    updateName (value, initialValue) {
+      console.log('updateName', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
     },
     editorInit: function () {
-      var me = this;
+      var me = this
 
-      require("brace/ext/language_tools"); // language extension prerequsite...
-      require("brace/mode/html");
-      require("brace/mode/python"); // language
-      require("brace/mode/less");
-      require("brace/theme/chrome");
-      require("brace/snippets/javascript"); // snippet
-      console.log("editorInit");
-      const editor = this.$refs.myEditor.editor;
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      console.log('editorInit')
+      const editor = this.$refs.myEditor.editor
 
-      editor.setAutoScrollEditorIntoView(true);
+      editor.setAutoScrollEditorIntoView(true)
 
       setTimeout(function () {
         // me.thecode = me.obj.code;
-      }, 500);
+      }, 500)
     },
-    showCode() {
+    showCode () {
       // this.code = true;
     },
-    showTooltip(show) {
-      this.tooltip = show;
+    showTooltip (show) {
+      this.tooltip = show
     },
-    confirmDeleteSpeech(id) {
-      this.deleteSpeechID = id;
-      this.deleteItem = true;
+    confirmDeleteSpeech (id) {
+      this.deleteSpeechID = id
+      this.deleteItem = true
     },
-    resetToolkit() {
-      console.log("emitting toolkit.dirty");
-      this.$root.$emit("toolkit.dirty", false);
+    resetToolkit () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged() {
-      console.log("emitting toolkit.dirty");
-      this.$root.$emit("toolkit.dirty", true);
+    valueChanged () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode() {
-      window.toolkit.removeNode(this.obj);
+    deleteNode () {
+      window.toolkit.removeNode(this.obj)
     },
-    removeColumn(column) {
-      console.log("Removing column: ", column);
+    removeColumn (column) {
+      console.log('Removing column: ', column)
 
       for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i];
-        console.log(col);
+        var col = this.obj.columns[i]
+        console.log(col)
         if (col.id === column) {
-          console.log("Deleted column");
-          this.obj.columns.splice(i, 1);
-          break;
+          console.log('Deleted column')
+          this.obj.columns.splice(i, 1)
+          break
         }
       }
 
-      var edges = window.toolkit.getAllEdges();
+      var edges = window.toolkit.getAllEdges()
 
       for (var i = 0; i < edges.length; i++) {
-        console.log(edge);
-        const edge = edges[i];
+        console.log(edge)
+        const edge = edges[i]
         console.log(
           edge.source.getNode().id,
           this.obj.id,
           edge.data.label,
           column
-        );
+        )
         if (
           edge.source.getNode().id === this.obj.id &&
           edge.data.label === column
         ) {
-          window.toolkit.removeEdge(edge);
+          window.toolkit.removeEdge(edge)
         }
       }
       // Delete all the edges for this column id
-      console.log(this.obj);
-      window.toolkit.removePort(this.obj.id, column);
+      console.log(this.obj)
+      window.toolkit.removePort(this.obj.id, column)
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
-      port.background = "white";
-      port.datatype = "Column";
-      port.id = "speech" + uuidv4();
+    addPort (port) {
+      port.background = 'white'
+      port.datatype = 'Column'
+      port.id = 'speech' + uuidv4()
 
-      console.log("Port:", port);
-      window.toolkit.addNewPort(this.obj.id, "column", port);
-      window.renderer.repaint(this.obj);
-      console.log("Firing node updated...");
+      console.log('Port:', port)
+      window.toolkit.addNewPort(this.obj.id, 'column', port)
+      window.renderer.repaint(this.obj)
+      console.log('Firing node updated...')
 
-      console.log(this.obj.columns);
+      console.log(this.obj.columns)
     },
-    addNewPort(name, icon) {
+    addNewPort (name, icon) {
       this.addPort({
         name: name,
         icon: icon,
-        type: name,
-      });
-      this.ports[name] = true;
+        type: name
+      })
+      this.ports[name] = true
     },
-    addErrorPort() {
+    addErrorPort () {
       if (this.error) {
         this.$q.notify({
-          color: "negative",
+          color: 'negative',
           timeout: 2000,
-          position: "bottom",
-          message: "Error is already created",
-          icon: "fas fa-exclamation",
-        });
-        return;
+          position: 'bottom',
+          message: 'Error is already created',
+          icon: 'fas fa-exclamation'
+        })
+        return
       }
       this.addPort({
-        name: "Error",
-        icon: "fas fa-exclamation",
-        type: "Error",
-      });
-      this.error = true;
+        name: 'Error',
+        icon: 'fas fa-exclamation',
+        type: 'Error'
+      })
+      this.error = true
     },
-    showNewSpeechDialog() {
-      var me = this;
+    showNewSpeechDialog () {
+      var me = this
       this.$refs.speechDialog.showDialog(
         {
-          name: "Test",
-          icon: "fas fa-cube",
-          display: "Always",
-          description: "A description",
-          package: "A package",
+          name: 'Test',
+          icon: 'fas fa-cube',
+          display: 'Always',
+          description: 'A description',
+          package: 'A package',
           grouped: false,
-          type: "Argument",
+          type: 'Argument',
           properties: [],
           conditionals: [],
           rules: [],
-          notes: [],
+          notes: []
         },
-        "New",
+        'New',
         function (obj) {
-          me.addPort(obj);
+          me.addPort(obj)
         }
-      );
+      )
     },
-    showEditSpeechDialog(data) {
-      console.log("New speech dialog");
-      var me = this;
-      this.$refs.speechDialog.showDialog(data, "Edit", function (obj) {
-        me.addPort(obj);
-      });
+    showEditSpeechDialog (data) {
+      console.log('New speech dialog')
+      var me = this
+      this.$refs.speechDialog.showDialog(data, 'Edit', function (obj) {
+        me.addPort(obj)
+      })
     },
-    showEditEntityDialog() {
-      console.log("show Edit entity");
-      window.root.$emit("new.speaker.dialog", {
-        mode: "edit",
-        obj: this.obj,
-      });
+    showEditEntityDialog () {
+      console.log('show Edit entity')
+      window.root.$emit('new.speaker.dialog', {
+        mode: 'edit',
+        obj: this.obj
+      })
     },
     selectNode: function () {
-      console.log("selected: ", this.obj.id);
-      window.root.$emit("node.selected", this.obj);
+      console.log('selected: ', this.obj.id)
+      window.root.$emit('node.selected', this.obj)
     },
     deleteEntity: function (name) {
-      this.entityName = name;
-      this.confirm = true;
+      this.entityName = name
+      this.confirm = true
     },
     clicked: function () {
-      console.log("clicked");
-    },
-  },
-};
+      console.log('clicked')
+    }
+  }
+}
 </script>
