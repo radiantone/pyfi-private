@@ -147,7 +147,7 @@ setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     url=about['__url__'],
-    packages=['pyfi', 'pyfi.tests', 'pyfi.util', 'pyfi.server', 'pyfi.yaml', 'pyfi.scheduler', 'pyfi.client.user', 'pyfi.config', 'pyfi.client.example', 'pyfi.client.example.api', 'pyfi.client', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent', 'pyfi.celery',
+    packages=['pyfi', 'pyfi.tests', 'pyfi.util', 'pyfi.server', 'pyfi.yaml', 'pyfi.scheduler', 'pyfi.client.user', 'pyfi.config', 'pyfi.client.example', 'pyfi.client.example.api', 'pyfi.client', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent',
               'pyfi.blueprints', 'pyfi.celery.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.web'],
     include_package_data=True,
     python_requires=">=3.8.*",
