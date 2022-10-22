@@ -34,7 +34,7 @@ install: depends init
 .PHONY: update
 update: format lint
 	pip freeze | grep -v pyfi > requirements.txt
-	git add setup.py docs bin pyfi app  requirements.txt Makefile
+	git add setup.py docs bin pyfi app requirements.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
 	python setup.py install
@@ -59,5 +59,5 @@ clean:
 	git status
 
 .PHONY: all
-all: format lint update docs install clean freeze
+all: format lint freeze update docs install clean
 	git status
