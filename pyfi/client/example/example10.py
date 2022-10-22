@@ -81,4 +81,3 @@ plug = Plug(
     queue={"name": "pyfi.queue3"},
     target=do_this,
 )
-
