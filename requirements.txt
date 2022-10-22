@@ -15,7 +15,7 @@ beautifulsoup4==4.11.1
 bidict==0.22.0
 billiard==3.6.4.0
 bjoern==3.2.1
-black==22.3.0
+black==22.10.0
 bs4==0.0.1
 celery==5.2.6
 certifi==2021.10.8

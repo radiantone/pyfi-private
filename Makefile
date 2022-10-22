@@ -49,11 +49,15 @@ docs:
 release: update tests docs 
 	bash ./bin/tag.sh
 
+.PHONY: freeze
+freeze:
+	pip freeze > requirements.txt
+
 .PHONY: clean
 clean:
 	python setup.py clean
 	git status
 
 .PHONY: all
-all: format lint update docs install clean
+all: format lint update docs install clean freeze
 	git status
