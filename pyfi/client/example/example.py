@@ -1,4 +1,5 @@
 import json
+import os
 
 from pyfi.client.api import Plug, Processor, Socket
 from pyfi.client.user import USER
@@ -18,7 +19,7 @@ processor = Processor(
     module="pyfi.processors.sample",
     branch="main",
     concurrency=6,
-    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    gitrepo=os.environ["GIT_REPO"],
 )
 
 processor2 = Processor(
@@ -28,7 +29,7 @@ processor2 = Processor(
     hostname="radiant",
     concurrency=6,
     branch="main",
-    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    gitrepo=os.environ["GIT_REPO"],
 )
 
 # Create a socket on the processor to receive requests for the do_something python function(task)

@@ -1,6 +1,8 @@
 """
 Decorator API for PYFI/Flow. Defines network from plain old classes and methods.
 """
+import os
+
 from pyfi.client.api import ProcessorBase
 from pyfi.client.decorators import agent, network, node, plug, processor, socket
 
@@ -11,7 +13,7 @@ from pyfi.client.decorators import agent, network, node, plug, processor, socket
 @processor(
     name="proc2",
     deployment="proc2.deploy",
-    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    gitrepo=os.environ["GIT_REPO"],
     module="pyfi.processors.sample",
     concurrency=6,
 )
@@ -38,7 +40,7 @@ class ProcessorB(ProcessorBase):
 @processor(
     name="proc1",
     deployment="proc1.deploy",
-    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    gitrepo=os.environ["GIT_REPO"],
     module="pyfi.processors.sample",
 )  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
