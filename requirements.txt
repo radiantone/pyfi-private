@@ -138,6 +138,7 @@ sqlalchemy-oso==0.26.0
 sqlalchemy-stubs==0.4
 text-unidecode==1.3
 toml==0.10.2
+radon
 tomli==2.0.1
 tornado==6.1
 types-cryptography==3.3.23.1

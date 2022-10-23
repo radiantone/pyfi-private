@@ -31,6 +31,10 @@ install: depends init
 	python setup.py install
 	python setup.py clean
 
+.PHONY: up
+up:
+	./bin/up.sh
+
 .PHONY: update
 update: format lint
 	pip freeze | grep -v pyfi > requirements.txt
