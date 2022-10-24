@@ -274,15 +274,14 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             finally:
                 session.close()
 
-        oso.load_files([home + "/pyfi.polar"])
-
         context.obj["database"].session.close()
+
+        """ RBAC """
+        oso.load_files([home + "/pyfi.polar"])
 
         def get_checked_permissions(*args, **kwargs):
             logger.debug("cli: get_checked_permissions")
 
-            # engine = create_engine(db)
-            # engine.uri = db
             session = sessionmaker(bind=engine)()
             _user = (
                 session.query(UserModel)
@@ -327,6 +326,9 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
             get_checked_permissions=get_checked_permissions,
             bind=engine,
         )()
+
+        """ RBAC """
+
         user_m2 = user_object = (
             session.query(UserModel).filter_by(name=username, password=password).first()
         )
@@ -336,9 +338,9 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         context.obj["user"] = user_m2
         context.obj["database"].session = session  # context.obj['session']
 
-        # Load the base policy file into OSO
-        @event.listens_for(session, "before_commit")
+        @event.listens_for(session, "after_commit")
         def receive_after_commit(session):
+            """Invoked after every transaction commit"""
             import json
 
             import redis
@@ -1241,23 +1243,6 @@ def add(context, id):
         id = uuid4()
 
     context.obj["id"] = str(id)
-
-
-'''
-@cli.group()
-@click.option("--id", default=None, help="ID of object being added")
-@click.pass_context
-def update(context, id):
-    """
-    Update a database object
-    """
-    from uuid import uuid4
-
-    if id is None:
-        id = uuid4()
-
-    context.obj["id"] = str(id)
-'''
 
 
 @scheduler.command(name="start", help="Start the default scheduler")
