@@ -25,6 +25,7 @@ from pyfi.db.model import (
     TaskModel,
     VersionModel,
     WorkerModel,
+    AlchemyEncoder
 )
 
 CONFIG = configparser.ConfigParser()
@@ -52,6 +53,8 @@ api = Api(
     title="LambdaFLOW API",
     description="LambdaFLOW Backend API",
 )
+
+app.json_encoder = AlchemyEncoder
 
 
 def create_endpoint(modulename, taskname):

@@ -937,6 +937,8 @@ class WorkerService:
                                     "No pre-existing Call object for id %s", myid
                                 )
                         except:
+                            import traceback
+                            print(traceback.format_exc())
                             logging.error("No pre-existing Call object for id %s", myid)
 
                         sourceplugs = {}

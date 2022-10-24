@@ -2,8 +2,8 @@
   <div>
     <q-toolbar class="sidebar node-palette">
       <img
-        src="~assets/images/pyfi.svg"
-        style="padding-left: 15px; height: 45px; padding-right: 10px;"
+        src="~assets/images/elasticcode.svg"
+        style="padding-left: 15px; height: 55px; padding-right: 10px;"
       >
       <q-btn
         flat
