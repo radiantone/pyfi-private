@@ -338,7 +338,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
         context.obj["user"] = user_m2
         context.obj["database"].session = session  # context.obj['session']
 
-        @event.listens_for(session, "after_commit")
+        @event.listens_for(session, "before_commit")
         def receive_after_commit(session):
             """Invoked after every transaction commit"""
             import json
@@ -4992,3 +4992,6 @@ def web_start(port):
     except Exception as ex:
         logging.error(ex)
         logger.info("Shutting down...")
+
+if __name__ == '__main__':
+    start_agent()

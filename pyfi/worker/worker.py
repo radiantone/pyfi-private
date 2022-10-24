@@ -571,6 +571,7 @@ class WorkerService:
                 ]
 
             logging.debug("Launching worker %s %s", cmd, name)
+            dir = os.getcwd()
             self.process = process = Popen(
                 cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
             )
