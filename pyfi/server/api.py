@@ -5,7 +5,7 @@ import configparser
 import json
 import logging
 import platform
-from typing import Any
+from typing import Any, Type
 
 from flask import Flask, jsonify, make_response, request, send_from_directory
 from flask_restx import Api, Resource, fields, reqparse
@@ -15,6 +15,7 @@ from pyfi.client.user import USER
 from pyfi.db import get_session
 from pyfi.db.model import (
     AgentModel,
+    AlchemyEncoder,
     CallModel,
     DeploymentModel,
     FileModel,
@@ -25,7 +26,6 @@ from pyfi.db.model import (
     TaskModel,
     VersionModel,
     WorkerModel,
-    AlchemyEncoder
 )
 
 CONFIG = configparser.ConfigParser()
@@ -54,7 +54,7 @@ api = Api(
     description="LambdaFLOW Backend API",
 )
 
-app.json_encoder = AlchemyEncoder
+setattr(app, "json_encoder", AlchemyEncoder)
 
 
 def create_endpoint(modulename, taskname):

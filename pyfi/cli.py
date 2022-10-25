@@ -1255,6 +1255,7 @@ def add(context, id):
 @click.pass_context
 def start_scheduler(context, name, interval, nodeployments, clazz):
     from pyfi.scheduler import BasicScheduler
+
     print("Starting scheduler {} with interval {} seconds.".format(name, interval))
     try:
         scheduler_class = import_class(clazz)
@@ -4993,5 +4994,6 @@ def web_start(port):
         logging.error(ex)
         logger.info("Shutting down...")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     start_agent()
