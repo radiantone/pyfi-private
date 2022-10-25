@@ -35,6 +35,14 @@ install: depends init
 up:
 	./bin/up.sh
 
+.PHONY: stop
+stop:
+	docker compose stop
+
+.PHONY: refresh
+refresh:
+	./bin/docker-refresh.sh
+
 .PHONY: update
 update: format lint
 	pip freeze | grep -v pyfi > requirements.txt
