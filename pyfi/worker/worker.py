@@ -2786,7 +2786,7 @@ class WorkerService:
                         # If not using a container, then build the virtualenv
                         if changes or not os.path.exists("venv/bin/flow"):
                             logging.info(
-                                "Building virtualenv for %s...in %s",
+                                "Building2 virtualenv for %s...in %s",
                                 deployment.processor.name,
                                 os.getcwd(),
                             )
