@@ -2920,9 +2920,9 @@ class WorkerService:
             webserver.start()
             logging.debug("web_server started...")
 
-        start_worker_proc()
         ops = [
             start_database_actions,
+            start_worker_proc,
             start_emit_messages,
             start_web_server,
         ]
