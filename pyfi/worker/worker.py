@@ -1918,22 +1918,27 @@ class WorkerService:
 
                 sys.path.append(os.getcwd())
 
-                logging.debug("Setting worker")
+                logging.info("Setting worker")
                 setattr(builtins, "worker", worker)
 
-                logging.debug("CWD %s", os.getcwd())
+                logging.info("CWD %s", os.getcwd())
 
                 """ Import the module of the processor """
-                logging.debug("Importing processor module")
-                module = importlib.import_module(_processor.module)
+                logging.info("Importing processor module")
+                try:
+                    module = importlib.import_module(_processor.module)
+                except:
+                    import traceback
+                    print(traceback.format_exc())
+                    pass
 
                 _plugs = {}
 
-                logging.debug("Initializing plugs")
+                logging.info("Initializing plugs")
                 for plug in _processor.plugs:
                     _plugs[plug.queue.name] = []
 
-                logging.debug("Configuring sockets")
+                logging.info("Configuring sockets")
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
                     for _socket in _processor.sockets:
 
@@ -2780,7 +2785,7 @@ class WorkerService:
 
                         # If not using a container, then build the virtualenv
                         if changes or not os.path.exists("venv/bin/flow"):
-                            logging.debug(
+                            logging.info(
                                 "Building virtualenv for %s...in %s",
                                 deployment.processor.name,
                                 os.getcwd(),
