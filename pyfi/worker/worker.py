@@ -2811,6 +2811,7 @@ class WorkerService:
                                 print(traceback.format_exc())
                                 pass
 
+                            logging.debug("Deployment use_container %s",deployment.processor.use_container)
                             if not deployment.processor.use_container:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
                                 try:
