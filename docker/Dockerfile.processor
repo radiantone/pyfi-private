@@ -32,7 +32,7 @@ RUN venv/bin/pip install --upgrade flask
 RUN venv/bin/pip install -r requirements.txt
 RUN venv/bin/pip uninstall -y pytz
 RUN venv/bin/python setup.py install
-#RUN venv/bin/pip install git+https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor
+#RUN venv/bin/pip install git+https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor
 
 RUN update-rc.d -f supervisord remove
 RUN useradd pyfi -d /home/pyfi

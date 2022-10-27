@@ -30,8 +30,8 @@ network:
               status: ready
               requested_status: update
               branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+              pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
+              gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
               module: pyfi.processors.sample
               beat: true
@@ -71,8 +71,8 @@ network:
               status: ready
               requested_status: update
               branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+              pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
+              gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
               module: pyfi.processors.sample
               beat: true
@@ -87,8 +87,8 @@ network:
                       name: do_something          
             proc4: 
               branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+              pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
+              gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
               module: pyfi.processors.sample
               beat: false

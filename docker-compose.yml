@@ -89,7 +89,6 @@ services:
     image: pyfi/processor:latest
     environment: 
       - "EVENTS=events"
-      - "GIT_LOGIN=https://radiantone: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@github.com"
 
   api:
     build: 
@@ -99,7 +98,6 @@ services:
     image: api:latest
     environment: 
       - "EVENTS=events"
-      - "GIT_LOGIN=https://radiantone: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@github.com"
     ports:
       - 8014:8003
     profiles: 
@@ -116,7 +114,6 @@ services:
     image: elasticcode/agent:latest
     environment: 
       - "EVENTS=events"
-      - "GIT_LOGIN=https://radiantone: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@github.com"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
     ports:
       - 8004:8002
@@ -140,7 +137,6 @@ services:
     image: agent:latest
     environment: 
       - "EVENTS=events"
-      - "GIT_LOGIN=https://radiantone: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@github.com"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
     ports:
       - 8004:8002
@@ -164,7 +160,6 @@ services:
     image: agent:latest
     environment: 
       - "EVENTS=events"
-      - "GIT_LOGIN=https://radiantone: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@github.com"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent2 --clean --size 20 --user pyfi --cpus 4"
     ports:
       - 8003:8002

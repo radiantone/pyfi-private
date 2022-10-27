@@ -14,9 +14,9 @@ flow scheduler -n sched1  add --node node1
 flow scheduler -n sched1  add --node node2
 flow scheduler -n sched1  add --node node3
 
-flow add processor -n proc1 -g https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample 
-flow add processor -n agent1proc1 -g https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample -h agent1
-flow add processor -n agent2proc1 -g https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample -h agent2
+flow add processor -n proc1 -g https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample
+flow add processor -n agent1proc1 -g https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample -h agent1
+flow add processor -n agent2proc1 -g https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor  -m pyfi.processors.sample -h agent2
 
 flow add queue -n pyfi.queue1 -t direct
 flow add queue -n pyfi.queue2 -t direct

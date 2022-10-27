@@ -42,8 +42,8 @@ network:
                 detached: true
 
                 branch: main
-                pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-                gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+                pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
+                gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
                 commit:
                 module: pyfi.processors.sample
                 beat: false
@@ -86,8 +86,8 @@ network:
           processors:
             proc4: 
               branch: main
-              pyfirepo: 'https://radiantone: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@github.com/radiantone/pyfi-private#egg=pyfi'
-              gitrepo: 'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+              pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
+              gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
               module: pyfi.processors.sample
               beat: false
