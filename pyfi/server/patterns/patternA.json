@@ -36,7 +36,7 @@
 			"cron": "* * * * *",
 			"useschedule": false,
 			"commit": "",
-			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"git": "https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
 			"readwrite": 0,
 			"group": "70b56092-4b64-46d4-907a-16153c226e5c"
 		},
@@ -85,7 +85,7 @@
 			"cron": "* * * * *",
 			"useschedule": false,
 			"commit": "",
-			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"git": "https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
 			"readwrite": 0,
 			"group": "70b56092-4b64-46d4-907a-16153c226e5c"
 		},
@@ -134,7 +134,7 @@
 			"cron": "* * * * *",
 			"useschedule": false,
 			"commit": "",
-			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"git": "https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
 			"readwrite": 0,
 			"group": "70b56092-4b64-46d4-907a-16153c226e5c"
 		},
@@ -183,7 +183,7 @@
 			"cron": "* * * * *",
 			"useschedule": false,
 			"commit": "",
-			"git": "https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+			"git": "https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
 			"readwrite": 0,
 			"group": "70b56092-4b64-46d4-907a-16153c226e5c"
 		}

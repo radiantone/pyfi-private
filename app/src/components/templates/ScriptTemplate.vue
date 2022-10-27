@@ -3728,7 +3728,7 @@ export default {
         disabled: false,
         commit: '',
         gitrepo:
-          'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
+          'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
         columns: [],
         modulepath: 'pyfi/processors/sample.py',
         readwrite: 0,
