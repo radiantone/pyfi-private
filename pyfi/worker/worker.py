@@ -2838,6 +2838,7 @@ class WorkerService:
                 if not start:
                     return
 
+                logging.debug("Creating worker process")
                 """ Start worker process"""
                 worker_process = Process(
                     target=worker_proc,
@@ -2850,6 +2851,8 @@ class WorkerService:
                     self.data["name"],
                     self.worker_process,
                 )
+
+                logging.debug("Starting worker process")
                 worker_process.start()
                 logging.debug(
                     "worker_process started for %s...%s",
