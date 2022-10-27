@@ -574,14 +574,18 @@ class WorkerService:
             try:
                 logging.info("Launching worker %s %s", cmd_str, name)
                 dir = os.getcwd()
-                self.process = process = Popen(
-                    cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
-                )
 
-                with open(self.basedir + "/worker.pid", "a") as pidfile:
-                    pidfile.write(str(process.pid))
+                if os.path.exists("venv/bin/flow"):
+                    self.process = process = Popen(
+                        cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
+                    )
 
-                logging.debug("Worker launched successfully: process %s.", self.process.pid)
+                    with open(self.basedir + "/worker.pid", "a") as pidfile:
+                        pidfile.write(str(process.pid))
+
+                    logging.debug("Worker launched successfully: process %s.", self.process.pid)
+                else:
+                    logging.debug("Worker packages not yet installed. Skipping launch")
             except:
                 import traceback
 
@@ -2792,9 +2796,15 @@ class WorkerService:
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
-                            env.install(
-                                pyfi_repo
-                            )
+
+                            try:
+                                env.install(
+                                    pyfi_repo
+                                )
+                            except:
+                                import traceback
+                                print(traceback.format_exc())
+                                pass
 
                             if not deployment.processor.use_container:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
