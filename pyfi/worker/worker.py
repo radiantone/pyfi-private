@@ -2815,7 +2815,7 @@ class WorkerService:
                             if not deployment.processor.use_container:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
                                 try:
-                                    logging.debug("Installing package %s with %s into %s", deployment.processor.gitrepo.strip(), sys.executable, os.getcwd())
+                                    logging.debug("Installing package1 %s with %s into %s", deployment.processor.gitrepo.strip(), sys.executable, os.getcwd())
                                     env.install(
                                         "-e git+" + deployment.processor.gitrepo.strip()
                                     )
