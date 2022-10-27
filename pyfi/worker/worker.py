@@ -570,16 +570,23 @@ class WorkerService:
                     str(size),
                 ]
 
-            logging.debug("Launching worker %s %s", cmd, name)
-            dir = os.getcwd()
-            self.process = process = Popen(
-                cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
-            )
+            cmd_str = ' '.join(cmd)
+            try:
+                logging.info("Launching worker %s %s", cmd_str, name)
+                dir = os.getcwd()
+                self.process = process = Popen(
+                    cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
+                )
 
-            with open(self.basedir + "/worker.pid", "a") as pidfile:
-                pidfile.write(str(process.pid))
+                with open(self.basedir + "/worker.pid", "a") as pidfile:
+                    pidfile.write(str(process.pid))
 
-            logging.debug("Worker launched successfully: process %s.", self.process.pid)
+                logging.debug("Worker launched successfully: process %s.", self.process.pid)
+            except:
+                import traceback
+
+                print(traceback.format_exc())
+                pass
         else:
             """Run agent worker inside new or previously launched container"""
             raise NotImplementedError
@@ -2768,7 +2775,7 @@ class WorkerService:
                             )
 
                         # If not using a container, then build the virtualenv
-                        if changes or not os.path.exists("venv"):
+                        if changes or not os.path.exists("venv/bin/flow"):
                             logging.debug(
                                 "Building virtualenv for %s...in %s",
                                 deployment.processor.name,
@@ -2780,12 +2787,13 @@ class WorkerService:
 
                             login = os.environ["GIT_LOGIN"]
 
+                            pyfi_repo = "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
                             # Install pyfi
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
                             env.install(
-                                "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
+                                pyfi_repo
                             )
 
                             if not deployment.processor.use_container:
@@ -2902,9 +2910,9 @@ class WorkerService:
             webserver.start()
             logging.debug("web_server started...")
 
+        start_worker_proc()
         ops = [
             start_database_actions,
-            start_worker_proc,
             start_emit_messages,
             start_web_server,
         ]
