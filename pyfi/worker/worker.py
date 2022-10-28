@@ -1952,6 +1952,7 @@ class WorkerService:
                     for _socket in _processor.sockets:
                         logging.info("Configuring socket %s", _socket)
                         if _socket.scheduled:
+                            logging.info("Socket is scheduled.")
                             try:
                                 if _socket.schedule_type == "CRON":
                                     logging.info("ADDING CRON JOB TYPE")
@@ -2656,8 +2657,6 @@ class WorkerService:
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 
-                logging.info("Sleeping....")
-                time.sleep(5)
                 logging.info("Starting scheduler...")
                 scheduler.start()
                 logging.info("Starting worker...")
