@@ -570,21 +570,26 @@ class WorkerService:
                     str(size),
                 ]
 
-            cmd_str = ' '.join(cmd)
+            cmd_str = " ".join(cmd)
             try:
                 logging.info("Launching worker %s %s", cmd_str, name)
                 dir = os.getcwd()
 
                 if os.path.exists("venv/bin/flow"):
                     self.process = process = Popen(
-                        cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid,
-                        cwd=dir
+                        cmd,
+                        stdout=sys.stdout,
+                        stderr=sys.stdout,
+                        preexec_fn=os.setsid,
+                        cwd=dir,
                     )
 
                     with open(self.basedir + "/worker.pid", "a") as pidfile:
                         pidfile.write(str(process.pid))
 
-                    logging.debug("Worker launched successfully: process %s.", self.process.pid)
+                    logging.debug(
+                        "Worker launched successfully: process %s.", self.process.pid
+                    )
                 else:
                     logging.debug("Worker packages not yet installed. Skipping launch")
             except:
@@ -1931,6 +1936,7 @@ class WorkerService:
                     module = importlib.import_module(_processor.module)
                 except:
                     import traceback
+
                     print(traceback.format_exc())
                     pass
 
@@ -1942,6 +1948,7 @@ class WorkerService:
 
                 logging.info("Configuring sockets")
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
+                    logging.info("Found sockets %s", _processor.sockets)
                     for _socket in _processor.sockets:
 
                         if _socket.scheduled:
@@ -2649,9 +2656,9 @@ class WorkerService:
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 
-                logging.debug("Starting scheduler...")
+                logging.info("Starting scheduler...")
                 scheduler.start()
-                logging.debug("Starting worker...")
+                logging.info("Starting worker...")
                 worker.start()
 
         def start_worker_proc():
@@ -2788,7 +2795,7 @@ class WorkerService:
                         # If not using a container, then build the virtualenv
                         if changes or not os.path.exists("venv/bin/flow"):
                             logging.info(
-                                "Building2 virtualenv for %s...in %s",
+                                "Building virtualenv for %s...in %s",
                                 deployment.processor.name,
                                 os.getcwd(),
                             )
@@ -2799,31 +2806,46 @@ class WorkerService:
                             env.install("--upgrade pip")
                             login = os.environ["GIT_LOGIN"]
 
-                            pyfi_repo = "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
+                            pyfi_repo = (
+                                "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
+                            )
                             # Install pyfi
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")
                             env.install("pymongo")
 
                             try:
-                                env.install(
-                                    pyfi_repo
-                                )
+                                env.install(pyfi_repo)
                             except:
                                 import traceback
+
                                 print(traceback.format_exc())
                                 pass
 
-                            logging.debug("Deployment use_container %s",deployment.processor.use_container)
+                            logging.debug(
+                                "Deployment use_container %s",
+                                deployment.processor.use_container,
+                            )
                             if not deployment.processor.use_container:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
                                 try:
-                                    logging.debug("Installing package1 %s with %s into %s", deployment.processor.gitrepo.strip(), sys.executable, os.getcwd())
+                                    logging.debug(
+                                        "Installing package1 %s with %s into %s",
+                                        deployment.processor.gitrepo.strip(),
+                                        sys.executable,
+                                        os.getcwd(),
+                                    )
                                     env.install(
                                         "-e git+" + deployment.processor.gitrepo.strip()
                                     )
-                                    logging.info("Installing: -e git+%s" + deployment.processor.gitrepo.strip())
-                                    logging.debug("Successfully installed %s", deployment.processor.gitrepo.strip())
+                                    logging.info(
+                                        "Installing: -e git+%s"
+                                        + deployment.processor.gitrepo.strip()
+                                    )
+                                    logging.debug(
+                                        "Successfully installed %s",
+                                        deployment.processor.gitrepo.strip(),
+                                    )
                                 except:
                                     import traceback
 
