@@ -577,7 +577,8 @@ class WorkerService:
 
                 if os.path.exists("venv/bin/flow"):
                     self.process = process = Popen(
-                        cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid
+                        cmd, stdout=sys.stdout, stderr=sys.stdout, preexec_fn=os.setsid,
+                        cwd=dir
                     )
 
                     with open(self.basedir + "/worker.pid", "a") as pidfile:
@@ -1916,8 +1917,7 @@ class WorkerService:
                         }
                         """
 
-                #sys.path.insert(0, os.getcwd())
-                #sys.path.append(os.getcwd())
+                sys.path.insert(0, os.getcwd())
 
                 logging.info("Setting worker")
                 setattr(builtins, "worker", worker)
