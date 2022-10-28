@@ -1948,7 +1948,7 @@ class WorkerService:
 
                 logging.info("Configuring sockets")
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
-                    logging.info("Found sockets %s", _processor.sockets)
+                    logging.info("Found sockets2 %s", _processor.sockets)
                     for _socket in _processor.sockets:
                         logging.info("Configuring socket %s", _socket)
                         if _socket.scheduled:
