@@ -710,7 +710,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                             f"-----------------------Starting {myprocessor.name}"
                                         )
 
-                                        """ Start the worker service """
+                                        """ Build the worker environment """
                                         workerproc.start(start=False)
 
                                         """ Add the process object to a list """

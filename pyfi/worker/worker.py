@@ -1916,7 +1916,7 @@ class WorkerService:
                         }
                         """
 
-                sys.path.insert(0, os.getcwd())
+                #sys.path.insert(0, os.getcwd())
                 #sys.path.append(os.getcwd())
 
                 logging.info("Setting worker")
@@ -1928,6 +1928,8 @@ class WorkerService:
                 """ Import the module of the processor """
                 logging.info("Importing processor module %s", _processor.module)
                 try:
+                    import pyfi.processors.sample
+
                     module = importlib.import_module(_processor.module)
                 except:
                     import traceback

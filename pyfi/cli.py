@@ -345,11 +345,11 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
 
             import redis
 
-            logging.debug("commit UPDATED", session)
+            logging.debug("commit UPDATED %s", session)
             redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
             for obj in session:
-                logging.debug("OBJ IN SESSION", type(obj), obj)
+                logging.debug("OBJ IN SESSION %s %s", type(obj), obj)
 
                 if isinstance(obj, ProcessorModel):
                     # Publish to redis, pubsub, which gets sent to browser
