@@ -400,7 +400,7 @@ class WorkerService:
             self.user = user
             os.chdir(self.basedir)
 
-            logging.debug("New Worker init: %s", processor)
+            logging.debug("New Worker init: %s", processor.name)
 
             if os.path.exists(HOME + "/pyfi.ini"):
                 CONFIG.read(HOME + "/pyfi.ini")
@@ -1928,8 +1928,6 @@ class WorkerService:
                 """ Import the module of the processor """
                 logging.info("Importing processor module %s", _processor.module)
                 try:
-                    import pyfi.processors.sample
-
                     module = importlib.import_module(_processor.module)
                 except:
                     import traceback
