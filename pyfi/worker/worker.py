@@ -2656,6 +2656,8 @@ class WorkerService:
                             self.main_queue.put(postrun)
                             logging.debug("POSTRUN DONE PUTTING ON main_queue")
 
+                logging.info("Sleeping....")
+                time.sleep(5)
                 logging.info("Starting scheduler...")
                 scheduler.start()
                 logging.info("Starting worker...")
