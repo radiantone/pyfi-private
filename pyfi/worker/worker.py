@@ -1950,19 +1950,19 @@ class WorkerService:
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
                     logging.info("Found sockets %s", _processor.sockets)
                     for _socket in _processor.sockets:
-
+                        logging.info("Configuring socket %s", _socket)
                         if _socket.scheduled:
                             try:
                                 if _socket.schedule_type == "CRON":
-                                    logging.debug("ADDING CRON JOB TYPE")
+                                    logging.info("ADDING CRON JOB TYPE")
 
                                 elif _socket.schedule_type == "INTERVAL":
-                                    logging.debug(
+                                    logging.info(
                                         "Found INTERVAL schedule for socket: %s",
                                         _socket,
                                     )
                                     if _socket.name not in self.jobs:
-                                        logging.debug("Adding job-> %s", _socket.name)
+                                        logging.info("Adding job-> %s", _socket.name)
                                         plug = None
                                         for plug in _processor.plugs:
                                             if plug.target.name == _socket.name:
@@ -1978,7 +1978,7 @@ class WorkerService:
                                                 # Ensure job id matches socket so it can be related
                                                 # Maybe this shouldn't use a plug
                                                 try:
-                                                    logging.debug(
+                                                    logging.info(
                                                         "Adding job %s with interval %s",
                                                         dispatcher,
                                                         _socket.interval,
@@ -1996,14 +1996,14 @@ class WorkerService:
                                                             interval,
                                                             args,
                                                         ):
-                                                            logging.debug(
+                                                            logging.info(
                                                                 "Calling function %s %s",
                                                                 func,
                                                                 args,
                                                             )
                                                             func(*args)
 
-                                                            # logging.debug(
+                                                            # logging.info(
                                                             #    "Sleeping %s", interval
                                                             # )
                                                             # time.sleep(interval)
@@ -2030,11 +2030,11 @@ class WorkerService:
                                                             (s, func, interval, args),
                                                         )
                                                         s.run()
-                                                        logging.debug(
+                                                        logging.info(
                                                             "Scheduler completed."
                                                         )
 
-                                                    logging.debug(
+                                                    logging.info(
                                                         "Pre-dispatch plug.argument %s",
                                                         plug.argument_id,
                                                     )
@@ -2055,12 +2055,12 @@ class WorkerService:
                                                     job.start()
                                                     # scheduler.add_job(dispatcher, 'interval', (self.processor, plug, "message", self.dburi, socket), jobstore='default',
                                                     #                    misfire_grace_time=60, coalesce=True, max_instances=1, seconds=socket.interval, id=self.processor.name+plug.name, )
-                                                    logging.debug(
+                                                    logging.info(
                                                         "Scheduled socket %s",
                                                         _socket.name,
                                                     )
                                                 except:
-                                                    logging.debug(
+                                                    logging.info(
                                                         "Job %s already scheduled.",
                                                         _socket.name,
                                                     )
@@ -2069,11 +2069,11 @@ class WorkerService:
                                 import traceback
 
                                 print(traceback.format_exc())
-                                logging.debug(
+                                logging.info(
                                     "Already scheduled this socket %s", socket.name
                                 )
 
-                        logging.debug("Socket task %s", socket.task)
+                        logging.info("Socket task %s", socket.task)
                         if socket.task.code and not socket.task.endpoint:
                             # We have custom code for this task
                             # Add the task.code to the loaded module
@@ -2083,15 +2083,15 @@ class WorkerService:
                             # Inject the code into the module.
                             # The module originates in the mounted git repo
                             # So the task code is like a "mixin"
-                            logging.debug("TASK CODE: %s", socket.task.code)
+                            logging.info("TASK CODE: %s", socket.task.code)
                             exec(socket.task.code, module.__dict__)
                         else:
-                            logging.debug("NO TASK CODE")
+                            logging.info("NO TASK CODE")
 
                         # Get the function from the loaded module
                         _func = getattr(module, socket.task.name)
 
-                        logging.debug(
+                        logging.info(
                             "TASK SOURCE: %s %s %s",
                             socket.task.id,
                             socket.task,
@@ -2108,14 +2108,14 @@ class WorkerService:
                         # is an override. The task.source is the source from
                         # the configured module function (pulled from git repo)
                         socket.task.source = _source
-                        logging.debug(
+                        logging.info(
                             "Updated source for %s %s %s",
                             socket.task.id,
                             socket.task,
                             socket.task.source,
                         )
                         session.commit()
-                        logging.debug(
+                        logging.info(
                             "TASK SOURCE:-> %s %s %s",
                             socket.task.id,
                             socket.task,
@@ -2135,8 +2135,8 @@ class WorkerService:
                                 CONFIG.get("redis", "uri")
                             )
 
-                            logging.debug("WRAPPED FUNCTION INVOKE %s", socket.task)
-                            logging.debug("ARGS: %s, KWARGS: %s", args, kwargs)
+                            logging.info("WRAPPED FUNCTION INVOKE %s", socket.task)
+                            logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
                             taskid = kwargs["myid"]
 
@@ -2147,14 +2147,14 @@ class WorkerService:
                                 argument = kwargs["argument"]
 
                                 # Store argument in redis
-                                logging.debug("ARGS %s %s %s", type(args), args, *args)
+                                logging.info("ARGS %s %s %s", type(args), args, *args)
 
                                 # We are receiving an argument as a tuple, therefore only the first
                                 # element of the tuple is our data
                                 _argdata = args[0]
                                 _jsonargdata = json.dumps(_argdata)
 
-                                logging.debug(
+                                logging.info(
                                     "STORING ARGUMENT  %s %s",
                                     argument["key"]
                                     + "."
@@ -2175,7 +2175,7 @@ class WorkerService:
                                 # args = redisclient.get(argument['key']+'.*')
                                 # Compare args names to task arguments and if they are 1 to 1
                                 # then trigger the function
-                                logging.debug("WRAPPED FUNCTION ARGUMENT %s ", argument)
+                                logging.info("WRAPPED FUNCTION ARGUMENT %s ", argument)
 
                                 # If we received an argument and not all the arguments needed have been stored
                                 # then we simply return the argument, otherwise we execute the function
@@ -2196,7 +2196,7 @@ class WorkerService:
                                     )
 
                                     if _argdata is None:
-                                        logging.debug(
+                                        logging.info(
                                             "ARGUMENT NOT SATISIFIED %s",
                                             argument["key"]
                                             + "."
@@ -2207,7 +2207,7 @@ class WorkerService:
                                         return argument
                                     else:
                                         _arg = json.loads(_argdata)
-                                        logging.debug(
+                                        logging.info(
                                             "FOUND STORED ARGUMENT %s %s",
                                             _arg,
                                             argument["key"]
@@ -2217,7 +2217,7 @@ class WorkerService:
                                             + str(arg.position),
                                         )
                                         _newargs.append(_arg)
-                                    logging.debug("WRAPPED_FUNCTION ARG: %s", arg)
+                                    logging.info("WRAPPED_FUNCTION ARG: %s", arg)
 
                                 args = _newargs
 
@@ -2236,9 +2236,9 @@ class WorkerService:
                             """ MAIN FUNCTION EXECUTION """
                             if _kwargs:
                                 """If we have kwargs to pass in"""
-                                logging.debug("Invoking function %s %s", args, _kwargs)
+                                logging.info("Invoking function %s %s", args, _kwargs)
 
-                                logging.debug(
+                                logging.info(
                                     "CONTAINER INIT: %s %s",
                                     self.container,
                                     _processor.use_container,
