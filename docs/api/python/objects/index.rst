@@ -20,7 +20,7 @@ Objects
             name="proc1",
             beat=True,
             user=USER,
-            module="pyfi.processors.sample",
+            module="ext.processors.sample",
             branch="main",
             concurrency=6,
             gitrepo="https://user:key@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
@@ -29,7 +29,7 @@ Objects
         processor2 = Processor(
             name="proc2",
             user=USER,
-            module="pyfi.processors.sample",
+            module="ext.processors.sample",
             hostname="agent1",
             concurrency=6,
             branch="main",
@@ -39,7 +39,7 @@ Objects
         processor3 = Processor(
             name="proc3",
             user=USER,
-            module="pyfi.processors.sample",
+            module="ext.processors.sample",
             hostname="agent2",
             concurrency=6,
             branch="main",
@@ -48,7 +48,7 @@ Objects
 
         # Create a socket on the processor to receive requests for the do_something python function(task)
         do_something = Socket(
-            name="pyfi.processors.sample.do_something",
+            name="ext.processors.sample.do_something",
             user=USER,
             interval=5,
             processor=processor,
@@ -59,14 +59,14 @@ Objects
         print(json.dumps(do_something.socket, indent=4, cls=AlchemyEncoder))
         # Create a socket on the processor to receive requests for the do_this python function(task)
         do_this = Socket(
-            name="pyfi.processors.sample.do_this",
+            name="ext.processors.sample.do_this",
             user=USER,
             processor=processor2,
             queue={"name": "pyfi.queue2"},
             task="do_this",
         )
         do_this2 = Socket(
-            name="pyfi.processors.sample.do_this",
+            name="ext.processors.sample.do_this",
             user=USER,
             processor=processor3,
             queue={"name": "pyfi.queue3"},

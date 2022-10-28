@@ -9,9 +9,9 @@ flow scheduler -n sched1  add --node node1
 flow scheduler -n sched1  add --node node2
 flow scheduler -n sched1  add --node node3
 
-flow add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_something -h agent1
-flow add processor -n proc2 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_this -h agent2
-flow add processor -n proc3 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_this -h agent3
+flow add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_something -h agent1
+flow add processor -n proc2 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_this -h agent2
+flow add processor -n proc3 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_this -h agent3
 
 # Add tasks to processor
 

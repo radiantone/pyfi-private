@@ -11,14 +11,14 @@ from pyfi.client.user import USER
 @processor(
     name="proc2",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=3,
 )
 class ProcessorB(ProcessorBase):
     """Description"""
 
     @socket(
-        name="pyfi.processors.sample.do_this",
+        name="ext.processors.sample.do_this",
         processor="proc2",
         arguments=True,
         queue={"name": "sockq2"},
@@ -40,7 +40,7 @@ class ProcessorB(ProcessorBase):
     name="proc1",
     gitrepo=os.environ["GIT_REPO"],
     id="proc1id",
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=6,
 )
 class ProcessorA(ProcessorBase):
@@ -51,7 +51,7 @@ class ProcessorA(ProcessorBase):
 
     @plug(
         name="plug1",
-        target="pyfi.processors.sample.do_this",  # Must be defined above already (prevents cycles)
+        target="ext.processors.sample.do_this",  # Must be defined above already (prevents cycles)
         queue={
             "name": "queue1",
             "message_ttl": 300000,
@@ -60,7 +60,7 @@ class ProcessorA(ProcessorBase):
         },
     )
     @socket(
-        name="pyfi.processors.sample.do_something",
+        name="ext.processors.sample.do_something",
         processor="proc1",
         beat=True,
         interval=5,

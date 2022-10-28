@@ -11,7 +11,7 @@ from pyfi.client.library import HTTPProcessor
 @processor(
     name="http_proc",
     deployment="http_proc.deploy",
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=6,
 )
 class MyHTTPProcessor(HTTPProcessor):

@@ -14,7 +14,7 @@ from pyfi.client.decorators import agent, network, node, plug, processor, socket
     name="proc2",
     deployment="proc2.deploy",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=6,
 )
 class ProcessorB(ProcessorBase):
@@ -41,7 +41,7 @@ class ProcessorB(ProcessorBase):
     name="proc1",
     deployment="proc1.deploy",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
 )  # gitrepo and module can be implied
 class ProcessorA(ProcessorBase):
     """Description"""

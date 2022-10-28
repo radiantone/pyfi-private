@@ -16,7 +16,7 @@ processor = Processor(
     name="proc1",
     beat=True,
     user=USER,
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     branch="main",
     concurrency=6,
     gitrepo=os.environ["GIT_REPO"],
@@ -25,7 +25,7 @@ processor = Processor(
 processor2 = Processor(
     name="proc2",
     user=USER,
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     hostname="radiant",
     concurrency=6,
     branch="main",
@@ -34,7 +34,7 @@ processor2 = Processor(
 
 # Create a socket on the processor to receive requests for the do_something python function(task)
 do_something = Socket(
-    name="pyfi.processors.sample.do_something",
+    name="ext.processors.sample.do_something",
     user=USER,
     interval=5,
     processor=processor,
@@ -45,7 +45,7 @@ do_something = Socket(
 print(json.dumps(do_something.socket, indent=4, cls=AlchemyEncoder))
 # Create a socket on the processor to receive requests for the do_this python function(task)
 do_this = Socket(
-    name="pyfi.processors.sample.do_this",
+    name="ext.processors.sample.do_this",
     user=USER,
     processor=processor2,
     queue={"name": "pyfi.queue2"},

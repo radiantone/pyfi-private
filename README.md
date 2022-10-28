@@ -312,7 +312,7 @@ The socket is the logical abstraction of an inbound task invocation, a durable q
 
 ```bash
 pyfi add queue -n pyfi.queue1 -t direct
-pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 
+pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample 
 pyfi add socket -n proc1.socket1 -q pyfi.queue1 -pn proc1 -t do_something
 pyfi add socket -n proc1.socket2 -q pyfi.queue1 -pn proc1 -t do_this
 ```
@@ -322,7 +322,7 @@ pyfi add socket -n proc1.socket2 -q pyfi.queue1 -pn proc1 -t do_this
 from pyfi.client.api import Processor, Socket, Queue
 
 # Create a processor
-processor = Processor(name='proc1', module='pyfi.processors.sample', branch='main',
+processor = Processor(name='proc1', module='ext.processors.sample', branch='main',
                       gitrepo='https://github.com/radiantone/pyfi-processors')
 
 # Create a socket for that processor
@@ -387,16 +387,16 @@ The example below shows how you can use shell pipes to create pipelines.
 
 ```bash
 # Create alias' for the run task commands
-alias pyfi.processors.sample.do_something="pyfi task run -s pyfi.processors.sample.do_something"
-alias pyfi.processors.sample.do_this="pyfi task run -s pyfi.processors.sample.do_this"
+alias ext.processors.sample.do_something="pyfi task run -s ext.processors.sample.do_something"
+alias ext.processors.sample.do_this="pyfi task run -s ext.processors.sample.do_this"
 
-echo "HI THERE!" | pyfi.processors.sample.do_something 
+echo "HI THERE!" | ext.processors.sample.do_something 
 
 # Add a 'string' the output of a processor and then flow that into a different processor
-echo "HI THERE!" | pyfi.processors.sample.do_something | echo "$(cat -)string" | pyfi.processors.sample.do_this
+echo "HI THERE!" | ext.processors.sample.do_something | echo "$(cat -)string" | ext.processors.sample.do_this
 
 # Echo a string as input to two different processors and they run in parallel
-echo "HI THERE!" | tee -a >(pyfi.processors.sample.do_something) tee -a >(pyfi.processors.sample.do_this)
+echo "HI THERE!" | tee -a >(ext.processors.sample.do_something) tee -a >(ext.processors.sample.do_this)
 ```
 ## Command Line Interface
 
@@ -417,7 +417,7 @@ pyfi scheduler -n sched1  add --node node1
 pyfi scheduler -n sched1  add --node node2
 pyfi scheduler -n sched1  add --node node3
 
-pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_something
+pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_something
 pyfi add queue -n pyfi.queue1 -t direct
 pyfi add queue -n pyfi.queue2 -t direct
 pyfi add queue -n pyfi.queue3 -t direct
@@ -425,13 +425,13 @@ pyfi add queue -n pyfi.queue3 -t direct
 pyfi add outlet -n proc1.outlet1 -q pyfi.queue1 -pn proc1
 pyfi add plug -n plug1 -q pyfi.queue2 -pn proc1
 pyfi add plug -n plug3 -q pyfi.queue3 -pn proc1
-pyfi add processor -n proc2 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_this -h radiant
+pyfi add processor -n proc2 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_this -h radiant
 pyfi add outlet -n proc2.outlet1 -q pyfi.queue2 -pn proc2
 
-pyfi add processor -n proc4 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_something -h radiant
+pyfi add processor -n proc4 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_something -h radiant
 pyfi add outlet -n proc4.outlet1 -q pyfi.queue1 -pn proc4
 
-pyfi add processor -n proc3 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -t do_this -h miko
+pyfi add processor -n proc3 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -t do_this -h miko
 pyfi add outlet -n proc3.outlet1 -q pyfi.queue3 -pn proc3
 
 ```

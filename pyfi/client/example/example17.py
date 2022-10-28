@@ -10,7 +10,7 @@ from pyfi.client.decorators import plug, processor, socket
 @processor(
     name="proc2",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=1,
 )
 class ProcessorB(ProcessorBase):
@@ -38,7 +38,7 @@ class ProcessorB(ProcessorBase):
 @processor(
     name="proc1",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=7,
 )
 class ProcessorA(ProcessorBase):
@@ -80,7 +80,7 @@ class ProcessorA(ProcessorBase):
 @processor(
     name="proc3",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=1,
 )
 class ProcessorC(ProcessorBase):

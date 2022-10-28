@@ -34,18 +34,18 @@ network:
         pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
         gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
         commit:
-        module: pyfi.processors.sample
+        module: ext.processors.sample
         beat: true
         cpus: 5
         sockets:
-          pyfi.processors.sample.emit_one:
+          ext.processors.sample.emit_one:
             interval: -1
             queue: 
               name: pyfi.queue1
             task:
               function: 
                 name: emit_one
-          pyfi.processors.sample.emit_two:
+          ext.processors.sample.emit_two:
             queue: 
               name: pyfi.queue3
             task:
@@ -56,11 +56,11 @@ network:
         pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
         gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
         commit:
-        module: pyfi.processors.sample
+        module: ext.processors.sample
         beat: false
         cpus: 5
         sockets:
-          pyfi.processors.sample.add_two:
+          ext.processors.sample.add_two:
             queue: 
               name: pyfi.queue2
             task:
@@ -71,14 +71,14 @@ network:
 
   plugs:
     plug1:
-      source: pyfi.processors.sample.emit_one
-      target: pyfi.processors.sample.add_two
+      source: ext.processors.sample.emit_one
+      target: ext.processors.sample.add_two
       argument: one
       queue:
         name: pyfi.queue4
     plug2:
-      source: pyfi.processors.sample.emit_two
-      target: pyfi.processors.sample.add_two
+      source: ext.processors.sample.emit_two
+      target: ext.processors.sample.add_two
       argument: two
       queue:
         name: pyfi.queue5

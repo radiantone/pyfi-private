@@ -29,7 +29,7 @@ network:
               pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
-              module: pyfi.processors.sample
+              module: ext.processors.sample
               beat: true
               workers: 6
               sockets:
@@ -67,7 +67,7 @@ network:
               pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
-              module: pyfi.processors.sample
+              module: ext.processors.sample
               beat: true
               workers: 2
               sockets:
@@ -95,7 +95,7 @@ network:
               pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
-              module: pyfi.processors.sample
+              module: ext.processors.sample
               beat: true
               workers: 1
               sockets:
@@ -124,7 +124,7 @@ network:
               pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
               gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
               commit:
-              module: pyfi.processors.sample
+              module: ext.processors.sample
               beat: true
               workers: 5
               sockets:

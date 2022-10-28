@@ -10,7 +10,7 @@ from pyfi.client.decorators import processor, socket
 @processor(
     name="proc1",
     gitrepo=os.environ["GIT_REPO"],
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     concurrency=6,
 )
 class ProcessorA(ProcessorBase):

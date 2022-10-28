@@ -231,7 +231,7 @@
             "rate": 0.0
         },
         "messages_unacknowledged_ram": 0,
-        "name": "pyfi.processors.sample.do_something",
+        "name": "ext.processors.sample.do_something",
         "node": "rabbit@rabbitmq",
         "operator_policy": null,
         "policy": null,
@@ -314,7 +314,7 @@
             "rate": 0.0
         },
         "messages_unacknowledged_ram": 0,
-        "name": "pyfi.processors.sample.do_this",
+        "name": "ext.processors.sample.do_this",
         "node": "rabbit@rabbitmq",
         "operator_policy": null,
         "policy": null,

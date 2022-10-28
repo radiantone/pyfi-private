@@ -1,7 +1,7 @@
 """
 API objects
 
-proc1 = Processor(queue='pyfi.queue1.proc1', module='pyfi.processors.sample', name='proc1')
+proc1 = Processor(queue='pyfi.queue1.proc1', module='ext.processors.sample', name='proc1')
 socket = Socket(queue='pyfi.queue1', task='do_something')
 proc1.sockets += [socket]
 

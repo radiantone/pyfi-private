@@ -1503,8 +1503,8 @@ def run_task(context, name, format, socket, data, nodata, argument, synchronized
         print("socket.p(_data).get() ", [socket.p(_data), p_calls])
         p = pipeline([socket.p(_data), p_calls])
         p = p_calls
-        s1 = Socket(name="pyfi.processors.sample.do_something", user=USER).p
-        s2 = Socket(name="pyfi.processors.sample.do_this", user=USER).p
+        s1 = Socket(name="ext.processors.sample.do_something", user=USER).p
+        s2 = Socket(name="ext.processors.sample.do_this", user=USER).p
         p = pipeline([s1("Hi!"), s2("There!")])
         print("PIPELINE", p)
         print(p().get())

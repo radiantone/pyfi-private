@@ -3,7 +3,7 @@ from pyfi.client.api import Task
 # Create a socket on the processor to receive requests for the do_something python function(task)
 do_something = Task(
     name="do_something",
-    module="pyfi.processors.sample",
+    module="ext.processors.sample",
     queue={"name": "sockq1.topic", "type": "fanout"},
 )
 
