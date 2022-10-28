@@ -2821,6 +2821,7 @@ class WorkerService:
                                     env.install(
                                         "-e git+" + deployment.processor.gitrepo.strip()
                                     )
+                                    logging.info("Installing: -e git+%s" + deployment.processor.gitrepo.strip())
                                     logging.debug("Successfully installed %s", deployment.processor.gitrepo.strip())
                                 except:
                                     import traceback
