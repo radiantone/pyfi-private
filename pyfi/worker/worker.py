@@ -2074,6 +2074,7 @@ class WorkerService:
                                     "Already scheduled this socket %s", socket.name
                                 )
 
+                        logging.info("Printing task...")
                         logging.info("Socket task %s", socket.task)
                         if socket.task.code and not socket.task.endpoint:
                             # We have custom code for this task
