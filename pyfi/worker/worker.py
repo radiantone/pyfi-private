@@ -2796,6 +2796,7 @@ class WorkerService:
                                 "venv", python=sys.executable, system_site_packages=True
                             )  # inside git directory
 
+                            env.install("--upgrade pip")
                             login = os.environ["GIT_LOGIN"]
 
                             pyfi_repo = "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
