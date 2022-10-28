@@ -1950,7 +1950,9 @@ class WorkerService:
                 if _processor and _processor.sockets and len(_processor.sockets) > 0:
                     logging.info("Found sockets2 %s", _processor.sockets)
                     for _socket in _processor.sockets:
-                        logging.info("Configuring socket %s %s", _socket.scheduled, _socket)
+                        logging.info(
+                            "Configuring socket %s %s", _socket.scheduled, _socket
+                        )
                         if _socket.scheduled:
                             logging.info("Socket is scheduled.")
                             try:
