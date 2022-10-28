@@ -2075,8 +2075,8 @@ class WorkerService:
                                 )
 
                         logging.info("Printing task...")
-                        logging.info("Socket task %s", socket.task)
-                        if socket.task.code and not socket.task.endpoint:
+                        logging.info("Socket task %s", _socket.task)
+                        if _socket.task.code and not _socket.task.endpoint:
                             # We have custom code for this task
                             # Add the task.code to the loaded module
                             # The task.code must have the named function
@@ -2085,43 +2085,43 @@ class WorkerService:
                             # Inject the code into the module.
                             # The module originates in the mounted git repo
                             # So the task code is like a "mixin"
-                            logging.info("TASK CODE: %s", socket.task.code)
-                            exec(socket.task.code, module.__dict__)
+                            logging.info("TASK CODE: %s", _socket.task.code)
+                            exec(_socket.task.code, module.__dict__)
                         else:
                             logging.info("NO TASK CODE")
 
                         # Get the function from the loaded module
-                        _func = getattr(module, socket.task.name)
+                        _func = getattr(module, _socket.task.name)
 
                         logging.info(
                             "TASK SOURCE: %s %s %s",
-                            socket.task.id,
-                            socket.task,
-                            socket.task.source,
+                            _socket.task.id,
+                            _socket.task,
+                            _socket.task.source,
                         )
 
                         # Get the source code of the task function
                         _source = inspect.getsource(_func)
 
-                        session.add(socket.task)
+                        session.add(_socket.task)
 
                         # Add the source code to the task object.
                         # NOTE: This field is different from task.code which
                         # is an override. The task.source is the source from
                         # the configured module function (pulled from git repo)
-                        socket.task.source = _source
+                        _socket.task.source = _source
                         logging.info(
                             "Updated source for %s %s %s",
-                            socket.task.id,
-                            socket.task,
-                            socket.task.source,
+                            _socket.task.id,
+                            _socket.task,
+                            _socket.task.source,
                         )
                         session.commit()
                         logging.info(
                             "TASK SOURCE:-> %s %s %s",
-                            socket.task.id,
-                            socket.task,
-                            socket.task.source,
+                            _socket.task.id,
+                            _socket.task,
+                            _socket.task.source,
                         )
 
                         # TODO: Encase the meta funtion and all the task signals into a loaded class
@@ -2137,7 +2137,7 @@ class WorkerService:
                                 CONFIG.get("redis", "uri")
                             )
 
-                            logging.info("WRAPPED FUNCTION INVOKE %s", socket.task)
+                            logging.info("WRAPPED FUNCTION INVOKE %s", _socket.task)
                             logging.info("ARGS: %s, KWARGS: %s", args, kwargs)
 
                             taskid = kwargs["myid"]
@@ -2182,7 +2182,7 @@ class WorkerService:
                                 # If we received an argument and not all the arguments needed have been stored
                                 # then we simply return the argument, otherwise we execute the function
                                 _newargs = []
-                                for arg in socket.task.arguments:
+                                for arg in _socket.task.arguments:
                                     if (
                                         arg.kind != Parameter.POSITIONAL_ONLY
                                         and arg.kind != Parameter.POSITIONAL_OR_KEYWORD
@@ -2227,7 +2227,7 @@ class WorkerService:
 
                             # Build the function wrapper call for container execution
                             _call = 'execute_function("{}", "{}", "{}")'.format(
-                                taskid, socket.task.module, socket.task.name
+                                taskid, _socket.task.module, _socket.task.name
                             )
 
                             import pickle
@@ -2410,20 +2410,20 @@ class WorkerService:
                         # If processor is script
                         func = self.celery.task(
                             wrapped_function,
-                            name=_processor.module + "." + socket.task.name,
+                            name=_processor.module + "." + _socket.task.name,
                             retries=_processor.retries,
                         )
                         logging.debug(
-                            "TASK: %s", _processor.module + "." + socket.task.name
+                            "TASK: %s", _processor.module + "." + _socket.task.name
                         )
-                        for plug in socket.targetplugs:
+                        for plug in _socket.targetplugs:
                             func = self.celery.task(
                                 wrapped_function,
                                 name=plug.queue.name
                                 + "."
                                 + _processor.module
                                 + "."
-                                + socket.task.name,
+                                + _socket.task.name,
                                 retries=_processor.retries,
                             )
                             logging.debug(
@@ -2432,7 +2432,7 @@ class WorkerService:
                                 + "."
                                 + _processor.module
                                 + "."
-                                + socket.task.name,
+                                + _socket.task.name,
                             )
 
                         logging.debug("TASK KEYS: %s", current_app.tasks.keys())
@@ -2442,11 +2442,11 @@ class WorkerService:
 
                         if processor is a gate
                             func = self.celery.task(gate_function, name=self.processor.module +
-                            '.' + socket.task.name, retries=self.processor.retries)
+                            '.' + _socket.task.name, retries=self.processor.retries)
 
                         if processor is a router
                             func = self.celery.task(router_function, name=self.processor.module +
-                            '.' + socket.task.name, retries=self.processor.retries)
+                            '.' + _socket.task.name, retries=self.processor.retries)
                         """
 
                         @task_prerun.connect()
