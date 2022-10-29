@@ -131,6 +131,9 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import importlib
     import pickle
 
+    with open("/tmp/" + taskid + ".log", "wb") as logs:
+        logs.write("Importing module ")
+
     logging.info("Execute function %s %s %s", taskid, mname, fname)
 
     _args = args
@@ -142,8 +145,6 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     with open("/tmp/" + taskid + ".kwargs", "rb") as kwargsfile:
         _kwargs = pickle.load(kwargsfile)
 
-    with open("/tmp/" + taskid + ".log", "wb") as logs:
-        logs.write("Importing module ")
 
     _module = importlib.import_module(mname)
     _function = getattr(_module, fname)
