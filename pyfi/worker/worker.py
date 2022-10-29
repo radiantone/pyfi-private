@@ -139,11 +139,19 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     _args = args
     _kwargs = kwargs
 
-    with open("/tmp/" + taskid + ".args", "rb") as argsfile:
-        _args = pickle.load(argsfile)
+    try:
+        with open("/tmp/" + taskid + ".args", "rb") as argsfile:
+            _args = pickle.load(argsfile)
+    except:
+        with open("/tmp/" + taskid + ".log", "w") as errorfile:
+            errorfile.write("error")
 
-    with open("/tmp/" + taskid + ".kwargs", "rb") as kwargsfile:
-        _kwargs = pickle.load(kwargsfile)
+    try:
+        with open("/tmp/" + taskid + ".kwargs", "rb") as kwargsfile:
+            _kwargs = pickle.load(kwargsfile)
+    except:
+        with open("/tmp/" + taskid + ".log", "w") as errorfile:
+            errorfile.write("error")
 
     with open("/tmp/" + taskid + ".log3", "w") as logs:
         logs.write("Importing module "+str(mname))
