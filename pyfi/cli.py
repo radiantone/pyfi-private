@@ -1580,16 +1580,18 @@ def update_object(obj, locals):
 
 @update.command(name="processor")
 @click.option("-n", "--name", default=None, required=False)
-@click.option("-m", "--module", default=None, required=False)
-@click.option("-h", "--hostname", default=None, help="Target server hostname")
+@click.option("-m", "--module", default="", required=False)
+@click.option("-h", "--hostname", default="", help="Target server hostname")
 @click.option("-w", "--workers", default=None, help="Number of worker tasks")
-@click.option("-g", "--gitrepo", default=None, help="Git repo URI")
-@click.option("-c", "--commit", default=None, help="Git commit id for processor code")
+@click.option("-g", "--gitrepo", default="", help="Git repo URI")
+@click.option("-c", "--commit", default="", help="Git commit id for processor code")
 @click.option("-b", "--beat", default=None, is_flag=True, required=False)
 @click.option("-r", "--requested_status", default=None, required=False)
 @click.option("-br", "--branch", default=None, required=False)
 @click.option("-p", "--password", default=None, required=False)
-@click.option("-co", "--container", default=None, is_flag=True, required=False)
+@click.option("-co", "--container", default=False, is_flag=True, required=False)
+@click.option("-ci", "--containerimage", default="", required=False, help="Container image")
+@click.option("-cv", "--containerversion", default="", required=False, help="Container version")
 @click.option("-mp", "--modulepath", default=None, required=False)
 @click.pass_context
 def update_processor(
@@ -1605,7 +1607,9 @@ def update_processor(
     branch,
     password,
     container,
-    modulepath,
+    containerimage,
+    containerversion,
+    modulepath
 ):
     """
     Update a processor in the database
@@ -1629,36 +1633,70 @@ def update_processor(
             .filter_by(id=id)
             .first()
         )
+    else:
+        click.echo("No processor could be found")
+        return
 
         # Update deployment
 
+    val = processor.module if processor.module else ""
     if not module:
-        processor.module = click.prompt("Module", type=str, default=processor.module)
+        processor.module = click.prompt("Module", type=str, default=val)
+    else:
+        processor.module = module
 
+    val = processor.use_container if processor.use_container else False
     if not container:
         processor.use_container = click.prompt(
-            "Container", type=bool, default=processor.use_container
+            "Container", type=bool, default=val
         )
+    else:
+        processor.use_container = container
+
+    val = processor.container_image if processor.container_image else ""
+    if not containerimage:
+        processor.container_image = click.prompt(
+            "Container Image", type=str, default=val
+        )
+    else:
+        processor.container_image = containerimage
+
+    if not containerversion:
+        processor.container_version = click.prompt(
+            "Container Version", type=str, default="latest"
+        )
+    else:
+        processor.container_version = containerversion
 
     if not workers:
         processor.concurrency = click.prompt(
             "Workers", type=int, default=processor.concurrency
         )
+    else:
+        processor.concurrency = workers
 
     if not gitrepo:
         processor.gitrepo = click.prompt("Gitrepo", type=str, default=processor.gitrepo)
+    else:
+        processor.gitrepo = gitrepo
 
     if not commit:
-        processor.commit = click.prompt("Commit", type=str, default=processor.commit)
+        processor.commit = click.prompt("Commit", type=str, default="")
+    else:
+        processor.commit = commit
 
     if not branch:
-        processor.branch = click.prompt("Branch", type=str, default=processor.branch)
+        processor.branch = click.prompt("Branch", type=str, default="main")
+    else:
+        processor.branch = branch
 
     if not beat:
-        processor.beat = click.prompt("Beat", type=bool, default=processor.beat)
+        processor.beat = click.prompt("Beat", type=bool, default=False)
+    else:
+        processor.beat = beat
 
     if not password:
-        _password = click.prompt("Password", type=str, default=None)
+        _password = click.prompt("Password", type=str, default="")
 
         if _password:
             # Does password object exist first?
@@ -1668,14 +1706,20 @@ def update_processor(
             )
             context.obj["database"].session.add(__password)
             __password.processor = processor
+
     if not modulepath:
         processor.modulepath = click.prompt(
-            "Module Path", type=str, default=processor.modulepath
+            "Module Path", type=str, default=""
         )
-    argspec = inspect.getargvalues(inspect.currentframe())
-    _locals = argspec.locals
-    processor = update_object(processor, _locals)
+    else:
+        processor.modulepath = modulepath
+
+    #argspec = inspect.getargvalues(inspect.currentframe())
+    #_locals = argspec.locals
+    #print("module1", processor.module)
+    #processor = update_object(processor, _locals)
     processor.requested_status = "update"
+    #print("module2", processor.module)
     context.obj["database"].session.add(processor)
     context.obj["database"].session.commit()
 
@@ -3650,7 +3694,10 @@ def ls_processor(context, id, name, graph):
         print("Concurrency:", processor.concurrency)
         print("Beat:", processor.beat)
         print("Git Repo:", processor.gitrepo)
-        print("Name:", processor.name)
+        print("Use Container:", processor.use_container)
+        print("Container Image:", processor.container_image)
+        print("Container Command:", processor.container_command)
+        print("Container Version:", processor.container_version)
 
     print()
     print("Sockets")

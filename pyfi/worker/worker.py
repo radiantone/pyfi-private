@@ -1417,7 +1417,7 @@ class WorkerService:
                         myprocessor.detached,
                     )
                     if myprocessor.detached:
-                        logging.debug(
+                        logging.info(
                             "Running container %s:%s....",
                             myprocessor.container_image,
                             myprocessor.container_version,
@@ -1448,17 +1448,17 @@ class WorkerService:
                         # TODO: Create or Update ContainerModel
                         # Add ContainerModel to self.deployment.container
 
-                        logging.debug(
+                        logging.info(
                             "Working starting container....%s", self.container
                         )
-                        logging.debug(
+                        logging.info(
                             "Container started %s:%s....%s",
                             myprocessor.container_image,
                             myprocessor.container_version,
                             self.container,
                         )
 
-                        logging.debug(
+                        logging.info(
                             "Installing repo inside container...%s",
                             myprocessor.gitrepo.strip(),
                         )
@@ -1470,7 +1470,7 @@ class WorkerService:
                             "pip install -e git+" + myprocessor.gitrepo.strip()
                         )
 
-                        logging.debug("OUTPUT: %s", res.output)
+                        logging.info("OUTPUT: %s", res.output)
 
                         with open(f"{agent_cwd}/{myprocessor.name}.pid", "w") as cfile:
                             cfile.write(str(self.container.short_id) + "\n")
