@@ -126,7 +126,7 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
       - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./conf/pyfi.polar:/home/pyfi/pyfi.polar
+      - ./pyfi.polar:/home/pyfi/pyfi.polar
 
   agent3:
     build: 
@@ -149,7 +149,7 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
       - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./conf/pyfi.polar:/home/pyfi/pyfi.polar
+      - ./pyfi.polar:/home/pyfi/pyfi.polar
 
   agent2:
     build: 
@@ -172,7 +172,7 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
       - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./conf/pyfi.polar:/home/pyfi/pyfi.polar
+      - ./pyfi.polar:/home/pyfi/pyfi.polar
 
 
   # http://localhost:5001
