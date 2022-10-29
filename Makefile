@@ -13,6 +13,10 @@ init: depends
 	python3 -m venv venv
 	echo "Virtual environment complete."
 
+.PHONY: test
+test:
+	pytest
+
 .PHONY: format
 format:
 	$(isort)
