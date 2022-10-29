@@ -143,28 +143,29 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
         with open("/tmp/" + taskid + ".args", "rb") as argsfile:
             _args = pickle.load(argsfile)
     except:
-        with open("/tmp/" + taskid + ".log", "w") as errorfile:
+        with open("/tmp/" + taskid + ".error", "w") as errorfile:
             errorfile.write("error")
 
     try:
         with open("/tmp/" + taskid + ".kwargs", "rb") as kwargsfile:
             _kwargs = pickle.load(kwargsfile)
     except:
-        with open("/tmp/" + taskid + ".log", "w") as errorfile:
+        with open("/tmp/" + taskid + ".error", "w") as errorfile:
             errorfile.write("error")
 
     with open("/tmp/" + taskid + ".log3", "w") as logs:
         logs.write("Importing module "+str(mname))
 
     try:
-        _module = importlib.import_module(mname)
-        _function = getattr(_module, fname)
+        _module = importlib.import_module(str(mname))
+        _function = getattr(_module, str(fname))
     except:
         with open("/tmp/" + taskid + ".error", "w") as errorfile:
             errorfile.write("error importing")
 
-    with open("/tmp/" + taskid + ".log", "wb") as logs:
-        logs.write("MNAME"+str(mname))
+
+    with open("/tmp/" + taskid + ".log3", "w") as logs:
+        logs.write("Imported module "+str(mname))
 
     result = _function(*_args, **_kwargs)
 
