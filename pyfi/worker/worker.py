@@ -134,8 +134,6 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     with open("/tmp/" + taskid + ".log2", "w") as logs:
         logs.write("Importing module "+str(mname)+" "+str(fname))
 
-    #logging.info("Execute function %s %s %s", taskid, mname, fname)
-
     _args = args
     _kwargs = kwargs
 
