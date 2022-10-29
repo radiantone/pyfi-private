@@ -151,9 +151,6 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
         with open("/tmp/" + taskid + ".error", "w") as errorfile:
             errorfile.write("error")
 
-    with open("/tmp/" + taskid + ".log3", "w") as logs:
-        logs.write("Importing module "+str(mname))
-
     try:
         _module = importlib.import_module(str(mname))
         _function = getattr(_module, str(fname))
@@ -161,13 +158,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
         with open("/tmp/" + taskid + ".error", "w") as errorfile:
             errorfile.write("error importing")
 
-    with open("/tmp/" + taskid + ".log3", "w") as logs:
-        logs.write("Imported module "+str(mname))
-
     result = _function(*_args, **_kwargs)
-
-    with open("/tmp/" + taskid + ".result", "w") as logs:
-        logs.write(str(result))
 
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
         pickle.dump(result, rfile)
