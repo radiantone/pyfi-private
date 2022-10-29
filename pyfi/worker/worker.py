@@ -156,8 +156,12 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     with open("/tmp/" + taskid + ".log3", "w") as logs:
         logs.write("Importing module "+str(mname))
 
-    _module = importlib.import_module(mname)
-    _function = getattr(_module, fname)
+    try:
+        _module = importlib.import_module(mname)
+        _function = getattr(_module, fname)
+    except:
+        with open("/tmp/" + taskid + ".error", "w") as errorfile:
+            errorfile.write("error importing")
 
     with open("/tmp/" + taskid + ".log", "wb") as logs:
         logs.write("MNAME"+str(mname))
