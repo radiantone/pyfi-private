@@ -932,7 +932,7 @@ class WorkerService:
                                 )
                                 rb = redisclient.get(call.resultid)
                                 rbjson = pickle.loads(rb)
-                                logging.debug(
+                                logging.info(
                                     "database_actions: rb result %s %s",
                                     call.resultid,
                                     rbjson,
