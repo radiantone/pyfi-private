@@ -143,12 +143,13 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
         _kwargs = pickle.load(kwargsfile)
 
     with open("/tmp/" + taskid + ".log", "wb") as logs:
-        logs.write("Importing module "+mname)
+        logs.write("Importing module ")
+
     _module = importlib.import_module(mname)
     _function = getattr(_module, fname)
 
     with open("/tmp/" + taskid + ".log", "wb") as logs:
-        logs.write("Imported module "+mname)
+        logs.write(mname)
 
     result = _function(*_args, **_kwargs)
 
