@@ -17,6 +17,7 @@ billiard==3.6.4.0
 bjoern==3.2.1
 black==22.10.0
 bs4==0.0.1
+case==1.5.3
 celery==5.2.6
 certifi==2021.10.8
 cffi==1.15.0
@@ -25,7 +26,7 @@ click==8.1.3
 click-didyoumean==0.3.0
 click-plugins==1.1.1
 click-repl==0.2.0
-colorama
+colorama==0.4.5
 coloredlogs==15.0.1
 cryptography==37.0.1
 css-html-js-minify==2.5.5
@@ -36,13 +37,14 @@ dnspython==2.2.1
 docker==5.0.3
 docutils==0.17.1
 eventlet==0.33.0
+-e git+https://radiantone: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@github.com/radiantone/pyfi-processors@9ba97662bb3285a50289891194d4a596377fe333#egg=ext_processor
 filelock==3.6.0
 flake8==4.0.1
 Flask==2.1.2
 flask-restx==0.5.1
 flask-swagger-ui==4.11.1
 flower==1.0.0
-future
+future==0.18.2
 gitdb==4.0.9
 GitPython==3.1.27
 greenlet==1.1.2
@@ -61,15 +63,18 @@ Jinja2==3.1.2
 jsonschema==4.4.0
 kombu==5.2.4
 lazy-object-proxy==1.7.1
+linecache2==1.0.0
 lizard==1.17.10
 lxml==4.8.0
 Mako==1.2.0
+mando==0.6.4
 MarkupSafe==2.1.1
-mando
 mccabe==0.6.1
+mock==4.0.3
 mypy==0.950
 mypy-extensions==0.4.3
 networkx==2.8
+nose==1.3.7
 numpy==1.22.3
 oso==0.26.0
 packaging==20.9
@@ -95,6 +100,8 @@ pycodestyle==2.8.0
 pycparser==2.21
 pydash==5.1.0
 PyDriller==2.1
+-e git+ssh://git@github.com/radiantone/pyfi-private@f414a37de8048b67c10b0bb642a35f6e31e5fb34#egg=pyfi
+pyfi-processor==0.1
 pyflakes==2.4.0
 Pygments==2.12.0
 pylint==2.13.7
@@ -113,6 +120,7 @@ python-socketio==5.6.0
 pytz==2022.1
 pytz-deprecation-shim==0.1.0.post0
 PyYAML==6.0
+radon==5.1.0
 redis==3.5.3
 rejson==0.5.6
 reportlab==3.6.11
@@ -141,9 +149,9 @@ sqlalchemy-oso==0.26.0
 sqlalchemy-stubs==0.4
 text-unidecode==1.3
 toml==0.10.2
-radon
 tomli==2.0.1
 tornado==6.1
+traceback2==1.4.0
 types-cryptography==3.3.23.1
 types-paramiko==2.11.6
 types-pytz==2022.1.2
@@ -156,6 +164,7 @@ tzdata==2022.1
 tzlocal==4.2
 ujson==5.2.0
 Unidecode==1.3.4
+unittest2==1.1.0
 urllib3==1.26.9
 uvicorn==0.17.6
 uvloop==0.16.0
