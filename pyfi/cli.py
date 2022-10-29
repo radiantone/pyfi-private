@@ -1590,8 +1590,12 @@ def update_object(obj, locals):
 @click.option("-br", "--branch", default=None, required=False)
 @click.option("-p", "--password", default=None, required=False)
 @click.option("-co", "--container", default=False, is_flag=True, required=False)
-@click.option("-ci", "--containerimage", default="", required=False, help="Container image")
-@click.option("-cv", "--containerversion", default="", required=False, help="Container version")
+@click.option(
+    "-ci", "--containerimage", default="", required=False, help="Container image"
+)
+@click.option(
+    "-cv", "--containerversion", default="", required=False, help="Container version"
+)
 @click.option("-mp", "--modulepath", default=None, required=False)
 @click.pass_context
 def update_processor(
@@ -1609,7 +1613,7 @@ def update_processor(
     container,
     containerimage,
     containerversion,
-    modulepath
+    modulepath,
 ):
     """
     Update a processor in the database
@@ -1647,9 +1651,7 @@ def update_processor(
 
     val = processor.use_container if processor.use_container else False
     if not container:
-        processor.use_container = click.prompt(
-            "Container", type=bool, default=val
-        )
+        processor.use_container = click.prompt("Container", type=bool, default=val)
     else:
         processor.use_container = container
 
@@ -1708,18 +1710,16 @@ def update_processor(
             __password.processor = processor
 
     if not modulepath:
-        processor.modulepath = click.prompt(
-            "Module Path", type=str, default=""
-        )
+        processor.modulepath = click.prompt("Module Path", type=str, default="")
     else:
         processor.modulepath = modulepath
 
-    #argspec = inspect.getargvalues(inspect.currentframe())
-    #_locals = argspec.locals
-    #print("module1", processor.module)
-    #processor = update_object(processor, _locals)
+    # argspec = inspect.getargvalues(inspect.currentframe())
+    # _locals = argspec.locals
+    # print("module1", processor.module)
+    # processor = update_object(processor, _locals)
     processor.requested_status = "update"
-    #print("module2", processor.module)
+    # print("module2", processor.module)
     context.obj["database"].session.add(processor)
     context.obj["database"].session.commit()
 

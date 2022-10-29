@@ -132,7 +132,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import pickle
 
     with open("/tmp/" + taskid + ".log2", "w") as logs:
-        logs.write("Importing module "+str(mname)+" "+str(fname))
+        logs.write("Importing module " + str(mname) + " " + str(fname))
 
     _args = args
     _kwargs = kwargs
@@ -1460,9 +1460,7 @@ class WorkerService:
                         # TODO: Create or Update ContainerModel
                         # Add ContainerModel to self.deployment.container
 
-                        logging.info(
-                            "Working starting container....%s", self.container
-                        )
+                        logging.info("Working starting container....%s", self.container)
                         logging.info(
                             "Container started %s:%s....%s",
                             myprocessor.container_image,
@@ -2076,7 +2074,10 @@ class WorkerService:
                                                     )
                                                 except:
                                                     import traceback
-                                                    logging.info("%s",traceback.format_exc())
+
+                                                    logging.info(
+                                                        "%s", traceback.format_exc()
+                                                    )
                                                     logging.info(
                                                         "Job %s already scheduled.",
                                                         _socket.name,
