@@ -2317,7 +2317,7 @@ class WorkerService:
                                 """If we only have args to pass in"""
                                 logging.debug("Invoking function %s", args)
 
-                                logging.debug(
+                                logging.info(
                                     "CONTAINER INIT: %s %s",
                                     self.container,
                                     _processor.use_container,
