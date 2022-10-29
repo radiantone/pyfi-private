@@ -1,3 +1,14 @@
+## Oct 29, 2022
+
+- Fixed tool palette text wrapping DONE
+- Added pre-load screen, updated logo DONE
+- new "elastic CODE" SVG logo and branding DONE
+- Adjustable python interpreter card with scrolling DONE
+- Fixed worker startup, sockets running again DONE
+- Updated "update processor" command DONE
+- Added "Run Flow" button to run the flow either on backend or in browser DONE
+- Added line separators between groups of tool icons DONE
+
 ## Oct 21, 2022
 
 - Get linting, formatting and typing in place FIXED
