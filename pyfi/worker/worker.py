@@ -2046,7 +2046,7 @@ class WorkerService:
                                                         target=schedule_function,
                                                         args=(
                                                             dispatcher,
-                                                            socket.interval,
+                                                            _socket.interval,
                                                             (
                                                                 _processor.id,
                                                                 plug.id,
