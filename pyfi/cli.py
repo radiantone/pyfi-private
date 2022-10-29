@@ -4814,7 +4814,6 @@ def api_start(context, ip, port):
                 self.options = options or {}
                 self.application = app
                 super().__init__()
-                print("GUNICORN APP START")
 
             def load_config(self):
                 config = {
@@ -4847,6 +4846,7 @@ def api_start(context, ip, port):
         tasks = context.obj["database"].session.query(TaskModel).all()
 
         for task in tasks:
+            logger.info("Adding endpoint for {}".format(task.name))
             create_endpoint(task.module, task.name)
 
         server.app_context().push()
@@ -4877,9 +4877,7 @@ def api_start(context, ip, port):
         signal.signal(signal.SIGINT, handler)
 
         process = multiprocessing.Process(target=start_api)
-        click.echo("Starting API process.")
         process.start()
-        click.echo("API process started.")
         process.join()
         time.sleep(15)
         click.echo("Terminating API server and restarting...")

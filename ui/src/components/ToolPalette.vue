@@ -402,7 +402,7 @@
       </q-item-label>
       <q-item-label
         class="text-secondary"
-        style="margin-top: 40px;"
+        style="margin-top: 40px;white-space: nowrap;"
       >
         System Usage:
       </q-item-label>
@@ -414,7 +414,7 @@
         :series="series"
         style="margin-right: 200px;"
       />
-      <q-item-label class="text-dark">
+      <q-item-label class="text-dark" style="white-space: nowrap;">
         Welcome, Darren!
       </q-item-label>
       <q-btn

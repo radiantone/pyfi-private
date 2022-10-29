@@ -67,7 +67,7 @@ release: update tests docs
 
 .PHONY: freeze
 freeze:
-	pip freeze > requirements.txt
+	pip freeze |grep -v pyfi > requirements.txt
 
 .PHONY: clean
 clean:

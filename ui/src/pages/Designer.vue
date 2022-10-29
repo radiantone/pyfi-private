@@ -73,6 +73,7 @@
             Start Nodes
           </q-tooltip>
         </q-btn>
+
         <q-btn
           flat
           style="min-height: 45px;"
@@ -88,6 +89,24 @@
             Clear Nodes
           </q-tooltip>
         </q-btn>
+        <q-separator vertical inset/>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+          icon="far fa-play-circle"
+          class="q-mr-xs"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Run Flow
+          </q-tooltip>
+        </q-btn>
+
+        <q-separator vertical inset/>
         <q-btn
           flat
           style="min-height: 45px;"
@@ -149,6 +168,8 @@
             Redo
           </q-tooltip>
         </q-btn>
+
+        <q-separator vertical inset/>
         <q-btn
           flat
           style="min-height: 45px;"
@@ -209,21 +230,7 @@
             Publish
           </q-tooltip>
         </q-btn>
-        <q-btn
-          flat
-          style="min-height: 45px;"
-          size="sm"
-          @click="confirmDeleteNodes()"
-          icon="fas fa-trash-alt"
-        >
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Delete Nodes
-          </q-tooltip>
-        </q-btn>
+        <q-separator vertical inset/>
         <q-btn
           flat
           style="min-height: 45px;"
@@ -239,7 +246,7 @@
             Redraw
           </q-tooltip>
         </q-btn>
-<q-btn
+        <q-btn
           flat
           style="min-height: 45px;"
           @click="redraw"
@@ -269,6 +276,24 @@
             Toggle Bandwidth Display
           </q-tooltip>
         </q-btn>
+
+        <q-separator vertical inset/>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="sm"
+          @click="confirmDeleteNodes()"
+          icon="fas fa-trash-alt"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Delete Nodes
+          </q-tooltip>
+        </q-btn>
+        <q-separator vertical inset v-if="flowid !== 1"/>
         <q-btn
           flat
           style="min-height: 45px;"
