@@ -1413,11 +1413,11 @@ class WorkerService:
                     agent_cwd = os.environ["AGENT_CWD"]
 
                     client = docker.from_env()
-                    logging.debug(
+                    logging.info(
                         "Worker: Checking processor.detached....%s",
                         myprocessor.detached,
                     )
-                    if myprocessor.detached:
+                    if True:
                         logging.info(
                             "Running container %s:%s....",
                             myprocessor.container_image,
@@ -2256,7 +2256,7 @@ class WorkerService:
                                         pfile.write(source + "\n")
                                         pfile.write(_call + "\n")
 
-                                    if _processor.detached:
+                                    if True:
                                         # Run command inside self.container passing in task id, module and function
                                         pythoncmd = "python /tmp/" + taskid + ".py"
                                         logging.debug("Invoking %s", pythoncmd)
@@ -2328,7 +2328,7 @@ class WorkerService:
                                         pfile.write(source + "\n")
                                         pfile.write(_call + "\n")
 
-                                    if _processor.detached:
+                                    if True:
                                         # Run command inside self.container
                                         with open(
                                             "out/" + taskid + ".kwargs", "wb"
