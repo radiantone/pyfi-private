@@ -1,5 +1,6 @@
 #!/bin/bash
 python setup.py install
+git add *.txt
 git add Makefile
 git add docs
 git add bin
