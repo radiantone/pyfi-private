@@ -169,7 +169,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     result = _function(*_args, **_kwargs)
 
     with open("/tmp/" + taskid + ".result", "w") as logs:
-        logs.write("RESULTRESULTRESULTRESULTRESULTRESULTRESULTRESULTRESULT")
+        logs.write(str(result))
 
     logging.info("RESULT: %s", result)
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
