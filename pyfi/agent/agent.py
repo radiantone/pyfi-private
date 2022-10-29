@@ -481,7 +481,7 @@ class AgentMonitorPlugin(AgentPlugin):
                         """ If we have a worker process, poll it to see if its still alive  """
                         if "worker" in processor:
                             try:
-                                logging.debug(
+                                logging.info(
                                     "Processor.requested_status 0 %s",
                                     myprocessor.requested_status,
                                 )
@@ -493,7 +493,7 @@ class AgentMonitorPlugin(AgentPlugin):
                                         processor["worker"]["wprocess"].poll()
                                         is not None
                                     )
-                                    logging.debug(
+                                    logging.info(
                                         "PROCESS_DIED is %s for %s",
                                         process_died,
                                         processor["worker"],
