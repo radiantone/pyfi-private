@@ -1387,6 +1387,7 @@ class WorkerService:
 
             import docker
 
+            logging.debug("Entering worker_proc")
             setproctitle("pyfi worker::worker_proc")
 
             job_defaults = {"coalesce": False, "max_instances": 3}
@@ -1406,7 +1407,7 @@ class WorkerService:
                 )
                 agent = session.query(AgentModel).filter_by(name=self.agentname).first()
 
-                logging.debug("use_container %s", myprocessor.use_container)
+                logging.info("use_container %s", myprocessor.use_container)
 
                 if myprocessor.use_container:
                     agent_cwd = os.environ["AGENT_CWD"]
