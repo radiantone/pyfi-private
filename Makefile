@@ -48,8 +48,7 @@ refresh:
 	./bin/docker-refresh.sh
 
 .PHONY: update
-update: format lint
-	pip freeze | grep -v pyfi > dev-requirements.txt
+update: freeze format lint
 	git add setup.py docs bin pyfi ui *.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
@@ -67,7 +66,7 @@ release: update tests docs
 
 .PHONY: freeze
 freeze:
-	pip freeze |grep -v pyfi > requirements.txt
+	pip freeze |grep -v pyfi > requirements-dev.txt
 
 .PHONY: clean
 clean:
