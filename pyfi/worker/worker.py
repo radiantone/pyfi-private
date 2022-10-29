@@ -168,7 +168,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     result = _function(*_args, **_kwargs)
 
-    with open("/tmp/" + taskid + ".result", "wb") as logs:
+    with open("/tmp/" + taskid + ".result", "w") as logs:
         logs.write("RESULTRESULTRESULTRESULTRESULTRESULTRESULTRESULTRESULT")
 
     logging.info("RESULT: %s", result)
