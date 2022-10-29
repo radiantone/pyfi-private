@@ -37,7 +37,6 @@ dnspython==2.2.1
 docker==5.0.3
 docutils==0.17.1
 eventlet==0.33.0
--e git+https://radiantone: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@github.com/radiantone/pyfi-processors@9ba97662bb3285a50289891194d4a596377fe333#egg=ext_processor
 filelock==3.6.0
 flake8==4.0.1
 Flask==2.1.2
@@ -100,8 +99,6 @@ pycodestyle==2.8.0
 pycparser==2.21
 pydash==5.1.0
 PyDriller==2.1
--e git+ssh://git@github.com/radiantone/pyfi-private@9062031d70cc0cfdc97977d357abff790252f6e2#egg=pyfi
-pyfi-processor==0.1
 pyflakes==2.4.0
 Pygments==2.12.0
 pylint==2.13.7
