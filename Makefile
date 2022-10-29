@@ -49,7 +49,7 @@ refresh:
 
 .PHONY: update
 update: format lint
-	pip freeze | grep -v pyfi > requirements.txt
+	pip freeze | grep -v pyfi > dev-requirements.txt
 	git add setup.py docs bin pyfi app requirements.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
