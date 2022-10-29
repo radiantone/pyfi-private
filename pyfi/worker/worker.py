@@ -1387,7 +1387,7 @@ class WorkerService:
 
             import docker
 
-            logging.debug("Entering worker_proc")
+            logging.info("Entering worker_proc")
             setproctitle("pyfi worker::worker_proc")
 
             job_defaults = {"coalesce": False, "max_instances": 3}
@@ -2871,7 +2871,7 @@ class WorkerService:
                     logging.debug("Returning")
                     return
 
-                logging.debug("Creating worker process")
+                logging.info("Creating worker process")
                 """ Start worker process"""
                 worker_process = Process(
                     target=worker_proc,
