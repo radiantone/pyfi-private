@@ -131,7 +131,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import importlib
     import pickle
 
-    logging.debug("Execute function %s %s %s", taskid, mname, fname)
+    logging.info("Execute function %s %s %s", taskid, mname, fname)
 
     _args = args
     _kwargs = kwargs
@@ -147,7 +147,7 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
 
     result = _function(*_args, **_kwargs)
 
-    logging.debug("RESULT: %s", result)
+    logging.info("RESULT: %s", result)
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
         pickle.dump(result, rfile)
         logging.debug("DUMPED OUT: /tmp/" + taskid + ".out")
