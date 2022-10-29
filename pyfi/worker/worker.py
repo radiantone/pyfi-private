@@ -171,13 +171,8 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     with open("/tmp/" + taskid + ".result", "w") as logs:
         logs.write(str(result))
 
-    logging.info("RESULT: %s", result)
     with open("/tmp/" + taskid + ".out", "wb") as rfile:
         pickle.dump(result, rfile)
-        logging.debug("DUMPED OUT: /tmp/" + taskid + ".out")
-
-    with open("/tmp/" + taskid + ".result", "wb") as logs:
-        logs.write(str(result))
 
     return result
 
