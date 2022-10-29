@@ -131,8 +131,8 @@ def execute_function(taskid, mname, fname, *args, **kwargs):
     import importlib
     import pickle
 
-    with open("/tmp/" + taskid + ".log", "wb") as logs:
-        logs.write("Importing module ")
+    with open("/tmp/" + taskid + ".log2", "w") as logs:
+        logs.write("Importing module "+str(mname))
 
     logging.info("Execute function %s %s %s", taskid, mname, fname)
 
