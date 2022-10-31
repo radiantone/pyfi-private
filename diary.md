@@ -1,3 +1,18 @@
+## Oct 30, 2022
+
+- New Data Processor. Define data as named objects in module
+- "Add Socket" becomes "Add Data" using named objects in list
+- Socket is created and a pre-defined code template is used for the function, which reads the named object from the module and emits it
+- "Settings"->"Schedule" becomes a table with sockets and CRON string for each socket that controls when the socket will fire (task executes)
+- Data Processor doesn't need concurrency.
+  - "results" for data processor are stored whenever it emits.
+  - "output" for data processor reflect any stdout the module might generate
+  - Clicking "run" icon for data processor will emit all its sockets
+  - "error" socket will remain
+  - Only "out" bandwidth is needed
+  - no plugs
+  - 
+
 ## Oct 29, 2022
 
 - Fixed tool palette text wrapping DONE

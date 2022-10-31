@@ -49,7 +49,7 @@ refresh:
 
 .PHONY: update
 update: freeze format lint
-	git add setup.py docs bin pyfi ui *.txt Makefile
+	git add diary.md setup.py docs bin pyfi ui *.txt Makefile
 	git commit --allow-empty -m "Updates"
 	git push origin main
 	python setup.py install
