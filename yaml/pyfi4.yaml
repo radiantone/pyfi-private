@@ -32,7 +32,7 @@ network:
 
         branch: main
         pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
-        gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+        gitrepo: 'https://github.com/radiantone/pyfi-processors#egg=ext-processor'
         commit:
         module: ext.processors.sample
         beat: true
@@ -54,7 +54,7 @@ network:
       proc4: 
         branch: main
         pyfirepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-private#egg=pyfi'
-        gitrepo: 'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor'
+        gitrepo: 'https://github.com/radiantone/pyfi-processors#egg=ext-processor'
         commit:
         module: ext.processors.sample
         beat: false
