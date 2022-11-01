@@ -3728,9 +3728,9 @@ export default {
         disabled: false,
         commit: '',
         gitrepo:
-          'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
+          'https://github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
-        modulepath: 'pyfi/processors/sample.py',
+        modulepath: 'ext/processors/sample.py',
         readwrite: 0,
         status: 'stopped',
         properties: []

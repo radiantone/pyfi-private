@@ -25,7 +25,7 @@ processor2 = Processor(
     hostname="agent1",
     concurrency=6,
     branch="main",
-    gitrepo="https://radiantone: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@github.com/radiantone/pyfi-processors#egg=pyfi-processor",
+    gitrepo="https://github.com/radiantone/pyfi-processors#egg=ext-processor",
 )
 
 processor3 = Processor(

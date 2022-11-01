@@ -108,6 +108,7 @@ pyparsing==3.0.8
 pyrsistent==0.18.1
 pyschedule==0.2.34
 pytest==7.1.2
+pytest-sqlalchemy-mock==0.1.4
 python-dateutil==2.8.2
 python-dotenv==0.20.0
 python-engineio==4.3.2

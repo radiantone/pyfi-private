@@ -83,40 +83,40 @@ ElasticCode exposes simple APIs that make writing powerful, distributed workflow
 
       # Build out the infrastructure
       pyfi add queue -n pyfi.queue1 -t direct
-      pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample
+      pyfi add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample 
 
       # Add sockets (not POSIX sockets!) that receive incoming task requests with -c concurrency factors (i.e. # of CPUs occupied)
-      pyfi add socket -n ext.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something -c 5
-      pyfi add socket -n ext.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this -c 8
+      pyfi add socket -n pyfi.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something -c 5
+      pyfi add socket -n pyfi.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this -c 8
 
       # Execute a task (can re-run only this after network is built)
-      pyfi task run --socket ext.processors.sample.do_something --data "['some data']"
+      pyfi task run --socket pyfi.processors.sample.do_something --data "['some data']"
 
 .. code-block:: bash
       :caption: ElasticCode in bash using pipes. Compose pipeline workflows and run parallel tasks using piped output.
 
       # Create alias' for the run task commands
-      alias ext.processors.sample.do_something="pyfi task run -s ext.processors.sample.do_something"
-      alias ext.processors.sample.do_this="pyfi task run -s ext.processors.sample.do_this"
+      alias pyfi.processors.sample.do_something="pyfi task run -s pyfi.processors.sample.do_something"
+      alias pyfi.processors.sample.do_this="pyfi task run -s pyfi.processors.sample.do_this"
 
       # Pipe some output from stdin to a task
-      echo "HI THERE!" | ext.processors.sample.do_something
+      echo "HI THERE!" | pyfi.processors.sample.do_something 
 
       # Pipe some text to a task, then append some new text to that output, then send that to final task, do_this
-      echo "HI THERE!" | ext.processors.sample.do_something | echo "$(cat -) add some text" | ext.processors.sample.do_this
+      echo "HI THERE!" | pyfi.processors.sample.do_something | echo "$(cat -) add some text" | pyfi.processors.sample.do_this
 
       # Echo a string as input to two different processors and they run in parallel
-      echo "HI THERE!" | tee -a >(ext.processors.sample.do_something) tee -a >(ext.processors.sample.do_this)
+      echo "HI THERE!" | tee -a >(pyfi.processors.sample.do_something) tee -a >(pyfi.processors.sample.do_this)
 
 .. code-block:: bash
       :caption: Easily list out the call graph for any task in your workflow to see where the parallelism occurred
 
       $ pyfi ls call --id 033cf3d3-a0fa-492d-af0a-f51cf5f58d49 -g
-      ext.processors.sample.do_something
+      pyfi.processors.sample.do_something                                                                                                          
                   └─────────────────────────────────────────────┐                                                                                     
-                                             ext.processors.sample.do_something
+                                             pyfi.processors.sample.do_something                                                                    
                                        ┌──────────────────────┴───────────────────┬───────────────────────────────────────┐                         
-                        ext.processors.sample.do_something        ext.processors.sample.do_something     ext.processors.sample.do_something
+                        pyfi.processors.sample.do_something        pyfi.processors.sample.do_something     pyfi.processors.sample.do_something  
 
 Persistent, Reliable Tasks
 --------------------------
@@ -236,6 +236,6 @@ Powerful, Next-Gen UI
 ElasticCode's user interface is a powerful, next-gen no-code application that enpowers anyone to create fast, parallel workflows across ElasticCode's distributed task mesh.
 
 
-.. image:: ../../screens/pyfi1.png
-.. image:: ../../screens/pyfi5.png
-.. image:: ../../screens/pyfi7.png
+.. image:: ../screens/pyfi1.png
+.. image:: ../screens/pyfi5.png
+.. image:: ../screens/pyfi7.png

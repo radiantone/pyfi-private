@@ -2862,7 +2862,7 @@ export default {
         disabled: false,
         commit: '',
         git:
-          'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=pyfi-processor',
+          'https://github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
         readwrite: 0,
         properties: [],

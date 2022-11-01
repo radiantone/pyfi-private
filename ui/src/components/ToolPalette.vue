@@ -42,6 +42,23 @@
       <q-btn
         flat
         align="left"
+        icon="las la-scroll"
+        aria-label="Script"
+        size="xl"
+        id="script"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Script
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
         icon="icon-processor"
         aria-label="Processor"
         size="large"

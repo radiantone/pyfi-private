@@ -19,7 +19,7 @@ Decorators
         @processor(
             name="proc2",
             gitrepo=os.environ["GIT_REPO"],
-            module="ext.processors.sample",
+            module="pyfi.processors.sample",
             concurrency=1,
         )
         class ProcessorB(ProcessorBase):
@@ -47,7 +47,7 @@ Decorators
         @processor(
             name="proc1",
             gitrepo=os.environ["GIT_REPO"],
-            module="ext.processors.sample",
+            module="pyfi.processors.sample",
             concurrency=7,
         )
         class ProcessorA(ProcessorBase):
@@ -89,7 +89,7 @@ Decorators
         @processor(
             name="proc3",
             gitrepo=os.environ["GIT_REPO"],
-            module="ext.processors.sample",
+            module="pyfi.processors.sample",
             concurrency=1,
         )
         class ProcessorC(ProcessorBase):

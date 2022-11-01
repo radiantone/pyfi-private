@@ -111,10 +111,10 @@ Finally, we can run our task and get the result.
 .. code-block:: bash
 
    $ flow add queue -n pyfi.queue1 -t direct
-   $ flow add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m ext.processors.sample -h localhost -c 5
-   $ flow add socket -n ext.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something
-   $ flow add socket -n ext.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this
-   $ flow task run --socket ext.processors.sample.do_this --data "['some data']"
+   $ flow add processor -n proc1 -g https://github.com/radiantone/pyfi-processors -m pyfi.processors.sample -h localhost -c 5
+   $ flow add socket -n pyfi.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something
+   $ flow add socket -n pyfi.processors.sample.do_this -q pyfi.queue1 -pn proc1 -t do_this
+   $ flow task run --socket pyfi.processors.sample.do_this --data "['some data']"
    Do this: ['some data']
 
 Creating Sockets
@@ -123,18 +123,18 @@ Sockets represent addressable endpoints for python functions hosted by a process
 The socket defines the task (or python function) within the processor python module. Thus, a single processor can have many sockets associated with it. Sockets also declare a queue they will use to pull their requests from.
 This allows calls to tasks to be durable and reliable.
 
-The following extract from the above flow defines a socket, gives it a name ``ext.processors.sample.do_something``, declares the queue ``pyfi.queue1``, associates it with processor named ``proc1`` and represents the python function/task ``do_something``.
+The following extract from the above flow defines a socket, gives it a name ``pyfi.processors.sample.do_something``, declares the queue ``pyfi.queue1``, associates it with processor named ``proc1`` and represents the python function/task ``do_something``.
 
 .. code-block:: bash
 
-   $ flow add socket -n ext.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something
+   $ flow add socket -n pyfi.processors.sample.do_something -q pyfi.queue1 -pn proc1 -t do_something
 
 Defining Socket Functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you've built out your flow and infrastructure to support it, you can create convenient types that represent your python functions via the Socket class.
 
-For the parallel flow above, we import the .p (or partial) signature from this file, which comes from our Socket we created earlier named ``ext.processors.sample.do_something``.
+For the parallel flow above, we import the .p (or partial) signature from this file, which comes from our Socket we created earlier named ``pyfi.processors.sample.do_something``.
 Remember, the socket captures the module (from its parent Processor) and function name within that module you want to run. Think of it like an endpoint with a queue in front of it.
 
 We take one step further in the file below and rename Socket class to Function simply as a linguistic preference in this context.
@@ -143,10 +143,10 @@ We take one step further in the file below and rename Socket class to Function s
 
    from pyfi.client.api import Socket as Function
 
-   do_something = Function(name='ext.processors.sample.do_something')
+   do_something = Function(name='pyfi.processors.sample.do_something')
    do_something_p = do_something.p
 
-   do_this = Function(name='ext.processors.sample.do_this')
+   do_this = Function(name='pyfi.processors.sample.do_this')
    do_this_p = do_this.p
 
 Once we've created our function definitions above, we can use them like normal python functions as in the parallel workflow below!

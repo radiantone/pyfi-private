@@ -5,4 +5,4 @@ Data Model
    :maxdepth: 2
 
 
-.. image:: ../../../screens/pyfi-data-model.png
+.. image:: ../../screens/pyfi-data-model.png
