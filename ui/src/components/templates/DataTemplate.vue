@@ -646,16 +646,16 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: 'function: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
+                @click="addNewPort({ function: 'object: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
               >
                 <q-item-section side>
-                  <q-icon name="fab fa-python" />
+                  <q-icon name="fas fa-cube" />
                 </q-item-section>
                 <q-item-section
                   side
                   class="text-blue-grey-8"
                 >
-                  function: {{ func.name }}
+                  object: {{ func.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -694,16 +694,16 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
+                @click="addNewPort({ function: 'object: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
               >
                 <q-item-section side>
-                  <q-icon name="fab fa-python" />
+                  <q-icon name="fas fa-cube" />
                 </q-item-section>
                 <q-item-section
                   side
                   class="text-blue-grey-8"
                 >
-                  function: {{ func.name }}
+                  object: {{ func.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -3720,7 +3720,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
+      addNewPort({ function: 'object: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
     },
     showOutput (resultid) {
       this.resultdataloading = true
@@ -3759,27 +3759,15 @@ export default {
     },
     updateFunctions (data) {
       /* Parse out named objects from editor */
-      const re = /def (\w+)\s*\((.*?)\):/g
+      const re = /(\w+)\s*/gm
 
       var matches = data.matchAll(re)
 
       this.funcs = []
 
       for (const match of matches) {
-        var name = match[0].split('(')[0].split(' ').at(-1)
-        var args = match[2].split(',')
-
-        var _args = []
-        for (const arg of args) {
-          if (arg.indexOf('*') > -1 || arg.indexOf('=') > -1) {
-          } else {
-            if (arg.indexOf(':') > -1) {
-              arg = arg.split(':')[0]
-            }
-            _args.push(arg)
-          }
-        }
-        this.funcs.push({ name: name, args: _args })
+        var name = match[0]
+        this.funcs.push({ name: name, args: [] })
       }
     },
     fetchCode () {
