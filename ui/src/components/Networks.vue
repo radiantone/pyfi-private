@@ -1,5 +1,8 @@
 <template>
-  <div class="fit" style="padding: 0; height: 100vh;">
+  <div
+    class="fit"
+    style="padding: 0; height: 100vh;"
+  >
     <div
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
@@ -91,7 +94,10 @@
         class="text-secondary"
       >
         <template v-slot:default-header="prop">
-          <div class="row items-center rapidquestnode" :id="prop.node.id">
+          <div
+            class="row items-center rapidquestnode"
+            :id="prop.node.id"
+          >
             <q-icon
               :name="prop.node.icon || 'share'"
               size="18px"
@@ -102,7 +108,8 @@
               :id="prop.node.id"
               style="font-size: 1.2em;"
               @mouseover="updateCard(prop.node)"
-            >{{ prop.node.label }}
+            >
+              {{ prop.node.label }}
               <q-tooltip
                 content-class=""
                 content-style="font-size: 16px"
@@ -111,7 +118,6 @@
                 :offset="[10, 10]"
               >
                 {{ prop.node.tooltip }}
-
               </q-tooltip>
             </div>
           </div>
@@ -119,9 +125,15 @@
       </q-tree>
     </q-scroll-area>
     <q-inner-loading :showing="loading">
-      <q-spinner-gears size="50px" color="primary" />
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
-    <q-toolbar v-if="toolbar" class="fixed-bottom bg-black text-white">
+    <q-toolbar
+      v-if="toolbar"
+      class="fixed-bottom bg-black text-white"
+    >
       <q-btn
         flat
         round
@@ -129,9 +141,12 @@
         class="q-mr-xs"
         @click="synchronize"
       >
-        <q-tooltip content-style="font-size: 16px" :offset="[10, 10]"
-          >Synchronize</q-tooltip
+        <q-tooltip
+          content-style="font-size: 16px"
+          :offset="[10, 10]"
         >
+          Synchronize
+        </q-tooltip>
       </q-btn>
       <q-select
         filled
@@ -157,10 +172,18 @@
         </template>
       </q-select>
       <q-space />
-      <q-btn flat round icon="fas fa-plus" @click="">
-        <q-tooltip content-style="font-size: 16px" :offset="[10, 10]"
-          >Add Library</q-tooltip
+      <q-btn
+        flat
+        round
+        icon="fas fa-plus"
+        @click=""
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          :offset="[10, 10]"
         >
+          Add Library
+        </q-tooltip>
       </q-btn>
       <q-btn
         flat
@@ -169,14 +192,25 @@
         icon="fas fa-folder-plus"
         @click="folderprompt = true"
       >
-        <q-tooltip content-style="font-size: 16px" :offset="[10, 10]"
-          >Add Folder</q-tooltip
+        <q-tooltip
+          content-style="font-size: 16px"
+          :offset="[10, 10]"
         >
+          Add Folder
+        </q-tooltip>
       </q-btn>
-      <q-btn flat :disable="!selected" round icon="far fa-trash-alt">
-        <q-tooltip content-style="font-size: 16px" :offset="[10, 10]"
-          >Delete</q-tooltip
+      <q-btn
+        flat
+        :disable="!selected"
+        round
+        icon="far fa-trash-alt"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          :offset="[10, 10]"
         >
+          Delete
+        </q-tooltip>
       </q-btn>
     </q-toolbar>
   </div>
@@ -190,167 +224,166 @@
 }
 </style>
 <script>
-var dd = require('drip-drop');
-import DataService from 'components/util/DataService';
-import { mdiPowerSocketUs } from '@mdi/js';
-import { mdiArrowCollapseAll } from '@mdi/js';
-import { mdiArrowExpandAll } from '@mdi/js';
-import { mdiCardTextOutline } from '@mdi/js';
+const dd = require('drip-drop')
+import DataService from 'components/util/DataService'
 
-function addClass(el, classNameToAdd) {
+function addClass (el, classNameToAdd) {
   if (el.className.indexOf(classNameToAdd) === -1) {
-    el.className += ' ' + classNameToAdd;
+    el.className += ' ' + classNameToAdd
   }
 }
 
-function removeClass(el, classNameToRemove) {
+function removeClass (el, classNameToRemove) {
   if (el.className.indexOf(classNameToRemove) !== -1) {
-    var reg = new RegExp(classNameToRemove, 'g');
-    el.className = el.className.replace(reg, '');
+    const reg = new RegExp(classNameToRemove, 'g')
+    el.className = el.className.replace(reg, '')
   }
 }
 
-function getNodeFromKey(key, nodes) {
-  for (var i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    if (node && node.id && node.id === key) return node;
+function getNodeFromKey (key, nodes) {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (node && node.id && node.id === key) return node
     if (node && node.children && node.children.length > 0) {
-      var n = getNodeFromKey(key, node.children);
-      if (n !== null) return n;
+      const n = getNodeFromKey(key, node.children)
+      if (n !== null) return n
     }
   }
-  return null;
+  return null
 }
+
 export default {
   name: 'LibraryTree',
   props: ['toolbar', 'highlight', 'channel', 'view'],
   components: {},
-  created() {
-    this.collapseAll = mdiArrowCollapseAll;
-    this.expandAll = mdiArrowExpandAll;
-    this.cardOutline = mdiCardTextOutline;
+  created () {
+    this.collapseAll = mdiArrowCollapseAll
+    this.expandAll = mdiArrowExpandAll
+    this.cardOutline = mdiCardTextOutline
   },
   methods: {
-    updateCard(node) {
-      console.log("object.card",node)
-      this.$root.$emit("object.card",node);
+    updateCard (node) {
+      console.log('object.card', node)
+      this.$root.$emit('object.card', node)
     },
-    expandAllNodes() {
-      this.$refs['tree'].expandAll();
+    expandAllNodes () {
+      this.$refs.tree.expandAll()
     },
-    collapseAllNodes() {
-      this.$refs['tree'].collapseAll();
+    collapseAllNodes () {
+      this.$refs.tree.collapseAll()
     },
-    showUpgrade() {
-      this.$root.$emit('subscriptions');
+    showUpgrade () {
+      this.$root.$emit('subscriptions')
     },
-    addItem(item) {},
-    mouseover(node) {
-      console.log(node);
+    addItem (item) {
     },
-    updated() {
-      console.log('updated');
+    mouseover (node) {
+      console.log(node)
     },
-    afterShow() {
-      var me = this;
-      this.initializeDrag();
-      console.log('afterShow ', me.highlight);
+    updated () {
+      console.log('updated')
+    },
+    afterShow () {
+      let i;
+      const me = this
+      this.initializeDrag()
+      console.log('afterShow ', me.highlight)
       if (me.highlight) {
-        for (var i = 0; i < me.nodes.length; i++) {
-          var node = me.nodes[i];
+        for (i = 0; i < me.nodes.length; i++) {
+          const node = me.nodes[i]
           if (node.id.indexOf(me.highlight) === 0) {
-            node.disabled = false;
-            console.log(node, false);
+            node.disabled = false
+            console.log(node, false)
           } else {
-            node.disabled = true;
-            console.log(node, true);
+            node.disabled = true
+            console.log(node, true)
           }
         }
       } else {
-        for (var i = 0; i < me.nodes.length; i++) {
-          me.nodes[i].disabled = false;
+        for (i = 0; i < me.nodes.length; i++) {
+          me.nodes[i].disabled = false
         }
       }
-      console.log(this.nodes);
+      console.log(this.nodes)
     },
-    updateSelected(key) {
-      console.log('selected: ', this.selected);
-      console.log('key: ', key);
-      var node = getNodeFromKey(key, this.nodes);
-      console.log('node: ', node);
-      window.global.root.$emit(this.channel, node);
+    updateSelected (key) {
+      console.log('selected: ', this.selected)
+      console.log('key: ', key)
+      const node = getNodeFromKey(key, this.nodes)
+      console.log('node: ', node)
+      window.global.root.$emit(this.channel, node)
     },
-    initializeDrag() {
-      console.log('initialize drag');
-      var els = document.getElementsByClassName('q-tree__node-header');
-      for (var i = 0; i < els.length; i++) {
-        var el = els[i];
-        var draghandle = dd.drag(el, {
-          image: true, // default drag image
-        });
+    initializeDrag () {
+      console.log('initialize drag')
+      const els = document.getElementsByClassName('q-tree__node-header')
+      for (let i = 0; i < els.length; i++) {
+        const el = els[i]
+        const draghandle = dd.drag(el, {
+          image: true // default drag image
+        })
         draghandle.on('start', function (setData, e) {
-          var rnode = e.srcElement.querySelector('.rapidquestnode');
+          const rnode = e.srcElement.querySelector('.rapidquestnode')
           console.log(
             'RNODE:',
             JSON.stringify({
               collection: rnode.getAttribute('collection'),
-              objectid: rnode.getAttribute('id'),
+              objectid: rnode.getAttribute('id')
             })
-          );
+          )
 
-          var objdata = {
+          const objdata = {
             collection: rnode.getAttribute('collection'),
-            objectid: rnode.getAttribute('id'),
-          };
-          console.log('objdata:', objdata);
-          setData('objectid', JSON.stringify(objdata));
+            objectid: rnode.getAttribute('id')
+          }
+          console.log('objdata:', objdata)
+          setData('objectid', JSON.stringify(objdata))
           // Put data in vuex?
 
           // Pull method calls off element attributes, invoke that method with 'start'
-        });
+        })
 
         dd.drop(el).on('enter', function (keys, event) {
-          console.log('drop enter', keys, event);
+          console.log('drop enter', keys, event)
           // Lookup keys in Vuex store
           // Update styles/classes based on data (e.g. allow or disallow)
-          addClass(event.target, 'highlight');
-        });
+          addClass(event.target, 'highlight')
+        })
         dd.drop(el).on('leave', function (keys, event) {
-          console.log('drop leave', keys, event);
+          console.log('drop leave', keys, event)
           // Lookup keys in Vuex store
           // Update styles/classes based on data
-          removeClass(event.target, 'highlight');
-        });
+          removeClass(event.target, 'highlight')
+        })
       }
     },
-    synchronize() {
-      this.loading = true;
-      var me = this;
+    synchronize () {
+      this.loading = true
+      const me = this
 
       DataService.getNetworks().then((nodes) => {
-        console.log('NETWORKS', nodes);
-        me.nodes = nodes.data.networks;
-        this.$refs.tree.lazy = {};
-        this.$refs.tree.collapseAll();
+        console.log('NETWORKS', nodes)
+        me.nodes = nodes.data.networks
+        this.$refs.tree.lazy = {}
+        this.$refs.tree.collapseAll()
         setTimeout(function () {
-          me.loading = false;
-        }, 500);
-      });
+          me.loading = false
+        }, 500)
+      })
     },
-    unselectNode() {
-      this.selected = null;
+    unselectNode () {
+      this.selected = null
     },
-    showNewEntityDialog() {
-      console.log('library show new entity');
-      this.$root.$emit('new.entity.dialog');
-    },
+    showNewEntityDialog () {
+      console.log('library show new entity')
+      this.$root.$emit('new.entity.dialog')
+    }
   },
-  mounted() {
-    this.synchronize();
-    this.initializeDrag();
-    console.log('CHANNEL:', this.channel);
+  mounted () {
+    this.synchronize()
+    this.initializeDrag()
+    console.log('CHANNEL:', this.channel)
   },
-  data() {
+  data () {
     return {
       libraries: ['Library 1', 'Library 2'],
       step: 1,
@@ -362,7 +395,7 @@ export default {
       newfolder: '',
       contentActiveStyle: {
         backgroundColor: '#eee',
-        color: 'black',
+        color: 'black'
       },
 
       thumbStyle: {
@@ -370,14 +403,13 @@ export default {
         borderRadius: '5px',
         backgroundColor: '#027be3',
         width: '5px',
-        opacity: 0.75,
+        opacity: 0.75
       },
       tab: 'environment',
       upgrade: true,
       showToolbar: true,
-      nodes: [
-      ],
-    };
-  },
-};
+      nodes: []
+    }
+  }
+}
 </script>

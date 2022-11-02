@@ -37,7 +37,7 @@ LoadingBar.setDefaults({
   position: 'top'
 })
 
-var log = console.log
+let log = console.log
 console.log = function () {
   // Invoke the original method with an additional parameter
   log.apply(console,

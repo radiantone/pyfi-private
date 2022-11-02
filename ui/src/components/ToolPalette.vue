@@ -431,7 +431,10 @@
         :series="series"
         style="margin-right: 200px;"
       />
-      <q-item-label class="text-dark" style="white-space: nowrap;">
+      <q-item-label
+        class="text-dark"
+        style="white-space: nowrap;"
+      >
         Welcome, Darren!
       </q-item-label>
       <q-btn
@@ -682,7 +685,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -752,7 +754,6 @@
 </style>
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop'
 import { mdiCodeBraces } from '@mdi/js'
 import DataService from './util/DataService'
 
@@ -763,7 +764,7 @@ export default {
     this.braces = mdiCodeBraces
   },
   mounted () {
-    var me = this
+    const me = this
 
     console.log('TOOLPALETTE STORE', this.$store)
     this.$root.$on('show.objects', (objects) => {
@@ -774,7 +775,7 @@ export default {
   },
   methods: {
     showStats (name, columns, objects) {
-      var me = this
+      const me = this
 
       this.statname = name
       this.viewStatsColumns = columns
@@ -801,7 +802,7 @@ export default {
       })
     },
     loadPython () {
-      var head = document.getElementById('head')
+      const head = document.getElementById('head')
       const script = document.createElement('script')
       script.setAttribute('src', 'https://pyscript.net/alpha/pyscript.js')
       script.setAttribute('type', 'application/javascript')

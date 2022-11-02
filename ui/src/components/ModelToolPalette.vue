@@ -194,7 +194,6 @@
 }
 </style>
 <script>
-import { SurfaceDrop } from 'jsplumbtoolkit-vue2-drop';
 
 export default {
   name: 'ModelToolPalette',

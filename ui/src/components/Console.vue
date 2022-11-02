@@ -85,16 +85,15 @@
 
 <style scoped>
 
+@import "../css/pyscript.css";
+
 #btnRun > svg {
   color: #93b9b4 !important;
 }
 
-@import "../css/pyscript.css";
-
 </style>
 
 <script>
-//@import "https://pyscript.net/alpha/pyscript.css";
 export default {
   name: 'Console',
   props: ['codewidth'],

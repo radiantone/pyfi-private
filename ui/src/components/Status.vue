@@ -9,7 +9,6 @@ import {
   DesignerComponentBase
 } from '../store/DesignerStore';
 
-import Store from '../store';
 
 export default mixins(DesignerComponentBase).extend<
   Data,
