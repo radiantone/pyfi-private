@@ -196,7 +196,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-plug" />
+            <q-icon name="fas fa-cube" />
           </q-item-section>
           <q-item-section
             side
@@ -646,7 +646,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: 'object: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
+                @click="addNewPort({ function: func.name, args: [] }, 'Error', 'fas fa-exclamation')"
               >
                 <q-item-section side>
                   <q-icon name="fas fa-cube" />
@@ -655,7 +655,7 @@
                   side
                   class="text-blue-grey-8"
                 >
-                  object: {{ func.name }}
+                  {{ func.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -694,7 +694,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: 'object: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')"
               >
                 <q-item-section side>
                   <q-icon name="fas fa-cube" />
@@ -703,7 +703,7 @@
                   side
                   class="text-blue-grey-8"
                 >
-                  object: {{ func.name }}
+                  {{ func.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -955,103 +955,6 @@
       </div>
     </div>
     <ul
-      v-if="obj.icon === 'fas fa-database'"
-      class="table-columns"
-      v-for="column in obj.columns"
-      :key="column.id"
-    >
-      <li
-        :class="'table-column jtk-droppable table-column-type-' + column.datatype"
-        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
-        :primary-key="column.primaryKey"
-        :data-port-id="column.id"
-      >
-        <div class="table-column-edit text-primary">
-          <i
-            class="fa fa-play table-column-delete-icon"
-            title="Trigger Port"
-          />
-          <i
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
-            @click="confirmDeletePort(column.id)"
-          />
-        </div>
-        <div>
-          <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
-          </div>
-          <span>
-            <span :id="column.id">
-              <q-btn-dropdown
-                flat
-                content-class="text-dark bg-white"
-                dense
-                color="secondary"
-                label="Query"
-                padding="0px"
-                size=".8em"
-              >
-                <q-list dense>
-                  <q-item
-                    clickable
-                    v-close-popup
-                  >
-                    <q-item-section side>
-                      <q-icon name="fas fa-question" />
-                    </q-item-section>
-                    <q-item-section
-                      side
-                      class="text-blue-grey-8"
-                    >
-                      Query 1
-                    </q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                  >
-                    <q-item-section side>
-                      <q-icon name="fas fa-question" />
-                    </q-item-section>
-                    <q-item-section
-                      side
-                      class="text-blue-grey-8"
-                    >
-                      Query 2
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </span>
-            :
-            <span class="text-secondary">{{ column.description }}</span>
-          </span>
-        </div>
-
-        <jtk-source
-          name="source"
-          :port-id="column.id"
-          :scope="column.datatype"
-          filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
-          filter-exclude="true"
-        />
-
-        <jtk-target
-          name="target"
-          :port-id="column.id"
-          type="Input"
-          :scope="column.datatype"
-        />
-      </li>
-    </ul>
-
-    <ul
-      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -1067,20 +970,6 @@
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           >
-            <!--
-          <q-select
-            dense
-            borderless
-            v-if="column.type !== 'Input'"
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 20px;"
-            label-color="orange"
-            v-model="column.queue"
-            :options="queues"
-            value="string"
-          ><template v-slot:prepend>
-          <q-icon name="fas fa-envelope" style="font-size:.5em" color="primary"/>
-        </template></q-select>-->
           </div>
           <i
             v-if="column.type !== 'Input'"
@@ -1105,35 +994,6 @@
           class="table-column-edit text-primary"
           style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
         >
-          <!--
-          <q-btn-dropdown
-            flat
-            content-class="text-dark bg-white"
-            dense
-            color="secondary"
-            label="Schema"
-            v-model="column.schema"
-            size=".8em"
-          >
-            <q-list dense>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  {}
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Schema 1
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  {}
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Schema 2
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>-->
           <q-select
             dense
             borderless
@@ -1161,7 +1021,7 @@
               <q-popup-edit
                 v-model="column.name"
                 buttons
-                v-if="column.icon === 'fas fa-plug'"
+                v-if="column.icon === 'fas fa-cube'"
               >
                 <q-input
                   type="string"
@@ -3720,7 +3580,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: 'object: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')
     },
     showOutput (resultid) {
       this.resultdataloading = true
@@ -4228,15 +4088,6 @@ export default {
         return
       }
 
-      func.args.forEach((arg) => {
-        var arg = this.addPort({
-          name: arg,
-          icon: 'fab fa-python',
-          type: 'Input'
-        })
-        this.ports[arg] = true
-        this.argports[port.id].push(arg.id)
-      })
     },
     addErrorPort () {
       if (this.error) {

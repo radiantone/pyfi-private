@@ -54,8 +54,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       var me = this
 
       socket.on('basicEmit', (a, b, c) => {
-        //console.log('SERVER EMIT', a, b, c)
         me.$store.commit('designer/setMessage', b)
+        console.log('buffer', c)
       })
       me.listenMessages()
     },
@@ -94,7 +94,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       listenMessages () {
         var me = this
         socket.on('global', (data) => {
-          //console.log('PROCESSOR GLOBAL MESSAGE', data)
           me.messageReceived(data)
         })
       },
