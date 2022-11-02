@@ -3160,7 +3160,7 @@ Delete
 
 */
 export default {
-  name: 'ScriptTemplate',
+  name: 'ProcessorTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {

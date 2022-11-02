@@ -1053,7 +1053,7 @@ export default {
         x: 0,
         y: 0,
         type: 'script',
-        name: 'Script Processor',
+        name: 'Port In',
         label: 'Script',
         description: 'A script processor description',
         package: 'my.python.package',

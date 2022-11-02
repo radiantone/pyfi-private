@@ -2317,7 +2317,7 @@ tbody tr:nth-child(odd) {
 </style>
 <script>
 
-import ScriptTemplate from 'components/templates/ScriptTemplate';
+import ScriptTemplate from 'components/templates/ProcessorTemplate';
 
 export default {
   name: 'ParallelTemplate',

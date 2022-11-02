@@ -992,7 +992,7 @@ export default {
         beat: false,
         api: '/api/processor',
         type: 'script',
-        name: 'Script Processor',
+        name: 'Value',
         label: 'Script',
         description: 'A script processor description',
         package: 'my.python.package',

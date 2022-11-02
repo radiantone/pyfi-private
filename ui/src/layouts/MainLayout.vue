@@ -1692,6 +1692,23 @@ export default defineComponent({
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
     setTimeout(() => {
+      var script = document.querySelector('#script')
+
+      script.data = {
+        node: {
+          icon: 'fab fa-python',
+          style: '',
+          type: 'script',
+          name: 'Script',
+          label: 'Script',
+          description: 'A script description',
+          package: 'my.python.package',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
       var processor = document.querySelector('#processor')
 
       processor.data = {
@@ -1699,7 +1716,7 @@ export default defineComponent({
           icon: 'fab fa-python',
           style: '',
           type: 'processor',
-          name: 'Script Processor',
+          name: 'Processor',
           label: 'Script',
           description: 'A script processor description',
           package: 'my.python.package',
@@ -1879,7 +1896,7 @@ export default defineComponent({
       }
 
       //, chord, segment, map, reduce
-      var els = [processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema]
+      var els = [script, processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema]
 
       els.forEach((el) => {
         var data = el.data
