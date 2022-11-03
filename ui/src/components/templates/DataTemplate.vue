@@ -3182,10 +3182,9 @@ export default {
 
       for (var portname in this.portobjects) {
         const port = this.portobjects[portname]
-        let result = this.execute(this.obj.code+"\n\n"+portname)
-        console.log("PORT RESULT ", portname, result)
+        const result = this.execute(this.obj.code + '\n\n' + portname)
+        console.log('PORT RESULT ', portname, result)
       }
-
     },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
