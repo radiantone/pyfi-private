@@ -39,20 +39,23 @@
               50% 50% no-repeat rgb(249,249,249);
 }
   </style>
+        <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+
 </head>
 
 <body>
   <!-- DO NOT touch the following DIV -->
   <div id="q-app"></div>
-<div class="loader"></div>
-<!--
-  <script type="module" src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
-  <script>
-        const pycode = "object1 = {'hello':'there'};object1"
-        console.log("PYODIDE",pycode)
-        let result = pyodide.runPython(pycode)
-        console.log("PYODIDE RESULT",result.toString())
-  </script>-->
+  <div class="loader"></div>
+
+<script type="text/javascript">
+      async function main(){
+        let pyodide = await loadPyodide()
+        window.pyodide = pyodide
+        console.log("PYODIDE RESULT", pyodide.runPython("1 + 2"))
+      }
+      main();
+    </script>
 </body>
 
 </html>

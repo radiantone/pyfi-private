@@ -7,8 +7,10 @@ import mixins from 'vue-typed-mixins'
 import { io, Socket } from 'socket.io-client'
 // import { loadPyodide } from "pyodide"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
+// import { loadPyodide } from "pyodide"
+// const { loadPyodide } = require('pyodide')
 
-const { loadPyodide } = require('pyodide')
+// const pyodide = loadPyodide()
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -95,17 +97,22 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       }
     },
     mounted () {
-      //const recaptchaScript = document.createElement('script')
-      //recaptchaScript.setAttribute('src', 'https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js')
-      //document.head.appendChild(recaptchaScript)
+      // const recaptchaScript = document.createElement('script')
+      // recaptchaScript.setAttribute('src', 'https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js')
+      // document.head.appendChild(recaptchaScript)
     },
 
     methods: {
       async execute (data: any) {
         console.log('Running: ', data)
+        // noinspection TypeScriptUnresolvedVariable
+        const result = (window as any).pyodide.runPythonAsync(data)
 
-        const pyodide = await loadPyodide()
-        return pyodide.runPythonAsync(data)
+        result.then((result: any) => {
+          const resultstr = result.toString()
+          console.log('PYODIDE RESULT ASYNC', resultstr)
+          return resultstr
+        })
       },
       listenMessages () {
         var me = this

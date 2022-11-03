@@ -2663,6 +2663,7 @@ export default {
       resulttype: 'finished',
       queues: [],
       argports: {},
+      portobjects: {},
       funcs: [],
       afuncs: [],
       codewidth: 950,
@@ -2965,7 +2966,7 @@ export default {
         gitrepo:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
-        modulepath: 'pyfi/processors/sample.py',
+        modulepath: 'ext/processors/sample.py',
         readwrite: 0,
         status: 'stopped',
         properties: []
@@ -3175,7 +3176,16 @@ export default {
   },
   methods: {
     triggerExecute () {
-      this.execute(this.obj)
+      // For each data object port create a new object dict holding the values
+      // and append to the code string, then retrieve that object to obtain each
+      // port objects value in one evaluation
+
+      for (var portname in this.portobjects) {
+        const port = this.portobjects[portname]
+        let result = this.execute(this.obj.code+"\n\n"+portname)
+        console.log("PORT RESULT ", portname, result)
+      }
+
     },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
@@ -3312,14 +3322,14 @@ export default {
     },
     updateFunctions (data) {
       /* Parse out named objects from editor */
-      const re = /(\w+)\s*/gm
+      const re = /(\w+)\s*=/gm
 
       var matches = data.matchAll(re)
 
       this.funcs = []
 
       for (const match of matches) {
-        var name = match[0]
+        var name = match[0].split('=')[0].trim()
         this.funcs.push({ name: name, args: [] })
       }
     },
@@ -3726,7 +3736,6 @@ export default {
       // window.renderer.repaint(this.obj);
     },
     addPort (port) {
-      debugger
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {
@@ -3774,6 +3783,7 @@ export default {
 
       this.ports[func.function] = true
       this.argports[port.id] = []
+      this.portobjects[func.function] = port
 
       this.updateSchemas()
 
