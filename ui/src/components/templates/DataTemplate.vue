@@ -311,7 +311,6 @@
           :dropdown-icon="obj.icon"
           padding="0px"
           size=".6em"
-          disabled
         >
           <q-list dense>
             <q-item
@@ -330,24 +329,6 @@
                 class="text-blue-grey-8"
               >
                 Database
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="
-                obj.icon = 'fab fa-python';
-                settingstab = 'settings';
-              "
-            >
-              <q-item-section side>
-                <q-icon name="fab fa-python" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Script
               </q-item-section>
             </q-item>
             <q-item
@@ -408,42 +389,6 @@
                 class="text-blue-grey-8"
               >
                 Spreadsheet
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="
-                obj.icon = lambdaIcon;
-                settingstab = 'lambda';
-              "
-            >
-              <q-item-section side>
-                <q-icon
-                  :name="this.lambdaIcon"
-                  style="font-weight: bold; font-size: 1.2em;"
-                />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Lambda
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'alt_route'"
-            >
-              <q-item-section side>
-                <q-icon name="alt_route" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Router
               </q-item-section>
             </q-item>
           </q-list>
@@ -2966,7 +2911,7 @@ export default {
         gitrepo:
           'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
-        modulepath: 'ext/processors/sample.py',
+        modulepath: 'ext/processors/data.py',
         readwrite: 0,
         status: 'stopped',
         properties: []

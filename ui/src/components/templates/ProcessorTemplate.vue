@@ -367,51 +367,6 @@
             <q-item
               clickable
               v-close-popup
-              @click="obj.icon = 'fas fa-file'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-file" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Document
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-link'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-link" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                URL
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-table'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-table" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Spreadsheet
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
               @click="
                 obj.icon = lambdaIcon;
                 settingstab = 'lambda';
