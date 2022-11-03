@@ -6,7 +6,6 @@
   <title>
     <%= productName %>
   </title>
-
   <meta charset="utf-8">
   <meta name="description" content="<%= productDescription %>">
   <meta name="format-detection" content="telephone=no">
@@ -46,7 +45,14 @@
   <!-- DO NOT touch the following DIV -->
   <div id="q-app"></div>
 <div class="loader"></div>
-
+<!--
+  <script type="module" src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+  <script>
+        const pycode = "object1 = {'hello':'there'};object1"
+        console.log("PYODIDE",pycode)
+        let result = pyodide.runPython(pycode)
+        console.log("PYODIDE RESULT",result.toString())
+  </script>-->
 </body>
 
 </html>

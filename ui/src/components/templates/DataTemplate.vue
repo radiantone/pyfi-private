@@ -115,7 +115,7 @@
           clickable
           v-close-popup
           v-if="obj.status === 'stopped'"
-          @click="obj.status = 'running'"
+          @click="triggerExecute"
         >
           <q-item-section side>
             <q-icon name="fas fa-play" />
@@ -726,7 +726,7 @@
             flat
             @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="margin-right: 10px; position: absolute; right: 135px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -744,8 +744,8 @@
             v-if="obj.status === 'stopped'"
             flat
             class="edit-name text-secondary"
-            @click="obj.status = 'running'"
-            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
+            @click="triggerExecute"
+            style="position: absolute; right: 80px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -753,7 +753,7 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Start
+              Run
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -764,7 +764,8 @@
             v-if="obj.status === 'running'"
             @click="obj.status = 'stopped'"
             class="edit-name text-secondary text-green"
-            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
+
+            style="position: absolute; right: 80px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -782,24 +783,6 @@
             icon="fas fa-terminal"
             @click="showPanel('consoleview', !consoleview)"
             class="edit-name text-secondary"
-            style="position: absolute; right: 85px; top: -68px; width: 25px; height: 30px;"
-          >
-            <q-tooltip
-              anchor="top middle"
-              :offset="[-30, 40]"
-              content-style="font-size: 16px"
-              content-class="bg-black text-white"
-            >
-              Console
-            </q-tooltip>
-          </q-btn>
-          <q-btn
-            dense
-            flat
-            size="xs"
-            icon="fas fa-list"
-            @click="showResultsDialog"
-            class="edit-name text-secondary"
             style="position: absolute; right: 55px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
@@ -808,7 +791,7 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              View Results
+              Console
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -969,8 +952,7 @@
           <div
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
-          >
-          </div>
+          />
           <i
             v-if="column.type !== 'Input'"
             class="fa fa-play table-column-delete-icon"
@@ -1631,10 +1613,10 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1660,160 +1642,59 @@
           keep-alive
         >
           <q-tab-panel
+            ref="settings"
             name="settings"
             style="padding: 0px;"
-            ref="settings"
           >
-            <q-tabs
-              v-model="settingstab"
-              class="text-primary"
-              align="center"
-              dense
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px;"
             >
-              <q-tab
-                name="settings"
-                label="Processor"
-              />
-              <q-tab
-                name="versions"
-                label="Version"
-              />
-            </q-tabs>
-            <q-tab-panels v-model="settingstab">
-              <q-tab-panel
-                name="settings"
-                style="padding-top: 0px; padding-bottom: 0px;"
+              <q-form
+                @submit="onSubmit"
+                @reset="onReset"
+                class="q-gutter-md"
               >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.name"
-                      dense
-                      hint="Processor Name"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
+                <q-input
+                  filled
+                  v-model="obj.name"
+                  dense
+                  hint="Processor Name"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                />
 
-                    <q-input
-                      filled
-                      v-model="obj.description"
-                      dense
-                      hint="Processor Description"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                    <q-input
-                      filled
-                      v-model="obj.package"
-                      dense
-                      hint="Processor Package"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                    <q-input
-                      filled
-                      v-model="obj.icon"
-                      dense
-                      hint="Icon Class"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                    <q-input
-                      filled
-                      v-model="obj.middleware"
-                      dense
-                      hint="Middleware"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                    <q-toolbar style="margin-left: -30px;">
-                      <q-space />
-                      <q-checkbox
-                        v-model="obj.titletab"
-                        label="Title Tab"
-                        style="margin-left: 40px;"
-                      />
-                      <q-checkbox
-                        v-model="obj.enabled"
-                        label="Enabled"
-                        style="margin-left: 40px;"
-                      />
-                    </q-toolbar>
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="versions"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <q-toolbar>
-                  <q-input
-                    style="width: 200px;"
-                    hint="Version"
-                    type="string"
-                    v-model.number="obj.version"
+                <q-input
+                  filled
+                  v-model="obj.description"
+                  dense
+                  hint="Processor Description"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                />
+                <q-input
+                  filled
+                  v-model="obj.icon"
+                  dense
+                  hint="Icon Class"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                />
+                <q-toolbar style="margin-left: -30px;">
+                  <q-space />
+                  <q-checkbox
+                    v-model="obj.titletab"
+                    label="Title Tab"
+                    style="margin-left: 40px;"
+                  />
+                  <q-checkbox
+                    v-model="obj.enabled"
+                    label="Enabled"
+                    style="margin-left: 40px;"
                   />
                 </q-toolbar>
-              </q-tab-panel>
-              <q-tab-panel
-                name="lambda"
-                v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.lamdaurl"
-                      dense
-                      hint="Lambda URL"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="database"
-                v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.databasestring"
-                      dense
-                      hint="Connection String"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
-            </q-tab-panels>
+              </q-form>
+            </div>
           </q-tab-panel>
           <q-tab-panel
             name="concurrency"
@@ -2440,193 +2321,6 @@
         />
       </q-card-actions>
     </q-card>
-
-    <q-dialog
-      v-model="viewResultsDialog"
-      transition-show="none"
-      persistent
-    >
-      <q-card style="width: 70vw; max-width: 70vw; height: 80vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
-        <q-card-section
-          class="bg-secondary"
-          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              color: white;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-item-label>Results for {{ obj.name }}</q-item-label>
-              <q-space />
-              <q-select
-                dense
-                borderless
-                :options-dense="true"
-                style="font-size: 1em; margin-right: 20px; color: white;"
-                v-model="resulttype"
-                :options="['finished', 'error']"
-              />
-              <q-btn
-                class="text-primary"
-                flat
-                dense
-                round
-                size="sm"
-                icon="fas fa-close"
-                @click="viewResultsDialog = false"
-                style="z-index: 10;"
-              />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-splitter
-          v-model="resultSplitter"
-          separator-style="background-color: #e3e8ec;height:5px"
-          horizontal
-          style="height: calc(100% - 40px);"
-        >
-          <template v-slot:before>
-            <q-table
-              dense
-              :columns="resultcolumns"
-              :data="resultdata"
-              row-key="name"
-              flat
-              :pagination="resultPagination"
-              style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-            >
-              <template v-slot:body="props">
-                <q-tr
-                  :props="props"
-                  :key="getUuid"
-                >
-                  <q-td
-                    :key="props.cols[0].name"
-                    :props="props"
-                  >
-                    {{ props.cols[0].value }}
-                  </q-td>
-                  <q-td
-                    :key="props.cols[1].name"
-                    :props="props"
-                  >
-                    <a
-                      class="text-secondary"
-                      @click="showResult(props.row.resultid)"
-                    >{{ props.cols[1].value }}</a>
-                  </q-td>
-                  <q-td
-                    :key="props.cols[2].name"
-                    :props="props"
-                  >
-                    <a
-                      class="text-secondary"
-                      @click="showOutput(props.cols[1].value)"
-                    >Output</a>
-                  </q-td>
-                  <q-td
-                    :key="props.cols[3].name"
-                    :props="props"
-                  >
-                    {{ props.cols[3].value }}
-                  </q-td>
-                  <q-td
-                    :key="props.cols[4].name"
-                    :props="props"
-                  >
-                    {{ props.cols[4].value }}
-                  </q-td>
-                  <q-td
-                    :key="props.cols[5].name"
-                    :props="props"
-                  >
-                    {{ props.cols[5].value }}
-                  </q-td>
-
-                  <q-td
-                    :key="props.cols[6].name"
-                    :props="props"
-                  >
-                    {{ props.cols[6].value }}
-                  </q-td>
-
-                  <q-td
-                    :key="props.cols[7].name"
-                    :props="props"
-                  >
-                    {{ props.cols[7].value }}
-                  </q-td>
-                  <q-td
-                    :key="props.cols[8].name"
-                    :props="props"
-                  >
-                    {{ props.cols[8].value }}
-                  </q-td>
-                </q-tr>
-              </template>
-            </q-table>
-          </template>
-          <template v-slot:after>
-            <div style="height: 100%; width: 100%;">
-              <editor
-                @init="resultEditorInit"
-                style="font-size: 1.5em;"
-                lang="javascript"
-                theme="chrome"
-                ref="resultEditor"
-                width="100%"
-                height="100%"
-              />
-            </div>
-            <q-inner-loading
-              :showing="resultdataloading"
-              style="z-index: 0;"
-            >
-              <q-spinner-gears
-                size="50px"
-                color="primary"
-              />
-            </q-inner-loading>
-          </template>
-        </q-splitter>
-        <q-card-actions align="left">
-          <q-btn
-            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-            flat
-            icon="refresh"
-            class="bg-secondary text-dark"
-            color="primary"
-            @click="refreshResultsData"
-          />
-        </q-card-actions>
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Close"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-          />
-        </q-card-actions>
-        <q-inner-loading
-          :showing="resultloading"
-          style="z-index: 99999;"
-        >
-          <q-spinner-gears
-            size="50px"
-            color="primary"
-          />
-        </q-inner-loading>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 <style>
@@ -3480,6 +3174,9 @@ export default {
     }
   },
   methods: {
+    triggerExecute () {
+      this.execute(this.obj)
+    },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
@@ -3612,10 +3309,6 @@ export default {
         .catch((error) => {
           this.resultloading = false
         })
-    },
-    showResultsDialog () {
-      this.viewResultsDialog = true
-      this.refreshResultsData()
     },
     updateFunctions (data) {
       /* Parse out named objects from editor */
@@ -4085,9 +3778,8 @@ export default {
       this.updateSchemas()
 
       if (type === 'Error') {
-        return
-      }
 
+      }
     },
     addErrorPort () {
       if (this.error) {

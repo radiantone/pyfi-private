@@ -1081,7 +1081,6 @@ icon-processor:before {
 const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
 
-import { QSpinnerOval } from 'quasar'
 import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'

@@ -8,6 +8,7 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers')
+let path = require('path')
 
 module.exports = configure(function (ctx) {
   return {
@@ -72,6 +73,7 @@ module.exports = configure(function (ctx) {
       // https://quasar.dev/quasar-cli/handling-webpack
       extendWebpack (cfg) {
         // linting is slow in TS projects, we execute it only for production builds
+        cfg.resolve.alias['/pyodide_py.tar'] = '/js/pyodide_py.tar'
         if (ctx.prod) {
           cfg.module.rules.push({
             enforce: 'pre',

@@ -1,13 +1,20 @@
+
 <script lang="ts">
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call */
 import { Wrapper } from '../util'
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { io, Socket } from 'socket.io-client'
+// import { loadPyodide } from "pyodide"
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+
+const { loadPyodide } = require('pyodide')
 
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   global: (data: any) => void;
+  execute: (data: any) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
 }
 
@@ -88,19 +95,32 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       }
     },
     mounted () {
+      //const recaptchaScript = document.createElement('script')
+      //recaptchaScript.setAttribute('src', 'https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js')
+      //document.head.appendChild(recaptchaScript)
     },
 
     methods: {
+      async execute (data: any) {
+        console.log('Running: ', data)
+
+        const pyodide = await loadPyodide()
+        return pyodide.runPythonAsync(data)
+      },
       listenMessages () {
         var me = this
+
         socket.on('global', (data) => {
           me.messageReceived(data)
         })
+        socket.on('execute', (data: any) => {
+          me.execute(data)
+        })
       },
-      messageReceived (msg) {
+      messageReceived (msg: any) {
         this.$emit('message.received', msg)
       },
-      messageSend (msg) {
+      messageSend (msg: any) {
         const person = <SocketData>msg
         socket.emit('hello', person)
       }
@@ -113,6 +133,8 @@ interface MessageListener {
   messageSend(message: any): void;
 
   listenMessages(): void;
+
+  execute(data: any): void;
 }
 
 type Methods = MessageListener
