@@ -898,16 +898,21 @@
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
-          <i
-            v-if="column.type !== 'Input'"
-            class="fa fa-play table-column-delete-icon"
-            title="Trigger Port"
-            style="margin-right: 5px;"
+          <q-btn
+            icon="fa fa-play"
+            size="xs"
+            title="Run Object"
+            flat
+            dense
+            :data-portname="column.id"
+            @click="triggerObject(column.id)"
           />
-          <i
-            v-if="column.type !== 'Input'"
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
+          <q-btn
+            icon="fa fa-times"
+            size="xs"
+            itle="Delete Object"
+            flat
+            dense
             @click="confirmDeletePort(column.id)"
           />
 
@@ -1258,7 +1263,7 @@
         <editor
           v-model="obj.code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 600px;"
+          style="font-size: 16px; min-height: 400px;"
           lang="python"
           theme="chrome"
           ref="myEditor"
@@ -2611,7 +2616,7 @@ export default {
       portobjects: {},
       funcs: [],
       afuncs: [],
-      codewidth: 950,
+      codewidth: 650,
       queuecolumns: [
         {
           name: 'task',
@@ -3120,6 +3125,22 @@ export default {
     }
   },
   methods: {
+    triggerObject (portname) {
+      console.log(this.portobjects[portname])
+      const objectname = this.portobjects[portname].name
+      const result = this.execute(this.obj.code + '\n\n' + objectname)
+      const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+      _port.getEdges().forEach((edge) => {
+        console.log('EDGE->NODE', edge, edge.target.getNode())
+        const target_id = edge.target.getNode().data.id
+        console.log('target node id', target_id)
+        // send message to target_id with result, _port
+        // receiving node will realize this is an argument port and value
+        // and store the value internally until all the arguments for the function
+        // are present, then trigger the function with all the parameters
+      })
+      console.log('PORT RESULT ', _port, result)
+    },
     triggerExecute () {
       // For each data object port create a new object dict holding the values
       // and append to the code string, then retrieve that object to obtain each
@@ -3727,7 +3748,7 @@ export default {
 
       this.ports[func.function] = true
       this.argports[port.id] = []
-      this.portobjects[func.function] = port
+      this.portobjects[port.id] = port
 
       this.updateSchemas()
 

@@ -4470,7 +4470,9 @@ export default {
         var arg = this.addPort({
           name: arg,
           icon: 'fab fa-python',
-          type: 'Input'
+          type: 'Input',
+          argument: true,
+          function: func.function.replace('function: ','')
         })
         this.ports[arg] = true
         this.argports[port.id].push(arg.id)
