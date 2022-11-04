@@ -33,6 +33,7 @@ HOME = str(Path.home())
 
 ini = HOME + "/pyfi.ini"
 
+
 CONFIG.read(ini)
 
 
