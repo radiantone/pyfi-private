@@ -31,6 +31,7 @@ interface SocketData {
 
 export interface ProcessorState {
   name: string;
+  id: string;
 }
 
 export const ProcessorMixin = Vue.extend({
@@ -43,6 +44,7 @@ export const ProcessorMixin = Vue.extend({
 
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
+  id!: ProcessorState['id'];
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -55,7 +57,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
   Props>({
     data () {
       return {
-        name: 'MyProcessor'
+        name: 'MyProcessor',
+        id: 'any'
       }
     },
 
@@ -96,27 +99,33 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       }
     },
     mounted () {
-      // const recaptchaScript = document.createElement('script')
-      // recaptchaScript.setAttribute('src', 'https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js')
-      // document.head.appendChild(recaptchaScript)
+
     },
 
     methods: {
+      setId(id: string) {
+        (window as any).root.$on(id, (code: string, func: string, argument: string, data: any) => {
+          console.log('NODE DATA RECEIVED', id, code, func, argument, data)
+          // console.log('NODE MESSAGE RECIVED', this.id, data.get('name'), data)
+          // Get Pyscript or Pyiodide context with current this.obj.code in it
+          // Then create function call and pass all the argument values in,
+          // get result
+          // result = function(arg1, arg2, arg3)
+          // result
+          // emit result to all port/edges
+        })
+      },
       async execute (data: any) {
         console.log('Running: ', data)
         // noinspection TypeScriptUnresolvedVariable
         const result = (window as any).pyodide.runPythonAsync(data)
 
-        result.then((result: any) => {
-          const resultstr = result.toString()
-          console.log('PYODIDE RESULT ASYNC', resultstr)
-          return resultstr
-        })
+        return result
       },
       listenMessages () {
         var me = this
 
-        socket.on('global', (data) => {
+        socket.on('global', (data: any) => {
           me.messageReceived(data)
         })
         socket.on('execute', (data: any) => {
@@ -139,7 +148,7 @@ interface MessageListener {
   messageSend(message: any): void;
 
   listenMessages(): void;
-
+  setId(id: string): void;
   execute(data: any): void;
 }
 

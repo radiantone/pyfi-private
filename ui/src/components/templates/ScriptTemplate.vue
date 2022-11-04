@@ -3229,6 +3229,7 @@ export default {
   mounted () {
     var me = this
 
+    this.setId(this.obj['id'])
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 

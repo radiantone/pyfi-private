@@ -2377,6 +2377,8 @@ export default {
     this.braces = mdiCodeBraces
     this.lambdaIcon = mdiLambda
     this.abacusIcon = mdiAbacus
+    this.id = uuidv4()
+    console.log('THIS.ID', this.id)
 
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
@@ -2560,6 +2562,9 @@ export default {
   mounted () {
     var me = this
 
+    this.setId(this.obj['id'])
+
+    console.log("SETTING PROCESSOR ID", this.id)
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 
@@ -3130,15 +3135,24 @@ export default {
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
-      _port.getEdges().forEach((edge) => {
-        console.log('EDGE->NODE', edge, edge.target.getNode())
-        const target_id = edge.target.getNode().data.id
-        console.log('target node id', target_id)
-        // send message to target_id with result, _port
-        // receiving node will realize this is an argument port and value
-        // and store the value internally until all the arguments for the function
-        // are present, then trigger the function with all the parameters
+      result.then((result) => {
+        const resultstr = result.toString()
+        console.log('DATA TEMPLATE RESULT', resultstr)
+        _port.getEdges().forEach((edge) => {
+          console.log('EDGE->NODE', edge, edge.target.getNode())
+          const options = edge.target.data
+          const target_id = edge.target.getNode().data.id
+          console.log('target node id', target_id)
+          const node = edge.target.getNode()
+          const code = node.data['code']
+          window.root.$emit(target_id, "code", code, options['function'], options['name'], result)
+          // send message to target_id with result, _port
+          // receiving node will realize this is an argument port and value
+          // and store the value internally until all the arguments for the function
+          // are present, then trigger the function with all the parameters
+        })
       })
+
       console.log('PORT RESULT ', _port, result)
     },
     triggerExecute () {
