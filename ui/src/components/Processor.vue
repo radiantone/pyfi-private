@@ -103,15 +103,17 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     },
 
     methods: {
-      setId(id: string) {
+      setId (id: string) {
         (window as any).root.$on(id, (code: string, func: string, argument: string, data: any) => {
           console.log('NODE DATA RECEIVED', id, code, func, argument, data)
-          // console.log('NODE MESSAGE RECIVED', this.id, data.get('name'), data)
-          // Get Pyscript or Pyiodide context with current this.obj.code in it
-          // Then create function call and pass all the argument values in,
+
+          // Store data with func and argument
+          // Check func if all stored arguments are present, if so, then invoke it
+          // regex find func"name" in code and named args order
+          // retrieve stored args by name and put in same order
+          // construct function call string and add to end of code, execute
           // get result
-          // result = function(arg1, arg2, arg3)
-          // result
+
           // emit result to all port/edges
         })
       },

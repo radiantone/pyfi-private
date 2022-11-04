@@ -1,3 +1,14 @@
+## Nov 4, 2022
+- Initial event driven browser-only dataflow 80%
+- DataTemplate 90%
+- ScriptTemplate 70%
+- Emit object data on trigger DONE
+- Execute code on receiving data 35%
+- Storing argument until all are present
+- BUG: Cut and paste or load flow needs to rebuild portobjects list etc
+- Visual indicators for trigger data flow
+- Remove queue box on edge for local data/script nodes
+
 ## Oct 30, 2022
 
 - New Data Processor. Define data as named objects in module
