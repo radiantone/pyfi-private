@@ -98,6 +98,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         }
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     mounted () {
 
     },
