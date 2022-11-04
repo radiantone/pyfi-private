@@ -64,7 +64,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
       socket.on('basicEmit', (a, b, c) => {
         me.$store.commit('designer/setMessage', b)
-        console.log('buffer', c)
       })
       me.listenMessages()
     },

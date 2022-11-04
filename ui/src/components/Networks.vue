@@ -226,6 +226,9 @@
 <script>
 const dd = require('drip-drop')
 import DataService from 'components/util/DataService'
+import { mdiArrowCollapseAll } from '@mdi/js'
+import { mdiArrowExpandAll } from '@mdi/js'
+import { mdiCardTextOutline } from '@mdi/js'
 
 function addClass (el, classNameToAdd) {
   if (el.className.indexOf(classNameToAdd) === -1) {
