@@ -2149,10 +2149,12 @@
 .q-icon {
   font-size: 16px;
 }
+
 .q-item__section--side > .q-icon {
   font-size: 16px;
   /* font-size: 24px; */
 }
+
 .q-item__section--avatar {
   color: inherit;
   min-width: 16px;
@@ -2161,10 +2163,12 @@
 .scroll {
   overflow: hidden;
 }
+
 .q-card__section--vert {
   padding: 5px;
   padding-top: 0px;
 }
+
 .absolute-full {
   right: 0px !important;
 }
@@ -2185,6 +2189,7 @@
 .delete-relationship:hover {
   z-index: 999999;
 }
+
 .jtk-demo-main {
   position: relative;
   margin-top: 0px;
@@ -2201,6 +2206,7 @@
 .jtk-surface-no-grid {
   background-image: none !important;
 }
+
 .jtk-miniview {
   overflow: hidden !important;
   width: 125px;
@@ -2211,6 +2217,7 @@
   border-radius: 4px;
   opacity: 0.5;
 }
+
 .jtk-demo-canvas {
   height: calc(100vh - 160px);
   max-height: 100vh;
@@ -2228,9 +2235,11 @@
 .jtk-overlay {
   z-index: -10 !important;
 }
+
 .common-edge {
   z-index: -10;
 }
+
 .jtk-miniview-collapse {
   font-size: 0px;
 }
@@ -2247,9 +2256,11 @@
   text-align: center;
   width: 100px;
 }
+
 .hide {
   display: none;
 }
+
 @import url('https://fonts.googleapis.com/css?family=Indie+Flower&display=swap');
 
 .q-btn.disabled {
@@ -2606,6 +2617,7 @@ export default {
         }
         return false
       }
+
       function findEdge (list, edge) {
         for (var i = 0; i < list.length; i++) {
           var e = list[i]
@@ -2615,6 +2627,7 @@ export default {
         }
         return false
       }
+
       function haveAllNodes (nodes, edge) {
         var source = false
         var target = false
@@ -2778,10 +2791,12 @@ export default {
         me.surface.setPan(0, 0)
         console.log('PAN', me.surface.getPan())
         me.surface.setZoom(1.0)
+
         function getpan () {
           me.position = me.surface.getPan()
           setTimeout(getpan, 1000)
         }
+
         getpan()
         me.surface.bind('zoom', function () {
           me.zoom = me.surface.getZoom().toFixed(2)
@@ -2941,8 +2956,7 @@ export default {
       owner: 'darren',
       messages: [],
       undoredo: {},
-      variabledata: [
-      ],
+      variabledata: [],
       historycolumns: [
         {
           name: 'action',
@@ -3056,7 +3070,6 @@ export default {
       },
       showCard: false,
       tab: 'flows',
-      clear: false,
       position: [-20, -20],
       showconfirmclose: false,
       deleteText: 'nodes',
@@ -3400,7 +3413,6 @@ export default {
       },
       expanded: true,
       drawer: false,
-      mode: 'pan',
       console: true,
       toolbar: true,
       node: null,
@@ -3486,7 +3498,8 @@ export default {
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-          console.log('beforeStartConnect', source, edgetype)
+          debugger
+          console.log('beforeStartConnect', source, source.getType(), edgetype)
           if (!source.data.name) {
             source.data.name = source.data.id
           }
@@ -3523,7 +3536,8 @@ export default {
         // and el is the DOM element. We also attach listeners to all of the columns.
         // At this point we can use our underlying library to attach event listeners etc.
         events: {
-          modeChanged: function (mode) {},
+          modeChanged: function (mode) {
+          },
           edgeAdded: function (params) {
             // Check here that the edge was not added programmatically, ie. on load.
             console.log('edgeAdded:', params)
@@ -3969,7 +3983,8 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   events: {
-                    tap: function (params) {}
+                    tap: function (params) {
+                    }
                   }
                 }
               ]
@@ -3995,9 +4010,12 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
+                    if (component.scope === 'Object') {
+                      return
+                    }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
-
+                    debugger
                     if (component.source.attributes['data-jtk-port-id']) {
                       nodeValue =
                         component.source.attributes['data-jtk-port-id']
@@ -4018,7 +4036,8 @@ export default {
                   },
                   id: 'connector',
                   events: {
-                    tap: function (params) {}
+                    tap: function (params) {
+                    }
                   }
                 }
               ]
@@ -4040,6 +4059,21 @@ export default {
           }
         },
         ports: {
+          column: {
+            template: 'tmplColumn',
+            paintStyle: { fill: '#abbcc3' }, // the endpoint's appearance
+            hoverPaintStyle: { fill: '#434343' }, // appearance when mouse hovering on endpoint or connection
+            edgeType: 'flowchart', // the type of edge for connections from this port type
+            maxConnections: -1, // no limit on connections
+            dropOptions: {
+              hoverClass: 'drop-hover'
+            },
+            events: {
+              dblclick: function () {
+                console.log(arguments)
+              }
+            }
+          },
           default: {
             template: 'tmplColumn',
             paintStyle: { fill: '#abbcc3' }, // the endpoint's appearance

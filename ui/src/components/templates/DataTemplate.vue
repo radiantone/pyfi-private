@@ -3161,9 +3161,7 @@ export default {
       // port objects value in one evaluation
 
       for (var portname in this.portobjects) {
-        const port = this.portobjects[portname]
-        const result = this.execute(this.obj.code + '\n\n' + portname)
-        console.log('PORT RESULT ', portname, result)
+        this.triggerObject(portname)
       }
     },
     updateBandwidthChart () {
@@ -3716,7 +3714,7 @@ export default {
     },
     addPort (port) {
       port.background = 'white'
-      port.datatype = 'Column'
+      port.datatype = 'Object'
       if (this.types.length > 0) {
         port.schema = this.types[0]
       } else {
@@ -3729,7 +3727,8 @@ export default {
       port.queue = 'None'
 
       console.log('Port:', port)
-      window.toolkit.addNewPort(this.obj.id, 'column', port)
+      debugger
+      window.toolkit.addNewPort(this.obj.id, 'data', port)
       window.renderer.repaint(this.obj)
       console.log('Firing node updated...')
 
