@@ -2340,7 +2340,7 @@
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-scroll-area
-          style="height:475px;width::auto"
+          style="height:475px;width:auto"
           ref="scroll"
         >
           <div v-for="(log, index) in consolelogs">
@@ -2536,7 +2536,7 @@
           ref="tasklog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in tasklogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["module"]
@@ -2551,7 +2551,7 @@
           ref="tasklog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in resultlogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["module"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["task"]
@@ -2567,7 +2567,7 @@
           ref="msglog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in msglogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
                 {{ log["message"] }}
@@ -2930,9 +2930,7 @@ export default {
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
-        // if (msg.name.split('.')[0] === me.obj.name) {
         me.refreshDeployments(false)
-        // }
       }
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
@@ -2951,6 +2949,7 @@ export default {
       }
 
       if (msg.type && msg.type === 'output') {
+        // TODO: Change this to this.obj.id instead of name
         if (msg.processor === this.obj.name) {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)

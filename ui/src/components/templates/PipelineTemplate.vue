@@ -2186,7 +2186,7 @@
               height: 450px;
             "
           >
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in tasklogs">
                 {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log['state']
@@ -2207,7 +2207,7 @@
               height: 450px;
             "
           >
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in resultlogs">
                 {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log['module']
@@ -2226,7 +2226,7 @@
               height: 450px;
             "
           >
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in msglogs">
                 {{ log['date'] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
                 {{ log['message'] }}

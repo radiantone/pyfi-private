@@ -2572,7 +2572,7 @@
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-scroll-area
-          style="height:475px;width::auto"
+          style="height:475px;width:auto"
           ref="scroll"
         >
           <div v-for="(log, index) in consolelogs">
@@ -2768,7 +2768,7 @@
           ref="tasklog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in tasklogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["module"]
@@ -2783,7 +2783,7 @@
           ref="tasklog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in resultlogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["module"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["task"]
@@ -2799,7 +2799,7 @@
           ref="msglog"
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
-            <q-scroll-area style="height:425px;width::auto">
+            <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in msglogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
                 {{ log["message"] }}

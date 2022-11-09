@@ -121,8 +121,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         return null
       },
       setId (id: string) {
-        (window as any).root.$on(id, (code: string, func: string, argument: string, data: any) => {
-
+        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
           let obj = data
 
           if (data === Object(data)) {
@@ -151,10 +150,32 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
+            let call = func + '('
+            let count = 0
             this.portobjects[func].forEach((_arg: any) => {
-              console.log('    ARG:', _arg, JSON.stringify(_arg.data))
+              const jsonarg = JSON.stringify(_arg.data)
+              console.log('    ARG:', _arg, jsonarg)
+              if (count > 0) {
+                call = call + ','
+              }
+              call = call + jsonarg
+              count += 1
+            })
+            call = call + ')'
+            console.log('FUNCTION CALL', call)
+            console.log('CODE CALL', code + '\n' + call)
+            const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
+
+            result.then((res: any) => {
+              let answer = res
+
+              if (res === Object(res)) {
+                answer = Object.fromEntries(res.toJs())
+              }
+              console.log('CODE CALL RESULT', answer)
             })
           }
+
           this.$emit('refresh')
           // Check all ports
           // If all ports have port.data assigned, then execute the code, where
