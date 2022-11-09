@@ -1,4 +1,5 @@
 <template>
+  <!-- transform: skew(-3deg, 0deg); -->
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
@@ -2562,6 +2563,7 @@ export default {
   mounted () {
     var me = this
 
+    console.log("setId ", this.obj['id'])
     this.setId(this.obj['id'])
 
     console.log("SETTING PROCESSOR ID", this.id)
@@ -3131,13 +3133,15 @@ export default {
   },
   methods: {
     triggerObject (portname) {
-      console.log(this.portobjects[portname])
+      console.log("triggerObject", portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
+      console.log("triggerObject result", result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA TEMPLATE RESULT', resultstr)
+        console.log('PORT EDGES', _port.getEdges())
         _port.getEdges().forEach((edge) => {
           console.log('EDGE->NODE', edge, edge.target.getNode())
           const options = edge.target.data
@@ -3145,7 +3149,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data['code']
-          window.root.$emit(target_id, "code", code, options['function'], options['name'], result)
+          window.root.$emit(target_id, code, options['function'], options['name'], result)
           // send message to target_id with result, _port
           // receiving node will realize this is an argument port and value
           // and store the value internally until all the arguments for the function
@@ -3714,12 +3718,13 @@ export default {
     },
     addPort (port) {
       port.background = 'white'
-      port.datatype = 'Object'
+      port.datatype = 'Column'
       if (this.types.length > 0) {
         port.schema = this.types[0]
       } else {
         port.schema = null
       }
+      port.template = 'Object'
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'

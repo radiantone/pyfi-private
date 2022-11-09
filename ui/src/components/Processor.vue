@@ -32,12 +32,16 @@ interface SocketData {
 export interface ProcessorState {
   name: string;
   id: string;
+  portobjects: { [key: string]: any };
+  argobjects: { [key: string]: any };
 }
 
 export const ProcessorMixin = Vue.extend({
   data () {
     return {
-      name: 'Processor'
+      name: 'Processor',
+      portobjects: {},
+      argobjects: {}
     }
   }
 })
@@ -58,7 +62,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     data () {
       return {
         name: 'MyProcessor',
-        id: 'any'
+        id: 'any',
+        portobjects: {},
+        argobjects: {}
       }
     },
 
@@ -104,18 +110,49 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     },
 
     methods: {
+      getPort (func: string, name: string) {
+        for (var i = 0; i < this.portobjects[func].length; i++) {
+          const port = this.portobjects[func][i]
+
+          if (port.name === name) {
+            return port
+          }
+        }
+        return null
+      },
       setId (id: string) {
         (window as any).root.$on(id, (code: string, func: string, argument: string, data: any) => {
           console.log('NODE DATA RECEIVED', id, code, func, argument, data)
 
-          // Store data with func and argument
-          // Check func if all stored arguments are present, if so, then invoke it
-          // regex find func"name" in code and named args order
-          // retrieve stored args by name and put in same order
-          // construct function call string and add to end of code, execute
-          // get result
+          let port = null
+          for (var i = 0; i < this.portobjects[func].length; i++) {
+            if (this.portobjects[func][i].name === argument) {
+              port = this.portobjects[func][i]
+              port.data = data
+            }
+          }
+          console.log('PROCESSOR EXECUTING PORT', data, argument, port, code)
 
-          // emit result to all port/edges
+          let complete = true
+          for (var i = 0; i < this.portobjects[func].length; i++) {
+            const port = this.portobjects[func][i]
+            if (port.data === undefined) {
+              complete = false
+              break
+            }
+          }
+          if (complete) {
+            console.log('FUNCTION', func, 'IS COMPLETE!')
+          }
+          this.$emit('refresh')
+          // Check all ports
+          // If all ports have port.data assigned, then execute the code, where
+          // port.function(data,...) where data is in order with the function arguments
+          // and argument === the port.name
+          // Add the "code" to a python environment, then append the invocation at the end
+          // result = invocation(...)
+          // Retrieve the result, convert to JSON
+          // and emit to any connected ports on this processor
         })
       },
       async execute (data: any) {
@@ -149,7 +186,7 @@ interface MessageListener {
   messageReceived(message: any): void;
 
   messageSend(message: any): void;
-
+  getPort(func: string, name: string): any;
   listenMessages(): void;
   setId(id: string): void;
   execute(data: any): void;

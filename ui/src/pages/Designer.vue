@@ -3505,7 +3505,9 @@ export default {
           }
           return {
             label: source.data.id,
-            name: source.data.name
+            name: source.data.name,
+            type: source.data.datatype,
+            template: source.data.template
           }
         },
         beforeConnect: function (source, target) {
@@ -4010,9 +4012,10 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    if (component.scope === 'Object') {
-                      return
-                    }
+                    let data = component.getData()
+                    //if (data.template && data.template === 'Object') {
+                    //  return
+                    //}
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
                     debugger
@@ -4028,6 +4031,7 @@ export default {
                       propsData: {
                         node: nodeValue,
                         component: component,
+                        hide: data.template && data.template === 'Object',
                         name: 'sockq2.proc2.do_this' // component.getData()['name'],
                       }
                     })

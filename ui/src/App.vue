@@ -37,13 +37,14 @@ LoadingBar.setDefaults({
   position: 'top'
 })
 
+/*
 let log = console.log
 console.log = function () {
   // Invoke the original method with an additional parameter
   log.apply(console,
     [("[" + new Date().toLocaleString() + "] ")].concat([].slice.call(arguments))
   )
-}
+}*/
 
 export default Vue.extend({
   components: {

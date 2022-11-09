@@ -1,3 +1,9 @@
+## Nov 5, 2022
+
+- Prohibit adding an edge from the function to one of its arguments
+- Template specific edge renderings
+- DataTemplate does not include edges with queues
+
 ## Nov 4, 2022
 - Initial event driven browser-only dataflow 80%
 - DataTemplate 90%

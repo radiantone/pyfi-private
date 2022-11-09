@@ -303,7 +303,12 @@
           margin-right: 5px;
         "
       >
-        <q-icon name="las la-scroll" size="xl" color="secondary" style="margin-left:-5px;margin-top:-5px"/>
+        <q-icon
+          name="las la-scroll"
+          size="xl"
+          color="secondary"
+          style="margin-left:-5px;margin-top:-5px"
+        />
       </div>
       <span
         v-if="obj.titletab"
@@ -881,102 +886,6 @@
       </div>
     </div>
     <ul
-      v-if="obj.icon === 'fas fa-database'"
-      class="table-columns"
-      v-for="column in obj.columns"
-      :key="column.id"
-    >
-      <li
-        :class="'table-column jtk-droppable table-column-type-' + column.datatype"
-        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
-        :primary-key="column.primaryKey"
-        :data-port-id="column.id"
-      >
-        <div class="table-column-edit text-primary">
-          <i
-            class="fa fa-play table-column-delete-icon"
-            title="Trigger Port"
-          />
-          <i
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
-            @click="confirmDeletePort(column.id)"
-          />
-        </div>
-        <div>
-          <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
-          </div>
-          <span>
-            <span :id="column.id">
-              <q-btn-dropdown
-                flat
-                content-class="text-dark bg-white"
-                dense
-                color="secondary"
-                label="Query"
-                padding="0px"
-                size=".8em"
-              >
-                <q-list dense>
-                  <q-item
-                    clickable
-                    v-close-popup
-                  >
-                    <q-item-section side>
-                      <q-icon name="fas fa-question" />
-                    </q-item-section>
-                    <q-item-section
-                      side
-                      class="text-blue-grey-8"
-                    >
-                      Query 1
-                    </q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                  >
-                    <q-item-section side>
-                      <q-icon name="fas fa-question" />
-                    </q-item-section>
-                    <q-item-section
-                      side
-                      class="text-blue-grey-8"
-                    >
-                      Query 2
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </span>
-            :
-            <span class="text-secondary">{{ column.description }}</span>
-          </span>
-        </div>
-
-        <jtk-source
-          name="source"
-          :port-id="column.id"
-          :scope="column.datatype"
-          filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
-          filter-exclude="true"
-        />
-
-        <jtk-target
-          name="target"
-          :port-id="column.id"
-          type="Input"
-          :scope="column.datatype"
-        />
-      </li>
-    </ul>
-
-    <ul
       v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
@@ -984,7 +893,7 @@
     >
       <li
         :class="'table-column jtk-droppable table-column-type-' + column.datatype"
-        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
+        :style="'background:'+column.background+';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
       >
@@ -992,22 +901,7 @@
           <div
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
-          >
-            <!--
-          <q-select
-            dense
-            borderless
-            v-if="column.type !== 'Input'"
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 20px;"
-            label-color="orange"
-            v-model="column.queue"
-            :options="queues"
-            value="string"
-          ><template v-slot:prepend>
-          <q-icon name="fas fa-envelope" style="font-size:.5em" color="primary"/>
-        </template></q-select>-->
-          </div>
+          />
           <i
             v-if="column.type !== 'Input'"
             class="fa fa-play table-column-delete-icon"
@@ -1022,44 +916,15 @@
           />
 
           <i
-            v-if="column.type === 'Input'"
-            class="fa fa-list"
-            title="Default Input"
+            v-if="column.data"
+            class="fas fa-envelope text-secondary"
+            title="View Argument Data"
           />
         </div>
         <div
           class="table-column-edit text-primary"
           style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
         >
-          <!--
-          <q-btn-dropdown
-            flat
-            content-class="text-dark bg-white"
-            dense
-            color="secondary"
-            label="Schema"
-            v-model="column.schema"
-            size=".8em"
-          >
-            <q-list dense>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  {}
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Schema 1
-                </q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup>
-                <q-item-section side>
-                  {}
-                </q-item-section>
-                <q-item-section side class="text-blue-grey-8">
-                  Schema 2
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>-->
           <q-select
             dense
             borderless
@@ -1113,6 +978,7 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
+
             </span>
           </span>
         </div>
@@ -3030,9 +2896,9 @@ export default {
     'obj.status': function (val) {
       window.designer.$root.$emit('toolkit.dirty')
     },
-    workerview: function(newv, oldv) {
-      if(newv) {
-        this.refreshWorkers();
+    workerview: function (newv, oldv) {
+      if (newv) {
+        this.refreshWorkers()
       }
     },
     inBytes: function (val) {
@@ -3058,7 +2924,9 @@ export default {
     })
 
     const avoid = ['icon', 'id']
-
+    this.$on('refresh', () => {
+      me.updateColumns()
+    })
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
@@ -3169,8 +3037,6 @@ export default {
       }
       me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out)
       me.totalbytes_5min = me.totalbytes_5min.slice(0, 8)
-      // console.log('TASKLOGS', me.tasklogs);
-      // console.log('MSGLOGS', me.msglogs);
       if (msg.channel === 'task') {
         this.updateBandwidthChart()
       }
@@ -3229,7 +3095,7 @@ export default {
   mounted () {
     var me = this
 
-    this.setId(this.obj['id'])
+    this.setId(this.obj.id)
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 
@@ -3827,6 +3693,24 @@ export default {
     }
   },
   methods: {
+    updateColumns () {
+      var me = this
+      Object.entries(this.argobjects).forEach((tuple) => {
+        const argobject = tuple[1]
+        me.obj.columns.forEach((column) => {
+          if (column.argument) {
+            if (column.name === argobject.name && column.function === argobject.function) {
+              if (argobject.data) {
+                column.background = '#eee'
+                column.data = argobject.data
+              } else {
+                column.background = 'white'
+              }
+            }
+          }
+        })
+      })
+    },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
@@ -3848,15 +3732,15 @@ export default {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
-      //this.series[2].data = durations[0].results.data
+      // this.series[2].data = durations[0].results.data
 
-      let xaxis = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
-      console.log("XAXIS", xaxis)
+      const xaxis = inBytes[0].results.time.map((x) => { const d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
+      console.log('XAXIS', xaxis)
       this.chartOptions.xaxis.categories = xaxis
-      //console.log('updateBandwidthChart: inBytes', inBytes)
-      //console.log('updateBandwidthChart: outBytes', outBytes)
-      //console.log('updateBandwidthChart: durations', durations)
-      if(this.$refs.bandwidthChart) {
+      // console.log('updateBandwidthChart: inBytes', inBytes)
+      // console.log('updateBandwidthChart: outBytes', outBytes)
+      // console.log('updateBandwidthChart: durations', durations)
+      if (this.$refs.bandwidthChart) {
         this.$refs.bandwidthChart.updateSeries([{
           name: 'Bytes Out',
           data: outBytes[0].results.outBytes.slice(0, 25)
@@ -3865,7 +3749,6 @@ export default {
           data: inBytes[0].results.inBytes.slice(0, 25)
         }])
       }
-
     },
     showCommit (hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
@@ -4420,6 +4303,7 @@ export default {
       } else {
         port.schema = null
       }
+      port.template = 'Column'
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
@@ -4467,16 +4351,26 @@ export default {
         return
       }
 
+      const fname = func.function.replace('function: ', '')
+      me.portobjects[fname] = []
       func.args.forEach((arg) => {
-        var arg = this.addPort({
+        arg = arg.trim()
+        var argport = this.addPort({
           name: arg,
           icon: 'fab fa-python',
           type: 'Input',
           argument: true,
-          function: func.function.replace('function: ','')
+          function: fname
         })
+        // This holds the argument port keyed off function-name:argument-name
+        // When incoming data events for arguments occur, it will reference the function:argument
+        // so it can be associated with this port
+        debugger
+        // Push the argument ports onto the function reference in order they appear
+        me.portobjects[fname].push(argport)
+        me.argobjects[fname + ':' + arg] = argport
         this.ports[arg] = true
-        this.argports[port.id].push(arg.id)
+        this.argports[port.id].push(argport.id)
       })
     },
     addErrorPort () {
