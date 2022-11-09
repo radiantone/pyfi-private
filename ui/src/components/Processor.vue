@@ -122,16 +122,23 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       },
       setId (id: string) {
         (window as any).root.$on(id, (code: string, func: string, argument: string, data: any) => {
-          console.log('NODE DATA RECEIVED', id, code, func, argument, data)
+
+          let obj = data
+
+          if (data === Object(data)) {
+            obj = Object.fromEntries(data.toJs())
+          }
+
+          console.log('NODE DATA RECEIVED', id, func, argument, obj)
 
           let port = null
           for (var i = 0; i < this.portobjects[func].length; i++) {
             if (this.portobjects[func][i].name === argument) {
               port = this.portobjects[func][i]
-              port.data = data
+              port.data = obj
             }
           }
-          console.log('PROCESSOR EXECUTING PORT', data, argument, port, code)
+          console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
 
           let complete = true
           for (var i = 0; i < this.portobjects[func].length; i++) {
@@ -143,6 +150,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           }
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
+            console.log('   INVOKING:', func)
+            this.portobjects[func].forEach((_arg: any) => {
+              console.log('    ARG:', _arg, JSON.stringify(_arg.data))
+            })
           }
           this.$emit('refresh')
           // Check all ports

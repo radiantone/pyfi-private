@@ -2,12 +2,13 @@
   "extends": "@quasar/app/tsconfig-preset",
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es5"
+    "target": "ES2019"
   },
+  "lib": ["ES2019"],
   "noImplicitAny": false,
   "allowJs": true,
   "include": [
     "./src",
-    "public/js"  
+    "public/js"
   ]
 }
