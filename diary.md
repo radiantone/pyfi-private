@@ -1,8 +1,29 @@
+## Nov 9, 2022  MVP
+
+- Data node sends data arguments to Script node function arguments DONE
+- When script node has all arguments it triggers result DONE
+- Script node writes result output to console DONE
+- Script node argument ports show mail icon when results are present DONE
+  - Clicking mail icon shows stored value in JSON editor card TBD
+- Script node sends its result to all its edges TBD
+- In/Out/Total metrics update on Data and Script nodes TBD
+- Remove "Refresh" icon from Data and Script nodes?
+- Schema check for incoming data objects on Script argument ports TBD
+- Remove, ghost, disable Premium features in Free version TBD
+- Disable "Power Cycle" on non-processor nodes
+- View Results in Script node, refers to internally stored results list TBD
+- Error ports on Script node, when executing function produces an exception,
+  - the error and input data is routed to error edges for that function
+- Remove rate/m rate limit text on Script node TBD
+- Remove concurrency on Script node ???
+- Set CRON schedule to trigger data nodes TBD
+- When Script triggers, clean column backgrounds and icon back to normal
+
 ## Nov 5, 2022
 
 - Prohibit adding an edge from the function to one of its arguments
-- Template specific edge renderings
-- DataTemplate does not include edges with queues
+- Template specific edge renderings DONE
+- DataTemplate does not include edges with queues DONE
 
 ## Nov 4, 2022
 - Initial event driven browser-only dataflow 80%

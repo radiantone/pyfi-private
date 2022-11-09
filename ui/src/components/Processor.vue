@@ -123,7 +123,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       setId (id: string) {
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
           let obj = data
-
+          this.id = id
           if (data === Object(data)) {
             obj = Object.fromEntries(data.toJs())
           }
@@ -173,6 +173,11 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 answer = Object.fromEntries(res.toJs())
               }
               console.log('CODE CALL RESULT', answer)
+              this.$emit('message.received', {
+                'type': 'output',
+                'id': this.id,
+                'output': JSON.stringify(answer)
+              })
             })
           }
 

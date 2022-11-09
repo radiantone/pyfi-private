@@ -2950,7 +2950,7 @@ export default {
 
       if (msg.type && msg.type === 'output') {
         // TODO: Change this to this.obj.id instead of name
-        if (msg.processor === this.obj.name) {
+        if (msg.processor === this.obj.name || msg.id === this.obj.id) {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
