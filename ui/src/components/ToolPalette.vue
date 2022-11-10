@@ -133,6 +133,7 @@
           Process Group
         </q-tooltip>
       </q-btn>
+      <!--
       <q-btn
         flat
         align="left"
@@ -202,7 +203,7 @@
           Segment
         </q-tooltip>
       </q-btn>
-      <!--<q-btn
+      <q-btn
       flat
       align="left"
       icon="icon-map"

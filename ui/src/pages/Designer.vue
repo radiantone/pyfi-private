@@ -2761,6 +2761,7 @@ export default {
   },
   mounted () {
     var me = this
+    console.log("DESIGNER STORE MESSAGE",me.$store.state.designer.message)
     setTimeout(() => {
       // me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected')

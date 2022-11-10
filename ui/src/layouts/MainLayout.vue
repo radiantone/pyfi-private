@@ -1773,7 +1773,7 @@ export default defineComponent({
           properties: []
         }
       }
-
+/*
       var parallel = document.querySelector('#parallel')
       parallel.data = {
         node: {
@@ -1837,7 +1837,7 @@ export default defineComponent({
           properties: []
         }
       }
-
+*/
       var label = document.querySelector('#label')
       label.data = {
         node: {
@@ -1895,7 +1895,7 @@ export default defineComponent({
       }
 
       //, chord, segment, map, reduce
-      var els = [script, processor, portin, router, portout, group, parallel, segment, chord, pipeline, label, data, schema]
+      var els = [script, processor, portin, router, portout, group, label, data, schema]
 
       els.forEach((el) => {
         var data = el.data

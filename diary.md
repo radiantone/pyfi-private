@@ -1,5 +1,15 @@
-## Nov 9, 2022  MVP
+## MVP
 
+BUG:
+
+- Editing code in DataTemplate isn't restored when a flow is loaded
+  - probably fetches from git again and overwrites it
+- Can't search on Scratch flow until switching between tabs
+
+
+TODO:
+
+- Fill this.portobjects etc after loading a flow TBD
 - Data node sends data arguments to Script node function arguments DONE
 - When script node has all arguments it triggers result DONE
 - Script node writes result output to console DONE
@@ -17,7 +27,8 @@
 - Remove rate/m rate limit text on Script node TBD
 - Remove concurrency on Script node ???
 - Set CRON schedule to trigger data nodes TBD
-- When Script triggers, clean column backgrounds and icon back to normal
+- When Script triggers, clean column backgrounds and icon back to normal DONE
+- Okta integration
 
 ## Nov 5, 2022
 

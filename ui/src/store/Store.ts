@@ -1,49 +1,49 @@
-import { RootState } from './RootState';
-import { mapActions, mapGetters, mapState, Module } from 'vuex';
-import { ActionTreeAdaptor, GetterTreeAdaptor } from '../util';
+import { RootState } from './RootState'
+import { mapActions, mapGetters, mapState, Module } from 'vuex'
+import { ActionTreeAdaptor, GetterTreeAdaptor } from '../util'
 
-const STORE_NAME = 'Store';
-const INCREMENT = 'increment';
+const STORE_NAME = 'Store'
+const INCREMENT = 'increment'
 
 const getters: GetterTreeAdaptor<Getters, State, RootState> = {
-    isEven (state: State) {
-        return !(state.count % 2);
-    },
-};
+  isEven (state: State) {
+    return !(state.count % 2)
+  }
+}
 
 const actions: ActionTreeAdaptor<Actions, State, RootState> = {
-    async performAsyncIncrement ({ commit, /*state, rootState*/ }, { increment, delayMs }) {
-        await new Promise<void>(resolve => {
-            setTimeout(() => {
-                commit(INCREMENT, increment);
-                resolve();
-            }, delayMs);
-        });
-    },
-};
+  async performAsyncIncrement ({ commit /* state, rootState */ }, { increment, delayMs }) {
+    await new Promise<void>(resolve => {
+      setTimeout(() => {
+        commit(INCREMENT, increment)
+        resolve()
+      }, delayMs)
+    })
+  }
+}
 
 export const Store: Module<State, RootState> = {
-    namespaced: true,
-    state: {
-        count: 0,
-        meta: {
-            mutationCount: 0,
-        },
-    },
-    getters,
-    mutations: {
-        [INCREMENT] (state, increment = 1) {
-            state.meta.mutationCount += 1;
-            state.count += increment;
-        },
-    },
-    actions,
-};
+  namespaced: true,
+  state: {
+    count: 0,
+    meta: {
+      mutationCount: 0
+    }
+  },
+  getters,
+  mutations: {
+    [INCREMENT] (state, increment = 1) {
+      state.meta.mutationCount += 1
+      state.count += increment
+    }
+  },
+  actions
+}
 
 export const mappedState = mapState(STORE_NAME, [
-    'count',
-    'meta',
-]);
+  'count',
+  'meta'
+])
 
 export interface State {
     meta: {
@@ -53,16 +53,16 @@ export interface State {
 }
 
 export const mappedGetters = mapGetters(STORE_NAME, [
-    'isEven',
-]);
+  'isEven'
+])
 
 export interface Getters {
     isEven: boolean;
 }
 
 export const mappedActions = mapActions(STORE_NAME, [
-    'performAsyncIncrement',
-]);
+  'performAsyncIncrement'
+])
 
 export type Actions = {
     performAsyncIncrement: (payload: { increment: number; delayMs: number }) => Promise<void>;
