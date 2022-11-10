@@ -2948,9 +2948,36 @@ export default {
         }
       }
 
+      if (msg.type && msg.type === 'result') {
+        if (msg.id === this.obj.id) {
+          me.consolelogs.push({ date: new Date(), output: msg.output })
+          me.consolelogs = me.consolelogs.slice(0, 100)
+        }
+        Object.entries(this.argobjects).forEach((tuple) => {
+          const argobject = tuple[1]
+          me.obj.columns.forEach((column) => {
+            if (column.argument) {
+              if (column.name === argobject.name && column.function === argobject.function) {
+                column.data = null
+                argobject.data = null
+              }
+            }
+          })
+        })
+        me.updateColumns()
+        const func = msg.function
+        // Find the port for the function
+        // Emit result over the port edges
+        debugger
+        for (var key in this.portobjects) {
+          if (key === func) {
+            me.triggerObject("func:"+key, msg.output)
+          }
+        }
+      }
+
       if (msg.type && msg.type === 'output') {
-        // TODO: Change this to this.obj.id instead of name
-        if (msg.processor === this.obj.name || msg.id === this.obj.id) {
+        if (msg.id === this.obj.id) {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
@@ -4351,6 +4378,8 @@ export default {
       }
 
       const fname = func.function.replace('function: ', '')
+      me.portobjects["func:"+fname] = port
+
       me.portobjects[fname] = []
       func.args.forEach((arg) => {
         arg = arg.trim()
@@ -4370,6 +4399,18 @@ export default {
         me.argobjects[fname + ':' + arg] = argport
         this.ports[arg] = true
         this.argports[port.id].push(argport.id)
+      })
+    },
+    triggerObject (portname, result) {
+      const objectname = this.portobjects[portname].name.replace('function: ', '')
+      let port = this.portobjects["func:"+objectname]
+      const _port = window.toolkit.getNode(this.obj.id).getPort(port.id)
+      _port.getEdges().forEach((edge) => {
+        const options = edge.target.data
+        const target_id = edge.target.getNode().data.id
+        const node = edge.target.getNode()
+        const code = node.data.code
+        window.root.$emit(target_id, code, options.function, options.name, result)
       })
     },
     addErrorPort () {

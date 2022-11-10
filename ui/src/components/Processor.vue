@@ -174,8 +174,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               }
               console.log('CODE CALL RESULT', answer)
               this.$emit('message.received', {
-                'type': 'output',
+                'type': 'result',
                 'id': this.id,
+                'function': func,
                 'output': JSON.stringify(answer)
               })
             })
