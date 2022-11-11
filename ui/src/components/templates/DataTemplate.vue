@@ -40,13 +40,13 @@
             maxlength="20"
             dense
           >
-            <template v-slot:before>
+            <template #before>
               <i
                 class="fas fa-lock text-secondary"
                 style="font-size: 0.8em;"
               />
             </template>
-            <template v-slot:after>
+            <template #after>
               <q-btn
                 dense
                 flat
@@ -1007,7 +1007,7 @@
         row-key="name"
         style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
       >
-        <template v-slot:body="props">
+        <template #body="props">
           <q-tr
             :props="props"
             :key="getUuid"
@@ -1411,7 +1411,7 @@
           horizontal
           style="height: 100%;"
         >
-          <template v-slot:before>
+          <template #before>
             <div class="q-pa-md">
               <q-table
                 dense
@@ -1422,7 +1422,7 @@
                 :rows-per-page-options="[10]"
                 style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
-                <template v-slot:body="props">
+                <template #body="props">
                   <q-tr
                     :props="props"
                     :key="getUuid"
@@ -1459,7 +1459,7 @@
                     </q-td>
                   </q-tr>
                 </template>
-                <template v-slot:loading>
+                <template #loading>
                   <q-inner-loading
                     :showing="true"
                     style="z-index: 9999999;"
@@ -1474,7 +1474,7 @@
             </div>
           </template>
 
-          <template v-slot:after>
+          <template #after>
             <div
               class="q-pa-md"
               style="height: 100%; padding: 0px;"
@@ -1651,7 +1651,7 @@
               :rows-per-page-options="[10]"
               style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
-              <template v-slot:loading>
+              <template #loading>
                 <q-inner-loading
                   :showing="true"
                   style="z-index: 9999999;"
@@ -1782,7 +1782,7 @@
           flat
           style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
-          <template v-slot:body="props">
+          <template #body="props">
             <q-tr
               :props="props"
               :key="getUuid"
@@ -1933,7 +1933,7 @@
           flat
           style="width: 100%; height: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
-          <template v-slot:body="props">
+          <template #body="props">
             <q-tr
               :props="props"
               :key="getUuid"
@@ -2557,10 +2557,10 @@ export default {
   mounted () {
     var me = this
 
-    console.log("setId ", this.obj['id'])
-    this.setId(this.obj['id'])
+    console.log('setId ', this.obj.id)
+    this.setId(this.obj.id)
 
-    console.log("SETTING PROCESSOR ID", this.id)
+    console.log('SETTING PROCESSOR ID', this.id)
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 
@@ -3128,7 +3128,13 @@ export default {
     }
   },
   methods: {
-
+    removePort (objid, col) {
+      debugger
+      window.toolkit.removePort(objid, col)
+      this.portobjects.remove(col)
+      this.ports
+      this.argobjects
+    },
     updatePorts () {
       var me = this
       var node = window.designer.toolkit.getNode(this.obj)
@@ -3144,10 +3150,10 @@ export default {
     },
     triggerObject (portname) {
       debugger
-      console.log("triggerObject", portname, this.portobjects[portname])
+      console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
-      console.log("triggerObject result", result)
+      console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
       result.then((result) => {
         debugger
@@ -3160,9 +3166,9 @@ export default {
           const target_id = edge.target.getNode().data.id
           console.log('target node id', target_id)
           const node = edge.target.getNode()
-          const code = node.data['code']
+          const code = node.data.code
           debugger
-          window.root.$emit(target_id, code, options['function'], options['name'], result)
+          window.root.$emit(target_id, code, options.function, options.name, result)
           // send message to target_id with result, _port
           // receiving node will realize this is an argument port and value
           // and store the value internally until all the arguments for the function
@@ -3723,11 +3729,11 @@ export default {
       // Delete all the edges for this column id
       console.log(this.obj)
       console.log('PORT ARGS', this.argports[column])
-      window.toolkit.removePort(this.obj.id, column)
+      this.removePort(this.obj.id, column)
 
       if (this.argports[column]) {
         this.argports[column].forEach((portid) => {
-          window.toolkit.removePort(this.obj.id, portid)
+          this.removePort(this.obj.id, portid)
         })
       }
       // window.renderer.repaint(this.obj);
