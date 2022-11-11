@@ -5,6 +5,9 @@ import { Wrapper } from '../util'
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { io, Socket } from 'socket.io-client'
+import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
+const scheduler = new IntervalBasedCronScheduler(1000)
+
 // import { loadPyodide } from "pyodide"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 // import { loadPyodide } from "pyodide"
@@ -110,6 +113,19 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     },
 
     methods: {
+      startSchedule (cronstr: string) {
+        var me = this
+        console.log('UPDATING CRON')
+        scheduler.stop()
+        const cron = parseCronExpression(cronstr)
+        scheduler.registerTask(cron, () => {
+          console.log(new Date(), this.name, 'TASK EXECUTED')
+          me.$emit('message.received', {
+            type: 'trigger'
+          })
+        })
+        scheduler.start()
+      },
       getPort (func: string, name: string) {
         for (var i = 0; i < this.portobjects[func].length; i++) {
           const port = this.portobjects[func][i]
@@ -222,9 +238,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     }
   })
 
-interface MessageListener {
+interface ProcessorInterface {
   messageReceived(message: any): void;
-
+  startSchedule(cron: string): void;
   messageSend(message: any): void;
   getPort(func: string, name: string): any;
   listenMessages(): void;
@@ -232,7 +248,7 @@ interface MessageListener {
   execute(data: any): void;
 }
 
-type Methods = MessageListener
+type Methods = ProcessorInterface
 
 interface Computed {
 }

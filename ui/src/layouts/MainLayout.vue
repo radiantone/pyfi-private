@@ -278,6 +278,7 @@
       style="overflow: hidden;"
     >
       <template v-slot:before>
+
         <div style="height: 100vh; width: 100%; position: relative; top: 95px; overflow: hidden;">
           <q-tab-panels
             v-model="tab"
@@ -329,6 +330,7 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
+
           </q-tabs>
           <q-btn
             flat

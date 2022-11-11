@@ -430,8 +430,14 @@
         width="100"
         :options="chartOptions"
         :series="series"
-        style="margin-right: 200px;"
+        style="margin-right: 150px;"
       />
+      <q-item-label
+        class="text-accent"
+        style="white-space: nowrap;margin-top:40px;margin-right: 70px;"
+      >
+        {{this.$store.state.designer.version}}
+      </q-item-label>
       <q-item-label
         class="text-dark"
         style="white-space: nowrap;"

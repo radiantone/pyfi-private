@@ -2346,6 +2346,9 @@ export default {
     Console
   },
   watch: {
+    'obj.cron': function (val) {
+      this.startSchedule(val)
+    },
     'obj.status': function (val) {
       window.designer.$root.$emit('toolkit.dirty')
     },
@@ -2401,6 +2404,10 @@ export default {
           }
           console.log('PROCESSOR ID', me.obj.id)
         }
+      }
+
+      if (msg.type && msg.type === 'trigger') {
+        me.triggerExecute()
       }
 
       if (msg.type && msg.type === 'output') {
@@ -2602,6 +2609,7 @@ export default {
     this.fetchCode()
     this.updateBandwidthChart()
     this.updatePorts()
+    this.startSchedule(this.obj.cron)
   },
   data () {
     return {

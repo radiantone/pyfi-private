@@ -5,6 +5,7 @@ BUG:
 - Editing code in DataTemplate isn't restored when a flow is loaded
   - probably fetches from git again and overwrites it
 - Can't search on Scratch flow until switching between tabs
+- When PORT is deleted, its portobjects, argobjects and this.ports need to also be removed
 
 DONE
 
@@ -13,6 +14,7 @@ DONE
 
 TODO:
 
+- CRON scheduler for Data and Script blocks, triggers execution DONE
 - Remove queue UI from Script port edges TDB
 - Fill this.portobjects etc after loading a flow TBD
 - Data node sends data arguments to Script node function arguments DONE
