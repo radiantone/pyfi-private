@@ -121,6 +121,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         return null
       },
       setId (id: string) {
+        var me = this;
+
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
           let obj = data
           this.id = id
@@ -131,17 +133,17 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
 
           let port = null
-          for (var i = 0; i < this.portobjects[func].length; i++) {
-            if (this.portobjects[func][i].name === argument) {
-              port = this.portobjects[func][i]
+          for (var i = 0; i < me.portobjects[func].length; i++) {
+            if (me.portobjects[func][i].name === argument) {
+              port = me.portobjects[func][i]
               port.data = obj
             }
           }
           console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
 
           let complete = true
-          for (var i = 0; i < this.portobjects[func].length; i++) {
-            const port = this.portobjects[func][i]
+          for (var i = 0; i < me.portobjects[func].length; i++) {
+            const port = me.portobjects[func][i]
             if (port.data === undefined) {
               complete = false
               break
@@ -152,7 +154,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('   INVOKING:', func)
             let call = func + '('
             let count = 0
-            this.portobjects[func].forEach((_arg: any) => {
+            me.portobjects[func].forEach((_arg: any) => {
               const jsonarg = JSON.stringify(_arg.data)
               console.log('    ARG:', _arg, jsonarg)
               if (count > 0) {
@@ -174,10 +176,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               }
               console.log('CODE CALL RESULT', answer)
               this.$emit('message.received', {
-                'type': 'result',
-                'id': this.id,
-                'function': func,
-                'output': JSON.stringify(answer)
+                type: 'result',
+                id: this.id,
+                function: func,
+                output: JSON.stringify(answer)
               })
             })
           }

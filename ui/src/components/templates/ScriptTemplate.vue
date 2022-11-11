@@ -382,20 +382,6 @@
           {{ errorMsg }}
         </q-tooltip></a>
       </span>
-      <span
-        class="text-secondary pull-right table-column-edit"
-        style="position: absolute; right: 60px; top: 1em; font-weight: bold; font-size: 2em;"
-      >
-        {{ obj.concurrency }}
-        <q-tooltip
-          anchor="top middle"
-          :offset="[-30, 40]"
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Concurrency
-        </q-tooltip>
-      </span>
       <q-btn
         class="text-primary"
         flat
@@ -425,12 +411,6 @@
         class="buttons"
         style="position: absolute; right: 00px; top: 68px;"
       >
-        <q-item-label
-          class="text-primary"
-          style="margin-right: 30px;"
-        >
-          {{ obj.ratelimit }}/m
-        </q-item-label>
         <div
           class="text-secondary"
           @click="cornerInView"
@@ -1580,10 +1560,6 @@
           <q-tab
             name="settings"
             label="Settings"
-          />
-          <q-tab
-            name="concurrency"
-            label="Concurrency"
           />
           <q-tab
             name="schedule"
@@ -2894,7 +2870,7 @@ export default {
   },
   watch: {
     'obj.status': function (val) {
-      window.designer.$root.$emit('toolkit.dirty')
+      // window.designer.$root.$emit('toolkit.dirty')
     },
     workerview: function (newv, oldv) {
       if (newv) {
@@ -2971,7 +2947,7 @@ export default {
         debugger
         for (var key in this.portobjects) {
           if (key === func) {
-            me.triggerObject("func:"+key, msg.output)
+            me.triggerObject('func:' + key, msg.output)
           }
         }
       }
@@ -3154,7 +3130,7 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
+    // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     DataService.getDeployments(this.obj.name)
       .then((deployments) => {
@@ -3169,6 +3145,8 @@ export default {
 
     this.fetchCode()
     this.updateBandwidthChart()
+    this.updatePorts()
+    this.updateColumns()
   },
   data () {
     return {
@@ -3719,6 +3697,21 @@ export default {
     }
   },
   methods: {
+    updatePorts () {
+      var me = this
+      var node = window.designer.toolkit.getNode(this.obj)
+      debugger
+      console.log('UPDATE PORTS', node.getPorts())
+
+      node.getPorts().forEach((port) => {
+        debugger
+        if (port.data.argument) {
+          me.updateArgumentPort(port)
+        } else {
+          me.updateFunctionPort(port)
+        }
+      })
+    },
     updateColumns () {
       var me = this
       Object.entries(this.argobjects).forEach((tuple) => {
@@ -3902,29 +3895,28 @@ export default {
     fetchCode () {
       var me = this
       var url = new URL(this.obj.gitrepo)
-      console.log('URL ', url)
-      // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
+      console.log('FETCHCODE URL ', url)
       var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
       console.log('CODE', codeUrl)
-      http.get(codeUrl).then((response) => {
-        console.log('CODE RESPONSE', response)
+      if (this.obj.code === undefined) {
+        http.get(codeUrl).then((response) => {
+          console.log('CODE RESPONSE', response)
 
-        me.obj.code = response.data
-        // const re = /(def)\s(\w+)/g;
-        me.updateFunctions(response.data)
+          me.obj.code = response.data
+          // const re = /(def)\s(\w+)/g;
+          me.updateFunctions(response.data)
 
-        if (this.$refs.myEditor) {
-          const editor = this.$refs.myEditor.editor
+          if (this.$refs.myEditor) {
+            const editor = this.$refs.myEditor.editor
 
-          if (editor) {
-            editor.session.setValue(me.obj.code)
+            if (editor) {
+              editor.session.setValue(me.obj.code)
+            }
           }
-        }
-      })
+        })
+      }
     },
     copyNode () {
-      console.log('COPY NODE')
-
       function findMatch (list, obj) {
         for (var i = 0; i < list.length; i++) {
           var o = list[i]
@@ -4329,7 +4321,7 @@ export default {
       } else {
         port.schema = null
       }
-      port.template = 'Column'
+      port.template = 'Object'
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
@@ -4359,6 +4351,30 @@ export default {
         this.types = schemas
       })
     },
+    updateFunctionPort (port) {
+      const fname = port.data.name.replace('function: ', '')
+      this.portobjects['func:' + fname] = port.data
+
+      this.portobjects[fname] = []
+    },
+    updateArgumentPort (port) {
+      const fname = port.data.function
+      this.portobjects[fname].push(port.data)
+      this.argobjects[fname + ':' + port.data.name] = port.data
+      this.ports[port.data.name] = true
+      if(this.argports[port.id] === undefined) {
+        this.argports[port.id] = []
+      }
+      this.argports[port.id].push(port.id)
+      this.obj.columns.forEach((column) => {
+        if (column.argument) {
+          if (column.name === port.data.name && column.function === port.data.function) {
+            column.data = null
+            port.data.data = null
+          }
+        }
+      })
+    },
     addNewPort (func, type, icon) {
       var me = this
 
@@ -4378,7 +4394,7 @@ export default {
       }
 
       const fname = func.function.replace('function: ', '')
-      me.portobjects["func:"+fname] = port
+      me.portobjects['func:' + fname] = port
 
       me.portobjects[fname] = []
       func.args.forEach((arg) => {
@@ -4402,8 +4418,9 @@ export default {
       })
     },
     triggerObject (portname, result) {
+      debugger
       const objectname = this.portobjects[portname].name.replace('function: ', '')
-      let port = this.portobjects["func:"+objectname]
+      const port = this.portobjects['func:' + objectname]
       const _port = window.toolkit.getNode(this.obj.id).getPort(port.id)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data

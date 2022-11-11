@@ -416,17 +416,6 @@
           style="font-style: italic; margin-left: 5px;"
         >
           {{ obj.name }}
-          <q-popup-edit
-            v-model="obj.name"
-            buttons
-          >
-            <q-input
-              type="string"
-              v-model="obj.name"
-              dense
-              autofocus
-            />
-          </q-popup-edit>
         </span>
       </span>
       <span
@@ -2614,6 +2603,7 @@ export default {
 
     this.fetchCode()
     this.updateBandwidthChart()
+    this.updatePorts()
   },
   data () {
     return {
@@ -3132,13 +3122,29 @@ export default {
     }
   },
   methods: {
+
+    updatePorts () {
+      var me = this
+      var node = window.designer.toolkit.getNode(this.obj)
+      debugger
+      console.log('UPDATE DATA PORTS', node.getPorts())
+
+      node.getPorts().forEach((port) => {
+        me.updateDataPort(port)
+      })
+    },
+    updateDataPort (port) {
+      this.portobjects[port.id] = port.data
+    },
     triggerObject (portname) {
+      debugger
       console.log("triggerObject", portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log("triggerObject result", result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
       result.then((result) => {
+        debugger
         const resultstr = result.toString()
         console.log('DATA TEMPLATE RESULT', resultstr)
         console.log('PORT EDGES', _port.getEdges())
@@ -3149,6 +3155,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data['code']
+          debugger
           window.root.$emit(target_id, code, options['function'], options['name'], result)
           // send message to target_id with result, _port
           // receiving node will realize this is an argument port and value
@@ -3321,21 +3328,24 @@ export default {
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
       var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
       console.log('CODE', codeUrl)
-      http.get(codeUrl).then((response) => {
-        console.log('CODE RESPONSE', response)
 
-        me.obj.code = response.data
-        // const re = /(def)\s(\w+)/g;
-        me.updateFunctions(response.data)
+      if (this.obj.code === undefined) {
+        http.get(codeUrl).then((response) => {
+          console.log('CODE RESPONSE', response)
 
-        if (this.$refs.myEditor) {
-          const editor = this.$refs.myEditor.editor
+          me.obj.code = response.data
+          // const re = /(def)\s(\w+)/g;
+          me.updateFunctions(response.data)
 
-          if (editor) {
-            editor.session.setValue(me.obj.code)
+          if (this.$refs.myEditor) {
+            const editor = this.$refs.myEditor.editor
+
+            if (editor) {
+              editor.session.setValue(me.obj.code)
+            }
           }
-        }
-      })
+        })
+      }
     },
     copyNode () {
       console.log('COPY NODE')
@@ -3765,7 +3775,6 @@ export default {
       })
 
       this.ports[func.function] = true
-      this.argports[port.id] = []
       this.portobjects[port.id] = port
 
       this.updateSchemas()

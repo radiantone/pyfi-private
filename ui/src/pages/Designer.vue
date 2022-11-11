@@ -4033,7 +4033,7 @@ export default {
                         node: nodeValue,
                         component: component,
                         hide: data.template && data.template === 'Object',
-                        name: 'sockq2.proc2.do_this' // component.getData()['name'],
+                        name: 'default' // component.getData()['name'],
                       }
                     })
                     instance.$mount()

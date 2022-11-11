@@ -6,9 +6,14 @@ BUG:
   - probably fetches from git again and overwrites it
 - Can't search on Scratch flow until switching between tabs
 
+DONE
+
+- Add VERSION to quasar config and it gets set in Designer store so UI can react to it
+- 
 
 TODO:
 
+- Remove queue UI from Script port edges TDB
 - Fill this.portobjects etc after loading a flow TBD
 - Data node sends data arguments to Script node function arguments DONE
 - When script node has all arguments it triggers result DONE
