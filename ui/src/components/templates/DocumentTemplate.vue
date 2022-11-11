@@ -95,14 +95,12 @@ tbody tr:nth-child(odd) {
 <script>
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
 import { v4 as uuidv4 } from 'uuid';
-import VueResizable from 'vue-resizable';
 
 export default {
   name: 'PortInTemplate',
   mixins: [BaseNodeComponent],
   components: {
-    editor: require('vue2-ace-editor'),
-    VueResizable,
+    editor: require('vue2-ace-editor')
   },
   created() {
     var me = this;

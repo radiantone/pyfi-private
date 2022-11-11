@@ -2819,7 +2819,6 @@ tbody tr:nth-child(odd) {
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import VueResizable from 'vue-resizable'
 import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
@@ -2864,7 +2863,6 @@ export default {
   vuetify: new Vuetify(),
   components: {
     editor: require('vue2-ace-editor'),
-    VueResizable,
     BetterCounter,
     Console
   },

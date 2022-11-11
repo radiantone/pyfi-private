@@ -476,7 +476,6 @@ tbody tr:nth-child(odd) {
 <script>
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import VueResizable from 'vue-resizable'
 import Vuetify from 'vuetify'
 import { mdiLambda, mdiCodeBraces } from '@mdi/js'
 import { TSDB } from 'uts'
@@ -503,7 +502,6 @@ export default {
   vuetify: new Vuetify(),
   components: {
     editor: require('vue2-ace-editor'),
-    VueResizable,
     BetterCounter
   },
   watch: {
