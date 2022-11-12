@@ -8,6 +8,8 @@
   "noImplicitAny": false,
   "allowJs": true,
   "include": [
+    "quasar.conf.js",
+    ".eslintrc.js",
     "./src",
     "public/js"
   ]
