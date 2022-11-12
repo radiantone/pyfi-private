@@ -304,7 +304,7 @@
         "
       >
         <q-icon
-          name="las la-scroll"
+          name="fab fa-python"
           size="xl"
           color="secondary"
           style="margin-left:-5px;margin-top:-5px"
@@ -382,25 +382,6 @@
           {{ errorMsg }}
         </q-tooltip></a>
       </span>
-      <q-btn
-        class="text-primary"
-        flat
-        dense
-        size="md"
-        icon="fas fa-save "
-        @click="saveProcessor"
-        style="cursor: pointer; position: absolute; right: 10px; top: 30px; font-size: 0.8em;"
-      >
-        <q-tooltip
-          anchor="top middle"
-          :offset="[-30, 40]"
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Save Processor
-        </q-tooltip>
-      </q-btn>
-
       <span
         class="text-blue-grey-8 pull-right"
         style="position: absolute; left: 10px; top: 70px; font-size: 11px;"
@@ -3400,7 +3381,7 @@ export default {
       },
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'las la-scroll',
+        icon: 'fab fa-python',
         titletab: false,
         receipt: new Date(),
         notes: '',

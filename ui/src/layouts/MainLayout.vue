@@ -24,6 +24,8 @@
       <q-toolbar
         class="bg-accent"
         style="min-height: 40px; padding: 0px;"
+
+        :disabled="getVersion() === 'FREE'"
       >
         <q-btn
           color="secondary"
@@ -218,7 +220,7 @@
             { icon: 'fab fa-python', value: 'code' },
           ]"
         >
-          <template v-slot:one>
+          <template #one>
             <div style="font-size: 0.5em; margin-left: 20px;">
               <q-tooltip
                 content-style="font-size: 16px"
@@ -228,7 +230,7 @@
               </q-tooltip>
             </div>
           </template>
-          <template v-slot:two>
+          <template #two>
             <div style="font-size: 0.5em; margin-left: 20px;" />
 
             <q-tooltip
@@ -251,7 +253,7 @@
           class="q-ml-md text-dark bg-white"
           @keyup="searchString"
         >
-          <template v-slot:append>
+          <template #append>
             <q-icon
               color="dark"
               size="sm"
@@ -277,8 +279,7 @@
       unit="%"
       style="overflow: hidden;"
     >
-      <template v-slot:before>
-
+      <template #before>
         <div style="height: 100vh; width: 100%; position: relative; top: 95px; overflow: hidden;">
           <q-tab-panels
             v-model="tab"
@@ -330,7 +331,6 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
-
           </q-tabs>
           <q-btn
             flat
@@ -344,7 +344,7 @@
           />
         </div>
       </template>
-      <template v-slot:after>
+      <template #after>
         <div style="height: 100vh; width: 100%; padding-top: 5px; position: relative; top: 95px; overflow: hidden;">
           <q-tabs
             v-model="drawertab"
@@ -409,7 +409,7 @@
                 horizontal
                 style="height: calc(100% - 40px);"
               >
-                <template v-slot:before>
+                <template #before>
                   <q-table
                     dense
                     :data="queues"
@@ -419,7 +419,7 @@
                     virtual-scroll
                     style="height: calc(100vh - 170px);"
                   >
-                    <template v-slot:body="props">
+                    <template #body="props">
                       <q-tr :props="props">
                         <q-td
                           key="name"
@@ -537,7 +537,7 @@
                     </template>
                   </q-table>
                 </template>
-                <template v-slot:after>
+                <template #after>
                   <q-tabs
                     v-model="queuedetailtab"
                     dense
@@ -659,7 +659,7 @@
             { label: 'Streaming', value: 'streaming', slot: 'three' },
           ]"
         >
-          <template v-slot:one>
+          <template #one>
             <q-icon :name="mdiFlashOutline" />
             <q-tooltip
               content-style="font-size: 16px"
@@ -669,7 +669,7 @@
             </q-tooltip>
           </template>
 
-          <template v-slot:two>
+          <template #two>
             <q-icon :name="mdiFlash" />
             <q-tooltip
               content-style="font-size: 16px"
@@ -679,7 +679,7 @@
             </q-tooltip>
           </template>
 
-          <template v-slot:three>
+          <template #three>
             <q-icon :name="mdiWavesArrowRight" />
             <q-tooltip
               content-style="font-size: 16px"
@@ -806,7 +806,7 @@
           horizontal
           style="height: calc(100% - 40px);"
         >
-          <template v-slot:before>
+          <template #before>
             <q-table
               dense
               :columns="queuecolumns"
@@ -816,7 +816,7 @@
               :pagination="queuePagination"
               style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
-              <template v-slot:body="props">
+              <template #body="props">
                 <q-tr
                   :props="props"
                   :key="getUuid"
@@ -866,7 +866,7 @@
               </template>
             </q-table>
           </template>
-          <template v-slot:after>
+          <template #after>
             <div style="height: 100%; width: 100%;">
               <editor
                 @init="resultEditorInit"
@@ -971,8 +971,10 @@
       </q-card>
     </q-dialog>
 
-
-    <q-dialog v-model="confirmQueuePurge" persistent>
+    <q-dialog
+      v-model="confirmQueuePurge"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -998,18 +1000,24 @@
             <q-toolbar>
               <q-item-label>Purge Queue</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to purge queue {{purgeQueueName}}?
+            Are you sure you want to purge queue {{ purgeQueueName }}?
           </span>
         </q-card-section>
 
@@ -1242,7 +1250,15 @@ export default defineComponent({
     }
   },
   methods: {
-    showPurgeConfirm(name) {
+
+    getVersion () {
+      if (this.$store.state.designer.version.indexOf('Free') >= 0) {
+        return 'FREE'
+      } else {
+        return 'DEV'
+      }
+    },
+    showPurgeConfirm (name) {
       this.purgeQueueName = name
       this.confirmQueuePurge = true
     },
@@ -1297,13 +1313,13 @@ export default defineComponent({
       var me = this
 
       socket.on('global', (msg) => {
-        //console.log('MAINLAYOUT', msg)
+        // console.log('MAINLAYOUT', msg)
         if (msg.type && msg.type === 'DeploymentModel') {
           console.log('DEPLOYMENT WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.type && msg.type === 'ProcessorModel') {
-          //console.log('PROCESSOR WAS UPDATED ', msg)
+          // console.log('PROCESSOR WAS UPDATED ', msg)
           window.root.$emit('message.received', msg)
         }
         if (msg.channel === 'task') {
@@ -1562,7 +1578,7 @@ export default defineComponent({
       }
     },
     tabChanged (tab) {
-      var me = this;
+      var me = this
 
       console.log('REFS:', this.$refs)
       console.log('TAB:', tab, this.$refs[tab])
@@ -1775,7 +1791,7 @@ export default defineComponent({
           properties: []
         }
       }
-/*
+      /*
       var parallel = document.querySelector('#parallel')
       parallel.data = {
         node: {

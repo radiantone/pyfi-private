@@ -42,12 +42,12 @@
       <q-btn
         flat
         align="left"
-        icon="las la-scroll"
+        icon="img:/images/python.svg"
         aria-label="Script"
         size="xl"
         id="script"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
+        style="min-height: 56px; cursor: grabbing;color: #6b8791"
+        class="text-bold"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -65,6 +65,7 @@
         id="processor"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="getVersion() === 'FREE'"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -83,6 +84,7 @@
         id="portin"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="getVersion() === 'FREE'"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -100,6 +102,7 @@
         size="large"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="getVersion() === 'FREE'"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -246,6 +249,7 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="getVersion() === 'FREE'"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -263,6 +267,7 @@
         id="database"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="getVersion() === 'FREE'"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -781,6 +786,13 @@ export default {
     })
   },
   methods: {
+    getVersion () {
+      if (this.$store.state.designer.version.indexOf("Free") >= 0) {
+        return "FREE"
+      } else {
+        return "DEV"
+      }
+    },
     showStats (name, columns, objects) {
       const me = this
 

@@ -113,6 +113,13 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     },
 
     methods: {
+      getVersion () {
+        if (this.$store.state.designer.version.indexOf("Free") >= 0) {
+          return "FREE"
+        } else {
+          return "DEV"
+        }
+      },
       startSchedule (cronstr: string) {
         var me = this
         console.log('UPDATING CRON')
@@ -240,12 +247,13 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
 interface ProcessorInterface {
   messageReceived(message: any): void;
-  startSchedule(cron: string): void;
+  getVersion(): string;
   messageSend(message: any): void;
   getPort(func: string, name: string): any;
   listenMessages(): void;
   setId(id: string): void;
   execute(data: any): void;
+  startSchedule(cron: string): void;
 }
 
 type Methods = ProcessorInterface
