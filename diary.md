@@ -14,6 +14,8 @@ DONE
 
 TODO:
 
+- Add spinner icon to function port to indicate when it is running, remove when complete TBD
+- Package names in requirements for Data and Script are added to py-script/piodide TBD
 - CRON scheduler for Data and Script blocks, triggers execution DONE
 - Remove queue UI from Script port edges TDB
 - Fill this.portobjects etc after loading a flow TBD

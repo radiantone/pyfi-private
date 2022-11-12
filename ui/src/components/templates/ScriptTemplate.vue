@@ -431,24 +431,6 @@
         </div>
         <div
           class="text-secondary"
-          @click="refreshProcessor"
-          style="margin-right: 10px;"
-        >
-          <i
-            class="fas fa-refresh"
-            style="cursor: pointer;"
-          />
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Refresh
-          </q-tooltip>
-        </div>
-        <div
-          class="text-secondary"
           @click="obj.bandwidth = !obj.bandwidth"
           style="margin-right: 10px;"
         >
@@ -4106,29 +4088,6 @@ export default {
     },
     loginProcessor () {
       this.login = true
-    },
-    refreshProcessor () {
-      var me = this
-      this.refreshing = true
-
-      this.fetchCode()
-      DataService.getProcessor(this.obj.name).then((proc) => {
-        me.refreshing = false
-        console.log('REFRESH PROCESSOR', proc)
-        const avoid = ['icon', 'id']
-        for (var key in me.obj) {
-          if (key in proc.data && !avoid.includes(key)) {
-            console.log('Updating key ', key)
-            me.obj[key] = proc.data[key]
-          }
-        }
-        me.error = false
-      }).catch((error) => {
-        console.log('ERROR', error)
-        me.refreshing = false
-        me.errorMsg = error
-        me.error = true
-      })
     },
     getUuid () {
       return 'key_' + uuidv4()

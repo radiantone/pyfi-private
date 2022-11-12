@@ -506,24 +506,6 @@
         </div>
         <div
           class="text-secondary"
-          @click="refreshProcessor"
-          style="margin-right: 10px;"
-        >
-          <i
-            class="fas fa-refresh"
-            style="cursor: pointer;"
-          />
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Refresh
-          </q-tooltip>
-        </div>
-        <div
-          class="text-secondary"
           @click="obj.bandwidth = !obj.bandwidth"
           style="margin-right: 10px;"
         >
@@ -538,70 +520,6 @@
             content-class="bg-black text-white"
           >
             Bandwidth Toggle
-          </q-tooltip>
-        </div>
-        <!--
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-          @click="addNewPort('Complete', 'fas fa-flag-checkered')"
-        >
-          <i class="fas fa-flag-checkered" style="cursor: pointer;" />
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Complete Plug
-          </q-tooltip>
-        </div>-->
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-        >
-          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
-
-          <q-btn-dropdown
-            flat
-            content-class="text-dark bg-white "
-            dense
-            menu-self="top left"
-            dropdown-icon="fas fa-exclamation"
-            color="secondary"
-            padding="0px"
-            size=".6em"
-            style="margin-right: 0px;"
-          >
-            <q-list
-              dense
-              v-for="func in funcs"
-              :key="func.name"
-            >
-              <q-item
-                clickable
-                v-close-popup
-                @click="addNewPort({ function: func.name, args: [] }, 'Error', 'fas fa-exclamation')"
-              >
-                <q-item-section side>
-                  <q-icon name="fas fa-cube" />
-                </q-item-section>
-                <q-item-section
-                  side
-                  class="text-blue-grey-8"
-                >
-                  {{ func.name }}
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Error Plug
           </q-tooltip>
         </div>
         <div
@@ -3516,29 +3434,6 @@ export default {
     },
     loginProcessor () {
       this.login = true
-    },
-    refreshProcessor () {
-      var me = this
-      this.refreshing = true
-
-      this.fetchCode()
-      DataService.getProcessor(this.obj.name).then((proc) => {
-        me.refreshing = false
-        console.log('REFRESH PROCESSOR', proc)
-        const avoid = ['icon', 'id']
-        for (var key in me.obj) {
-          if (key in proc.data && !avoid.includes(key)) {
-            console.log('Updating key ', key)
-            me.obj[key] = proc.data[key]
-          }
-        }
-        me.error = false
-      }).catch((error) => {
-        console.log('ERROR', error)
-        me.refreshing = false
-        me.errorMsg = error
-        me.error = true
-      })
     },
     getUuid () {
       return 'key_' + uuidv4()
