@@ -26,7 +26,7 @@
         flat
         align="left"
         :icon="braces"
-        aria-label="Data"
+        aria-label="Schema"
         size="large"
         id="schema"
         style="min-height: 56px; cursor: grabbing;"
@@ -46,8 +46,8 @@
         aria-label="Script"
         size="xl"
         id="script"
-        style="min-height: 56px; cursor: grabbing;color: #6b8791"
-        class="text-bold"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -354,17 +354,20 @@
           class="link-hover"
           href="#"
           @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
+          :disabled="getVersion() === 'FREE'"
         >Nodes:</a>
         <span class="text-dark">{{ nodes }}</span>
       </q-item-label>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px; margin-right: 20px;"
+        :disabled="getVersion() === 'FREE'"
       >
         <a
           class="link-hover"
           href="#"
           @click="showStats('Agents', agentStatsColumns,'agents')"
+          :disabled="getVersion() === 'FREE'"
         >Agents:</a>
         <span class="text-dark">{{ agents }}</span>
       </q-item-label>
@@ -376,6 +379,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Queues', queueStatsColumns,'queues')"
+          :disabled="getVersion() === 'FREE'"
         >Queues:</a>
         <span class="text-dark">{{ queues }}</span>
       </q-item-label>
@@ -387,6 +391,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Processors', procStatsColumns, 'processors')"
+          :disabled="getVersion() === 'FREE'"
         >Processors:</a>
         <span class="text-dark">{{ processors }}</span>
       </q-item-label>
@@ -398,6 +403,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Deployments', deployStatsColumns, 'deployments')"
+          :disabled="getVersion() === 'FREE'"
         >Deployments:</a>
         <span class="text-dark">{{ deployments }}</span>
       </q-item-label>
@@ -409,6 +415,7 @@
           class="link-hover"
           href="#"
           @click="showStats('CPUs', workerStatsColumns, 'workers')"
+          :disabled="getVersion() === 'FREE'"
         >CPUS:</a>
         <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
       </q-item-label>
@@ -420,12 +427,14 @@
           class="link-hover"
           href="#"
           @click="showStats('Tasks', taskStatsColumns, 'tasks')"
+          :disabled="getVersion() === 'FREE'"
         >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
+        :disabled="getVersion() === 'FREE'"
       >
         System Usage:
       </q-item-label>
@@ -795,7 +804,9 @@ export default {
     },
     showStats (name, columns, objects) {
       const me = this
-
+      if (this.getVersion() === 'FREE') {
+        return
+      }
       this.statname = name
       this.viewStatsColumns = columns
       this.viewStatsLoader = true

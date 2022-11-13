@@ -1922,7 +1922,6 @@ export default defineComponent({
           image: true // default drag image
         })
         draghandle.on('start', function (setData, e) {
-          console.log('drag:start:', el, e)
           setData('object', JSON.stringify(data))
         })
       })

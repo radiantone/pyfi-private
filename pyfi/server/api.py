@@ -362,7 +362,6 @@ def new_folder(collection, path):
                 code="",
             )
             _session.add(folder)
-            _session.commit()
 
         return jsonify(folder)
 

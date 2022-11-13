@@ -115,18 +115,18 @@
           <q-item-section avatar>
             <q-icon
               :name="item.icon"
-              color="secondary"
               v-if="item.type === 'folder'"
-              :class="darkStyle"
+              class="text-primary"
+              size="md"
             />
             <q-icon
               :name="item.icon"
               v-if="item.type !== 'folder'"
-              :class="darkStyle"
-              size="sm"
+              class="text-secondary"
+              size="lg"
             />
           </q-item-section>
-          <q-item-section>
+          <q-item-section style="margin-left:50px;width:100%" class="absolute">
             <a
               class="text-secondary"
               style="
@@ -138,6 +138,7 @@
               "
               @click="selectFileOrFolder(item)"
             >{{ (item.filename ? item.filename : item.name) }}</a>
+            <span class="text-caption text-secondary">{{ item.description ? item.description : "rwxr--r--" }}</span>
           </q-item-section>
           <q-space />
           <q-toolbar>
@@ -305,7 +306,6 @@ export default {
       paths[0].icon = 'home'
       this.navigate(path)
     },
-
     navigate (folder) {
       this.foldername = folder
       this.synchronize()
@@ -357,11 +357,16 @@ export default {
             }, 100)
 
             result = result.data
+            result.forEach( (entry) => {
+              if (entry.code.length > 0) {
+                let code = JSON.parse(entry.code)
+                entry.description = code.description
+              }
+            })
             me.items = result
 
             setTimeout(() => {
               for (let i = 0; i < result.length; i++) {
-                console.log('result', result[i])
                 if (result[i].type === 'folder') continue
                 // var el = document.querySelector("[id='" + result[i]._id + "']");
                 const el = document.querySelector(
@@ -370,7 +375,6 @@ export default {
                 if (el) {
                   el.data = result[i]
                   el.data.type = 'template'
-                  // el.data.icon = "fas fa-microchip";
 
                   const draghandle = dd.drag(el, {
                     image: true // default drag image
@@ -378,7 +382,8 @@ export default {
                   if (!result[i].columns) result[i].columns = []
                   draghandle.on('start', function (setData, e) {
                     console.log('drag:start:', el, e)
-                    setData('object', JSON.stringify({ node: result[i] }))
+                    let code = JSON.parse(result[i].code)
+                    setData('object', JSON.stringify({ node: code }))
                   })
                 }
               }

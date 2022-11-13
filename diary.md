@@ -25,9 +25,13 @@ DONE
 - Remove queue UI from Script port edges DONE
 - Remove "Refresh" icon from Data and Script nodes? DONE
 - Disable components for free version 80%
+- Drag and drop from Library FIXED
+  - Added description sub heading to library entries DONE
 
 TODO:
 
+- Add 'Git' button in Script code view
+- Git table should show the filename affected by each commit
 - Add spinner icon to function port to indicate when it is running, remove when complete TBD
 - Package names in requirements for Data and Script are added to py-script/piodide TBD
 - Clicking mail icon shows stored value in JSON editor card TBD
