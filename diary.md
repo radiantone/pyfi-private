@@ -2,13 +2,14 @@
 
 BUG:
 
-- Editing code in DataTemplate isn't restored when a flow is loaded
-  - probably fetches from git again and overwrites it
 - Can't search on Scratch flow until switching between tabs
-- When PORT is deleted, its portobjects, argobjects and this.ports need to also be removed
 
 DONE
 
+- Trigger no argument function from Script DONE
+- Editing code in DataTemplate isn't restored when a flow is loaded FIXED
+- When PORT is deleted, its portobjects, argobjects and this.ports need to also be removed FIXED
+- Script node sends its result to all its edges DONE
 - Add VERSION to quasar config and it gets set in Designer store so UI can react to it DONE
 - Python script block icon DONE
 - CRON scheduler for Data and Script blocks, triggers execution DONE
@@ -17,28 +18,31 @@ DONE
 - Script node writes result output to console DONE
 - Script node argument ports show mail icon when results are present DONE
 - When Script triggers, clean column backgrounds and icon back to normal DONE
+- Set CRON schedule to trigger data nodes DONE
+- Remove concurrency on Script node DONE
+- Remove rate/m rate limit text on Script node DONE
+- Fill this.portobjects etc after loading a flow DONE
+- Remove queue UI from Script port edges DONE
+- Remove "Refresh" icon from Data and Script nodes? DONE
 - Disable components for free version 80%
 
 TODO:
 
 - Add spinner icon to function port to indicate when it is running, remove when complete TBD
 - Package names in requirements for Data and Script are added to py-script/piodide TBD
-- Remove queue UI from Script port edges TDB
-- Fill this.portobjects etc after loading a flow TBD
-  - Clicking mail icon shows stored value in JSON editor card TBD
-- Script node sends its result to all its edges TBD
+- Clicking mail icon shows stored value in JSON editor card TBD
 - In/Out/Total metrics update on Data and Script nodes TBD
-- Remove "Refresh" icon from Data and Script nodes?
 - Schema check for incoming data objects on Script argument ports TBD
 - Remove, ghost, disable Premium features in Free version TBD
 - Disable "Power Cycle" on non-processor nodes
 - View Results in Script node, refers to internally stored results list TBD
 - Error ports on Script node, when executing function produces an exception,
   - the error and input data is routed to error edges for that function
-- Remove rate/m rate limit text on Script node TBD
-- Remove concurrency on Script node ???
-- Set CRON schedule to trigger data nodes TBD
 - Okta integration
+- Single Sign On with external account (gmail, etc) TBD
+- Account registration, email verification, backend TBD
+- Download code for flow PAID FEATURE TBD
+- Publish flow as service PAID FEATURE TBD (hosted services)
 
 ## Nov 5, 2022
 

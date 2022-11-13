@@ -850,6 +850,7 @@
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
             style="margin-right: 5px;"
+            @click="executeObject('func:'+column.name.replace('function: ',''))"
           />
           <i
             v-if="column.type !== 'Input'"
@@ -2852,16 +2853,20 @@ export default {
     'obj.status': function (val) {
       // window.designer.$root.$emit('toolkit.dirty')
     },
+    consolehistory: function (val) {
+      if (val) {
+        this.jsonmode = false
+      }
+    },
     jsonmode: function (val) {
       if (val) {
         setTimeout(() => {
           this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(this.currentresult), null, 2))
         })
-
       }
     },
     currentresult: function (val) {
-      if(this.$refs.jsonEditor.editor) {
+      if (this.$refs.jsonEditor) {
         this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
       }
     },
@@ -2916,7 +2921,7 @@ export default {
           console.log('PROCESSOR ID', me.obj.id)
         }
       }
-
+      debugger
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
@@ -3345,9 +3350,7 @@ export default {
       workersLoading: false,
       splitterModel: 50,
       codeSplitterModel: 50,
-      series: [
-
-      ],
+      series: [],
       chartOptions: {
         colors: ['#abbcc3', '#6b8791', '#465d6f', '#054848'],
         chart: {
@@ -3773,7 +3776,10 @@ export default {
       })
       // this.series[2].data = durations[0].results.data
 
-      const xaxis = inBytes[0].results.time.map((x) => { const d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
+      const xaxis = inBytes[0].results.time.map((x) => {
+        const d = new Date(x)
+        return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+      })
       console.log('XAXIS', xaxis)
       this.chartOptions.xaxis.categories = xaxis
       // console.log('updateBandwidthChart: inBytes', inBytes)
@@ -3894,7 +3900,7 @@ export default {
       var matches = data.matchAll(re)
 
       this.funcs = []
-
+      debugger
       for (const match of matches) {
         var name = match[0].split('(')[0].split(' ').at(-1)
         var args = match[2].split(',')
@@ -3906,7 +3912,9 @@ export default {
             if (arg.indexOf(':') > -1) {
               arg = arg.split(':')[0]
             }
-            _args.push(arg)
+            if (arg.length > 0) {
+              _args.push(arg)
+            }
           }
         }
         this.funcs.push({ name: name, args: _args })
@@ -4427,6 +4435,26 @@ export default {
         me.argobjects[fname + ':' + arg] = argport
         this.ports[arg] = true
         this.argports[port.id].push(argport.id)
+      })
+    },
+    executeObject (portname, data) {
+      const call = this.portobjects[portname].name.replace('function: ', '')
+      let code = this.obj.code
+      code = code + '\n' + call + '()'
+      const result = this.execute(code)
+      result.then((res) => {
+        let answer = res
+
+        if (res === Object(res)) {
+          answer = Object.fromEntries(res.toJs())
+        }
+        console.log('CODE CALL RESULT', answer)
+        this.$emit('message.received', {
+          type: 'result',
+          id: this.obj.id,
+          function: call,
+          output: JSON.stringify(answer)
+        })
       })
     },
     triggerObject (portname, result) {
