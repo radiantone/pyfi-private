@@ -9,20 +9,22 @@ BUG:
 
 DONE
 
-- Add VERSION to quasar config and it gets set in Designer store so UI can react to it
-- 
+- Add VERSION to quasar config and it gets set in Designer store so UI can react to it DONE
+- Python script block icon DONE
+- CRON scheduler for Data and Script blocks, triggers execution DONE
+- Data node sends data arguments to Script node function arguments DONE
+- When script node has all arguments it triggers result DONE
+- Script node writes result output to console DONE
+- Script node argument ports show mail icon when results are present DONE
+- When Script triggers, clean column backgrounds and icon back to normal DONE
+- Disable components for free version 80%
 
 TODO:
 
 - Add spinner icon to function port to indicate when it is running, remove when complete TBD
 - Package names in requirements for Data and Script are added to py-script/piodide TBD
-- CRON scheduler for Data and Script blocks, triggers execution DONE
 - Remove queue UI from Script port edges TDB
 - Fill this.portobjects etc after loading a flow TBD
-- Data node sends data arguments to Script node function arguments DONE
-- When script node has all arguments it triggers result DONE
-- Script node writes result output to console DONE
-- Script node argument ports show mail icon when results are present DONE
   - Clicking mail icon shows stored value in JSON editor card TBD
 - Script node sends its result to all its edges TBD
 - In/Out/Total metrics update on Data and Script nodes TBD
@@ -36,7 +38,6 @@ TODO:
 - Remove rate/m rate limit text on Script node TBD
 - Remove concurrency on Script node ???
 - Set CRON schedule to trigger data nodes TBD
-- When Script triggers, clean column backgrounds and icon back to normal DONE
 - Okta integration
 
 ## Nov 5, 2022

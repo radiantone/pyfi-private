@@ -2282,7 +2282,21 @@
           style="height:475px;width:auto"
           ref="scroll"
         >
-          <div v-for="(log, index) in consolelogs">
+          <div v-if="jsonmode">
+            <editor
+              @init="jsonEditorInit"
+              style="font-size: 1.5em;"
+              lang="javascript"
+              theme="chrome"
+              ref="jsonEditor"
+              width="100%"
+              height="475px"
+            />
+          </div>
+          <div
+            v-for="(log, index) in consolelogs"
+            v-if="!jsonmode"
+          >
             <div v-if="consolehistory">
               <pre style="font-weight: bold;">{{ log["date"] }}</pre>
               <pre>{{ log["output"] }}</pre>
@@ -2327,6 +2341,11 @@
           v-model="consolehistory"
           label="History"
           style="position: absolute; bottom: 0px; left: 210px;"
+        />
+        <q-checkbox
+          v-model="jsonmode"
+          label="JSON View"
+          style="position: absolute; bottom: 0px; left: 300px;"
         />
       </q-card-actions>
       <q-card-actions align="right">
@@ -2833,6 +2852,19 @@ export default {
     'obj.status': function (val) {
       // window.designer.$root.$emit('toolkit.dirty')
     },
+    jsonmode: function (val) {
+      if (val) {
+        setTimeout(() => {
+          this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(this.currentresult), null, 2))
+        })
+
+      }
+    },
+    currentresult: function (val) {
+      if(this.$refs.jsonEditor.editor) {
+        this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
+      }
+    },
     workerview: function (newv, oldv) {
       if (newv) {
         this.refreshWorkers()
@@ -2887,6 +2919,7 @@ export default {
 
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
+          me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
@@ -3111,6 +3144,7 @@ export default {
   },
   data () {
     return {
+      currentresult: '',
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -3306,6 +3340,7 @@ export default {
       settingstab: 'settings',
       refreshing: false,
       consolehistory: false,
+      jsonmode: false,
       saving: false,
       workersLoading: false,
       splitterModel: 50,
@@ -4182,6 +4217,21 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
         me.obj.notes = editor.getValue()
+      })
+    },
+    jsonEditorInit: function () {
+      var me = this
+
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.jsonEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        me.updateFunctions(editor.getValue())
       })
     },
     resultEditorInit: function () {
