@@ -6,14 +6,10 @@ import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
+import {PyProxy} from "pyodide";
+import Moment from "moment/moment";
 const scheduler = new IntervalBasedCronScheduler(1000)
 
-// import { loadPyodide } from "pyodide"
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-// import { loadPyodide } from "pyodide"
-// const { loadPyodide } = require('pyodide')
-
-// const pyodide = loadPyodide()
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -57,6 +53,13 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   'http://localhost'
 )
+
+const mapToObj = (m: Map<string, any>) => {
+  return Array.from(m).reduce((obj: { [name: string]: any }, [key, value]) => {
+    obj[key] = value
+    return obj
+  }, {})
+}
 
 export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
@@ -149,7 +152,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
           let obj = data
           this.id = id
-          if (data === Object(data)) {
+          if (data instanceof Map) {
+            obj = mapToObj(<Map<string, any>>data)
+          } else if (data instanceof Object) {
             obj = Object.fromEntries(data.toJs())
           }
 
@@ -175,6 +180,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
+            let plugs = "plugs = {'output A':{}}\n"
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
@@ -187,13 +193,18 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               count += 1
             })
             call = call + ')'
+            call = plugs + "\n" + call
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
+            var start = Moment(new Date())
             const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
             result.then((res: any) => {
+              let _plugs = (window as any).pyodide.globals.get('plugs').toJs()
               let answer = res
-
+              var end = Moment(new Date())
+              let diff = end.diff(start)
+              var time = Moment.utc(diff).format("HH:mm:ss.SSS")
               if (res === Object(res)) {
                 answer = Object.fromEntries(res.toJs())
               }
@@ -202,6 +213,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 type: 'result',
                 id: this.id,
                 function: func,
+                duration: time,
                 output: JSON.stringify(answer)
               })
             })
@@ -221,8 +233,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       async execute (data: any) {
         console.log('Running: ', data)
         // noinspection TypeScriptUnresolvedVariable
+        let plugs = "plugs = {'output A':{}}\n"
+        data = plugs + "\n" + data
         const result = (window as any).pyodide.runPythonAsync(data)
-
         return result
       },
       listenMessages () {

@@ -3552,7 +3552,7 @@ export default {
               var targetType = params.target.data.type
 
               console.log(sourceType, targetType)
-              if (!(sourceType === 'Output' && targetType === 'Input')) {
+              if (!((sourceType === 'Output' || sourceType === 'Plug') && targetType === 'Input')) {
                 window.toolkit.removeEdge(params.edge)
               }
 

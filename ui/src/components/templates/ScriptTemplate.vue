@@ -2,7 +2,7 @@
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
-    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; z-index: 99999999'"
+    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; z-index: 999'"
     @touchstart.stop
     @contextmenu.stop
     @mousemove1="mouseMove"
@@ -544,7 +544,7 @@
         <div
           class="text-secondary"
           style="margin-right: 10px;"
-          @click="addNewPort({ function: 'Output', args: [] }, 'Output', 'fas fa-plug')"
+          @click="addNewPort({ function: 'route A', args: [] }, 'Plug', 'fas fa-plug')"
         >
           <i
             class="fas fa-plug"
@@ -846,7 +846,7 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <i
-            v-if="column.type !== 'Input'"
+            v-if="column.type !== 'Input' && column.type !== 'Plug'"
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
             style="margin-right: 5px;"
@@ -2927,6 +2927,20 @@ export default {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
+          me.task_time = msg.duration
+          tsdb.series('outBytes').insert(
+            {
+              bytes: msg.output.length
+            },
+            Date.now()
+          )
+          me.bytes_out_5min.unshift(msg.output.length)
+          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+          me.bytes_out += msg.output.length
+
+          me.calls_in = msg.output.length
         }
         Object.entries(this.argobjects).forEach((tuple) => {
           const argobject = tuple[1]
@@ -2981,7 +2995,7 @@ export default {
         })
 
         // me.bytes_in_5min = averaged_data
-        me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
+        me.bytes_in_5min.unshift(bytes)
         // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
         me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
         // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
@@ -3026,7 +3040,6 @@ export default {
             now
           )
         }
-        // console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
         me.calls_out = timedata[0].results.data.length
         me.resultlogs.unshift(json)
@@ -4438,30 +4451,53 @@ export default {
       })
     },
     executeObject (portname, data) {
+      var me = this
+      const plugs = "plugs = {'output A':{}}\n"
       const call = this.portobjects[portname].name.replace('function: ', '')
       let code = this.obj.code
       code = code + '\n' + call + '()'
+
+      var start = Moment(new Date())
       const result = this.execute(code)
       result.then((res) => {
         let answer = res
 
+        let end = Moment(new Date())
+        const diff = end.diff(start)
+        var time = Moment.utc(diff).format('HH:mm:ss.SSS')
+
+        me.task_time = time
+
+        tsdb.series('outBytes').insert(
+          {
+            bytes: res.length
+          },
+          Date.now()
+        )
+        const _plugs = window.pyodide.globals.get('plugs').toJs()
+        debugger
+        this.getNode().getPorts().forEach((port) => {
+          if (port.data.type === 'Plug') {
+            const plug_result = _plugs.get(port.data.name)
+            debugger
+            me.triggerRoute(port.data.id, plug_result)
+          }
+        })
         if (res === Object(res)) {
           answer = Object.fromEntries(res.toJs())
+          console.log('CODE CALL RESULT', answer)
+          this.$emit('message.received', {
+            type: 'result',
+            id: this.obj.id,
+            function: call,
+            output: JSON.stringify(answer)
+          })
         }
-        console.log('CODE CALL RESULT', answer)
-        this.$emit('message.received', {
-          type: 'result',
-          id: this.obj.id,
-          function: call,
-          output: JSON.stringify(answer)
-        })
       })
     },
-    triggerObject (portname, result) {
+    triggerRoute (portid, result) {
       debugger
-      const objectname = this.portobjects[portname].name.replace('function: ', '')
-      const port = this.portobjects['func:' + objectname]
-      const _port = window.toolkit.getNode(this.obj.id).getPort(port.id)
+      const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
@@ -4469,6 +4505,30 @@ export default {
         const code = node.data.code
         window.root.$emit(target_id, code, options.function, options.name, result)
       })
+    },
+    triggerObject (portname, result) {
+      var me = this
+
+      tsdb.series('outBytes').insert(
+        {
+          bytes: result.length
+        },
+        Date.now()
+      )
+      if (portname in this.portobjects) {
+        const objectname = this.portobjects[portname].name.replace('function: ', '')
+        const port = this.portobjects['func:' + objectname]
+        const _port = window.toolkit.getNode(this.obj.id).getPort(port.id)
+        _port.getEdges().forEach((edge) => {
+          const options = edge.target.data
+          const target_id = edge.target.getNode().data.id
+          const node = edge.target.getNode()
+          const code = node.data.code
+          window.root.$emit(target_id, code, options.function, options.name, result)
+        })
+      } else {
+        console.log('ERROR', 'No portname', portname)
+      }
     },
     addErrorPort () {
       if (this.error) {

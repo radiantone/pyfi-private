@@ -6,6 +6,7 @@ BUG:
 
 DONE
 
+- Script block overlays a different blocks code panel FIXED
 - Trigger no argument function from Script DONE
 - Editing code in DataTemplate isn't restored when a flow is loaded FIXED
 - When PORT is deleted, its portobjects, argobjects and this.ports need to also be removed FIXED
@@ -30,6 +31,9 @@ DONE
 
 TODO:
 
+- Implement plug routers 80%
+
+- Capture pyodide output and display to console along with return value
 - Add 'Git' button in Script code view
 - Git table should show the filename affected by each commit
 - Add spinner icon to function port to indicate when it is running, remove when complete TBD
