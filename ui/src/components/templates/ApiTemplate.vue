@@ -1,9 +1,8 @@
 <template>
-  <!-- transform: skew(-3deg, 0deg); -->
   <div
     class="table node shadow-1 jtk-node"
     style="overflow: unset !important;"
-    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; z-index: 99999999'"
+    :style="'top:' + obj.y + ';left:' + obj.x + ';min-width:' + obj.width + '; z-index: 999'"
     @touchstart.stop
     @contextmenu.stop
     @mousemove1="mouseMove"
@@ -101,7 +100,7 @@
           clickable
           v-close-popup
           v-if="obj.status === 'stopped'"
-          @click="triggerExecute"
+          @click="obj.status = 'running'"
         >
           <q-item-section side>
             <q-icon name="fas fa-play" />
@@ -110,7 +109,7 @@
             side
             class="text-blue-grey-8"
           >
-            Run All
+            Run
           </q-item-section>
         </q-item>
         <q-separator />
@@ -167,7 +166,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-cube" />
+            <q-icon name="fas fa-plug" />
           </q-item-section>
           <q-item-section
             side
@@ -207,22 +206,6 @@
             Corner in View
           </q-item-section>
         </q-item>
-        <!--
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="fas fa-palette"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
-            Change Color
-          </q-item-section>
-        </q-item>
-        <q-separator />
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Group</q-item-section>
-        </q-item>-->
         <q-separator />
 
         <q-item
@@ -274,96 +257,12 @@
           margin-right: 5px;
         "
       >
-        <q-btn-dropdown
-          flat
-          content-class="text-dark bg-white"
-          dense
+        <q-icon
+          name="fab fa-python"
+          size="xl"
           color="secondary"
-          :dropdown-icon="obj.icon"
-          padding="0px"
-          size=".6em"
-        >
-          <q-list dense>
-            <q-item
-              clickable
-              v-close-popup
-              @click="
-                obj.icon = 'fas fa-database';
-                settingstab = 'database';
-              "
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-database" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Database
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-cloud'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-cloud" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                API
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-file'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-file" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Document
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-link'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-link" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                URL
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="obj.icon = 'fas fa-table'"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-table" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Spreadsheet
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
+          style="margin-left:-5px;margin-top:-5px"
+        />
       </div>
       <span
         v-if="obj.titletab"
@@ -386,6 +285,17 @@
           style="font-style: italic; margin-left: 5px;"
         >
           {{ obj.name }}
+          <q-popup-edit
+            v-model="obj.name"
+            buttons
+          >
+            <q-input
+              type="string"
+              v-model="obj.name"
+              dense
+              autofocus
+            />
+          </q-popup-edit>
         </span>
       </span>
       <span
@@ -426,7 +336,6 @@
           {{ errorMsg }}
         </q-tooltip></a>
       </span>
-
       <span
         class="text-blue-grey-8 pull-right"
         style="position: absolute; left: 10px; top: 70px; font-size: 11px;"
@@ -477,6 +386,52 @@
           class="text-secondary"
           style="margin-right: 10px;"
         >
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="fas fa-exclamation"
+            color="secondary"
+            padding="0px"
+            size=".6em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="func in funcs"
+              :key="func.name"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewPort({ function: 'function: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
+              >
+                <q-item-section side>
+                  <q-icon name="fab fa-python" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  function: {{ func.name }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Error Plug
+          </q-tooltip>
+        </div>
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
           <!--<i class="outlet-icon" style="cursor: pointer;" />-->
 
           <q-btn-dropdown
@@ -498,16 +453,16 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')"
+                @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
               >
                 <q-item-section side>
-                  <q-icon name="fas fa-cube" />
+                  <q-icon name="fab fa-python" />
                 </q-item-section>
                 <q-item-section
                   side
                   class="text-blue-grey-8"
                 >
-                  {{ func.name }}
+                  function: {{ func.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -518,7 +473,26 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Object
+            Add Socket
+          </q-tooltip>
+        </div>
+
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+          @click="addNewPort({ function: 'route A', args: [] }, 'Plug', 'fas fa-plug')"
+        >
+          <i
+            class="fas fa-plug"
+            style="cursor: pointer;"
+          />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Plug
           </q-tooltip>
         </div>
 
@@ -530,7 +504,7 @@
             flat
             @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
+            style="margin-right: 10px; position: absolute; right: 135px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -548,8 +522,8 @@
             v-if="obj.status === 'stopped'"
             flat
             class="edit-name text-secondary"
-            @click="triggerExecute"
-            style="position: absolute; right: 80px; top: -68px; width: 25px; height: 30px;"
+            @click="obj.status = 'running'"
+            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -557,7 +531,7 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Run
+              Run All
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -568,8 +542,7 @@
             v-if="obj.status === 'running'"
             @click="obj.status = 'stopped'"
             class="edit-name text-secondary text-green"
-
-            style="position: absolute; right: 80px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -587,7 +560,7 @@
             icon="fas fa-terminal"
             @click="showPanel('consoleview', !consoleview)"
             class="edit-name text-secondary"
-            style="position: absolute; right: 55px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 85px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -596,6 +569,24 @@
               content-class="bg-black text-white"
             >
               Console
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            dense
+            flat
+            size="xs"
+            icon="fas fa-list"
+            @click="showResultsDialog"
+            class="edit-name text-secondary"
+            style="position: absolute; right: 55px; top: -68px; width: 25px; height: 30px;"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              View Results
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -695,6 +686,21 @@
             <q-item
               clickable
               v-close-popup
+              @click="showPanel('gitview', !gitview)"
+            >
+              <q-item-section side>
+                <q-icon name="fab fa-github" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Git
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
@@ -742,13 +748,14 @@
       </div>
     </div>
     <ul
+      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
     >
       <li
         :class="'table-column jtk-droppable table-column-type-' + column.datatype"
-        :style="'background:' + column.background + ';border-top: 1px dashed lightgrey'"
+        :style="'background:'+column.background+';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
       >
@@ -757,28 +764,24 @@
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
-          <q-btn
-            icon="fa fa-play"
-            size="xs"
-            title="Run Object"
-            flat
-            dense
-            :data-portname="column.id"
-            @click="triggerObject(column.id)"
+          <i
+            v-if="column.type !== 'Input' && column.type !== 'Plug' && column.type !== 'Error'"
+            class="fa fa-play table-column-delete-icon"
+            title="Trigger Port"
+            style="margin-right: 5px;"
+            @click="executeObject('func:'+column.name.replace('function: ',''))"
           />
-          <q-btn
-            icon="fa fa-times"
-            size="xs"
-            itle="Delete Object"
-            flat
-            dense
+          <i
+            v-if="column.type !== 'Input'"
+            class="fa fa-times table-column-delete-icon"
+            title="Delete Port"
             @click="confirmDeletePort(column.id)"
           />
 
           <i
-            v-if="column.type === 'Input'"
-            class="fa fa-list"
-            title="Default Input"
+            v-if="column.data"
+            class="fas fa-envelope text-secondary"
+            title="View Argument Data"
           />
         </div>
         <div
@@ -812,7 +815,7 @@
               <q-popup-edit
                 v-model="column.name"
                 buttons
-                v-if="column.icon === 'fas fa-cube'"
+                v-if="column.icon === 'fas fa-plug'"
               >
                 <q-input
                   type="string"
@@ -838,6 +841,7 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
+
             </span>
           </span>
         </div>
@@ -1122,7 +1126,7 @@
         <editor
           v-model="obj.code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 400px;"
+          style="font-size: 16px; min-height: 600px;"
           lang="python"
           theme="chrome"
           ref="myEditor"
@@ -1422,10 +1426,10 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1451,59 +1455,237 @@
           keep-alive
         >
           <q-tab-panel
-            ref="settings"
             name="settings"
             style="padding: 0px;"
+            ref="settings"
           >
-            <div
-              class="q-pa-md"
-              style="max-width: 100%; padding-bottom: 0px;"
+            <q-tabs
+              v-model="settingstab"
+              class="text-primary"
+              align="center"
+              dense
             >
-              <q-form
-                @submit="onSubmit"
-                @reset="onReset"
-                class="q-gutter-md"
+              <q-tab
+                name="settings"
+                label="Processor"
+              />
+              <q-tab
+                name="apisettings"
+                label="API"
+              />
+              <q-tab
+                name="versions"
+                label="Version"
+              />
+              <q-tab
+                v-if="obj.icon === lambdaIcon"
+                name="lambda"
+                label="Lambda"
+              />
+              <q-tab
+                v-if="obj.icon === 'fas fa-database'"
+                name="database"
+                label="Database"
+              />
+            </q-tabs>
+            <q-tab-panels v-model="settingstab">
+              <q-tab-panel
+                name="settings"
+                style="padding-top: 0px; padding-bottom: 0px;"
               >
-                <q-input
-                  filled
-                  v-model="obj.name"
-                  dense
-                  hint="Processor Name"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                />
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.swagger"
+                      dense
+                      hint="Swagger URL"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
 
-                <q-input
-                  filled
-                  v-model="obj.description"
-                  dense
-                  hint="Processor Description"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                />
-                <q-input
-                  filled
-                  v-model="obj.icon"
-                  dense
-                  hint="Icon Class"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                />
-                <q-toolbar style="margin-left: -30px;">
-                  <q-space />
-                  <q-checkbox
-                    v-model="obj.titletab"
-                    label="Title Tab"
-                    style="margin-left: 40px;"
-                  />
-                  <q-checkbox
-                    v-model="obj.enabled"
-                    label="Enabled"
-                    style="margin-left: 40px;"
+                    <q-input
+                      filled
+                      v-model="obj.icon"
+                      dense
+                      hint="Icon Class"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
+                    <q-toolbar style="margin-left: -30px;">
+                      <q-space />
+                      <q-checkbox
+                        v-model="obj.titletab"
+                        label="Title Tab"
+                        style="margin-left: 40px;"
+                      />
+                      <q-checkbox
+                        v-model="obj.enabled"
+                        label="Enabled"
+                        style="margin-left: 40px;"
+                      />
+                      <q-checkbox
+                        v-model="obj.endpoint"
+                        label="API"
+                        style="margin-left: 40px; margin-right: 50px;"
+                      />
+                    </q-toolbar>
+                  </q-form>
+                </div>
+              </q-tab-panel>
+              <q-tab-panel
+                name="apisettings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form class="q-gutter-md">
+                    <q-input
+                      filled
+                      v-model="obj.api"
+                      dense
+                      hint="API Endpoint"
+                      lazy-rules
+                      :disable="!obj.endpoint"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.websocket"
+                      dense
+                      hint="Websocket URL"
+                      lazy-rules
+                      :disable="!obj.streaming"
+                    />
+                  </q-form>
+                </div>
+              </q-tab-panel>
+              <q-tab-panel
+                name="versions"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <q-toolbar>
+                  <q-input
+                    style="width: 200px;"
+                    hint="Version"
+                    type="string"
+                    v-model.number="obj.version"
                   />
                 </q-toolbar>
-              </q-form>
-            </div>
+              </q-tab-panel>
+              <q-tab-panel
+                name="lambda"
+                v-if="obj.icon === lambdaIcon"
+                style="padding-top: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%;"
+                >
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.lamdaurl"
+                      dense
+                      hint="Lambda URL"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
+                  </q-form>
+                </div>
+              </q-tab-panel>
+              <q-tab-panel
+                name="database"
+                v-if="obj.icon === 'fas fa-database'"
+                style="padding-top: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%;"
+                >
+                  <q-form
+                    @submit="onSubmit"
+                    @reset="onReset"
+                    class="q-gutter-md"
+                  >
+                    <q-input
+                      filled
+                      v-model="obj.databasestring"
+                      dense
+                      hint="Connection String"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
+                  </q-form>
+                </div>
+              </q-tab-panel>
+            </q-tab-panels>
+          </q-tab-panel>
+          <q-tab-panel
+            name="concurrency"
+            style="padding: 20px;"
+            ref="concurrency"
+          >
+            <q-table
+              dense
+              :columns="deploycolumns"
+              :data="deploydata"
+              row-key="name"
+              flat
+              virtual-scroll
+              :rows-per-page-options="[10]"
+              style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+            >
+              <template #loading>
+                <q-inner-loading
+                  :showing="true"
+                  style="z-index: 9999999;"
+                >
+                  <q-spinner-gears
+                    size="50px"
+                    color="primary"
+                  />
+                </q-inner-loading>
+              </template>
+            </q-table>
+            <q-toolbar>
+              <q-input
+                style="width: 100px;"
+                hint="Number of CPUs"
+                type="number"
+                v-model.number="obj.concurrency"
+              />
+            </q-toolbar>
+            <q-inner-loading
+              :showing="deployLoading"
+              style="z-index: 9999999;"
+            >
+              <q-spinner-gears
+                size="50px"
+                color="primary"
+              />
+            </q-inner-loading>
+            <q-btn
+              style="position: absolute; bottom: 0px; right: 0px; margin-right: 20px;"
+              flat
+              icon="refresh"
+              class="bg-primary text-white"
+              color="primary"
+              @click="refreshDeployments(true)"
+              v-close-popup
+            />
           </q-tab-panel>
           <q-tab-panel
             name="schedule"
@@ -1532,16 +1714,6 @@
               label="Use CRON"
             />
           </q-tab-panel>
-          <q-tab-panel
-            name="security"
-            style="padding: 20px;"
-            ref="security"
-          />
-          <q-tab-panel
-            name="scaling"
-            style="padding: 20px;"
-            ref="scaling"
-          />
         </q-tab-panels>
       </q-card-section>
       <q-card-actions align="left">
@@ -1671,71 +1843,6 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="scalingview"
-    >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
-        Scaling view
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="scalingview = false"
-          v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
-    </q-card>
-
-    <q-card
       style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px; height: 450px;"
       v-if="historyview"
     >
@@ -1800,7 +1907,21 @@
           style="height:475px;width:auto"
           ref="scroll"
         >
-          <div v-for="(log, index) in consolelogs">
+          <div v-if="jsonmode">
+            <editor
+              @init="jsonEditorInit"
+              style="font-size: 1.5em;"
+              lang="javascript"
+              theme="chrome"
+              ref="jsonEditor"
+              width="100%"
+              height="475px"
+            />
+          </div>
+          <div
+            v-for="(log, index) in consolelogs"
+            v-if="!jsonmode"
+          >
             <div v-if="consolehistory">
               <pre style="font-weight: bold;">{{ log["date"] }}</pre>
               <pre>{{ log["output"] }}</pre>
@@ -1845,6 +1966,11 @@
           v-model="consolehistory"
           label="History"
           style="position: absolute; bottom: 0px; left: 210px;"
+        />
+        <q-checkbox
+          v-model="jsonmode"
+          label="JSON View"
+          style="position: absolute; bottom: 0px; left: 300px;"
         />
       </q-card-actions>
       <q-card-actions align="right">
@@ -1894,72 +2020,6 @@
         />
       </q-card-actions>
     </q-card>
-
-    <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="securityview"
-    >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
-        Security view
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="securityview = false"
-          v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
-    </q-card>
-
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="logsview"
@@ -2076,6 +2136,193 @@
         />
       </q-card-actions>
     </q-card>
+
+    <q-dialog
+      v-model="viewResultsDialog"
+      transition-show="none"
+      persistent
+    >
+      <q-card style="width: 70vw; max-width: 70vw; height: 80vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Results for {{ obj.name }}</q-item-label>
+              <q-space />
+              <q-select
+                dense
+                borderless
+                :options-dense="true"
+                style="font-size: 1em; margin-right: 20px; color: white;"
+                v-model="resulttype"
+                :options="['finished', 'error']"
+              />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="viewResultsDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-splitter
+          v-model="resultSplitter"
+          separator-style="background-color: #e3e8ec;height:5px"
+          horizontal
+          style="height: calc(100% - 40px);"
+        >
+          <template #before>
+            <q-table
+              dense
+              :columns="resultcolumns"
+              :data="resultdata"
+              row-key="name"
+              flat
+              :pagination="resultPagination"
+              style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+            >
+              <template #body="props">
+                <q-tr
+                  :props="props"
+                  :key="getUuid"
+                >
+                  <q-td
+                    :key="props.cols[0].name"
+                    :props="props"
+                  >
+                    {{ props.cols[0].value }}
+                  </q-td>
+                  <q-td
+                    :key="props.cols[1].name"
+                    :props="props"
+                  >
+                    <a
+                      class="text-secondary"
+                      @click="showResult(props.row.resultid)"
+                    >{{ props.cols[1].value }}</a>
+                  </q-td>
+                  <q-td
+                    :key="props.cols[2].name"
+                    :props="props"
+                  >
+                    <a
+                      class="text-secondary"
+                      @click="showOutput(props.cols[1].value)"
+                    >Output</a>
+                  </q-td>
+                  <q-td
+                    :key="props.cols[3].name"
+                    :props="props"
+                  >
+                    {{ props.cols[3].value }}
+                  </q-td>
+                  <q-td
+                    :key="props.cols[4].name"
+                    :props="props"
+                  >
+                    {{ props.cols[4].value }}
+                  </q-td>
+                  <q-td
+                    :key="props.cols[5].name"
+                    :props="props"
+                  >
+                    {{ props.cols[5].value }}
+                  </q-td>
+
+                  <q-td
+                    :key="props.cols[6].name"
+                    :props="props"
+                  >
+                    {{ props.cols[6].value }}
+                  </q-td>
+
+                  <q-td
+                    :key="props.cols[7].name"
+                    :props="props"
+                  >
+                    {{ props.cols[7].value }}
+                  </q-td>
+                  <q-td
+                    :key="props.cols[8].name"
+                    :props="props"
+                  >
+                    {{ props.cols[8].value }}
+                  </q-td>
+                </q-tr>
+              </template>
+            </q-table>
+          </template>
+          <template #after>
+            <div style="height: 100%; width: 100%;">
+              <editor
+                @init="resultEditorInit"
+                style="font-size: 1.5em;"
+                lang="javascript"
+                theme="chrome"
+                ref="resultEditor"
+                width="100%"
+                height="100%"
+              />
+            </div>
+            <q-inner-loading
+              :showing="resultdataloading"
+              style="z-index: 0;"
+            >
+              <q-spinner-gears
+                size="50px"
+                color="primary"
+              />
+            </q-inner-loading>
+          </template>
+        </q-splitter>
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            icon="refresh"
+            class="bg-secondary text-dark"
+            color="primary"
+            @click="refreshResultsData"
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-inner-loading
+          :showing="resultloading"
+          style="z-index: 99999;"
+        >
+          <q-spinner-gears
+            size="50px"
+            color="primary"
+          />
+        </q-inner-loading>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 <style>
@@ -2110,577 +2357,38 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
-import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
-import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
-import Console from 'components/Console'
-import Processor from '../Processor.vue'
-import BetterCounter from '../BetterCounter'
-import DataService from 'components/util/DataService'
-
-import http from 'src/http-common'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import ScriptTemplate from './ScriptTemplate'
 
 var Moment = require('moment') // require
 
 const tsdb = new TSDB()
 
-// use mixins to mix in methods, data, store for 'Processor' objects.
-// The template thus defers to the mixed in methods for its state
-// The Processor object mixin connects to the vuex store and websocket detail, and api as well.
-// This template simply acts as an input/output layer to t3he mixed in component
-// The mixed in component data fields are fully reactive in this Vue template because it's
-// mixed in.
-
-/*
-Context menu
-
-Configure
-Stop
-View Status History - Show list of logs with change in status
-View State - Any persistent state/env variables set by the processor
-View Usage - Docs
-View Connections - Table showing source and target plugs
-Center in View
-Change Color
-Group
-Copy
-Delete
-
-*/
 export default {
-  name: 'ScriptTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
-  components: {
-    editor: require('vue2-ace-editor'),
-    BetterCounter,
-    Console
-  },
-  watch: {
-    'obj.cron': function (val) {
-      this.startSchedule(val)
-    },
-    'obj.status': function (val) {
-      window.designer.$root.$emit('toolkit.dirty')
-    },
-    inBytes: function (val) {
-      // console.log('inBytes', val);
+  name: 'ApiTemplate',
+  extends: ScriptTemplate,
+  async mounted () {
+    try {
+      const api = await SwaggerParser.validate('https://apitools.dev/swagger-parser/online/sample/swagger.yaml')
+      console.log('API name: %s, Version: %s', api.info.title, api.info.version)
+    } catch (err) {
+      console.error(err)
     }
-  },
-  created () {
-    var me = this
-
-    this.plugIcon = mdiPowerSocketUs
-    this.braces = mdiCodeBraces
-    this.lambdaIcon = mdiLambda
-    this.abacusIcon = mdiAbacus
-    this.id = uuidv4()
-    console.log('THIS.ID', this.id)
-
-    console.log('me.tooltips ', me.tooltips)
-    console.log('start listening for show.tooltips')
-
-    window.root.$on('show.tooltips', (value) => {
-      console.log('start tooltips:', value)
-      me.tooltips = value
-      console.log('ME:', me)
-      console.log('TOOLTIPS', me.tooltips)
-    })
-
-    const avoid = ['icon', 'id']
-
-    this.$on('message.received', (msg) => {
-      if (msg.type && msg.type === 'ProcessorModel') {
-        if (msg.name === me.obj.name) {
-          if (msg.object.receipt > me.obj.receipt) {
-            console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (var key in me.obj) {
-              if (key in msg.object && !avoid.includes(key)) {
-                me.obj[key] = msg.object[key]
-              }
-            }
-          } else {
-            console.log('Ignoring update since receipt is obsolete', msg.object, me.obj)
-          }
-          console.log('PROCESSOR ID', me.obj.id)
-        }
-      }
-
-      if (msg.type && msg.type === 'trigger') {
-        me.triggerExecute()
-      }
-
-      if (msg.type && msg.type === 'output') {
-        if (msg.processor === this.obj.name) {
-          me.consolelogs.push({ date: new Date(), output: msg.output })
-          me.consolelogs = me.consolelogs.slice(0, 100)
-        }
-      }
-
-      if (msg.room && msg.room !== me.obj.name) {
-        return
-      }
-
-      if (msg.channel === 'task' && msg.state) {
-        var bytes = JSON.stringify(msg).length
-        window.root.$emit('message.count', 1)
-        window.root.$emit('message.size', bytes)
-        tsdb.series('inBytes').insert(
-          {
-            bytes: bytes
-          },
-          Date.now()
-        )
-
-        var timedata = tsdb.series('inBytes').query({
-          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
-          where: {
-            time: { is: '<', than: Date.now() - 5 * 60 }
-          }
-        })
-
-        // me.bytes_in_5min = averaged_data
-        me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
-        // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-        me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
-        // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-        me.bytes_in += bytes
-
-        me.calls_in = timedata[0].results.data.length
-        me.tasklogs.unshift(msg)
-        me.tasklogs = me.tasklogs.slice(0, 100)
-      }
-      if (msg.channel === 'task' && msg.message) {
-        const now = Date.now()
-        var timedata = tsdb.series('outBytes').query({
-          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
-          where: {
-            time: { is: '<', than: Date.now() - 5 * 60 }
-          }
-        })
-        console.log('TIMEDATA', timedata)
-        tsdb.series('outBytes').insert(
-          {
-            bytes: bytes
-          },
-          now
-        )
-        var json = JSON.parse(msg.message)
-        me.bytes_out += msg.message.length
-        me.bytes_out_5min.unshift(msg.message.length)
-        if (msg.state === 'postrun' && msg.duration) {
-          const moment = Moment(msg.duration, 'H:mm:ss.SSS')
-          // console.log('MOMENT', moment);
-          me.tasktime_out_5min.unshift(moment.seconds() + moment.milliseconds())
-          me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8)
-
-          me.task_time = json.duration
-
-          tsdb.series('durations').insert(
-            {
-              duration: moment,
-              seconds: moment.seconds(),
-              milliseconds: moment.milliseconds()
-            },
-            now
-          )
-        }
-        // console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
-        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-        me.calls_out = timedata[0].results.data.length
-        me.resultlogs.unshift(json)
-        me.resultlogs = me.resultlogs.slice(0, 100)
-      }
-      if (msg.channel === 'log' && msg.message) {
-        me.msglogs.unshift(msg)
-        me.msglogs = me.msglogs.slice(0, 100)
-      }
-      me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out)
-      me.totalbytes_5min = me.totalbytes_5min.slice(0, 8)
-      // console.log('TASKLOGS', me.tasklogs);
-      // console.log('MSGLOGS', me.msglogs);
-      if (msg.channel === 'task') {
-        this.updateBandwidthChart()
-      }
-    })
-    // Print some fields from the mixin component
-    console.log('BetterCounter: ', this.delayMs, this.internalPerformAsyncIncrement)
-    console.log('getcount', this.countLabel)
-    // Changing this.delayMs will cause it to be saved in the vuex store and sync'd with server.
-    // Any changes to the server will arrive through the customer Store via websockets, update the
-    // vuex model and cause any reactive components in this view to change as well.
-    setTimeout(() => {
-      me.delayMs = 500 // Update the reactive mixin data field
-      me.internalPerformAsyncIncrement()
-      me.delayMs += 10
-      me.count += 10
-      // me.name = 'MyProcessor 2!';
-    }, 3000)
-  },
-  computed: {
-    myhistory () {
-      var me = this
-
-      var myhist = []
-      window.toolkit.undoredo.undoStack.forEach((entry) => {
-        if (entry.obj.data.id === me.obj.id) {
-          myhist.push(entry)
-        }
-      })
-
-      return myhist
-    },
-    rateLimit (val) {
-    },
-    taskTime () {
-      return this.task_time
-    },
-    inBytes () {
-      return this.calls_in + ' (' + this.bytes_in_human + ' bytes)'
-    },
-    outBytes () {
-      return this.calls_out + ' (' + this.bytes_out_human + ' bytes)'
-    },
-    totalBytes () {
-      return this.calls_out + this.calls_in + ' (' + this.sizeOf(this.bytes_out + this.bytes_in) + ' bytes)'
-    },
-    bytes_in_human () {
-      return this.sizeOf(this.bytes_in)
-    },
-    bytes_out_human () {
-      return this.sizeOf(this.bytes_out)
-    },
-    readwrite () {
-      return this.obj.readwrite
-    }
-  },
-  mounted () {
-    var me = this
-
-    console.log('setId ', this.obj.id)
-    this.setId(this.obj.id)
-
-    console.log('SETTING PROCESSOR ID', this.id)
-    console.log('MOUNTED STORE', this.$store)
-    console.log('BYTES_IN', this.bytes_in)
-
-    d3.selectAll('p').style('color', 'white')
-    console.log('D3 ran')
-    // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({ name: 'darren', age: 51 })
-
-    setTimeout(() => {
-      console.log('ME.getNode()', me.getNode())
-      me.getNode().component = this
-    }, 3000)
-    this.$el.component = this
-    window.designer.$on('toggle.bandwidth', (bandwidth) => {
-      console.log('toggle bandwidth', bandwidth)
-      me.obj.bandwidth = bandwidth
-    })
-    window.designer.$root.$on('node.added', (node) => {
-      console.log('NODE ADDED', node)
-      this.updateSchemas()
-    })
-    window.designer.$root.$on(this.obj.id, (action) => {
-      if (action === 'configure') {
-        this.configview = !this.configview
-      }
-    })
-    window.designer.$root.$on('toolkit.dirty', (val) => {
-      this.updateSchemas()
-    })
-    window.root.$on('update.queues', (queues) => {
-      this.queues = queues.map((queue) => queue.name)
-    })
-    window.designer.$root.$emit('toolkit.dirty')
-    this.deployLoading = true
-    this.fetchCode()
-    this.updateBandwidthChart()
-    this.updatePorts()
-    this.startSchedule(this.obj.cron)
   },
   data () {
     return {
-      resulttype: 'finished',
-      queues: [],
-      argports: {},
-      portobjects: {},
-      funcs: [],
-      afuncs: [],
-      codewidth: 650,
-      queuecolumns: [
-        {
-          name: 'task',
-          label: 'Task',
-          field: 'task',
-          align: 'left'
-        },
-        {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
-          align: 'left'
-        },
-        {
-          name: 'id',
-          label: 'ID',
-          field: 'id',
-          align: 'left'
-        },
-        {
-          name: 'time',
-          label: 'Time',
-          field: 'time',
-          align: 'left'
-        },
-        {
-          name: 'parent',
-          label: 'Parent',
-          field: 'parent',
-          align: 'left'
-        },
-        {
-          name: 'routing_key',
-          label: 'Routing Key',
-          field: 'routing_key',
-          align: 'left'
-        }
-      ],
-      resultdata: [],
-      commitcode: '',
-      variablecolumns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'value',
-          label: 'Value',
-          field: 'value',
-          align: 'left'
-        },
-        {
-          name: 'scope',
-          label: 'Scope',
-          field: 'scope',
-          align: 'left'
-        }
-      ],
-      variabledata: [],
-      owner: 'darren',
-      historycolumns: [
-        {
-          name: 'action',
-          label: 'Action',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'object',
-          label: 'Object',
-          field: 'object',
-          align: 'left'
-        },
-        {
-          name: 'id',
-          label: 'Object ID',
-          field: 'id',
-          align: 'left'
-        },
-        {
-          name: 'owner',
-          label: 'Owner',
-          align: 'left'
-        }
-      ],
-      resultdataloading: false,
-      resultloading: false,
-      resultcolumns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'id',
-          label: 'Result',
-          field: 'id',
-          align: 'left'
-        },
-
-        {
-          name: 'id',
-          label: 'Output',
-          field: 'id',
-          align: 'left'
-        },
-        {
-          name: 'created',
-          label: 'Created',
-          field: 'created',
-          align: 'left'
-        },
-        {
-          name: 'state',
-          label: 'State',
-          field: 'state',
-          align: 'left'
-        },
-        {
-          name: 'lastupdated',
-          label: 'Last Updated',
-          field: 'lastupdated',
-          align: 'left'
-        },
-        {
-          name: 'owner',
-          label: 'Owner',
-          field: 'owner',
-          align: 'left'
-        },
-        {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
-          align: 'left'
-        },
-        {
-          name: 'task_id',
-          label: 'Task ID',
-          field: 'task_id',
-          align: 'left'
-        }
-      ],
-      resultPagination: {
-        sortBy: 'desc',
-        descending: false,
-        page: 1,
-        rowsPerPage: 20
-      },
-      queuePagination: {
-        sortBy: 'desc',
-        descending: false,
-        page: 1,
-        rowsPerPage: 20
-      },
-      viewResultsDialog: false,
-      resultSplitter: 50,
-      messageSplitter: 70,
-      types: [],
-      deployLoading: false,
-      errorMsg: '',
-      password: '',
-      tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
-      totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
-      bytes_in_5min: [0, 0, 0, 0, 0, 0, 0, 0],
-      bytes_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
-      bytes_in: 0,
-      bytes_out: 0,
-      calls_in: 0,
-      calls_out: 0,
-      task_time: 0,
-      login: false,
-      logtab: 'tasklog',
-      cardX: 0,
-      cardY: 0,
-      mousecard: false,
-      tab: 'settings',
-      error: false,
-      tasklogs: [],
-      resultlogs: [],
-      msglogs: [],
-      consolelogs: [],
-      editPort: false,
-      settingstab: 'settings',
-      refreshing: false,
-      consolehistory: false,
-      saving: false,
-      splitterModel: 50,
-      codeSplitterModel: 50,
-      series: [],
-      chartOptions: {
-        colors: ['#abbcc3', '#6b8791', '#465d6f', '#054848'],
-        chart: {
-          height: 350,
-          type: 'line',
-          zoom: {
-            enabled: false
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          width: [2, 3, 2],
-          curve: 'straight',
-          dashArray: [0, 8, 5]
-        },
-        title: {
-          text: 'Processor Bandwidth',
-          align: 'left'
-        },
-        legend: {
-          tooltipHoverFormatter: function (val, opts) {
-            return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
-          }
-        },
-        markers: {
-          size: 0,
-          hover: {
-            sizeOffset: 6
-          }
-        },
-        xaxis: {
-          type: 'category',
-          tickAmount: 6,
-          categories: []
-        },
-        tooltip: {
-          y: [
-            {
-              title: {
-                formatter: function (val) {
-                  return val
-                }
-              }
-            },
-            {
-              title: {
-                formatter: function (val) {
-                  return val
-                }
-              }
-            },
-            {
-              title: {
-                formatter: function (val) {
-                  return val
-                }
-              }
-            }
-          ]
-        },
-        grid: {
-          borderColor: '#f1f1f1'
-        }
-      },
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'fab fa-python',
+        icon: 'las la-cloud-upload-alt',
         titletab: false,
         receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
         y: 0,
+        swagger: 'https://apitools.dev/swagger-parser/online/sample/swagger.yaml',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -2699,9 +2407,9 @@ export default {
         streaming: true,
         api: '/api/processor',
         type: 'script',
-        name: 'Data Processor',
-        label: 'Data',
-        description: 'A data processor description',
+        name: 'Processor',
+        label: 'Script',
+        description: 'A script processor description',
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
@@ -2710,841 +2418,13 @@ export default {
         disabled: false,
         commit: '',
         gitrepo:
-          'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=ext-processor',
+          'https://github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
-        modulepath: 'ext/processors/data.py',
+        modulepath: 'ext/processors/sample.py',
         readwrite: 0,
         status: 'stopped',
         properties: []
-      },
-      text: '',
-      configview: false,
-      historyview: false,
-      consoleview: false,
-      logsview: false,
-      requirementsview: false,
-      notesview: false,
-      securityview: false,
-      environmentview: false,
-      scalingview: false,
-      dataview: false,
-      deletePortID: null,
-      sidecode: true,
-      bandwidth: true,
-      deploydata: [
-        {
-          name: 'Name1',
-          owner: 'postgres',
-          hostname: 'agent2',
-          processor: 'proc1',
-          cpus: 5,
-          status: 'running'
-        }
-      ],
-      gitdata: [],
-      gitcommit: '',
-      gitcolumns: [
-        {
-          name: 'hash',
-          label: 'Hash',
-          field: 'hash',
-          align: 'left'
-        },
-        {
-          name: 'author',
-          label: 'Author',
-          field: 'author',
-          align: 'left'
-        },
-        {
-          name: 'message',
-          label: 'Message',
-          field: 'message',
-          align: 'left'
-        },
-        {
-          name: 'date',
-          label: 'Date',
-          field: 'date',
-          align: 'left'
-        }
-      ],
-      deploycolumns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'owner',
-          label: 'Owner',
-          field: 'owner',
-          align: 'left'
-        },
-        {
-          name: 'hostname',
-          label: 'Hostname',
-          field: 'hostname',
-          align: 'left'
-        },
-        {
-          name: 'worker',
-          label: 'Worker',
-          field: 'worker',
-          align: 'left'
-        },
-        {
-          name: 'cpus',
-          label: 'CPUS',
-          field: 'cpus',
-          align: 'left'
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          field: 'status',
-          align: 'left'
-        }
-      ],
-      columns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'bytes',
-          align: 'center',
-          label: 'Bytes',
-          field: 'bytes'
-        },
-        {
-          name: 'time',
-          align: 'right',
-          classes: 'text-secondary',
-          label: 'Time',
-          field: 'time'
-        },
-        {
-          name: 'spark',
-          align: 'center',
-          classes: 'text-secondary',
-          label: 'Spark',
-          field: 'spark'
-        }
-      ],
-      data: [
-        {
-          name: 'Total',
-          bytes: 'totalBytes',
-          time: '5 min',
-          spark: {
-            name: 'readwrite',
-            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
-            value: [200, 390, 310, 460, 675, 410, 250, 240]
-          }
-        },
-        {
-          name: 'Out',
-          bytes: 'outBytes',
-          time: '5 min',
-          spark: {
-            name: 'readoutwrite',
-            labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
-            value: [460, 250, 240, 200, 675, 410, 390, 310]
-          }
-        }
-      ],
-      codeview: false,
-      pythonview: false,
-      gitview: false,
-      entityName: '',
-      columnName: '',
-      thecode: '',
-      tooltips: false,
-      tooltip: false,
-      code: false,
-      ports: {
-        next: false,
-        error: false,
-        join: false,
-        split: false,
-        complete: false
-      },
-      confirm: false,
-      deleteItem: false,
-      deleteConfirm: false,
-      prompt: false,
-      contentStyle: {
-        backgroundColor: 'rgba(0,0,0,0.02)',
-        color: '#555'
-      },
-
-      contentActiveStyle: {
-        backgroundColor: '#eee',
-        color: 'black'
-      },
-
-      thumbStyle: {
-        right: '2px',
-        borderRadius: '5px',
-        backgroundColor: '#027be3',
-        width: '5px',
-        opacity: 0.75
       }
-    }
-  },
-  methods: {
-    removePort (objid, col) {
-      debugger
-      window.toolkit.removePort(objid, col)
-      this.portobjects.remove(col)
-      this.ports
-      this.argobjects
-    },
-    updatePorts () {
-      var me = this
-      var node = window.designer.toolkit.getNode(this.obj)
-      debugger
-      console.log('UPDATE DATA PORTS', node.getPorts())
-
-      node.getPorts().forEach((port) => {
-        me.updateDataPort(port)
-      })
-    },
-    updateDataPort (port) {
-      this.portobjects[port.id] = port.data
-    },
-    triggerObject (portname) {
-      debugger
-      console.log('triggerObject', portname, this.portobjects[portname])
-      const objectname = this.portobjects[portname].name
-      const result = this.execute(this.obj.code + '\n\n' + objectname)
-      console.log('triggerObject result', result)
-      const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
-      result.then((result) => {
-        debugger
-        const resultstr = result.toString()
-        console.log('DATA TEMPLATE RESULT', resultstr)
-        console.log('PORT EDGES', _port.getEdges())
-        _port.getEdges().forEach((edge) => {
-          console.log('EDGE->NODE', edge, edge.target.getNode())
-          const options = edge.target.data
-          const target_id = edge.target.getNode().data.id
-          console.log('target node id', target_id)
-          const node = edge.target.getNode()
-          const code = node.data.code
-          debugger
-          window.root.$emit(target_id, code, options.function, options.name, result)
-          // send message to target_id with result, _port
-          // receiving node will realize this is an argument port and value
-          // and store the value internally until all the arguments for the function
-          // are present, then trigger the function with all the parameters
-        })
-      }, (error) => {
-
-            })
-
-      console.log('PORT RESULT ', _port, result)
-    },
-    triggerExecute () {
-      // For each data object port create a new object dict holding the values
-      // and append to the code string, then retrieve that object to obtain each
-      // port objects value in one evaluation
-
-      for (var portname in this.portobjects) {
-        this.triggerObject(portname)
-      }
-    },
-    updateBandwidthChart () {
-      var outBytes = tsdb.series('outBytes').query({
-        metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
-        where: {
-          time: { is: '<', than: Date.now() - 60 * 60 }
-        }
-      })
-      // this.series[1].data = outBytes[0].results.outBytes
-      var inBytes = tsdb.series('inBytes').query({
-        metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
-        where: {
-          time: { is: '<', than: Date.now() - 60 * 60 }
-        }
-      })
-      // this.series[0].data = inBytes[0].results.inBytes
-      var durations = tsdb.series('durations').query({
-        metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
-        where: {
-          time: { is: '<', than: Date.now() - 60 * 60 }
-        }
-      })
-      // this.series[2].data = durations[0].results.data
-
-      const xaxis = inBytes[0].results.time.map((x) => {
-        const d = new Date(x)
-        return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
-      })
-      console.log('XAXIS', xaxis)
-      this.chartOptions.xaxis.categories = xaxis
-      // console.log('updateBandwidthChart: inBytes', inBytes)
-      // console.log('updateBandwidthChart: outBytes', outBytes)
-      // console.log('updateBandwidthChart: durations', durations)
-      if (this.$refs.bandwidthChart) {
-        this.$refs.bandwidthChart.updateSeries([{
-          name: 'Bytes Out',
-          data: outBytes[0].results.outBytes.slice(0, 25)
-        }, {
-          name: 'Bytes In',
-          data: inBytes[0].results.inBytes.slice(0, 25)
-        }])
-      }
-    },
-    showCommit (hash, date) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
-        this.commitcode = code.data
-      })
-      this.gitcommit = hash
-      this.gitdate = date
-    },
-    getCommits () {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath).then((result) => {
-        this.gitdata = result.data
-      })
-    },
-    doLogin () {
-      var me = this
-
-      DataService.loginProcessor(this.obj.id, this.password)
-        .then((result) => {
-          me.login = false
-          console.log(result)
-        })
-        .catch((error) => {
-        })
-    },
-    addVariable () {
-      this.variabledata.push({
-        name: 'NAME',
-        value: 'VALUE',
-        scope: 'FLOW'
-      })
-    },
-    addToLibrary () {
-      window.root.$emit('add.library', this.obj)
-    },
-    cornerInView () {
-      var node = this.toolkit.getNode(this.obj)
-      window.toolkit.surface.setZoom(1.0)
-      window.toolkit.surface.centerOn(node, {
-        doNotAnimate: true,
-        onComplete: function () {
-          window.toolkit.surface.pan(-700, -440)
-        }
-      })
-    },
-    centerOnNode () {
-      var node = this.toolkit.getNode(this.obj)
-      window.toolkit.surface.setZoom(1.09)
-
-      window.toolkit.surface.centerOn(node, {
-        doNotAnimate: true,
-        onComplete: function () {
-          var loc = window.toolkit.surface.mapLocation(300, 50)
-          // console.log(loc);
-          window.toolkit.surface.pan(0, -200)
-        }
-      })
-    },
-    addFunc (func) {
-      console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')
-    },
-    showOutput (resultid) {
-      this.resultdataloading = true
-
-      DataService.getOutput(resultid).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(result.data)
-      })
-    },
-    showResult (resultid) {
-      this.resultdataloading = true
-
-      DataService.getResult(resultid).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(JSON.stringify(result.data, null, 2))
-      })
-    },
-    refreshResultsData () {
-      this.resultloading = true
-      DataService.getCalls(this.obj.name)
-        .then((calls) => {
-          this.resultdata = calls.data
-          this.resultloading = false
-        })
-        .catch((error) => {
-          this.resultloading = false
-        })
-    },
-    updateFunctions (data) {
-      /* Parse out named objects from editor */
-      const re = /(\w+)\s*=/gm
-
-      var matches = data.matchAll(re)
-
-      this.funcs = []
-
-      for (const match of matches) {
-        var name = match[0].split('=')[0].trim()
-        this.funcs.push({ name: name, args: [] })
-      }
-    },
-    fetchCode () {
-      var me = this
-      var url = new URL(this.obj.gitrepo)
-      console.log('URL ', url)
-      // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
-      var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
-      console.log('CODE', codeUrl)
-
-      if (this.obj.code === undefined) {
-        http.get(codeUrl).then((response) => {
-          console.log('CODE RESPONSE', response)
-
-          me.obj.code = response.data
-          // const re = /(def)\s(\w+)/g;
-          me.updateFunctions(response.data)
-
-          if (this.$refs.myEditor) {
-            const editor = this.$refs.myEditor.editor
-
-            if (editor) {
-              editor.session.setValue(me.obj.code)
-            }
-          }
-        })
-      }
-    },
-    copyNode () {
-      console.log('COPY NODE')
-
-      function findMatch (list, obj) {
-        for (var i = 0; i < list.length; i++) {
-          var o = list[i]
-          if (o.id === obj.id) {
-            return true
-          }
-        }
-        return false
-      }
-
-      function findEdge (list, edge) {
-        for (var i = 0; i < list.length; i++) {
-          var e = list[i]
-          if (e.source === edge.source || e.target === edge.target) {
-            return true
-          }
-        }
-        return false
-      }
-
-      function haveAllNodes (nodes, edge) {
-        var source = false
-        var target = false
-        for (var i = 0; i < nodes.length; i++) {
-          var node = nodes[i]
-          if (edge.source.split('.')[0] === node.id) source = true
-          if (edge.target.split('.')[0] === node.id) target = true
-        }
-        return source && target
-      }
-
-      var node = window.toolkit.getNode(this.obj.id)
-
-      if (!node) {
-        console.log('NODE NOT FOUND!')
-      }
-
-      var nodes = [node]
-
-      console.log('COPY SELECTED NODES:', nodes)
-      var exportData = window.toolkit.exportData()
-      var data = JSON.parse(JSON.stringify(exportData, undefined, '\t'))
-      var jsonData = {}
-      jsonData.nodes = []
-      jsonData.edges = []
-      jsonData.ports = []
-      for (var i = 0; i < data.nodes.length; i++) {
-        const n = data.nodes[i]
-        if (findMatch(nodes, n)) {
-          jsonData.nodes.push(n)
-        }
-      }
-      for (var i = 0; i < data.edges.length; i++) {
-        const e = data.edges[i]
-        if (haveAllNodes(jsonData.nodes, e)) {
-          jsonData.edges.push(e)
-        }
-      }
-      for (var i = 0; i < jsonData.nodes.length; i++) {
-        const node = jsonData.nodes[i]
-        for (var p = 0; p < data.ports.length; p++) {
-          var port = data.ports[p]
-          if (port.id.indexOf(node.id) > -1) {
-            jsonData.ports.push(port)
-          }
-        }
-      }
-
-      window.clipboard = jsonData
-      var nodes = []
-      for (var i = 0; i < window.clipboard.nodes.length; i++) {
-        nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
-      }
-      window.nodes = nodes
-      console.log('jsonData:', jsonData)
-      this.$store.commit('designer/setMessage', 'Node copied!')
-    },
-    closePortEdit () {
-      this.editPort = false
-    },
-    saveProcessor () {
-      var me = this
-
-      this.refreshing = true
-
-      this.obj.receipt = new Date()
-
-      // embed variabledata, requirements into this.obj.uistate
-
-      DataService.saveProcessor(this.obj)
-        .then(() => {
-          this.refreshing = false
-          this.error = false
-          this.errorMsg = ''
-          me.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Processor ' + me.obj.name + ' saved!',
-            icon: 'save'
-          })
-        })
-        .catch(() => {
-          this.error = true
-          this.errorMsg = 'Error saving processor'
-          this.refreshing = false
-        })
-    },
-    sizeOf (bytes) {
-      if (bytes === 0) {
-        return '0.00 B'
-      }
-      var e = Math.floor(Math.log(bytes) / Math.log(1024))
-      return (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
-    },
-    mouseEnter (event) {
-      this.cardX = event.clientX
-      this.cardY = event.clientY
-      this.mousecard = true
-    },
-    mouseExit (event) {
-      console.log('mouseExit')
-      // this.mousecard = false;
-    },
-    mouseMove (event) {
-      this.cardX = event.clientX
-      this.cardY = event.clientY
-      console.log(this.cardX, this.cardY)
-    },
-    setBandwidth (value) {
-      console.log('SET BANDWIDTH', value)
-      this.obj.bandwidth = value
-    },
-    onSubmit () {
-    },
-    onReset () {
-    },
-    loginProcessor () {
-      this.login = true
-    },
-    getUuid () {
-      return 'key_' + uuidv4()
-    },
-    rowStripe (row) {
-      if (row % 2 === 0) {
-        return 'background-color:white'
-      }
-    },
-    showPanel (view, show) {
-      this.configview = false
-      this.codeview = false
-      this.dataview = false
-      this.gitview = false
-      this.historyview = false
-      this.consoleview = false
-      this.environmentview = false
-      this.scalingview = false
-      this.notesview = false
-      this.requirementsview = false
-      this.logsview = false
-      this.securityview = false
-      this[view] = show
-      if (this[view + 'Setup']) {
-        this[view + 'Setup']()
-      }
-
-      if (show) {
-        // window.toolkit.surface.setZoom(1.0);
-
-        var node = this.toolkit.getNode(this.obj)
-        if (view === 'historyview') {
-          console.log(this.myhistory)
-        }
-        if (view === 'gitview') {
-          this.getCommits()
-        }
-
-      }
-    },
-    updateDescription (value, initialValue) {
-      console.log('updateDesc', value, initialValue)
-      this.renameConfirm = true
-      this.renameValue = value
-      this.initialValue = initialValue
-    },
-    updateName (value, initialValue, column) {
-      console.log('column edited ', column)
-      console.log('updateName', value, initialValue)
-      this.renameConfirm = true
-      this.renameValue = value
-      this.initialValue = initialValue
-      var edges = document.querySelectorAll('[data-source=' + column + ']')
-
-      edges.forEach((edge) => {
-        edge.innerText = value
-      })
-    },
-    gitEditorInit: function () {
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.gitEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-    },
-    reqEditorInit: function () {
-      var me = this
-
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.requirementsEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-      editor.on('change', function () {
-        me.obj.requirements = editor.getValue()
-      })
-    },
-    notesEditorInit: function () {
-      var me = this
-
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.notesEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-      editor.on('change', function () {
-        me.obj.notes = editor.getValue()
-      })
-    },
-    resultEditorInit: function () {
-      var me = this
-
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.resultEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-      editor.on('change', function () {
-        me.updateFunctions(editor.getValue())
-      })
-    },
-    editorInit: function () {
-      var me = this
-
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.myEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-      editor.on('change', function () {
-        me.updateFunctions(editor.getValue())
-      })
-      if (me.obj.code) {
-        editor.session.setValue(me.obj.code)
-      }
-    },
-    showCode () {
-      // this.code = true;
-    },
-    showTooltip (show) {
-      this.tooltip = show
-    },
-    confirmDeletePort (id) {
-      this.deletePortID = id
-      this.deleteItem = true
-    },
-    resetToolkit () {
-      console.log('emitting toolkit.dirty')
-      this.$root.$emit('toolkit.dirty', false)
-    },
-    valueChanged () {
-      console.log('emitting toolkit.dirty')
-      this.$root.$emit('toolkit.dirty', true)
-    },
-    deleteNode () {
-      window.toolkit.removeNode(this.obj)
-    },
-    removeColumn (column) {
-      // Delete all argument columns too
-      console.log('Removing column: ', column)
-
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i]
-        console.log(col)
-        if (col.id === column) {
-          console.log('Deleted column')
-          this.obj.columns.splice(i, 1)
-          break
-        }
-      }
-
-      var edges = window.toolkit.getAllEdges()
-
-      for (var i = 0; i < edges.length; i++) {
-        console.log(edge)
-        const edge = edges[i]
-        console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column)
-        if (edge.source.getNode().id === this.obj.id && edge.data.label === column) {
-          window.toolkit.removeEdge(edge)
-        }
-      }
-      // Delete all the edges for this column id
-      console.log(this.obj)
-      console.log('PORT ARGS', this.argports[column])
-      this.removePort(this.obj.id, column)
-
-      if (this.argports[column]) {
-        this.argports[column].forEach((portid) => {
-          this.removePort(this.obj.id, portid)
-        })
-      }
-      // window.renderer.repaint(this.obj);
-    },
-    addPort (port) {
-      port.background = 'white'
-      port.datatype = 'Column'
-      if (this.types.length > 0) {
-        port.schema = this.types[0]
-      } else {
-        port.schema = null
-      }
-      port.template = 'Object'
-      port.id = 'port' + uuidv4()
-      port.id = port.id.replace(/-/g, '')
-      port.description = 'A description'
-
-      port.queue = 'None'
-
-      console.log('Port:', port)
-      debugger
-      window.toolkit.addNewPort(this.obj.id, 'data', port)
-      window.renderer.repaint(this.obj)
-      console.log('Firing node updated...')
-
-      console.log(this.obj.columns)
-
-      return port
-    },
-    updateSchemas () {
-      setTimeout(() => {
-        var graph = window.toolkit.getGraph().serialize()
-
-        var schemas = []
-
-        graph.nodes.forEach((node) => {
-          if (node.type === 'schema') {
-            schemas.push(node.name)
-          }
-        })
-        this.types = schemas
-      })
-    },
-    addNewPort (func, type, icon) {
-      var me = this
-
-      var port = this.addPort({
-        name: func.function,
-        icon: icon,
-        type: type
-      })
-
-      this.ports[func.function] = true
-      this.portobjects[port.id] = port
-
-      this.updateSchemas()
-
-      if (type === 'Error') {
-
-      }
-    },
-    addErrorPort () {
-      if (this.error) {
-        this.$q.notify({
-          color: 'negative',
-          timeout: 2000,
-          position: 'bottom',
-          message: 'Error is already created',
-          icon: 'fas fa-exclamation'
-        })
-        return
-      }
-      this.addPort({
-        name: 'Error',
-        icon: 'fas fa-exclamation',
-        type: 'Error'
-      })
-      this.error = true
-    },
-    selectNode: function () {
-      console.log('selected: ', this.obj.id)
-      window.root.$emit('node.selected', this.obj)
-    },
-    deleteEntity: function (name) {
-      this.entityName = name
-      this.confirm = true
-    },
-    clicked: function () {
-      console.log('clicked')
     }
   }
 }

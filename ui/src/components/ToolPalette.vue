@@ -59,6 +59,23 @@
       <q-btn
         flat
         align="left"
+        icon="las la-cloud-upload-alt"
+        aria-label="API"
+        size="xl"
+        id="api"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          API
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
         icon="icon-processor"
         aria-label="Processor"
         size="large"

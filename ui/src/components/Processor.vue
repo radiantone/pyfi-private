@@ -33,6 +33,7 @@ export interface ProcessorState {
   id: string;
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
+  errorobjects: { [key: string]: any };
 }
 
 export const ProcessorMixin = Vue.extend({
@@ -40,7 +41,8 @@ export const ProcessorMixin = Vue.extend({
     return {
       name: 'Processor',
       portobjects: {},
-      argobjects: {}
+      argobjects: {},
+      errorobjects: {}
     }
   }
 })
@@ -70,7 +72,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         name: 'MyProcessor',
         id: 'any',
         portobjects: {},
-        argobjects: {}
+        argobjects: {},
+        errorobjects: {}
       }
     },
 
@@ -216,7 +219,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 output: JSON.stringify(answer)
               })
             }, (error: any) => {
-
+                console.log("PYTHON ERROR")
             })
           }
 

@@ -1735,6 +1735,22 @@ export default defineComponent({
           properties: []
         }
       }
+      var api = document.querySelector('#api')
+
+      api.data = {
+        node: {
+          icon: 'las la-cloud-upload-alt',
+          style: '',
+          type: 'api',
+          name: 'API',
+          label: 'API',
+          description: 'A web API',
+          package: 'my.python.package',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
 
       var processor = document.querySelector('#processor')
 
@@ -1923,7 +1939,7 @@ export default defineComponent({
       }
 
       //, chord, segment, map, reduce
-      var els = [script, processor, portin, router, portout, group, label, data, schema]
+      var els = [script, api, processor, portin, router, portout, group, label, data, schema]
 
       els.forEach((el) => {
         var data = el.data

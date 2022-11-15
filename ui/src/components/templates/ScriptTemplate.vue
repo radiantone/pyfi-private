@@ -63,21 +63,6 @@
       style="border: 1px solid black;"
     >
       <q-list dense>
-        <q-item
-          clickable
-          v-close-popup
-          @click="saveProcessor"
-        >
-          <q-item-section side>
-            <q-icon name="fas fa-save" />
-          </q-item-section>
-          <q-item-section
-            side
-            class="text-blue-grey-8"
-          >
-            Save
-          </q-item-section>
-        </q-item>
         <q-separator />
         <q-item
           clickable
@@ -144,21 +129,6 @@
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item
-          clickable
-          v-close-popup
-          @click="addToLibrary"
-        >
-          <q-item-section side>
-            <q-icon name="fas fa-power-off" />
-          </q-item-section>
-          <q-item-section
-            side
-            class="text-blue-grey-8"
-          >
-            Power Cycle
-          </q-item-section>
-        </q-item>
         <q-separator />
         <q-item
           clickable
@@ -668,23 +638,6 @@
             <q-item
               clickable
               v-close-popup
-              @click="showPanel('workerview', !workerview)"
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-hard-hat" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Workers
-              </q-item-section>
-            </q-item>
-            <q-separator />
-
-            <q-item
-              clickable
-              v-close-popup
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
@@ -812,7 +765,7 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <i
-            v-if="column.type !== 'Input' && column.type !== 'Plug'"
+            v-if="column.type !== 'Input' && column.type !== 'Plug' && column.type !== 'Error'"
             class="fa fa-play table-column-delete-icon"
             title="Trigger Port"
             style="margin-right: 5px;"
@@ -1922,77 +1875,6 @@
     </q-card>
 
     <q-card
-      style="
-        width: 100%;
-        width: 650px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -655px;
-        top: 0px;
-        height: calc(100%+10px);
-      "
-      v-if="workerview"
-    >
-      <q-inner-loading
-        :showing="workersLoading"
-        style="z-index: 9999999;"
-      >
-        <q-spinner-gears
-          size="50px"
-          color="primary"
-        />
-      </q-inner-loading>
-
-      <q-card-section style="padding: 15px; z-index: 999999; padding-bottom: 10px;">
-        <q-table
-          dense
-          :columns="workercolumns"
-          :data="workerdata"
-          row-key="name"
-          flat
-          virtual-scroll
-          :rows-per-page-options="[10]"
-          style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-        />
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="refresh"
-          class="bg-primary text-white"
-          color="primary"
-          @click="refreshWorkers"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Refresh
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions
-        align="right"
-        style="padding-top: 20px;"
-      >
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Close"
-          class="bg-secondary text-white"
-          color="primary"
-          @click="workerview = false"
-          v-close-popup
-        />
-      </q-card-actions>
-    </q-card>
-
-    <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="environmentview"
     >
@@ -2664,11 +2546,6 @@ export default {
         this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
       }
     },
-    workerview: function (newv, oldv) {
-      if (newv) {
-        this.refreshWorkers()
-      }
-    },
     inBytes: function (val) {
       // console.log('inBytes', val);
     }
@@ -2940,17 +2817,6 @@ export default {
     })
     // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
-    DataService.getDeployments(this.obj.name)
-      .then((deployments) => {
-        console.log('DEPLOYMENTS', deployments)
-        this.deployLoading = false
-        this.deploydata = deployments.data
-      })
-      .catch((err) => {
-        console.log('DEPLOYMENTS ERROR', err)
-        this.deployLoading = false
-      })
-
     this.fetchCode()
     this.updateBandwidthChart()
     this.updatePorts()
@@ -3156,7 +3022,6 @@ export default {
       consolehistory: false,
       jsonmode: false,
       saving: false,
-      workersLoading: false,
       splitterModel: 50,
       codeSplitterModel: 50,
       series: [],
@@ -3273,7 +3138,6 @@ export default {
       },
       text: '',
       configview: false,
-      workerview: false,
       historyview: false,
       consoleview: false,
       logsview: false,
@@ -3862,21 +3726,6 @@ export default {
           this.refreshing = false
         })
     },
-    refreshDeployments (mask) {
-      this.deployLoading = mask
-
-      console.log('Refreshing deployments!')
-      DataService.getDeployments(this.obj.name)
-        .then((deployments) => {
-          console.log('DEPLOYMENTS', deployments)
-          this.deployLoading = false
-          this.deploydata = deployments.data
-        })
-        .catch((err) => {
-          console.log('DEPLOYMENTS ERROR', err)
-          this.deployLoading = false
-        })
-    },
     sizeOf (bytes) {
       if (bytes === 0) {
         return '0.00 B'
@@ -3905,19 +3754,6 @@ export default {
     onSubmit () {
     },
     onReset () {
-    },
-    refreshWorkers () {
-      var me = this
-      this.workersLoading = true
-
-      DataService.getWorkers(this.obj.name)
-        .then((workers) => {
-          this.workerdata = workers.data
-          me.workersLoading = false
-        })
-        .catch((err) => {
-          me.workersLoading = false
-        })
     },
     loginProcessor () {
       this.login = true
@@ -4210,7 +4046,7 @@ export default {
       this.updateSchemas()
 
       if (type === 'Error') {
-        return
+        this.errorobjects[port.id] = port
       }
 
       const fname = func.function.replace('function: ', '')
@@ -4285,7 +4121,7 @@ export default {
           })
         }
       }, (error) => {
-
+          console.log("PYTHON ERROR")
             })
     },
     triggerRoute (portid, result) {
