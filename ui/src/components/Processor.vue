@@ -114,7 +114,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     mounted () {
 
     },
-
     methods: {
       getVersion () {
         if (this.$store.state.designer.version.indexOf("Free") >= 0) {
@@ -216,6 +215,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 duration: time,
                 output: JSON.stringify(answer)
               })
+            }, (error: any) => {
+
             })
           }
 

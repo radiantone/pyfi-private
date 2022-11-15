@@ -6,6 +6,7 @@ BUG:
 
 DONE
 
+- Implement plug routers DONE
 - Script block overlays a different blocks code panel FIXED
 - Trigger no argument function from Script DONE
 - Editing code in DataTemplate isn't restored when a flow is loaded FIXED
@@ -31,7 +32,11 @@ DONE
 
 TODO:
 
-- Implement plug routers 80%
+- Change History and JSON View checkboxes to toggle group
+- Download output history
+- Insert functions at front of list
+- JSON Schema validation
+- Error plug routing 50%
 
 - Capture pyodide output and display to console along with return value
 - Add 'Git' button in Script code view

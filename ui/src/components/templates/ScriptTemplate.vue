@@ -236,22 +236,6 @@
             Corner in View
           </q-item-section>
         </q-item>
-        <!--
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="fas fa-palette"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
-            Change Color
-          </q-item-section>
-        </q-item>
-        <q-separator />
-        <q-item clickable v-close-popup>
-          <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
-          </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Group</q-item-section>
-        </q-item>-->
         <q-separator />
 
         <q-item
@@ -428,28 +412,10 @@
             Bandwidth Toggle
           </q-tooltip>
         </div>
-        <!--
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-          @click="addNewPort('Complete', 'fas fa-flag-checkered')"
-        >
-          <i class="fas fa-flag-checkered" style="cursor: pointer;" />
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Complete Plug
-          </q-tooltip>
-        </div>-->
         <div
           class="text-secondary"
           style="margin-right: 10px;"
         >
-          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
-
           <q-btn-dropdown
             flat
             content-class="text-dark bg-white "
@@ -595,7 +561,7 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Start
+              Run All
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -1529,14 +1495,6 @@
             name="schedule"
             label="Schedule"
           />
-          <q-tab
-            name="security"
-            label="Security"
-          />
-          <q-tab
-            name="scaling"
-            label="Scaling"
-          />
         </q-tabs>
 
         <q-tab-panels
@@ -1569,10 +1527,6 @@
               <q-tab
                 name="apisettings"
                 label="API"
-              />
-              <q-tab
-                name="throttling"
-                label="Throttling"
               />
               <q-tab
                 name="versions"
@@ -1780,25 +1734,6 @@
                 </div>
               </q-tab-panel>
               <q-tab-panel
-                name="throttling"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <q-toolbar>
-                  <q-input
-                    style="width: 100px;"
-                    hint="Rate Limit/m"
-                    type="number"
-                    v-model.number="obj.ratelimit"
-                  />
-
-                  <q-checkbox
-                    v-model="obj.perworker"
-                    label="Per Worker"
-                  />
-                </q-toolbar>
-              </q-tab-panel>
-
-              <q-tab-panel
                 name="versions"
                 style="padding-top: 0px; padding-bottom: 0px;"
               >
@@ -1944,16 +1879,6 @@
               label="Use CRON"
             />
           </q-tab-panel>
-          <q-tab-panel
-            name="security"
-            style="padding: 20px;"
-            ref="security"
-          />
-          <q-tab-panel
-            name="scaling"
-            style="padding: 20px;"
-            ref="scaling"
-          />
         </q-tab-panels>
       </q-card-section>
       <q-card-actions align="left">
@@ -2154,71 +2079,6 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="scalingview"
-    >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
-        Scaling view
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="scalingview = false"
-          v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
-    </q-card>
-
-    <q-card
       style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px; height: 450px;"
       v-if="historyview"
     >
@@ -2396,72 +2256,6 @@
         />
       </q-card-actions>
     </q-card>
-
-    <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="securityview"
-    >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
-        Security view
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="history"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Revert to Last
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 90px; width: 100px;"
-          flat
-          icon="published_with_changes"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Publish to Network
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="securityview = false"
-          v-close-popup
-        />
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="removeColumn(deletePortID)"
-        />
-      </q-card-actions>
-    </q-card>
-
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="logsview"
@@ -2941,6 +2735,8 @@ export default {
           me.bytes_out += msg.output.length
 
           me.calls_in = msg.output.length
+          me.updateBandwidthChart()
+          // update resultdata
         }
         Object.entries(this.argobjects).forEach((tuple) => {
           const argobject = tuple[1]
@@ -4171,15 +3967,6 @@ export default {
         }
 
         this.refreshDeployments(true)
-        /*
-        window.toolkit.surface.centerOn(node, {
-          doNotAnimate: true,
-          onComplete: function () {
-            var loc = window.toolkit.surface.mapLocation(300, 50);
-            console.log(loc);
-            window.toolkit.surface.pan(-350, -300);
-          },
-        }); */
       }
     },
     updateDescription (value, initialValue) {
@@ -4474,6 +4261,10 @@ export default {
           },
           Date.now()
         )
+        me.updateBandwidthChart()
+
+        // update resultdata
+
         const _plugs = window.pyodide.globals.get('plugs').toJs()
         debugger
         this.getNode().getPorts().forEach((port) => {
@@ -4493,7 +4284,9 @@ export default {
             output: JSON.stringify(answer)
           })
         }
-      })
+      }, (error) => {
+
+            })
     },
     triggerRoute (portid, result) {
       debugger

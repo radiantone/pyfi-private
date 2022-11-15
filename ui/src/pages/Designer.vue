@@ -233,7 +233,7 @@
           style="min-height: 45px;"
           size="sm"
           icon="fas fa-upload"
-          :disabled="connected"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-class
@@ -260,21 +260,6 @@
             :offset="[10, 10]"
           >
             Redraw
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          style="min-height: 45px;"
-          @click="redraw"
-          size="sm"
-          icon="fas fa-refresh"
-        >
-          <q-tooltip
-            content-class
-            content-style="font-size: 16px"
-            :offset="[10, 10]"
-          >
-            Resync
           </q-tooltip>
         </q-btn>
         <q-btn
@@ -2436,6 +2421,13 @@ export default {
     }
   },
   methods: {
+    getVersion () {
+      if (this.$store.state.designer.version.indexOf("Free") >= 0) {
+        return "FREE"
+      } else {
+        return "DEV"
+      }
+    },
     notifyNode (id) {
       console.log('Notifying', id)
       this.$root.$emit(id, 'configure')

@@ -24,8 +24,6 @@
       <q-toolbar
         class="bg-accent"
         style="min-height: 40px; padding: 0px;"
-
-        :disabled="getVersion() === 'FREE'"
       >
         <q-btn
           color="secondary"
@@ -36,6 +34,7 @@
           icon="fa fa-list"
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -53,6 +52,7 @@
           icon="fa fa-bullseye"
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -70,6 +70,7 @@
           icon="fas fa-satellite-dish"
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -87,6 +88,7 @@
           icon="las la-play"
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -104,6 +106,7 @@
           icon="fa fa-play"
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -121,6 +124,7 @@
           icon="fa fa-stop"
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -138,6 +142,7 @@
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -155,6 +160,7 @@
           :icon="mdiEmailFast"
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -172,6 +178,7 @@
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -189,6 +196,7 @@
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
+          :disabled="getVersion() === 'FREE'"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -197,6 +205,7 @@
             Completed Tasks
           </q-tooltip>
         </q-btn>
+        <!--
         <q-separator
           vertical
           inset
@@ -219,7 +228,8 @@
             { icon: 'fa fa-database', value: 'model' },
             { icon: 'fab fa-python', value: 'code' },
           ]"
-        >
+          :disabled="getVersion() === 'FREE'"
+        >-->
           <template #one>
             <div style="font-size: 0.5em; margin-left: 20px;">
               <q-tooltip
