@@ -247,7 +247,7 @@
       style="background: white; height: 90px;"
     >
       <div
-        title="Script"
+        title="API Endpoint"
         style="
           margin-top: -15px;
           padding: 10px;
@@ -258,7 +258,7 @@
         "
       >
         <q-icon
-          name="fab fa-python"
+          name="las la-cloud-upload-alt"
           size="xl"
           color="secondary"
           style="margin-left:-5px;margin-top:-5px"
@@ -312,12 +312,6 @@
         style="position: absolute; left: 55px; top: 31px; font-size: 14px;"
       >
         {{ obj.description.substring(0, 35) + "..." }}
-      </span>
-      <span
-        class="text-blue-grey-8"
-        style="position: absolute; left: 55px; top: 51px; font-size: 11px;"
-      >
-        {{ obj.package }}
       </span>
       <span
         class="text-red"
@@ -686,21 +680,6 @@
             <q-item
               clickable
               v-close-popup
-              @click="showPanel('gitview', !gitview)"
-            >
-              <q-item-section side>
-                <q-icon name="fab fa-github" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Git
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
@@ -748,7 +727,6 @@
       </div>
     </div>
     <ul
-      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -1263,148 +1241,6 @@
       </q-card-actions>
     </q-card>
 
-    <!-- Git dialog -->
-    <q-card
-      style="
-        width: 950px;
-        z-index: 999;
-        display: block;
-        position: absolute;
-        right: -955px;
-        top: 0px;
-        height: 800px;
-        padding-bottom: 35px;
-      "
-      v-if="gitview"
-    >
-      <q-card-section style="height: 100%;">
-        <q-splitter
-          v-model="codeSplitterModel"
-          separator-style="background-color: #e3e8ec;height:5px"
-          horizontal
-          style="height: 100%;"
-        >
-          <template #before>
-            <div class="q-pa-md">
-              <q-table
-                dense
-                :columns="gitcolumns"
-                :data="gitdata"
-                row-key="name"
-                flat
-                :rows-per-page-options="[10]"
-                style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-              >
-                <template #body="props">
-                  <q-tr
-                    :props="props"
-                    :key="getUuid"
-                  >
-                    <q-td
-                      :key="props.cols[0].name"
-                      :props="props"
-                    >
-                      <a
-                        href="#"
-                        style="color: #6b8791; text-decoration: underline;"
-                        @click="showCommit(props.cols[0].value, props.cols[3].value)"
-                      >
-                        {{ props.cols[0].value }}
-                      </a>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[1].name"
-                      :props="props"
-                    >
-                      {{ props.cols[1].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[2].name"
-                      :props="props"
-                    >
-                      {{ props.cols[2].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[3].name"
-                      :props="props"
-                    >
-                      {{ props.cols[3].value }}
-                    </q-td>
-                  </q-tr>
-                </template>
-                <template #loading>
-                  <q-inner-loading
-                    :showing="true"
-                    style="z-index: 9999999;"
-                  >
-                    <q-spinner-gears
-                      size="50px"
-                      color="primary"
-                    />
-                  </q-inner-loading>
-                </template>
-              </q-table>
-            </div>
-          </template>
-
-          <template #after>
-            <div
-              class="q-pa-md"
-              style="height: 100%; padding: 0px;"
-            >
-              <editor
-                v-model="commitcode"
-                @init="gitEditorInit"
-                style="font-size: 1.5em;"
-                lang="python"
-                theme="chrome"
-                ref="gitEditor"
-                width="100%"
-                height="100%"
-              />
-            </div>
-          </template>
-        </q-splitter>
-      </q-card-section>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;" />
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          icon="refresh"
-          class="bg-primary text-white"
-          color="primary"
-          @click="getCommits"
-          v-close-popup
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Refresh
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-item-label style="position: absolute; left: 120px; bottom: 5px; font-size: 1.5em;">
-        {{ gitcommit }}
-        <span style="margin-right: 40px;" />
-        {{ gitdate }}
-      </q-item-label>
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Close"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="gitview = false"
-        />
-      </q-card-actions>
-    </q-card>
-
     <q-card
       style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
       v-if="editPort"
@@ -1470,14 +1306,6 @@
                 label="Processor"
               />
               <q-tab
-                name="apisettings"
-                label="API"
-              />
-              <q-tab
-                name="versions"
-                label="Version"
-              />
-              <q-tab
                 v-if="obj.icon === lambdaIcon"
                 name="lambda"
                 label="Lambda"
@@ -1519,6 +1347,22 @@
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
+                    <q-input
+                      filled
+                      v-model="obj.mode"
+                      dense
+                      hint="Mode"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.credentials"
+                      dense
+                      hint="Credentials"
+                      lazy-rules
+                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                    />
                     <q-toolbar style="margin-left: -30px;">
                       <q-space />
                       <q-checkbox
@@ -1537,97 +1381,6 @@
                         style="margin-left: 40px; margin-right: 50px;"
                       />
                     </q-toolbar>
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="apisettings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
-                  <q-form class="q-gutter-md">
-                    <q-input
-                      filled
-                      v-model="obj.api"
-                      dense
-                      hint="API Endpoint"
-                      lazy-rules
-                      :disable="!obj.endpoint"
-                    />
-                    <q-input
-                      filled
-                      v-model="obj.websocket"
-                      dense
-                      hint="Websocket URL"
-                      lazy-rules
-                      :disable="!obj.streaming"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="versions"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <q-toolbar>
-                  <q-input
-                    style="width: 200px;"
-                    hint="Version"
-                    type="string"
-                    v-model.number="obj.version"
-                  />
-                </q-toolbar>
-              </q-tab-panel>
-              <q-tab-panel
-                name="lambda"
-                v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.lamdaurl"
-                      dense
-                      hint="Lambda URL"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="database"
-                v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.databasestring"
-                      dense
-                      hint="Connection String"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
                   </q-form>
                 </div>
               </q-tab-panel>
@@ -1677,15 +1430,6 @@
                 color="primary"
               />
             </q-inner-loading>
-            <q-btn
-              style="position: absolute; bottom: 0px; right: 0px; margin-right: 20px;"
-              flat
-              icon="refresh"
-              class="bg-primary text-white"
-              color="primary"
-              @click="refreshDeployments(true)"
-              v-close-popup
-            />
           </q-tab-panel>
           <q-tab-panel
             name="schedule"
@@ -1720,10 +1464,10 @@
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
-          label="Save"
+          label="Generate"
           class="bg-accent text-primary"
           color="primary"
-          @click="saveProcessor"
+          @click="generateClient"
         >
           <q-tooltip
             anchor="top middle"
@@ -2369,17 +2113,76 @@ const tsdb = new TSDB()
 export default {
   name: 'ApiTemplate',
   extends: ScriptTemplate,
+  created () {
+  },
   async mounted () {
     try {
       const api = await SwaggerParser.validate('https://apitools.dev/swagger-parser/online/sample/swagger.yaml')
       console.log('API name: %s, Version: %s', api.info.title, api.info.version)
+      this.obj.swagger = 'https://petstore.swagger.io/v2/swagger.json'
+      this.obj.mode = "CORS"
+      this.obj.credentials = "same-origin"
     } catch (err) {
       console.error(err)
     }
   },
+  methods: {
+
+    async generateClient () {
+      var me = this
+
+      var code = ''
+      const get = async () => {
+        try {
+          const api = await SwaggerParser.validate(me.obj.swagger)
+          console.log('API name: %s, Version: %s', api.info.title, api.info.version)
+          return api
+        } catch (err) {
+          console.error(err)
+        }
+      }
+
+      await get().then((api) => {
+        console.log(api)
+        me.obj.name = api.info.title
+        me.obj.description = api.info.description
+        me.obj.version = api.info.version
+        // Generate python client wrappers
+        console.log("url = 'https://" + api.host + api.basePath + "'")
+        for (var path in api.paths) {
+          const pathobj = api.paths[path]
+          let _path = path.replace(/}/gm, '')
+          _path = _path.replace(/\/{/gm, '_')
+          _path = _path.replace(/\//gm, '_')
+          for (var method in pathobj) {
+            let func = 'def ' + method + _path
+            const params = pathobj[method].parameters
+            func += '('
+            for (const index in params) {
+              const param = params[index]
+              func = func + param.name
+              if (parseInt(index) < params.length - 1) {
+                func = func + ','
+              }
+            }
+            func = func + '):\n'
+            func = func + '    from pyodide.http import pyfetch\n'
+            func = func + '    import json\n'
+            func = func + "    data = json.dumps({'this':'that'})\n"
+            func = func + '    response = pyfetch(url+f"' + path + "\", mode=\"" + me.obj.mode + "\", cache=\"no-cache\", credentials=\"" + me.obj.credentials + "\", headers={'Content-Type': 'application/json'}, body=data, method=\"" + method.toUpperCase() + '")\n\n'
+            code = code + func + '\n'
+            console.log(func)
+          }
+        }
+        me.obj.code = code
+
+        me.updateFunctions(code)
+      })
+    }
+  },
   data () {
     return {
-      obj: {
+      myobj: {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-cloud-upload-alt',
         titletab: false,
@@ -2388,7 +2191,7 @@ export default {
         style: '',
         x: 0,
         y: 0,
-        swagger: 'https://apitools.dev/swagger-parser/online/sample/swagger.yaml',
+        swagger: 'https://petstore.swagger.io/v2/swagger.json',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -2407,9 +2210,9 @@ export default {
         streaming: true,
         api: '/api/processor',
         type: 'script',
-        name: 'Processor',
-        label: 'Script',
-        description: 'A script processor description',
+        name: 'API',
+        label: 'API',
+        description: 'An API block',
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',

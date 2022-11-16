@@ -1485,16 +1485,6 @@
                 name="versions"
                 label="Version"
               />
-              <q-tab
-                v-if="obj.icon === lambdaIcon"
-                name="lambda"
-                label="Lambda"
-              />
-              <q-tab
-                v-if="obj.icon === 'fas fa-database'"
-                name="database"
-                label="Database"
-              />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
               <q-tab-panel
@@ -1699,111 +1689,7 @@
                   />
                 </q-toolbar>
               </q-tab-panel>
-              <q-tab-panel
-                name="lambda"
-                v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.lamdaurl"
-                      dense
-                      hint="Lambda URL"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
-              <q-tab-panel
-                name="database"
-                v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%;"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md"
-                  >
-                    <q-input
-                      filled
-                      v-model="obj.databasestring"
-                      dense
-                      hint="Connection String"
-                      lazy-rules
-                      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                    />
-                  </q-form>
-                </div>
-              </q-tab-panel>
             </q-tab-panels>
-          </q-tab-panel>
-          <q-tab-panel
-            name="concurrency"
-            style="padding: 20px;"
-            ref="concurrency"
-          >
-            <q-table
-              dense
-              :columns="deploycolumns"
-              :data="deploydata"
-              row-key="name"
-              flat
-              virtual-scroll
-              :rows-per-page-options="[10]"
-              style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-            >
-              <template #loading>
-                <q-inner-loading
-                  :showing="true"
-                  style="z-index: 9999999;"
-                >
-                  <q-spinner-gears
-                    size="50px"
-                    color="primary"
-                  />
-                </q-inner-loading>
-              </template>
-            </q-table>
-            <q-toolbar>
-              <q-input
-                style="width: 100px;"
-                hint="Number of CPUs"
-                type="number"
-                v-model.number="obj.concurrency"
-              />
-            </q-toolbar>
-            <q-inner-loading
-              :showing="deployLoading"
-              style="z-index: 9999999;"
-            >
-              <q-spinner-gears
-                size="50px"
-                color="primary"
-              />
-            </q-inner-loading>
-            <q-btn
-              style="position: absolute; bottom: 0px; right: 0px; margin-right: 20px;"
-              flat
-              icon="refresh"
-              class="bg-primary text-white"
-              color="primary"
-              @click="refreshDeployments(true)"
-              v-close-popup
-            />
           </q-tab-panel>
           <q-tab-panel
             name="schedule"
@@ -3802,7 +3688,9 @@ export default {
           this.getCommits()
         }
 
-        this.refreshDeployments(true)
+        if (this.refreshDeployments) {
+          this.refreshDeployments(true)
+        }
       }
     },
     updateDescription (value, initialValue) {

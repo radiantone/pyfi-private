@@ -3,6 +3,7 @@
 BUG:
 
 - Can't search on Scratch flow until switching between tabs
+- API block doesn't render function columns
 
 DONE
 
@@ -25,6 +26,7 @@ DONE
 - Remove rate/m rate limit text on Script node DONE
 - Fill this.portobjects etc after loading a flow DONE
 - Remove queue UI from Script port edges DONE
+- Disable "Power Cycle" on non-processor nodes DONE
 - Remove "Refresh" icon from Data and Script nodes? DONE
 - Disable components for free version 80%
 - Drag and drop from Library FIXED
@@ -37,7 +39,6 @@ TODO:
 - Insert functions at front of list
 - JSON Schema validation
 - Error plug routing 50%
-
 - Capture pyodide output and display to console along with return value
 - Add 'Git' button in Script code view
 - Git table should show the filename affected by each commit
@@ -47,7 +48,6 @@ TODO:
 - In/Out/Total metrics update on Data and Script nodes TBD
 - Schema check for incoming data objects on Script argument ports TBD
 - Remove, ghost, disable Premium features in Free version TBD
-- Disable "Power Cycle" on non-processor nodes
 - View Results in Script node, refers to internally stored results list TBD
 - Error ports on Script node, when executing function produces an exception,
   - the error and input data is routed to error edges for that function
