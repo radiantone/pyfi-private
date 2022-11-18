@@ -1152,24 +1152,6 @@
         <q-btn
           style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
           flat
-          icon="published_with_changes"
-          class="bg-secondary text-accent"
-          color="primary"
-          v-close-popup
-          @click="fetchCode"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Fetch Code
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
-          flat
           icon="fab fa-python"
           class="bg-accent text-secondary"
           color="primary"
@@ -1465,7 +1447,7 @@
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
           label="Generate"
-          class="bg-accent text-primary"
+          class="bg-primary text-secondary"
           color="primary"
           @click="generateClient"
         >
@@ -2114,6 +2096,7 @@ export default {
   name: 'ApiTemplate',
   extends: ScriptTemplate,
   created () {
+      this.obj.gitrepo = ''
   },
   async mounted () {
     try {
@@ -2213,17 +2196,13 @@ export default {
         name: 'API',
         label: 'API',
         description: 'An API block',
-        package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
         interval: 5,
         useschedule: false,
         disabled: false,
         commit: '',
-        gitrepo:
-          'https://github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
-        modulepath: 'ext/processors/sample.py',
         readwrite: 0,
         status: 'stopped',
         properties: []

@@ -3,10 +3,16 @@
 BUG:
 
 - Can't search on Scratch flow until switching between tabs
-- API block doesn't render function columns
+  
+WORKING
+
+- API block consumes swagger JSON or YAML endpoint 80%
+- Error plug routing 50%
+- Disable components for free version 90%
 
 DONE
 
+- API block doesn't render function columns FIXED
 - Implement plug routers DONE
 - Script block overlays a different blocks code panel FIXED
 - Trigger no argument function from Script DONE
@@ -28,7 +34,6 @@ DONE
 - Remove queue UI from Script port edges DONE
 - Disable "Power Cycle" on non-processor nodes DONE
 - Remove "Refresh" icon from Data and Script nodes? DONE
-- Disable components for free version 80%
 - Drag and drop from Library FIXED
   - Added description sub heading to library entries DONE
 
@@ -38,7 +43,6 @@ TODO:
 - Download output history
 - Insert functions at front of list
 - JSON Schema validation
-- Error plug routing 50%
 - Capture pyodide output and display to console along with return value
 - Add 'Git' button in Script code view
 - Git table should show the filename affected by each commit

@@ -2898,7 +2898,6 @@ export default {
   },
   methods: {
     removePort (objid, col) {
-      debugger
       window.toolkit.removePort(objid, col)
       this.portobjects.remove(col)
       this.ports
@@ -2907,7 +2906,6 @@ export default {
     updatePorts () {
       var me = this
       var node = window.designer.toolkit.getNode(this.obj)
-      debugger
       console.log('UPDATE DATA PORTS', node.getPorts())
 
       node.getPorts().forEach((port) => {
@@ -2918,14 +2916,12 @@ export default {
       this.portobjects[port.id] = port.data
     },
     triggerObject (portname) {
-      debugger
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
       result.then((result) => {
-        debugger
         const resultstr = result.toString()
         console.log('DATA TEMPLATE RESULT', resultstr)
         console.log('PORT EDGES', _port.getEdges())
@@ -2936,7 +2932,6 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data.code
-          debugger
           window.root.$emit(target_id, code, options.function, options.name, result)
           // send message to target_id with result, _port
           // receiving node will realize this is an argument port and value
@@ -3476,7 +3471,6 @@ export default {
       port.queue = 'None'
 
       console.log('Port:', port)
-      debugger
       window.toolkit.addNewPort(this.obj.id, 'data', port)
       window.renderer.repaint(this.obj)
       console.log('Firing node updated...')

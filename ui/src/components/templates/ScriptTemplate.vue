@@ -782,6 +782,8 @@
             v-if="column.data"
             class="fas fa-envelope text-secondary"
             title="View Argument Data"
+            style="cursor:pointer"
+            @click="showArgumentData(column.data)"
           />
         </div>
         <div
@@ -1901,6 +1903,37 @@
         />
       </q-card-actions>
     </q-card>
+    <q-card
+      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      v-if="argumentview"
+    >
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+        <q-scroll-area
+          style="height:475px;width:auto"
+          ref="scroll"
+        >
+          <editor
+            @init="jsonArgumentEditorInit"
+            style="font-size: 1.5em;"
+            lang="javascript"
+            theme="chrome"
+            ref="jsonArgumentEditor"
+            width="100%"
+            height="475px"
+          />
+        </q-scroll-area>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="argumentview = false"
+        />
+      </q-card-actions>
+    </q-card>
 
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
@@ -2412,6 +2445,14 @@ export default {
     Console
   },
   watch: {
+    dataview: function (val) {
+      var me = this
+      if (val) {
+        setTimeout( () => {
+          me.updateBandwidthChart()
+        })
+      }
+    },
     'obj.status': function (val) {
       // window.designer.$root.$emit('toolkit.dirty')
     },
@@ -2478,7 +2519,6 @@ export default {
           console.log('PROCESSOR ID', me.obj.id)
         }
       }
-      debugger
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
@@ -2516,7 +2556,6 @@ export default {
         const func = msg.function
         // Find the port for the function
         // Emit result over the port edges
-        debugger
         for (var key in this.portobjects) {
           if (key === func) {
             me.triggerObject('func:' + key, msg.output)
@@ -2715,6 +2754,7 @@ export default {
       queues: [],
       argports: {},
       funcs: [],
+      argumentview: false,
       afuncs: [],
       codewidth: 950,
       queuecolumns: [
@@ -3255,9 +3295,18 @@ export default {
     }
   },
   methods: {
+    showArgumentData(data) {
+      var me = this
+      this.argumentview = !this.argumentview
 
+      if (this.argumentview) {
+        setTimeout(() => {
+          const editor = me.$refs.jsonArgumentEditor.editor
+          editor.session.setValue(JSON.stringify(data))
+        })
+      }
+    },
     removePort (objid, col) {
-      debugger
       const _port = window.toolkit.getNode(objid).getPort(col)
       window.toolkit.removePort(objid, col)
       const fname = _port.data.name.replace('function: ', '')
@@ -3265,7 +3314,6 @@ export default {
       if (!_port.data.argument) {
         for (const key in this.argobjects) {
           if (key.indexOf(fname + ':') === 0) {
-            debugger
             console.log('this is an arg')
             const arg = this.argobjects[key]
             delete this.ports[arg.name]
@@ -3282,11 +3330,9 @@ export default {
     updatePorts () {
       var me = this
       var node = window.designer.toolkit.getNode(this.obj)
-      debugger
       console.log('UPDATE PORTS', node.getPorts())
 
       node.getPorts().forEach((port) => {
-        debugger
         if (port.data.argument) {
           me.updateArgumentPort(port)
         } else {
@@ -3459,7 +3505,6 @@ export default {
       var matches = data.matchAll(re)
 
       this.funcs = []
-      debugger
       for (const match of matches) {
         var name = match[0].split('(')[0].split(' ').at(-1)
         var args = match[2].split(',')
@@ -3481,6 +3526,9 @@ export default {
     },
     fetchCode () {
       var me = this
+      if (this.obj.gitrepo === undefined || this.obj.gitrepo.length == 0) {
+        return
+      }
       var url = new URL(this.obj.gitrepo)
       console.log('FETCHCODE URL ', url)
       var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
@@ -3751,6 +3799,21 @@ export default {
         me.obj.notes = editor.getValue()
       })
     },
+    jsonArgumentEditorInit: function () {
+      var me = this
+
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.jsonArgumentEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        me.updateFunctions(editor.getValue())
+      })
+    },
     jsonEditorInit: function () {
       var me = this
 
@@ -3857,7 +3920,6 @@ export default {
       // window.renderer.repaint(this.obj);
     },
     addPort (port) {
-      debugger
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {
@@ -3953,7 +4015,6 @@ export default {
         // This holds the argument port keyed off function-name:argument-name
         // When incoming data events for arguments occur, it will reference the function:argument
         // so it can be associated with this port
-        debugger
         // Push the argument ports onto the function reference in order they appear
         me.portobjects[fname].push(argport)
         me.argobjects[fname + ':' + arg] = argport
@@ -3973,7 +4034,7 @@ export default {
       result.then((res) => {
         let answer = res
 
-        let end = Moment(new Date())
+        const end = Moment(new Date())
         const diff = end.diff(start)
         var time = Moment.utc(diff).format('HH:mm:ss.SSS')
 
@@ -3990,11 +4051,9 @@ export default {
         // update resultdata
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
-        debugger
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
             const plug_result = _plugs.get(port.data.name)
-            debugger
             me.triggerRoute(port.data.id, plug_result)
           }
         })
@@ -4009,11 +4068,11 @@ export default {
           })
         }
       }, (error) => {
-          console.log("PYTHON ERROR")
-            })
+        debugger
+        console.log('PYTHON ERROR')
+      })
     },
     triggerRoute (portid, result) {
-      debugger
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
@@ -4042,6 +4101,14 @@ export default {
           const node = edge.target.getNode()
           const code = node.data.code
           window.root.$emit(target_id, code, options.function, options.name, result)
+        })
+
+        const _plugs = window.pyodide.globals.get('plugs').toJs()
+        this.getNode().getPorts().forEach((port) => {
+          if (port.data.type === 'Plug') {
+            const plug_result = _plugs.get(port.data.name)
+            me.triggerRoute(port.data.id, plug_result)
+          }
         })
       } else {
         console.log('ERROR', 'No portname', portname)

@@ -180,13 +180,24 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }
           }
           if (complete) {
+            debugger
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
             let plugs = "plugs = {'output A':{}}\n"
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
-              const jsonarg = JSON.stringify(_arg.data)
+              let jsonarg
+
+              // If we already have JSON encoded data, then pass it along
+              // otherwise, convert it to JSON
+              try {
+                JSON.parse(_arg.data)
+                jsonarg = _arg.data
+              } catch (err) {
+                jsonarg = JSON.stringify(_arg.data)
+              }
+              debugger
               console.log('    ARG:', _arg, jsonarg)
               if (count > 0) {
                 call = call + ','
@@ -219,6 +230,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 output: JSON.stringify(answer)
               })
             }, (error: any) => {
+              debugger
                 console.log("PYTHON ERROR")
             })
           }
