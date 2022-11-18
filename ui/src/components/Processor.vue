@@ -202,11 +202,11 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               if (count > 0) {
                 call = call + ','
               }
-              call = call + jsonarg
+              call = call + "json.loads(" + JSON.stringify(jsonarg) + ")"
               count += 1
             })
             call = call + ')'
-            call = plugs + "\n" + call
+            call = plugs + "\n" + "import json\n" + call
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
