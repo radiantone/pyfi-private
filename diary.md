@@ -12,6 +12,8 @@ WORKING
 
 DONE
 
+- Pattern width abruptly shrinks FIXED
+- Minor data serialization issues with JSON and python FIXED
 - API block doesn't render function columns FIXED
 - Implement plug routers DONE
 - Script block overlays a different blocks code panel FIXED

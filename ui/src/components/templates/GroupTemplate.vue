@@ -150,7 +150,7 @@
       :style="
         'background-color:' +
           obj.color +
-          ';width:' +
+          ';min-width:' +
           myWidth +
           'px !important;height:' +
           myHeight +

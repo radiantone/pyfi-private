@@ -202,6 +202,11 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               if (count > 0) {
                 call = call + ','
               }
+
+              // We have to double encode and decode the data because the raw
+              // json output is not python object compatible. So we have to convert the raw
+              // JSON result to a JSON string which can then be converted to a python object
+              // with json.loads
               call = call + "json.loads(" + JSON.stringify(jsonarg) + ")"
               count += 1
             })

@@ -4080,13 +4080,13 @@ export default {
             component: GroupTemplate,
             constrain: false,
             orphan: true,
-            autoSize: true
+            autoSize: false
           },
           pattern: {
             component: PatternTemplate,
             constrain: false,
             orphan: true,
-            autoSize: true
+            autoSize: false
           }
         },
         ports: {
