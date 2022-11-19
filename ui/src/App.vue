@@ -9,23 +9,46 @@
 import { LoadingBar } from 'quasar'
 import { JsPlumbToolkitVue2Plugin } from 'jsplumbtoolkit-vue2'
 import StreamPlugin from './plugins/stream-plugin'
+import { domain, clientId } from '../auth_config.json'
+import { Auth0Plugin } from './auth'
+import router from './router'
 
-// import FloatingVue from 'floating-vue';
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-//import { createApp } from 'vue'
-//import { createPinia } from 'pinia'
-
-// import { VueTypedJs } from 'vue-typed-js';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires
 const VueTypedJs = require('vue-typed-js')
-//const pinia = createPinia()
+/*
+import { OktaAuth } from '@okta/okta-auth-js'
+import OktaVue from '@okta/okta-vue'
 
-//Vue.use(pinia)
+const oktaAuth = new OktaAuth({
+  issuer: 'https://dev-89101376.okta.com/oauth2/default',
+  clientId: '0oa7bobedt4cZXb4P5d7',
+  redirectUri: window.location.origin + '/login/callback',
+  scopes: ['openid', 'profile', 'email']
+})
+Vue.use(OktaVue, {
+  oktaAuth,
+  onAuthRequired: () => {
+    console.log('/login')
+  },
+  onAuthResume: () => {
+    console.log('/login')
+  }
+})
+*/
+Vue.use(Auth0Plugin, {
+  domain,
+  clientId,
+  onRedirectCallback: appState => {
+    router.push(
+      appState && appState.targetUrl
+        ? appState.targetUrl
+        : window.location.pathname
+    )
+  }
+})
 Vue.use(VueTypedJs)
-// import VueD3 from 'vue2-d3';
-// Vue.use(VueD3)
-// Vue.use(FloatingVue);
 Vue.use(StreamPlugin)
 Vue.use(Vuetify)
 Vue.use(JsPlumbToolkitVue2Plugin)

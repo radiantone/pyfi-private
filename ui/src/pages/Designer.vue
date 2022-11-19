@@ -103,6 +103,7 @@
           size="md"
           icon="far fa-play-circle"
           class="q-mr-xs"
+          @click="runFlow"
         >
           <q-tooltip
             content-class
@@ -2497,6 +2498,10 @@ export default {
           })
         })
       }
+    },
+    runFlow () {
+      debugger
+      this.$emit('trigger.data')
     },
     bandwidthToggle () {
       this.showBandwidth = !this.showBandwidth

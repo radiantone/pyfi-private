@@ -1109,6 +1109,9 @@ import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
 
+//import OktaSignIn from '@okta/okta-signin-widget'
+//import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
+
 var filesize = require('filesize')
 const size = filesize.partial({ base: 2, standard: 'jedec' })
 
@@ -1612,6 +1615,18 @@ export default defineComponent({
   },
   mounted () {
     var me = this
+/*
+    const signIn = new OktaSignIn({baseUrl: 'https://dev-89101376.okta.com'})
+
+      signIn.showSignInToGetTokens({
+        scopes: ['openid', 'profile'] // optional
+      }).then(function(tokens) {
+        // Store tokens
+      }).catch(function(error) {
+        // This function is invoked with errors the widget cannot recover from:
+        // Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR
+      });
+*/
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {

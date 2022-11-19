@@ -9,6 +9,31 @@ WORKING
 - API block consumes swagger JSON or YAML endpoint 80%
 - Error plug routing 50%
 - Disable components for free version 90%
+- Okta register/sign-in integration
+
+TODO:
+
+- Change History and JSON View checkboxes to toggle group
+- Download output history
+- Insert functions at front of list
+- JSON Schema validation
+- Capture pyodide output and display to console along with return value
+- Add 'Git' button in Script code view
+- Git table should show the filename affected by each commit
+- Add spinner icon to function port to indicate when it is running, remove when complete TBD
+- Package names in requirements for Data and Script are added to py-script/piodide TBD
+- Clicking mail icon shows stored value in JSON editor card TBD
+- In/Out/Total metrics update on Data and Script nodes TBD
+- Schema check for incoming data objects on Script argument ports TBD
+- Remove, ghost, disable Premium features in Free version TBD
+- View Results in Script node, refers to internally stored results list TBD
+- Error ports on Script node, when executing function produces an exception,
+  - the error and input data is routed to error edges for that function
+- Okta integration
+- Single Sign On with external account (gmail, etc) TBD
+- Account registration, email verification, backend TBD
+- Download code for flow PAID FEATURE TBD
+- Publish flow as service PAID FEATURE TBD (hosted services)
 
 DONE
 
@@ -39,29 +64,6 @@ DONE
 - Drag and drop from Library FIXED
   - Added description sub heading to library entries DONE
 
-TODO:
-
-- Change History and JSON View checkboxes to toggle group
-- Download output history
-- Insert functions at front of list
-- JSON Schema validation
-- Capture pyodide output and display to console along with return value
-- Add 'Git' button in Script code view
-- Git table should show the filename affected by each commit
-- Add spinner icon to function port to indicate when it is running, remove when complete TBD
-- Package names in requirements for Data and Script are added to py-script/piodide TBD
-- Clicking mail icon shows stored value in JSON editor card TBD
-- In/Out/Total metrics update on Data and Script nodes TBD
-- Schema check for incoming data objects on Script argument ports TBD
-- Remove, ghost, disable Premium features in Free version TBD
-- View Results in Script node, refers to internally stored results list TBD
-- Error ports on Script node, when executing function produces an exception,
-  - the error and input data is routed to error edges for that function
-- Okta integration
-- Single Sign On with external account (gmail, etc) TBD
-- Account registration, email verification, backend TBD
-- Download code for flow PAID FEATURE TBD
-- Publish flow as service PAID FEATURE TBD (hosted services)
 
 ## Nov 5, 2022
 

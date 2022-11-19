@@ -2192,8 +2192,12 @@ export default {
     })
 
     const avoid = ['icon', 'id']
+    window.designer.$on('trigger.data', () => {
+      me.triggerExecute()
+    })
 
     this.$on('message.received', (msg) => {
+      debugger
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
@@ -2940,7 +2944,7 @@ export default {
         })
       }, (error) => {
 
-            })
+      })
 
       console.log('PORT RESULT ', _port, result)
     },
@@ -3304,7 +3308,6 @@ export default {
         if (view === 'gitview') {
           this.getCommits()
         }
-
       }
     },
     updateDescription (value, initialValue) {

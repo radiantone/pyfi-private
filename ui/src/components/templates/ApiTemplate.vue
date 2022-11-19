@@ -1357,11 +1357,6 @@
                         label="Enabled"
                         style="margin-left: 40px;"
                       />
-                      <q-checkbox
-                        v-model="obj.endpoint"
-                        label="API"
-                        style="margin-left: 40px; margin-right: 50px;"
-                      />
                     </q-toolbar>
                   </q-form>
                 </div>

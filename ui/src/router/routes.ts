@@ -1,4 +1,5 @@
 import { RouteConfig } from 'vue-router'
+//import { LoginCallback } from '@okta/okta-vue'
 
 import MainLayout from 'layouts/MainLayout.vue'
 import Designer from 'src/pages/Designer.vue'
@@ -8,7 +9,7 @@ const routes: RouteConfig[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Designer.vue') }],
+    children: [{ path: '', component: () => import('pages/Designer.vue') }]
   },
   {
     path: '/app',
@@ -19,7 +20,9 @@ const routes: RouteConfig[] = [
   {
     path: '*',
     component: () => import('pages/Error404.vue')
-  }
+  } //,
+  //{ path: '/login/callback', component: LoginCallback }
+
 ]
 
 export default routes
