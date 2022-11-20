@@ -832,7 +832,6 @@ export default {
       this.$auth.logout({ returnTo: window.location.origin })
     },
     login () {
-      debugger
       this.$auth.loginWithPopup({width:"900px"})
     },
     getVersion () {

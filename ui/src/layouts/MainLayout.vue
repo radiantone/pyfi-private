@@ -773,6 +773,82 @@
         style="width: 100%;"
       />
     </q-drawer>
+
+    <q-dialog
+      v-if="!$auth.isAuthenticated"
+      v-model="showlogindialog"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;width: 400px; height: 250px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Login to ElasticCode</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fa fa-sign-in"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Try ElasticCode as a Guest or Login?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            label="Guest"
+            class="bg-primary text-secondary"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Login"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="login()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog
       v-model="viewQueueDialog"
       transition-show="none"
@@ -1264,6 +1340,9 @@ export default defineComponent({
   },
   methods: {
 
+    login () {
+      this.$auth.loginWithPopup({width:"900px"})
+    },
     getVersion () {
       if (this.$store.state.designer.version.indexOf('Free') >= 0) {
         return 'FREE'
@@ -1963,6 +2042,7 @@ export default defineComponent({
   },
   data () {
     return {
+      showlogindialog: true,
       purgeQueueName: null,
       confirmQueuePurge: false,
       queueDetailContent: '',

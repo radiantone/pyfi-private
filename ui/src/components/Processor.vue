@@ -6,10 +6,9 @@ import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
-import {PyProxy} from "pyodide";
-import Moment from "moment/moment";
+import { PyProxy } from 'pyodide'
+import Moment from 'moment/moment'
 const scheduler = new IntervalBasedCronScheduler(1000)
-
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -119,10 +118,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     },
     methods: {
       getVersion () {
-        if (this.$store.state.designer.version.indexOf("Free") >= 0) {
-          return "FREE"
+        if (this.$store.state.designer.version.indexOf('Free') >= 0) {
+          return 'FREE'
         } else {
-          return "DEV"
+          return 'DEV'
         }
       },
       startSchedule (cronstr: string) {
@@ -183,7 +182,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             debugger
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
-            let plugs = "plugs = {'output A':{}}\n"
+            const plugs = "plugs = {'output A':{}}\n"
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
@@ -191,11 +190,21 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
               // If we already have JSON encoded data, then pass it along
               // otherwise, convert it to JSON
-              try {
-                JSON.parse(_arg.data)
+              let isobj = false
+              if (_arg.data instanceof Object) {
+                isobj = true
+                try {
+                  JSON.parse(_arg.data)
+                  jsonarg = _arg.data
+                } catch (err) {
+                  if (_arg.data instanceof Object) {
+                    jsonarg = JSON.stringify(_arg.data)
+                  } else {
+                    jsonarg = _arg.data
+                  }
+                }
+              } else {
                 jsonarg = _arg.data
-              } catch (err) {
-                jsonarg = JSON.stringify(_arg.data)
               }
               debugger
               console.log('    ARG:', _arg, jsonarg)
@@ -207,22 +216,26 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               // json output is not python object compatible. So we have to convert the raw
               // JSON result to a JSON string which can then be converted to a python object
               // with json.loads
-              call = call + "json.loads(" + JSON.stringify(jsonarg) + ")"
+              if (isobj) {
+                call = call + 'json.loads(' + JSON.stringify(jsonarg) + ')'
+              } else {
+                call = call + jsonarg
+              }
               count += 1
             })
             call = call + ')'
-            call = plugs + "\n" + "import json\n" + call
+            call = plugs + '\n' + 'import json\n' + call
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
             const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
             result.then((res: any) => {
-              let _plugs = (window as any).pyodide.globals.get('plugs').toJs()
+              const _plugs = (window as any).pyodide.globals.get('plugs').toJs()
               let answer = res
               var end = Moment(new Date())
-              let diff = end.diff(start)
-              var time = Moment.utc(diff).format("HH:mm:ss.SSS")
+              const diff = end.diff(start)
+              var time = Moment.utc(diff).format('HH:mm:ss.SSS')
               if (res === Object(res)) {
                 answer = Object.fromEntries(res.toJs())
               }
@@ -236,7 +249,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               })
             }, (error: any) => {
               debugger
-                console.log("PYTHON ERROR")
+              console.log('PYTHON ERROR')
             })
           }
 
@@ -254,8 +267,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       async execute (data: any) {
         console.log('Running: ', data)
         // noinspection TypeScriptUnresolvedVariable
-        let plugs = "plugs = {'output A':{}}\n"
-        data = plugs + "\n" + data
+        const plugs = "plugs = {'output A':{}}\n"
+        data = plugs + '\n' + data
         const result = (window as any).pyodide.runPythonAsync(data)
         return result
       },
