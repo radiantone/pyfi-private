@@ -467,13 +467,28 @@
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: 70px;"
       >
-        {{this.$store.state.designer.version}}
+        {{ this.$store.state.designer.version }}
       </q-item-label>
       <q-item-label
         class="text-dark"
         style="white-space: nowrap;"
       >
-        Welcome, Darren!
+        <div v-if="!$auth.loading">
+          <!-- show login when not authenticated -->
+          <button
+            v-if="!$auth.isAuthenticated"
+            @click="login"
+          >
+            Log in
+          </button>
+          <!-- show logout when authenticated -->
+          <button
+            v-if="$auth.isAuthenticated"
+            @click="logout"
+          >
+            Log out {{ $auth.user.name }}
+          </button>
+        </div>
       </q-item-label>
       <q-btn
         flat
@@ -812,11 +827,19 @@ export default {
     })
   },
   methods: {
+
+    logout () {
+      this.$auth.logout({ returnTo: window.location.origin })
+    },
+    login () {
+      debugger
+      this.$auth.loginWithPopup({width:"900px"})
+    },
     getVersion () {
-      if (this.$store.state.designer.version.indexOf("Free") >= 0) {
-        return "FREE"
+      if (this.$store.state.designer.version.indexOf('Free') >= 0) {
+        return 'FREE'
       } else {
-        return "DEV"
+        return 'DEV'
       }
     },
     showStats (name, columns, objects) {

@@ -1615,18 +1615,7 @@ export default defineComponent({
   },
   mounted () {
     var me = this
-/*
-    const signIn = new OktaSignIn({baseUrl: 'https://dev-89101376.okta.com'})
-
-      signIn.showSignInToGetTokens({
-        scopes: ['openid', 'profile'] // optional
-      }).then(function(tokens) {
-        // Store tokens
-      }).catch(function(error) {
-        // This function is invoked with errors the widget cannot recover from:
-        // Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR
-      });
-*/
+    console.log("MAINLAYOUT $AUTH", this.$auth)
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {

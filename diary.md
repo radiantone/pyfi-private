@@ -37,6 +37,7 @@ TODO:
 
 DONE
 
+- Auth0 Integration 80%
 - Pattern width abruptly shrinks FIXED
 - Minor data serialization issues with JSON and python FIXED
 - API block doesn't render function columns FIXED
