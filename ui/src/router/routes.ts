@@ -1,8 +1,5 @@
 import { RouteConfig } from 'vue-router'
-//import { LoginCallback } from '@okta/okta-vue'
-
-import MainLayout from 'layouts/MainLayout.vue'
-import Designer from 'src/pages/Designer.vue'
+// import { LoginCallback } from '@okta/okta-vue'
 
 const routes: RouteConfig[] = [
 
@@ -20,9 +17,13 @@ const routes: RouteConfig[] = [
   {
     path: '*',
     component: () => import('pages/Error404.vue')
-  } //,
-  //{ path: '/login/callback', component: LoginCallback }
-
+  }, //,
+  // { path: '/login/callback', component: LoginCallback }
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('components/Profile.vue')
+  }
 ]
 
 export default routes

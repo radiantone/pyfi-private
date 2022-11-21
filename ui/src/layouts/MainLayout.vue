@@ -230,28 +230,47 @@
           ]"
           :disabled="getVersion() === 'FREE'"
         >-->
-          <template #one>
-            <div style="font-size: 0.5em; margin-left: 20px;">
-              <q-tooltip
-                content-style="font-size: 16px"
-                content-class="bg-black text-white"
-              >
-                Database Tools
-              </q-tooltip>
-            </div>
-          </template>
-          <template #two>
-            <div style="font-size: 0.5em; margin-left: 20px;" />
-
+        <template #one>
+          <div style="font-size: 0.5em; margin-left: 20px;">
             <q-tooltip
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Python Tools
+              Database Tools
             </q-tooltip>
-          </template>
+          </div>
+        </template>
+        <template #two>
+          <div style="font-size: 0.5em; margin-left: 20px;" />
+
+          <q-tooltip
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Python Tools
+          </q-tooltip>
+        </template>
         </q-btn-toggle>
         <q-space />
+        <q-btn
+          v-if="$auth.isAuthenticated"
+          dense
+          flat
+          color="secondary"
+          @click="upgrade"
+        >
+          Upgrade Plan
+        </q-btn>
+        <q-btn
+          v-if="!$auth.isAuthenticated"
+          dense
+          flat
+          color="secondary"
+          @click="checkout"
+        >
+          Subscribe
+        </q-btn>
+
         <q-input
           dark
           dense
@@ -775,81 +794,6 @@
     </q-drawer>
 
     <q-dialog
-      v-if="!$auth.isAuthenticated"
-      v-model="showlogindialog"
-      persistent
-    >
-      <q-card style="padding: 10px; padding-top: 30px;width: 400px; height: 250px;">
-        <q-card-section
-          class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              color: white;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-item-label>Login to ElasticCode</q-item-label>
-              <q-space />
-              <q-icon
-                class="text-primary"
-                name="fa fa-sign-in"
-              />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-card-section
-          class="row items-center"
-          style="height: 120px;"
-        >
-          <q-avatar
-            icon="fas fa-exclamation"
-            color="primary"
-            text-color="white"
-          />
-          <span class="q-ml-sm">
-            Try ElasticCode as a Guest or Login?
-          </span>
-        </q-card-section>
-
-        <q-card-actions align="left">
-          <q-btn
-            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-            flat
-            label="Guest"
-            class="bg-primary text-secondary"
-            color="primary"
-            v-close-popup
-          />
-        </q-card-actions>
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Login"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-            @click="login()"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog
       v-model="viewQueueDialog"
       transition-show="none"
       persistent
@@ -1184,9 +1128,10 @@ import ModelToolPalette from 'src/components/ModelToolPalette.vue'
 import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
+import { Auth0Lock } from 'auth0-lock'
 
-//import OktaSignIn from '@okta/okta-signin-widget'
-//import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
+// import OktaSignIn from '@okta/okta-signin-widget'
+// import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
 
 var filesize = require('filesize')
 const size = filesize.partial({ base: 2, standard: 'jedec' })
@@ -1214,6 +1159,66 @@ import {
 import { io, Socket } from 'socket.io-client'
 
 const socket = io('http://localhost')
+
+var options = {
+  theme: {
+    logo: 'images/elasticcode-noload.svg',
+    primaryColor: '#6b8791'
+  },
+  languageDictionary: {
+    title: '',
+    signUpTitle: ''
+  }
+}
+
+var lock = new Auth0Lock(
+  'kSiSLbwjWG3dTEPezTPARiC85QJJgjr8',
+  'dev-3583lxyoewhh4ymf.us.auth0.com',
+  options
+)
+
+var Auth = (function () {
+  var wm = new WeakMap()
+  var privateStore = {}
+  var lock
+
+  function Auth () {
+    this.lock = new Auth0Lock(
+      '<{yourClientId}>',
+      '<{yourDomain}>'
+    )
+    wm.set(privateStore, {
+      appName: 'example'
+    })
+  }
+
+  Auth.prototype.getProfile = function () {
+    return wm.get(privateStore).profile
+  }
+
+  Auth.prototype.authn = function () {
+    // Listening for the authenticated event
+    this.lock.on('authenticated', function (authResult) {
+      // Use the token in authResult to getUserInfo() and save it if necessary
+      this.getUserInfo(authResult.accessToken, function (error, profile) {
+        if (error) {
+          // Handle error
+          return
+        }
+        debugger
+        // we recommend not storing Access Tokens unless absolutely necessary
+        wm.set(privateStore, {
+          accessToken: authResult.accessToken
+        })
+
+        wm.set(privateStore, {
+          profile: profile
+        })
+      })
+    })
+  }
+  return Auth
+}())
 
 export default defineComponent({
   name: 'MainLayout',
@@ -1339,9 +1344,120 @@ export default defineComponent({
     }
   },
   methods: {
+    loginLock () {
+      lock.show()
+    },
+    checkout () {
+      const cbInstance = Chargebee.getInstance()
+      // cbInstance.openCheckout()
 
+      const cart = cbInstance.getCart()
+      const planPriceId = 'cbdemo_basic-USD-monthly' // Plan price point ID is used to identify the product
+      const planPriceQuantity = 1
+      const product = cbInstance.initializeProduct(planPriceId, planPriceQuantity)
+      cart.replaceProduct(product)
+
+      // Adding an addon
+      // product.addAddon({
+      //  id: 'silver-pass-USD-monthly', // Addon price point ID
+      //  quantity: 2
+      // })
+
+      // Adding a coupon
+      // product.addCoupon("fourty")
+
+      // Dynamically changing Plan quantity using setPlanQuantity
+      // product.setPlanQuantity(planPriceQuantity);
+
+      // Removing Addons using removeAddon
+      // product.removeAddon("silver-pass-USD-monthly"); // Addon price point ID
+
+      // Passing values for custom fields
+      // product.setCustomData({referral: "yes", corporate_agent: "no"});
+
+      // Opening the checkout
+      cart.proceedToCheckout()
+    },
+    upgrade (plan) {
+      this.upgradeDialog = false
+      var me = this
+      const cbInstance = Chargebee.getInstance()
+      const cart = cbInstance.getCart()
+      cart.setCustomer({ email: this.$auth.user.name })
+      cbInstance.setCheckoutCallbacks(function (cart) {
+        return {
+          loaded: function () {
+            console.log('checkout opened')
+          },
+          close: function () {
+            console.log('checkout closed')
+          },
+          success: function (hostedPageId) {
+            console.log('CART', JSON.parse(JSON.stringify(cart)))
+            me.subscriptions()
+            // Show dialog or notify about plan success.
+            me.subscribed = true
+          },
+          step: function (value) {
+            // value -> which step in checkout
+            console.log(value)
+          }
+        }
+      })
+      const product = cbInstance.initializeProduct('cbdemo_basic-USD-monthly')
+      // product.addAddon({ id: 'worldmap' })
+      // product.addAddon({ id: 'storyboard' })
+      cart.replaceProduct(product)
+      this.cart = cart
+      this.cart.proceedToCheckout()
+    },
+    manage () {
+      const cbInstance = Chargebee.getInstance()
+      var cbPortal = cbInstance.createChargebeePortal()
+      console.log('Subscriptions opened')
+      cbInstance.setCheckoutCallbacks(function (cart) {
+        return {
+          loaded: function () {
+            console.log('checkout opened')
+          },
+          close: function () {
+            console.log('checkout closed')
+            window.location.reload()
+          },
+          success: function (hostedPageId) {
+            console.log('checkout success')
+            window.location.reload()
+          },
+          step: function (value) {
+            console.log('checkout step')
+            // value -> which step in checkout
+            console.log(value)
+          }
+        }
+      })
+      cbPortal.open({
+        subscriptionCancelled: (data) => {
+          console.log('subscription cancelled')
+
+          // TODO: Show warning dialog about reload
+
+          window.location.reload()
+        },
+        subscriptionReactivated: (data) => {
+          console.log('subscription reactivated')
+          window.location.reload()
+        },
+        subscriptionChanged: (data) => {
+          console.log('subscription changed')
+          window.location.reload()
+        },
+        close: () => {
+          console.log('Portal closed')
+        }
+      })
+    },
     login () {
-      this.$auth.loginWithPopup({width:"900px"})
+      this.$auth.loginWithPopup({ width: '900px' })
     },
     getVersion () {
       if (this.$store.state.designer.version.indexOf('Free') >= 0) {
@@ -1694,7 +1810,7 @@ export default defineComponent({
   },
   mounted () {
     var me = this
-    console.log("MAINLAYOUT $AUTH", this.$auth)
+    console.log('MAINLAYOUT $AUTH', this.$auth)
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
@@ -1738,7 +1854,10 @@ export default defineComponent({
       this.queuename = queue
       this.viewQueueDialog = true
     })
-
+    this.$root.$on('login', this.loginLock)
+    this.$root.$on('manage.subscription', this.manage)
+    this.$root.$on('upgrade.subscription', this.upgrade)
+    this.$root.$on('checkout', this.checkout)
     this.$root.$on('open.library', () => {
       console.log('open.library')
       this.librarydrawer = !this.librarydrawer
@@ -2042,7 +2161,6 @@ export default defineComponent({
   },
   data () {
     return {
-      showlogindialog: true,
       purgeQueueName: null,
       confirmQueuePurge: false,
       queueDetailContent: '',

@@ -461,11 +461,11 @@
         width="100"
         :options="chartOptions"
         :series="series"
-        style="margin-right: 150px;"
+        style="margin-right: 80px;"
       />
       <q-item-label
         class="text-accent"
-        style="white-space: nowrap;margin-top:40px;margin-right: 70px;"
+        style="white-space: nowrap;margin-top:40px;margin-right: 20px;"
       >
         {{ this.$store.state.designer.version }}
       </q-item-label>
@@ -531,6 +531,23 @@
                 New Queue
               </q-item-section>
             </q-item>
+
+            <q-item
+              clickable
+              v-close-popup
+              @click="checkout"
+            >
+              <q-item-section side>
+                <q-icon name="far fa-envelope" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Checkout
+              </q-item-section>
+            </q-item>
+
             <q-separator />
             <q-item
               clickable
@@ -691,6 +708,22 @@
                 Profile
               </q-item-section>
             </q-item>
+
+            <q-item
+              clickable
+              v-close-popup
+              @click="manage"
+            >
+              <q-item-section side>
+                <q-icon name="far fa-envelope" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Manage Plan
+              </q-item-section>
+            </q-item>
             <q-separator />
             <q-item
               clickable
@@ -832,7 +865,9 @@ export default {
       this.$auth.logout({ returnTo: window.location.origin })
     },
     login () {
-      this.$auth.loginWithPopup({width:"900px"})
+      //this.$auth.loginWithPopup({width:"900px"})
+
+      this.$root.$emit('login')
     },
     getVersion () {
       if (this.$store.state.designer.version.indexOf('Free') >= 0) {
@@ -885,6 +920,15 @@ export default {
     },
     newQueue () {
       this.$root.$emit('new.queue')
+    },
+    checkout () {
+      this.$root.$emit('checkout')
+    },
+    manage () {
+      this.$root.$emit('manage.subscription')
+    },
+    upgrade () {
+      this.$root.$emit('upgrade.subscription')
     }
   },
   data () {
