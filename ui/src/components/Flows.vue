@@ -1,9 +1,12 @@
 <template>
-  <div style="height: fit;">
+  <div style="height: fit">
     <div
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
     >
+      <q-inner-loading :showing="true" v-if="!$auth.isAuthenticated" style="z-index:9999">
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading>
       <q-breadcrumbs>
         <div style="margin-left: 20px;">
           <q-toolbar style="padding: 0px;">
@@ -426,19 +429,26 @@ export default {
   },
   props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
   mounted () {
-    this.synchronize()
-    this.$root.$on('update.' + this.collection, this.synchronize)
-    this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
-    this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
+
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
       if (val) {
         console.log("FLOWS AUTHENICATED")
+        this.$root.$on('update.' + this.collection, this.synchronize)
+        this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
+        this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
+        this.synchronize()
+      } else {
+
+        this.$root.$off('update.' + this.collection, this.synchronize)
+        this.$root.$off('save.flow.' + this.flowid, this.saveFlowEvent)
+        this.$root.$off('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
       }
     }
   },
   beforeDestroy () {
+    this.$root.$off('update.' + this.collection, this.synchronize)
     this.$root.$off('save.flow' + this.flowid)
     this.$root.$off('save.flow.to.folder.' + this.flowid)
   },
@@ -496,6 +506,27 @@ export default {
       // DataService call to create or save flow in foldername
       // with flowcode as the code
     },
+    async deleteObject () {
+      console.log('DELETE: ', this.deleteobjectid)
+      var me = this
+      var res = await DataService.deleteFile(this.deleteobjectid)
+        .then((result) => {
+          me.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Delete flow ' + this.deleteobjectname + ' succeeded!',
+            icon: 'folder'
+          })
+          me.synchronize()
+        })
+        .catch((error) => {
+          console.log(error.response)
+          me.loading = false
+          me.notifyMessage('negative', 'error', error.response.data.message)
+        })
+    },
+
     saveToFolderEvent (name, uuid, id, flow) {
       this.flowcode = flow
       this.flowname = name
@@ -653,26 +684,6 @@ export default {
     navigate (folder) {
       this.foldername = folder
       this.synchronize()
-    },
-    async deleteObject () {
-      console.log('DELETE: ', this.deleteobjectid)
-      var me = this
-      var res = await DataService.deleteFile(this.deleteobjectid)
-        .then((result) => {
-          me.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Delete flow ' + this.deleteobjectname + ' succeeded!',
-            icon: 'folder'
-          })
-          me.synchronize()
-        })
-        .catch((error) => {
-          console.log(error.response)
-          me.loading = false
-          me.notifyMessage('negative', 'error', error.response.data.message)
-        })
     },
     showDeleteObject (item) {
       this.deleteobjectname = item.name

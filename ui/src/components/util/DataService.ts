@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import http from 'src/http-common'
-const crypto = require('crypto')
-
 
 class DataService {
   getFiles (collection: string, folder: string): Promise<any> {
@@ -60,7 +58,6 @@ class DataService {
   getQueues (): Promise<any> {
     return http.get('/api/queues')
   }
-
 
   saveProcessor (processor: any): Promise<any> {
     return http.post('/api/processor/' + processor.name, processor)

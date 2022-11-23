@@ -4,6 +4,13 @@
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
     >
+      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading>
       <q-breadcrumbs>
         <div style="margin-left: 20px;">
           <q-toolbar style="padding: 0px;">
@@ -37,7 +44,7 @@
               flat
               v-model="newfolder"
               class="bg-white text-primary"
-            ></q-input>
+            />
             <q-btn
               dense
               flat
@@ -80,7 +87,13 @@
       </q-breadcrumbs>
     </div>
     <q-scroll-area class="fit">
-      <q-list bordered separator class="fit" style="width: 100%;" id="patterns">
+      <q-list
+        bordered
+        separator
+        class="fit"
+        style="width: 100%;"
+        id="patterns"
+      >
         <q-item
           v-for="item in items"
           :key="item.id"
@@ -98,10 +111,16 @@
           jtk-is-group="true"
         >
           <q-item-section avatar>
-            <q-icon name="fas fa-project-diagram" class="text-secondary" />
+            <q-icon
+              name="fas fa-project-diagram"
+              class="text-secondary"
+            />
           </q-item-section>
           <q-item-section>
-            <table border="0" width="400px">
+            <table
+              border="0"
+              width="400px"
+            >
               <tr>
                 <td width="150px">
                   <a
@@ -113,10 +132,14 @@
                       min-width: 250px;
                     "
                     @click="selectFileOrFolder(item)"
-                    >{{ item.filename }}</a
+                  >{{ item.filename }}</a>
+                </td>
+                <td align="left">
+                  <img
+                    :src="item.image"
+                    height="55px"
                   >
                 </td>
-                <td align="left"><img :src="item.image" height="55px" /></td>
               </tr>
             </table>
           </q-item-section>
@@ -132,10 +155,13 @@
               style="color: #abbcc3;"
               @click="editObject(item)"
             >
-              <q-tooltip content-style="font-size: 16px" :offset="[10, 10]">
+              <q-tooltip
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
                 Edit
-              </q-tooltip></q-btn
-            >
+              </q-tooltip>
+            </q-btn>
             <q-btn
               flat
               dense
@@ -144,7 +170,10 @@
               style="color: #abbcc3;"
               @click="showDeleteObject(item)"
             >
-              <q-tooltip content-style="font-size: 16px" :offset="[10, 10]">
+              <q-tooltip
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
                 Delete
               </q-tooltip>
             </q-btn>
@@ -154,7 +183,10 @@
     </q-scroll-area>
 
     <q-inner-loading :showing="loading">
-      <q-spinner-gears size="50px" color="primary" />
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
   </div>
 </template>
@@ -166,34 +198,34 @@
 </style>
 
 <script>
-import { v4 as uuidv4 } from 'uuid';
-import DataService from './util/DataService';
+import { v4 as uuidv4 } from 'uuid'
+import DataService from './util/DataService'
 
-var dd = require('drip-drop');
+var dd = require('drip-drop')
 
 export default {
   name: 'Patterns',
-  created() {},
+  created () {},
   methods: {
-    synchronize() {
-      var me = this;
-      this.loading = true;
-      console.log('synchronizing');
-      var files = DataService.getFiles('patterns', 'Home');
+    synchronize () {
+      var me = this
+      this.loading = true
+      console.log('synchronizing')
+      var files = DataService.getFiles('patterns', 'Home')
 
       files
         .then((result) => {
-          me.loading = false;
-          me.items = me.patterns;
-          console.log('PATTERNS', result);
-          console.log('ITEMS', me.items);
+          me.loading = false
+          me.items = me.patterns
+          console.log('PATTERNS', result)
+          console.log('ITEMS', me.items)
           result.data.forEach((pattern) => {
-            pattern.image = JSON.parse(pattern.code)['image'];
-            pattern.code = JSON.parse(pattern.code)['code'];
-          });
-          me.items = me.items.concat(result.data);
+            pattern.image = JSON.parse(pattern.code).image
+            pattern.code = JSON.parse(pattern.code).code
+          })
+          me.items = me.items.concat(result.data)
           setTimeout(() => {
-            var groups = document.querySelectorAll('.pattern');
+            var groups = document.querySelectorAll('.pattern')
             groups.forEach((el) => {
               el.data = {
                 node: {
@@ -210,44 +242,44 @@ export default {
                   disabled: false,
                   group: true,
                   columns: [],
-                  properties: [],
-                },
-              };
+                  properties: []
+                }
+              }
 
-              var data = el.data;
-              data.id = uuidv4();
+              var data = el.data
+              data.id = uuidv4()
               var draghandle = dd.drag(el, {
-                image: true, // default drag image
-              });
+                image: true // default drag image
+              })
               draghandle.on('start', function (setData, e) {
-                console.log('drag:start:', el, e);
+                console.log('drag:start:', el, e)
                 console.log('DRAG PATTERN DATA', JSON.stringify(data))
-                setData('object', JSON.stringify(data));
-              });
-            });
-          });
+                setData('object', JSON.stringify(data))
+              })
+            })
+          })
         })
         .catch((error) => {
-          console.log('ERROR', error);
-          me.loading = false;
+          console.log('ERROR', error)
+          me.loading = false
           me.notifyMessage(
             'dark',
             'error',
             'There was an error synchronizing patterns view.'
-          );
-        });
+          )
+        })
     },
-    notifyMessage(color, icon, message) {
+    notifyMessage (color, icon, message) {
       this.$q.notify({
         color: color,
         timeout: 2000,
         position: 'top',
         message: message,
-        icon: icon,
-      });
+        icon: icon
+      })
     },
-    async savePattern(pattern) {
-      var me = this;
+    async savePattern (pattern) {
+      var me = this
 
       // Get JSON of flow
       // Get ID of pattern group object
@@ -261,55 +293,62 @@ export default {
         false,
         'pattern',
         'fas fa-project-diagram',
-        JSON.stringify({'image':pattern.image,'code':pattern.code})
+        JSON.stringify({ image: pattern.image, code: pattern.code })
 
       )
         .then((response) => {
-          me.synchronize();
-          console.log(response.data.id);
+          me.synchronize()
+          console.log(response.data.id)
 
-          me.items.push(pattern);
+          me.items.push(pattern)
           me.$q.notify({
             color: 'secondary',
             timeout: 2000,
             position: 'top',
             message: 'Save pattern ' + pattern.name + ' succeeded!',
-            icon: 'save',
-          });
+            icon: 'save'
+          })
         })
         .catch(({ response }) => {
-          console.log(response);
-          me.loading = false;
+          console.log(response)
+          me.loading = false
           if (response.status === 409) {
             me.notifyMessage(
               'dark',
               'error',
               'The pattern name already exists.'
-            );
+            )
           }
-        });
-    },
+        })
+    }
   },
-  mounted() {
-    var me = this;
-    me.synchronize();
-    window.root.$on('save.pattern', (id, name, image, objects) => {
-      console.log("PATTERNS SAVING",objects)
-      var code = JSON.stringify(objects)
-      var pattern = {
-        id: id,
-        name: name,
-        pattern: name,
-        icon: 'fa fas-home',
-        code: code,
-        image: image,
-      };
-      me.savePattern(pattern).then(() => {
-        me.synchronize();
-      })
-    });
+  watch: {
+    '$auth.isAuthenticated': function (val) {
+      if (val) {
+        var me = this
+        me.synchronize()
+        window.root.$on('save.pattern', (id, name, image, objects) => {
+          console.log('PATTERNS SAVING', objects)
+          var code = JSON.stringify(objects)
+          var pattern = {
+            id: id,
+            name: name,
+            pattern: name,
+            icon: 'fa fas-home',
+            code: code,
+            image: image
+          }
+          me.savePattern(pattern).then(() => {
+            me.synchronize()
+          })
+        })
+      }
+    }
   },
-  data() {
+  mounted () {
+
+  },
+  data () {
     return {
       loading: false,
       showpath: true,
@@ -319,8 +358,8 @@ export default {
         {
           text: 'Home',
           icon: 'home',
-          id: 0,
-        },
+          id: 0
+        }
       ],
       items: [],
       patterns: [
@@ -329,17 +368,17 @@ export default {
           filename: 'Pattern A',
           pattern: 'patternA',
           icon: 'fa fas-home',
-          image: 'images/pattern1.png',
+          image: 'images/pattern1.png'
         },
         {
           id: 2,
           filename: 'Pattern B',
           pattern: 'patternB',
           icon: 'fa fas-home',
-          image: 'images/pattern2.png',
-        },
-      ],
-    };
-  },
-};
+          image: 'images/pattern2.png'
+        }
+      ]
+    }
+  }
+}
 </script>
