@@ -9,6 +9,8 @@
 import { LoadingBar } from 'quasar'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import { SecurityPlugin } from './security'
+
 Vue.use(VueRouter)
 import { JsPlumbToolkitVue2Plugin } from 'jsplumbtoolkit-vue2'
 import StreamPlugin from './plugins/stream-plugin'
@@ -17,6 +19,8 @@ import { Auth0Plugin } from './auth'
 import router from './router'
 
 import Vuetify from 'vuetify'
+
+Vue.use(SecurityPlugin)
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires
 const VueTypedJs = require('vue-typed-js')
 Vue.use(Auth0Plugin, {

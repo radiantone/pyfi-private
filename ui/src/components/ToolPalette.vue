@@ -82,8 +82,8 @@
         id="processor"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="getVersion() === 'FREE'"
       >
+        <!--:disabled="false"-->
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
@@ -101,7 +101,7 @@
         id="portin"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -119,7 +119,7 @@
         size="large"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -266,7 +266,7 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -284,7 +284,7 @@
         id="database"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -371,20 +371,20 @@
           class="link-hover"
           href="#"
           @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Nodes:</a>
         <span class="text-dark">{{ nodes }}</span>
       </q-item-label>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px; margin-right: 20px;"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         <a
           class="link-hover"
           href="#"
           @click="showStats('Agents', agentStatsColumns,'agents')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Agents:</a>
         <span class="text-dark">{{ agents }}</span>
       </q-item-label>
@@ -396,7 +396,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Queues', queueStatsColumns,'queues')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Queues:</a>
         <span class="text-dark">{{ queues }}</span>
       </q-item-label>
@@ -408,7 +408,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Processors', procStatsColumns, 'processors')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Processors:</a>
         <span class="text-dark">{{ processors }}</span>
       </q-item-label>
@@ -420,7 +420,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Deployments', deployStatsColumns, 'deployments')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Deployments:</a>
         <span class="text-dark">{{ deployments }}</span>
       </q-item-label>
@@ -432,7 +432,7 @@
           class="link-hover"
           href="#"
           @click="showStats('CPUs', workerStatsColumns, 'workers')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >CPUS:</a>
         <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
       </q-item-label>
@@ -444,14 +444,14 @@
           class="link-hover"
           href="#"
           @click="showStats('Tasks', taskStatsColumns, 'tasks')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="false"
         >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
-        :disabled="getVersion() === 'FREE'"
+        :disabled="false"
       >
         System Usage:
       </q-item-label>
@@ -697,6 +697,7 @@
             <q-item
               clickable
               v-close-popup
+              @click="$router.push('/profile')"
             >
               <q-item-section side>
                 <q-icon name="fas fa-user" />
@@ -860,13 +861,13 @@ export default {
     })
   },
   methods: {
+    showProfile () {
 
+    },
     logout () {
-      this.$auth.logout({ returnTo: window.location.origin })
+      this.$auth.logout({ returnTo: '/logout' })
     },
     login () {
-      //this.$auth.loginWithPopup({width:"900px"})
-
       this.$root.$emit('login')
     },
     getVersion () {
@@ -878,7 +879,7 @@ export default {
     },
     showStats (name, columns, objects) {
       const me = this
-      if (this.getVersion() === 'FREE') {
+      if (this.false) {
         return
       }
       this.statname = name

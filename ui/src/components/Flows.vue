@@ -431,7 +431,13 @@ export default {
     this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
     this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
   },
-
+  watch: {
+    '$auth.isAuthenticated': function (val) {
+      if (val) {
+        console.log("FLOWS AUTHENICATED")
+      }
+    }
+  },
   beforeDestroy () {
     this.$root.$off('save.flow' + this.flowid)
     this.$root.$off('save.flow.to.folder.' + this.flowid)

@@ -9,7 +9,15 @@ WORKING
 - API block consumes swagger JSON or YAML endpoint 80%
 - Error plug routing 50%
 - Disable components for free version 90%
-- Okta register/sign-in integration
+- Auth0 register/sign-in integration
+  - Can log in/out DONE
+  - Get bearer token after login DONE
+  - Protect API client access
+  - Protect API services
+- Add watch for store variable "this.$auth.isAuthenticated" to UI's that load data.
+  - When isAuthenticated is true, then they refresh their data and enable their controls
+  - otherwise, they have a mask overlay that says not logged in
+  - 
 
 TODO:
 

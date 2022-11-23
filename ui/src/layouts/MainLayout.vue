@@ -229,7 +229,7 @@
             { icon: 'fab fa-python', value: 'code' },
           ]"
           :disabled="getVersion() === 'FREE'"
-        >-->
+        >
         <template #one>
           <div style="font-size: 0.5em; margin-left: 20px;">
             <q-tooltip
@@ -250,7 +250,7 @@
             Python Tools
           </q-tooltip>
         </template>
-        </q-btn-toggle>
+        </q-btn-toggle>-->
         <q-space />
         <q-btn
           v-if="$auth.isAuthenticated"
@@ -1344,12 +1344,19 @@ export default defineComponent({
     }
   },
   methods: {
+    getToken () {
+      debugger
+      const accessToken = this.security.token()
+      accessToken.then(function (result) {
+        // here you can use the result of promiseB
+        console.log('accessToken: ', result)
+      })
+    },
     loginLock () {
       lock.show()
     },
     checkout () {
       const cbInstance = Chargebee.getInstance()
-      // cbInstance.openCheckout()
 
       const cart = cbInstance.getCart()
       const planPriceId = 'cbdemo_basic-USD-monthly' // Plan price point ID is used to identify the product
@@ -1357,25 +1364,6 @@ export default defineComponent({
       const product = cbInstance.initializeProduct(planPriceId, planPriceQuantity)
       cart.replaceProduct(product)
 
-      // Adding an addon
-      // product.addAddon({
-      //  id: 'silver-pass-USD-monthly', // Addon price point ID
-      //  quantity: 2
-      // })
-
-      // Adding a coupon
-      // product.addCoupon("fourty")
-
-      // Dynamically changing Plan quantity using setPlanQuantity
-      // product.setPlanQuantity(planPriceQuantity);
-
-      // Removing Addons using removeAddon
-      // product.removeAddon("silver-pass-USD-monthly"); // Addon price point ID
-
-      // Passing values for custom fields
-      // product.setCustomData({referral: "yes", corporate_agent: "no"});
-
-      // Opening the checkout
       cart.proceedToCheckout()
     },
     upgrade (plan) {
@@ -1404,7 +1392,7 @@ export default defineComponent({
           }
         }
       })
-      const product = cbInstance.initializeProduct('cbdemo_basic-USD-monthly')
+      const product = cbInstance.initializeProduct('cbdemo_basic-USD-monthly', 1)
       // product.addAddon({ id: 'worldmap' })
       // product.addAddon({ id: 'storyboard' })
       cart.replaceProduct(product)
@@ -1457,7 +1445,20 @@ export default defineComponent({
       })
     },
     login () {
-      this.$auth.loginWithPopup({ width: '900px' })
+      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX
+      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY
+
+      const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+      const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+      const systemZoom = width / window.screen.availWidth
+      const left = (width - 500) / 2 / systemZoom + dualScreenLeft
+      const top = (height - 715) / 2 / systemZoom + dualScreenTop
+      const popup = window.open(
+        '',
+        'auth0:authorize:popup',
+        'left=' + left + ',top=' + top + ',width=500,height=715,scrollbars=no,resizable=no'
+      )
+      this.$auth.loginWithPopup(this.getToken, { popup })
     },
     getVersion () {
       if (this.$store.state.designer.version.indexOf('Free') >= 0) {
@@ -1854,7 +1855,7 @@ export default defineComponent({
       this.queuename = queue
       this.viewQueueDialog = true
     })
-    this.$root.$on('login', this.loginLock)
+    this.$root.$on('login', this.login)
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
