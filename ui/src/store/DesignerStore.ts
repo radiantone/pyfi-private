@@ -7,6 +7,7 @@ const STORE_NAME = 'designer'
 const SET_MESSAGE = 'setMessage'
 const SET_STREAMING = 'setStreaming'
 const SET_CONNECTED = 'setConnected'
+const SET_TOKEN = 'setToken'
 const SET_PYTHON = 'setPython'
 
 const getters: GetterTreeAdaptor<StatusGetters, StatusState, RootState> = {
@@ -24,6 +25,9 @@ const getters: GetterTreeAdaptor<StatusGetters, StatusState, RootState> = {
   },
   getVersion (state: StatusState) {
     return state.version
+  },
+  getToken (state: StatusState) {
+    return state.token
   }
 }
 
@@ -51,6 +55,12 @@ const actions: ActionTreeAdaptor<StatusActions, StatusState, RootState> = {
       commit(SET_PYTHON, python)
       resolve()
     })
+  },
+  async setToken ({ commit }, { token }) {
+    await new Promise<void>(resolve => {
+      commit(SET_TOKEN, token)
+      resolve()
+    })
   }
 }
 
@@ -61,7 +71,8 @@ export const DesignerStore: Module<StatusState, RootState> = {
     streaming: false,
     connected: false,
     python: false,
-    version: <string>process.env.VERSION
+    version: <string>process.env.VERSION,
+    token: 'none'
   },
   getters,
   mutations: {
@@ -76,13 +87,16 @@ export const DesignerStore: Module<StatusState, RootState> = {
     },
     setPython (state: StatusState, python: boolean) {
       state.python = python
+    },
+    setToken (state: StatusState, token: string) {
+      state.token = token
     }
   },
   actions
 }
 
 export const mappedStatusState = mapState(STORE_NAME, [
-  'message', 'streaming', 'connected', 'python', 'version'
+  'message', 'streaming', 'connected', 'python', 'version', 'token'
 ])
 
 export interface StatusState {
@@ -91,10 +105,11 @@ export interface StatusState {
     connected: boolean;
     python: boolean;
     version: string;
+    token: string;
 }
 
 export const mappedStatusGetters = mapGetters(STORE_NAME, [
-  'getMessage', 'getStreaming', 'getConnected', 'getPython', 'getVersion'
+  'getMessage', 'getStreaming', 'getConnected', 'getPython', 'getVersion', 'getToken'
 ])
 
 export interface StatusGetters {
@@ -103,10 +118,11 @@ export interface StatusGetters {
     getConnected: boolean;
     getVersion: string;
     getPython: boolean;
+    getToken: string;
 }
 
 export const mappedStatusActions = mapActions(STORE_NAME, [
-  'setMessage', 'setStreaming', 'setConnected', 'setPython', 'setVersion'
+  'setMessage', 'setStreaming', 'setConnected', 'setPython', 'setVersion', 'setToken'
 ])
 
 export type StatusActions = {
@@ -114,6 +130,7 @@ export type StatusActions = {
     setStreaming: (payload: { streaming: boolean }) => Promise<void>;
     setConnected: (payload: { connected: boolean }) => Promise<void>;
     setPython: (payload: { python: boolean }) => Promise<void>;
+    setToken: (payload: { token: string }) => Promise<void>;
 }
 
 export const DesignerComponentBase = Vue.extend<void,
@@ -136,15 +153,18 @@ export class DesignerComponentBaseClass extends Vue implements StatusState, Stat
     getConnected!: StatusGetters['getConnected'];
     getPython!: StatusGetters['getPython'];
     getVersion!: StatusGetters['getVersion'];
+    getToken!: StatusGetters['getToken'];
 
     version!: StatusState['version'];
     message!: StatusState['message'];
     streaming!: StatusState['streaming'];
     connected!: StatusState['connected'];
     python!: StatusState['python'];
+    token!: StatusState['token'];
 
     setMessage!: (payload: { message: string }) => Promise<void>;
     setStreaming!: (payload: { streaming: boolean }) => Promise<void>;
     setConnected!: (payload: { connected: boolean }) => Promise<void>;
     setPython!: (payload: { python: boolean }) => Promise<void>;
+    setToken!: (payload: { token: string }) => Promise<void>;
 }

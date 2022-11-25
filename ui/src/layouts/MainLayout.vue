@@ -1265,6 +1265,15 @@ export default defineComponent({
     this.listenGlobal()
   },
   watch: {
+    '$auth.isAuthenticated': function (val) {
+      var me = this
+      if (val) {
+        debugger
+        this.security.token().then((token) => {
+          me.$store.commit('designer/setToken', token)
+        })
+      }
+    },
     connected: function (newv, oldv) {
       console.log('CONNECTED', oldv, newv)
       if (newv) {
@@ -1811,7 +1820,6 @@ export default defineComponent({
   },
   mounted () {
     var me = this
-    console.log('MAINLAYOUT $AUTH', this.$auth)
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
@@ -1835,7 +1843,6 @@ export default defineComponent({
     })
 
     this.transmitted()
-
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -1901,6 +1908,9 @@ export default defineComponent({
         }
       }
       me.tab = 'flow' + id
+      setTimeout( () => {
+        me.tabChanged(me.tab)
+      })
     })
     this.$root.$on('load.flow', (flow) => {
       console.log('load.flow', flow)
@@ -1909,6 +1919,10 @@ export default defineComponent({
       flow.id = id
       me.flows.push(flow)
       me.tab = 'flow' + id
+
+      setTimeout( () => {
+        me.tabChanged(me.tab)
+      })
     })
     this.$q.loading.show({
       delay: 40,
@@ -1975,7 +1989,7 @@ export default defineComponent({
       var portin = document.querySelector('#portin')
       portin.data = {
         node: {
-          icon: 'outlet-icon2',
+          icon: 'icon-port-in',
           style: 'size:50px',
           type: 'portin',
           name: 'Port In',
@@ -2159,6 +2173,12 @@ export default defineComponent({
     setTimeout(function () {
       me.$q.loading.hide()
     }, 500)
+    this.$root.$on('update.tab', () => {
+      me.tabChanged(me.tab)
+    })
+    window.designer.$root.$on('node.added', (node) => {
+      me.tabChanged(me.tab)
+    })
   },
   data () {
     return {
@@ -2451,7 +2471,7 @@ export default defineComponent({
       ],
       drawertab: 'messages',
       drawer: true,
-      tab: null,
+      tab: 'flow1',
       tools: 'code',
       text: ''
     }

@@ -4,7 +4,11 @@
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
     >
-      <q-inner-loading :showing="true" v-if="!$auth.isAuthenticated" style="z-index:9999">
+      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
         <q-item-label>Not Logged In</q-item-label>
       </q-inner-loading>
       <q-breadcrumbs>
@@ -421,26 +425,22 @@ var dd = require('drip-drop')
 
 export default {
   components: {},
-  computed: {
-    darkStyle: function () {
-      if (this.$q.dark.mode) return 'text-grey-6'
-      else return 'text-primary'
-    }
-  },
   props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
   mounted () {
-
+    if (this.$auth.isAuthenticated) {
+      this.synchronize()
+    }
   },
   watch: {
-    '$auth.isAuthenticated': function (val) {
+    '$store.state.designer.token': function (val) {
+      var me = this
+      console.log("TOKEN", this.$store.state.designer.token)
       if (val) {
-        console.log("FLOWS AUTHENICATED")
         this.$root.$on('update.' + this.collection, this.synchronize)
         this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
         this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
         this.synchronize()
       } else {
-
         this.$root.$off('update.' + this.collection, this.synchronize)
         this.$root.$off('save.flow.' + this.flowid, this.saveFlowEvent)
         this.$root.$off('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
@@ -458,7 +458,7 @@ export default {
       await this.saveFlow()
     },
     async saveFlow () {
-      let me = this
+      const me = this
       this.loading = true
       console.log(
         'flow',
@@ -632,7 +632,7 @@ export default {
       this.loading = true
       var me = this
       try {
-        var files = DataService.getFiles(this.collection, this.foldername)
+        var files = DataService.getFiles(this.collection, this.foldername, this.$store.state.designer.token)
         files
           .then(function (result) {
             setTimeout(function () {
@@ -694,6 +694,7 @@ export default {
   },
   data () {
     return {
+      token: null,
       saveas: false,
       saveflow: false,
       showpath: true,

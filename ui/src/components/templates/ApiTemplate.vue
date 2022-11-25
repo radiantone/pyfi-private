@@ -1287,16 +1287,7 @@
                 name="settings"
                 label="Processor"
               />
-              <q-tab
-                v-if="obj.icon === lambdaIcon"
-                name="lambda"
-                label="Lambda"
-              />
-              <q-tab
-                v-if="obj.icon === 'fas fa-database'"
-                name="database"
-                label="Database"
-              />
+
             </q-tabs>
             <q-tab-panels v-model="settingstab">
               <q-tab-panel
@@ -1362,51 +1353,6 @@
                 </div>
               </q-tab-panel>
             </q-tab-panels>
-          </q-tab-panel>
-          <q-tab-panel
-            name="concurrency"
-            style="padding: 20px;"
-            ref="concurrency"
-          >
-            <q-table
-              dense
-              :columns="deploycolumns"
-              :data="deploydata"
-              row-key="name"
-              flat
-              virtual-scroll
-              :rows-per-page-options="[10]"
-              style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-            >
-              <template #loading>
-                <q-inner-loading
-                  :showing="true"
-                  style="z-index: 9999999;"
-                >
-                  <q-spinner-gears
-                    size="50px"
-                    color="primary"
-                  />
-                </q-inner-loading>
-              </template>
-            </q-table>
-            <q-toolbar>
-              <q-input
-                style="width: 100px;"
-                hint="Number of CPUs"
-                type="number"
-                v-model.number="obj.concurrency"
-              />
-            </q-toolbar>
-            <q-inner-loading
-              :showing="deployLoading"
-              style="z-index: 9999999;"
-            >
-              <q-spinner-gears
-                size="50px"
-                color="primary"
-              />
-            </q-inner-loading>
           </q-tab-panel>
           <q-tab-panel
             name="schedule"

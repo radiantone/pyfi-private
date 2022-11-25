@@ -21,6 +21,10 @@ WORKING
 
 TODO:
 
+- Port's are types of processors that forward messages to other ports
+  - Port's are allocated to CPUs same as processors as they are a bottleneck between flows
+  - and thus should be scalable as well
+
 - Change History and JSON View checkboxes to toggle group
 - Download output history
 - Insert functions at front of list

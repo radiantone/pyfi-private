@@ -1,5 +1,4 @@
-import Vue from "vue";
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -11,28 +10,26 @@ interface ClientToServerEvents {
   hello: (data: SocketData) => void;
 }
 
-
 interface SocketData {
   name: string;
   age: number;
 }
 
-
 export default {
   // called by Vue.use(FirstPlugin)
-  install(Vue : any, options : any) {
+  install (Vue : any, options : any) {
     // create a mixin
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
       'http://localhost'
-    );
-    socket.on("basicEmit", (a, b, c) => {
-      //console.log("STREAM PLUGIN: SERVER EMIT", a, b, c)
-    });
+    )
+    socket.on('basicEmit', (a, b, c) => {
+      // console.log("STREAM PLUGIN: SERVER EMIT", a, b, c)
+    })
     Vue.mixin({
-      created() {
-        //console.log("FIRST PLUGIN",Vue);
-      },
-    });
-  },
-};
+      created () {
+        // console.log("FIRST PLUGIN",Vue);
+      }
+    })
+  }
+}

@@ -1,12 +1,10 @@
-
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call */
-import { Wrapper } from '../util'
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
+import { Wrapper } from '../util'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
-import { PyProxy } from 'pyodide'
 import Moment from 'moment/moment'
 const scheduler = new IntervalBasedCronScheduler(1000)
 
@@ -62,6 +60,26 @@ const mapToObj = (m: Map<string, any>) => {
   }, {})
 }
 
+interface ProcessorInterface {
+  messageReceived(message: any): void;
+  getVersion(): string;
+  messageSend(message: any): void;
+  getPort(func: string, name: string): any;
+  listenMessages(): void;
+  setId(id: string): void;
+  execute(data: any): void;
+  startSchedule(cron: string): void;
+}
+
+type Methods = ProcessorInterface
+
+interface Computed {
+}
+
+interface Props {
+  wrapper: Wrapper;
+}
+
 export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
   Computed,
@@ -83,15 +101,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         me.$store.commit('designer/setMessage', b)
       })
       me.listenMessages()
-    },
-    computed: {
-    /*
-    connected() {
-      return this.$store.state.designer.connected;
-    },
-    streaming() {
-      return this.$store.state.designer.streaming;
-    }, */
     },
     watch: {
       connected: function (newv, oldv) {
@@ -291,24 +300,4 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       }
     }
   })
-
-interface ProcessorInterface {
-  messageReceived(message: any): void;
-  getVersion(): string;
-  messageSend(message: any): void;
-  getPort(func: string, name: string): any;
-  listenMessages(): void;
-  setId(id: string): void;
-  execute(data: any): void;
-  startSchedule(cron: string): void;
-}
-
-type Methods = ProcessorInterface
-
-interface Computed {
-}
-
-interface Props {
-  wrapper: Wrapper;
-}
 </script>

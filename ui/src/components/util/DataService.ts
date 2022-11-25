@@ -3,8 +3,12 @@
 import http from 'src/http-common'
 
 class DataService {
-  getFiles (collection: string, folder: string): Promise<any> {
-    return http.get('/api/files/' + collection + '/' + folder)
+  getFiles (collection: string, folder: string, token: string): Promise<any> {
+    return http.get('/api/files/' + collection + '/' + folder, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
   getObjects (object: string): Promise<any> {
@@ -71,7 +75,7 @@ class DataService {
     return http.get('/api/processor/' + id)
   }
 
-  getProcessors (): Promise<any> {
+  getProcessors (token: string): Promise<any> {
     return http.get('/api/processors')
   }
 

@@ -3119,7 +3119,6 @@ export default {
   vuetify: new Vuetify(),
   components: {
     editor: require('vue2-ace-editor'),
-    BetterCounter,
     Console
   },
   watch: {
@@ -4189,7 +4188,7 @@ export default {
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
     closePortEdit () {
-      editPort = false
+      this.editPort = false
     },
     saveProcessor () {
       var me = this

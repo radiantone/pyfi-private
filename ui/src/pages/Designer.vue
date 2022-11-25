@@ -2765,6 +2765,9 @@ export default {
       me.$store.commit('designer/setMessage', 'Connected')
     }, 5000)
 
+    if (this.flowid == 'flow1') {
+      this.$root.$emit('update.tab')
+    }
     setTimeout(() => {
       me.showName = true
     }, 1000)
