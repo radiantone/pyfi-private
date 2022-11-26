@@ -3,6 +3,7 @@
 BUG:
 
 - Can't search on Scratch flow until switching between tabs
+- Run Flow button doesn't trigger Script nodes with empty function inputs
   
 WORKING
 
@@ -10,17 +11,16 @@ WORKING
 - Error plug routing 50%
 - Disable components for free version 90%
 - Auth0 register/sign-in integration
-  - Can log in/out DONE
-  - Get bearer token after login DONE
-  - Protect API client access
-  - Protect API services
+- Protect API client access
+- Protect API services
 - Add watch for store variable "this.$auth.isAuthenticated" to UI's that load data.
-  - When isAuthenticated is true, then they refresh their data and enable their controls
-  - otherwise, they have a mask overlay that says not logged in
-  - 
+- When isAuthenticated is true, then they refresh their data and enable their controls
+- otherwise, they have a mask overlay that says not logged in
+
 
 TODO:
 
+- Refactor mount() and watch() startup code, duplication
 - Port's are types of processors that forward messages to other ports
   - Port's are allocated to CPUs same as processors as they are a bottleneck between flows
   - and thus should be scalable as well
@@ -39,8 +39,7 @@ TODO:
 - Schema check for incoming data objects on Script argument ports TBD
 - Remove, ghost, disable Premium features in Free version TBD
 - View Results in Script node, refers to internally stored results list TBD
-- Error ports on Script node, when executing function produces an exception,
-  - the error and input data is routed to error edges for that function
+- Error ports on Script node, when executing function produces an exception, 
 - Okta integration
 - Single Sign On with external account (gmail, etc) TBD
 - Account registration, email verification, backend TBD
@@ -75,7 +74,7 @@ DONE
 - Disable "Power Cycle" on non-processor nodes DONE
 - Remove "Refresh" icon from Data and Script nodes? DONE
 - Drag and drop from Library FIXED
-  - Added description sub heading to library entries DONE
+- Added description sub heading to library entries DONE
 
 
 ## Nov 5, 2022

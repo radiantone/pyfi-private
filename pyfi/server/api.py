@@ -444,7 +444,7 @@ def get_result(resultid):
 
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
-@requires_auth
+# @requires_auth
 def get_files(collection, path):
 
     with get_session() as session:

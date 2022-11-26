@@ -7,6 +7,13 @@
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
     >
+      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading>
       <q-toolbar style="padding: 0px; padding-left: 20px;">
         <q-btn
           flat
@@ -264,6 +271,15 @@ export default {
     this.expandAll = mdiArrowExpandAll
     this.cardOutline = mdiCardTextOutline
   },
+  watch: {
+    '$store.state.designer.token': function (val) {
+      if (val) {
+        this.synchronize()
+        this.initializeDrag()
+      } else {
+      }
+    }
+  },
   methods: {
     updateCard (node) {
       console.log('object.card', node)
@@ -382,9 +398,10 @@ export default {
     }
   },
   mounted () {
-    this.synchronize()
-    this.initializeDrag()
-    console.log('CHANNEL:', this.channel)
+    if (this.$auth.isAuthenticated) {
+      this.synchronize()
+      this.initializeDrag()
+    }
   },
   data () {
     return {

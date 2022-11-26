@@ -346,7 +346,25 @@ export default {
     }
   },
   mounted () {
-
+    if (this.$auth.isAuthenticated) {
+      var me = this
+      me.synchronize()
+      window.root.$on('save.pattern', (id, name, image, objects) => {
+        console.log('PATTERNS SAVING', objects)
+        var code = JSON.stringify(objects)
+        var pattern = {
+          id: id,
+          name: name,
+          pattern: name,
+          icon: 'fa fas-home',
+          code: code,
+          image: image
+        }
+        me.savePattern(pattern).then(() => {
+          me.synchronize()
+        })
+      })
+    }
   },
   data () {
     return {

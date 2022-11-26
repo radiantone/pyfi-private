@@ -4,6 +4,13 @@
       class="bg-accent text-secondary"
       style="border-bottom: 1px solid #abbcc3; overflow: hidden;"
     >
+      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading>
       <q-breadcrumbs>
         <div style="margin-left:20px;">
           <q-toolbar style="padding:0px">
@@ -140,16 +147,24 @@ const dd = require('drip-drop')
 
 export default {
   components: {},
-  computed: {
-    darkStyle: function () {
-      if (this.$q.dark.mode) return 'text-grey-6'
-      else return 'text-primary'
+  watch: {
+    '$store.state.designer.token': function (val) {
+      if (val) {
+        this.$root.$on('update.' + this.collection, this.synchronize)
+        this.synchronize()
+      } else {
+        this.$root.off('update.' + this.collection, this.synchronize)
+      }
     }
+  },
+  computed: {
   },
   props: ['objecttype', 'collection', 'icon', 'toolbar'],
   mounted () {
-    this.synchronize()
-    this.$root.$on('update.' + this.collection, this.synchronize)
+    if (this.$auth.isAuthenticated) {
+      this.$root.$on('update.' + this.collection, this.synchronize)
+      this.synchronize()
+    }
   },
   methods: {
 

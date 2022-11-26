@@ -120,12 +120,10 @@
               :name="item.icon"
               color="secondary"
               v-if="item.type === 'folder'"
-              :class="darkStyle"
             />
             <q-icon
               :name="item.icon"
               v-if="item.type !== 'folder'"
-              :class="darkStyle"
             />
           </q-item-section>
           <q-item-section>
@@ -428,13 +426,14 @@ export default {
   props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
   mounted () {
     if (this.$auth.isAuthenticated) {
+      this.$root.$on('update.' + this.collection, this.synchronize)
+      this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
+      this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
       this.synchronize()
     }
   },
   watch: {
     '$store.state.designer.token': function (val) {
-      var me = this
-      console.log("TOKEN", this.$store.state.designer.token)
       if (val) {
         this.$root.$on('update.' + this.collection, this.synchronize)
         this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
