@@ -82,6 +82,8 @@
         id="processor"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <!--:disabled="false"-->
         <q-tooltip
@@ -101,7 +103,8 @@
         id="portin"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="false"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -119,7 +122,8 @@
         size="large"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="false"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -266,7 +270,8 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="false"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -284,7 +289,8 @@
         id="database"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="false"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -859,6 +865,16 @@ export default {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       me.showStats(objects.name, objects.columns, objects.objects)
     })
+  },
+  computed: {
+    isProPlan () {
+      return this.$store.state.designer.subscription.toString().indexOf('pro') >= 0
+    }
+  },
+  watch: {
+    '$store.state.designer.subscription': function (sub) {
+
+    }
   },
   methods: {
     showProfile () {

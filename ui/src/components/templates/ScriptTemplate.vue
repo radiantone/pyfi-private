@@ -2466,7 +2466,7 @@ export default {
     dataview: function (val) {
       var me = this
       if (val) {
-        setTimeout( () => {
+        setTimeout(() => {
           me.updateBandwidthChart()
         })
       }
@@ -2517,6 +2517,16 @@ export default {
     this.$on('refresh', () => {
       me.updateColumns()
     })
+    this.$on('python.error', (error) => {
+      me.getNode().getPorts().forEach((port) => {
+        if (port.data.type === 'Error' && 'error: '+error.function === port.data.name) {
+          me.errorMsg = 'Error in '+error.function
+          me.error = true
+          me.triggerRoute(port.data.id, error)
+        }
+      })
+    })
+
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
@@ -2558,6 +2568,8 @@ export default {
           me.calls_in = msg.output.length
           me.updateBandwidthChart()
           // update resultdata
+          
+          me.error = false
         }
         Object.entries(this.argobjects).forEach((tuple) => {
           const argobject = tuple[1]
@@ -2576,7 +2588,7 @@ export default {
         // Emit result over the port edges
         for (var key in this.portobjects) {
           debugger
-          key = key.replace('func:','')
+          key = key.replace('func:', '')
           if (key === func) {
             me.triggerObject('func:' + key, msg.output)
           }
@@ -2940,7 +2952,7 @@ export default {
       messageSplitter: 70,
       types: [],
       deployLoading: false,
-      errorMsg: '',
+      errorMsg: 'An error',
       password: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -3318,7 +3330,7 @@ export default {
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
-    showArgumentData(data) {
+    showArgumentData (data) {
       var me = this
       this.argumentview = !this.argumentview
 
@@ -4013,9 +4025,9 @@ export default {
         type: type
       })
 
-      let prefix = "func:"
-      if (type === "Error") {
-        prefix = "error:"
+      let prefix = 'func:'
+      if (type === 'Error') {
+        prefix = 'error:'
       }
       this.ports[func.function] = true
       this.argports[port.id] = []
@@ -4078,7 +4090,7 @@ export default {
         // update resultdata
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
-        console.log("_PLUGS",_plugs)
+        console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           debugger
           if (port.data.type === 'Plug') {
@@ -4144,7 +4156,7 @@ export default {
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
 
-        console.log("_PLUGS",_plugs)
+        console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
             const plug_result = _plugs.get(port.data.name)

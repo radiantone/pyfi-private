@@ -165,7 +165,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
-            obj = Object.fromEntries(data.toJs())
+            if(data.type && data.type == 'error') {
+              obj = data
+            } else {
+              // TODO: Check for instance of PyProxy here
+              obj = Object.fromEntries(data.toJs())
+            }
           }
 
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
@@ -259,6 +264,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }, (error: any) => {
               debugger
               console.log('PYTHON ERROR', error)
+              this.$emit('python.error', {
+                type: 'error',
+                id: me.id,
+                function: func,
+                error: error.toString()
+              })
             })
           }
 
