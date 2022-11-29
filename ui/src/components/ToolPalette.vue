@@ -467,7 +467,7 @@
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: 20px;"
       >
-        {{ this.$store.state.designer.version }}
+        {{ this.$store.state.designer.subscription }}
       </q-item-label>
       <q-item-label
         class="text-dark"
@@ -887,7 +887,7 @@ export default {
       this.viewStatsLoader = true
       this.viewStatsDialog = true
       me.viewStatsData = []
-      DataService.getObjects(objects).then((response) => {
+      DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
         me.viewStatsData = response.data
         console.log(name + ' STATS:', response.data)
         me.viewStatsLoader = false

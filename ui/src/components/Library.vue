@@ -117,7 +117,7 @@
           v-for="item in items"
           :key="item.id"
           :id="'row' + item.id"
-          class="dragrow"
+          class="dragrow text-primary"
         >
           <q-item-section avatar>
             <q-icon
@@ -227,10 +227,6 @@ const dd = require('drip-drop')
 export default {
   components: {},
   computed: {
-    darkStyle: function () {
-      if (this.$q.dark.mode) return 'text-grey-6'
-      else return 'text-primary'
-    }
   },
   props: ['objecttype', 'collection', 'icon', 'toolbar'],
   mounted () {
@@ -264,7 +260,7 @@ export default {
         false,
         'template',
         obj.icon,
-        JSON.stringify(obj)
+        JSON.stringify(obj), this.$store.state.designer.token
       )
         .then((response) => {
           me.synchronize()
@@ -293,7 +289,7 @@ export default {
       this.showpath = true
       this.loading = true
       console.log('FOLDERNAME', this.foldername + '/' + this.newfolder)
-      DataService.newFolder('library', this.foldername + '/' + this.newfolder)
+      DataService.newFolder('library', this.foldername + '/' + this.newfolder, this.$store.state.designer.token)
         .then(() => {
           me.synchronize()
         })
@@ -370,7 +366,7 @@ export default {
       this.loading = true
       const me = this
       try {
-        const files = DataService.getFiles(this.collection, this.foldername)
+        const files = DataService.getFiles(this.collection, this.foldername, this.$store.state.designer.token)
         files
           .then(function (result) {
             setTimeout(function () {

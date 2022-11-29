@@ -379,7 +379,7 @@ export default {
       this.loading = true
       const me = this
 
-      DataService.getNetworks().then((nodes) => {
+      DataService.getNetworks(this.$store.state.designer.token).then((nodes) => {
         console.log('NETWORKS', nodes)
         me.nodes = nodes.data.networks
         this.$refs.tree.lazy = {}

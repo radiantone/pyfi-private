@@ -182,7 +182,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           let complete = true
           for (var i = 0; i < me.portobjects[func].length; i++) {
             const port = me.portobjects[func][i]
-            if (port.data === undefined) {
+            if (port.data === undefined || port.data === null) {
               complete = false
               break
             }
@@ -258,7 +258,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               })
             }, (error: any) => {
               debugger
-              console.log('PYTHON ERROR')
+              console.log('PYTHON ERROR', error)
             })
           }
 

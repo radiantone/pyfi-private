@@ -2371,7 +2371,7 @@ export default {
     versionsDialog: function (value) {
       if (value) {
         console.log('LOAD VERSIONS')
-        DataService.getVersions(this.flowuuid)
+        DataService.getVersions(this.flowuuid, this.$store.state.designer.token)
           .then((versions) => {
             this.versiondata = versions.data
             this.versionsLoading = false
@@ -2891,7 +2891,7 @@ export default {
                     }
                   })
                 } else {
-                  DataService.getPattern(data.patternid)
+                  DataService.getPattern(data.patternid, this.$store.state.designer.token)
                     .then((pattern) => {
                       me.showing = false
                       console.log('LOADED PATTERN', pattern)

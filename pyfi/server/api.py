@@ -5,6 +5,11 @@ import configparser
 import json
 import logging
 import platform
+
+import chargebee
+
+chargebee.configure("test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm", "elasticcode-test")
+
 from functools import wraps
 from typing import Any, Type
 
@@ -18,7 +23,7 @@ from flask import (
 )
 from flask_cors import cross_origin
 from flask_restx import Api, Resource, fields, reqparse
-from jose import jwt
+from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
 
 from pyfi.blueprints.show import blueprint
@@ -147,54 +152,67 @@ def requires_auth(f):
         token = get_token_auth_header()
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
-        unverified_header = jwt.get_unverified_header(token)
-        rsa_key = {}
-        for key in jwks["keys"]:
-            if "kid" in unverified_header and key["kid"] == unverified_header["kid"]:
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "use": key["use"],
-                    "n": key["n"],
-                    "e": key["e"],
-                }
-        if rsa_key:
-            try:
-                payload = jwt.decode(
-                    token,
-                    rsa_key,
-                    algorithms=ALGORITHMS,
-                    audience=API_AUDIENCE,
-                    issuer="https://" + AUTH0_DOMAIN + "/",
-                )
-            except jwt.ExpiredSignatureError:
-                raise AuthError(
-                    {"code": "token_expired", "description": "token is expired"}, 401
-                )
-            except jwt.JWTClaimsError:
-                raise AuthError(
-                    {
-                        "code": "invalid_claims",
-                        "description": "incorrect claims,"
-                        "please check the audience and issuer",
-                    },
-                    401,
-                )
-            except Exception:
-                raise AuthError(
-                    {
-                        "code": "invalid_header",
-                        "description": "Unable to parse authentication" " token.",
-                    },
-                    401,
-                )
+        try:
+            unverified_header = jwt.get_unverified_header(token)
+            rsa_key = {}
+            for key in jwks["keys"]:
+                if (
+                    "kid" in unverified_header
+                    and key["kid"] == unverified_header["kid"]
+                ):
+                    rsa_key = {
+                        "kty": key["kty"],
+                        "kid": key["kid"],
+                        "use": key["use"],
+                        "n": key["n"],
+                        "e": key["e"],
+                    }
+            if rsa_key:
+                try:
+                    payload = jwt.decode(
+                        token,
+                        rsa_key,
+                        algorithms=ALGORITHMS,
+                        audience=API_AUDIENCE,
+                        issuer="https://" + AUTH0_DOMAIN + "/",
+                    )
+                except jwt.ExpiredSignatureError:
+                    raise AuthError(
+                        {"code": "token_expired", "description": "token is expired"},
+                        401,
+                    )
+                except jwt.JWTClaimsError:
+                    raise AuthError(
+                        {
+                            "code": "invalid_claims",
+                            "description": "incorrect claims,"
+                            "please check the audience and issuer",
+                        },
+                        401,
+                    )
+                except Exception:
+                    raise AuthError(
+                        {
+                            "code": "invalid_header",
+                            "description": "Unable to parse authentication" " token.",
+                        },
+                        401,
+                    )
 
-            _request_ctx_stack.top.current_user = payload
-            return f(*args, **kwargs)
-        raise AuthError(
-            {"code": "invalid_header", "description": "Unable to find appropriate key"},
-            401,
-        )
+                _request_ctx_stack.top.current_user = payload
+                return f(*args, **kwargs)
+            raise AuthError(
+                {
+                    "code": "invalid_header",
+                    "description": "Unable to find appropriate key",
+                },
+                401,
+            )
+        except JWTError:
+            raise AuthError(
+                {"code": "invalid_jwt", "description": "Token did not validate"},
+                401,
+            )
 
     return decorated
 
@@ -283,6 +301,8 @@ setattr(app, "json_encodore", AlchemyEncoder)
 
 
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def empty_queue(queuename):
     # send DELETE method to queue contents URL
     # http://<brokerurl>/api/queues/%2F/<queuename>/contents
@@ -291,6 +311,8 @@ def empty_queue(queuename):
 
 
 @app.route("/emptyqueues", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def empty_queues():
     # Fetch all queues
     # send DELETE method to each queue
@@ -298,6 +320,8 @@ def empty_queues():
 
 
 @app.route("/git/code", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_code():
     from pydriller import Repository
 
@@ -316,6 +340,8 @@ def get_code():
 
 
 @app.route("/git", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_git():
     from pydriller import Repository
 
@@ -343,6 +369,8 @@ def get_git():
 
 
 @app.route("/login/<id>", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def login_processor(id):
     data: Any = request.get_json()
 
@@ -353,6 +381,8 @@ def login_processor(id):
 
 
 @app.route("/processor/<name>", methods=["POST", "GET", "DELETE"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def do_processor(name):
 
     if request.method == "GET":
@@ -401,6 +431,7 @@ def do_processor(name):
 
 @app.route("/processors", methods=["GET"])
 @cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_processors():
 
     with get_session() as session:
@@ -410,6 +441,8 @@ def get_processors():
 
 
 @app.route("/output/<resultid>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_output(resultid):
     import redis
 
@@ -422,7 +455,22 @@ def get_output(resultid):
     return response
 
 
+@app.route("/subscriptions/<user>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
+def get_subscription(user):
+    import json
+
+    result = chargebee.Customer.list({"email[is]": "darren@ontrenet.com"})
+    customer_id = result[0].customer.id
+    result = chargebee.Subscription.list({"customer_id[is]": customer_id})
+
+    return str(result[0])
+
+
 @app.route("/result/<resultid>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_result(resultid):
     from pymongo import MongoClient
 
@@ -444,7 +492,8 @@ def get_result(resultid):
 
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
-# @requires_auth
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_files(collection, path):
 
     with get_session() as session:
@@ -477,6 +526,8 @@ def get_files(collection, path):
 
 
 @app.route("/folder/<collection>/<path:path>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def new_folder(collection, path):
 
     with get_session() as _session:
@@ -509,6 +560,8 @@ def new_folder(collection, path):
 
 
 @app.route("/files/<fid>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_file(fid):
 
     with get_session() as session:
@@ -517,6 +570,8 @@ def get_file(fid):
 
 
 @app.route("/queue/<queue>/contents", methods=["DELETE"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def purge_queue(queue):
     from pyfi.util.rabbit import purge_queue
 
@@ -524,6 +579,8 @@ def purge_queue(queue):
 
 
 @app.route("/queue/messages/<queue>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_queue_messages(queue):
     import json
 
@@ -560,6 +617,8 @@ def get_queue_messages(queue):
 
 
 @app.route("/workers/<processor>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_workers(processor):
 
     with get_session() as session:
@@ -587,6 +646,8 @@ def get_workers(processor):
 
 
 @app.route("/deployments/<processor>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_deployments(processor):
 
     with get_session() as session:
@@ -612,6 +673,8 @@ def get_deployments(processor):
 
 
 @app.route("/pattern/<pid>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_pattern(pid):
 
     with open("pyfi/server/patterns/" + pid + ".json", "r") as pattern:
@@ -622,6 +685,8 @@ def get_pattern(pid):
 
 
 @app.route("/code/extract", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def code_extract():
 
     data = request.get_json(silent=True)
@@ -633,6 +698,8 @@ def code_extract():
 
 
 @app.route("/deployments", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_deploys():
 
     with get_session() as session:
@@ -641,6 +708,8 @@ def get_deploys():
 
 
 @app.route("/queues", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_queues():
     from pyfi.util.rabbit import get_queues as rabbit_queue_queues
 
@@ -663,6 +732,8 @@ def get_queues():
 
 
 @app.route("/agents", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_agents():
 
     with get_session() as session:
@@ -671,6 +742,8 @@ def get_agents():
 
 
 @app.route("/workers", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_workers_():
 
     with get_session() as session:
@@ -679,6 +752,8 @@ def get_workers_():
 
 
 @app.route("/tasks", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_tasks():
 
     with get_session() as session:
@@ -687,6 +762,8 @@ def get_tasks():
 
 
 @app.route("/nodes", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_nodes():
 
     with get_session() as session:
@@ -695,6 +772,8 @@ def get_nodes():
 
 
 @app.route("/networks", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_networks():
 
     with get_session() as session:
@@ -793,6 +872,8 @@ def get_networks():
 
 
 @app.route("/files/<fid>", methods=["DELETE"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def delete_file(fid):
 
     print("Deleting file", fid)
@@ -827,6 +908,8 @@ def delete_file(fid):
 
 
 @app.route("/versions/<flowid>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_versions(flowid):
 
     with get_session() as session:
@@ -852,6 +935,8 @@ def get_versions(flowid):
 
 
 @app.route("/calls/<name>", methods=["GET"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def get_calls(name):
 
     with get_session() as session:
@@ -872,6 +957,8 @@ def get_calls(name):
 
 
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
 def post_files(collection, path):
     print("POST", collection, path)
     data = request.get_json(silent=True)
@@ -880,8 +967,6 @@ def post_files(collection, path):
 
     with get_session() as session:
         files = session.query(FileModel).all()
-        for f in files:
-            print("FILE:", f.path, f.name)
         if "id" in data and (
             ("saveas" in data and not data["saveas"]) or "saveas" not in data
         ):
@@ -980,7 +1065,10 @@ def post_files(collection, path):
             logging.info("Added version %s", version)
 
         session.add(file)
-        session.commit()
+        try:
+            session.commit()
+        except Exception as ex:
+            print(ex)
 
         status = {"status": "ok", "id": file.id}
         print("STATUS", status)

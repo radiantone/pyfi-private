@@ -3358,7 +3358,7 @@ export default {
     })
     window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
-    DataService.getDeployments(this.obj.name)
+    DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
       .then((deployments) => {
         console.log('DEPLOYMENTS', deployments)
         this.deployLoading = false
@@ -3962,7 +3962,7 @@ export default {
 
     },
     showCommit (hash, date) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
+      DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
@@ -3973,14 +3973,14 @@ export default {
       this.gitview = true
     },
     getCommits () {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath).then((result) => {
+      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath, this.$store.state.designer.token).then((result) => {
         this.gitdata = result.data
       })
     },
     doLogin () {
       var me = this
 
-      DataService.loginProcessor(this.obj.id, this.password)
+      DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
           me.login = false
           console.log(result)
@@ -4028,7 +4028,7 @@ export default {
     showOutput (resultid) {
       this.resultdataloading = true
 
-      DataService.getOutput(resultid).then((result) => {
+      DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -4038,7 +4038,7 @@ export default {
     showResult (resultid) {
       this.resultdataloading = true
 
-      DataService.getResult(resultid).then((result) => {
+      DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -4047,7 +4047,7 @@ export default {
     },
     refreshResultsData () {
       this.resultloading = true
-      DataService.getCalls(this.obj.name)
+      DataService.getCalls(this.obj.name, this.$store.state.designer.token)
         .then((calls) => {
           this.resultdata = calls.data
           this.resultloading = false
@@ -4199,7 +4199,7 @@ export default {
 
       // embed variabledata, requirements into this.obj.uistate
 
-      DataService.saveProcessor(this.obj)
+      DataService.saveProcessor(this.obj, this.$store.state.designer.token)
         .then(() => {
           this.refreshing = false
           this.error = false
@@ -4222,7 +4222,7 @@ export default {
       this.deployLoading = mask
 
       console.log('Refreshing deployments!')
-      DataService.getDeployments(this.obj.name)
+      DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
         .then((deployments) => {
           console.log('DEPLOYMENTS', deployments)
           this.deployLoading = false
@@ -4266,7 +4266,7 @@ export default {
       var me = this
       this.workersLoading = true
 
-      DataService.getWorkers(this.obj.name)
+      DataService.getWorkers(this.obj.name, this.$store.state.designer.token)
         .then((workers) => {
           this.workerdata = workers.data
           me.workersLoading = false
@@ -4283,7 +4283,7 @@ export default {
       this.refreshing = true
 
       this.fetchCode()
-      DataService.getProcessor(this.obj.name).then((proc) => {
+      DataService.getProcessor(this.obj.name, this.$store.state.designer.token).then((proc) => {
         me.refreshing = false
         console.log('REFRESH PROCESSOR', proc)
         const avoid = ['icon', 'id']

@@ -1203,6 +1203,24 @@
             Python Console
           </q-tooltip>
         </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2901,6 +2919,9 @@ export default {
     }
   },
   methods: {
+    setZoomLevel () {
+      window.toolkit.surface.setZoom(1.0)
+    },
     removePort (objid, col) {
       window.toolkit.removePort(objid, col)
       this.portobjects.remove(col)
@@ -3000,21 +3021,21 @@ export default {
       }
     },
     showCommit (hash, date) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
+      DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
       this.gitdate = date
     },
     getCommits () {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath).then((result) => {
+      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath, this.$store.state.designer.token).then((result) => {
         this.gitdata = result.data
       })
     },
     doLogin () {
       var me = this
 
-      DataService.loginProcessor(this.obj.id, this.password)
+      DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
           me.login = false
           console.log(result)
@@ -3062,7 +3083,7 @@ export default {
     showOutput (resultid) {
       this.resultdataloading = true
 
-      DataService.getOutput(resultid).then((result) => {
+      DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -3072,7 +3093,7 @@ export default {
     showResult (resultid) {
       this.resultdataloading = true
 
-      DataService.getResult(resultid).then((result) => {
+      DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -3081,7 +3102,7 @@ export default {
     },
     refreshResultsData () {
       this.resultloading = true
-      DataService.getCalls(this.obj.name)
+      DataService.getCalls(this.obj.name, this.$store.state.designer.token)
         .then((calls) => {
           this.resultdata = calls.data
           this.resultloading = false
@@ -3221,7 +3242,7 @@ export default {
 
       // embed variabledata, requirements into this.obj.uistate
 
-      DataService.saveProcessor(this.obj)
+      DataService.saveProcessor(this.obj, this.$store.state.designer.token)
         .then(() => {
           this.refreshing = false
           this.error = false

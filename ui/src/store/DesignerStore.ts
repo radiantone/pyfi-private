@@ -8,6 +8,7 @@ const SET_MESSAGE = 'setMessage'
 const SET_STREAMING = 'setStreaming'
 const SET_CONNECTED = 'setConnected'
 const SET_TOKEN = 'setToken'
+const SET_SUBSCRIPTION = 'setSubscription'
 const SET_PYTHON = 'setPython'
 
 const getters: GetterTreeAdaptor<StatusGetters, StatusState, RootState> = {
@@ -28,6 +29,9 @@ const getters: GetterTreeAdaptor<StatusGetters, StatusState, RootState> = {
   },
   getToken (state: StatusState) {
     return state.token
+  },
+  getSubscription (state: StatusState) {
+    return state.subscription
   }
 }
 
@@ -61,6 +65,12 @@ const actions: ActionTreeAdaptor<StatusActions, StatusState, RootState> = {
       commit(SET_TOKEN, token)
       resolve()
     })
+  },
+  async setSubscription ({ commit }, { subscription }) {
+    await new Promise<void>(resolve => {
+      commit(SET_SUBSCRIPTION, subscription)
+      resolve()
+    })
   }
 }
 
@@ -72,7 +82,8 @@ export const DesignerStore: Module<StatusState, RootState> = {
     connected: false,
     python: false,
     version: <string>process.env.VERSION,
-    token: 'none'
+    token: 'none',
+    subscription: 'none'
   },
   getters,
   mutations: {
@@ -90,13 +101,16 @@ export const DesignerStore: Module<StatusState, RootState> = {
     },
     setToken (state: StatusState, token: string) {
       state.token = token
+    },
+    setSubscription (state: StatusState, subscription: string) {
+      state.subscription = subscription
     }
   },
   actions
 }
 
 export const mappedStatusState = mapState(STORE_NAME, [
-  'message', 'streaming', 'connected', 'python', 'version', 'token'
+  'message', 'streaming', 'connected', 'python', 'version', 'token', 'subscription'
 ])
 
 export interface StatusState {
@@ -106,10 +120,11 @@ export interface StatusState {
     python: boolean;
     version: string;
     token: string;
+    subscription: string;
 }
 
 export const mappedStatusGetters = mapGetters(STORE_NAME, [
-  'getMessage', 'getStreaming', 'getConnected', 'getPython', 'getVersion', 'getToken'
+  'getMessage', 'getStreaming', 'getConnected', 'getPython', 'getVersion', 'getToken', 'getSubscription'
 ])
 
 export interface StatusGetters {
@@ -119,10 +134,11 @@ export interface StatusGetters {
     getVersion: string;
     getPython: boolean;
     getToken: string;
+    getSubscription: string;
 }
 
 export const mappedStatusActions = mapActions(STORE_NAME, [
-  'setMessage', 'setStreaming', 'setConnected', 'setPython', 'setVersion', 'setToken'
+  'setMessage', 'setStreaming', 'setConnected', 'setPython', 'setVersion', 'setToken', 'setSubscription'
 ])
 
 export type StatusActions = {
@@ -131,6 +147,7 @@ export type StatusActions = {
     setConnected: (payload: { connected: boolean }) => Promise<void>;
     setPython: (payload: { python: boolean }) => Promise<void>;
     setToken: (payload: { token: string }) => Promise<void>;
+    setSubscription: (payload: { subscription: string }) => Promise<void>;
 }
 
 export const DesignerComponentBase = Vue.extend<void,
@@ -154,6 +171,7 @@ export class DesignerComponentBaseClass extends Vue implements StatusState, Stat
     getPython!: StatusGetters['getPython'];
     getVersion!: StatusGetters['getVersion'];
     getToken!: StatusGetters['getToken'];
+    getSubscription!: StatusGetters['getSubscription'];
 
     version!: StatusState['version'];
     message!: StatusState['message'];
@@ -161,10 +179,12 @@ export class DesignerComponentBaseClass extends Vue implements StatusState, Stat
     connected!: StatusState['connected'];
     python!: StatusState['python'];
     token!: StatusState['token'];
+    subscription!: StatusState['subscription'];
 
     setMessage!: (payload: { message: string }) => Promise<void>;
     setStreaming!: (payload: { streaming: boolean }) => Promise<void>;
     setConnected!: (payload: { connected: boolean }) => Promise<void>;
     setPython!: (payload: { python: boolean }) => Promise<void>;
     setToken!: (payload: { token: string }) => Promise<void>;
+    setSubscription!: (payload: { subscription: string }) => Promise<void>;
 }

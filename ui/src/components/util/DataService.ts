@@ -11,98 +11,194 @@ class DataService {
     })
   }
 
-  getObjects (object: string): Promise<any> {
-    return http.get('/api/' + object)
+  getSubscriptions (email: string, token: string): Promise<any> {
+    return http.get('/api/subscriptions/' + email, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  purgeQueue (queue: string): Promise<any> {
-    return http.delete('/api/queue/' + queue + '/contents')
+  getObjects (object: string, token: string): Promise<any> {
+    return http.get('/api/' + object, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getCommits (repo: string, file: string): Promise<any> {
-    return http.post('/api/git', { repo: repo, file: file })
+  purgeQueue (queue: string, token: string): Promise<any> {
+    return http.delete('/api/queue/' + queue + '/contents', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getCode (repo: string, hash: string): Promise<any> {
-    return http.post('/api/git/code', { repo: repo, commit: hash })
+  getCommits (repo: string, file: string, token: string): Promise<any> {
+    return http.post('/api/git', { repo: repo, file: file }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  loginProcessor (id: string, password: string): Promise<any> {
-    return http.post('/api/login/' + id, { password: password })
+  getCode (repo: string, hash: string, token: string): Promise<any> {
+    return http.post('/api/git/code', { repo: repo, commit: hash }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getOutput (resultid: string): Promise<any> {
-    return http.get('/api/output/' + resultid)
+  loginProcessor (id: string, password: string, token: string): Promise<any> {
+    return http.post('/api/login/' + id, { password: password }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getResult (resultid: string): Promise<any> {
-    return http.get('/api/result/' + resultid)
+  getOutput (resultid: string, token: string): Promise<any> {
+    return http.get('/api/output/' + resultid, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getCalls (processor: string): Promise<any> {
-    return http.get('/api/calls/' + processor)
+  getResult (resultid: string, token: string): Promise<any> {
+    return http.get('/api/result/' + resultid, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getVersions (flow: string): Promise<any> {
-    return http.get('/api/versions/' + flow)
+  getCalls (processor: string, token: string): Promise<any> {
+    return http.get('/api/calls/' + processor, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getDeployments (processor: string): Promise<any> {
-    return http.get('/api/deployments/' + processor)
+  getVersions (flow: string, token: string): Promise<any> {
+    return http.get('/api/versions/' + flow, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getWorkers (processor: string): Promise<any> {
-    return http.get('/api/workers/' + processor)
+  getDeployments (processor: string, token: string): Promise<any> {
+    return http.get('/api/deployments/' + processor, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getMessages (queue: string): Promise<any> {
-    return http.get('/api/queue/messages/' + queue)
+  getWorkers (processor: string, token: string): Promise<any> {
+    return http.get('/api/workers/' + processor, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getQueues (): Promise<any> {
-    return http.get('/api/queues')
+  getMessages (queue: string, token: string): Promise<any> {
+    return http.get('/api/queue/messages/' + queue, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  saveProcessor (processor: any): Promise<any> {
-    return http.post('/api/processor/' + processor.name, processor)
+  getQueues (token: string): Promise<any> {
+    return http.get('/api/queues', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  saveProcessor (processor: any, token: string): Promise<any> {
+    return http.post('/api/processor/' + processor.name, processor, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
   emptyAllQueues (): Promise<any> {
     return http.get('/api/emptyqueues/')
   }
 
-  getProcessor (id: string): Promise<any> {
-    return http.get('/api/processor/' + id)
+  getProcessor (id: string, token: string): Promise<any> {
+    return http.get('/api/processor/' + id, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
   getProcessors (token: string): Promise<any> {
-    return http.get('/api/processors')
+    return http.get('/api/processors', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string): Promise<any> {
+  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
-    return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon })
+    return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  newFolder (collection: string, folder: string): Promise<any> {
-    return http.get('/api/folder/' + collection + '/' + folder)
+  newFolder (collection: string, folder: string, token: string): Promise<any> {
+    return http.get('/api/folder/' + collection + '/' + folder, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getPattern (name: string): Promise<any> {
-    return http.get('/api/pattern/' + name)
+  getPattern (name: string, token: string): Promise<any> {
+    return http.get('/api/pattern/' + name, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getNetworks (): Promise<any> {
-    return http.get('/api/networks')
+  getNetworks (token: string): Promise<any> {
+    return http.get('/api/networks', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  getFile (id: string): Promise<any> {
-    return http.get('/api/files/' + id)
+  getFile (id: string, token: string): Promise<any> {
+    return http.get('/api/files/' + id, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
-  deleteFile (id: string): Promise<any> {
-    return http.delete('/api/files/' + id)
+  deleteFile (id: string, token: string): Promise<any> {
+    return http.delete('/api/files/' + id, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 
   login (data: any): Promise<any> {

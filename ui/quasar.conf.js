@@ -8,7 +8,7 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers')
-let path = require('path')
+const path = require('path')
 
 module.exports = configure(function (ctx) {
   return {
@@ -93,31 +93,32 @@ module.exports = configure(function (ctx) {
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
+      allowedHosts: ['elasticcode-test.chargebee.com'],
       proxy: {
         // proxy all requests starting with /api to jsonplaceholder
         '/api': {
-            target: {
-            host: "localhost",
+          target: {
+            host: 'localhost',
             protocol: 'http:',
             port: 8000
-         },
-            changeOrigin: true,
-            pathRewrite: {
-              '^/api': ''
-            }
+          },
+          changeOrigin: true,
+          pathRewrite: {
+            '^/api': ''
+          }
         },
         '/socket.io': {
-            target: {
-            host: "localhost",
+          target: {
+            host: 'localhost',
             protocol: 'http:',
             port: 3003
-         },
-            changeOrigin: true
+          },
+          changeOrigin: true
         }
       },
       before (app) {
         const cors = require('cors')
-        app.options('*',cors())
+        app.options('*', cors())
         app.use(cors())
       },
       open: true // opens browser window automatically
@@ -150,7 +151,7 @@ module.exports = configure(function (ctx) {
         'QBreadcrumbs',
         'Dialog',
         'QDrawer',
-        //'LoadingBar',
+        // 'LoadingBar',
         'QTree',
         'QBtnToggle',
         'QSpinnerOval',
@@ -158,9 +159,9 @@ module.exports = configure(function (ctx) {
       ],
       config: {
         loadingBar: {
-          //color: 'primary',
-          //size: '5px',
-          //position: 'top'
+          // color: 'primary',
+          // size: '5px',
+          // position: 'top'
         }
       }
     },

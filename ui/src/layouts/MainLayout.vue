@@ -1130,6 +1130,13 @@ import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
 import { Auth0Lock } from 'auth0-lock'
 
+const chargebee = require('chargebee')
+
+chargebee.configure({
+  site: 'elasticcode-test',
+  api_key: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm'
+})
+
 // import OktaSignIn from '@okta/okta-signin-widget'
 // import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
 
@@ -1268,9 +1275,14 @@ export default defineComponent({
     '$auth.isAuthenticated': function (val) {
       var me = this
       if (val) {
-        debugger
         this.security.token().then((token) => {
           me.$store.commit('designer/setToken', token)
+          DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
+            subscriptions.data.subscription.subscription_items.forEach((subscription) => {
+              console.log('SUBSCRIPTION', subscription)
+              me.$store.commit('designer/setSubscription', subscription.item_price_id)
+            })
+          })
         })
       }
     },
@@ -1295,7 +1307,7 @@ export default defineComponent({
     viewQueueDialog: function (val) {
       if (val) {
         this.queueloading = true
-        DataService.getMessages(this.queuename)
+        DataService.getMessages(this.queuename, this.$store.state.designer.token)
           .then((messages) => {
             this.queueloading = false
             this.queuedata = messages.data
@@ -1485,7 +1497,7 @@ export default defineComponent({
       this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
     purgeQueue (name) {
-      DataService.purgeQueue(name)
+      DataService.purgeQueue(name, this.$store.state.designer.token)
         .then((res) => {
           this.$q.notify({
             color: 'secondary',
@@ -1752,7 +1764,7 @@ export default defineComponent({
     refreshQueues () {
       this.queueloading = true
       console.log('QUEUES REFRESHING')
-      DataService.getMessages(this.queuename)
+      DataService.getMessages(this.queuename, this.$store.state.designer.token)
         .then((messages) => {
           this.queueloading = false
           this.queuedata = messages.data
@@ -1826,21 +1838,22 @@ export default defineComponent({
       this.updateStats()
     })
     console.log('STATUS: CONNECTED', this.connected)
-    /*
-    function setconnected () {
-      console.log("setconnected")
-      setTimeout(() => {
-        console.log("SETTING CONNECTED TO true")
-        me.$store.commit('designer/setConnected', !me.$store.state.designer.connected);
-        setconnected();
-      }, 3000)
 
+    if (this.$auth.isAuthenticated) {
+      this.security.token().then((token) => {
+        me.$store.commit('designer/setToken', token)
+        DataService.getQueues(token).then((queues) => {
+          me.queues = queues.data
+          window.root.$emit('update.queues', queues.data)
+        })
+        DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
+          subscriptions.data.subscription.subscription_items.forEach((subscription) => {
+            console.log('SUBSCRIPTION', subscription)
+            me.$store.commit('designer/setSubscription', subscription.item_price_id)
+          })
+        })
+      })
     }
-    setconnected(); */
-    DataService.getQueues().then((queues) => {
-      me.queues = queues.data
-      window.root.$emit('update.queues', queues.data)
-    })
 
     this.transmitted()
     window.root.$on('message.count', (count) => {
@@ -1908,7 +1921,7 @@ export default defineComponent({
         }
       }
       me.tab = 'flow' + id
-      setTimeout( () => {
+      setTimeout(() => {
         me.tabChanged(me.tab)
       })
     })
@@ -1920,7 +1933,7 @@ export default defineComponent({
       me.flows.push(flow)
       me.tab = 'flow' + id
 
-      setTimeout( () => {
+      setTimeout(() => {
         me.tabChanged(me.tab)
       })
     })

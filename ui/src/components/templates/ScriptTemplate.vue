@@ -405,7 +405,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: 'function: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
+                @click="addNewPort({ function: 'error: ' + func.name, args: [] }, 'Error', 'fas fa-exclamation')"
               >
                 <q-item-section side>
                   <q-icon name="fab fa-python" />
@@ -1207,6 +1207,24 @@
             content-class="bg-black text-white"
           >
             Python Console
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -2557,6 +2575,8 @@ export default {
         // Find the port for the function
         // Emit result over the port edges
         for (var key in this.portobjects) {
+          debugger
+          key = key.replace('func:','')
           if (key === func) {
             me.triggerObject('func:' + key, msg.output)
           }
@@ -3295,6 +3315,9 @@ export default {
     }
   },
   methods: {
+    setZoomLevel () {
+      window.toolkit.surface.setZoom(1.0)
+    },
     showArgumentData(data) {
       var me = this
       this.argumentview = !this.argumentview
@@ -3401,7 +3424,7 @@ export default {
       }
     },
     showCommit (hash, date) {
-      DataService.getCode(this.obj.gitrepo.split('#')[0], hash).then((code) => {
+      DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
@@ -3412,14 +3435,14 @@ export default {
       this.gitview = true
     },
     getCommits () {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath).then((result) => {
+      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath, this.$store.state.designer.token).then((result) => {
         this.gitdata = result.data
       })
     },
     doLogin () {
       var me = this
 
-      DataService.loginProcessor(this.obj.id, this.password)
+      DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
           me.login = false
           console.log(result)
@@ -3467,7 +3490,7 @@ export default {
     showOutput (resultid) {
       this.resultdataloading = true
 
-      DataService.getOutput(resultid).then((result) => {
+      DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -3477,7 +3500,7 @@ export default {
     showResult (resultid) {
       this.resultdataloading = true
 
-      DataService.getResult(resultid).then((result) => {
+      DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
         this.resultdataloading = false
 
         const editor = this.$refs.resultEditor.editor
@@ -3486,7 +3509,7 @@ export default {
     },
     refreshResultsData () {
       this.resultloading = true
-      DataService.getCalls(this.obj.name)
+      DataService.getCalls(this.obj.name, this.$store.state.designer.token)
         .then((calls) => {
           this.resultdata = calls.data
           this.resultloading = false
@@ -3641,7 +3664,7 @@ export default {
 
       // embed variabledata, requirements into this.obj.uistate
 
-      DataService.saveProcessor(this.obj)
+      DataService.saveProcessor(this.obj, this.$store.state.designer.token)
         .then(() => {
           this.refreshing = false
           this.error = false
@@ -3990,6 +4013,10 @@ export default {
         type: type
       })
 
+      let prefix = "func:"
+      if (type === "Error") {
+        prefix = "error:"
+      }
       this.ports[func.function] = true
       this.argports[port.id] = []
 
@@ -4000,7 +4027,7 @@ export default {
       }
 
       const fname = func.function.replace('function: ', '')
-      me.portobjects['func:' + fname] = port
+      me.portobjects[prefix + fname] = port
 
       me.portobjects[fname] = []
       func.args.forEach((arg) => {
@@ -4051,7 +4078,9 @@ export default {
         // update resultdata
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
+        console.log("_PLUGS",_plugs)
         this.getNode().getPorts().forEach((port) => {
+          debugger
           if (port.data.type === 'Plug') {
             const plug_result = _plugs.get(port.data.name)
             me.triggerRoute(port.data.id, plug_result)
@@ -4069,7 +4098,17 @@ export default {
         }
       }, (error) => {
         debugger
-        console.log('PYTHON ERROR')
+        console.log('PYTHON ERROR', error)
+      })
+    },
+    triggerError (portid, error) {
+      const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
+      _port.getEdges().forEach((edge) => {
+        const options = edge.target.data
+        const target_id = edge.target.getNode().data.id
+        const node = edge.target.getNode()
+        const code = node.data.code
+        window.root.$emit(target_id, code, options.function, options.name, error)
       })
     },
     triggerRoute (portid, result) {
@@ -4104,6 +4143,8 @@ export default {
         })
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
+
+        console.log("_PLUGS",_plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
             const plug_result = _plugs.get(port.data.name)

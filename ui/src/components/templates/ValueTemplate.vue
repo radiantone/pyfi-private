@@ -653,7 +653,7 @@ export default {
     });
 
     this.deployLoading = true;
-    DataService.getDeployments(this.obj.name)
+    DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
       .then((deployments) => {
         console.log('DEPLOYMENTS', deployments);
         this.deployLoading = false;
@@ -1358,7 +1358,7 @@ export default {
     },
     refreshDeployments() {
       this.deployLoading = true;
-      DataService.getDeployments(this.obj.name)
+      DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
         .then((deployments) => {
           console.log('DEPLOYMENTS', deployments);
           this.deployLoading = false;

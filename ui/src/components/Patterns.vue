@@ -211,7 +211,7 @@ export default {
       var me = this
       this.loading = true
       console.log('synchronizing')
-      var files = DataService.getFiles('patterns', 'Home')
+      var files = DataService.getFiles('patterns', 'Home', this.$store.state.designer.token)
 
       files
         .then((result) => {
@@ -293,7 +293,7 @@ export default {
         false,
         'pattern',
         'fas fa-project-diagram',
-        JSON.stringify({ image: pattern.image, code: pattern.code })
+        JSON.stringify({ image: pattern.image, code: pattern.code }, this.$store.state.designer.token)
 
       )
         .then((response) => {

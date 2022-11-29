@@ -27,7 +27,7 @@
       <span style="min-width: 500px;">
         {{ obj.name }} <i class="fas fa-edit text-primary" style="cursor:pointer" >
               <q-popup-edit
-                
+
                 style="font-size: 15px; margin-top: 5px;"
                 v-model="obj.name"
               >
@@ -101,7 +101,7 @@
         <q-inner-loading :showing="showing" style="z-index: 999999;">
       <q-spinner-gears size="50px" color="primary" />
     </q-inner-loading>
-    
+
     <q-dialog v-model="deleteGroup" persistent>
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
@@ -269,7 +269,7 @@ export default {
     this.toolkit = window.toolkit;
     var group = this.toolkit.getObjectInfo(this.obj);
     console.log("PATTERN GROUP",group);
-    DataService.getPattern('pattern2').then( (pattern) => {
+    DataService.getPattern('pattern2', this.$store.state.designer.token).then( (pattern) => {
         me.showing = false;
         console.log("PATTERN NODES",pattern)
         window.toolkit.load({type: 'json', data: pattern.data})
@@ -286,7 +286,7 @@ export default {
         })
         pattern.data['edges'].forEach( (edge) => {
           console.log("Adding edge",edge)
-          
+
           group.obj.addEdge(edge)
         })*/
     }).catch( (error) => {

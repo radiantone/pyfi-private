@@ -113,7 +113,7 @@
           v-for="item in items"
           :key="item.id"
           :id="'row' + item.id"
-          class="dragrow"
+          class="dragrow text-primary"
         >
           <q-item-section avatar>
             <q-icon
@@ -474,7 +474,8 @@ export default {
         this.saveas,
         'flow',
         'fas fa-file',
-        this.flowcode
+        this.flowcode,
+        this.$store.state.designer.token
       )
         .then((response) => {
           me.saveas = false
@@ -508,7 +509,7 @@ export default {
     async deleteObject () {
       console.log('DELETE: ', this.deleteobjectid)
       var me = this
-      var res = await DataService.deleteFile(this.deleteobjectid)
+      var res = await DataService.deleteFile(this.deleteobjectid, this.$store.state.designer.token)
         .then((result) => {
           me.$q.notify({
             color: 'secondary',
@@ -550,7 +551,7 @@ export default {
       this.showaddfolder = false
       this.showpath = true
       this.loading = true
-      DataService.newFolder('flows', this.foldername + '/' + this.newfolder)
+      DataService.newFolder('flows', this.foldername + '/' + this.newfolder, this.$store.state.designer.token)
         .then(() => {
           me.synchronize()
         })
@@ -593,7 +594,7 @@ export default {
 
       this.flowuuid = item.id
       if (item.type === this.objecttype) {
-        DataService.getFile(item.id).then((code) => {
+        DataService.getFile(item.id, this.$store.state.designer.token).then((code) => {
           item.code = code.data
           me.flowcode = item.code
           console.log('FLOW CODE', item)

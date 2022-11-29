@@ -197,7 +197,7 @@ export default {
 
       this.flowuuid = item.id
       if (item.type === this.objecttype) {
-        DataService.getFile(item.id).then((code) => {
+        DataService.getFile(item.id, this.$store.state.designer.token).then((code) => {
           item.code = code.data
           me.flowcode = item.code
           console.log('FLOW CODE', item)
@@ -235,7 +235,7 @@ export default {
       this.loading = true
       const me = this
       try {
-        const files = DataService.getProcessors()
+        const files = DataService.getProcessors(this.$store.state.designer.token)
         files
           .then(function (result) {
             setTimeout(function () {
