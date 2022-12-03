@@ -2727,7 +2727,7 @@ export default {
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
-        interval: 5,
+        interval: -1,
         useschedule: false,
         disabled: false,
         commit: '',

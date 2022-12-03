@@ -205,7 +205,9 @@ var dd = require('drip-drop')
 
 export default {
   name: 'Patterns',
-  created () {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  created () {
+  },
   methods: {
     synchronize () {
       var me = this
@@ -294,7 +296,6 @@ export default {
         'pattern',
         'fas fa-project-diagram',
         JSON.stringify({ image: pattern.image, code: pattern.code }, this.$store.state.designer.token)
-
       )
         .then((response) => {
           me.synchronize()
@@ -327,6 +328,7 @@ export default {
       if (val) {
         var me = this
         me.synchronize()
+        window.root.off('save.pattern')
         window.root.$on('save.pattern', (id, name, image, objects) => {
           console.log('PATTERNS SAVING', objects)
           var code = JSON.stringify(objects)

@@ -2500,7 +2500,6 @@ export default {
       }
     },
     runFlow () {
-      debugger
       this.$emit('trigger.data')
     },
     bandwidthToggle () {

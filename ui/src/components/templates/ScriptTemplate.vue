@@ -2568,7 +2568,7 @@ export default {
           me.calls_in = msg.output.length
           me.updateBandwidthChart()
           // update resultdata
-          
+
           me.error = false
         }
         Object.entries(this.argobjects).forEach((tuple) => {
@@ -3082,7 +3082,7 @@ export default {
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
-        interval: 5,
+        interval: -1,
         useschedule: false,
         disabled: false,
         commit: '',

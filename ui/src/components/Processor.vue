@@ -6,7 +6,8 @@ import { Wrapper } from '../util'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
 import Moment from 'moment/moment'
-const scheduler = new IntervalBasedCronScheduler(1000)
+
+let scheduler
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -28,6 +29,8 @@ interface SocketData {
 export interface ProcessorState {
   name: string;
   id: string;
+  interval: number;
+  scheduler: any;
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
   errorobjects: { [key: string]: any };
@@ -47,6 +50,8 @@ export const ProcessorMixin = Vue.extend({
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
   id!: ProcessorState['id'];
+  interval!: ProcessorState['interval'];
+  scheduler!: ProcessorState['scheduler'];
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -86,6 +91,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
   Props>({
     data () {
       return {
+        scheduler: null,
+        interval: -1,
         name: 'MyProcessor',
         id: 'any',
         portobjects: {},
@@ -103,6 +110,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       me.listenMessages()
     },
     watch: {
+      interval: function (newv, oldv) {
+        //
+      },
       connected: function (newv, oldv) {
         console.log('PROCESSOR CONNECTED', oldv, newv)
         if (newv) {
@@ -136,6 +146,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       startSchedule (cronstr: string) {
         var me = this
         console.log('UPDATING CRON')
+        scheduler = new IntervalBasedCronScheduler(this.interval)
         scheduler.stop()
         const cron = parseCronExpression(cronstr)
         scheduler.registerTask(cron, () => {
@@ -144,7 +155,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             type: 'trigger'
           })
         })
-        scheduler.start()
+        //scheduler.start()
       },
       getPort (func: string, name: string) {
         for (var i = 0; i < this.portobjects[func].length; i++) {
@@ -165,7 +176,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
-            if(data.type && data.type == 'error') {
+            if(data.type && data.type === 'error') {
               obj = data
             } else {
               // TODO: Check for instance of PyProxy here
