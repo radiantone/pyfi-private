@@ -4,11 +4,14 @@ pyfi API server Flask app
 import configparser
 import json
 import logging
+import os
 import platform
+from base64 import b64decode, b64encode
 
 import chargebee
+import requests
 
-chargebee.configure("test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm", "elasticcode-test")
+chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
 
 from functools import wraps
 from typing import Any, Type
@@ -20,6 +23,7 @@ from flask import (
     make_response,
     request,
     send_from_directory,
+    session,
 )
 from flask_cors import cross_origin
 from flask_restx import Api, Resource, fields, reqparse
@@ -45,6 +49,7 @@ from pyfi.db.model import (
 )
 
 CONFIG = configparser.ConfigParser()
+SESSION = session
 
 from pathlib import Path
 
@@ -64,6 +69,7 @@ logging.basicConfig(level=logging.INFO)
 hostname = platform.node()
 
 app = Flask(__name__)
+app.secret_key = "super secret key"
 app.register_blueprint(blueprint)
 
 api = Api(
@@ -198,6 +204,12 @@ def requires_auth(f):
                         },
                         401,
                     )
+
+                if "user" not in SESSION:
+                    user = requests.get(
+                        payload["aud"][1], headers={"Authorization": "Bearer " + token}
+                    ).json()
+                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
@@ -461,7 +473,10 @@ def get_output(resultid):
 def get_subscription(user):
     import json
 
-    result = chargebee.Customer.list({"email[is]": "darren@ontrenet.com"})
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
+
+    result = chargebee.Customer.list({"email[is]": user["email"]})
     customer_id = result[0].customer.id
     result = chargebee.Subscription.list({"customer_id[is]": customer_id})
 
@@ -495,9 +510,14 @@ def get_result(resultid):
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def get_files(collection, path):
+    import json
 
-    with get_session() as session:
-        files = session.query(FileModel).all()
+    print(SESSION["user"])
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
+
+    with get_session(user=user) as session:
+        # files = session.query(FileModel).all()
 
         try:
             files = (

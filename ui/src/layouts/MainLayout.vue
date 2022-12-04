@@ -1,5 +1,14 @@
 <template>
   <q-layout view="lHh Lpr lFf">
+    <q-inner-loading
+      :showing="flowloading"
+      style="z-index: 9999999;"
+    >
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
+    </q-inner-loading>
     <q-header elevated>
       <ToolPalette
         v-if="tools === 'code'"
@@ -1925,8 +1934,12 @@ export default defineComponent({
         me.tabChanged(me.tab)
       })
     })
+    this.$root.$on('loading.flow', () => {
+      me.flowloading = true
+    })
     this.$root.$on('load.flow', (flow) => {
       console.log('load.flow', flow)
+      me.flowloading = false
       var id = me.flows.length + 1
       flow._id = flow._id
       flow.id = id
@@ -2195,6 +2208,7 @@ export default defineComponent({
   },
   data () {
     return {
+      flowloading: false,
       purgeQueueName: null,
       confirmQueuePurge: false,
       queueDetailContent: '',

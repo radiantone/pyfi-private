@@ -84,9 +84,16 @@ def get_session(**kwargs):
     from sqlalchemy.orm import scoped_session, sessionmaker
     from sqlalchemy.pool import NullPool
 
-    _engine = create_engine(
-        CONFIG.get("database", "uri"), isolation_level="AUTOCOMMIT", poolclass=NullPool
-    )
+    user = kwargs["user"] if "user" in kwargs else None
+    uri = CONFIG.get("database", "uri")
+
+    if user is not None:
+        # Get user from database, get login password
+        # login = {}
+        # uri = CONFIG.get("database","base").replace("USER", user['name']).replace("PASSWORD", login['password'])
+        pass
+
+    _engine = create_engine(uri, isolation_level="AUTOCOMMIT", poolclass=NullPool)
     conn = _engine.connect()
     session = scoped_session(sessionmaker(bind=_engine))
 

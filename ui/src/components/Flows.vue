@@ -594,6 +594,7 @@ export default {
 
       this.flowuuid = item.id
       if (item.type === this.objecttype) {
+        me.$root.$emit('loading.flow')
         DataService.getFile(item.id, this.$store.state.designer.token).then((code) => {
           item.code = code.data
           me.flowcode = item.code
