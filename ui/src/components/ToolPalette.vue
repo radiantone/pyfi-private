@@ -538,22 +538,6 @@
               </q-item-section>
             </q-item>
 
-            <q-item
-              clickable
-              v-close-popup
-              @click="checkout"
-            >
-              <q-item-section side>
-                <q-icon name="far fa-envelope" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Checkout
-              </q-item-section>
-            </q-item>
-
             <q-separator />
             <q-item
               clickable

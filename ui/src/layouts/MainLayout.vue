@@ -266,7 +266,7 @@
           dense
           flat
           color="secondary"
-          @click="upgrade"
+          @click="chooseplan = true"
         >
           Upgrade Plan
         </q-btn>
@@ -275,7 +275,7 @@
           dense
           flat
           color="secondary"
-          @click="checkout"
+          @click="chooseplan = true"
         >
           Subscribe
         </q-btn>
@@ -801,7 +801,234 @@
         style="width: 100%;"
       />
     </q-drawer>
-
+    <q-dialog
+      v-model="chooseplan"
+      transition-show="none"
+      persistent
+    >
+      <q-card style="width: 70vw; max-width: 40vw; height: 70vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Choose a Plan</q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="chooseplan = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <table
+          style="width:100%;"
+          cellpadding="10px"
+        >
+          <thead>
+            <tr>
+              <td />
+              <td>Guest</td>
+              <td>Free</td>
+              <td>Developer</td>
+              <td>Pro</td>
+              <td>Hosted</td>
+              <td>Enterprise</td>
+            </tr>
+          </thead>
+          <tr style="background-color: rgb(244, 246, 247) !important; border-top: 1px solid black">
+            <td>Execute Data Flows</td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Browser Execution</td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr style="background-color: rgb(244, 246, 247) !important">
+            <td>Save Data Flows</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr style="background-color: rgb(244, 246, 247) !important">
+            <td>GIT Integration</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Generate Code</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>REST API</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>AI Assistant</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr style="background-color: rgb(244, 246, 247) !important">
+            <td>Script Library</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Patterns</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr style="background-color: rgb(244, 246, 247) !important">
+            <td>Secure Processors</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Hosted Services</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Transactional</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Co-Development</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>Streaming</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>CLI</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr >
+            <td>On Prem</td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-close2" /></td>
+            <td><q-icon name="fas fa-check" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td><q-btn dense color="secondary" size="md" label="Register" v-if="!$auth.isAuthenticated" @click="login"/></td>
+            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense color="secondary" size="md" label="Contact Us" @click="upgrade"/></td>
+          </tr>
+        </table>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Manage"
+            class="bg-primary text-dark"
+            color="secondary"
+            @click="manage"
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog
       v-model="viewQueueDialog"
       transition-show="none"
@@ -1245,13 +1472,6 @@ export default defineComponent({
     ModelToolPalette,
     Processors,
     Library
-  },
-  setup () {
-    // const counter = useCounterStore()
-
-    // counter.count++
-    // console.log("COUNTER is ",counter)
-    return {}
   },
   created () {
     this.mdiEmailAlert = mdiEmailAlert
@@ -2208,6 +2428,8 @@ export default defineComponent({
   },
   data () {
     return {
+      separator: ref('vertical'),
+      chooseplan: false,
       flowloading: false,
       purgeQueueName: null,
       confirmQueuePurge: false,

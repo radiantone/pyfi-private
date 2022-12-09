@@ -248,7 +248,7 @@
   padding: 5px;
   z-index: 1;
   cursor: pointer;
-  background-color: rgb(244, 137, 37);
+  background-color: #6b8791;
   font-size: 18px;
   border: 1px solid black;
   text-align: center;
@@ -256,7 +256,7 @@
 
 .delete-relationship:hover {
   color: #fff;
-  background-color: #5fa6ec;
+  background-color: #abbcc3;
   padding: 4px;
 }
 

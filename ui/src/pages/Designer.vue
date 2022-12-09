@@ -266,6 +266,21 @@
         <q-btn
           flat
           style="min-height: 45px;"
+          @click="setEdgeType"
+          size="sm"
+          icon="fas fa-arrow-right"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Toggle Edge Type
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
           @click="bandwidthToggle"
           size="sm"
           icon="fas fa-tachometer-alt"
@@ -278,7 +293,6 @@
             Toggle Bandwidth Display
           </q-tooltip>
         </q-btn>
-
         <q-separator
           vertical
           inset
@@ -2236,7 +2250,8 @@
   z-index: 0;
   cursor: pointer;
   z-index: 9;
-  background-color: #1976d2;
+
+  background-color: #6b8791;
   font-size: 14px;
   border: 1px solid black;
   text-align: center;
@@ -2423,6 +2438,22 @@ export default {
     }
   },
   methods: {
+    setEdgeType (edgetype) {
+      this.edgetype = !this.edgetype
+      if (this.edgetype) {
+        var edges = window.toolkit.getAllEdges()
+        for (var i = 0; i < edges.length; i++) {
+          window.toolkit.setType(edges[i], 'default')
+          this.edgeLabel = 'Curved Edges'
+        }
+      } else {
+        var edges = window.toolkit.getAllEdges()
+        for (var i = 0; i < edges.length; i++) {
+          window.toolkit.setType(edges[i], 'flowchart')
+          this.edgeLabel = 'Boxy Edges'
+        }
+      }
+    },
     getVersion () {
       if (this.$store.state.designer.version.indexOf("Free") >= 0) {
         return "FREE"
@@ -2954,6 +2985,7 @@ export default {
   },
   data: () => {
     return {
+      edgetype: true,
       owner: 'darren',
       messages: [],
       undoredo: {},

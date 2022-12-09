@@ -21,6 +21,7 @@ case==1.5.3
 celery==5.2.6
 certifi==2021.10.8
 cffi==1.15.0
+chargebee==2.21.0
 charset-normalizer==2.0.12
 click==8.1.3
 click-didyoumean==0.3.0
@@ -36,10 +37,13 @@ distlib==0.3.4
 dnspython==2.2.1
 docker==5.0.3
 docutils==0.17.1
+ecdsa==0.18.0
 eventlet==0.33.0
+-e git+https://radiantone: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@github.com/radiantone/pyfi-processors@9ba97662bb3285a50289891194d4a596377fe333#egg=ext_processor
 filelock==3.6.0
 flake8==4.0.1
 Flask==2.1.2
+Flask-Cors==3.0.10
 flask-restx==0.5.1
 flask-swagger-ui==4.11.1
 flower==1.0.0
@@ -95,6 +99,7 @@ psycopg2==2.9.3
 PuLP==2.6.0
 py==1.11.0
 PyAMQP==0.1.0.7
+pyasn1==0.4.8
 pycodestyle==2.8.0
 pycparser==2.21
 pydash==5.1.0
@@ -108,9 +113,11 @@ pyparsing==3.0.8
 pyrsistent==0.18.1
 pyschedule==0.2.34
 pytest==7.1.2
+pytest-sqlalchemy-mock==0.1.4
 python-dateutil==2.8.2
 python-dotenv==0.20.0
 python-engineio==4.3.2
+python-jose==3.3.0
 python-jsonrpc-server==0.4.0
 python-slugify==6.1.2
 python-socketio==5.6.0
@@ -122,6 +129,7 @@ redis==3.5.3
 rejson==0.5.6
 reportlab==3.6.11
 requests==2.27.1
+rsa==4.9
 rst2pdf==0.99
 schedule==1.1.0
 setproctitle==1.2.3
@@ -133,7 +141,7 @@ snowballstemmer==2.2.0
 soupsieve==2.3.2.post1
 Sphinx==4.5.0
 sphinx-click==4.0.3
-sphinx-material==0.0.34+16.g12ac9da
+sphinx-material
 sphinx-rtd-theme==1.0.0
 sphinxcontrib-applehelp==1.0.2
 sphinxcontrib-devhelp==1.0.2
@@ -155,6 +163,7 @@ types-pytz==2022.1.2
 types-PyYAML==6.0.12
 types-redis==4.3.21.2
 types-requests==2.28.11.2
+types-six==1.16.21.4
 types-urllib3==1.26.25.1
 typing_extensions==4.2.0
 tzdata==2022.1

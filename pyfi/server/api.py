@@ -976,6 +976,13 @@ def get_calls(name):
         return jcalls
 
 
+@app.route("/registration", methods=["POST"])
+def post_registration():
+    user = request.get_json(silent=True)
+    print(user)
+    return "OK"
+
+
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
