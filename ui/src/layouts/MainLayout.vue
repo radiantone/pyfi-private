@@ -806,7 +806,7 @@
       transition-show="none"
       persistent
     >
-      <q-card style="width: 70vw; max-width: 40vw; height: 70vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
+      <q-card style="width: 70vw; max-width: 40vw; overflow:hidden; height: 70vh; padding: 10px; padding-left: 30px; padding-top: 40px;">
         <q-card-section
           class="bg-secondary"
           style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
@@ -880,7 +880,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
+          <tr >
             <td>GIT Integration</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -889,7 +889,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>Generate Code</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -907,7 +907,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>AI Assistant</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -916,7 +916,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
+          <tr >
             <td>Script Library</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -925,7 +925,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>Patterns</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -934,7 +934,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
+          <tr >
             <td>Secure Processors</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -943,7 +943,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>Hosted Services</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -961,7 +961,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>Co-Development</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -979,7 +979,7 @@
             <td><q-icon name="fas fa-check" /></td>
             <td><q-icon name="fas fa-check" /></td>
           </tr>
-          <tr >
+          <tr style="background-color: rgb(244, 246, 247) !important">
             <td>CLI</td>
             <td><q-icon name="fas fa-close2" /></td>
             <td><q-icon name="fas fa-close2" /></td>
@@ -1000,11 +1000,11 @@
           <tr>
             <td></td>
             <td></td>
-            <td><q-btn dense color="secondary" size="md" label="Register" v-if="!$auth.isAuthenticated" @click="login"/></td>
-            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
-            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
-            <td><q-btn dense color="secondary" size="md" label="Upgrade" @click="upgrade"/></td>
-            <td><q-btn dense color="secondary" size="md" label="Contact Us" @click="upgrade"/></td>
+            <td><q-btn dense padding="10px 15px" size="md" label="Register" v-if="!$auth.isAuthenticated" @click="login"/></td>
+            <td><q-btn dense padding="10px 15px" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense padding="10px 15px" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense padding="10px 15px" size="md" label="Upgrade" @click="upgrade"/></td>
+            <td><q-btn dense padding="10px 15px" size="md" label="Contact Us" @click="upgrade"/></td>
           </tr>
         </table>
         <q-card-actions align="left">
@@ -1012,8 +1012,8 @@
             flat
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             label="Manage"
-            class="bg-primary text-dark"
-            color="secondary"
+            class="bg-secondary text-white"
+            color="primary"
             @click="manage"
           />
         </q-card-actions>
