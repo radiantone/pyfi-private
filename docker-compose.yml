@@ -98,6 +98,8 @@ services:
     image: api:latest
     environment: 
       - "EVENTS=events"
+      - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
+      - "CB_SITE=elasticcode-test"
     ports:
       - 8014:8003
     profiles: 
