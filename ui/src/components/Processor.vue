@@ -155,7 +155,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             type: 'trigger'
           })
         })
-        //scheduler.start()
+        // scheduler.start()
       },
       getPort (func: string, name: string) {
         for (var i = 0; i < this.portobjects[func].length; i++) {
@@ -176,7 +176,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
-            if(data.type && data.type === 'error') {
+            if (data.type && data.type === 'error') {
               obj = data
             } else {
               // TODO: Check for instance of PyProxy here
@@ -211,27 +211,26 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
-              let jsonarg
+              let jsonarg = _arg.data
 
               // If we already have JSON encoded data, then pass it along
               // otherwise, convert it to JSON
               let isobj = false
-              if (_arg.data instanceof Object) {
-                isobj = true
+
+              if (typeof jsonarg === 'string') {
                 try {
-                  JSON.parse(_arg.data)
-                  jsonarg = _arg.data
+                  JSON.parse(jsonarg)
+                  isobj = true
                 } catch (err) {
-                  if (_arg.data instanceof Object) {
-                    jsonarg = JSON.stringify(_arg.data)
-                  } else {
-                    jsonarg = _arg.data
-                  }
+                  // Leave jsonarg as is, since the string is not JSON
                 }
               } else {
-                jsonarg = _arg.data
+                if (_arg.data instanceof Object) {
+                  isobj = true
+                  jsonarg = JSON.stringify(_arg.data)
+                }
               }
-              debugger
+
               console.log('    ARG:', _arg, jsonarg)
               if (count > 0) {
                 call = call + ','

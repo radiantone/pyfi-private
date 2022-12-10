@@ -2215,7 +2215,6 @@ export default {
     })
 
     this.$on('message.received', (msg) => {
-      debugger
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {

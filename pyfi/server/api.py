@@ -47,6 +47,7 @@ from pyfi.db.model import (
     VersionModel,
     WorkerModel,
 )
+from pyfi.server.chatgpt.cli import consult
 
 CONFIG = configparser.ConfigParser()
 SESSION = session
@@ -481,6 +482,16 @@ def get_subscription(user):
     result = chargebee.Subscription.list({"customer_id[is]": customer_id})
 
     return str(result[0])
+
+
+@app.route("/chatgpt", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
+@requires_auth
+def consult_chatgpt():
+
+    data = request.get_json()
+    answer = consult(data["question"])
+    return answer
 
 
 @app.route("/result/<resultid>", methods=["GET"])

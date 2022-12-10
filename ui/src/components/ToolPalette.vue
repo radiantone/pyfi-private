@@ -42,6 +42,23 @@
       <q-btn
         flat
         align="left"
+        :icon="border"
+        aria-label="Border"
+        size="large"
+        id="border"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Border
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
         icon="img:/images/python.svg"
         aria-label="Script"
         size="xl"
@@ -832,6 +849,7 @@
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { mdiCodeBraces } from '@mdi/js'
+import { mdiBorderNoneVariant } from '@mdi/js';
 import DataService from './util/DataService'
 
 export default {
@@ -839,6 +857,7 @@ export default {
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
   created () {
     this.braces = mdiCodeBraces
+    this.border = mdiBorderNoneVariant
   },
   mounted () {
     const me = this

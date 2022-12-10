@@ -59,6 +59,14 @@ class DataService {
     })
   }
 
+  askChat (question: string, token: string): Promise<any> {
+    return http.post('/api/chatgpt', { question: question }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getOutput (resultid: string, token: string): Promise<any> {
     return http.get('/api/output/' + resultid, {
       headers: {
