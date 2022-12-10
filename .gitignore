@@ -1,4 +1,5 @@
 scrap
+config.json
 celerybeat*
 node_modules
 agent?
