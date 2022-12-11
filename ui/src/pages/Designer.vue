@@ -393,7 +393,7 @@
       v-model="drawer"
       side="right"
       bordered
-      :width="500"
+      :width="600"
       style="overflow: hidden;"
     >
       <div>

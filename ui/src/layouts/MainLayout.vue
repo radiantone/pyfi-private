@@ -828,7 +828,7 @@
               margin-right: 1em;
             "
         >
-          AI Chat Bot
+          AI Coding Buddy
         </q-item-label>
       </q-toolbar>
       <q-input
@@ -837,24 +837,27 @@
         style="width:100%;padding:10px;resize: none !important;"
         type="textarea"
       />
-      <q-btn
-        label="Send"
-        color="secondary"
-        @click="sendChat"
-        style="margin-left:30px;margin-bottom:30px"
-      />
+      <q-toolbar>
+        <q-space />
+        <q-btn
+          label="Go!"
+          color="secondary"
+          @click="sendChat"
+          style="margin-right:30px;margin-bottom:30px"
+        />
+      </q-toolbar>
       <q-separator />
       <q-scroll-area style="height:calc(100vh - 420px);">
-        <pre>{{ answer }}</pre>
-              <q-inner-loading
-        :showing="loadingchat"
-        style="z-index: 9999999;"
-      >
-        <q-spinner-gears
-          size="50px"
-          color="primary"
-        />
-      </q-inner-loading>
+        <q-markdown :src="answer" />
+        <q-inner-loading
+          :showing="loadingchat"
+          style="z-index: 9999999;"
+        >
+          <q-spinner-gears
+            size="50px"
+            color="primary"
+          />
+        </q-inner-loading>
       </q-scroll-area>
     </q-drawer>
     <q-drawer
@@ -1225,8 +1228,17 @@
                 padding="10px 15px"
                 size="md"
                 label="Upgrade"
-                v-if="$auth.isAuthenticated"
+                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription != 'ec_developer-USD-Monthly'"
                 @click="upgrade('ec_developer-USD-Monthly')"
+              />
+              <q-btn
+                dense
+                padding="10px 15px"
+                size="md"
+                color="secondary"
+                label="My Plan"
+                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription == 'ec_developer-USD-Monthly'"
+                @click="manage"
               />
             </td>
             <td>
@@ -1767,12 +1779,7 @@ export default defineComponent({
       if (val) {
         this.security.token().then((token) => {
           me.$store.commit('designer/setToken', token)
-          DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-            subscriptions.data.subscription.subscription_items.forEach((subscription) => {
-              console.log('SUBSCRIPTION', subscription)
-              me.$store.commit('designer/setSubscription', subscription.item_price_id)
-            })
-          })
+          me.updateSubscription()
         })
       }
     },
@@ -1855,6 +1862,19 @@ export default defineComponent({
     }
   },
   methods: {
+    updateSubscription () {
+      var me = this
+      DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
+          if (subscriptions.data.subscription['status'] != "cancelled") {
+            subscriptions.data.subscription.subscription_items.forEach((subscription) => {
+              console.log('SUBSCRIPTION', subscription)
+              me.$store.commit('designer/setSubscription', subscription.item_price_id)
+            })
+          } else {
+            me.$store.commit('designer/setSubscription', "cancelled")
+          }
+        })
+    },
     info (title) {
       this.infotitle = title
       this.infodialog = true
@@ -1864,7 +1884,7 @@ export default defineComponent({
       this.loadingchat = true
       DataService.askChat(this.question, this.$store.state.designer.token).then((answer) => {
         me.answer = answer.data
-
+        console.log(me.answer)
         me.loadingchat = false
       }).catch((error) => {
 
@@ -1908,9 +1928,8 @@ export default defineComponent({
           },
           success: function (hostedPageId) {
             console.log('CART', JSON.parse(JSON.stringify(cart)))
-            me.subscriptions()
-            // Show dialog or notify about plan success.
-            me.subscribed = true
+
+            me.updateSubscription()
           },
           step: function (value) {
             // value -> which step in checkout
@@ -1940,7 +1959,8 @@ export default defineComponent({
           },
           success: function (hostedPageId) {
             console.log('checkout success')
-            window.location.reload()
+
+            me.updateSubscription()
           },
           step: function (value) {
             console.log('checkout step')
@@ -1955,15 +1975,18 @@ export default defineComponent({
 
           // TODO: Show warning dialog about reload
 
-          window.location.reload()
+
+            me.updateSubscription()
         },
         subscriptionReactivated: (data) => {
           console.log('subscription reactivated')
-          window.location.reload()
+
+            me.updateSubscription()
         },
         subscriptionChanged: (data) => {
           console.log('subscription changed')
-          window.location.reload()
+
+            me.updateSubscription()
         },
         close: () => {
           console.log('Portal closed')
@@ -2354,12 +2377,7 @@ export default defineComponent({
           me.queues = queues.data
           window.root.$emit('update.queues', queues.data)
         })
-        DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-          subscriptions.data.subscription.subscription_items.forEach((subscription) => {
-            console.log('SUBSCRIPTION', subscription)
-            me.$store.commit('designer/setSubscription', subscription.item_price_id)
-          })
-        })
+        updateSubscription()
       })
     }
 
@@ -2387,6 +2405,10 @@ export default defineComponent({
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
+    this.$root.$on('open.chat', () => {
+      this.chatdrawer = !this.chatdrawer
+    })
+
     this.$root.$on('open.library', () => {
       console.log('open.library')
       this.librarydrawer = !this.librarydrawer

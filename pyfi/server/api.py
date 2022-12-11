@@ -485,9 +485,9 @@ def get_subscription(user):
 
 
 @app.route("/chatgpt", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def consult_chatgpt():
+    from flask import Response
 
     data = request.get_json()
     answer = consult(data["question"])

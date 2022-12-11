@@ -99,7 +99,7 @@
         id="processor"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
+        :disabled="this.sublevel[this.$store.state.designer.subscription] < PRO"
         title="Upgrade to PRO Plan"
       >
         <!--:disabled="false"-->
@@ -174,110 +174,7 @@
           Process Group
         </q-tooltip>
       </q-btn>
-      <!--
-      <q-btn
-        flat
-        align="left"
-        icon="segment"
-        aria-label="Parallel Node"
-        id="parallel"
-        size="large"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Parallel
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        align="left"
-        icon="fas fa-long-arrow-alt-right"
-        aria-label="Pipeline Node"
-        size="large"
-        id="pipeline"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Pipeline
-        </q-tooltip>
-      </q-btn>
 
-      <q-btn
-        flat
-        align="left"
-        icon="low_priority"
-        aria-label="Chord Node"
-        size="large"
-        id="chord"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Chord
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        align="left"
-        icon="grid_view"
-        aria-label="Segment Node"
-        size="large"
-        id="segment"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Segment
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-      flat
-      align="left"
-      icon="icon-map"
-      aria-label="Map Node"
-      size="large"
-      id="map"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Map
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      flat
-      align="left"
-      icon="icon-funnel"
-      aria-label="Reduce Node"
-      size="large"
-      id="reduce"
-      style="min-height: 56px; cursor: grabbing;"
-      class="text-dark text-bold"
-    >
-      <q-tooltip
-        content-style="font-size: 16px"
-        content-class="bg-black text-white"
-      >
-        Reduce
-      </q-tooltip>
-    </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -287,8 +184,8 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
+        :disabled="this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
+        title="Upgrade to Developer Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -383,6 +280,24 @@
           content-class="bg-black text-white"
         >
           Library
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-comment"
+        aria-label="AI Buddy"
+        size="xl"
+        id="chat"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+        @click="openChat"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          AI Coding Buddy
         </q-tooltip>
       </q-btn>
       <q-space />
@@ -490,7 +405,7 @@
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: 20px;"
       >
-        {{ this.$store.state.designer.subscription }}
+        {{ this.subscriptions[this.$store.state.designer.subscription] }}
       </q-item-label>
       <q-item-label
         class="text-dark"
@@ -852,6 +767,7 @@ import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js';
 import DataService from './util/DataService'
 
+
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
@@ -870,9 +786,6 @@ export default {
     })
   },
   computed: {
-    isProPlan () {
-      return this.$store.state.designer.subscription.toString().indexOf('pro') >= 0
-    }
   },
   watch: {
     '$store.state.designer.subscription': function (sub) {
@@ -888,13 +801,6 @@ export default {
     },
     login () {
       this.$root.$emit('login')
-    },
-    getVersion () {
-      if (this.$store.state.designer.version.indexOf('Free') >= 0) {
-        return 'FREE'
-      } else {
-        return 'DEV'
-      }
     },
     showStats (name, columns, objects) {
       const me = this
@@ -932,6 +838,9 @@ export default {
       script.setAttribute('type', 'application/javascript')
       head.appendChild(script)
     },
+    openChat () {
+      this.$root.$emit('open.chat')
+    },
     openLibrary () {
       this.$root.$emit('open.library')
     },
@@ -953,6 +862,19 @@ export default {
   },
   data () {
     return {
+      GUEST: 0,
+      FREE: 1,
+      DEVELOPER: 2,
+      PRO: 3,
+      subscriptions: {
+        'ec_developer-USD-Monthly': 'Developer'
+      },
+      sublevel: {
+        'guest': 0,
+        'free': 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3
+      },
       viewStatsLoader: false,
       deployStatsColumns: [
         {
