@@ -2516,6 +2516,17 @@ export default defineComponent({
         }
       }
 
+      var border = document.querySelector('#border')
+
+      border.data = {
+        node: {
+          style: '',
+          type: 'border',
+          name: 'Border Title',
+          label: 'Border'
+        }
+      }
+
       var processor = document.querySelector('#processor')
 
       processor.data = {
@@ -2703,7 +2714,7 @@ export default defineComponent({
       }
 
       //, chord, segment, map, reduce
-      var els = [script, api, processor, portin, router, portout, group, label, data, schema]
+      var els = [script, api, processor, portin, router, portout, group, label, data, schema, border]
 
       els.forEach((el) => {
         var data = el.data

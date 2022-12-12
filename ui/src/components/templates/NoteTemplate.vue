@@ -1,22 +1,20 @@
 <template>
-<div>
-  
-  <div
-    :class="'node jtk-node text-primary'"
-    style="
+  <div>
+    <div
+      :class="'node jtk-node text-primary'"
+      style="
       color: primary;
       text-size: 35px;
       max-width: 250px;
       border: black 1px;
       font-weight: bold;
     "
-  >
-    
-    <div
-      v-if="tooltips || tooltip"
-      style="
+    >
+      <div
+        v-if="tooltips || tooltip"
+        style="
         z-index: 99999;
-        background: white;
+        background: white !important;
         color: black;
         position: relative;
         top: -100px;
@@ -28,39 +26,43 @@
         width: 200px;
         border-left: 1px solid black;
       "
-    >
-      <q-scroll-area
-        style="height: 150px; width: 100%;padding:5px"
-        :content-style="contentStyle"
-        :thumb-style="thumbStyle"
-        :content-active-style="contentActiveStyle"
-        ><span style="padding-top:10px">{{ note }}            
-        <q-popup-edit v-model="note" buttons >
-              <q-input type="string" v-model="note" dense autofocus />
-            </q-popup-edit></span></q-scroll-area
       >
+          <span style="padding-top:10px;background-color: white">{{ note }}
+            <q-popup-edit
+              v-model="note"
+              buttons
+            >
+              <q-input
+                type="string"
+                v-model="note"
+                dense
+                autofocus
+                color="white"
+              />
+            </q-popup-edit></span>
+      </div>
     </div>
-
-  </div>
-
   </div>
 </template>
 <style scoped>
 .q-item {
   margin-right: 0px;
 }
+.absolute {
+  background-color: white !important;
+}
 </style>
 <script>
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 
 export default {
   name: 'StartTemplate',
   mixins: [BaseNodeComponent],
   components: {},
-  created() {
-    var me = this;
-    console.log('me.tooltips ', me.tooltips);
-    console.log('start listening for show.tooltips');
+  created () {
+    var me = this
+    console.log('me.tooltips ', me.tooltips)
+    console.log('start listening for show.tooltips')
     /*
     window.global.root.$on('show.tooltips', (value) => {
       console.log('start tooltips:', value);
@@ -72,9 +74,9 @@ export default {
       }
       console.log('ME:', me);
       console.log('TOOLTIPS', me.tooltips);
-    });*/
+    }); */
   },
-  data() {
+  data () {
     return {
       entityName: '',
       columnName: '',
@@ -90,12 +92,12 @@ export default {
 
       contentStyle: {
         backgroundColor: 'rgba(0,0,0,0.02)',
-        color: '#555',
+        color: '#555'
       },
 
       contentActiveStyle: {
         backgroundColor: '#eee',
-        color: 'black',
+        color: 'black'
       },
 
       thumbStyle: {
@@ -103,17 +105,17 @@ export default {
         borderRadius: '5px',
         backgroundColor: '#027be3',
         width: '5px',
-        opacity: 0.75,
-      },
-    };
+        opacity: 0.75
+      }
+    }
   },
   methods: {
-    showEdit() {
-      this.edit = true;
+    showEdit () {
+      this.edit = true
     },
-    showTooltip(show) {
-      this.tooltip = show;
-    },
-  },
-};
+    showTooltip (show) {
+      this.tooltip = show
+    }
+  }
+}
 </script>

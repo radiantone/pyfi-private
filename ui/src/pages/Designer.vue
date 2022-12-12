@@ -2296,6 +2296,7 @@ import ApiTemplate from 'components/templates/ApiTemplate.vue'
 import ProcessorTemplate from 'components/templates/ProcessorTemplate.vue'
 import GroupTemplate from 'components/templates/GroupTemplate.vue'
 import PatternTemplate from 'components/templates/PatternTemplate.vue'
+import BorderTemplate from 'components/templates/BorderTemplate.vue'
 
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
@@ -3666,6 +3667,9 @@ export default {
                 // toolkit.toggleSelection(params.node);
               }
             }
+          },
+          border: {
+            component: BorderTemplate
           },
           api: {
             component: ApiTemplate,
