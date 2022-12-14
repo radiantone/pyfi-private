@@ -30,6 +30,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: APT update
+          command: 'sudo apt update'
+      - run:
             name: Installing g++
             command: 'sudo apt install -y libev-dev build-essential'
       - python/install-packages:
