@@ -33,6 +33,9 @@ jobs:
           name: APT update
           command: 'sudo apt update'
       - run:
+          name: APT update
+          command: 'pip install gevent'
+      - run:
             name: Installing g++
             command: 'sudo apt install -y python3-gevent libev-dev build-essential'
       - python/install-packages:
