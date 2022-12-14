@@ -11,6 +11,9 @@ from base64 import b64decode, b64encode
 import chargebee
 import requests
 
+from .chatgpt import configure
+
+configure()
 chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
 
 from functools import wraps

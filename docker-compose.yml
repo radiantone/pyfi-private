@@ -101,7 +101,7 @@ services:
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
       - "CB_SITE=elasticcode-test"
     ports:
-      - 8014:8003
+      - 8000:8003
     profiles: 
       - api
     depends_on:
