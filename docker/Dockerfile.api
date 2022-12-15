@@ -38,7 +38,6 @@ RUN update-rc.d -f supervisord remove
 RUN useradd pyfi -d /home/pyfi
 ADD conf/supervisord-api.conf /opt/pyfi/supervisord.conf
 ADD conf/pyfi.ini /home/pyfi/pyfi.ini
-ADD config.json /opt/pyfi/config.json
 ADD pyfi.polar /root/pyfi.polar
 RUN chown -R pyfi /opt/pyfi /home/pyfi
 CMD ["bash", "/opt/pyfi/supervisor.sh"]

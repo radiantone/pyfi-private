@@ -43,7 +43,7 @@
           icon="fa fa-list"
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -61,7 +61,7 @@
           icon="fa fa-bullseye"
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -79,7 +79,7 @@
           icon="fas fa-satellite-dish"
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -97,7 +97,7 @@
           icon="las la-play"
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -115,7 +115,7 @@
           icon="fa fa-play"
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -133,7 +133,7 @@
           icon="fa fa-stop"
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -151,7 +151,7 @@
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -169,7 +169,7 @@
           :icon="mdiEmailFast"
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -187,7 +187,7 @@
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -205,7 +205,7 @@
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -1862,18 +1862,25 @@ export default defineComponent({
     }
   },
   methods: {
+    hasEnterprise () {
+      if (this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
+      } else {
+        return false
+      }
+    },
     updateSubscription () {
       var me = this
       DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-          if (subscriptions.data.subscription['status'] != "cancelled") {
-            subscriptions.data.subscription.subscription_items.forEach((subscription) => {
-              console.log('SUBSCRIPTION', subscription)
-              me.$store.commit('designer/setSubscription', subscription.item_price_id)
-            })
-          } else {
-            me.$store.commit('designer/setSubscription', "cancelled")
-          }
-        })
+        if (subscriptions.data.subscription.status != 'cancelled') {
+          subscriptions.data.subscription.subscription_items.forEach((subscription) => {
+            console.log('SUBSCRIPTION', subscription)
+            me.$store.commit('designer/setSubscription', subscription.item_price_id)
+          })
+        } else {
+          me.$store.commit('designer/setSubscription', 'cancelled')
+        }
+      })
     },
     info (title) {
       this.infotitle = title
@@ -1975,18 +1982,17 @@ export default defineComponent({
 
           // TODO: Show warning dialog about reload
 
-
-            me.updateSubscription()
+          me.updateSubscription()
         },
         subscriptionReactivated: (data) => {
           console.log('subscription reactivated')
 
-            me.updateSubscription()
+          me.updateSubscription()
         },
         subscriptionChanged: (data) => {
           console.log('subscription changed')
 
-            me.updateSubscription()
+          me.updateSubscription()
         },
         close: () => {
           console.log('Portal closed')
@@ -2008,13 +2014,6 @@ export default defineComponent({
         'left=' + left + ',top=' + top + ',width=500,height=715,scrollbars=no,resizable=no'
       )
       this.$auth.loginWithPopup(this.getToken, { popup })
-    },
-    getVersion () {
-      if (this.$store.state.designer.version.indexOf('Free') >= 0) {
-        return 'FREE'
-      } else {
-        return 'DEV'
-      }
     },
     showPurgeConfirm (name) {
       this.purgeQueueName = name
@@ -2377,7 +2376,7 @@ export default defineComponent({
           me.queues = queues.data
           window.root.$emit('update.queues', queues.data)
         })
-        updateSubscription()
+        me.updateSubscription()
       })
     }
 
@@ -2740,6 +2739,18 @@ export default defineComponent({
   },
   data () {
     return {
+      sublevel: {
+        'guest': 0,
+        'free': 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3
+      },
+      GUEST: 0,
+      FREE: 1,
+      DEVELOPER: 2,
+      PRO: 3,
+      HOSTED: 4,
+      ENTERPRISE: 5,
       loadingchat: false,
       answer: '',
       infodialog: false,

@@ -51,7 +51,7 @@ refresh:
 update: freeze format lint
 	git add diary.md setup.py docs bin pyfi ui *.txt Makefile
 	git commit --allow-empty -m "Updates"
-	git push origin main
+	git push origin develop
 	python setup.py install
 	git status
 
@@ -71,6 +71,7 @@ freeze:
 .PHONY: clean
 clean:
 	python setup.py clean
+	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
 
 .PHONY: all

@@ -309,7 +309,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Nodes:</a>
         <span class="text-dark">{{ nodes }}</span>
       </q-item-label>
@@ -322,7 +322,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Agents', agentStatsColumns,'agents')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Agents:</a>
         <span class="text-dark">{{ agents }}</span>
       </q-item-label>
@@ -334,7 +334,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Queues', queueStatsColumns,'queues')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Queues:</a>
         <span class="text-dark">{{ queues }}</span>
       </q-item-label>
@@ -346,7 +346,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Processors', procStatsColumns, 'processors')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Processors:</a>
         <span class="text-dark">{{ processors }}</span>
       </q-item-label>
@@ -358,7 +358,7 @@
           class="link-hover"
           href="#"
           @click="showStats('Deployments', deployStatsColumns, 'deployments')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Deployments:</a>
         <span class="text-dark">{{ deployments }}</span>
       </q-item-label>
@@ -370,7 +370,7 @@
           class="link-hover"
           href="#"
           @click="showStats('CPUs', workerStatsColumns, 'workers')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >CPUS:</a>
         <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
       </q-item-label>
@@ -382,14 +382,14 @@
           class="link-hover"
           href="#"
           @click="showStats('Tasks', taskStatsColumns, 'tasks')"
-          :disabled="false"
+          :disabled="!hasEnterprise()"
         >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
-        :disabled="false"
+          :disabled="!hasEnterprise()"
       >
         System Usage:
       </q-item-label>
@@ -793,6 +793,13 @@ export default {
     }
   },
   methods: {
+    hasEnterprise () {
+      if (this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
+      } else {
+        return false
+      }
+    },
     showProfile () {
 
     },
@@ -803,6 +810,9 @@ export default {
       this.$root.$emit('login')
     },
     showStats (name, columns, objects) {
+      if(!this.hasEnterprise()) {
+        return
+      }
       const me = this
       if (this.false) {
         return
