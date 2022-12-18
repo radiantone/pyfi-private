@@ -27,19 +27,19 @@
         border-left: 1px solid black;
       "
       >
-          <span style="padding-top:10px;background-color: white">{{ note }}
-            <q-popup-edit
-              v-model="note"
-              buttons
-            >
-              <q-input
-                type="string"
-                v-model="note"
-                dense
-                autofocus
-                color="white"
-              />
-            </q-popup-edit></span>
+        <span style="padding-top:10px;background-color: white">{{ obj.note }}
+          <q-popup-edit
+            v-model="obj.note"
+            buttons
+          >
+            <q-input
+              type="string"
+              v-model="obj.note"
+              dense
+              autofocus
+              color="white"
+            />
+          </q-popup-edit></span>
       </div>
     </div>
   </div>
@@ -78,6 +78,9 @@ export default {
   },
   data () {
     return {
+      obj: {
+        note: 'A Handsome Note'
+      },
       entityName: '',
       columnName: '',
       confirm: false,
@@ -85,7 +88,6 @@ export default {
       deleteSpeech: false,
       edit: false,
       deleteConfirm: false,
-      note: 'A Handsome Note',
       tooltip: true,
       tooltips: false,
       prompt: false,
