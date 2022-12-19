@@ -3,7 +3,6 @@
     <div
       :class="'node jtk-node text-primary'"
       style="
-      color: primary;
       text-size: 35px;
       max-width: 250px;
       border: black 1px;
