@@ -74,6 +74,11 @@ clean:
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
 
+
+.PHONY: build
+build:
+	docker compose build nginx api
+
 .PHONY: push
 push:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com

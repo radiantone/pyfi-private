@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  nginx:
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+    container_name: nginx
+    volumes:
+      - ./logs:/etc/nginx/logs
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - rabbitmq
+
+  api:
+    container_name: api
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:latest
+    environment:
+      - "EVENTS=events"
+      - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
+      - "CB_SITE=elasticcode-test"
+    ports:
+      - '8000:8003'
+    profiles:
+      - api
+    depends_on:
+      - nginx
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:management
+    restart: always
+    volumes:
+      - ./data:/var/lib/rabbitmq/mnesia/
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=cluster_cookie
+      - CLUSTERED=true
+    ports:
+      - '5671:5671'
+      - '5672:5672'
+      - '15672:15672'
+      - '4369:4369'
