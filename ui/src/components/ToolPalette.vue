@@ -515,20 +515,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="far fa-sticky-note" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Bulletin Board
-              </q-item-section>
-            </q-item>
+
             <q-item
               clickable
               v-close-popup
@@ -619,7 +606,7 @@
             <q-item
               clickable
               v-close-popup
-              @click="$router.push('/profile')"
+              @click="showProfileDialog=true"
             >
               <q-item-section side>
                 <q-icon name="fas fa-user" />
@@ -744,6 +731,68 @@
             color="primary"
           />
         </q-inner-loading>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showProfileDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label><i class="fas fa-user" style="margin-right:20px"></i>Your Profile</q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="showProfileDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            @click="showProfileDialog = false"
+            v-close-popup
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -885,6 +934,7 @@ export default {
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3
       },
+      showProfileDialog: false,
       viewStatsLoader: false,
       deployStatsColumns: [
         {

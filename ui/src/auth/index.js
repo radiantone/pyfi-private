@@ -34,7 +34,7 @@ export const useAuth0 = ({
       /** Authenticates the user using a popup window */
       async loginWithPopup (callback, options, config) {
         this.popupOpen = true
-
+        debugger
         try {
           await this.auth0Client.loginWithPopup(options, config)
           this.user = await this.auth0Client.getUser()
@@ -47,9 +47,10 @@ export const useAuth0 = ({
         } finally {
           this.popupOpen = false
         }
-
-        this.user = await this.auth0Client.getUser()
-        this.isAuthenticated = true
+        debugger
+        let user = await this.auth0Client.getUser()
+        this.user = user
+        this.isAuthenticated = user !== undefined
         callback(this.user)
       },
       /** Handles the callback when logging in using a redirect */
@@ -116,6 +117,7 @@ export const useAuth0 = ({
       } catch (e) {
         this.error = e
       } finally {
+        debugger
         // Initialize our internal authentication state
         this.isAuthenticated = await this.auth0Client.isAuthenticated()
         this.user = await this.auth0Client.getUser()

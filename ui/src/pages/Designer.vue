@@ -52,6 +52,7 @@
           icon="fa fa-stop"
           class="q-mr-xs"
           @click="nodeStatus('stopped')"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -68,6 +69,7 @@
           icon="fa fa-play"
           class="q-mr-xs"
           @click="nodeStatus('running')"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -234,7 +236,8 @@
           style="min-height: 45px;"
           size="sm"
           icon="fas fa-upload"
-          :disabled="getVersion() === 'FREE'"
+
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -2439,6 +2442,13 @@ export default {
     }
   },
   methods: {
+    hasEnterprise () {
+      if (this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
+      } else {
+        return false
+      }
+    },
     setEdgeType (edgetype) {
       this.edgetype = !this.edgetype
       if (this.edgetype) {
@@ -2453,13 +2463,6 @@ export default {
           window.toolkit.setType(edges[i], 'flowchart')
           this.edgeLabel = 'Boxy Edges'
         }
-      }
-    },
-    getVersion () {
-      if (this.$store.state.designer.version.indexOf("Free") >= 0) {
-        return "FREE"
-      } else {
-        return "DEV"
       }
     },
     notifyNode (id) {
@@ -2986,6 +2989,12 @@ export default {
   },
   data: () => {
     return {
+      sublevel: {
+        'guest': 0,
+        'free': 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3
+      },
       edgetype: true,
       owner: 'darren',
       messages: [],

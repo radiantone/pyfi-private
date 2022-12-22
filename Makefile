@@ -74,6 +74,18 @@ clean:
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
 
+.PHONY: push
+push:
+	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com
+	docker tag api:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:latest
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/api:latest
+
+	docker tag nginx:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+
+	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:management
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:management
+
 .PHONY: all
 all: format lint freeze update docs install clean
 	git status

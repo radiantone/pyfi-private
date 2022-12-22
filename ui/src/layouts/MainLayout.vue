@@ -1502,7 +1502,64 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog
+      v-model="resolutiondialog"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label><i class="fas fa-exclamation" style="margin-right:20px"></i>Recommended Resolution</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <span class="q-ml-sm">
+            Your current monitor resolution does not meet the recommended size of 2460x1440 for best user experience.
+          </span>
+        </q-card-section>
 
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            @click="resolutiondialog = false"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog
       v-model="confirmQueuePurge"
       persistent
@@ -1862,6 +1919,13 @@ export default defineComponent({
     }
   },
   methods: {
+    checkResolution () {
+      const x = window.screen.width * window.devicePixelRatio
+      const y = window.screen.height * window.devicePixelRatio
+      if (x < 2460 || y < 1440) {
+        this.resolutiondialog = true
+      }
+    },
     hasEnterprise () {
       if (this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
@@ -2362,6 +2426,8 @@ export default defineComponent({
   },
   mounted () {
     var me = this
+    this.checkResolution()
+
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
@@ -2740,8 +2806,8 @@ export default defineComponent({
   data () {
     return {
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3
       },

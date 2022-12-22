@@ -19,11 +19,12 @@ const routes: RouteConfig[] = [
     component: () => import('pages/Error404.vue')
   }, //,
   // { path: '/login/callback', component: LoginCallback }
+  /*
   {
     path: '/profile',
     name: 'profile',
     component: () => import('components/Profile.vue')
-  },
+  },*/
   {
     path: '/logout',
     name: 'logout',
