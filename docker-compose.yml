@@ -237,6 +237,9 @@ services:
     hostname: rabbitmq
     image: rabbitmq:management
     restart: always
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rabbitmq
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./data:/var/lib/rabbitmq/mnesia/
@@ -253,6 +256,9 @@ services:
     container_name: rabbitmq2
     hostname: rabbitmq2
     image: rabbitmq:management
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.rabbitmq
     volumes: 
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./conf/rabbit-cluster.sh:/tmp/rabbit-cluster.sh

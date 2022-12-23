@@ -1,6 +1,25 @@
 version: '3.9'
 
 services:
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:latest
+    hostname: postgresdb
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pyfi101
+      POSTGRES_DB: pyfi
+    ports:
+      - "5434:5432"
+    volumes:
+      - "pgdata:/var/lib/postgresql/data"
+      - ./conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
   nginx:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
     container_name: nginx
@@ -23,7 +42,9 @@ services:
       - api
     depends_on:
       - redis
-      - postgres
+      - mongodb
+      - postgresdb
+      - nginx
 
   rabbitmq:
     container_name: rabbitmq
@@ -41,3 +62,28 @@ services:
       - '5672:5672
       - '15672:15672'
       - '4369:4369'
+
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redislabs/redismod
+    restart: always
+    ports:
+      - '6379:6379'
+
+  mongodb:
+      image: mongo:latest
+      container_name: mongodb
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      ports:
+        - '27017:27017'
+      volumes:
+        - mongodb_data_container:/data/db
+
+volumes:
+  mongodb_data_container:
+  pgdata:
+  influxdb_data:
+    driver: local

@@ -1,6 +1,6 @@
 FROM rabbitmq:management
 
 ENV RABBITMQ_ERLANG_COOKIE=cluster_cookie
-EBV CLUSTERED=true
+ENV CLUSTERED=true
 
 COPY ./conf/enabled_plugins /etc/rabbitmq/enabled_plugins

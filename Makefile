@@ -50,6 +50,8 @@ refresh:
 .PHONY: update
 update: freeze format lint
 	git add diary.md setup.py docs bin pyfi ui *.txt Makefile
+	git add docker-*
+	git add docker/
 	git commit --allow-empty -m "Updates"
 	git push origin develop
 	python setup.py install

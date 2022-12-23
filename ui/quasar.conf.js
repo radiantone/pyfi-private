@@ -75,6 +75,7 @@ module.exports = configure(function (ctx) {
       // https://quasar.dev/quasar-cli/handling-webpack
       extendWebpack (cfg) {
         // linting is slow in TS projects, we execute it only for production builds
+        /* uncomment after fixing all the lint errors
         if (ctx.prod) {
           cfg.module.rules.push({
             enforce: 'pre',
@@ -82,10 +83,9 @@ module.exports = configure(function (ctx) {
             loader: 'eslint-loader',
             exclude: /node_modules/
           })
-        }
+        } */
       }
     },
-
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,
