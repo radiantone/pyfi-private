@@ -57,9 +57,12 @@ update: freeze format lint
 	python setup.py install
 	git status
 
+.PHONY: ui
+ui:
+	cd ui; quasar build
+
 .PHONY: docs
 docs:
-	cd docs
 	make -C docs html
 
 .PHONY: release
@@ -75,7 +78,6 @@ clean:
 	python setup.py clean
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
-
 
 .PHONY: build
 build:
