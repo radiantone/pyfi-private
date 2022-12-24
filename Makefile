@@ -15,7 +15,7 @@ init: depends
 
 .PHONY: test
 test:
-	pytest
+	pytest pyfi/tests
 
 .PHONY: format
 format:
