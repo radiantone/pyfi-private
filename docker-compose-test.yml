@@ -1,6 +1,14 @@
 version: '3.9'
 
 services:
+  clientsocket:
+    build:
+      context: socket
+      dockerfile: Dockerfile
+    image: pyfi/clientsocket:latest
+    container_name: clientsocket
+    ports:
+      - '3003:3003'
 
   postgresdb:
     container_name: postgresdb
@@ -39,7 +47,7 @@ services:
 
   api:
     container_name: api
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:latest
+    image: pyfi/api:latest
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
