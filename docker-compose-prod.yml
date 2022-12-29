@@ -10,6 +10,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pyfi101
       POSTGRES_DB: pyfi
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5434:5432"
     volumes:
@@ -59,7 +60,7 @@ services:
       - CLUSTERED=true
     ports:
       - '5671:5671'
-      - '5672:5672
+      - '5672:5672'
       - '15672:15672'
       - '4369:4369'
 

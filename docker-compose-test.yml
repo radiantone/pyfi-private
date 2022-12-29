@@ -19,11 +19,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pyfi101
       POSTGRES_DB: pyfi
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5434:5432"
     volumes:
-      - "pgdata:/var/lib/postgresql/data"
       - ./conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./pg-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
