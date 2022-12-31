@@ -954,325 +954,328 @@
             </q-toolbar>
           </div>
         </q-card-section>
-        <table
-          style="width:100%;"
-          cellpadding="10px"
-        >
-          <thead>
+
+        <q-scroll-area style="height: calc(100% - 20px); width: 100%;">
+          <table
+            style="width:100%;"
+            cellpadding="10px"
+          >
+            <thead style="font-weight: bold">
+              <tr>
+                <td />
+                <td>Guest</td>
+                <td>Free</td>
+                <td>Developer</td>
+                <td>Pro</td>
+                <td>Hosted</td>
+                <td>Enterprise</td>
+              </tr>
+            </thead>
+            <tr style="background-color: rgb(244, 246, 247) !important; border-top: 1px solid black">
+              <td>
+                Execute Data Flows <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Execute Data Flows')"
+                />
+              </td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Browser Execution <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Browser Execution')"
+                />
+              </td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Save Data Flows <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Save Data Flows')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                GIT Integration <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('GIT Integration')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Generate Code <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Generate Code')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                REST API <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('REST API')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                AI Assistant <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('AI Assistant')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Script Library <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Script Library')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Patterns <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Patterns')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Secure Processors <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Secure Processors')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Hosted Services <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Hosted Services')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Transactional <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Transactional')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Co-Development <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Co-Development')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Streaming <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Streaming')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                CLI <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('CLI')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                On Prem <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('On Prem')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
             <tr>
               <td />
-              <td>Guest</td>
-              <td>Free</td>
-              <td>Developer</td>
-              <td>Pro</td>
-              <td>Hosted</td>
-              <td>Enterprise</td>
+              <td />
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Register"
+                  v-if="!$auth.isAuthenticated"
+                  @click="login"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Upgrade"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription != 'ec_developer-USD-Monthly'"
+                  @click="upgrade('ec_developer-USD-Monthly')"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription == 'ec_developer-USD-Monthly'"
+                  @click="manage"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Upgrade"
+                  v-if="$auth.isAuthenticated"
+                  @click="upgrade('ec_pro-USD-Monthly')"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Upgrade"
+                  v-if="$auth.isAuthenticated"
+                  @click="upgrade('ec_hosted-USD-Yearly')"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Contact Us"
+                  v-if="$auth.isAuthenticated"
+                  @click="contact"
+                />
+              </td>
             </tr>
-          </thead>
-          <tr style="background-color: rgb(244, 246, 247) !important; border-top: 1px solid black">
-            <td>
-              Execute Data Flows <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Execute Data Flows')"
-              />
-            </td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Browser Execution <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Browser Execution')"
-              />
-            </td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Save Data Flows <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Save Data Flows')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              GIT Integration <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('GIT Integration')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Generate Code <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Generate Code')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              REST API <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('REST API')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              AI Assistant <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('AI Assistant')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Script Library <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Script Library')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Patterns <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Patterns')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Secure Processors <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Secure Processors')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Hosted Services <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Hosted Services')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Transactional <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Transactional')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Co-Development <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Co-Development')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Streaming <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Streaming')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              CLI <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('CLI')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              On Prem <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('On Prem')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td />
-            <td />
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Register"
-                v-if="!$auth.isAuthenticated"
-                @click="login"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription != 'ec_developer-USD-Monthly'"
-                @click="upgrade('ec_developer-USD-Monthly')"
-              />
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                color="secondary"
-                label="My Plan"
-                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription == 'ec_developer-USD-Monthly'"
-                @click="manage"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated"
-                @click="upgrade('ec_pro-USD-Monthly')"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated"
-                @click="upgrade('ec_hosted-USD-Yearly')"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Contact Us"
-                v-if="$auth.isAuthenticated"
-                @click="contact"
-              />
-            </td>
-          </tr>
-        </table>
+          </table>
+        </q-scroll-area>
         <q-card-actions align="left">
           <q-btn
             flat
@@ -1529,7 +1532,12 @@
             "
           >
             <q-toolbar>
-              <q-item-label><i class="fas fa-exclamation" style="margin-right:20px"></i>Recommended Resolution</q-item-label>
+              <q-item-label>
+                <i
+                  class="fas fa-exclamation"
+                  style="margin-right:20px"
+                />Recommended Resolution
+              </q-item-label>
               <q-space />
               <q-icon
                 class="text-primary"

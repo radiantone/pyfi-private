@@ -301,6 +301,7 @@
         </q-tooltip>
       </q-btn>
       <q-space />
+      <span v-if="hasEnterprise()">
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px; margin-right: 20px;"
@@ -401,9 +402,10 @@
         :series="series"
         style="margin-right: 80px;"
       />
+        </span>
       <q-item-label
         class="text-accent"
-        style="white-space: nowrap;margin-top:40px;margin-right: 20px;"
+        style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
       >
         {{ this.subscriptions[this.$store.state.designer.subscription] }}
       </q-item-label>
