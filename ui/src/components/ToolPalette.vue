@@ -301,7 +301,6 @@
         </q-tooltip>
       </q-btn>
       <q-space />
-      <span v-if="hasEnterprise()">
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px; margin-right: 20px;"
@@ -390,7 +389,7 @@
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
-          :disabled="!hasEnterprise()"
+        :disabled="!hasEnterprise()"
       >
         System Usage:
       </q-item-label>
@@ -400,9 +399,8 @@
         width="100"
         :options="chartOptions"
         :series="series"
-        style="margin-right: 80px;"
+        style="margin-right: 280px;"
       />
-        </span>
       <q-item-label
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
@@ -762,7 +760,12 @@
             "
           >
             <q-toolbar>
-              <q-item-label><i class="fas fa-user" style="margin-right:20px"></i>Your Profile</q-item-label>
+              <q-item-label>
+                <i
+                  class="fas fa-user"
+                  style="margin-right:20px"
+                />Your Profile
+              </q-item-label>
               <q-space />
               <q-btn
                 class="text-primary"
@@ -780,9 +783,7 @@
         <q-card-section
           class="row items-center"
           style="height: 120px;"
-        >
-
-        </q-card-section>
+        />
 
         <q-card-actions align="right">
           <q-btn
@@ -815,9 +816,8 @@
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { mdiCodeBraces } from '@mdi/js'
-import { mdiBorderNoneVariant } from '@mdi/js';
+import { mdiBorderNoneVariant } from '@mdi/js'
 import DataService from './util/DataService'
-
 
 export default {
   name: 'ToolPalette',
@@ -845,7 +845,7 @@ export default {
   },
   methods: {
     hasEnterprise () {
-      if (this.$store.state.designer.subscription) {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
       } else {
         return false
@@ -861,7 +861,7 @@ export default {
       this.$root.$emit('login')
     },
     showStats (name, columns, objects) {
-      if(!this.hasEnterprise()) {
+      if (!this.hasEnterprise()) {
         return
       }
       const me = this
@@ -927,12 +927,13 @@ export default {
       FREE: 1,
       DEVELOPER: 2,
       PRO: 3,
+      ENTERPRISE: 4,
       subscriptions: {
         'ec_developer-USD-Monthly': 'Developer'
       },
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3
       },

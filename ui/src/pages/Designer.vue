@@ -207,6 +207,7 @@
           size="sm"
           icon="fas fa-save"
           @click="saveFlow"
+          :disabled="!hasFree()"
         >
           <q-tooltip
             content-class
@@ -222,6 +223,7 @@
           size="sm"
           :icon="this.saveAsIcon"
           @click="saveToFolder"
+          :disabled="!hasFree()"
         >
           <q-tooltip
             content-class
@@ -236,7 +238,6 @@
           style="min-height: 45px;"
           size="sm"
           icon="fas fa-upload"
-
           :disabled="!hasEnterprise()"
         >
           <q-tooltip
@@ -294,6 +295,21 @@
             :offset="[10, 10]"
           >
             Toggle Bandwidth Display
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+          @click="importflowdialog = true"
+          icon="las la-file-upload"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Import Flow
           </q-tooltip>
         </q-btn>
         <q-separator
@@ -1466,12 +1482,12 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
-            label="Update"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
+            label="Download"
+            class="bg-primary text-dark"
+            color="dark"
+            @click="downloadFlow"
           />
           <q-btn
             flat
@@ -1484,6 +1500,90 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="importflowdialog"
+      transition-show="none"
+      persistent
+      style="height: 60vh;"
+    >
+      <q-card style="max-width: 100vw; width: 1500px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Import Flow</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="importflowdialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+
+        <q-card-section
+          class="row items-center"
+          style="
+            padding-top: 45px;
+            padding-bottom: 20px;
+            padding-left: 0px;
+            padding-right: 0px;
+          "
+        >
+          <editor
+            v-model="importcode"
+            id="editor"
+            @init="importEditorInit"
+            style="font-size: 25px; height: 60vh;"
+            lang="javascript"
+            theme="chrome"
+            ref="importEditor"
+            width="100%"
+            height="60vh"
+          />
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            label="Close"
+            class="bg-primary text-dark"
+            color="dark"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Import"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
     <q-dialog
       v-model="selectAlert"
       persistent
@@ -2442,8 +2542,15 @@ export default {
     }
   },
   methods: {
+    hasFree () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] > this.FREE
+      } else {
+        return false
+      }
+    },
     hasEnterprise () {
-      if (this.$store.state.designer.subscription) {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
       } else {
         return false
@@ -2586,16 +2693,23 @@ export default {
       console.log('Synchronizing flows')
       this.$refs._flows.synchronize()
     },
-    editorInit: function () {
-      var me = this
-
+    importEditorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
       require('brace/mode/python') // language
       require('brace/mode/less')
       require('brace/theme/chrome')
       require('brace/snippets/javascript') // snippet
-      console.log('editorInit')
+      const editor = this.$refs.importEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+    },
+    editorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
       const editor = this.$refs.myEditor.editor
       editor.setAutoScrollEditorIntoView(true)
     },
@@ -2989,6 +3103,11 @@ export default {
   },
   data: () => {
     return {
+      GUEST: 0,
+      FREE: 1,
+      DEVELOPER: 2,
+      PRO: 3,
+      ENTERPRISE: 4,
       sublevel: {
         'guest': 0,
         'free': 1,
@@ -3469,7 +3588,9 @@ export default {
       status: 'Ready',
       gridLines: true,
       code: false,
-      thecode: 'the code',
+      importflowdialog: false,
+      thecode: '',
+      importcode: '',
       plotpoints: [],
       confirm: false,
       tropes: false,
