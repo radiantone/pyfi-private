@@ -42,6 +42,7 @@ up:
 .PHONY: stop
 stop:
 	docker compose stop
+	./bin/docker-refresh.sh
 
 .PHONY: refresh
 refresh:

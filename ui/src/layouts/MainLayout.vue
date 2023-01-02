@@ -1642,6 +1642,9 @@
   </q-layout>
 </template>
 <style>
+.q-splitter__after, .q-splitter__before {
+  overflow: hidden !important
+}
 
 textarea {
   resize: none !important;

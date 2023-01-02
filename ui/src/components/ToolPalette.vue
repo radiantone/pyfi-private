@@ -59,7 +59,7 @@
       <q-btn
         flat
         align="left"
-        icon="img:/images/python.svg"
+        icon="svguse:/images/python.svg"
         aria-label="Script"
         size="xl"
         id="script"

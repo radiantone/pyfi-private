@@ -12,7 +12,9 @@
   background: url("~assets/images/outlet.svg");
   background-size: 16px 16px;
 }
-
+.q-card__section--vert {
+   padding: 0px !important;
+}
 .outlet-icon2 {
   display: block;
   text-indent: -9999px;

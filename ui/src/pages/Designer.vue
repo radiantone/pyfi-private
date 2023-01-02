@@ -440,11 +440,13 @@
             name="processors"
             class="text-dark"
             label="Processors"
+            v-if="hasEnterprise()"
           />
           <q-tab
             name="network"
             class="text-dark"
             label="Network"
+            v-if="hasEnterprise()"
           />
         </q-tabs>
 
@@ -456,6 +458,7 @@
             name="processors"
             ref="processors"
             style="padding: 0px; width: 100%; padding-top: 0px;"
+            v-if="hasEnterprise()"
           >
             <Processors
               :objecttype="'processor'"
@@ -489,6 +492,7 @@
             name="network"
             ref="network"
             style="padding: 0px;"
+            v-if="hasEnterprise()"
           >
             <Networks />
           </q-tab-panel>
