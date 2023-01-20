@@ -3043,7 +3043,7 @@ export default {
                     }
                   })
                 } else {
-                  DataService.getPattern(data.patternid, this.$store.state.designer.token)
+                  DataService.getPattern(data.patternid, me.$store.state.designer.token)
                     .then((pattern) => {
                       me.showing = false
                       console.log('LOADED PATTERN', pattern)

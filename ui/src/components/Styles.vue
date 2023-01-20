@@ -4,6 +4,7 @@
 /* ----------------------------------------------------------------------------------------------------- */
 /* --- Node common -------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------- */
+
 .outlet-icon {
   display: block;
   text-indent: -9999px;
@@ -12,9 +13,10 @@
   background: url("~assets/images/outlet.svg");
   background-size: 16px 16px;
 }
-.q-card__section--vert {
-   padding: 0px !important;
+.q-item__section--side>.q-icon {
+    font-size: 16px !important;
 }
+
 .outlet-icon2 {
   display: block;
   text-indent: -9999px;

@@ -1,3 +1,4 @@
+2captcha-python==1.1.3
 alabaster==0.7.12
 alembic==1.7.7
 amqp==5.1.1
@@ -147,7 +148,7 @@ redis==3.5.3
 rejson==0.5.6
 reportlab==3.6.11
 requests==2.27.1
-revChatGPT==0.0.43
+revChatGPT==0.1.1
 rfc3986==1.5.0
 rsa==4.9
 rst2pdf==0.99
@@ -178,7 +179,7 @@ sqlalchemy-stubs==0.4
 svglib==1.4.1
 text-unidecode==1.3
 tinycss2==1.2.1
-tls-client==0.1.5
+tls-client==0.1.8
 toml==0.10.2
 tomli==2.0.1
 tornado==6.1
@@ -197,6 +198,7 @@ typing_extensions==4.2.0
 tzdata==2022.1
 tzlocal==4.2
 ujson==5.2.0
+undetected-chromedriver==3.2.1
 Unidecode==1.3.4
 unittest2==1.1.0
 urllib3==1.26.9

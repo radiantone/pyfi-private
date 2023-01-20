@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-toolbar class="sidebar node-palette">
+    <q-toolbar class="sidebar node-palette" style="padding:0px">
       <img
         src="~assets/images/elasticcode.svg"
         style="padding-left: 15px; height: 55px; padding-right: 10px;"
@@ -59,7 +59,7 @@
       <q-btn
         flat
         align="left"
-        icon="svguse:/images/python.svg"
+        icon="las la-scroll"
         aria-label="Script"
         size="xl"
         id="script"
@@ -817,6 +817,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js'
+import { mdiLanguagePython } from '@mdi/js'
 import DataService from './util/DataService'
 
 export default {
@@ -825,6 +826,7 @@ export default {
   created () {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
+    this.python = mdiLanguagePython
   },
   mounted () {
     const me = this
