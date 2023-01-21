@@ -81,8 +81,11 @@ class SchedulerPlugin:
         )
         thread.start()
 
+        return thread
+
     def schedule(self, interval, func, args=(), priority=1):
         self.s = s = sched.scheduler(time.time, time.sleep)
+        logging.info("scheduler: %s %s %s %s", interval, func, args, priority)
         self.periodic_task(s, interval, func, args, priority)
         s.run()
 
@@ -606,8 +609,10 @@ class BasicScheduler:
         os.kill(os.getpid(), signal.SIGTERM)
 
     def run(self):
-        [plugin.start(self.name, self.interval) for plugin in self.plugins]
+        threads = [plugin.start(self.name, self.interval) for plugin in self.plugins]
         logging.info("Started")
+        [thread.join() for thread in threads]
+        logging.info("Finished")
 
     def start(self):
         self.process = Process(target=self.run)

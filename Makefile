@@ -60,7 +60,7 @@ update: freeze format lint
 
 .PHONY: ui
 ui:
-	cd ui; quasar build
+	cd ui; quasar docker
 
 .PHONY: docs
 docs:
