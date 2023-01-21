@@ -174,8 +174,6 @@ services:
       - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
       - ./pyfi.polar:/home/pyfi/pyfi.polar
 
-
-  # http://localhost:5001
   logs:
     build:
       context: .
@@ -183,7 +181,6 @@ services:
     container_name: logs
     image: logs:latest
 
-  # http://localhost:8008
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -193,7 +190,6 @@ services:
     ports:
       - 8008:80
 
-  # Console - http://localhost:8888
   flower:  
     image: mher/flower:latest
     container_name: flower
@@ -207,7 +203,6 @@ services:
     ports:  
       - 8888:8888
 
-  # Admin UI - http://localhost:15672/
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
@@ -301,7 +296,6 @@ services:
     ports:
       - 6379:6379
 
-  # http://localhost:8001
   insights:
     container_name: insights
     depends_on: 
