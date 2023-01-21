@@ -147,7 +147,6 @@ redis==3.5.3
 rejson==0.5.6
 reportlab==3.6.11
 requests==2.27.1
-revChatGPT==0.1.1
 rfc3986==1.5.0
 rsa==4.9
 rst2pdf==0.99
