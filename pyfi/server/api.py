@@ -526,7 +526,6 @@ def get_result(resultid):
 def get_files(collection, path):
     import json
 
-    print(SESSION["user"])
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
