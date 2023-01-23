@@ -55,7 +55,7 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost'
+  'https://app.elasticcode.ai'
 )
 
 const mapToObj = (m: Map<string, any>) => {

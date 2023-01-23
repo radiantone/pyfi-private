@@ -1742,7 +1742,7 @@ import {
 
 import { io, Socket } from 'socket.io-client'
 
-const socket = io('http://localhost')
+const socket = io('https://app.elasticcode.ai')
 
 var options = {
   theme: {

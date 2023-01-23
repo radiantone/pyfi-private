@@ -31,7 +31,7 @@ interface SocketData {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost'
+  'https://app.elasticcode.ai'
 );
 
 export default mixins(CountComponentBase).extend<
