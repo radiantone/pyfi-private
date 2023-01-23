@@ -76,12 +76,21 @@ http {
     listen   80;
     listen   [::]:80;
 
+    server_name www.elasticcode.ai;
+
+    return 301 https://www.elasticcode.ai$request_uri;
+  }
+
+  server {
+    listen   80;
+    listen   [::]:80;
+
     server_name app.elasticcode.ai;
 
     return 301 https://app.elasticcode.ai$request_uri;
   }
 
-server {
+  server {
     listen   443  ssl;
 
     server_name www.elasticcode.ai;
