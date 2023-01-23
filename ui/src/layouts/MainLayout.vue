@@ -1756,8 +1756,8 @@ var options = {
 }
 
 var lock = new Auth0Lock(
-  'kSiSLbwjWG3dTEPezTPARiC85QJJgjr8',
-  'dev-3583lxyoewhh4ymf.us.auth0.com',
+  'LpGArknVfsb05jUVVLklp2xSvnFDlRiQ',
+  'elasticcode.us.auth0.com',
   options
 )
 

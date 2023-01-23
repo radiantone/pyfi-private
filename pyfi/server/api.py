@@ -58,8 +58,8 @@ SESSION = session
 from pathlib import Path
 
 HOME = str(Path.home())
-AUTH0_DOMAIN = "dev-3583lxyoewhh4ymf.us.auth0.com"
-API_AUDIENCE = "http://localhost:8000/"
+AUTH0_DOMAIN = "elasticcode.us.auth0.com"
+API_AUDIENCE = "https://api.elasticcode.ai/"
 ALGORITHMS = ["RS256"]
 
 ini = HOME + "/pyfi.ini"

@@ -19,7 +19,7 @@ export const Security = ({
         level: 'LEVEL 1',
         auth: this.$auth,
         token: function () {
-          // return this.$auth.getTokenSilently({ audience: 'http://localhost:8000/' })
+          // return this.$auth.getTokenSilently({ audience: 'https://api.elasticcode.ai/' })
           return this.$auth.getTokenSilently()
         },
         user: function () {
