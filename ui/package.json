@@ -2,7 +2,7 @@
   "name": "flow",
   "version": "0.0.1",
   "description": "A Visual Data Flow Editor",
-  "productName": "FLOW",
+  "productName": "ElasticCode",
   "author": "Darren Govoni",
   "private": true,
   "scripts": {
