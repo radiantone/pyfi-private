@@ -1039,7 +1039,10 @@ def post_files(collection, path):
                 fid = file.id
                 try:
                     session.commit()
+                    print("Committed")
                 except:
+                    import traceback
+                    print(traceback.format_exc())
                     error = {"status": "error", "message": "Unable to overwrite file"}
                     session.rollback()
                     return jsonify(error), 409
@@ -1053,6 +1056,8 @@ def post_files(collection, path):
                 try:
                     session.commit()
                 except:
+                    import traceback
+                    print(traceback.format_exc())
                     error = {"status": "error", "message": "Unable to overwrite file"}
                     session.rollback()
                     return jsonify(error), 409

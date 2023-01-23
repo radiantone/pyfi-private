@@ -2253,6 +2253,9 @@
   </q-layout>
 </template>
 <style>
+.q-dialog > .q-card > .q-card__section--vert {
+  padding: 0px !important;
+}
 .q-icon {
   font-size: 16px;
 }
@@ -2272,8 +2275,8 @@
 }
 
 .q-card__section--vert {
-  padding: 5px;
-  padding-top: 0px;
+  padding: 5px !important;
+  padding-top: 0px !important;
 }
 
 .absolute-full {

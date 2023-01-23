@@ -247,6 +247,7 @@
           Label
         </q-tooltip>
       </q-btn>
+      <!--
       <q-btn
         flat
         align="left"
@@ -263,7 +264,7 @@
         >
           App
         </q-tooltip>
-      </q-btn>
+      </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -301,6 +302,9 @@
         </q-tooltip>
       </q-btn>
       <q-space />
+      <!--
+      <q-toolbar >
+        <q-space />
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px; margin-right: 20px;"
@@ -386,6 +390,7 @@
         >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
+      </q-toolbar>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
@@ -400,7 +405,7 @@
         :options="chartOptions"
         :series="series"
         style="margin-right: 280px;"
-      />
+      />-->
       <q-item-label
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
@@ -474,6 +479,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-table" />
@@ -488,6 +494,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-calculator" />
@@ -519,6 +526,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-database" />
@@ -533,6 +541,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-wrench" />
@@ -548,6 +557,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-list-alt" />
@@ -563,6 +573,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fa fa-history" />
@@ -577,6 +588,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fa fa-area-chart" />
@@ -591,6 +603,7 @@
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fas fa-project-diagram" />

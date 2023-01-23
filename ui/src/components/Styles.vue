@@ -30,11 +30,13 @@
 .outlet-svg {
   fill: red;
 }
-
+.q-dialog > .q-card > .q-card__section--vert {
+  padding: 0px !important;
+}
 .shadow-1-null:before {
   content: "";
   height: 7px;
-  width: 280;
+  width: 280px;
   position: absolute;
   bottom: 0px;
   background: white;
