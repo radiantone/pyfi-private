@@ -63,9 +63,8 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           extra-build-args: '--compress'
-          path: docker/Dockerfile.nginx
+          path: ./docker/Dockerfile.nginx
           platform: linux/amd64
-          profile-name: nginx
           public-registry: false
           push-image: true
           repo: nginx
