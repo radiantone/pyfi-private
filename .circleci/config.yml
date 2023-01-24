@@ -67,3 +67,15 @@ workflows:
           repo: nginx
           repo-scan-on-push: true
           tag: 'latest'
+      - aws-ecr/build-and-push-image:
+          aws-cli-version: latest
+          create-repo: true
+          dockerfile: Dockerfile.api
+          extra-build-args: '--compress'
+          path: ./docker
+          platform: linux/amd64
+          public-registry: false
+          push-image: true
+          repo: api
+          repo-scan-on-push: true
+          tag: 'latest'
