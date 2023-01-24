@@ -60,6 +60,8 @@ workflows:
     jobs:
       - build-and-test
       - aws-ecr/build-and-push-image:
+          requires:
+            - build-and-test
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.nginx
@@ -72,6 +74,8 @@ workflows:
           repo-scan-on-push: true
           tag: 'latest'
       - aws-ecr/build-and-push-image:
+          requires:
+            - build-and-test
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.api
