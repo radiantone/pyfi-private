@@ -105,7 +105,7 @@ pika==0.13.0
 Pillow==9.2.0
 pipe==1.6.0
 platformdirs==2.5.2
-playwright==1.28.0
+#playwright==1.28.0
 pluggy==1.0.0
 pptree==3.1
 prettytable==3.2.0
