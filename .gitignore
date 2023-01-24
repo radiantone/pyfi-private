@@ -7,7 +7,6 @@ build
 docker/websockets/node_modules/
 git
 docs/_build
-dist
 *egg-info
 /**/__pycache__
 **/.~lock*
