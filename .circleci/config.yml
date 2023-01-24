@@ -31,6 +31,10 @@ jobs:
     # CircleCI will report the results back to your VCS provider.
     steps:
       - checkout
+      - run: mkdir certs
+      - run: echo $elasticcode_crt > certs/elasticcode.crt
+      - run: echo $elasticcodeapp_crt > certs/elasticcode.crt
+      - run: echo $elasticcode_key > certs/elasticcode.key
       - run:
           name: APT update
           command: 'sudo apt update'
