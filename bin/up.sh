@@ -1,1 +1,1 @@
-docker compose up postgresdb postgres redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb influxdb web api
+docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api
