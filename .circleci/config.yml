@@ -62,8 +62,9 @@ workflows:
       - aws-ecr/build-and-push-image:
           aws-cli-version: latest
           create-repo: true
+          dockerfile: Dockerfile.nginx
           extra-build-args: '--compress'
-          path: ./docker/Dockerfile.nginx
+          path: ./docker
           platform: linux/amd64
           public-registry: false
           push-image: true
