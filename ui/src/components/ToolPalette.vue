@@ -619,6 +619,7 @@
             <q-item
               clickable
               v-close-popup
+              :disabled="!this.$auth.isAuthenticated"
               @click="showProfileDialog=true"
             >
               <q-item-section side>

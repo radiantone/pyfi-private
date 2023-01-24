@@ -14,6 +14,27 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
+  build-and-push-image:
+    aws-cli-version: latest
+    create-repo:
+    extra-build-args: '--compress'
+    new-profile-name: newProfileName
+    no-output-timeout: 20m
+    path: docker/Dockerfile.nginx
+    platform: linux/amd64
+    profile-name: nginx
+    public-registry: false
+    push-image: true
+    region: us-east-1
+    registry-id: 013035288901.dkr.ecr.us-east-1.amazonaws.com
+    repo: nginx
+    #repo-policy-path: repo-policy.json
+    repo-scan-on-push: true
+    #role-arn: 'arn:aws:iam::123456789012:role/testing'
+    #set-repo-policy: true
+    #skip-when-tags-exist: false
+    #source-profile: sourceProfileName
+    tag: 'latest'
   build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
     # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
@@ -54,3 +75,4 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - build-and-test
+      - build-and-push-image
