@@ -5,4 +5,4 @@ ADD ./conf/mime.types /etc/nginx/conf/mime.types
 ADD ./certs /etc/nginx/certs
 ADD ./conf/elasticcode /etc/nginx/sites-enabled/elasticcode
 
-COPY ./spa /var/share/html
+COPY ./ui/dist/spa /var/share/html

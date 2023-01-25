@@ -13,7 +13,6 @@ jobs:
     steps:
       - checkout
       - run: mkdir ./certs
-      - run: mkdir ./spa
       - run: echo "$elasticcode_crt" > ./certs/elasticcode.crt
       - run: echo "$elasticcodeapp_crt" > ./certs/elasticcode-app.crt
       - run: echo "$elasticcode_key" > ./certs/elasticcode.key
@@ -47,9 +46,9 @@ jobs:
           name: Build UI
           command: make ui
       - persist_to_workspace:
-          root: spa
+          root: ui
           paths:
-            - ./ui/dist/spa
+            - dist/spa
       - run:
           name: Run tests
           command: make test
