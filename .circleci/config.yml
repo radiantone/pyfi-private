@@ -14,7 +14,7 @@ jobs:
       - checkout
       - run: mkdir -p ./workspace/certs
       - run: echo "$elasticcode_crt" > ./workspace/certs/elasticcode.crt
-      - run: echo "$elasticcodeapp_crt" > ./workspace/certs/elasticcode-app.crt
+      - run: echo "$elasticcode_app_crt" > ./workspace/certs/elasticcode-app.crt
       - run: echo "$elasticcode_key" > ./workspace/certs/elasticcode.key
       - run: ls -l ./workspace/certs
       - node/install:
