@@ -40,6 +40,9 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
+          name: Install UI
+          command: make install-ui
+      - run:
           name: Build UI
           command: make ui
       - run:
