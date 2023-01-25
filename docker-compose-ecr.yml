@@ -91,9 +91,6 @@ services:
       - "EVENTS=events"
 
   api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
     container_name: api
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
     environment:
@@ -286,8 +283,6 @@ services:
   web:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
     container_name: web
-    build:
-      context: /home/darren/git/elasticcode-web
     ports:
       - 8443:443
       - 8180:80
@@ -295,9 +290,6 @@ services:
   nginx:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     container_name: nginx
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.nginx
     volumes:
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
