@@ -1042,6 +1042,7 @@ def post_files(collection, path):
                     print("Committed")
                 except:
                     import traceback
+
                     print(traceback.format_exc())
                     error = {"status": "error", "message": "Unable to overwrite file"}
                     session.rollback()
@@ -1057,6 +1058,7 @@ def post_files(collection, path):
                     session.commit()
                 except:
                     import traceback
+
                     print(traceback.format_exc())
                     error = {"status": "error", "message": "Unable to overwrite file"}
                     session.rollback()
