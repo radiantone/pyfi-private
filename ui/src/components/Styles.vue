@@ -17,6 +17,11 @@
     font-size: 16px !important;
 }
 
+.bar {
+  background: url("~assets/images/bar.png");
+  background-size: cover;
+}
+
 .outlet-icon2 {
   display: block;
   text-indent: -9999px;

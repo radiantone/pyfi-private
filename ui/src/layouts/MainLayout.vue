@@ -1568,6 +1568,70 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="betanoticedialog"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            padding: 0px !important;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 0px;
+              margin-top: -5px;
+              margin-right: 0px;
+              color: #fff;
+            "
+          >
+            <q-toolbar class="bar">
+              <q-space/>
+
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 400px;"
+        >
+          <span class="q-ml-sm" style="margin-top: 30px;margin-bottom:30px">
+            <p style="font-size:20px">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently incomplete and will contain faults. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
+            <br>
+            <hr>
+            <br>
+            <p style="font-size:16px"><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
+            <br>
+            <b>Recommended Settings:</b>
+            <ul style="margin-left:40px">
+              <li>Monitor Resolution 2560x1440 or higher resolution</li>
+              <li>Google Chrome</li>
+            </ul>
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 150px;"
+            label="I Understand"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog
       v-model="confirmQueuePurge"
       persistent
@@ -2989,6 +3053,7 @@ export default defineComponent({
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,
+      betanoticedialog: true,
       chatModel: 40,
       splitterModel: 100,
       splitterSave: 73,
