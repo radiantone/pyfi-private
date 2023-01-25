@@ -99,7 +99,7 @@ template = {
     "termsOfService": "http://me.com/terms",
     "version": "0.0.1"
   },
-  "host": "api.elasticcode.ai/docs",  # overrides localhost:500
+  "host": "localhost:8000/docs/ui",  # overrides localhost:500
   "basePath": "/docs",  # base bash for blueprint registration
   "schemes": [
     "http",
@@ -122,7 +122,7 @@ swagger_config = {
     "specs_route": "/ui",
     "url_prefix": "/docs"
 }
-swagger = Swagger(app=app, config=swagger_config)
+swagger = Swagger(app=app, template=template, config=swagger_config)
 
 
 # Error handler
