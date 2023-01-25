@@ -45,6 +45,9 @@ jobs:
       - run:
           name: Build UI
           command: make ui
+      - run:
+          name: Copy UI
+          command: mkdir -p workspace/ui/dist/spa; cp -r ui/dist/spa/* workspace/ui/dist/spa/
       - persist_to_workspace:
           root: workspace
           paths:
