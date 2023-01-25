@@ -99,7 +99,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           context: ./socket
-          dockerfile: Dockerfile.prod
+          dockerfile: Dockerfile
           extra-build-args: '--compress'
           path: ./socket
           platform: linux/amd64
