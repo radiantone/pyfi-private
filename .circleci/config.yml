@@ -67,7 +67,7 @@ workflows:
           workspace-root: workspace
           aws-cli-version: latest
           create-repo: true
-          dockerfile: Dockerfile.nginx
+          dockerfile: Dockerfile.nginx.prod
           extra-build-args: '--compress'
           path: ./docker
           platform: linux/amd64
@@ -99,7 +99,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           context: ./socket
-          dockerfile: Dockerfile
+          dockerfile: Dockerfile.prod
           extra-build-args: '--compress'
           path: ./socket
           platform: linux/amd64
