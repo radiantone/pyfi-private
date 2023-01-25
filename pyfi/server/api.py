@@ -99,10 +99,9 @@ template = {
     "termsOfService": "http://me.com/terms",
     "version": "0.0.1"
   },
-  "host": "localhost:8000/docs/ui",  # overrides localhost:500
-  "basePath": "/docs",  # base bash for blueprint registration
+  "host": "localhost:8000/",  # overrides localhost:500
+  "basePath": "/",  # base bash for blueprint registration
   "schemes": [
-    "http",
     "https"
   ],
   "operationId": "getmyData"
