@@ -95,7 +95,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: pyfi/api:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
@@ -284,7 +284,7 @@ services:
         - mongodb_data_container:/data/db
 
   web:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
     container_name: web
     build:
       context: /home/darren/git/elasticcode-web
@@ -293,7 +293,7 @@ services:
       - 8180:80
 
   nginx:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     container_name: nginx
     build:
       context: .
