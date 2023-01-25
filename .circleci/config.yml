@@ -72,7 +72,7 @@ workflows:
           push-image: true
           repo: nginx
           repo-scan-on-push: true
-          tag: 'latest'
+          tag: 'production'
       - aws-ecr/build-and-push-image:
           requires:
             - build-and-test
@@ -88,4 +88,20 @@ workflows:
           push-image: true
           repo: api
           repo-scan-on-push: true
-          tag: 'latest'
+          tag: 'production'
+      - aws-ecr/build-and-push-image:
+          requires:
+            - build-and-test
+          attach-workspace: true
+          workspace-root: certs
+          aws-cli-version: latest
+          create-repo: true
+          dockerfile: Dockerfile
+          extra-build-args: '--compress'
+          path: ./socket
+          platform: linux/amd64
+          public-registry: false
+          push-image: true
+          repo: clientsocket
+          repo-scan-on-push: true
+          tag: 'production'
