@@ -122,7 +122,7 @@ swagger_config = {
     "specs_route": "/ui",
     "url_prefix": "/docs"
 }
-swagger = Swagger(app=app, config=swagger_config)
+swagger = Swagger(app=app, template=template, config=swagger_config)
 
 
 # Error handler
