@@ -281,8 +281,10 @@ services:
         - mongodb_data_container:/data/db
 
   web:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
+    image: elasticcode/web:latest
     container_name: web
+    build:
+      context: /home/darren/git/elasticcode-web
     ports:
       - 8443:443
       - 8180:80
