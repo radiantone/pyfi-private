@@ -46,7 +46,7 @@ jobs:
           name: Build UI
           command: make ui
       - persist_to_workspace:
-          root: spa
+          root: certs/spa
           paths:
             - ./ui/dist/spa
       - run:
