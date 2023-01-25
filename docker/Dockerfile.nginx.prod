@@ -1,0 +1,8 @@
+FROM nginx:alpine
+
+ADD ./conf/nginx.conf.prod /etc/nginx/nginx.conf
+ADD ./conf/mime.types /etc/nginx/conf/mime.types
+ADD ./certs /etc/nginx/certs
+ADD ./conf/elasticcode /etc/nginx/sites-enabled/elasticcode
+
+COPY ./spa /var/share/html
