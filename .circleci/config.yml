@@ -64,7 +64,7 @@ workflows:
           workspace-root: certs
           aws-cli-version: latest
           create-repo: true
-          dockerfile: Dockerfile.nginx.prod
+          dockerfile: Dockerfile.nginx
           extra-build-args: '--compress'
           path: ./docker
           platform: linux/amd64
@@ -93,9 +93,9 @@ workflows:
           requires:
             - build-and-test
           attach-workspace: true
-          workspace-root: certs
           aws-cli-version: latest
           create-repo: true
+          build-path: ./socket
           dockerfile: Dockerfile
           extra-build-args: '--compress'
           path: ./socket
