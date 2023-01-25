@@ -99,7 +99,7 @@ template = {
     "termsOfService": "http://me.com/terms",
     "version": "0.0.1"
   },
-  "host": "api.elasticcode.ai/docs",  # overrides localhost:500
+  "host": "api.elasticcode.ai/docs/ui",  # overrides localhost:500
   "basePath": "/docs",  # base bash for blueprint registration
   "schemes": [
     "http",
