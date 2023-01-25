@@ -3,19 +3,13 @@ version: '3.9'
 services:
 
   clientsocket:
-    build:
-      context: socket
-      dockerfile: Dockerfile
-    image: pyfi/clientsocket:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
     container_name: clientsocket
     ports:
       - 3003:3003
 
   globalsocket:
-    build:
-      context: docker/websockets
-      dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -23,10 +17,7 @@ services:
       - 3009:3000
 
   websockets2:
-    build:
-      context: docker/websockets
-      dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -34,10 +25,7 @@ services:
       - 3002:3000
 
   websockets:
-    build:
-      context: docker/websockets
-      dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -66,30 +54,6 @@ services:
       ports:
         - 3001:3000
 
-  influxdb:
-    image: influxdb:2.0
-    container_name: influxdb
-    ports:
-      - 8083:8083
-      - 8086:8086
-      - 8088:8088
-    environment:
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=password
-      - DOCKER_INFLUXDB_INIT_ORG=pyfi
-      - DOCKER_INFLUXDB_INIT_BUCKET=pyfi
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
-
-  processor:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.processor
-    container_name: processor
-    image: pyfi/processor:latest
-    environment:
-      - "EVENTS=events"
-
   api:
     container_name: api
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
@@ -104,72 +68,6 @@ services:
       - postgresdb
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-
-  agent3.docker:
-    container_name: agent3.docker
-    hostname: agent3
-    image: elasticcode/agent:latest
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
-    ports:
-      - 8004:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgresdb
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
-
-  agent3:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.agent
-    container_name: agent3
-    hostname: agent3
-    image: agent:latest
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
-    ports:
-      - 8004:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgresdb
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
-
-  agent2:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.agent
-    container_name: agent2
-    hostname: agent2
-    image: agent:latest
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent2 --clean --size 20 --user pyfi --cpus 4"
-    ports:
-      - 8003:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgresdb
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
 
   logs:
     build:
@@ -190,11 +88,8 @@ services:
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
-    image: rabbitmq:management
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
     restart: always
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.rabbitmq
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./data:/var/lib/rabbitmq/mnesia/
@@ -210,10 +105,7 @@ services:
   rabbitmq2:
     container_name: rabbitmq2
     hostname: rabbitmq2
-    image: rabbitmq:management
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.rabbitmq
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./conf/rabbit-cluster.sh:/tmp/rabbit-cluster.sh
@@ -266,8 +158,6 @@ services:
     image: redislabs/redisinsight:latest
     ports:
       - 8001:8001
-    #volumes:
-    #  - ./data/redisinsight:/db
 
   mongodb:
       image: mongo:latest
@@ -293,6 +183,7 @@ services:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     container_name: nginx
     volumes:
+      - ./certs:/etc/nginx/certs
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
     depends_on:
