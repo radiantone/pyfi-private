@@ -95,7 +95,7 @@ workflows:
           attach-workspace: true
           aws-cli-version: latest
           create-repo: true
-          build-path: ./socket
+          working_directory: ./socket
           dockerfile: Dockerfile
           extra-build-args: '--compress'
           path: ./socket
