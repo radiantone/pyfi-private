@@ -7,6 +7,7 @@ import logging
 import os
 import platform
 from base64 import b64decode, b64encode
+from flasgger import Swagger
 
 import chargebee
 import requests
@@ -79,11 +80,49 @@ app.register_blueprint(blueprint)
 api = Api(
     app,
     version="1.0",
-    title="LambdaFLOW API",
-    description="LambdaFLOW Backend API",
+    title="ElasticCode API",
+    description="ElasticCode Backend API",
 )
 
 setattr(app, "json_encoder", AlchemyEncoder)
+template = {
+  "swagger": "2.0",
+  "info": {
+    "title": "ElasticCode API",
+    "description": "ElasticCode API",
+    "contact": {
+      "responsibleOrganization": "ME",
+      "responsibleDeveloper": "Me",
+      "email": "me@me.com",
+      "url": "www.me.com",
+    },
+    "termsOfService": "http://me.com/terms",
+    "version": "0.0.1"
+  },
+  "host": "api.elasticcode.ai/docs",  # overrides localhost:500
+  "basePath": "/docs",  # base bash for blueprint registration
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "operationId": "getmyData"
+}
+swagger_config = {
+    "headers": [
+    ],
+    "specs": [
+        {
+            "endpoint": 'processors',
+            "route": '/processors',
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "specs_route": "/ui",
+    "url_prefix": "/docs"
+}
+swagger = Swagger(app=app, config=swagger_config)
 
 
 # Error handler
@@ -449,7 +488,23 @@ def do_processor(name):
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def get_processors():
-
+    """Example endpoint returning a list of processors
+        This is using docstrings for specifications.
+        ---
+        definitions:
+          Processor:
+            type: object
+            properties:
+              name:
+                type: string
+        responses:
+          200:
+            description: A list of processors
+            schema:
+              $ref: '#/definitions/Processor'
+            examples:
+              processors: [{'name':'proc1'}]
+    """
     with get_session() as session:
         processors = session.query(ProcessorModel).all()
 
@@ -1135,6 +1190,7 @@ class HelloService(Resource):
 hello = api.namespace("hello", description="Hello operations")
 route = hello.route("/<string:message>")
 route(HelloService)
-
+#processors = api.namespace("processors", description="Get processors")
+#processors.route("/processors")
 """ Iterate over all the processors, tasks and for the ones where endpoint=True, add them as
 service routes. Perhaps monitor the database and update accordingly """
