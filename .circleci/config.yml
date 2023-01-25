@@ -4,6 +4,7 @@ orbs:
   python: circleci/python@1.5.0
   aws-ecr: circleci/aws-ecr@8.2.1
   aws-ecs: circleci/aws-ecs@3.2.0
+  node: circleci/node@5.1.0
 
 jobs:
   build-and-test:
@@ -16,6 +17,9 @@ jobs:
       - run: echo "$elasticcodeapp_crt" > ./certs/elasticcode-app.crt
       - run: echo "$elasticcode_key" > ./certs/elasticcode.key
       - run: ls -l ./certs
+      - node/install:
+          install-yarn: true
+          node-version: '14.18.1'
       - persist_to_workspace:
            root: certs
            paths:
