@@ -93,16 +93,15 @@ template = {
     "contact": {
       "responsibleOrganization": "ME",
       "responsibleDeveloper": "Me",
-      "email": "me@me.com",
-      "url": "www.me.com",
+      "email": "support@elasticcode.ai",
+      "url": "elasticcode.ai",
     },
-    "termsOfService": "http://me.com/terms",
+    "termsOfService": "https://elasticcode.ai/terms",
     "version": "0.0.1"
   },
-  "host": "api.elasticcode.ai/docs/ui",  # overrides localhost:500
-  "basePath": "/docs",  # base bash for blueprint registration
+  "host": "api.elasticcode.ai",  # overrides localhost:500
+  "basePath": "/",  # base bash for blueprint registration
   "schemes": [
-    "http",
     "https"
   ],
   "operationId": "getmyData"
