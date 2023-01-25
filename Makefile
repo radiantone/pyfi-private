@@ -57,6 +57,10 @@ update: freeze format lint
 	python setup.py install
 	git status
 
+.PHONY: install-ui
+install-ui:
+	cd ui; npm install
+
 .PHONY: ui
 ui:
 	cd ui; quasar build
