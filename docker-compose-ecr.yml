@@ -121,7 +121,7 @@ services:
       - agent
     depends_on:
       - redis
-      - postgres
+      - postgresdb
       - rabbitmq
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
@@ -144,7 +144,7 @@ services:
       - agent
     depends_on:
       - redis
-      - postgres
+      - postgresdb
       - rabbitmq
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
@@ -167,7 +167,7 @@ services:
       - agent
     depends_on:
       - redis
-      - postgres
+      - postgresdb
       - rabbitmq
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
