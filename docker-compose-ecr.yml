@@ -17,7 +17,10 @@ services:
       - 3009:3000
 
   websockets2:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
+    build:
+      context: docker/websockets
+      dockerfile: Dockerfile
+    image: pyfi/websockets:latest
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -25,7 +28,10 @@ services:
       - 3002:3000
 
   websockets:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
+    build:
+      context: docker/websockets
+      dockerfile: Dockerfile
+    image: pyfi/websockets:latest
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
