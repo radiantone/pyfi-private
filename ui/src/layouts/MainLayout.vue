@@ -2611,12 +2611,6 @@ export default defineComponent({
         me.tabChanged(me.tab)
       })
     })
-    this.$q.loading.show({
-      delay: 40,
-      spinnerColor: 'dark',
-      spinnerSize: 154,
-      spinnerThickness: 1
-    })
     console.log('Mounting....')
     console.log('REFS', this.$refs)
     window.toolkit = this.$refs.flow1designer[0].toolkit
@@ -2868,9 +2862,7 @@ export default defineComponent({
       })
     })
     var me = this
-    setTimeout(function () {
-      me.$q.loading.hide()
-    }, 500)
+
     this.$root.$on('update.tab', () => {
       me.tabChanged(me.tab)
     })
