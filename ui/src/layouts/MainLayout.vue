@@ -1603,7 +1603,7 @@
         </q-card-section>
         <q-card-section
           class="row items-center"
-          style="height: 420px;"
+          style="height: 450px;"
         >
           <span class="q-ml-sm" style="margin-top: 30px;margin-bottom:30px">
             <p style="font-size:20px">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
