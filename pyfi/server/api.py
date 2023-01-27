@@ -29,7 +29,7 @@ from flask import (
     send_from_directory,
     session,
 )
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 from flask_restx import Api, Resource, fields, reqparse
 from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
@@ -76,6 +76,7 @@ hostname = platform.node()
 app = Flask(__name__)
 app.secret_key = "super secret key"
 app.register_blueprint(blueprint)
+cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
 
 api = Api(
     app,
