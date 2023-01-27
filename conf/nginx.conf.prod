@@ -173,7 +173,6 @@ http {
     access_log   logs/domain1.access.log  main;
     root         /var/share/html;
 
-    add_header Access-Control-Allow-Origin "*.elasticcode.ai";
 
     location /socket.io/ {
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -187,6 +186,7 @@ http {
     }
 
     location ~ ^/(images|javascript|js|css|fonts|icons||img|js|flash|media|static)/  {
+      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
       root    /var/share/html;
       expires 30d;
     }
