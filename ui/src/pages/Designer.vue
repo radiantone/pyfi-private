@@ -1582,11 +1582,11 @@
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
+            @click="importFlow"
           />
         </q-card-actions>
       </q-card>
     </q-dialog>
-
 
     <q-dialog
       v-model="selectAlert"
@@ -2549,6 +2549,20 @@ export default {
     }
   },
   methods: {
+    importFlow () {
+
+      const editor = this.$refs.importEditor.editor
+      var code = editor.getValue();
+      debugger;
+      window.toolkit.load({
+        type: 'json',
+        data: JSON.parse(code),
+        onload: function () {
+          window.toolkit.setSelection(window.nodes)
+          window.toolkit.surface.zoomToSelection({ doNotZoomIfVisible: true })
+        }
+      })
+    },
     hasFree () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] > this.FREE
@@ -2914,7 +2928,7 @@ export default {
   },
   mounted () {
     var me = this
-    console.log("DESIGNER STORE MESSAGE",me.$store.state.designer.message)
+    console.log('DESIGNER STORE MESSAGE', me.$store.state.designer.message)
     setTimeout(() => {
       // me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected')
@@ -4219,10 +4233,10 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    let data = component.getData()
-                    //if (data.template && data.template === 'Object') {
+                    const data = component.getData()
+                    // if (data.template && data.template === 'Object') {
                     //  return
-                    //}
+                    // }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
                     debugger
