@@ -1603,10 +1603,10 @@
         </q-card-section>
         <q-card-section
           class="row items-center"
-          style="height: 400px;"
+          style="height: 450px;"
         >
           <span class="q-ml-sm" style="margin-top: 30px;margin-bottom:30px">
-            <p style="font-size:20px">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently incomplete and will contain faults. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
+            <p style="font-size:20px">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
             <br>
             <hr>
             <br>
@@ -2611,12 +2611,6 @@ export default defineComponent({
         me.tabChanged(me.tab)
       })
     })
-    this.$q.loading.show({
-      delay: 40,
-      spinnerColor: 'dark',
-      spinnerSize: 154,
-      spinnerThickness: 1
-    })
     console.log('Mounting....')
     console.log('REFS', this.$refs)
     window.toolkit = this.$refs.flow1designer[0].toolkit
@@ -2868,9 +2862,7 @@ export default defineComponent({
       })
     })
     var me = this
-    setTimeout(function () {
-      me.$q.loading.hide()
-    }, 500)
+
     this.$root.$on('update.tab', () => {
       me.tabChanged(me.tab)
     })
