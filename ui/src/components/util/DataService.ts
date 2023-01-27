@@ -4,7 +4,7 @@ import http from 'src/http-common'
 
 class DataService {
   getFiles (collection: string, folder: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/files/' + collection + '/' + folder, {
+    return http.get('/api/files/' + collection + '/' + folder, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -12,7 +12,7 @@ class DataService {
   }
 
   getSubscriptions (email: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/subscriptions/' + email, {
+    return http.get('/api/subscriptions/' + email, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -20,7 +20,7 @@ class DataService {
   }
 
   getObjects (object: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/' + object, {
+    return http.get('/api/' + object, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -28,7 +28,7 @@ class DataService {
   }
 
   purgeQueue (queue: string, token: string): Promise<any> {
-    return http.delete('https://api.elasticcode.ai/queue/' + queue + '/contents', {
+    return http.delete('/api/queue/' + queue + '/contents', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -36,7 +36,7 @@ class DataService {
   }
 
   getCommits (repo: string, file: string, token: string): Promise<any> {
-    return http.post('https://api.elasticcode.ai/git', { repo: repo, file: file }, {
+    return http.post('/api/git', { repo: repo, file: file }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -44,7 +44,7 @@ class DataService {
   }
 
   getCode (repo: string, hash: string, token: string): Promise<any> {
-    return http.post('https://api.elasticcode.ai/git/code', { repo: repo, commit: hash }, {
+    return http.post('/api/git/code', { repo: repo, commit: hash }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -52,7 +52,7 @@ class DataService {
   }
 
   loginProcessor (id: string, password: string, token: string): Promise<any> {
-    return http.post('https://api.elasticcode.ai/login/' + id, { password: password }, {
+    return http.post('/api/login/' + id, { password: password }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -60,7 +60,7 @@ class DataService {
   }
 
   askChat (question: string, token: string): Promise<any> {
-    return http.post('https://api.elasticcode.ai/chatgpt', { question: question }, {
+    return http.post('/api/chatgpt', { question: question }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -68,7 +68,7 @@ class DataService {
   }
 
   getOutput (resultid: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/output/' + resultid, {
+    return http.get('/api/output/' + resultid, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -76,7 +76,7 @@ class DataService {
   }
 
   getResult (resultid: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/result/' + resultid, {
+    return http.get('/api/result/' + resultid, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -84,7 +84,7 @@ class DataService {
   }
 
   getCalls (processor: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/calls/' + processor, {
+    return http.get('/api/calls/' + processor, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -92,7 +92,7 @@ class DataService {
   }
 
   getVersions (flow: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/versions/' + flow, {
+    return http.get('/api/versions/' + flow, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -100,7 +100,7 @@ class DataService {
   }
 
   getDeployments (processor: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/deployments/' + processor, {
+    return http.get('/api/deployments/' + processor, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -108,7 +108,7 @@ class DataService {
   }
 
   getWorkers (processor: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/workers/' + processor, {
+    return http.get('/api/workers/' + processor, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -116,7 +116,7 @@ class DataService {
   }
 
   getMessages (queue: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/queue/messages/' + queue, {
+    return http.get('/api/queue/messages/' + queue, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -124,7 +124,7 @@ class DataService {
   }
 
   getQueues (token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/queues', {
+    return http.get('/api/queues', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -132,7 +132,7 @@ class DataService {
   }
 
   saveProcessor (processor: any, token: string): Promise<any> {
-    return http.post('https://api.elasticcode.ai/processor/' + processor.name, processor, {
+    return http.post('/api/processor/' + processor.name, processor, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -140,11 +140,11 @@ class DataService {
   }
 
   emptyAllQueues (): Promise<any> {
-    return http.get('https://api.elasticcode.ai/emptyqueues/')
+    return http.get('/api/emptyqueues/')
   }
 
   getProcessor (id: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/processor/' + id, {
+    return http.get('/api/processor/' + id, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -152,7 +152,7 @@ class DataService {
   }
 
   getProcessors (token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/processors', {
+    return http.get('/api/processors', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -160,7 +160,7 @@ class DataService {
   }
 
   newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
-    const path = encodeURI('https://api.elasticcode.ai/files/' + collection + '/' + folder)
+    const path = encodeURI('/api/files/' + collection + '/' + folder)
 
     return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
       headers: {
@@ -170,7 +170,7 @@ class DataService {
   }
 
   newFolder (collection: string, folder: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/folder/' + collection + '/' + folder, {
+    return http.get('/api/folder/' + collection + '/' + folder, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -178,7 +178,7 @@ class DataService {
   }
 
   getPattern (name: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/pattern/' + name, {
+    return http.get('/api/pattern/' + name, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -186,7 +186,7 @@ class DataService {
   }
 
   getNetworks (token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/networks', {
+    return http.get('/api/networks', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -194,7 +194,7 @@ class DataService {
   }
 
   getFile (id: string, token: string): Promise<any> {
-    return http.get('https://api.elasticcode.ai/files/' + id, {
+    return http.get('/api/files/' + id, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -202,7 +202,7 @@ class DataService {
   }
 
   deleteFile (id: string, token: string): Promise<any> {
-    return http.delete('https://api.elasticcode.ai/files/' + id, {
+    return http.delete('/api/files/' + id, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -210,11 +210,11 @@ class DataService {
   }
 
   login (data: any): Promise<any> {
-    return http.post('https://api.elasticcode.ai/login', data)
+    return http.post('/api/login', data)
   }
 
   logout (): Promise<any> {
-    return http.get('https://api.elasticcode.ai/logout')
+    return http.get('/api/logout')
   }
 }
 
