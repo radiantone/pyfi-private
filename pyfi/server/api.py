@@ -576,7 +576,7 @@ def get_result(resultid):
 
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin(origin='*', headers=["Content-Type", "Authorization"])
 @requires_auth
 def get_files(collection, path):
     import json
