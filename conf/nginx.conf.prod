@@ -146,6 +146,7 @@ http {
       proxy_set_header Host $http_host;
       proxy_set_header X-NginX-Proxy true;
 
+      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
       proxy_pass http://api_servers/;
       proxy_redirect off;
     }
