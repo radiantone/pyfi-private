@@ -1605,12 +1605,12 @@
           class="row items-center"
           style="height: 450px;"
         >
-          <span class="q-ml-sm" style="margin-top: 30px;margin-bottom:30px">
-            <p style="font-size:20px">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
+          <span class="text-black q-ml-sm" style="color:black;margin-top: 30px;margin-bottom:30px">
+            <p style="font-size:20px" class="text-black">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
             <br>
             <hr>
             <br>
-            <p style="font-size:16px"><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
+            <p style="font-size:16px" class="text-black"><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
             <br>
             <b>Recommended Settings:</b>
             <ul style="margin-left:40px">
@@ -2616,6 +2616,15 @@ export default defineComponent({
     window.toolkit = this.$refs.flow1designer[0].toolkit
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
+    window.toolkit.load({
+      type:"json",
+      url:"/scratch.json",
+      onload:function() {
+        // called after the data has loaded.
+        window.toolkit.surface.setZoom(1.0)
+        window.toolkit.surface.zoomToFit({ fill: 0.75 })
+      }
+    })
     setTimeout(() => {
       var script = document.querySelector('#script')
 

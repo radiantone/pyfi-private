@@ -2774,10 +2774,12 @@ export default {
     })
     // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
-    this.fetchCode()
+    this.fetchCode( (code) => {
+      me.updatePorts()
+      me.updateColumns()
+    })
     this.updateBandwidthChart()
-    this.updatePorts()
-    this.updateColumns()
+
   },
   data () {
     return {
@@ -3559,7 +3561,7 @@ export default {
         this.funcs.push({ name: name, args: _args })
       }
     },
-    fetchCode () {
+    fetchCode (callback) {
       var me = this
       if (this.obj.gitrepo === undefined || this.obj.gitrepo.length == 0) {
         return
@@ -3581,6 +3583,7 @@ export default {
 
             if (editor) {
               editor.session.setValue(me.obj.code)
+              callback(me.obj.code)
             }
           }
         })
