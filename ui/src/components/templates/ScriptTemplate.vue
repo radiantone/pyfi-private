@@ -558,7 +558,7 @@
             flat
             size="xs"
             icon="fas fa-terminal"
-            @click="showPanel('consoleview', !consoleview)"
+            @click="showPanel('obj.consoleview', !obj.consoleview)"
             class="edit-name text-secondary"
             style="position: absolute; right: 85px; top: -68px; width: 25px; height: 30px;"
           >
@@ -1955,7 +1955,7 @@
 
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="consoleview"
+      v-if="obj.consoleview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-scroll-area
@@ -2035,7 +2035,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          @click="consoleview = false"
+          @click="obj.consoleview = false"
         />
       </q-card-actions>
     </q-card>
@@ -3053,6 +3053,7 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
         titletab: false,
+        consoleview: false,
         receipt: new Date(),
         notes: '',
         style: '',
@@ -3097,7 +3098,6 @@ export default {
       text: '',
       configview: false,
       historyview: false,
-      consoleview: false,
       logsview: false,
       requirementsview: false,
       notesview: false,
@@ -3748,7 +3748,7 @@ export default {
       this.gitview = false
       this.workerview = false
       this.historyview = false
-      this.consoleview = false
+      this.obj.consoleview = false
       this.environmentview = false
       this.scalingview = false
       this.notesview = false
