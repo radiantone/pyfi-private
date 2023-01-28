@@ -92,8 +92,8 @@ template = {
     "title": "ElasticCode API",
     "description": "ElasticCode API",
     "contact": {
-      "responsibleOrganization": "ME",
-      "responsibleDeveloper": "Me",
+      "responsibleOrganization": "elasticcode.ai",
+      "responsibleDeveloper": "darren@elasticcode.ai",
       "email": "support@elasticcode.ai",
       "url": "elasticcode.ai",
     },
