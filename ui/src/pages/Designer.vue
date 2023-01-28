@@ -1582,6 +1582,7 @@
             class="bg-secondary text-white"
             color="primary"
             v-close-popup
+            @click="importFlow"
           />
         </q-card-actions>
       </q-card>
@@ -2549,6 +2550,20 @@ export default {
     }
   },
   methods: {
+    importFlow () {
+
+      const editor = this.$refs.importEditor.editor
+      var code = editor.getValue();
+      debugger;
+      window.toolkit.load({
+        type: 'json',
+        data: JSON.parse(code),
+        onload: function () {
+          window.toolkit.setSelection(window.nodes)
+          window.toolkit.surface.zoomToSelection({ doNotZoomIfVisible: true })
+        }
+      })
+    },
     hasFree () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] > this.FREE
