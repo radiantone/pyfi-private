@@ -2253,6 +2253,9 @@
   </q-layout>
 </template>
 <style>
+.q-item__section--avatar {
+  min-width: unset !important;
+}
 .q-dialog > .q-card > .q-card__section--vert {
   padding: 0px !important;
 }
@@ -2928,13 +2931,13 @@ export default {
   },
   mounted () {
     var me = this
-    console.log('DESIGNER STORE MESSAGE', me.$store.state.designer.message)
+    console.log("DESIGNER STORE MESSAGE",me.$store.state.designer.message)
     setTimeout(() => {
       // me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected')
     }, 5000)
 
-    if (this.flowid == 'flow1') {
+    if (this.flowid === 'flow1') {
       this.$root.$emit('update.tab')
     }
     setTimeout(() => {
