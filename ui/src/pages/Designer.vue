@@ -2254,6 +2254,9 @@
   </q-layout>
 </template>
 <style>
+.q-item__section--avatar {
+  min-width: unset !important;
+}
 .q-dialog > .q-card > .q-card__section--vert {
   padding: 0px !important;
 }
