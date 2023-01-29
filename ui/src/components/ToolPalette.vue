@@ -620,7 +620,7 @@
               clickable
               v-close-popup
               :disabled="!this.$auth.isAuthenticated"
-              @click="showProfileDialog=true"
+              @click="showProfileDialog=this.$auth.isAuthenticated"
             >
               <q-item-section side>
                 <q-icon name="fas fa-user" />
