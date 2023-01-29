@@ -2622,6 +2622,7 @@ export default defineComponent({
       onload:function() {
         // called after the data has loaded.
         window.toolkit.surface.setZoom(1.0)
+        window.toolkit.surface.setPan(0, 0, false)
         window.toolkit.surface.zoomToFit({ fill: 0.75 })
       }
     })
