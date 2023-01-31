@@ -1,7 +1,7 @@
 <template>
   <div
     class="aGroup"
-    style="border: 2px dashed black; min-height: 150px; z-index: -100;"
+    style="border: 2px dashed black; min-height: 150px; z-index: -9999;"
     :id="obj.id"
     @mousedown="mousein = !mousein"
   >

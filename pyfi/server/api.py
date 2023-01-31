@@ -543,13 +543,22 @@ def get_subscription(user):
 
 
 @app.route("/chatgpt", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def consult_chatgpt():
-    from flask import Response
-
     data = request.get_json()
-    answer = consult(data["question"])
-    return answer
+    #answer = consult(data["question"])
+    return """
+Here is a function that will parse an english sentence
+
+
+    import spacy
+    
+    def parse(sentence):
+       return "The parsed sentence"
+
+    
+    """
 
 
 @app.route("/result/<resultid>", methods=["GET"])
@@ -1190,7 +1199,6 @@ class HelloService(Resource):
 hello = api.namespace("hello", description="Hello operations")
 route = hello.route("/<string:message>")
 route(HelloService)
-#processors = api.namespace("processors", description="Get processors")
-#processors.route("/processors")
+
 """ Iterate over all the processors, tasks and for the ones where endpoint=True, add them as
 service routes. Perhaps monitor the database and update accordingly """

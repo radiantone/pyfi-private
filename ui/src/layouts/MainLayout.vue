@@ -12,7 +12,6 @@
     <q-header elevated>
       <ToolPalette
         v-if="tools === 'code'"
-        :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
         :nodes="this.stats.nodes"
@@ -26,7 +25,6 @@
       />
       <ModelToolPalette
         v-if="tools === 'model'"
-        :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
       />
@@ -410,11 +408,13 @@
               name="monitor"
               class="text-dark"
               label="Monitor"
+              disable
             />
             <q-tab
               name="error"
               class="text-dark"
               label="Errors"
+              disable
             />
           </q-tabs>
           <q-tab-panels
@@ -2456,26 +2456,6 @@ export default defineComponent({
     updateFlow (name) {
       this.flow.filename = name
     },
-    dataGenerator: function (el) {
-      // This probably needs to be automated
-      return {
-        type: el.getAttribute('data-node-type'),
-        w: 120,
-        h: 80,
-        properties: [],
-        rules: [],
-        events: [],
-        callbacks: [],
-        facts: [],
-        behaviors: [],
-        notes: [],
-        package: el.getAttribute('data-node-package'),
-        description: el.getAttribute('data-node-desc'),
-        icon: el.getAttribute('data-node-icon'),
-        name: el.getAttribute('data-node-name'),
-        id: jsPlumbUtil.uuid()
-      }
-    },
     tabChanged (tab) {
       var me = this
 
@@ -2622,8 +2602,11 @@ export default defineComponent({
       onload:function() {
         // called after the data has loaded.
         window.toolkit.surface.setZoom(1.0)
-        window.toolkit.surface.setPan(0, 0, false)
         window.toolkit.surface.zoomToFit({ fill: 0.75 })
+        window.toolkit.surface.setPan(0, 0, false)
+        window.toolkit.surface.setPan(0, 0, false)
+        window.toolkit.surface.setPan(0, 0, false)
+        me.graph = window.toolkit.getGraph().serialize()
       }
     })
     setTimeout(() => {

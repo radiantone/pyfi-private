@@ -620,7 +620,7 @@
               clickable
               v-close-popup
               :disabled="!this.$auth.isAuthenticated"
-              @click="showProfileDialog=true"
+              @click="showProfile"
             >
               <q-item-section side>
                 <q-icon name="fas fa-user" />
@@ -868,7 +868,7 @@ export default {
       }
     },
     showProfile () {
-
+      this.showProfileDialog = this.$auth.isAuthenticated
     },
     logout () {
       this.$auth.logout({ returnTo: '/logout' })
