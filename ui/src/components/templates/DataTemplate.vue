@@ -521,7 +521,54 @@
             Add Object
           </q-tooltip>
         </div>
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
 
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            :dropdown-icon="braces"
+            color="secondary"
+            padding="0px"
+            size=".8em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="schema in types"
+              :key="schema"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewSchema(schema)"
+              >
+                <q-item-section side>
+                  <q-icon :name="braces" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  {{ schema }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Schema
+          </q-tooltip>
+        </div>
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
@@ -2201,6 +2248,7 @@ export default {
 
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
+    this.braces = mdiCodeBraces
 
     window.root.$on('show.tooltips', (value) => {
       console.log('start tooltips:', value)

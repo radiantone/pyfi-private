@@ -543,13 +543,22 @@ def get_subscription(user):
 
 
 @app.route("/chatgpt", methods=["POST"])
+@cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def consult_chatgpt():
-    from flask import Response
-
     data = request.get_json()
-    answer = consult(data["question"])
-    return answer
+    #answer = consult(data["question"])
+    return """
+Here is a function that will parse an english sentence
+
+
+    import spacy
+    
+    def parse(sentence):
+       return "The parsed sentence"
+
+    
+    """
 
 
 @app.route("/result/<resultid>", methods=["GET"])

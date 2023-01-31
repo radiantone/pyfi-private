@@ -3762,6 +3762,14 @@ export default {
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
       }
+      var elems = document.querySelectorAll('.jtk-node')
+
+      elems.forEach((el) => {
+        if (el != this.$el) {
+          el.style['z-index'] = 0
+        }
+      })
+      this.$el.style['z-index'] = 99999
 
       if (show) {
         // window.toolkit.surface.setZoom(1.0);

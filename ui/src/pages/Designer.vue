@@ -1588,7 +1588,6 @@
       </q-card>
     </q-dialog>
 
-
     <q-dialog
       v-model="selectAlert"
       persistent
@@ -2361,7 +2360,6 @@
 .delete-relationship {
   border-radius: 0px !important;
   padding: 5px;
-  z-index: 0;
   cursor: pointer;
   z-index: 9;
 
@@ -2556,8 +2554,7 @@ export default {
     importFlow () {
 
       const editor = this.$refs.importEditor.editor
-      var code = editor.getValue();
-      debugger;
+      var code = editor.getValue()
       window.toolkit.load({
         type: 'json',
         data: JSON.parse(code),
@@ -4237,10 +4234,10 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    let data = component.getData()
-                    //if (data.template && data.template === 'Object') {
+                    const data = component.getData()
+                    // if (data.template && data.template === 'Object') {
                     //  return
-                    //}
+                    // }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
                     debugger
