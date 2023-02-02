@@ -1054,8 +1054,33 @@ def get_calls(name):
 
 @app.route("/registration", methods=["POST"])
 def post_registration():
-    user = request.get_json(silent=True)
-    logging.info("REGISTRATION: %s", user)
+    from datetime import datetime
+
+    import hashlib
+    from pyfi.db.model import UserModel
+
+    data = request.get_json(silent=True)
+    logging.info("REGISTRATION: %s", data)
+
+    email = data['params']['user']['email']
+    tenant = data['params']['user']['tenant']
+    user_id = data['params']['user']['user_id']
+    password = user_id.split('|')[1]
+
+    with get_session() as session:
+        _password = hashlib.md5(password.encode()).hexdigest()
+        # This user will be used in OSO authorizations
+        user = UserModel(
+            name=email, owner=email, password=_password, clear=password, email=email
+        )
+        user.lastupdated = datetime.now()
+        sql = f"CREATE USER {email} WITH PASSWORD '{password}'"
+        logging.info("CREATE USER", sql)
+        session.execute(sql)
+
+        session.add(user)
+        session.commit()
+
     return "OK"
 
 
