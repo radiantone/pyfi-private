@@ -1075,7 +1075,7 @@ def post_registration():
         )
         user.lastupdated = datetime.now()
         sql = f"CREATE USER {email} WITH PASSWORD '{password}'"
-        logging.info("CREATE USER", sql)
+        logging.info("CREATE USER %s", sql)
         session.execute(sql)
 
         session.add(user)
