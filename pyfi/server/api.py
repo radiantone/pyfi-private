@@ -59,7 +59,7 @@ from pathlib import Path
 
 HOME = str(Path.home())
 AUTH0_DOMAIN = "elasticcode.us.auth0.com"
-API_AUDIENCE = "https://api.elasticcode.ai/"
+API_AUDIENCE = "https://app.elasticcode.ai/"
 ALGORITHMS = ["RS256"]
 
 ini = HOME + "/pyfi.ini"
