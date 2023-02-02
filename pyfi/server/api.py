@@ -1055,7 +1055,7 @@ def get_calls(name):
 @app.route("/registration", methods=["POST"])
 def post_registration():
     user = request.get_json(silent=True)
-    print(user)
+    logging.info("REGISTRATION: %s", user)
     return "OK"
 
 
