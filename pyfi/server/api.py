@@ -355,7 +355,7 @@ setattr(app, "json_encodore", AlchemyEncoder)
 
 
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def empty_queue(queuename):
     # send DELETE method to queue contents URL
@@ -365,7 +365,7 @@ def empty_queue(queuename):
 
 
 @app.route("/emptyqueues", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def empty_queues():
     # Fetch all queues
@@ -374,7 +374,7 @@ def empty_queues():
 
 
 @app.route("/git/code", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_code():
     from pydriller import Repository
@@ -394,7 +394,7 @@ def get_code():
 
 
 @app.route("/git", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_git():
     from pydriller import Repository
@@ -423,7 +423,7 @@ def get_git():
 
 
 @app.route("/login/<id>", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def login_processor(id):
     data: Any = request.get_json()
@@ -435,7 +435,7 @@ def login_processor(id):
 
 
 @app.route("/processor/<name>", methods=["POST", "GET", "DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def do_processor(name):
 
@@ -484,7 +484,7 @@ def do_processor(name):
 
 
 @app.route("/processors", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_processors():
     """Example endpoint returning a list of processors
@@ -511,7 +511,7 @@ def get_processors():
 
 
 @app.route("/output/<resultid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_output(resultid):
     import redis
@@ -526,7 +526,7 @@ def get_output(resultid):
 
 
 @app.route("/subscriptions/<user>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_subscription(user):
     import json
@@ -542,7 +542,7 @@ def get_subscription(user):
 
 
 @app.route("/chatgpt", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def consult_chatgpt():
     data = request.get_json()
@@ -561,7 +561,7 @@ Here is a function that will parse an english sentence
 
 
 @app.route("/result/<resultid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_result(resultid):
     from pymongo import MongoClient
@@ -584,7 +584,7 @@ def get_result(resultid):
 
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
-@cross_origin(origin='*', headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_files(collection, path):
     import json
@@ -622,7 +622,7 @@ def get_files(collection, path):
 
 
 @app.route("/folder/<collection>/<path:path>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def new_folder(collection, path):
 
@@ -656,7 +656,7 @@ def new_folder(collection, path):
 
 
 @app.route("/files/<fid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_file(fid):
 
@@ -666,7 +666,7 @@ def get_file(fid):
 
 
 @app.route("/queue/<queue>/contents", methods=["DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def purge_queue(queue):
     from pyfi.util.rabbit import purge_queue
@@ -675,7 +675,7 @@ def purge_queue(queue):
 
 
 @app.route("/queue/messages/<queue>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_queue_messages(queue):
     import json
@@ -713,7 +713,7 @@ def get_queue_messages(queue):
 
 
 @app.route("/workers/<processor>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_workers(processor):
 
@@ -742,7 +742,7 @@ def get_workers(processor):
 
 
 @app.route("/deployments/<processor>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_deployments(processor):
 
@@ -769,7 +769,7 @@ def get_deployments(processor):
 
 
 @app.route("/pattern/<pid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_pattern(pid):
 
@@ -781,7 +781,7 @@ def get_pattern(pid):
 
 
 @app.route("/code/extract", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def code_extract():
 
@@ -794,7 +794,7 @@ def code_extract():
 
 
 @app.route("/deployments", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_deploys():
 
@@ -804,7 +804,7 @@ def get_deploys():
 
 
 @app.route("/queues", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_queues():
     from pyfi.util.rabbit import get_queues as rabbit_queue_queues
@@ -828,7 +828,7 @@ def get_queues():
 
 
 @app.route("/agents", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_agents():
 
@@ -838,7 +838,7 @@ def get_agents():
 
 
 @app.route("/workers", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_workers_():
 
@@ -848,7 +848,7 @@ def get_workers_():
 
 
 @app.route("/tasks", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_tasks():
 
@@ -858,7 +858,7 @@ def get_tasks():
 
 
 @app.route("/nodes", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_nodes():
 
@@ -868,7 +868,7 @@ def get_nodes():
 
 
 @app.route("/networks", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_networks():
 
@@ -968,7 +968,7 @@ def get_networks():
 
 
 @app.route("/files/<fid>", methods=["DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def delete_file(fid):
 
@@ -1004,7 +1004,7 @@ def delete_file(fid):
 
 
 @app.route("/versions/<flowid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_versions(flowid):
 
@@ -1031,7 +1031,7 @@ def get_versions(flowid):
 
 
 @app.route("/calls/<name>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_calls(name):
 
@@ -1060,7 +1060,7 @@ def post_registration():
 
 
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def post_files(collection, path):
     print("POST", collection, path)
