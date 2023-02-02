@@ -2692,14 +2692,15 @@ export default {
     },
     redraw () {
       window.toolkit.surface.refresh()
-      // this.$store.commit('designer/setMessage', 'Canvas refreshed!');
+      this.$store.commit('designer/setMessage', 'Canvas refreshed!');
+      /*
       this.$q.notify({
         color: 'secondary',
         timeout: 2000,
         position: 'top',
         message: 'Canvas refreshed',
         icon: 'fas fa-refresh'
-      })
+      })*/
     },
     resetView () {
       window.toolkit.surface.setZoom(1.0)
