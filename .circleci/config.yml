@@ -12,6 +12,7 @@ jobs:
       - image: cimg/python:3.10.2
     steps:
       - checkout
+      - run: cat ui/auth_config.json
       - run: mkdir -p ./workspace/certs
       - run: echo "$elasticcode_crt" > ./workspace/certs/elasticcode.crt
       - run: echo "$elasticcode_app_crt" > ./workspace/certs/elasticcode-app.crt
@@ -42,9 +43,6 @@ jobs:
       - run:
           name: Install UI
           command: make install-ui
-      - run:
-          name: Check Auth Config
-          command: cat workspace/ui/auth_config.json
       - run:
           name: Build UI
           command: make ui
