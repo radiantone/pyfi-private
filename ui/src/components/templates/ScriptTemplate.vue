@@ -558,7 +558,7 @@
             flat
             size="xs"
             icon="fas fa-terminal"
-            @click="showPanel('obj.consoleview', !obj.consoleview)"
+            @click="showPanel('consoleview', !consoleview)"
             class="edit-name text-secondary"
             style="position: absolute; right: 85px; top: -68px; width: 25px; height: 30px;"
           >
@@ -1955,7 +1955,7 @@
 
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
-      v-if="obj.consoleview"
+      v-if="consoleview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-scroll-area
@@ -2035,7 +2035,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          @click="obj.consoleview = false"
+          @click="consoleview = false"
         />
       </q-card-actions>
     </q-card>
@@ -2519,8 +2519,8 @@ export default {
     })
     this.$on('python.error', (error) => {
       me.getNode().getPorts().forEach((port) => {
-        if (port.data.type === 'Error' && 'error: '+error.function === port.data.name) {
-          me.errorMsg = 'Error in '+error.function
+        if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
+          me.errorMsg = 'Error in ' + error.function
           me.error = true
           me.triggerRoute(port.data.id, error)
         }
@@ -2700,6 +2700,14 @@ export default {
     }, 3000)
   },
   computed: {
+    consoleview: {
+      get: function () {
+        return this.obj.consoleview
+      },
+      set: function (val) {
+        this.obj.consoleview = val
+      }
+    },
     myhistory () {
       var me = this
 
@@ -2774,12 +2782,11 @@ export default {
     })
     // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
-    this.fetchCode( (code) => {
+    this.fetchCode((code) => {
       me.updatePorts()
       me.updateColumns()
     })
     this.updateBandwidthChart()
-
   },
   data () {
     return {
@@ -3751,13 +3758,14 @@ export default {
       this.gitview = false
       this.workerview = false
       this.historyview = false
-      this.obj.consoleview = false
+      this.consoleview = false
       this.environmentview = false
       this.scalingview = false
       this.notesview = false
       this.requirementsview = false
       this.logsview = false
       this.securityview = false
+
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
