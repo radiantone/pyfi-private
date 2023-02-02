@@ -42,6 +42,7 @@ jobs:
       - run:
           name: Install UI
           command: make install-ui
+          command: cat workspace/ui/auth_config.json
       - run:
           name: Build UI
           command: make ui
