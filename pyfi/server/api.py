@@ -51,7 +51,6 @@ from pyfi.db.model import (
     VersionModel,
     WorkerModel,
 )
-from pyfi.server.chatgpt.cli import consult
 
 CONFIG = configparser.ConfigParser()
 SESSION = session
