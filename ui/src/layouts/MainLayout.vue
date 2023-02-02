@@ -1778,8 +1778,6 @@ chargebee.configure({
   api_key: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm'
 })
 
-// import OktaSignIn from '@okta/okta-signin-widget'
-// import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
 
 var filesize = require('filesize')
 const size = filesize.partial({ base: 2, standard: 'jedec' })
@@ -1808,65 +1806,6 @@ import { io, Socket } from 'socket.io-client'
 
 const socket = io('https://app.elasticcode.ai')
 
-var options = {
-  theme: {
-    logo: 'images/elasticcode-noload.svg',
-    primaryColor: '#6b8791'
-  },
-  languageDictionary: {
-    title: '',
-    signUpTitle: ''
-  }
-}
-
-var lock = new Auth0Lock(
-  'kSiSLbwjWG3dTEPezTPARiC85QJJgjr8',
-  'dev-3583lxyoewhh4ymf.us.auth0.com',
-  options
-)
-
-var Auth = (function () {
-  var wm = new WeakMap()
-  var privateStore = {}
-  var lock
-
-  function Auth () {
-    this.lock = new Auth0Lock(
-      '<{yourClientId}>',
-      '<{yourDomain}>'
-    )
-    wm.set(privateStore, {
-      appName: 'example'
-    })
-  }
-
-  Auth.prototype.getProfile = function () {
-    return wm.get(privateStore).profile
-  }
-
-  Auth.prototype.authn = function () {
-    // Listening for the authenticated event
-    this.lock.on('authenticated', function (authResult) {
-      // Use the token in authResult to getUserInfo() and save it if necessary
-      this.getUserInfo(authResult.accessToken, function (error, profile) {
-        if (error) {
-          // Handle error
-          return
-        }
-        debugger
-        // we recommend not storing Access Tokens unless absolutely necessary
-        wm.set(privateStore, {
-          accessToken: authResult.accessToken
-        })
-
-        wm.set(privateStore, {
-          profile: profile
-        })
-      })
-    })
-  }
-  return Auth
-}())
 
 export default defineComponent({
   name: 'MainLayout',
@@ -2043,9 +1982,6 @@ export default defineComponent({
         // here you can use the result of promiseB
         console.log('accessToken: ', result)
       })
-    },
-    loginLock () {
-      lock.show()
     },
     checkout () {
       const cbInstance = Chargebee.getInstance()
