@@ -40,4 +40,5 @@ ADD conf/supervisord-api.conf /opt/pyfi/supervisord.conf
 ADD conf/pyfi.ini /home/pyfi/pyfi.ini
 ADD pyfi.polar /root/pyfi.polar
 RUN chown -R pyfi /opt/pyfi /home/pyfi
-CMD ["bash", "/opt/pyfi/supervisor.sh"]
+#CMD ["bash", "/opt/pyfi/supervisor.sh"]
+CMD ["/opt/pyfi/venv/bin/flow", "-i /opt/pyfi/pyfi.ini api start  -ip 0.0.0.0 -p 8003"]
