@@ -866,28 +866,36 @@
           class="row items-center"
           style="height: 120px;margin-top:20px"
         >
-          <q-icon name="fas fa-user" color="primary" style="font-size:5em"/>
-
+          <q-icon
+            name="fas fa-user"
+            color="primary"
+            style="font-size:5em"
+          />
         </q-card-section>
         <q-card-section
-          class="row items-center">
-          <span style="font-size:2em">{{ $auth.user['nickname'] }}</span>
+          class="row items-center"
+        >
+          <span style="font-size:2em">{{ $auth.user ? $auth.user.nickname : '' }}</span>
         </q-card-section>
         <q-card-section
-          class="row items-center">
-          <span><b>Name</b>: {{ $auth.user['name'] }}</span>
+          class="row items-center"
+        >
+          <span><b>Name</b>: {{ $auth.user ? $auth.user.name : '' }}</span>
         </q-card-section>
         <q-card-section
-          class="row items-center">
-          <span><b>Email</b>: {{ $auth.user['email'] }}</span>
+          class="row items-center"
+        >
+          <span><b>Email</b>: {{ $auth.user ? $auth.user.email : '' }}</span>
         </q-card-section>
         <q-card-section
-          class="row items-center">
-          <span><b>Verified</b>: {{ $auth.user['email_verified'] }}</span>
+          class="row items-center"
+        >
+          <span><b>Verified</b>: {{ $auth.user ? $auth.user.email_verified : '' }}</span>
         </q-card-section>
         <q-card-section
-          class="row items-center">
-          <span><b>Last Updated</b>: {{ $auth.user['updated_at'] }}</span>
+          class="row items-center"
+        >
+          <span><b>Last Updated</b>: {{ $auth.user ? $auth.user.updated_at : '' }}</span>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn
