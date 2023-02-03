@@ -36,7 +36,7 @@ install: depends init
 	python setup.py clean
 
 .PHONY: deploy
-deploy: login pull
+deploy: login pull up
 
 .PHONY: pull
 pull:
@@ -77,7 +77,7 @@ docs:
 	make -C docs html
 
 .PHONY: release
-release: update tests docs 
+release: update tests docs
 	bash ./bin/tag.sh
 
 .PHONY: freeze
