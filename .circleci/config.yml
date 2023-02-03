@@ -67,7 +67,7 @@ workflows:
           workspace-root: workspace
           aws-cli-version: latest
           create-repo: true
-          dockerfile: Dockerfile.nginx.dev
+          dockerfile: Dockerfile.nginx
           extra-build-args: '--compress'
           path: ./docker
           platform: linux/amd64
