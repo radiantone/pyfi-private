@@ -41,6 +41,7 @@ from pyfi.db.model import (
     EventModel,
     LoginModel,
     LogModel,
+    FileModel,
     NetworkModel,
     NodeModel,
     PasswordModel,
@@ -296,6 +297,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 EventModel: "read",
                 CallModel: "read",
                 TaskModel: "read",
+                FileModel: "read",
                 QueueModel: "read",
                 SocketModel: "read",
                 PasswordModel: "read",
@@ -2801,6 +2803,47 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     context.obj["database"].session.commit()
     wprocess.join()
+
+
+@ls.command(name="files")
+@click.option("-c", "--collection", default=None, required=False, help="Name of collection")
+@click.argument("path")
+@click.pass_context
+def ls_files(context, collection, path):
+    """List files"""
+    x = PrettyTable()
+    names = [
+        "Name",
+        "Type",
+        "Owner",
+        "Last Updated",
+    ]
+    x.field_names = names
+    session = context.obj["database"].session
+    try:
+        files = (
+            session.query(FileModel)
+            .filter_by(collection=collection, path=path)
+            .all()
+        )
+    except:
+        session.rollback()
+        files = (
+            session.query(FileModel)
+            .filter_by(collection=collection, path=path)
+            .all()
+        )
+
+    def cmp_func(x):
+        if x.type == "folder":
+            return 0
+        else:
+            return 1
+
+    files = sorted(files, key=cmp_func)
+    for file in files:
+        x.add_row([file.name, file.type, file.owner, file.lastupdated])
+    print(x)
 
 
 @ls.command(name="passwords")
