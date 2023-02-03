@@ -41,7 +41,7 @@ deploy: login pull up
 
 .PHONY: pull
 pull:
-	docker compose -f docker-compose-ecr.yml pull
+	docker compose -f docker-compose-ecr.yml pull nginx api clientsocket rabbitmq
 
 .PHONY: up
 up:
