@@ -4120,8 +4120,8 @@ export default {
           })
         }
       }, (error) => {
-        debugger
         console.log('PYTHON ERROR', error)
+        me.consolelogs.push({ date: new Date(), output: error })
       })
     },
     triggerError (portid, error) {

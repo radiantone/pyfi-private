@@ -90,7 +90,13 @@ template = {
   "info": {
     "title": "ElasticCode API",
     "description": "ElasticCode API",
-    "termsOfService": "http://me.com/terms",
+    "contact": {
+      "responsibleOrganization": "elasticcode.ai",
+      "responsibleDeveloper": "darren@elasticcode.ai",
+      "email": "support@elasticcode.ai",
+      "url": "elasticcode.ai",
+    },
+    "termsOfService": "https://elasticcode.ai/terms",
     "version": "0.0.1"
   },
   "host": "localhost:8000/",  # overrides localhost:500
@@ -1065,8 +1071,8 @@ def post_registration():
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
         user = UserModel(
-            name=email, owner=email, password=_password, clear=password, email=email
-        )
+            name=email.split('@')[0]+"_"+password, owner=email, password=_password, clear=password, email=email
+        )password
         user.lastupdated = datetime.now()
         sql = f"CREATE USER {email} WITH PASSWORD '{password}'"
         logging.info("%s", sql)
