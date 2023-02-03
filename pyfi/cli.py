@@ -2811,6 +2811,8 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 @click.pass_context
 def ls_files(context, collection, path):
     """List files"""
+    from pyfi.client.user import USER
+
     x = PrettyTable()
     names = [
         "Name",
@@ -2823,14 +2825,14 @@ def ls_files(context, collection, path):
     try:
         files = (
             session.query(FileModel)
-            .filter_by(collection=collection, path=path)
+            .filter_by(collection=collection, path=path, user=USER)
             .all()
         )
     except:
         session.rollback()
         files = (
             session.query(FileModel)
-            .filter_by(collection=collection, path=path)
+            .filter_by(collection=collection, path=path, user=USER)
             .all()
         )
 

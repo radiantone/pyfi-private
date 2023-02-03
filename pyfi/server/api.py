@@ -1189,6 +1189,7 @@ def post_files(collection, path):
                 icon=data["icon"],
                 path=path,
                 code=data["file"],
+                user=USER
             )
 
             if "saveas" in data:

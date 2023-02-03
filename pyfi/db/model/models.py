@@ -316,6 +316,8 @@ class FileModel(BaseModel):
     versions = relationship(
         "VersionModel", back_populates="file", cascade="all, delete-orphan"
     )
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True)
 
 
 flows_versions = Table(
