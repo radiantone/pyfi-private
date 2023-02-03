@@ -58,8 +58,8 @@ SESSION = session
 from pathlib import Path
 
 HOME = str(Path.home())
-AUTH0_DOMAIN = "dev-3583lxyoewhh4ymf.us.auth0.com"
-API_AUDIENCE = "http://localhost:8000/"
+AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+API_AUDIENCE = os.environ['API_AUDIENCE']
 ALGORITHMS = ["RS256"]
 
 ini = HOME + "/pyfi.ini"
@@ -99,7 +99,7 @@ template = {
     "termsOfService": "https://elasticcode.ai/terms",
     "version": "0.0.1"
   },
-  "host": "localhost:8000/",  # overrides localhost:500
+  "host": os.environ['API_HOST'],  # overrides localhost:500
   "basePath": "/",  # base bash for blueprint registration
   "schemes": [
     "https"

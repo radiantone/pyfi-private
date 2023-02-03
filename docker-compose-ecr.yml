@@ -70,6 +70,9 @@ services:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
       - "CB_SITE=elasticcode-test"
+      - "AUTH0_DOMAIN=elasticcode.us.auth0.com"
+      - "API_AUDIENCE=https://app.elasticcode.ai/"
+      - "API_HOST=api.elasticcode.ai"
     ports:
       - 8000:8003
     depends_on:
