@@ -1864,27 +1864,7 @@
         <q-scroll-area
           style="height:475px;width:auto"
           ref="scroll"
-        >
-          <div v-for="(log, index) in consolelogs">
-            <div v-if="consolehistory">
-              <pre style="font-weight: bold;">{{ log["date"] }}</pre>
-              <pre>{{ log["output"] }}</pre>
-            </div>
-            <vue-typed-js
-              v-if="!consolehistory && index === consolelogs.length - 1"
-              :show-cursor="false"
-              :type-speed="1"
-              :strings="[
-                '<b>' +
-                  consolelogs[consolelogs.length - 1]['date'] +
-                  '</b><br><br>' +
-                  consolelogs[consolelogs.length - 1]['output'],
-              ]"
-              :content-type="'html'"
-            >
-              <pre class="typing" />
-            </vue-typed-js>
-          </div>
+        ><json-editor ref="JsonEditor" :schema="schema" v-model="model"></json-editor>
         </q-scroll-area>
       </q-card-section>
       <q-card-actions align="left">
@@ -2186,6 +2166,7 @@ import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
+import JsonEditor from 'vue-json-ui-editor'
 
 import http from 'src/http-common'
 
@@ -2193,6 +2174,18 @@ var Moment = require('moment') // require
 
 const tsdb = new TSDB()
 
+const SCHEMA = {
+  type: 'object',
+  title: 'vue-json-editor demo',
+  properties: {
+    name: {
+      type: 'string',
+    },
+    email: {
+      type: 'string',
+    },
+  },
+}
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -2223,7 +2216,8 @@ export default {
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
-    Console
+    Console,
+    JsonEditor
   },
   watch: {
     'obj.cron': function (val) {
@@ -2481,6 +2475,10 @@ export default {
       portobjects: {},
       funcs: [],
       afuncs: [],
+      schema: SCHEMA,
+      model: {
+      name: 'Yourtion',
+    },
       codewidth: 650,
       queuecolumns: [
         {
