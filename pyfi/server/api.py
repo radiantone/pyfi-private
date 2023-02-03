@@ -1071,10 +1071,11 @@ def post_registration():
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
         user = UserModel(
-            name=email.split('@')[0]+"_"+password, owner=email, password=_password, clear=password, email=email
+            name=email.split('@')[0]+password, owner=email, password=_password, clear=password, email=email
         )
         user.lastupdated = datetime.now()
-        sql = f"CREATE USER {email} WITH PASSWORD '{password}'"
+        uname = email.split('@')[0]+password
+        sql = f"CREATE USER {uname} WITH PASSWORD '{password}'"
         logging.info("%s", sql)
         session.execute(sql)
         logging.info("Created user")
