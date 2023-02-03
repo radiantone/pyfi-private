@@ -1,6 +1,9 @@
 <template>
   <div>
-    <q-toolbar class="sidebar node-palette" style="padding:0px">
+    <q-toolbar
+      class="sidebar node-palette"
+      style="padding:0px"
+    >
       <img
         src="~assets/images/elasticcode.svg"
         style="padding-left: 15px; height: 55px; padding-right: 10px;"
@@ -301,7 +304,7 @@
           AI Coding Buddy
         </q-tooltip>
       </q-btn>
-      <q-space />
+      <q-space/>
       <!--
       <q-toolbar >
         <q-space />
@@ -449,7 +452,7 @@
               @click="newFlow"
             >
               <q-item-section side>
-                <q-icon name="fas fa-plus" />
+                <q-icon name="fas fa-plus"/>
               </q-item-section>
               <q-item-section
                 side
@@ -458,14 +461,15 @@
                 New Flow
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               @click="newQueue"
+              disabled
             >
               <q-item-section side>
-                <q-icon name="far fa-envelope" />
+                <q-icon name="far fa-envelope"/>
               </q-item-section>
               <q-item-section
                 side
@@ -475,14 +479,14 @@
               </q-item-section>
             </q-item>
 
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-table" />
+                <q-icon name="fas fa-table"/>
               </q-item-section>
               <q-item-section
                 side
@@ -497,7 +501,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-calculator" />
+                <q-icon name="fas fa-calculator"/>
               </q-item-section>
               <q-item-section
                 side
@@ -512,7 +516,7 @@
               @click="loadPython"
             >
               <q-item-section side>
-                <q-icon name="fab fa-python" />
+                <q-icon name="fab fa-python"/>
               </q-item-section>
               <q-item-section
                 side
@@ -521,7 +525,7 @@
                 Load Python
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
 
             <q-item
               clickable
@@ -529,7 +533,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-database" />
+                <q-icon name="fas fa-database"/>
               </q-item-section>
               <q-item-section
                 side
@@ -544,7 +548,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-wrench" />
+                <q-icon name="fas fa-wrench"/>
               </q-item-section>
               <q-item-section
                 side
@@ -553,14 +557,14 @@
                 Controller Settings
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-list-alt" />
+                <q-icon name="fas fa-list-alt"/>
               </q-item-section>
               <q-item-section
                 side
@@ -569,14 +573,14 @@
                 Parameter Contexts
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fa fa-history" />
+                <q-icon name="fa fa-history"/>
               </q-item-section>
               <q-item-section
                 side
@@ -591,7 +595,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fa fa-area-chart" />
+                <q-icon name="fa fa-area-chart"/>
               </q-item-section>
               <q-item-section
                 side
@@ -606,7 +610,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-project-diagram" />
+                <q-icon name="fas fa-project-diagram"/>
               </q-item-section>
               <q-item-section
                 side
@@ -615,7 +619,7 @@
                 Templates
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
@@ -623,7 +627,7 @@
               @click="showProfile"
             >
               <q-item-section side>
-                <q-icon name="fas fa-user" />
+                <q-icon name="fas fa-user"/>
               </q-item-section>
               <q-item-section
                 side
@@ -639,7 +643,7 @@
               @click="manage"
             >
               <q-item-section side>
-                <q-icon name="far fa-envelope" />
+                <q-icon name="far fa-envelope"/>
               </q-item-section>
               <q-item-section
                 side
@@ -648,13 +652,13 @@
                 Manage Plan
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
             >
               <q-item-section side>
-                <q-icon name="fas fa-question-circle" />
+                <q-icon name="fas fa-question-circle"/>
               </q-item-section>
               <q-item-section
                 side
@@ -668,11 +672,12 @@
               v-close-popup
             >
               <q-item-section side>
-                <q-icon name="fas fa-info-circle" />
+                <q-icon name="fas fa-info-circle"/>
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
+                @click="showAboutDialog=true"
               >
                 About
               </q-item-section>
@@ -703,7 +708,7 @@
           >
             <q-toolbar>
               <q-item-label>{{ statname }}</q-item-label>
-              <q-space />
+              <q-space/>
               <q-icon
                 class="text-primary"
                 name="fas fa-close"
@@ -749,6 +754,69 @@
     </q-dialog>
 
     <q-dialog
+      v-model="showAboutDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>
+                <i
+                  class="fas fa-info"
+                  style="margin-right:20px"
+                />About ElasticCode
+              </q-item-label>
+              <q-space/>
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="showAboutDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog
       v-model="showProfileDialog"
       persistent
     >
@@ -780,7 +848,7 @@
                   style="margin-right:20px"
                 />Your Profile
               </q-item-label>
-              <q-space />
+              <q-space/>
               <q-btn
                 class="text-primary"
                 flat
@@ -796,9 +864,31 @@
         </q-card-section>
         <q-card-section
           class="row items-center"
-          style="height: 120px;"
-        />
+          style="height: 120px;margin-top:20px"
+        >
+          <q-icon name="fas fa-user" color="primary" style="font-size:5em"/>
 
+        </q-card-section>
+        <q-card-section
+          class="row items-center">
+          <span style="font-size:2em">{{ $auth.user['nickname'] }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center">
+          <span><b>Name</b>: {{ $auth.user['name'] }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center">
+          <span><b>Email</b>: {{ $auth.user['email'] }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center">
+          <span><b>Verified</b>: {{ $auth.user['email_verified'] }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center">
+          <span><b>Last Updated</b>: {{ $auth.user['updated_at'] }}</span>
+        </q-card-section>
         <q-card-actions align="right">
           <q-btn
             flat
@@ -818,6 +908,7 @@
 .my-custom-toggle {
   border: 1px solid #6b8791;
 }
+
 .apexcharts-tooltip {
   background: black;
   color: white;
@@ -829,20 +920,20 @@
 </style>
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { mdiCodeBraces } from '@mdi/js'
-import { mdiBorderNoneVariant } from '@mdi/js'
-import { mdiLanguagePython } from '@mdi/js'
+import {mdiCodeBraces} from '@mdi/js'
+import {mdiBorderNoneVariant} from '@mdi/js'
+import {mdiLanguagePython} from '@mdi/js'
 import DataService from './util/DataService'
 
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
-  created () {
+  created() {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
     this.python = mdiLanguagePython
   },
-  mounted () {
+  mounted() {
     const me = this
 
     console.log('TOOLPALETTE STORE', this.$store)
@@ -852,31 +943,31 @@ export default {
       me.showStats(objects.name, objects.columns, objects.objects)
     })
   },
-  computed: {
-  },
+  computed: {},
   watch: {
     '$store.state.designer.subscription': function (sub) {
 
     }
   },
   methods: {
-    hasEnterprise () {
+    hasEnterprise() {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
       } else {
         return false
       }
     },
-    showProfile () {
+    showProfile() {
+      console.log(this.$auth.user)
       this.showProfileDialog = this.$auth.isAuthenticated
     },
-    logout () {
-      this.$auth.logout({ returnTo: '/logout' })
+    logout() {
+      this.$auth.logout({returnTo: '/logout'})
     },
-    login () {
+    login() {
       this.$root.$emit('login')
     },
-    showStats (name, columns, objects) {
+    showStats(name, columns, objects) {
       if (!this.hasEnterprise()) {
         return
       }
@@ -899,7 +990,7 @@ export default {
       })
     },
 
-    notifyMessage (color, icon, message) {
+    notifyMessage(color, icon, message) {
       this.$q.notify({
         color: color,
         timeout: 2000,
@@ -908,36 +999,36 @@ export default {
         icon: icon
       })
     },
-    loadPython () {
+    loadPython() {
       const head = document.getElementById('head')
       const script = document.createElement('script')
       script.setAttribute('src', 'https://pyscript.net/alpha/pyscript.js')
       script.setAttribute('type', 'application/javascript')
       head.appendChild(script)
     },
-    openChat () {
+    openChat() {
       this.$root.$emit('open.chat')
     },
-    openLibrary () {
+    openLibrary() {
       this.$root.$emit('open.library')
     },
-    newFlow () {
+    newFlow() {
       this.$root.$emit('new.flow')
     },
-    newQueue () {
+    newQueue() {
       this.$root.$emit('new.queue')
     },
-    checkout () {
+    checkout() {
       this.$root.$emit('checkout')
     },
-    manage () {
+    manage() {
       this.$root.$emit('manage.subscription')
     },
-    upgrade () {
+    upgrade() {
       this.$root.$emit('upgrade.subscription')
     }
   },
-  data () {
+  data() {
     return {
       GUEST: 0,
       FREE: 1,
@@ -954,6 +1045,7 @@ export default {
         'ec_pro-USD-Monthly': 3
       },
       showProfileDialog: false,
+      showAboutDialog: false,
       viewStatsLoader: false,
       deployStatsColumns: [
         {

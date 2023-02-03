@@ -2,11 +2,11 @@ FROM node:16
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY socket/package*.json ./
 
 RUN npm install
 
-COPY server.ts server.ts
+COPY socket/server.ts server.ts
 
 EXPOSE 3003
 
