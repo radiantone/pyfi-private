@@ -60,7 +60,7 @@ workflows:
   build-and-push:
     jobs:
       - build-and-test
-      - aws-ecr/build-and-push-image:
+      - build-nginx:
           requires:
             - build-and-test
           attach-workspace: true
@@ -92,7 +92,7 @@ workflows:
           repo: api
           repo-scan-on-push: true
           tag: 'develop'
-      - build-nginx:
+      - build-socket:
           requires:
             - build-and-test
           attach-workspace: true
