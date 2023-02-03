@@ -1,11 +1,10 @@
+scratch
 scrap
-certs
 config.json
 celerybeat*
 node_modules
 agent?
 build
-dist
 docker/websockets/node_modules/
 git
 docs/_build
