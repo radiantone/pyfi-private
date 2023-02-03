@@ -97,7 +97,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+    image: rabbitmq:management
     restart: always
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
@@ -114,7 +114,7 @@ services:
   rabbitmq2:
     container_name: rabbitmq2
     hostname: rabbitmq2
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+    image: rabbitmq:management
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./conf/rabbit-cluster.sh:/tmp/rabbit-cluster.sh
