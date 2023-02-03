@@ -100,6 +100,9 @@ services:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
       - "CB_SITE=elasticcode-test"
+      - "AUTH0_DOMAIN=dev-3583lxyoewhh4ymf.us.auth0.com"
+      - "API_AUDIENCE=http://localhost:8000/"
+      - "API_HOST=localhost:8000/"
     ports:
       - 8000:8003
     depends_on:
