@@ -683,8 +683,8 @@ def dropdb(context):
 
     for user in _users:
         if user != "postgres":
-            context.obj["database"].session.execute(f"DROP OWNED BY {user}")
-            context.obj["database"].session.execute(f"DROP USER {user}")
+            context.obj["database"].session.execute(f"DROP OWNED BY \"{user}\"")
+            context.obj["database"].session.execute(f"DROP USER \"{user}\"")
             print("Dropped user {}".format(user))
 
     context.obj["database"].session.commit()
