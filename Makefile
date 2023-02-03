@@ -36,7 +36,7 @@ install: depends init
 	python setup.py clean
 
 .PHONY: deploy
-deploy: pull up
+deploy: login pull up
 	echo "Updating stack..."
 
 .PHONY: pull
