@@ -1056,6 +1056,7 @@ def get_calls(name):
 def post_registration():
     from datetime import datetime
 
+    from pyfi.db.model import Base
     import hashlib
     from pyfi.db.model import UserModel
 
@@ -1079,6 +1080,11 @@ def post_registration():
         logging.info("%s", sql)
         session.execute(sql)
         logging.info("Created user")
+        for t in Base.metadata.sorted_tables:
+            sql = f'GRANT CONNECT ON DATABASE pyfi TO \"{uname}\"'
+            session.execute(sql)
+            sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO \"{uname}\"'
+            session.execute(sql)
         session.add(user)
 
     logging.info("Commit ended")
