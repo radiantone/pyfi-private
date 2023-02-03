@@ -76,7 +76,7 @@ workflows:
           repo: nginx
           repo-scan-on-push: true
           tag: 'develop'
-      - aws-ecr/build-and-push-image:
+      - build-api:
           requires:
             - build-and-test
           attach-workspace: true
@@ -92,7 +92,7 @@ workflows:
           repo: api
           repo-scan-on-push: true
           tag: 'develop'
-      - aws-ecr/build-and-push-image:
+      - build-nginx:
           requires:
             - build-and-test
           attach-workspace: true
