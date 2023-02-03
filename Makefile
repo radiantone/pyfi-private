@@ -35,9 +35,17 @@ install: depends init
 	python setup.py install
 	python setup.py clean
 
+.PHONY: deploy
+deploy: pull up
+	echo "Updating stack..."
+
+.PHONY: pull
+pull:
+	docker compose -f docker-compose-ecr.yml pull
+
 .PHONY: up
 up:
-	./bin/up.sh
+	docker compose -f docker-compose-ecr.yml up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api
 
 .PHONY: stop
 stop:
@@ -87,7 +95,7 @@ clean:
 
 .PHONY: build
 build:
-	docker compose build nginx api
+	docker compose build
 
 .PHONY: login
 login:
