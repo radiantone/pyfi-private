@@ -99,7 +99,7 @@ build:
 .PHONY: login
 login:
 	. venv/bin/activate && ( \
-		aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com
+		aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com \
 	)
 
 .PHONY: push
