@@ -1612,7 +1612,7 @@
             <br>
             <p style="font-size:16px" class="text-black"><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
             <br>
-            <b>Recommended Settings:</b>
+            <b>Recommended Settings2:</b>
             <ul style="margin-left:40px">
               <li>Monitor Resolution 2560x1440 or higher resolution</li>
               <li>Google Chrome</li>
