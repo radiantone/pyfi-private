@@ -1072,7 +1072,7 @@ def post_registration():
         # This user will be used in OSO authorizations
         user = UserModel(
             name=email.split('@')[0]+"_"+password, owner=email, password=_password, clear=password, email=email
-        )password
+        )
         user.lastupdated = datetime.now()
         sql = f"CREATE USER {email} WITH PASSWORD '{password}'"
         logging.info("%s", sql)
