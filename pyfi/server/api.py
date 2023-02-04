@@ -107,6 +107,7 @@ template = {
   "operationId": "getmyData"
 }
 swagger_config = {
+    "title": "ElasticCode API",
     "headers": [
     ],
     "specs": [
