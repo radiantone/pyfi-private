@@ -86,25 +86,25 @@ api = Api(
 
 setattr(app, "json_encoder", AlchemyEncoder)
 template = {
-  "swagger": "2.0",
-  "info": {
-    "title": "ElasticCode API",
-    "description": "ElasticCode API",
-    "contact": {
-      "responsibleOrganization": "elasticcode.ai",
-      "responsibleDeveloper": "darren@elasticcode.ai",
-      "email": "support@elasticcode.ai",
-      "url": "elasticcode.ai",
+    "swagger": "2.0",
+    "info": {
+        "title": "ElasticCode API",
+        "description": "ElasticCode API",
+        "contact": {
+            "responsibleOrganization": "elasticcode.ai",
+            "responsibleDeveloper": "darren@elasticcode.ai",
+            "email": "support@elasticcode.ai",
+            "url": "elasticcode.ai",
+        },
+        "termsOfService": "https://elasticcode.ai/terms",
+        "version": "0.0.1"
     },
-    "termsOfService": "https://elasticcode.ai/terms",
-    "version": "0.0.1"
-  },
-  "host": os.environ['API_HOST'],  # overrides localhost:500
-  "basePath": "/",  # base bash for blueprint registration
-  "schemes": [
-    "https"
-  ],
-  "operationId": "getmyData"
+    "host": os.environ['API_HOST'],  # overrides localhost:500
+    "basePath": "/",  # base bash for blueprint registration
+    "schemes": [
+        "https"
+    ],
+    "operationId": "getmyData"
 }
 swagger_config = {
     "title": "ElasticCode API",
@@ -206,8 +206,8 @@ def requires_auth(f):
             rsa_key = {}
             for key in jwks["keys"]:
                 if (
-                    "kid" in unverified_header
-                    and key["kid"] == unverified_header["kid"]
+                        "kid" in unverified_header
+                        and key["kid"] == unverified_header["kid"]
                 ):
                     rsa_key = {
                         "kty": key["kty"],
@@ -235,7 +235,7 @@ def requires_auth(f):
                         {
                             "code": "invalid_claims",
                             "description": "incorrect claims,"
-                            "please check the audience and issuer",
+                                           "please check the audience and issuer",
                         },
                         401,
                     )
@@ -439,7 +439,6 @@ def login_processor(id):
 @cross_origin()
 @requires_auth
 def do_processor(name):
-
     if request.method == "GET":
         with get_session() as session:
             _processor = session.query(ProcessorModel).filter_by(name=name).first()
@@ -547,7 +546,7 @@ def get_subscription(user):
 @requires_auth
 def consult_chatgpt():
     data = request.get_json()
-    #answer = consult(data["question"])
+    # answer = consult(data["question"])
     return """
 Here is a function that will parse an english sentence
 
@@ -594,7 +593,6 @@ def get_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        # files = session.query(FileModel).all()
 
         try:
             files = (
@@ -626,7 +624,6 @@ def get_files(collection, path):
 @cross_origin()
 @requires_auth
 def new_folder(collection, path):
-
     with get_session() as _session:
         folder = (
             _session.query(FileModel)
@@ -660,7 +657,6 @@ def new_folder(collection, path):
 @cross_origin()
 @requires_auth
 def get_file(fid):
-
     with get_session() as session:
         file = session.query(FileModel).filter_by(id=fid).first()
         return file.code, 200
@@ -717,7 +713,6 @@ def get_queue_messages(queue):
 @cross_origin()
 @requires_auth
 def get_workers(processor):
-
     with get_session() as session:
         _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         if not _processor:
@@ -746,7 +741,6 @@ def get_workers(processor):
 @cross_origin()
 @requires_auth
 def get_deployments(processor):
-
     with get_session() as session:
         _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         deps = []
@@ -773,9 +767,7 @@ def get_deployments(processor):
 @cross_origin()
 @requires_auth
 def get_pattern(pid):
-
     with open("pyfi/server/patterns/" + pid + ".json", "r") as pattern:
-
         _pattern = json.loads(pattern.read())
 
         return jsonify(_pattern)
@@ -785,7 +777,6 @@ def get_pattern(pid):
 @cross_origin()
 @requires_auth
 def code_extract():
-
     data = request.get_json(silent=True)
     code = data["code"]
 
@@ -798,7 +789,6 @@ def code_extract():
 @cross_origin()
 @requires_auth
 def get_deploys():
-
     with get_session() as session:
         deployments = session.query(DeploymentModel).all()
         return jsonify(deployments)
@@ -832,7 +822,6 @@ def get_queues():
 @cross_origin()
 @requires_auth
 def get_agents():
-
     with get_session() as session:
         agents = session.query(AgentModel).all()
         return jsonify(agents)
@@ -842,7 +831,6 @@ def get_agents():
 @cross_origin()
 @requires_auth
 def get_workers_():
-
     with get_session() as session:
         workers = session.query(WorkerModel).all()
         return jsonify(workers)
@@ -852,7 +840,6 @@ def get_workers_():
 @cross_origin()
 @requires_auth
 def get_tasks():
-
     with get_session() as session:
         tasks = session.query(TaskModel).all()
         return jsonify(tasks)
@@ -862,7 +849,6 @@ def get_tasks():
 @cross_origin()
 @requires_auth
 def get_nodes():
-
     with get_session() as session:
         nodes = session.query(NodeModel).all()
         return jsonify(nodes)
@@ -872,7 +858,6 @@ def get_nodes():
 @cross_origin()
 @requires_auth
 def get_networks():
-
     with get_session() as session:
         networks = []
         _networks = session.query(NetworkModel).all()
@@ -972,7 +957,6 @@ def get_networks():
 @cross_origin()
 @requires_auth
 def delete_file(fid):
-
     print("Deleting file", fid)
     with get_session() as session:
         try:
@@ -1008,7 +992,6 @@ def delete_file(fid):
 @cross_origin()
 @requires_auth
 def get_versions(flowid):
-
     with get_session() as session:
         logging.info("Getting versions for %s", flowid)
         versions = (
@@ -1035,7 +1018,6 @@ def get_versions(flowid):
 @cross_origin()
 @requires_auth
 def get_calls(name):
-
     with get_session() as session:
         processor = session.query(ProcessorModel).filter_by(name=name).first()
         if not processor:
@@ -1056,6 +1038,7 @@ def get_calls(name):
 @app.route("/registration", methods=["POST"])
 def post_registration():
     from datetime import datetime
+    from pymongo import MongoClient
 
     from pyfi.db.model import Base
     import hashlib
@@ -1068,14 +1051,24 @@ def post_registration():
     tenant = data['params']['user']['tenant']
     user_id = data['params']['user']['user_id']
     password = user_id.split('|')[1]
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    pyfidb = client["pyfi"]
+    users = pyfidb["users"]
+
+    users.update_one({"email": email}, {'$set': data['params']['user']}, upsert=True)
 
     with get_session() as session:
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
-        uname = email.split('@')[0]+"."+password
+        uname = email.split('@')[0] + "." + password
         user = UserModel(
             name=uname, owner=email, password=_password, clear=password, email=email
         )
+        users.insert_one()
+        users.update_one({'_id': uname},
+                         {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},
+                         upsert=True)
+
         user.lastupdated = datetime.now()
         sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
         logging.info("%s", sql)
@@ -1104,7 +1097,7 @@ def post_files(collection, path):
     with get_session() as session:
         files = session.query(FileModel).all()
         if "id" in data and (
-            ("saveas" in data and not data["saveas"]) or "saveas" not in data
+                ("saveas" in data and not data["saveas"]) or "saveas" not in data
         ):
             print("FINDING FILE BY ID", data["id"])
             file = session.query(FileModel).filter_by(id=data["id"]).first()
@@ -1123,7 +1116,7 @@ def post_files(collection, path):
         print("FILE FOUND", file)
         if file:
             if ("id" in data and data["id"] == file.id) and (
-                "saveas" in data and data["saveas"]
+                    "saveas" in data and data["saveas"]
             ):
                 # overwrite file
                 print("Overwriting ", data)

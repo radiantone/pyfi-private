@@ -78,6 +78,7 @@ def receive_before_update(mapper, connection, target):
 
 @contextmanager
 def get_session(**kwargs):
+    from pymongo import MongoClient
 
     logging.debug("get_session: Creating session")
 
@@ -88,10 +89,14 @@ def get_session(**kwargs):
     uri = CONFIG.get("database", "uri")
 
     if user is not None:
+        client = MongoClient(CONFIG.get("mongodb", "uri"))
+        pyfidb = client["pyfi"]
+        users = pyfidb["users"]
+
+        users.find( { "_id": user['name']})
         # Get user from database, get login password
         # login = {}
-        # uri = CONFIG.get("database","base").replace("USER", user['name']).replace("PASSWORD", login['password'])
-        pass
+        #uri = CONFIG.get("database","base").replace("USER", user['name']).replace("PASSWORD", login['password'])
 
     _engine = create_engine(uri, isolation_level="AUTOCOMMIT", poolclass=NullPool)
     conn = _engine.connect()
