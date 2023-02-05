@@ -1864,7 +1864,27 @@
         <q-scroll-area
           style="height:475px;width:auto"
           ref="scroll"
-        ><json-editor ref="JsonEditor" :schema="schema" v-model="model"></json-editor>
+        >
+          <div v-for="(log, index) in consolelogs">
+            <div v-if="consolehistory">
+              <pre style="font-weight: bold;">{{ log["date"] }}</pre>
+              <pre>{{ log["output"] }}</pre>
+            </div>
+            <vue-typed-js
+              v-if="!consolehistory && index === consolelogs.length - 1"
+              :show-cursor="false"
+              :type-speed="1"
+              :strings="[
+                '<b>' +
+                  consolelogs[consolelogs.length - 1]['date'] +
+                  '</b><br><br>' +
+                  consolelogs[consolelogs.length - 1]['output'],
+              ]"
+              :content-type="'html'"
+            >
+              <pre class="typing" />
+            </vue-typed-js>
+          </div>
         </q-scroll-area>
       </q-card-section>
       <q-card-actions align="left">

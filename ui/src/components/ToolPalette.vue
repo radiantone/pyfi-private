@@ -510,21 +510,7 @@
                 Counters
               </q-item-section>
             </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="loadPython"
-            >
-              <q-item-section side>
-                <q-icon name="fab fa-python"/>
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Load Python
-              </q-item-section>
-            </q-item>
+
             <q-separator/>
 
             <q-item
