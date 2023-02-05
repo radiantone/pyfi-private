@@ -2453,6 +2453,8 @@ Copy
 Delete
 
 */
+
+
 export default {
   name: 'ScriptTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components

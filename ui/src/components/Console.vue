@@ -2,12 +2,16 @@
   <q-card
     :style="'min-height: 647px;width: '+consolewidth+'px; z-index:9999999;position: absolute; left:'+(codewidth+412)+'px;top:0px'"
   >
-    <q-scroll-area style="height: 610px; width: 100%;">
-      <py-repl
-        id="my-repl"
-        auto-generate="true"
-        style="width:95%"
-      />
+    <q-scroll-area
+      id="replscroll"
+      style="height: 610px; width: 100%;"
+    >
+      <q-input dense style="width:100%" bottom-slots v-model="text" >
+        <template v-slot:after>
+          <q-btn round dense flat icon="fas fa-play" @click="runPython"/>
+        </template>
+      </q-input>
+      <div id="repl-out" style="height:500px;background-color:#ddd">{{ output }}</div>
     </q-scroll-area>
     <q-card-actions align="left">
       <q-btn
@@ -65,8 +69,17 @@ export default {
   name: 'Console',
   props: ['codewidth'],
   components: {},
+  methods: {
+    runPython () {
+        const result = window.pyodide.runPython(this.text)
+        console.log(result)
+        this.output = result
+    }
+  },
   data () {
     return {
+      text: '',
+      output: '',
       consolewidth: 600
     }
   }

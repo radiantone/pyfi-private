@@ -2274,7 +2274,7 @@
 }
 
 .scroll {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .q-card__section--vert {
