@@ -86,25 +86,25 @@ api = Api(
 
 setattr(app, "json_encoder", AlchemyEncoder)
 template = {
-    "swagger": "2.0",
-    "info": {
-        "title": "ElasticCode API",
-        "description": "ElasticCode API",
-        "contact": {
-            "responsibleOrganization": "elasticcode.ai",
-            "responsibleDeveloper": "darren@elasticcode.ai",
-            "email": "support@elasticcode.ai",
-            "url": "elasticcode.ai",
-        },
-        "termsOfService": "https://elasticcode.ai/terms",
-        "version": "0.0.1"
+  "swagger": "2.0",
+  "info": {
+    "title": "ElasticCode API",
+    "description": "ElasticCode API",
+    "contact": {
+      "responsibleOrganization": "elasticcode.ai",
+      "responsibleDeveloper": "darren@elasticcode.ai",
+      "email": "support@elasticcode.ai",
+      "url": "elasticcode.ai",
     },
-    "host": os.environ['API_HOST'],  # overrides localhost:500
-    "basePath": "/",  # base bash for blueprint registration
-    "schemes": [
-        "https"
-    ],
-    "operationId": "getmyData"
+    "termsOfService": "https://elasticcode.ai/terms",
+    "version": "0.0.1"
+  },
+  "host": os.environ['API_HOST'],  # overrides localhost:500
+  "basePath": "/",  # base bash for blueprint registration
+  "schemes": [
+    "https"
+  ],
+  "operationId": "getmyData"
 }
 swagger_config = {
     "title": "ElasticCode API",
@@ -1051,11 +1051,11 @@ def post_registration():
     tenant = data['params']['user']['tenant']
     user_id = data['params']['user']['user_id']
     password = user_id.split('|')[1]
-    client = MongoClient(CONFIG.get("mongodb", "uri"))
-    pyfidb = client["pyfi"]
-    users = pyfidb["users"]
+    #client = MongoClient(CONFIG.get("mongodb", "uri"))
+    #pyfidb = client["pyfi"]
+    #users = pyfidb["users"]
 
-    users.update_one({"email": email}, {'$set': data['params']['user']}, upsert=True)
+    #users.update_one({"email": email}, {'$set': data['params']['user']}, upsert=True)
 
     with get_session() as session:
         _password = hashlib.md5(password.encode()).hexdigest()
@@ -1064,10 +1064,9 @@ def post_registration():
         user = UserModel(
             name=uname, owner=email, password=_password, clear=password, email=email
         )
-        users.insert_one()
-        users.update_one({'_id': uname},
-                         {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},
-                         upsert=True)
+        #users.update_one({'_id': uname},
+        #                 {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},
+        #             upsert=True)
 
         user.lastupdated = datetime.now()
         sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
