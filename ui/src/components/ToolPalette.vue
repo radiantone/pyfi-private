@@ -187,8 +187,8 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
-        title="Upgrade to Developer Plan"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -225,6 +225,8 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -278,6 +280,8 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openLibrary"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -296,6 +300,8 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openChat"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -937,7 +943,11 @@ export default {
       me.showStats(objects.name, objects.columns, objects.objects)
     })
   },
-  computed: {},
+  computed: {
+    isProPlan () {
+      return this.hasEnterprise()
+    }
+  },
   watch: {
     '$store.state.designer.subscription': function (sub) {
 

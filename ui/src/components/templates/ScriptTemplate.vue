@@ -2789,6 +2789,7 @@ export default {
       me.updateColumns()
     })
     this.updateBandwidthChart()
+    this.updatePorts()
   },
   data () {
     return {

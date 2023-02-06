@@ -185,7 +185,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           }
 
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
-
+          debugger
           let port = null
           for (var i = 0; i < me.portobjects[func].length; i++) {
             if (me.portobjects[func][i].name === argument) {
