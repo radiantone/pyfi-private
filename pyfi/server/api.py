@@ -591,23 +591,28 @@ def get_result(resultid):
 @requires_auth
 def get_files(collection, path):
     import json
+    from pyfi.db.model import UserModel
 
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-
+        password = user["sub"].split('|')[1]
+        uname = user["email"].split('@')[0] + "." + password
+        _user = (
+            session.query(UserModel).filter_by(name=uname, clear=password).first()
+        )
         try:
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
         except:
             session.rollback()
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
 
@@ -1041,8 +1046,8 @@ def get_calls(name):
 @app.route("/registration", methods=["POST"])
 def post_registration():
     from datetime import datetime
-    from pymongo import MongoClient
-
+    # from pymongo import MongoClient
+    import sqlalchemy
     from pyfi.db.model import Base
     import hashlib
     from pyfi.db.model import UserModel
@@ -1073,14 +1078,19 @@ def post_registration():
 
         user.lastupdated = datetime.now()
         sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
-        logging.info("%s", sql)
-        session.execute(sql)
-        logging.info("Created user")
-        for t in Base.metadata.sorted_tables:
-            sql = f'GRANT CONNECT ON DATABASE pyfi TO \"{uname}\"'
+        try:
+            logging.info("%s", sql)
             session.execute(sql)
-            sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO \"{uname}\"'
-            session.execute(sql)
+            logging.info("Created user")
+            for t in Base.metadata.sorted_tables:
+                sql = f'GRANT CONNECT ON DATABASE pyfi TO \"{uname}\"'
+                session.execute(sql)
+                sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO \"{uname}\"'
+                session.execute(sql)
+        except sqlalchemy.exc.ProgrammingError as ex:
+            if ex.orig.pgerror.find('already exists') == -1:
+                raise ex
+
         session.add(user)
 
     logging.info("Commit ended")
@@ -1091,18 +1101,28 @@ def post_registration():
 @cross_origin()
 @requires_auth
 def post_files(collection, path):
+    from pyfi.db.model import UserModel
+
     print("POST", collection, path)
     data = request.get_json(silent=True)
     print("POST_FILE", data)
     print("POST_NAME", path + "/" + data["name"])
 
-    with get_session() as session:
-        files = session.query(FileModel).all()
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
+
+    with get_session(user=user) as session:
+        password = user["sub"].split('|')[1]
+        uname = user["email"].split('@')[0] + "." + password
+        _user = (
+            session.query(UserModel).filter_by(name=uname, clear=password).first()
+        )
+
         if "id" in data and (
                 ("saveas" in data and not data["saveas"]) or "saveas" not in data
         ):
             print("FINDING FILE BY ID", data["id"])
-            file = session.query(FileModel).filter_by(id=data["id"]).first()
+            file = session.query(FileModel).filter_by(id=data["id"], user=_user).first()
         else:
             print("FINDING FILE BY PATH", path + "/" + data["name"])
             file = (
@@ -1112,6 +1132,7 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
+                    user=_user
                 )
                 .first()
             )
@@ -1171,6 +1192,7 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
+                    user=_user
                 )
                 .first()
             )
@@ -1191,7 +1213,7 @@ def post_files(collection, path):
                 icon=data["icon"],
                 path=path,
                 code=data["file"],
-                user=USER
+                user=_user
             )
 
             if "saveas" in data:
