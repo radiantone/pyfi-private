@@ -2186,7 +2186,6 @@ import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
-import JsonEditor from 'vue-json-ui-editor'
 
 import http from 'src/http-common'
 
@@ -2194,18 +2193,6 @@ var Moment = require('moment') // require
 
 const tsdb = new TSDB()
 
-const SCHEMA = {
-  type: 'object',
-  title: 'vue-json-editor demo',
-  properties: {
-    name: {
-      type: 'string',
-    },
-    email: {
-      type: 'string',
-    },
-  },
-}
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -2236,8 +2223,7 @@ export default {
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
-    Console,
-    JsonEditor
+    Console
   },
   watch: {
     'obj.cron': function (val) {
@@ -2495,10 +2481,6 @@ export default {
       portobjects: {},
       funcs: [],
       afuncs: [],
-      schema: SCHEMA,
-      model: {
-      name: 'Yourtion',
-    },
       codewidth: 650,
       queuecolumns: [
         {
