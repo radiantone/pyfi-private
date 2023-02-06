@@ -1950,7 +1950,11 @@ export default defineComponent({
     updateSubscription () {
       var me = this
       DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-        if (subscriptions.data.subscription.status != 'cancelled') {
+
+        if (subscriptions.error && subscription.subscription === false) {
+          me.$store.commit('designer/setSubscription', "Registered")
+        }
+        if (subscriptions.data && subscriptions.data.subscription.status !== 'cancelled') {
           subscriptions.data.subscription.subscription_items.forEach((subscription) => {
             console.log('SUBSCRIPTION', subscription)
             me.$store.commit('designer/setSubscription', subscription.item_price_id)
@@ -1958,6 +1962,12 @@ export default defineComponent({
         } else {
           me.$store.commit('designer/setSubscription', 'cancelled')
         }
+      }).catch((error) => {
+        me.notifyMessage(
+          'dark',
+          'error',
+          'There was an error retrieving your subscrition.'
+        )
       })
     },
     info (title) {
