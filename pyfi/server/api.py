@@ -248,11 +248,11 @@ def requires_auth(f):
                         401,
                     )
 
-                if "user" not in SESSION:
-                    user = requests.get(
-                        payload["aud"][1], headers={"Authorization": "Bearer " + token}
-                    ).json()
-                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+                #if "user" not in SESSION:
+                user = requests.get(
+                    payload["aud"][1], headers={"Authorization": "Bearer " + token}
+                ).json()
+                SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
