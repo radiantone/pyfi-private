@@ -909,7 +909,8 @@
 }
 
 .link-hover:hover {
-  text-decoration: underline;}
+  text-decoration: underline;
+}
 </style>
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */

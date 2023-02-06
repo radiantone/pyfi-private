@@ -101,7 +101,7 @@ def get_session(**kwargs):
         # Get user from database, get login password
         # login = {}
         uri = CONFIG.get("database", "base").replace("USER", uname).replace("PASSWORD", password)
-        print(uri)
+        logging.info("DB URI FOR USER: %s", uri)
 
     _engine = create_engine(uri, isolation_level="AUTOCOMMIT", poolclass=NullPool)
     conn = _engine.connect()
