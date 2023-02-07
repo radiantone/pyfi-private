@@ -405,6 +405,11 @@
               label="Queues"
             />
             <q-tab
+              name="python"
+              class="text-dark"
+              label="Python"
+            />
+            <q-tab
               name="monitor"
               class="text-dark"
               label="Monitor"
@@ -644,6 +649,13 @@
                   </q-tab-panels>
                 </template>
               </q-splitter>
+            </q-tab-panel>
+            <q-tab-panel
+              name="python"
+              ref="python"
+              style="padding: 0px; width: 100%; padding-top: 0px;"
+            >
+              <Console/>
             </q-tab-panel>
             <q-tab-panel
               name="monitor"
@@ -1766,6 +1778,8 @@ import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'
 import ModelToolPalette from 'src/components/ModelToolPalette.vue'
+import Console from 'src/components/Console'
+
 import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
@@ -1813,6 +1827,7 @@ export default defineComponent({
     editor: require('vue2-ace-editor'),
     Designer,
     ToolPalette,
+    Console,
     ModelToolPalette,
     Processors,
     Library

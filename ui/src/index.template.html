@@ -68,7 +68,10 @@
 -->
 <script type="text/javascript">
   async function main() {
-    let pyodide = await loadPyodide()
+    let pyodide = await loadPyodide({
+      stdout: (text) => {document.getElementById("repl-out").textContent += text+"\r\n";},
+      stderr: (text) => {document.getElementById("repl-out").textContent += text+"\r\n";}
+    })
     window.pyodide = pyodide
     console.log("PYODIDE RESULT", pyodide.runPython("1 + 2"))
   }
