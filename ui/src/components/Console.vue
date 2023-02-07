@@ -1,56 +1,47 @@
 <template>
   <q-card
-    :style="'min-height: 647px;width: '+consolewidth+'px; z-index:9999999;position: absolute; left:'+(codewidth+412)+'px;top:0px'"
+    style="min-height: 100%;width: 100%;"
   >
-    <q-scroll-area
-      id="replscroll"
-      style="height: 610px; width: 100%;"
+    <q-splitter
+      v-model="queueTableSplitter"
+      separator-style="background-color: #e3e8ec;height:5px"
+      horizontal
+      style="height: calc(100vh - 140px);"
     >
-      <q-input dense style="width:100%" bottom-slots v-model="text" >
-        <template v-slot:after>
-          <q-btn round dense flat icon="fas fa-play" @click="runPython"/>
-        </template>
-      </q-input>
-      <div id="repl-out" style="height:500px;background-color:#ddd">{{ output }}</div>
-    </q-scroll-area>
-    <q-card-actions align="left">
-      <q-btn
-        style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
-        flat
-        icon="far fa-arrow-alt-circle-left"
-        class="bg-primary text-white"
-        color="primary"
-        v-close-popup
-        @click="consolewidth -= 100"
-      >
-        <q-tooltip
-          anchor="top middle"
-          :offset="[-30, 40]"
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Shrink
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
-        flat
-        icon="far fa-arrow-alt-circle-right"
-        class="bg-accent text-dark"
-        color="primary"
-        v-close-popup
-        @click="consolewidth += 100"
-      >
-        <q-tooltip
-          anchor="top middle"
-          :offset="[-30, 40]"
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Expand
-        </q-tooltip>
-      </q-btn>
-    </q-card-actions>
+      <template #before>
+        <editor
+          v-model="code"
+          @init="editorInit"
+          style="font-size: 16px; min-height: 100px;margin-bottom:-50px"
+          lang="python"
+          theme="chrome"
+          ref="myEditor"
+          width="100%"
+          height="100%"
+        />
+        <q-toolbar>
+          <q-space/>
+          <q-btn
+          round
+          dense
+          flat
+          color="secondary"
+          title="Execute Python Code"
+          icon="fas fa-play"
+          style="margin-right:10px"
+          @click="runPython"
+        />
+        </q-toolbar>
+      </template>
+      <template #after>
+        <q-scroll-area style="height: 100%; width: 100%;">
+        <pre
+          id="repl-out"
+          style="height:100vh;background-color:#fff;padding:10px"
+        />
+        </q-scroll-area>
+      </template>
+    </q-splitter>
   </q-card>
 </template>
 
@@ -68,16 +59,38 @@
 export default {
   name: 'Console',
   props: ['codewidth'],
-  components: {},
+  components: {
+    editor: require('vue2-ace-editor')
+  },
   methods: {
+    editorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      console.log('editorInit')
+      const editor = this.$refs.myEditor.editor
+
+      editor.setAutoScrollEditorIntoView(true)
+
+      setTimeout(function () {
+        // me.thecode = me.obj.code;
+      }, 500)
+    },
     runPython () {
-        const result = window.pyodide.runPython(this.text)
-        console.log(result)
-        this.output = result
+      const result = window.pyodide.runPython(this.code)
+
+      debugger
+      console.log(result)
+      this.output = result
     }
   },
   data () {
     return {
+      queueTableSplitter: 40,
+      code: '',
       text: '',
       output: '',
       consolewidth: 600

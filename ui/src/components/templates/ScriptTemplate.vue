@@ -1110,10 +1110,6 @@
     </q-dialog>
 
     <!-- Code dialog -->
-    <Console
-      v-if="pythonview && codeview"
-      :codewidth="codewidth"
-    />
     <q-card
       :style="
         'width: ' +
@@ -1191,29 +1187,12 @@
             Fetch Code
           </q-tooltip>
         </q-btn>
+
         <q-btn
           style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
           flat
-          icon="fab fa-python"
-          class="bg-accent text-secondary"
-          color="primary"
-          v-close-popup
-          @click="pythonview = !pythonview"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Python Console
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
-          flat
           icon="fas fa-home"
-          class="bg-secondary text-accent"
+          class="bg-primary text-white"
           color="primary"
           v-close-popup
           @click="setZoomLevel"
@@ -2454,7 +2433,6 @@ Delete
 
 */
 
-
 export default {
   name: 'ScriptTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
@@ -2748,6 +2726,15 @@ export default {
   },
   mounted () {
     var me = this
+    /*
+    async function load () {
+      const pyodide = await loadPyodide()
+      me.pyodide = pyodide
+    }
+
+    load().then(() => {
+      console.log('PROCESSOR PYODIDE RESULT', me.pyodide.runPython('1 + 2'))
+    })*/
 
     this.setId(this.obj.id)
     console.log('MOUNTED STORE', this.$store)
@@ -3300,7 +3287,6 @@ export default {
         }
       ],
       codeview: false,
-      pythonview: false,
       gitview: false,
       entityName: '',
       columnName: '',
