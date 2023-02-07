@@ -3452,6 +3452,9 @@ export default {
     doLogin () {
       var me = this
 
+      // TODO: Temp code
+      me.login = false
+
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
           me.login = false

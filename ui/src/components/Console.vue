@@ -12,7 +12,7 @@
         <editor
           v-model="code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 100px;margin-bottom:-50px"
+          style="font-size: 16px; min-height: 100px; height:100%; margin-bottom:-50px"
           lang="python"
           theme="chrome"
           ref="myEditor"
@@ -21,6 +21,17 @@
         />
         <q-toolbar>
           <q-space />
+
+          <q-btn
+            round
+            dense
+            flat
+            color="secondary"
+            title="Clear Output"
+            icon="fas fa-close"
+            style="margin-right:10px"
+            @click="clearOutput"
+          />
           <q-btn
             round
             dense
@@ -37,7 +48,7 @@
         <q-scroll-area style="height: 100%; width: 100%;">
           <pre
             id="repl-out"
-            style="height:100vh;background-color:#fff;padding:10px"
+            style="height:100%;background-color:#fff;padding:10px"
           />
         </q-scroll-area>
       </template>
@@ -63,6 +74,9 @@ export default {
     editor: require('vue2-ace-editor')
   },
   methods: {
+    clearOutput () {
+      document.getElementById('repl-out').textContent = ''
+    },
     editorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
