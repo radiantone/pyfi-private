@@ -405,11 +405,6 @@
               label="Queues"
             />
             <q-tab
-              name="python"
-              class="text-dark"
-              label="Python"
-            />
-            <q-tab
               name="monitor"
               class="text-dark"
               label="Monitor"
