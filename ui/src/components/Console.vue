@@ -20,25 +20,25 @@
           height="100%"
         />
         <q-toolbar>
-          <q-space/>
+          <q-space />
           <q-btn
-          round
-          dense
-          flat
-          color="secondary"
-          title="Execute Python Code"
-          icon="fas fa-play"
-          style="margin-right:10px"
-          @click="runPython"
-        />
+            round
+            dense
+            flat
+            color="secondary"
+            title="Execute Python Code"
+            icon="fas fa-play"
+            style="margin-right:10px"
+            @click="runPython"
+          />
         </q-toolbar>
       </template>
       <template #after>
         <q-scroll-area style="height: 100%; width: 100%;">
-        <pre
-          id="repl-out"
-          style="height:100vh;background-color:#fff;padding:10px"
-        />
+          <pre
+            id="repl-out"
+            style="height:100vh;background-color:#fff;padding:10px"
+          />
         </q-scroll-area>
       </template>
     </q-splitter>
