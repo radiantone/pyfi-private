@@ -293,21 +293,20 @@
       <q-btn
         flat
         align="left"
-        icon="las la-comment"
         aria-label="AI Buddy"
         size="xl"
         id="chat"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openChat"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
+        title="Python Tools"
       >
+        <img src="~assets/images/python.svg" style="width:40px"/>
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          AI Coding Buddy
+          Python Tools
         </q-tooltip>
       </q-btn>
       <q-space />

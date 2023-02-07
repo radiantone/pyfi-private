@@ -651,13 +651,6 @@
               </q-splitter>
             </q-tab-panel>
             <q-tab-panel
-              name="python"
-              ref="python"
-              style="padding: 0px; width: 100%; padding-top: 0px;"
-            >
-              <Console/>
-            </q-tab-panel>
-            <q-tab-panel
               name="monitor"
               ref="monitor"
               style="padding: 0px; width: 100%; padding-top: 0px;"
@@ -828,6 +821,41 @@
       :width="750"
       style="overflow: hidden;"
     >
+      <q-tabs
+          v-model="pythontabs"
+          dense
+          class="bg-primary"
+          align="left"
+          narrow-indicator
+          active-color="dark"
+          indicator-color="primary"
+          active-bg-color="accent"
+        >
+          <q-tab
+            name="pythonconsole"
+            label="Scratchpad"
+          />
+                  <q-tab
+            name="chatconsole"
+            label="AI Coder"
+          />
+      </q-tabs>
+
+       <q-tab-panels
+          v-model="pythontabs"
+          keep-alive
+        >
+          <q-tab-panel
+            name="pythonconsole"
+            style="padding: 0px;"
+            ref="pythonconsole"
+          ><Console/></q-tab-panel>
+         <q-tab-panel
+            name="chatconsole"
+            style="padding: 0px;"
+            ref="chatconsole"
+          >
+
       <q-toolbar
         class="bg-accent"
         style="padding: 0px; padding-left: 10px;"
@@ -871,6 +899,9 @@
           />
         </q-inner-loading>
       </q-scroll-area>
+         </q-tab-panel>
+       </q-tab-panels>
+
     </q-drawer>
     <q-drawer
       v-model="librarydrawer"
@@ -2939,6 +2970,7 @@ export default defineComponent({
       librarydrawer: false,
       chatdrawer: false,
       newQueueDialog: false,
+      pythontabs: "pythonconsole",
       messagedrawer: false,
       queueloading: false,
       queueSplitter: 50,
