@@ -110,8 +110,8 @@
 				}
 			],
 			"properties": [],
-			"left": 419,
-			"top": 129,
+			"left": 423,
+			"top": 132,
 			"x": 345,
 			"y": 179.5,
 			"id": "acdeafa3-1fab-4973-bed9-346f1495bc96",
@@ -170,8 +170,8 @@
 				}
 			],
 			"properties": [],
-			"left": 413,
-			"top": 535,
+			"left": 422,
+			"top": 540,
 			"x": 312,
 			"y": 515.5,
 			"id": "aab0fd3a-19eb-4dd7-bd7f-64724eb64482",
@@ -247,8 +247,8 @@
 				}
 			],
 			"properties": [],
-			"left": 1728,
-			"top": 665,
+			"left": 1722,
+			"top": 655,
 			"x": 1563,
 			"y": 640.5,
 			"id": "2cf28a02-e915-4a2a-827c-f7697b034cfd",
@@ -323,8 +323,8 @@
 				}
 			],
 			"properties": [],
-			"left": 1721,
-			"top": 119,
+			"left": 1714,
+			"top": 116,
 			"x": 1577.9087850009332,
 			"y": 98.4340691972616,
 			"id": "a867ff81-c9e3-4106-870f-cb24455aa600",
@@ -365,8 +365,8 @@
 			"type": "border",
 			"name": "Input System",
 			"label": "Border",
-			"left": 379,
-			"top": 96,
+			"left": 373,
+			"top": 103,
 			"x": 254,
 			"y": 37.5,
 			"id": "a96a8257-bb08-43b9-86d6-52cde4cd2986",
@@ -418,7 +418,7 @@
 			"x": 341,
 			"y": 333.5,
 			"id": "2fe468b2-006e-4540-a416-06e039bb643c",
-			"note": "DIfferent Data Origan Systems"
+			"note": "Different Data Origin Systems"
 		},
 		{
 			"icon": "icon-label",

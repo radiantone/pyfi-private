@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
   socket.on("hello", (data: SocketData) => {
     console.log("CLIENT SAYS HELLO!", data);
   setTimeout( () => {
-      io.to("processorA").emit("basicEmit", 1, "Linking...", Buffer.from([3]));
+      io.to("processorA").emit("basicEmit", 1, "Ready...", Buffer.from([3]));
   },3000);
   });
   socket.emit("noArg");
@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
 
   // and then later
   setTimeout( () => {
-      io.to("processorA").emit("basicEmit", 1, "Linking...", Buffer.from([3]));
+      io.to("processorA").emit("basicEmit", 1, "Ready...", Buffer.from([3]));
   },3000);
 
   // works when broadcast to all
