@@ -1890,6 +1890,7 @@ export default defineComponent({
       var me = this
       if (val) {
         this.security.token().then((token) => {
+          console.log("SET TOKEN", token)
           me.$store.commit('designer/setToken', token)
           me.updateSubscription()
         })
@@ -2007,13 +2008,22 @@ export default defineComponent({
         me.notifyMessage(
           'dark',
           'error',
-          'There was an error retrieving your subscrition.'
+          'There was an error retrieving your subscription.'
         )
       })
     },
     info (title) {
       this.infotitle = title
       this.infodialog = true
+    },
+    notifyMessage (color, icon, message) {
+      this.$q.notify({
+        color: color,
+        timeout: 2000,
+        position: 'top',
+        message: message,
+        icon: icon
+      })
     },
     sendChat () {
       var me = this
@@ -2479,6 +2489,7 @@ export default defineComponent({
 
     if (this.$auth.isAuthenticated) {
       this.security.token().then((token) => {
+        console.log("SET TOKEN", token)
         me.$store.commit('designer/setToken', token)
         DataService.getQueues(token).then((queues) => {
           me.queues = queues.data
