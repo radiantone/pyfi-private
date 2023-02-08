@@ -308,6 +308,8 @@ export default {
       // Get ID of pattern group object
       // Pull out all the nodes with that group, and their ports and edges
       // Save that
+      let token = this.$store.state.designer.token
+      console.log("AUTH SAVE PATTERN TOKEN", token)
       await DataService.newFile(
         'patterns',
         'Home',
@@ -316,7 +318,8 @@ export default {
         false,
         'pattern',
         'fas fa-project-diagram',
-        JSON.stringify({ image: pattern.image, code: pattern.code }, this.$store.state.designer.token)
+        JSON.stringify({ image: pattern.image, code: pattern.code }),
+        token
       )
         .then((response) => {
           me.synchronize()
@@ -362,6 +365,7 @@ export default {
         var me = this
         me.synchronize()
         window.root.off('save.pattern')
+        console.log("PATTERN SAVE ON")
         window.root.$on('save.pattern', (id, name, image, objects) => {
           console.log('PATTERNS SAVING', objects)
           var code = JSON.stringify(objects)
@@ -384,6 +388,7 @@ export default {
     if (this.$auth.isAuthenticated) {
       var me = this
       me.synchronize()
+      console.log("PATTERN SAVE ON")
       window.root.$on('save.pattern', (id, name, image, objects) => {
         console.log('PATTERNS SAVING', objects)
         var code = JSON.stringify(objects)

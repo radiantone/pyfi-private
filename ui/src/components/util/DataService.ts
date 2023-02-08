@@ -162,9 +162,11 @@ class DataService {
   newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
+    const auth_string = 'Bearer ' + token
+    console.log("AUTH_STRING", auth_string)
     return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
       headers: {
-        Authorization: 'Bearer ' + token
+        Authorization: auth_string
       }
     })
   }

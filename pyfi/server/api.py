@@ -263,7 +263,8 @@ def requires_auth(f):
                 },
                 401,
             )
-        except JWTError:
+        except JWTError as ex:
+            logging.error(ex)
             raise AuthError(
                 {"code": "invalid_jwt", "description": "Token did not validate"},
                 401,
