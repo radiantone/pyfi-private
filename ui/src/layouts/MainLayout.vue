@@ -2374,7 +2374,7 @@ export default defineComponent({
       this.items = []
       this.graph.nodes.forEach((node) => {
         console.log('Searching node ', node)
-        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
+        if (node.name && (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1)) {
           this.items.push(node)
         }
       })
