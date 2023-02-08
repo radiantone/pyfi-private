@@ -3,7 +3,7 @@
     class="aGroup"
     style="border: 2px dashed black; min-height: 150px; z-index: -9999;"
     :id="obj.id"
-    @mousedown="mousein = !mousein"
+    @mousedown="setLayer"
   >
     <q-slider
       v-model="obj.w"
@@ -192,6 +192,11 @@ export default {
     }
   },
   methods: {
+    setLayer () {
+      console.log("setLayer")
+      this.mousein = !this.mousein
+      this.$el.style.zIndex = -999999
+    },
     savePattern () {
       var me = this
       this.savePatternDialog = false
