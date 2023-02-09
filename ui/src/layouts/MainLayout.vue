@@ -844,13 +844,25 @@
             name="pythonconsole"
             style="padding: 0px;"
             ref="pythonconsole"
-          ><Console/></q-tab-panel>
+          >      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading><Console/></q-tab-panel>
          <q-tab-panel
             name="chatconsole"
             style="padding: 0px;"
             ref="chatconsole"
           >
-
+      <q-inner-loading
+        :showing="true"
+        v-if="!$auth.isAuthenticated"
+        style="z-index:9999"
+      >
+        <q-item-label>Not Logged In</q-item-label>
+      </q-inner-loading>
       <q-toolbar
         class="bg-accent"
         style="padding: 0px; padding-left: 10px;"
