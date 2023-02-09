@@ -87,7 +87,6 @@ freeze:
 
 .PHONY: clean
 clean:
-	./bin/docker-refresh.sh
 	python setup.py clean
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
