@@ -1026,10 +1026,10 @@
               {{ node !== null ? node.id : '' }}
             </div>
 
-            <img
-              src="~assets/images/droplet.svg"
-              style="width: 30px;"
-            >
+            <i
+              class="las la-cube"
+              style="margin-left:5px; font-size:2em"
+            />
           </q-card-section>
           <q-card-section>
             <q-toolbar
