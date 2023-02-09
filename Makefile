@@ -50,6 +50,7 @@ up:
 stop:
 	docker compose stop
 
+# Refresh dockers
 .PHONY: refresh
 refresh: stop
 	./bin/docker-refresh.sh
