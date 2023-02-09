@@ -7,10 +7,10 @@ import logging
 import os
 import platform
 from base64 import b64decode, b64encode
-from flasgger import Swagger
 
 import chargebee
 import requests
+from flasgger import Swagger
 
 # from .chatgpt import configure
 
@@ -29,7 +29,7 @@ from flask import (
     send_from_directory,
     session,
 )
-from flask_cors import cross_origin, CORS
+from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
 from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
@@ -58,8 +58,8 @@ SESSION = session
 from pathlib import Path
 
 HOME = str(Path.home())
-AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
-API_AUDIENCE = os.environ['API_AUDIENCE']
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+API_AUDIENCE = os.environ["API_AUDIENCE"]
 ALGORITHMS = ["RS256"]
 
 ini = HOME + "/pyfi.ini"
@@ -97,30 +97,27 @@ template = {
             "url": "elasticcode.ai",
         },
         "termsOfService": "https://elasticcode.ai/terms",
-        "version": "0.0.1"
+        "version": "0.0.1",
     },
-    "host": os.environ['API_HOST'],  # overrides localhost:500
+    "host": os.environ["API_HOST"],  # overrides localhost:500
     "basePath": "/",  # base bash for blueprint registration
-    "schemes": [
-        "https"
-    ],
-    "operationId": "getmyData"
+    "schemes": ["https"],
+    "operationId": "getmyData",
 }
 swagger_config = {
     "title": "ElasticCode API",
-    "headers": [
-    ],
+    "headers": [],
     "specs": [
         {
-            "endpoint": 'processors',
-            "route": '/processors',
+            "endpoint": "processors",
+            "route": "/processors",
             "rule_filter": lambda rule: True,  # all in
             "model_filter": lambda tag: True,  # all in
         }
     ],
     "static_url_path": "/flasgger_static",
     "specs_route": "/ui",
-    "url_prefix": "/docs"
+    "url_prefix": "/docs",
 }
 swagger = Swagger(app=app, template=template, config=swagger_config)
 
@@ -206,8 +203,8 @@ def requires_auth(f):
             rsa_key = {}
             for key in jwks["keys"]:
                 if (
-                        "kid" in unverified_header
-                        and key["kid"] == unverified_header["kid"]
+                    "kid" in unverified_header
+                    and key["kid"] == unverified_header["kid"]
                 ):
                     rsa_key = {
                         "kty": key["kty"],
@@ -235,7 +232,7 @@ def requires_auth(f):
                         {
                             "code": "invalid_claims",
                             "description": "incorrect claims,"
-                                           "please check the audience and issuer",
+                            "please check the audience and issuer",
                         },
                         401,
                     )
@@ -489,21 +486,21 @@ def do_processor(name):
 @requires_auth
 def get_processors():
     """Example endpoint returning a list of processors
-        This is using docstrings for specifications.
-        ---
-        definitions:
-          Processor:
-            type: object
-            properties:
-              name:
-                type: string
-        responses:
-          200:
-            description: A list of processors
-            schema:
-              $ref: '#/definitions/Processor'
-            examples:
-              processors: [{'name':'proc1'}]
+    This is using docstrings for specifications.
+    ---
+    definitions:
+      Processor:
+        type: object
+        properties:
+          name:
+            type: string
+    responses:
+      200:
+        description: A list of processors
+        schema:
+          $ref: '#/definitions/Processor'
+        examples:
+          processors: [{'name':'proc1'}]
     """
     with get_session() as session:
         processors = session.query(ProcessorModel).all()
@@ -537,7 +534,13 @@ def get_subscription(user):
 
     result = chargebee.Customer.list({"email[is]": user["email"]})
     if len(result) == 0:
-        return jsonify({"error": "true", "subscription": "false", "message": "No subscriptin for this user"})
+        return jsonify(
+            {
+                "error": "true",
+                "subscription": "false",
+                "message": "No subscriptin for this user",
+            }
+        )
 
     customer_id = result[0].customer.id
     result = chargebee.Subscription.list({"customer_id[is]": customer_id})
@@ -560,7 +563,7 @@ Here is a function that will parse an english sentence
     def parse(sentence):
        return "The parsed sentence"
 
-    
+
     """
 
 
@@ -592,17 +595,16 @@ def get_result(resultid):
 @requires_auth
 def get_files(collection, path):
     import json
+
     from pyfi.db.model import UserModel
 
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        password = user["sub"].split('|')[1]
-        uname = user["email"].split('@')[0] + "." + password
-        _user = (
-            session.query(UserModel).filter_by(name=uname, clear=password).first()
-        )
+        password = user["sub"].split("|")[1]
+        uname = user["email"].split("@")[0] + "." + password
+        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
         try:
             files = (
                 session.query(FileModel)
@@ -1046,20 +1048,21 @@ def get_calls(name):
 
 @app.route("/registration", methods=["POST"])
 def post_registration():
+    import hashlib
     from datetime import datetime
+
     # from pymongo import MongoClient
     import sqlalchemy
-    from pyfi.db.model import Base
-    import hashlib
-    from pyfi.db.model import UserModel
+
+    from pyfi.db.model import Base, UserModel
 
     data = request.get_json(silent=True)
     logging.info("REGISTRATION: %s", data)
 
-    email = data['params']['user']['email']
-    tenant = data['params']['user']['tenant']
-    user_id = data['params']['user']['user_id']
-    password = user_id.split('|')[1]
+    email = data["params"]["user"]["email"]
+    tenant = data["params"]["user"]["tenant"]
+    user_id = data["params"]["user"]["user_id"]
+    password = user_id.split("|")[1]
     # client = MongoClient(CONFIG.get("mongodb", "uri"))
     # pyfidb = client["pyfi"]
     # users = pyfidb["users"]
@@ -1069,7 +1072,7 @@ def post_registration():
     with get_session() as session:
         _password = hashlib.md5(password.encode()).hexdigest()
         # This user will be used in OSO authorizations
-        uname = email.split('@')[0] + "." + password
+        uname = email.split("@")[0] + "." + password
         user = UserModel(
             name=uname, owner=email, password=_password, clear=password, email=email
         )
@@ -1084,12 +1087,12 @@ def post_registration():
             session.execute(sql)
             logging.info("Created user")
             for t in Base.metadata.sorted_tables:
-                sql = f'GRANT CONNECT ON DATABASE pyfi TO \"{uname}\"'
+                sql = f'GRANT CONNECT ON DATABASE pyfi TO "{uname}"'
                 session.execute(sql)
-                sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO \"{uname}\"'
+                sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO "{uname}"'
                 session.execute(sql)
         except sqlalchemy.exc.ProgrammingError as ex:
-            if ex.orig.pgerror.find('already exists') == -1:
+            if ex.orig.pgerror.find("already exists") == -1:
                 raise ex
 
         session.add(user)
@@ -1113,14 +1116,12 @@ def post_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        password = user["sub"].split('|')[1]
-        uname = user["email"].split('@')[0] + "." + password
-        _user = (
-            session.query(UserModel).filter_by(name=uname, clear=password).first()
-        )
+        password = user["sub"].split("|")[1]
+        uname = user["email"].split("@")[0] + "." + password
+        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
 
         if "id" in data and (
-                ("saveas" in data and not data["saveas"]) or "saveas" not in data
+            ("saveas" in data and not data["saveas"]) or "saveas" not in data
         ):
             print("FINDING FILE BY ID", data["id"])
             file = session.query(FileModel).filter_by(id=data["id"], user=_user).first()
@@ -1133,14 +1134,14 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
-                    user=_user
+                    user=_user,
                 )
                 .first()
             )
         print("FILE FOUND", file)
         if file:
             if ("id" in data and data["id"] == file.id) and (
-                    "saveas" in data and data["saveas"]
+                "saveas" in data and data["saveas"]
             ):
                 # overwrite file
                 print("Overwriting ", data)
@@ -1193,7 +1194,7 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
-                    user=_user
+                    user=_user,
                 )
                 .first()
             )
@@ -1214,7 +1215,7 @@ def post_files(collection, path):
                 icon=data["icon"],
                 path=path,
                 code=data["file"],
-                user=_user
+                user=_user,
             )
 
             if "saveas" in data:

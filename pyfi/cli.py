@@ -39,9 +39,9 @@ from pyfi.db.model import (
     CallModel,
     DeploymentModel,
     EventModel,
+    FileModel,
     LoginModel,
     LogModel,
-    FileModel,
     NetworkModel,
     NodeModel,
     PasswordModel,
@@ -683,8 +683,8 @@ def dropdb(context):
 
     for user in _users:
         if user != "postgres":
-            context.obj["database"].session.execute(f"DROP OWNED BY \"{user}\"")
-            context.obj["database"].session.execute(f"DROP USER \"{user}\"")
+            context.obj["database"].session.execute(f'DROP OWNED BY "{user}"')
+            context.obj["database"].session.execute(f'DROP USER "{user}"')
             print("Dropped user {}".format(user))
 
     context.obj["database"].session.commit()
@@ -2806,7 +2806,9 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
 
 @ls.command(name="files")
-@click.option("-c", "--collection", default=None, required=False, help="Name of collection")
+@click.option(
+    "-c", "--collection", default=None, required=False, help="Name of collection"
+)
 @click.argument("path")
 @click.pass_context
 def ls_files(context, collection, path):
