@@ -199,6 +199,7 @@ http {
 
     location ~ ^/(images|javascript|js|css|fonts|icons||img|js|flash|media|static)/  {
       add_header Access-Control-Allow-Origin "*.elasticcode.ai";
+      add_header 'Cache-Control' 'no-cache, no-store, must-revalidate';
       root    /var/share/html;
       expires 30d;
     }
