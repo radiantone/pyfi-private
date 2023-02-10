@@ -301,7 +301,7 @@
         @click="openChat"
         title="Python Tools"
       >
-        <img src="~assets/images/python.svg" style="min-width:40px"/>
+        <img src="~assets/images/python.svg" style="width:40px;min-width:40px"/>
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
