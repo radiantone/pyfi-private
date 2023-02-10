@@ -902,7 +902,7 @@
 
 .apexcharts-tooltip {
   background: black;
-  color: white;
+  color: black;
 }
 
 .link-hover:hover {
@@ -1421,10 +1421,11 @@ export default {
           x: {
             show: false
           },
+          theme: 'dark',
           y: {
             title: {
               formatter: function (seriesName) {
-                return 'Value'
+                return 'Tasks'
               }
             }
           },
