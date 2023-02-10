@@ -102,7 +102,7 @@
         id="processor"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="this.sublevel[this.$store.state.designer.subscription] < PRO"
+        :disabled="!hasHosted"
         title="Upgrade to PRO Plan"
       >
         <!--:disabled="false"-->
@@ -310,8 +310,8 @@
         </q-tooltip>
       </q-btn>
       <q-space />
-      <!--
-      <q-toolbar >
+
+      <q-toolbar v-if="$auth.isAuthenticated && hasHosted">
         <q-space />
       <q-item-label
         class="text-secondary"
@@ -321,7 +321,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
-          :disabled="!hasEnterprise()"
         >Nodes:</a>
         <span class="text-dark">{{ nodes }}</span>
       </q-item-label>
@@ -334,7 +333,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Agents', agentStatsColumns,'agents')"
-          :disabled="!hasEnterprise()"
         >Agents:</a>
         <span class="text-dark">{{ agents }}</span>
       </q-item-label>
@@ -346,7 +344,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Queues', queueStatsColumns,'queues')"
-          :disabled="!hasEnterprise()"
         >Queues:</a>
         <span class="text-dark">{{ queues }}</span>
       </q-item-label>
@@ -358,7 +355,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Processors', procStatsColumns, 'processors')"
-          :disabled="!hasEnterprise()"
         >Processors:</a>
         <span class="text-dark">{{ processors }}</span>
       </q-item-label>
@@ -370,7 +366,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Deployments', deployStatsColumns, 'deployments')"
-          :disabled="!hasEnterprise()"
         >Deployments:</a>
         <span class="text-dark">{{ deployments }}</span>
       </q-item-label>
@@ -382,7 +377,6 @@
           class="link-hover"
           href="#"
           @click="showStats('CPUs', workerStatsColumns, 'workers')"
-          :disabled="!hasEnterprise()"
         >CPUS:</a>
         <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
       </q-item-label>
@@ -394,7 +388,6 @@
           class="link-hover"
           href="#"
           @click="showStats('Tasks', taskStatsColumns, 'tasks')"
-          :disabled="!hasEnterprise()"
         >Tasks:</a>
         <span class="text-dark">{{ tasks }}</span>
       </q-item-label>
@@ -402,7 +395,6 @@
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
-        :disabled="!hasEnterprise()"
       >
         System Usage:
       </q-item-label>
@@ -413,7 +405,7 @@
         :options="chartOptions"
         :series="series"
         style="margin-right: 280px;"
-      />-->
+      />
       <q-item-label
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
@@ -943,8 +935,20 @@ export default {
     })
   },
   computed: {
+
+    hasHosted () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
     isProPlan () {
-      return this.hasEnterprise()
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
+      } else {
+        return false
+      }
     }
   },
   watch: {
@@ -971,9 +975,6 @@ export default {
       this.$root.$emit('login')
     },
     showStats (name, columns, objects) {
-      if (!this.hasEnterprise()) {
-        return
-      }
       const me = this
       if (this.false) {
         return
@@ -1041,15 +1042,18 @@ export default {
       FREE: 1,
       DEVELOPER: 2,
       PRO: 3,
-      ENTERPRISE: 4,
+      HOSTED: 4,
+      ENTERPRISE: 5,
       subscriptions: {
-        'ec_developer-USD-Monthly': 'Developer'
+        'ec_developer-USD-Monthly': 'Developer',
+        'ec_hosted-USD-Yearly': 'Hosted'
       },
       sublevel: {
         guest: 0,
         free: 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
       showProfileDialog: false,
       showAboutDialog: false,

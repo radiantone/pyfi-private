@@ -412,7 +412,8 @@ export default {
         'guest': 0,
         'free': 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
       GUEST: 0,
       FREE: 1,
