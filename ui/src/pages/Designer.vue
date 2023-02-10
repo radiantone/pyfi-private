@@ -3130,12 +3130,14 @@ export default {
       FREE: 1,
       DEVELOPER: 2,
       PRO: 3,
-      ENTERPRISE: 4,
+      HOSTED: 4,
+      ENTERPRISE: 5,
       sublevel: {
         'guest': 0,
         'free': 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
       edgetype: true,
       owner: 'darren',

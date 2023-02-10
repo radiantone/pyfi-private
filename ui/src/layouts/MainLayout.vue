@@ -858,10 +858,11 @@
           >
       <q-inner-loading
         :showing="true"
-        v-if="!$auth.isAuthenticated"
+        v-if="!$auth.isAuthenticated || !isProPlan"
         style="z-index:9999"
       >
-        <q-item-label>Not Logged In</q-item-label>
+        <q-item-label v-if="!$auth.isAuthenticated">Not Logged In</q-item-label>
+        <q-item-label v-if="$auth.isAuthenticated || !isProPlan">Upgrade to Pro Plan</q-item-label>
       </q-inner-loading>
       <q-toolbar
         class="bg-accent"
@@ -1280,7 +1281,7 @@
                   padding="10px 15px"
                   size="md"
                   label="Upgrade"
-                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription != 'ec_developer-USD-Monthly'"
+                  v-if="$auth.isAuthenticated  && this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
                   @click="upgrade('ec_developer-USD-Monthly')"
                 />
                 <q-btn
@@ -1289,7 +1290,7 @@
                   size="md"
                   color="secondary"
                   label="My Plan"
-                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription == 'ec_developer-USD-Monthly'"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_developer-USD-Monthly'"
                   @click="manage"
                 />
               </td>
@@ -1299,8 +1300,17 @@
                   padding="10px 15px"
                   size="md"
                   label="Upgrade"
-                  v-if="$auth.isAuthenticated"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < PRO"
                   @click="upgrade('ec_pro-USD-Monthly')"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_pro-USD-Monthly'"
+                  @click="manage"
                 />
               </td>
               <td>
@@ -1309,8 +1319,17 @@
                   padding="10px 15px"
                   size="md"
                   label="Upgrade"
-                  v-if="$auth.isAuthenticated"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < HOSTED"
                   @click="upgrade('ec_hosted-USD-Yearly')"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_hosted-USD-Yearly'"
+                  @click="manage"
                 />
               </td>
               <td>
@@ -1950,6 +1969,13 @@ export default defineComponent({
     }
   },
   computed: {
+    isProPlan () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
+      } else {
+        return false
+      }
+    },
     modeModel: {
       get () {
         return this.mode
@@ -2879,7 +2905,8 @@ export default defineComponent({
         guest: 0,
         free: 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
       GUEST: 0,
       FREE: 1,
