@@ -13,7 +13,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:develop
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -25,7 +25,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:develop
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:develop
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -71,7 +71,7 @@ services:
 
   api:
     container_name: api
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:develop
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
@@ -200,7 +200,7 @@ services:
 
 
   web:
-    image: elasticcode/web:latest
+    image: elasticcode/web:develop
     container_name: web
     build:
       context: /home/darren/git/elasticcode-web
@@ -211,7 +211,7 @@ services:
       - dev
 
   nginx:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
@@ -240,7 +240,6 @@ services:
 networks:
   dev:
     name: dev
-    driver: custom-driver-1
 
 volumes:
   mongodb_data_container:
