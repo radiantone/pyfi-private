@@ -5,7 +5,7 @@ flake8 = flake8 --ignore=E203,F401,E402,F841,E501,E722,W503 pyfi
 
 .PHONY: depends
 depends:
-	echo
+	./bin/depends.sh
 
 .PHONY: init
 init: depends
