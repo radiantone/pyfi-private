@@ -1,3 +1,4 @@
+sudo apt update
 sudo apt install -y ca-certificates     curl     gnupg     lsb-release
 sudo apt install -y python3.10-venv
 sudo apt install -y make
