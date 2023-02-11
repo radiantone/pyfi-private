@@ -240,7 +240,6 @@ services:
 networks:
   dev:
     name: dev
-    driver: custom-driver-1
 
 volumes:
   mongodb_data_container:
