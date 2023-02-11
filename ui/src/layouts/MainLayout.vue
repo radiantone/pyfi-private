@@ -817,99 +817,104 @@
       style="overflow: hidden;"
     >
       <q-tabs
-          v-model="pythontabs"
-          dense
-          class="bg-primary"
-          align="left"
-          narrow-indicator
-          active-color="dark"
-          indicator-color="primary"
-          active-bg-color="accent"
-        >
-          <q-tab
-            name="pythonconsole"
-            label="Scratchpad"
-          />
-                  <q-tab
-            name="chatconsole"
-            label="AI Coder"
-          />
+        v-model="pythontabs"
+        dense
+        class="bg-primary"
+        align="left"
+        narrow-indicator
+        active-color="dark"
+        indicator-color="primary"
+        active-bg-color="accent"
+      >
+        <q-tab
+          name="pythonconsole"
+          label="Scratchpad"
+        />
+        <q-tab
+          name="chatconsole"
+          label="AI Coder"
+        />
       </q-tabs>
 
-       <q-tab-panels
-          v-model="pythontabs"
-          keep-alive
+      <q-tab-panels
+        v-model="pythontabs"
+        keep-alive
+      >
+        <q-tab-panel
+          name="pythonconsole"
+          style="padding: 0px;"
+          ref="pythonconsole"
         >
-          <q-tab-panel
-            name="pythonconsole"
-            style="padding: 0px;"
-            ref="pythonconsole"
-          >      <q-inner-loading
-        :showing="true"
-        v-if="!$auth.isAuthenticated"
-        style="z-index:9999"
-      >
-        <q-item-label>Not Logged In</q-item-label>
-      </q-inner-loading><Console/></q-tab-panel>
-         <q-tab-panel
-            name="chatconsole"
-            style="padding: 0px;"
-            ref="chatconsole"
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated"
+            style="z-index:9999"
           >
-      <q-inner-loading
-        :showing="true"
-        v-if="!$auth.isAuthenticated || !isProPlan"
-        style="z-index:9999"
-      >
-        <q-item-label v-if="!$auth.isAuthenticated">Not Logged In</q-item-label>
-        <q-item-label v-if="$auth.isAuthenticated || !isProPlan">Upgrade to Pro Plan</q-item-label>
-      </q-inner-loading>
-      <q-toolbar
-        class="bg-accent"
-        style="padding: 0px; padding-left: 10px;"
-      >
-        <q-item-label
-          style="
+            <q-item-label>Not Logged In</q-item-label>
+          </q-inner-loading><Console />
+        </q-tab-panel>
+        <q-tab-panel
+          name="chatconsole"
+          style="padding: 0px;"
+          ref="chatconsole"
+        >
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated || !isProPlan"
+            style="z-index:9999"
+          >
+            <q-item-label v-if="!$auth.isAuthenticated">
+              Not Logged In
+            </q-item-label>
+            <q-item-label v-if="$auth.isAuthenticated || !isProPlan">
+              Upgrade to Pro Plan
+            </q-item-label>
+          </q-inner-loading>
+          <q-toolbar
+            class="bg-accent"
+            style="padding: 0px; padding-left: 10px;"
+          >
+            <q-item-label
+              style="
               font-size: 1.5em;
               font-family: 'Indie Flower', cursive;
               margin-top: 5px;
               margin-right: 1em;
             "
-        >
-          AI Coding Buddy
-        </q-item-label>
-      </q-toolbar>
-      <q-input
-        v-model="question"
-        label="Hi! Ask me anything...I can even write code!"
-        style="width:100%;padding:10px;resize: none !important;"
-        type="textarea"
-      />
-      <q-toolbar>
-        <q-space />
-        <q-btn
-          label="Go!"
-          color="secondary"
-          @click="sendChat"
-          style="margin-right:30px;margin-bottom:30px"
-        />
-      </q-toolbar>
-      <q-separator />
-      <q-scroll-area style="height:calc(100vh - 420px);">
-        <q-markdown :src="answer" />
-        <q-inner-loading
-          :showing="loadingchat"
-          style="z-index: 9999999;"
-        >
-          <q-spinner-gears
-            size="50px"
-            color="primary"
+            >
+              AI Coding Buddy
+            </q-item-label>
+          </q-toolbar>
+          <q-input
+            v-model="question"
+            label="Hi! Ask me anything...I can even write code!"
+            style="width:100%;padding:10px;resize: none !important;"
+            type="textarea"
           />
-        </q-inner-loading>
-      </q-scroll-area>
-         </q-tab-panel>
-       </q-tab-panels>
-
+          <q-toolbar>
+            <q-space />
+            <q-btn
+              label="Go!"
+              color="secondary"
+              @click="sendChat"
+              style="margin-right:30px;margin-bottom:30px"
+            />
+          </q-toolbar>
+          <q-separator />
+          <q-scroll-area style="height:calc(100vh - 420px);">
+            <q-markdown :src="answer" />
+            <q-inner-loading
+              :showing="loadingchat"
+              style="z-index: 9999999;"
+            >
+              <q-spinner-gears
+                size="50px"
+                color="primary"
+              />
+            </q-inner-loading>
+          </q-scroll-area>
+        </q-tab-panel>
+      </q-tab-panels>
     </q-drawer>
     <q-drawer
       v-model="librarydrawer"
@@ -1281,7 +1286,7 @@
                   padding="10px 15px"
                   size="md"
                   label="Upgrade"
-                  v-if="$auth.isAuthenticated  && this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
                   @click="upgrade('ec_developer-USD-Monthly')"
                 />
                 <q-btn
@@ -1665,8 +1670,7 @@
             "
           >
             <q-toolbar class="bar">
-              <q-space/>
-
+              <q-space />
             </q-toolbar>
           </div>
         </q-card-section>
@@ -1674,12 +1678,25 @@
           class="row items-center"
           style="height: 450px;"
         >
-          <span class="text-black q-ml-sm" style="color:black;margin-top: 30px;margin-bottom:30px">
-            <p style="font-size:20px" class="text-black">Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a style="text-decoration: underline; color:#6b8791" target="support" href="https://elasticcode.atlassian.net/servicedesk/customer/portals">here</a></p>
+          <span
+            class="text-black q-ml-sm"
+            style="color:black;margin-top: 30px;margin-bottom:30px"
+          >
+            <p
+              style="font-size:20px"
+              class="text-black"
+            >Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a
+              style="text-decoration: underline; color:#6b8791"
+              target="support"
+              href="https://elasticcode.atlassian.net/servicedesk/customer/portals"
+            >here</a></p>
             <br>
             <hr>
             <br>
-            <p style="font-size:16px" class="text-black"><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
+            <p
+              style="font-size:16px"
+              class="text-black"
+            ><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
             <br>
             <b>Recommended Settings:</b>
             <ul style="margin-left:40px">
@@ -1849,7 +1866,6 @@ chargebee.configure({
   api_key: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm'
 })
 
-
 var filesize = require('filesize')
 const size = filesize.partial({ base: 2, standard: 'jedec' })
 
@@ -1876,7 +1892,6 @@ import {
 import { io, Socket } from 'socket.io-client'
 
 const socket = io('https://app.elasticcode.ai')
-
 
 export default defineComponent({
   name: 'MainLayout',
@@ -1921,7 +1936,7 @@ export default defineComponent({
       var me = this
       if (val) {
         this.security.token().then((token) => {
-          console.log("SET TOKEN", token)
+          console.log('SET TOKEN', token)
           me.$store.commit('designer/setToken', token)
           me.updateSubscription()
         })
@@ -2030,9 +2045,8 @@ export default defineComponent({
     updateSubscription () {
       var me = this
       DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-
         if (subscriptions.error && subscription.subscription === false) {
-          me.$store.commit('designer/setSubscription', "Registered")
+          me.$store.commit('designer/setSubscription', 'Registered')
         }
         if (subscriptions.data && subscriptions.data.subscription.status !== 'cancelled') {
           subscriptions.data.subscription.subscription_items.forEach((subscription) => {
@@ -2412,7 +2426,7 @@ export default defineComponent({
       this.items = []
       this.graph.nodes.forEach((node) => {
         console.log('Searching node ', node)
-        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
+        if (node.name && (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1)) {
           this.items.push(node)
         }
       })
@@ -2527,7 +2541,7 @@ export default defineComponent({
 
     if (this.$auth.isAuthenticated) {
       this.security.token().then((token) => {
-        console.log("SET TOKEN", token)
+        console.log('SET TOKEN', token)
         me.$store.commit('designer/setToken', token)
         DataService.getQueues(token).then((queues) => {
           me.queues = queues.data
@@ -2633,9 +2647,9 @@ export default defineComponent({
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
     window.toolkit.load({
-      type:"json",
-      url:"/scratch.json",
-      onload:function() {
+      type: 'json',
+      url: '/scratch.json',
+      onload: function () {
         // called after the data has loaded.
         window.toolkit.surface.setZoom(1.0)
         window.toolkit.surface.zoomToFit({ fill: 0.75 })
@@ -3015,7 +3029,7 @@ export default defineComponent({
       librarydrawer: false,
       chatdrawer: false,
       newQueueDialog: false,
-      pythontabs: "pythonconsole",
+      pythontabs: 'pythonconsole',
       messagedrawer: false,
       queueloading: false,
       queueSplitter: 50,

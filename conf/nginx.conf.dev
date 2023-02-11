@@ -85,9 +85,9 @@ http {
     listen   80;
     listen   [::]:80;
 
-    server_name app.elasticcode.ai;
+    server_name dev.elasticcode.ai;
 
-    return 301 https://app.elasticcode.ai$request_uri;
+    return 301 https://dev.elasticcode.ai$request_uri;
   }
 
   server {
@@ -132,7 +132,7 @@ http {
 
     ssl    on;
 
-    ssl_certificate    /etc/nginx/certs/elasticcode-app.crt;
+    ssl_certificate    /etc/nginx/certs/elasticcode-dev.crt;
     ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
 
     access_log /var/log/nginx/nginx.vhost.access.log;
@@ -157,7 +157,7 @@ http {
   server { 
     listen   443  ssl;
 
-    server_name app.elasticcode.ai;
+    server_name dev.elasticcode.ai;
 
     client_body_timeout 5s;
     client_header_timeout 5s;
@@ -166,7 +166,7 @@ http {
 
     ssl    on;
 
-    ssl_certificate    /etc/nginx/certs/elasticcode-app.crt;
+    ssl_certificate    /etc/nginx/certs/elasticcode-dev.crt;
     ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
 
     access_log /var/log/nginx/nginx.vhost.access.log;
