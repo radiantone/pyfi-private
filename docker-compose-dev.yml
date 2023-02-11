@@ -3,7 +3,7 @@ version: '3.9'
 services:
 
   clientsocket:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
     container_name: clientsocket
     networks:
       - dev
