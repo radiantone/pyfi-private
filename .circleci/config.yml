@@ -80,7 +80,7 @@ workflows:
               - aws-ecr/tag-image:
                   repo: nginx
                   source-tag: 'develop'
-                  target-tag: $pipeline.number
+                  target-tag: pipeline.number
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
