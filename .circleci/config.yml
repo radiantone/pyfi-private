@@ -77,7 +77,7 @@ workflows:
           repo-scan-on-push: true
           tag: 'local'
           post-steps:
-              - tag-image:
+              - aws-ecr/tag-image:
                   repo: nginx
                   source-tag: 'local'
                   target-tag: $CIRCLE_BUILD_NUM
