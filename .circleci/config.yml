@@ -98,6 +98,11 @@ workflows:
           repo: api
           repo-scan-on-push: true
           tag: 'local'
+          post-steps:
+              - aws-ecr/tag-image:
+                  repo: api
+                  source-tag: 'local'
+                  target-tag: $CIRCLE_BUILD_NUM
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -115,3 +120,8 @@ workflows:
           repo: clientsocket
           repo-scan-on-push: true
           tag: 'local'
+          post-steps:
+              - aws-ecr/tag-image:
+                  repo: clientsocket
+                  source-tag: 'local'
+                  target-tag: $CIRCLE_BUILD_NUM
