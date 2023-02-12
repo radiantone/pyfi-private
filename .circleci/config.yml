@@ -76,10 +76,11 @@ workflows:
           repo: nginx
           repo-scan-on-push: true
           tag: 'local'
-      - aws-ecr/tag-image:
-          repo: nginx
-          source-tag: 'local'
-          target-tag: $CIRCLE_BUILD_NUM
+          post-steps:
+            tag-image:
+              repo: nginx
+              source-tag: 'local'
+              target-tag: $CIRCLE_BUILD_NUM
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
