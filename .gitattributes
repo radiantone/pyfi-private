@@ -1,0 +1,2 @@
+ui/auth_config.json merge=ours
+.circleci/config.yml merge=ours
