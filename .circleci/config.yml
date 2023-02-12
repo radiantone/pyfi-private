@@ -75,7 +75,7 @@ workflows:
           push-image: true
           repo: nginx
           repo-scan-on-push: true
-          tag: 'local'
+          tag: 'local, $CIRCLE_BUILD_NUM'
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -92,7 +92,7 @@ workflows:
           push-image: true
           repo: api
           repo-scan-on-push: true
-          tag: 'local'
+          tag: 'local, $CIRCLE_BUILD_NUM'
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -109,4 +109,4 @@ workflows:
           push-image: true
           repo: clientsocket
           repo-scan-on-push: true
-          tag: 'local'
+          tag: 'local, $CIRCLE_BUILD_NUM'
