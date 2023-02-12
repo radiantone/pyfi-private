@@ -76,7 +76,7 @@ workflows:
           push-image: true
           repo: nginx
           repo-scan-on-push: true
-          tag: 'production'
+          tag: 'production, latest'
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -93,7 +93,7 @@ workflows:
           push-image: true
           repo: api
           repo-scan-on-push: true
-          tag: 'production'
+          tag: 'production, latest'
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -110,4 +110,4 @@ workflows:
           push-image: true
           repo: clientsocket
           repo-scan-on-push: true
-          tag: 'production'
+          tag: 'production, latest'
