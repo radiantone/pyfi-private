@@ -75,7 +75,12 @@ workflows:
           push-image: true
           repo: nginx
           repo-scan-on-push: true
-          tag: 'develop, $CIRCLE_BUILD_NUM'
+          tag: 'develop'
+          post-steps:
+              - aws-ecr/tag-image:
+                  repo: nginx
+                  source-tag: 'develop'
+                  target-tag: $CIRCLE_BUILD_NUM
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -92,7 +97,12 @@ workflows:
           push-image: true
           repo: api
           repo-scan-on-push: true
-          tag: 'develop, $CIRCLE_BUILD_NUM'
+          tag: 'develop'
+          post-steps:
+              - aws-ecr/tag-image:
+                  repo: api
+                  source-tag: 'develop'
+                  target-tag: $CIRCLE_BUILD_NUM
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -109,4 +119,9 @@ workflows:
           push-image: true
           repo: clientsocket
           repo-scan-on-push: true
-          tag: 'develop, $CIRCLE_BUILD_NUM'
+          tag: 'develop'
+          post-steps:
+              - aws-ecr/tag-image:
+                  repo: clientsocket
+                  source-tag: 'develop'
+                  target-tag: $CIRCLE_BUILD_NUM
