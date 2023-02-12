@@ -190,6 +190,23 @@ def requires_scope(required_scope):
     return False
 
 
+def hasPlan(plan):
+    sub = SESSION["subscription"]
+    print(sub)
+    return True
+
+
+def requires_subscription(*args, **kwargs):
+    """Determines if the Access Token is valid"""
+
+    def decorated(f, *args, **kwargs):
+        if request:
+            sub = SESSION["subscription"]
+        return f
+
+    return decorated
+
+
 def requires_auth(f):
     """Determines if the Access Token is valid"""
 
@@ -544,8 +561,9 @@ def get_subscription(user):
 
     customer_id = result[0].customer.id
     result = chargebee.Subscription.list({"customer_id[is]": customer_id})
-
-    return str(result[0])
+    _sub = str(result[0])
+    SESSION["subscription"] = _sub
+    return _sub
 
 
 @app.route("/chatgpt", methods=["POST"])
@@ -559,7 +577,7 @@ Here is a function that will parse an english sentence
 
 
     import spacy
-    
+
     def parse(sentence):
        return "The parsed sentence"
 
@@ -597,6 +615,8 @@ def get_files(collection, path):
     import json
 
     from pyfi.db.model import UserModel
+
+    assert hasPlan("developer")
 
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))

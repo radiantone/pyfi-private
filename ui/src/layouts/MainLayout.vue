@@ -3222,7 +3222,7 @@ export default defineComponent({
       searchdrawer: false,
       flows: [
         {
-          filename: 'Scratch Flow',
+          filename: 'Example Scratch Flow',
           id: 1
         }
       ],
