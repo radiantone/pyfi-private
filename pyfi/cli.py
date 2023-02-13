@@ -2196,7 +2196,7 @@ def add_user(context, name, email, password):
         context.obj["database"].session.add(user)
         context.obj["database"].session.commit()
 
-        sql = f"CREATE USER {name} WITH PASSWORD '{password}'"
+        sql = f"CREATE USER \"{name}\" WITH PASSWORD '{password}'"
         print(sql)
         context.obj["database"].session.execute(sql)
 
