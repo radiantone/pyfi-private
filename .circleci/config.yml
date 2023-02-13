@@ -84,7 +84,7 @@ workflows:
               - aws-ecr/tag-image:
                   repo: nginx
                   source-tag: 'develop'
-                  target-tag: $CIRCLE_SHA1
+                  target-tag: 'nginx.'+$CIRCLE_SHA1
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -110,7 +110,7 @@ workflows:
               - aws-ecr/tag-image:
                   repo: nginx
                   source-tag: 'develop'
-                  target-tag: $CIRCLE_SHA1
+                  target-tag: 'api.'+$CIRCLE_SHA1
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -136,4 +136,4 @@ workflows:
               - aws-ecr/tag-image:
                   repo: nginx
                   source-tag: 'develop'
-                  target-tag: $CIRCLE_SHA1
+                  target-tag: 'socket.'+$CIRCLE_SHA1
