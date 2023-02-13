@@ -107,6 +107,10 @@ workflows:
                   repo: api
                   source-tag: 'local'
                   target-tag: $CIRCLE_BUILD_NUM
+              - aws-ecr/tag-image:
+                  repo: nginx
+                  source-tag: 'local'
+                  target-tag: $CIRCLE_SHA1
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -129,3 +133,7 @@ workflows:
                   repo: clientsocket
                   source-tag: 'local'
                   target-tag: $CIRCLE_BUILD_NUM
+              - aws-ecr/tag-image:
+                  repo: nginx
+                  source-tag: 'local'
+                  target-tag: $CIRCLE_SHA1
