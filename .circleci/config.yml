@@ -108,7 +108,7 @@ workflows:
                   source-tag: 'local'
                   target-tag: $CIRCLE_BUILD_NUM
               - aws-ecr/tag-image:
-                  repo: nginx
+                  repo: api
                   source-tag: 'local'
                   target-tag: $CIRCLE_SHA1
       - aws-ecr/build-and-push-image:
@@ -134,6 +134,6 @@ workflows:
                   source-tag: 'local'
                   target-tag: $CIRCLE_BUILD_NUM
               - aws-ecr/tag-image:
-                  repo: nginx
+                  repo: clientsocket
                   source-tag: 'local'
                   target-tag: $CIRCLE_SHA1
