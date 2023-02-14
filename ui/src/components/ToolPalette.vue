@@ -395,22 +395,22 @@
           <span class="text-dark">{{ tasks }}</span>
         </q-item-label>
       </q-toolbar>
-        <q-item-label
-          class="text-secondary"
-          style="margin-top: 40px;white-space: nowrap;"
-          v-if="$auth.isAuthenticated && hasHosted"
-        >
-          System Usage:
-        </q-item-label>
-        <apexchart
-          type="bar"
-          height="50"
-          width="100"
-          :options="chartOptions"
-          :series="series"
-          style="margin-right: 280px;"
-          v-if="$auth.isAuthenticated && hasHosted"
-        />
+      <q-item-label
+        class="text-secondary"
+        style="margin-top: 40px;white-space: nowrap;"
+        v-if="$auth.isAuthenticated && hasHosted"
+      >
+        System Usage:
+      </q-item-label>
+      <apexchart
+        type="bar"
+        height="50"
+        width="100"
+        :options="chartOptions"
+        :series="series"
+        style="margin-right: 280px;"
+        v-if="$auth.isAuthenticated && hasHosted"
+      />
       <q-item-label
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
