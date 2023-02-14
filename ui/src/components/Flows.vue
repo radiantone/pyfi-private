@@ -146,6 +146,21 @@
               flat
               dense
               rounded
+              size="sm"
+              icon="fas fa-play"
+            >
+              <q-tooltip
+                v-if="item.type === objecttype"
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Run
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              flat
+              dense
+              rounded
               icon="edit"
               :class="darkStyle"
             >
@@ -171,7 +186,6 @@
                 :offset="[10, 10]"
               >
                 Delete
-                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
               </q-tooltip>
             </q-btn>
           </q-toolbar>
