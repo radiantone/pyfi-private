@@ -301,7 +301,10 @@
         @click="openChat"
         title="Python Tools"
       >
-        <img src="~assets/images/python.svg" style="width:40px;min-width:40px"/>
+        <img
+          src="~assets/images/python.svg"
+          style="width:40px;min-width:40px"
+        >
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
@@ -313,99 +316,101 @@
 
       <q-toolbar v-if="$auth.isAuthenticated && hasHosted">
         <q-space />
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
-        >Nodes:</a>
-        <span class="text-dark">{{ nodes }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-        :disabled="false"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Agents', agentStatsColumns,'agents')"
-        >Agents:</a>
-        <span class="text-dark">{{ agents }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Queues', queueStatsColumns,'queues')"
-        >Queues:</a>
-        <span class="text-dark">{{ queues }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Processors', procStatsColumns, 'processors')"
-        >Processors:</a>
-        <span class="text-dark">{{ processors }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Deployments', deployStatsColumns, 'deployments')"
-        >Deployments:</a>
-        <span class="text-dark">{{ deployments }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('CPUs', workerStatsColumns, 'workers')"
-        >CPUS:</a>
-        <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Tasks', taskStatsColumns, 'tasks')"
-        >Tasks:</a>
-        <span class="text-dark">{{ tasks }}</span>
-      </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
+          >Nodes:</a>
+          <span class="text-dark">{{ nodes }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+          :disabled="false"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Agents', agentStatsColumns,'agents')"
+          >Agents:</a>
+          <span class="text-dark">{{ agents }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Queues', queueStatsColumns,'queues')"
+          >Queues:</a>
+          <span class="text-dark">{{ queues }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Processors', procStatsColumns, 'processors')"
+          >Processors:</a>
+          <span class="text-dark">{{ processors }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Deployments', deployStatsColumns, 'deployments')"
+          >Deployments:</a>
+          <span class="text-dark">{{ deployments }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('CPUs', workerStatsColumns, 'workers')"
+          >CPUS:</a>
+          <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Tasks', taskStatsColumns, 'tasks')"
+          >Tasks:</a>
+          <span class="text-dark">{{ tasks }}</span>
+        </q-item-label>
       </q-toolbar>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px;white-space: nowrap;"
-      >
-        System Usage:
-      </q-item-label>
-      <apexchart
-        type="bar"
-        height="50"
-        width="100"
-        :options="chartOptions"
-        :series="series"
-        style="margin-right: 280px;"
-      />
+      <span v-if="$auth.isAuthenticated && hasHosted">
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px;white-space: nowrap;"
+        >
+          System Usage:
+        </q-item-label>
+        <apexchart
+          type="bar"
+          height="50"
+          width="100"
+          :options="chartOptions"
+          :series="series"
+          style="margin-right: 280px;"
+        />
+      </span>
       <q-item-label
         class="text-accent"
         style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
@@ -508,7 +513,7 @@
               </q-item-section>
             </q-item>
 
-            <q-separator/>
+            <q-separator />
 
             <q-item
               clickable
