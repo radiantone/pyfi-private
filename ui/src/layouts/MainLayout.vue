@@ -212,52 +212,6 @@
             Completed Tasks
           </q-tooltip>
         </q-btn>
-        <!--
-        <q-separator
-          vertical
-          inset
-          color="primary"
-        />
-        <q-btn-toggle
-          v-model="tools"
-          class="my-custom-toggle"
-          no-caps
-          flat
-          dense
-          size="sm"
-          padding="1em"
-          unelevated
-          :ripple="false"
-          toggle-color="dark"
-          color="white"
-          text-color="secondary"
-          :options="[
-            { icon: 'fa fa-database', value: 'model' },
-            { icon: 'fab fa-python', value: 'code' },
-          ]"
-          :disabled="getVersion() === 'FREE'"
-        >
-        <template #one>
-          <div style="font-size: 0.5em; margin-left: 20px;">
-            <q-tooltip
-              content-style="font-size: 16px"
-              content-class="bg-black text-white"
-            >
-              Database Tools
-            </q-tooltip>
-          </div>
-        </template>
-        <template #two>
-          <div style="font-size: 0.5em; margin-left: 20px;" />
-
-          <q-tooltip
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Python Tools
-          </q-tooltip>
-        </template>
-        </q-btn-toggle>-->
         <q-space />
         <q-btn
           v-if="$auth.isAuthenticated"
