@@ -1323,9 +1323,9 @@
                   dense
                   padding="10px 15px"
                   size="md"
-                  label="Upgrade"
-                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < HOSTED"
-                  @click="upgrade('ec_hosted-USD-Yearly')"
+                  label="Contact Us"
+                  v-if="$auth.isAuthenticated"
+                  @click="contact"
                 />
                 <q-btn
                   dense
