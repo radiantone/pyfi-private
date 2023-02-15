@@ -41,7 +41,7 @@
           icon="fa fa-list"
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -59,7 +59,7 @@
           icon="fa fa-bullseye"
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -77,7 +77,7 @@
           icon="fas fa-satellite-dish"
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -95,7 +95,7 @@
           icon="las la-play"
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -113,7 +113,7 @@
           icon="fa fa-play"
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -131,7 +131,7 @@
           icon="fa fa-stop"
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -149,7 +149,7 @@
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -167,7 +167,7 @@
           :icon="mdiEmailFast"
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -185,7 +185,7 @@
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -203,7 +203,7 @@
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
-          :disabled="!hasEnterprise()"
+          :disabled="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -1984,6 +1984,13 @@ export default defineComponent({
     }
   },
   computed: {
+    hasHosted () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
     isProPlan () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
