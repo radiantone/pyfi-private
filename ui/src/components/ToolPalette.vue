@@ -312,8 +312,8 @@
           Python Tools
         </q-tooltip>
       </q-btn>
+      <q-item-label class="text-secondary">BETA SOFTWARE</q-item-label>
       <q-space />
-
       <q-toolbar v-if="$auth.isAuthenticated && hasHosted">
         <q-space />
         <q-item-label
