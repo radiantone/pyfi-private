@@ -498,27 +498,42 @@ def do_processor(name):
                 return jsonify({"status": "ok"})
 
 
-@app.route("/processors", methods=["GET"])
+@app.route("/execute", methods=["GET"])
 @cross_origin()
 @requires_auth
-def get_processors():
+def execute_flow():
     """Example endpoint returning a list of processors
-    This is using docstrings for specifications.
+    Execute a Flow and return the results.
     ---
     definitions:
-      Processor:
+      Result:
+        type: object
+        properties:
+          name:
+            id: string
+      Flow:
         type: object
         properties:
           name:
             type: string
     responses:
       200:
-        description: A list of processors
+        description: JSON Result of Flow
         schema:
-          $ref: '#/definitions/Processor'
+          $ref: '#/definitions/Result'
         examples:
-          processors: [{'name':'proc1'}]
+          result: [{'some':'data'}]
     """
+    result = []
+
+    return jsonify(result)
+
+
+@app.route("/processors", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_processors():
+    """Example endpoint returning a list of processors"""
     with get_session() as session:
         processors = session.query(ProcessorModel).all()
 
