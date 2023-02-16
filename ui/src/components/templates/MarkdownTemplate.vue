@@ -136,6 +136,7 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);border: black 1px solid;backgroun
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
+
 import { QMarkdown } from '@quasar/quasar-ui-qmarkdown'
 
 export default {
