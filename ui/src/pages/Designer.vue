@@ -2409,7 +2409,7 @@ import ProcessorTemplate from 'components/templates/ProcessorTemplate.vue'
 import GroupTemplate from 'components/templates/GroupTemplate.vue'
 import PatternTemplate from 'components/templates/PatternTemplate.vue'
 import BorderTemplate from 'components/templates/BorderTemplate.vue'
-
+import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue'
@@ -3825,6 +3825,9 @@ export default {
           },
           border: {
             component: BorderTemplate
+          },
+          markdown: {
+            component: MarkdownTemplate
           },
           api: {
             component: ApiTemplate,

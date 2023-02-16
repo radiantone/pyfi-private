@@ -252,6 +252,24 @@
           Label
         </q-tooltip>
       </q-btn>
+
+      <q-btn
+        flat
+        align="left"
+        :icon="markdown"
+        aria-label="Label"
+        size="xl"
+        id="markdown"
+        style=" min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Markdown
+        </q-tooltip>
+      </q-btn>
       <!--
       <q-btn
         flat
@@ -919,6 +937,8 @@
 import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js'
 import { mdiLanguagePython } from '@mdi/js'
+import { mdiLanguageMarkdownOutline } from '@mdi/js';
+
 import DataService from './util/DataService'
 
 export default {
@@ -928,6 +948,7 @@ export default {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
     this.python = mdiLanguagePython
+    this.markdown = mdiLanguageMarkdownOutline
   },
   mounted () {
     const me = this
