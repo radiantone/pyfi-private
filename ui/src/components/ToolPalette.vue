@@ -177,7 +177,7 @@
           Process Group
         </q-tooltip>
       </q-btn>
-
+<!--
       <q-btn
         flat
         align="left"
@@ -196,7 +196,7 @@
         >
           Router
         </q-tooltip>
-      </q-btn>
+      </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -216,6 +216,7 @@
           Database
         </q-tooltip>
       </q-btn>
+      <!--
       <q-btn
         flat
         align="left"
@@ -234,7 +235,7 @@
         >
           Chart
         </q-tooltip>
-      </q-btn>
+      </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -328,6 +329,24 @@
           content-class="bg-black text-white"
         >
           Python Tools
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-ellipsis-h"
+        aria-label="Elipsis"
+        size="large"
+        id="router"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+        @click="openBlocks"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          More Blocks
         </q-tooltip>
       </q-btn>
       <q-item-label class="text-secondary">BETA SOFTWARE</q-item-label>
@@ -1039,6 +1058,9 @@ export default {
       script.setAttribute('type', 'application/javascript')
       head.appendChild(style)
       head.appendChild(script)
+    },
+    openBlocks () {
+      this.$root.$emit('open.blocks')
     },
     openChat () {
       this.$root.$emit('open.chat')

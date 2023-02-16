@@ -3,7 +3,7 @@
     class="aGroup"
     style="-webkit-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
 -moz-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 150px; z-index: -9999;"
+box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 75px; z-index: -9999;"
     :id="obj.id"
 
     @mouseenter="setMouseIn(false)"
@@ -221,7 +221,7 @@ export default {
       key: 1,
       obj: {
         w: 500,
-        h: 500,
+        h: 200,
         name: 'Border Title',
         color: '',
         markdown: `:::

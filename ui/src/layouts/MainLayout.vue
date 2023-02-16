@@ -917,6 +917,49 @@
       </q-tab-panels>
     </q-drawer>
     <q-drawer
+      v-model="blocksdrawer"
+      side="right"
+      bordered
+      :width="750"
+      style="overflow: hidden;"
+    >
+      <q-tabs
+        v-model="blockstabs"
+        dense
+        class="bg-primary"
+        align="left"
+        narrow-indicator
+        active-color="dark"
+        indicator-color="primary"
+        active-bg-color="accent"
+      >
+        <q-tab
+          name="blocksregistry"
+          label="Blocks"
+          icon="las la-cube"
+        />
+      </q-tabs>
+
+      <q-tab-panels
+        v-model="blockstabs"
+        keep-alive
+      >
+        <q-tab-panel
+          name="blocksregistry"
+          style="padding: 0px;"
+          ref="blocksregistry"
+        >
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated"
+            style="z-index:9999"
+          >
+            <q-item-label>Not Logged In</q-item-label>
+          </q-inner-loading>
+        </q-tab-panel>
+      </q-tab-panels>
+    </q-drawer>
+    <q-drawer
       v-model="librarydrawer"
       side="right"
       bordered
@@ -2582,6 +2625,10 @@ export default defineComponent({
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
+
+    this.$root.$on('open.blocks', () => {
+      this.blocksdrawer = !this.blocksdrawer
+    })
     this.$root.$on('open.chat', () => {
       this.chatdrawer = !this.chatdrawer
     })
@@ -3051,6 +3098,7 @@ export default defineComponent({
       groups: 0,
       librarydrawer: false,
       chatdrawer: false,
+      blocksdrawer: false,
       newQueueDialog: false,
       pythontabs: 'pythonconsole',
       messagedrawer: false,
