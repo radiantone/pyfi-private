@@ -946,9 +946,16 @@
       >
         <q-tab-panel
           name="blocksregistry"
-          style="padding: 0px;"
+          style="display: grid;grid-gap: 10px;grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));justify-content: space-around;padding:10px"
           ref="blocksregistry"
         >
+          <i
+            v-for="block in blocks"
+            :key="block.id"
+            :class="block.icon"
+            :id="'block'+block.id"
+            style="color:#6b8791;font-size:3em;border-radius: 10px; border: 1px lightgrey solid; background-color:rgba(227,232,236,0.4);padding:20px"
+          ><div style="font-size:25px;font-family: arial">{{block.name}}</div></i>
           <q-inner-loading
             :showing="true"
             v-if="!$auth.isAuthenticated"
@@ -1581,7 +1588,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -2973,6 +2979,30 @@ export default defineComponent({
           setData('object', JSON.stringify(data))
         })
       })
+
+      this.blocks.forEach( (block) => {
+        let el = document.querySelector('#block'+block.id)
+        el.data = {
+        node: {
+          icon: block.icon,
+          style: 'size:50px',
+          type: 'router',
+          name: block.name,
+          label: block.name,
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+        var data = el.data
+        data.id = uuidv4()
+        var draghandle = dd.drag(el, {
+          image: true // default drag image
+        })
+        draghandle.on('start', function (setData, e) {
+          setData('object', JSON.stringify(data))
+        })
+      })
     })
     var me = this
 
@@ -2992,6 +3022,17 @@ export default defineComponent({
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
       },
+      blocks: [
+        { id: 1, icon: 'las la-file-alt', name:'Data' },
+        { id: 2, icon: 'las la-scroll', name:'Script' },
+        { id: 3, icon: 'las la-cloud-upload-alt', name:'API' },
+        { id: 4, icon: 'icon-processor', name:'Processor' },
+        { id: 5, icon: 'icon-port-in', name:'Port In' },
+        { id: 5, icon: 'icon-port-out', name:'Port Out' },
+        { id: 5, icon: 'las la-chart-area', name:'Chart' },
+        { id: 5, icon: 'las la-database', name:'Database' }
+      ],
+      blockstabs: 'blocksregistry',
       GUEST: 0,
       FREE: 1,
       DEVELOPER: 2,
