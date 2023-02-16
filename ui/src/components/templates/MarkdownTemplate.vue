@@ -5,9 +5,20 @@
 -moz-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
 box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 150px; z-index: -9999;"
     :id="obj.id"
-    @mousedown="setLayer"
-    @dblclick="showEditor = true"
+    @click="setLayer"
   >
+    <q-btn icon="close"
+           dense
+           flat
+           color="primary"
+           style="position:absolute;right:0px;top:-35px"/>
+    <q-btn icon="edit"
+           dense
+           flat
+           color="primary"
+           @click="showEditor = true"
+           style="position:absolute;right:30px;top:-35px"/>
+
     <q-slider
       v-model="obj.w"
       color="primary"
@@ -15,7 +26,7 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
       :step="10"
       :min="400"
       :max="3000"
-      style="position: absolute; left: 0px; top: -30px;"
+      style="position: absolute; padding-right:60px; left: 0px; bottom: -30px;"
     />
     <q-slider
       v-model="obj.h"
@@ -25,7 +36,7 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
       :step="10"
       :min="400"
       :max="3000"
-      style="height: 100%; position: absolute; left: -30px; top: 0px;"
+      style="height: 100%; position: absolute; right: -30px; top: 0px;"
     />
     <div
       :style="
@@ -47,11 +58,11 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
         ref="myEditor"
         width="100%"
         height="100%"
-        v-if="showEditor"
+        v-if="mousein"
       />
       <q-markdown
         :src="obj.markdown"
-        v-if="!showEditor"
+        v-if="!mousein"
       />
     </div>
   </div>
