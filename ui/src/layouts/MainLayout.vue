@@ -951,11 +951,11 @@
         >
           <i
             v-for="block in blocks"
-            :key="block.id"
-            :class="block.icon"
-            :id="'block'+block.id"
+            :key="block.data.id"
+            :class="block.data.node.icon"
+            :id="'block'+block.data.id"
             style="color:#6b8791;font-size:3em;border-radius: 10px; border: 1px lightgrey solid; background-color:rgba(227,232,236,0.4);padding:20px"
-          ><div style="font-size:25px;font-family: arial">{{block.name}}</div></i>
+          ><div style="font-size:25px;font-family: arial">{{ block.data.node.name }}</div></i>
           <q-inner-loading
             :showing="true"
             v-if="!$auth.isAuthenticated"
@@ -2758,6 +2758,7 @@ export default defineComponent({
       border.data = {
         node: {
           style: '',
+          icon: 'fas fa-border',
           type: 'border',
           name: 'Border Title',
           label: 'Border'
@@ -2969,6 +2970,8 @@ export default defineComponent({
       //, chord, segment, map, reduce
       var els = [script, api, processor, markdown, portin, router, portout, group, label, data, schema, border]
 
+      this.blocks = els
+
       els.forEach((el) => {
         var data = el.data
         data.id = uuidv4()
@@ -2980,27 +2983,16 @@ export default defineComponent({
         })
       })
 
-      this.blocks.forEach( (block) => {
-        let el = document.querySelector('#block'+block.id)
-        el.data = {
-        node: {
-          icon: block.icon,
-          style: 'size:50px',
-          type: 'router',
-          name: block.name,
-          label: block.name,
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-        var data = el.data
-        data.id = uuidv4()
-        var draghandle = dd.drag(el, {
-          image: true // default drag image
-        })
-        draghandle.on('start', function (setData, e) {
-          setData('object', JSON.stringify(data))
+      setTimeout(() => {
+        this.blocks.forEach((el) => {
+          let _el = document.querySelector('#block'+el.data.id)
+          var data = el.data
+          var draghandle = dd.drag(_el, {
+            image: true // default drag image
+          })
+          draghandle.on('start', function (setData, e) {
+            setData('object', JSON.stringify(data))
+          })
         })
       })
     })
@@ -3023,14 +3015,6 @@ export default defineComponent({
         'ec_hosted-USD-Yearly': 4
       },
       blocks: [
-        { id: 1, icon: 'las la-file-alt', name:'Data' },
-        { id: 2, icon: 'las la-scroll', name:'Script' },
-        { id: 3, icon: 'las la-cloud-upload-alt', name:'API' },
-        { id: 4, icon: 'icon-processor', name:'Processor' },
-        { id: 5, icon: 'icon-port-in', name:'Port In' },
-        { id: 5, icon: 'icon-port-out', name:'Port Out' },
-        { id: 5, icon: 'las la-chart-area', name:'Chart' },
-        { id: 5, icon: 'las la-database', name:'Database' }
       ],
       blockstabs: 'blocksregistry',
       GUEST: 0,
