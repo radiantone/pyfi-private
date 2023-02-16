@@ -87,6 +87,19 @@ api = Api(
 setattr(app, "json_encoder", AlchemyEncoder)
 template = {
     "swagger": "2.0",
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "in": "header",
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
     "info": {
         "title": "ElasticCode API",
         "description": "ElasticCode API",
@@ -109,8 +122,8 @@ swagger_config = {
     "headers": [],
     "specs": [
         {
-            "endpoint": "processors",
-            "route": "/processors",
+            "endpoint": "execute",
+            "route": "/execute",
             "rule_filter": lambda rule: True,  # all in
             "model_filter": lambda tag: True,  # all in
         }
