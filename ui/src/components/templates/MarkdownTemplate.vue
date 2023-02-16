@@ -3,9 +3,10 @@
     class="aGroup"
     style="-webkit-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
 -moz-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);border: black 1px solid;background-color: white; min-height: 150px; z-index: -9999;"
+box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 150px; z-index: -9999;"
     :id="obj.id"
     @mousedown="setLayer"
+    @dblclick="showEditor = true"
   >
     <q-slider
       v-model="obj.w"
@@ -36,7 +37,23 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);border: black 1px solid;backgroun
           myHeight +
           'px;'
       "
-    ><q-markdown :src="markdown"></q-markdown></div>
+    >
+      <editor
+        v-model="obj.markdown"
+        @init="editorInit"
+        style="font-size: 16px; min-height: 100px; height:100%; margin-bottom:-50px"
+        lang="python"
+        theme="chrome"
+        ref="myEditor"
+        width="100%"
+        height="100%"
+        v-if="showEditor"
+      />
+      <q-markdown
+        :src="obj.markdown"
+        v-if="!showEditor"
+      />
+    </div>
   </div>
 </template>
 <style scoped>
@@ -142,7 +159,8 @@ import { QMarkdown } from '@quasar/quasar-ui-qmarkdown'
 export default {
   name: 'BorderTemplate',
   components: {
-    QMarkdown
+    QMarkdown,
+    editor: require('vue2-ace-editor')
   },
   computed: {
     myWidth () {
@@ -163,17 +181,18 @@ export default {
   },
   data () {
     return {
+      showEditor: true,
       mousein: false,
       key: 1,
       obj: {
         w: 500,
         h: 500,
         name: 'Border Title',
-        color: ''
-      },
+        color: '',
       markdown: `:::
 This is a **test** of markdown
-:::`,
+:::`
+      },
       showing: false,
       title: 'Chapter 1',
       savePatternDialog: false,
@@ -185,10 +204,25 @@ This is a **test** of markdown
     }
   },
   methods: {
+    editorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/markdown') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      console.log('editorInit')
+      const editor = this.$refs.myEditor.editor
+
+      editor.setAutoScrollEditorIntoView(true)
+      editor.focus()
+
+    },
     setLayer () {
-      console.log("setLayer")
+      console.log('setLayer')
       this.mousein = !this.mousein
       this.$el.style.zIndex = -999999
+      this.showEditor = false
     },
     savePattern () {
       var me = this
