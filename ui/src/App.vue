@@ -17,9 +17,12 @@ import StreamPlugin from './plugins/stream-plugin'
 import { domain, clientId } from '../auth_config.json'
 import { Auth0Plugin } from './auth'
 import router from './router'
+import Plugin from '@quasar/quasar-ui-qmarkdown'
+import '@quasar/quasar-ui-qmarkdown/dist/index.css'
 
 import Vuetify from 'vuetify'
 
+Vue.use(Plugin)
 Vue.use(SecurityPlugin)
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires
 const VueTypedJs = require('vue-typed-js')

@@ -2728,6 +2728,22 @@ export default defineComponent({
         }
       }
 
+      var markdown = document.querySelector('#markdown')
+
+      markdown.data = {
+        node: {
+          icon: 'lab la-markdown',
+          style: '',
+          type: 'markdown',
+          name: 'Markdown',
+          label: 'Markdown',
+          description: 'A markdown block',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
       var portin = document.querySelector('#portin')
       portin.data = {
         node: {
@@ -2898,7 +2914,7 @@ export default defineComponent({
       }
 
       //, chord, segment, map, reduce
-      var els = [script, api, processor, portin, router, portout, group, label, data, schema, border]
+      var els = [script, api, processor, markdown, portin, router, portout, group, label, data, schema, border]
 
       els.forEach((el) => {
         var data = el.data
