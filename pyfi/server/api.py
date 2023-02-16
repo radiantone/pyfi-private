@@ -117,6 +117,7 @@ template = {
     "schemes": ["https", "http"],
     "operationId": "getmyData",
 }
+
 swagger_config = {
     "title": "ElasticCode API",
     "headers": [],
