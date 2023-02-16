@@ -89,6 +89,9 @@ workflows:
                   repo: nginx
                   source-tag: 'production'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: production
+                  job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -115,6 +118,9 @@ workflows:
                   repo: api
                   source-tag: 'production'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: production
+                  job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -141,3 +147,6 @@ workflows:
                   repo: clientsocket
                   source-tag: 'production'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: production
+                  job_type: deployment
