@@ -5,39 +5,62 @@
 -moz-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
 box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 150px; z-index: -9999;"
     :id="obj.id"
-    @click="setLayer"
-  >
-    <q-btn icon="close"
-           dense
-           flat
-           color="primary"
-           style="position:absolute;right:0px;top:-35px"/>
-    <q-btn icon="edit"
-           dense
-           flat
-           color="primary"
-           @click="showEditor = true"
-           style="position:absolute;right:30px;top:-35px"/>
 
-    <q-slider
-      v-model="obj.w"
-      color="primary"
-      v-if="mousein"
-      :step="10"
-      :min="400"
-      :max="3000"
-      style="position: absolute; padding-right:60px; left: 0px; bottom: -30px;"
-    />
-    <q-slider
-      v-model="obj.h"
-      vertical
-      color="primary"
-      v-if="mousein"
-      :step="10"
-      :min="400"
-      :max="3000"
-      style="height: 100%; position: absolute; right: -30px; top: 0px;"
-    />
+    @mouseenter="setMouseIn(false)"
+  >
+    <div
+      style="position:absolute;right:0px;top:-35px;width:100px;height:35px"
+      @mouseenter="showbuttons=true"
+      @mouseleave="showbuttons=false"
+    >
+      <q-btn
+        icon="close"
+        dense
+        flat
+        v-if="showbuttons"
+        color="primary"
+        style="position:absolute;right:0px;top:0px"
+      />
+      <q-btn
+        icon="edit"
+        dense
+        flat
+        v-if="showbuttons"
+        color="primary"
+        @click="showEditor = !showEditor"
+        style="position:absolute;right:30px;top:0px"
+      />
+    </div>
+
+    <div
+      @mouseenter="setMouseIn(true)"
+      style="position:absolute;bottom:0px;left:0px;width:100%;height:35px"
+    >
+      <q-slider
+        v-model="obj.w"
+        color="primary"
+        v-if="mousein"
+        :step="10"
+        :min="400"
+        :max="3000"
+        style="z-index:99999;position: absolute; padding-right:60px; left: 0px; bottom: -30px;"
+      />
+    </div>
+    <div
+      @mouseenter="setMouseIn(true)"
+      style="position:absolute;top:0px;right:-35px;width:35px;height:100%;"
+    >
+      <q-slider
+        v-model="obj.h"
+        vertical
+        color="primary"
+        v-if="mousein"
+        :step="10"
+        :min="400"
+        :max="3000"
+        style="z-index:99999;height: 100%; position: absolute; right: 0px; top: 0px;"
+      />
+    </div>
     <div
       :style="
         'background-color:' +
@@ -58,11 +81,11 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
         ref="myEditor"
         width="100%"
         height="100%"
-        v-if="mousein"
+        v-if="showEditor"
       />
       <q-markdown
         :src="obj.markdown"
-        v-if="!mousein"
+        v-if="!showEditor"
       />
     </div>
   </div>
@@ -192,15 +215,16 @@ export default {
   },
   data () {
     return {
-      showEditor: true,
+      showEditor: false,
       mousein: false,
+      showbuttons: false,
       key: 1,
       obj: {
         w: 500,
         h: 500,
         name: 'Border Title',
         color: '',
-      markdown: `:::
+        markdown: `:::
 This is a **test** of markdown
 :::`
       },
@@ -215,6 +239,9 @@ This is a **test** of markdown
     }
   },
   methods: {
+    setMouseIn (val) {
+      this.mousein = val
+    },
     editorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -227,7 +254,6 @@ This is a **test** of markdown
 
       editor.setAutoScrollEditorIntoView(true)
       editor.focus()
-
     },
     setLayer () {
       console.log('setLayer')
