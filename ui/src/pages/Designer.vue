@@ -1853,6 +1853,11 @@
             "
           >
             <q-toolbar>
+              <q-icon
+                name="fas fa-font"
+                color="primary"
+                style="margin-right:10px"
+              />
               <q-item-label>Variables</q-item-label>
               <q-space />
               <q-icon
@@ -1985,6 +1990,11 @@
             "
           >
             <q-toolbar>
+              <q-icon
+                name="fas fa-cog"
+                color="primary"
+                style="margin-right:10px"
+              />
               <q-item-label>Configure</q-item-label>
               <q-space />
               <q-icon
@@ -2552,7 +2562,6 @@ export default {
   },
   methods: {
     importFlow () {
-
       const editor = this.$refs.importEditor.editor
       var code = editor.getValue()
       window.toolkit.load({
@@ -2612,8 +2621,10 @@ export default {
       this.viewHistoryDialog = true
     },
     downloadFlow () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = [{ name: 'ENV1', value: 'value1' }]
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2692,7 +2703,7 @@ export default {
     },
     redraw () {
       window.toolkit.surface.refresh()
-      this.$store.commit('designer/setMessage', 'Canvas refreshed!');
+      this.$store.commit('designer/setMessage', 'Canvas refreshed!')
       /*
       this.$q.notify({
         color: 'secondary',
@@ -2700,7 +2711,7 @@ export default {
         position: 'top',
         message: 'Canvas refreshed',
         icon: 'fas fa-refresh'
-      })*/
+      }) */
     },
     resetView () {
       window.toolkit.surface.setZoom(1.0)
@@ -2737,8 +2748,10 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     saveToFolder () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = [{ name: 'ENV1', value: 'value1' }]
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2754,8 +2767,10 @@ export default {
       )
     },
     saveFlow () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = [{ name: 'ENV1', value: 'value1' }]
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2769,8 +2784,10 @@ export default {
     },
     showCode () {
       this.code = true
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = [{ name: 'ENV1', value: 'value1' }]
       this.thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2930,7 +2947,7 @@ export default {
   },
   mounted () {
     var me = this
-    console.log("DESIGNER STORE MESSAGE",me.$store.state.designer.message)
+    console.log('DESIGNER STORE MESSAGE', me.$store.state.designer.message)
     setTimeout(() => {
       // me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected')
