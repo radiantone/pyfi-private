@@ -1374,7 +1374,7 @@
                   padding="10px 15px"
                   size="md"
                   label="Contact Us"
-                  v-if="$auth.isAuthenticated"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < HOSTED"
                   @click="contact"
                 />
                 <q-btn
