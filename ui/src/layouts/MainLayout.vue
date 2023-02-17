@@ -952,9 +952,9 @@
           <i
             v-for="block in blocks"
             :key="block.data.id"
-            :class="block.data.node.icon"
+            :class="block.data.node.icon+' brightness'"
             :id="'block'+block.data.id"
-            style="color:#6b8791;font-size:3em;border-radius: 10px; border: 1px lightgrey solid; background-color:rgba(227,232,236,0.4);padding:20px"
+            style="cursor:pointer;color:#6b8791;font-size:3em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
           ><div style="font-size:25px;font-family: arial">{{ block.data.node.name }}</div></i>
           <q-inner-loading
             :showing="true"
@@ -2760,7 +2760,7 @@ export default defineComponent({
           style: '',
           icon: 'fas fa-border',
           type: 'border',
-          name: 'Border Title',
+          name: 'Border',
           label: 'Border'
         }
       }
@@ -2985,7 +2985,7 @@ export default defineComponent({
 
       setTimeout(() => {
         this.blocks.forEach((el) => {
-          let _el = document.querySelector('#block'+el.data.id)
+          const _el = document.querySelector('#block' + el.data.id)
           var data = el.data
           var draghandle = dd.drag(_el, {
             image: true // default drag image
