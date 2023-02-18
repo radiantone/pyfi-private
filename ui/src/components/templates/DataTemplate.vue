@@ -2903,16 +2903,6 @@ export default {
       ],
       data: [
         {
-          name: 'Total',
-          bytes: 'totalBytes',
-          time: '5 min',
-          spark: {
-            name: 'readwrite',
-            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
-            value: [200, 390, 310, 460, 675, 410, 250, 240]
-          }
-        },
-        {
           name: 'Out',
           bytes: 'outBytes',
           time: '5 min',
@@ -2920,6 +2910,16 @@ export default {
             name: 'readoutwrite',
             labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
             value: [460, 250, 240, 200, 675, 410, 390, 310]
+          }
+        },
+        {
+          name: 'Total',
+          bytes: 'totalBytes',
+          time: '5 min',
+          spark: {
+            name: 'readwrite',
+            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
+            value: [200, 390, 310, 460, 675, 410, 250, 240]
           }
         }
       ],
