@@ -192,7 +192,6 @@
                 :offset="[10, 10]"
               >
                 Delete
-                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
               </q-tooltip>
             </q-btn>
           </q-toolbar>
