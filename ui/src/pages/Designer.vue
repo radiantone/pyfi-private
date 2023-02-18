@@ -1029,9 +1029,7 @@
                 top: 40px;
                 left: 45px;
               "
-            >
-              {{ node !== null ? node.id : '' }}
-            </div>
+            />
 
             <i
               class="las la-cube"
