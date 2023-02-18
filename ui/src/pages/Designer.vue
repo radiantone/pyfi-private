@@ -987,6 +987,13 @@
                 />
               </q-popup-edit>
               {{ node !== null ? node.data.name : 'No Selection' }}
+              <q-tooltip
+                content-class
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                {{ node !== null ? node.id : '' }}
+              </q-tooltip>
             </div>
             <div
               class="text-info"
@@ -2010,68 +2017,6 @@
           class="row items-center"
           style="height: 120px; width: 100%;"
         >
-          <q-table
-            dense
-            :columns="variablecolumns"
-            :data="variabledata"
-            row-key="name"
-            flat
-            style="
-              width: 100%;
-              margin-top: 20px;
-              border-top-radius: 0px;
-              border-bottom-radius: 0px;
-            "
-          >
-            <template v-slot:body="props">
-              <q-tr
-                :props="props"
-                :key="getUuid"
-              >
-                <q-td
-                  :key="props.cols[0].name"
-                  :props="props"
-                >
-                  <a class="text-secondary">{{ props.row.name }}</a>
-                  <q-popup-edit
-                    v-model="props.row.name"
-                    v-slot="scope"
-                    buttons
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td
-                  :key="props.cols[1].name"
-                  :props="props"
-                >
-                  <a class="text-secondary">{{ props.row.value }}</a>
-                  <q-popup-edit
-                    v-model="props.row.value"
-                    v-slot="scope"
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td
-                  :key="props.cols[2].name"
-                  :props="props"
-                >
-                  {{ props.cols[2].value }}
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -2622,7 +2567,7 @@ export default {
     },
     downloadFlow () {
       const graph = window.toolkit.getGraph().serialize()
-      graph.variables = [{ name: 'ENV1', value: 'value1' }]
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
         graph,
         null,
@@ -2749,7 +2694,7 @@ export default {
     },
     saveToFolder () {
       const graph = window.toolkit.getGraph().serialize()
-      graph.variables = [{ name: 'ENV1', value: 'value1' }]
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
         graph,
         null,
@@ -2768,7 +2713,7 @@ export default {
     },
     saveFlow () {
       const graph = window.toolkit.getGraph().serialize()
-      graph.variables = [{ name: 'ENV1', value: 'value1' }]
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
         graph,
         null,
@@ -2785,7 +2730,7 @@ export default {
     showCode () {
       this.code = true
       const graph = window.toolkit.getGraph().serialize()
-      graph.variables = [{ name: 'ENV1', value: 'value1' }]
+      graph.variables = this.variabledata
       this.thecode = JSON.stringify(
         graph,
         null,
