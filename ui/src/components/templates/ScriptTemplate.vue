@@ -2522,16 +2522,17 @@ export default {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
+          let resdate = new Date()
           tsdb.series('outBytes').insert(
             {
               bytes: msg.output.length
             },
-            Date.now()
+            resdate
           )
 
           let answer = JSON.parse(msg.output)
 
-          let resdate = new Date()
+          let _arg = msg.arg
 
           // update resultdata
           me.resultdata.push({
@@ -2545,7 +2546,7 @@ export default {
             output: answer,
             task_id: uuidv4()
           })
-
+          me.bytes_in += _arg.toString().length
 
           me.bytes_out_5min.unshift(msg.output.length)
           // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
@@ -2553,7 +2554,7 @@ export default {
           // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
           me.bytes_out += msg.output.length
 
-          me.calls_in = msg.output.length
+          me.calls_in += 1
           me.updateBandwidthChart()
           // update resultdata
 
@@ -2618,7 +2619,7 @@ export default {
         // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
         me.bytes_in += bytes
 
-        me.calls_in = timedata[0].results.data.length
+        me.calls_in += 1
         me.tasklogs.unshift(msg)
         me.tasklogs = me.tasklogs.slice(0, 100)
       }
@@ -2658,7 +2659,7 @@ export default {
           )
         }
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-        me.calls_out = timedata[0].results.data.length
+        me.calls_out += 1
         me.resultlogs.unshift(json)
         me.resultlogs = me.resultlogs.slice(0, 100)
       }
@@ -3276,16 +3277,6 @@ export default {
           }
         },
         {
-          name: 'Total',
-          bytes: 'totalBytes',
-          time: '5 min',
-          spark: {
-            name: 'readwrite',
-            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
-            value: [200, 390, 310, 460, 675, 410, 250, 240]
-          }
-        },
-        {
           name: 'Out',
           bytes: 'outBytes',
           time: '5 min',
@@ -3293,6 +3284,16 @@ export default {
             name: 'readoutwrite',
             labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
             value: [460, 250, 240, 200, 675, 410, 390, 310]
+          }
+        },
+        {
+          name: 'Total',
+          bytes: 'totalBytes',
+          time: '5 min',
+          spark: {
+            name: 'readwrite',
+            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
+            value: [200, 390, 310, 460, 675, 410, 250, 240]
           }
         },
         {
@@ -4157,6 +4158,8 @@ export default {
           const target_id = edge.target.getNode().data.id
           const node = edge.target.getNode()
           const code = node.data.code
+          me.calls_out += 1
+          me.bytes_out += result.toString().length
           window.root.$emit(target_id, code, options.function, options.name, result)
         })
 
