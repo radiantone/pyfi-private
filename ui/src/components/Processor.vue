@@ -276,6 +276,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 type: 'result',
                 id: this.id,
                 function: func,
+                arg: argument.toString().length,
                 duration: time,
                 output: JSON.stringify(answer)
               })
