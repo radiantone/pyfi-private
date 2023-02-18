@@ -2540,7 +2540,7 @@ export default {
             created: resdate,
             state: 'COMPLETE',
             lastupdated: resdate,
-            owner: me.$auth.user.name,
+            owner: me.$auth.user !== undefined ? me.$auth.user.name : 'guest',
             size: msg.output.length,
             output: answer,
             task_id: uuidv4()
