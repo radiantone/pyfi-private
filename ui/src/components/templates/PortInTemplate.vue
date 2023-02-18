@@ -1337,24 +1337,7 @@
             Fetch Code
           </q-tooltip>
         </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
-          flat
-          icon="fab fa-python"
-          class="bg-accent text-secondary"
-          color="primary"
-          v-close-popup
-          @click="pythonview = !pythonview"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Python Console
-          </q-tooltip>
-        </q-btn>
+
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn

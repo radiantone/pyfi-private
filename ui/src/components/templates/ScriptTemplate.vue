@@ -2325,16 +2325,6 @@
             </q-inner-loading>
           </template>
         </q-splitter>
-        <q-card-actions align="left">
-          <q-btn
-            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-            flat
-            icon="refresh"
-            class="bg-secondary text-dark"
-            color="primary"
-            @click="refreshResultsData"
-          />
-        </q-card-actions>
         <q-card-actions align="right">
           <q-btn
             flat
