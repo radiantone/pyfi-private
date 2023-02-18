@@ -34,6 +34,7 @@ export interface ProcessorState {
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
   errorobjects: { [key: string]: any };
+  tasks: any[];
 }
 
 export const ProcessorMixin = Vue.extend({
@@ -52,6 +53,8 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   id!: ProcessorState['id'];
   interval!: ProcessorState['interval'];
   scheduler!: ProcessorState['scheduler'];
+
+  tasks!: ProcessorState['tasks'];
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -74,6 +77,7 @@ interface ProcessorInterface {
   setId(id: string): void;
   execute(data: any): void;
   startSchedule(cron: string): void;
+  stopSchedule(): void;
 }
 
 type Methods = ProcessorInterface
@@ -93,6 +97,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       return {
         scheduler: null,
         interval: -1,
+        tasks: [],
         name: 'MyProcessor',
         id: 'any',
         portobjects: {},
@@ -143,9 +148,13 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           return 'DEV'
         }
       },
+      stopSchedule () {
+        console.log("stopSchedule")
+        this.scheduler.stop()
+      },
       startSchedule (cronstr: string) {
         var me = this
-        console.log('UPDATING CRON')
+        console.log("startSchedule")
         scheduler = new IntervalBasedCronScheduler(this.interval)
         scheduler.stop()
         const cron = parseCronExpression(cronstr)
@@ -155,7 +164,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             type: 'trigger'
           })
         })
-        // scheduler.start()
+        this.scheduler = scheduler
+        scheduler.start()
       },
       getPort (func: string, name: string) {
         for (var i = 0; i < this.portobjects[func].length; i++) {
