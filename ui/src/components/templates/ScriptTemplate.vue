@@ -1712,7 +1712,7 @@
               label="Beat"
             />
             <q-checkbox
-              v-model="obj.useschedule"
+              v-model="crontoggle"
               style="margin-top: 30px;"
               label="Use CRON"
             />
@@ -2680,6 +2680,19 @@ export default {
     }, 3000)
   },
   computed: {
+    crontoggle: {
+      get: function () {
+        return this.obj.useschedule
+      },
+      set: function (val) {
+        this.obj.useschedule = val
+        if (val) {
+          this.startSchedule(this.obj.cron)
+        } else {
+          this.stopSchedule()
+        }
+      }
+    },
     consoleview: {
       get: function () {
         return this.obj.consoleview
