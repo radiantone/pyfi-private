@@ -26,7 +26,7 @@
             { icon: 'far fa-object-group', value: 'select', slot: 'select' },
           ]"
         >
-          <template v-slot:pan>
+          <template #pan>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -35,7 +35,7 @@
               Pan Mode
             </q-tooltip>
           </template>
-          <template v-slot:select>
+          <template #select>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -987,6 +987,13 @@
                 />
               </q-popup-edit>
               {{ node !== null ? node.data.name : 'No Selection' }}
+              <q-tooltip
+                content-class
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                {{ node !== null ? node.id : '' }}
+              </q-tooltip>
             </div>
             <div
               class="text-info"
@@ -1022,9 +1029,7 @@
                 top: 40px;
                 left: 45px;
               "
-            >
-              {{ node !== null ? node.id : '' }}
-            </div>
+            />
 
             <i
               class="las la-cube"
@@ -1708,7 +1713,7 @@
           horizontal
           style="height: calc(100% - 40px);"
         >
-          <template v-slot:before>
+          <template #before>
             <q-table
               dense
               :columns="versioncolumns"
@@ -1723,7 +1728,7 @@
                 border-bottom-radius: 0px;
               "
             >
-              <template v-slot:body="props">
+              <template #body="props">
                 <q-tr
                   :props="props"
                   :key="getUuid"
@@ -1772,7 +1777,7 @@
             </q-table>
           </template>
           <template
-            v-slot:after
+            #after
           >
             <div style="height: 100%; width: 100%;">
               <Designer
@@ -1886,7 +1891,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -2009,8 +2014,7 @@
         <q-card-section
           class="row items-center"
           style="height: 120px; width: 100%;"
-        >
-        </q-card-section>
+        />
 
         <q-card-actions align="right">
           <q-btn
@@ -2083,7 +2087,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -3088,8 +3092,8 @@ export default {
       HOSTED: 4,
       ENTERPRISE: 5,
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
