@@ -2249,7 +2249,6 @@
                   >
                     <a
                       class="text-secondary"
-                      @click="showResult(props.row.resultid)"
                     >{{ props.cols[1].value }}</a>
                   </q-td>
                   <q-td
@@ -2258,7 +2257,7 @@
                   >
                     <a
                       class="text-secondary"
-                      @click="showOutput(props.cols[1].value)"
+                      @click="showOutput(JSON.stringify(props.cols[2].value, null, '\t'))"
                     >Output</a>
                   </q-td>
                   <q-td
@@ -2539,6 +2538,25 @@ export default {
             },
             Date.now()
           )
+
+          let answer = JSON.parse(msg.output)
+
+          let resdate = new Date()
+
+          // update resultdata
+          me.resultdata.push({
+            name: msg.function,
+            id: me.resultdata.length,
+            created: resdate,
+            state: 'COMPLETE',
+            lastupdated: resdate,
+            owner: me.$auth.user.name,
+            size: msg.output.length,
+            output: answer,
+            task_id: uuidv4()
+          })
+
+
           me.bytes_out_5min.unshift(msg.output.length)
           // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
           me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
@@ -2567,7 +2585,6 @@ export default {
         // Find the port for the function
         // Emit result over the port edges
         for (var key in this.portobjects) {
-          debugger
           key = key.replace('func:', '')
           if (key === func) {
             me.triggerObject('func:' + key, msg.output)
@@ -2899,15 +2916,15 @@ export default {
         },
         {
           name: 'id',
-          label: 'Result',
+          label: 'ID',
           field: 'id',
           align: 'left'
         },
 
         {
-          name: 'id',
+          name: 'output',
           label: 'Output',
-          field: 'id',
+          field: 'output',
           align: 'left'
         },
         {
@@ -2935,9 +2952,9 @@ export default {
           align: 'left'
         },
         {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
+          name: 'size',
+          label: 'Size',
+          field: 'size',
           align: 'left'
         },
         {
@@ -3513,36 +3530,13 @@ export default {
       console.log('FUNCS2', this.funcs)
       addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
     },
-    showOutput (resultid) {
-      this.resultdataloading = true
-
-      DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(result.data)
-      })
-    },
-    showResult (resultid) {
-      this.resultdataloading = true
-
-      DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(JSON.stringify(result.data, null, 2))
-      })
+    showOutput (output) {
+      console.log("showOutput", output)
+      const editor = this.$refs.resultEditor.editor
+      editor.session.setValue(output)
     },
     refreshResultsData () {
-      this.resultloading = true
-      DataService.getCalls(this.obj.name, this.$store.state.designer.token)
-        .then((calls) => {
-          this.resultdata = calls.data
-          this.resultloading = false
-        })
-        .catch((error) => {
-          this.resultloading = false
-        })
+
     },
     showResultsDialog () {
       this.viewResultsDialog = true
@@ -4110,9 +4104,7 @@ export default {
           Date.now()
         )
         me.updateBandwidthChart()
-
-        // update resultdata
-
+        debugger
         const _plugs = window.pyodide.globals.get('plugs').toJs()
         console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
