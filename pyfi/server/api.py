@@ -95,11 +95,7 @@ template = {
             "in": "header",
         }
     },
-    "security": [
-        {
-            "Bearer": []
-        }
-    ],
+    "security": [{"Bearer": []}],
     "info": {
         "title": "ElasticCode API",
         "description": "ElasticCode API",
