@@ -949,13 +949,21 @@
           style="display: grid;grid-gap: 10px;grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));justify-content: space-around;padding:10px"
           ref="blocksregistry"
         >
-          <i
+          <q-btn
+            flat
             v-for="block in blocks"
+            color="secondary"
             :key="block.data.id"
-            :class="block.data.node.icon+' brightness'"
+            :icon="block.data.node.icon"
+            class="brightness text-primary"
             :id="'block'+block.data.id"
-            style="cursor:pointer;color:#6b8791;font-size:3em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
-          ><div style="font-size:25px;font-family: arial">{{ block.data.node.name }}</div></i>
+            style="cursor:pointer;font-size:2em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
+            :disabled="!block.data.enabled"
+          >
+            <div style="font-size:18px;font-family: arial">
+              {{ block.data.node.name }}
+            </div>
+          </q-btn>
           <q-inner-loading
             :showing="true"
             v-if="!$auth.isAuthenticated"
@@ -1902,6 +1910,7 @@ import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'
 import ModelToolPalette from 'src/components/ModelToolPalette.vue'
 import Console from 'src/components/Console'
+import { mdiBorderNoneVariant } from '@mdi/js'
 
 import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
@@ -1960,6 +1969,7 @@ export default defineComponent({
     this.mdiWavesArrowRight = mdiWavesArrowRight
     this.mdiFlashOutline = mdiFlashOutline
     this.mdiFlash = mdiFlash
+    this.borderIcon = mdiBorderNoneVariant
 
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false)
@@ -2723,8 +2733,10 @@ export default defineComponent({
       var script = document.querySelector('#script')
 
       script.data = {
+        id: 1,
+        enabled: true,
         node: {
-          icon: 'fab fa-python',
+          icon: 'las la-scroll',
           style: '',
           type: 'script',
           name: 'Script',
@@ -2739,6 +2751,8 @@ export default defineComponent({
       var api = document.querySelector('#api')
 
       api.data = {
+        id: 2,
+        enabled: true,
         node: {
           icon: 'las la-cloud-upload-alt',
           style: '',
@@ -2756,9 +2770,11 @@ export default defineComponent({
       var border = document.querySelector('#border')
 
       border.data = {
+        id: 3,
+        enabled: true,
         node: {
           style: '',
-          icon: 'fas fa-border',
+          icon: this.borderIcon,
           type: 'border',
           name: 'Border',
           label: 'Border'
@@ -2768,8 +2784,10 @@ export default defineComponent({
       var processor = document.querySelector('#processor')
 
       processor.data = {
+        id: 4,
+        enabled: this.hasHosted,
         node: {
-          icon: 'fab fa-python',
+          icon: 'icon-processor',
           style: '',
           type: 'processor',
           name: 'Processor',
@@ -2785,6 +2803,8 @@ export default defineComponent({
       var markdown = document.querySelector('#markdown')
 
       markdown.data = {
+        id: 5,
+        enabled: true,
         node: {
           icon: 'lab la-markdown',
           style: '',
@@ -2800,6 +2820,8 @@ export default defineComponent({
 
       var portin = document.querySelector('#portin')
       portin.data = {
+        id: 6,
+        enabled: this.hasHosted,
         node: {
           icon: 'icon-port-in',
           style: 'size:50px',
@@ -2816,6 +2838,8 @@ export default defineComponent({
 
       var portout = document.querySelector('#portout')
       portout.data = {
+        id: 7,
+        enabled: this.hasHosted,
         node: {
           icon: 'fas fa-plug',
           style: 'size:50px',
@@ -2832,6 +2856,8 @@ export default defineComponent({
 
       var group = document.querySelector('#processorgroup')
       group.data = {
+        id: 8,
+        enabled: true,
         node: {
           icon: 'far fa-object-group',
           style: 'size:50px',
@@ -2913,6 +2939,8 @@ export default defineComponent({
 */
       var label = document.querySelector('#label')
       label.data = {
+        id: 9,
+        enabled: true,
         node: {
           icon: 'icon-label',
           style: 'size:50px',
@@ -2927,6 +2955,8 @@ export default defineComponent({
 
       var data = document.querySelector('#data')
       data.data = {
+        id: 10,
+        enabled: true,
         node: {
           icon: 'las la-file-alt',
           style: 'size:50px',
@@ -2941,6 +2971,8 @@ export default defineComponent({
 
       var schema = document.querySelector('#schema')
       schema.data = {
+        id: 11,
+        enabled: this.hasHosted,
         node: {
           icon: this.schemaIcon,
           style: 'size:50px',
@@ -2955,6 +2987,8 @@ export default defineComponent({
 
       var router = document.querySelector('#router')
       router.data = {
+        id: 12,
+        enabled: this.hasHosted,
         node: {
           icon: 'alt_route',
           style: 'size:50px',
@@ -2974,7 +3008,7 @@ export default defineComponent({
 
       els.forEach((el) => {
         var data = el.data
-        data.id = uuidv4()
+        //data.id = uuidv4()
         var draghandle = dd.drag(el, {
           image: true // default drag image
         })
@@ -2983,18 +3017,21 @@ export default defineComponent({
         })
       })
 
-      setTimeout(() => {
+      setTimeout( () => {
         this.blocks.forEach((el) => {
           const _el = document.querySelector('#block' + el.data.id)
-          var data = el.data
-          var draghandle = dd.drag(_el, {
-            image: true // default drag image
-          })
-          draghandle.on('start', function (setData, e) {
-            setData('object', JSON.stringify(data))
-          })
+          if (el.data.enabled) {
+            var data = el.data
+            var draghandle = dd.drag(_el, {
+              image: true // default drag image
+            })
+            draghandle.on('start', function (setData, e) {
+              setData('object', JSON.stringify(data))
+            })
+          }
         })
       })
+
     })
     var me = this
 
