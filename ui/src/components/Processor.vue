@@ -195,7 +195,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           }
 
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
-          debugger
           let port = null
           for (var i = 0; i < me.portobjects[func].length; i++) {
             if (me.portobjects[func][i].name === argument) {
@@ -214,7 +213,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }
           }
           if (complete) {
-            debugger
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
             const plugs = "plugs = {'output A':{}}\n"
