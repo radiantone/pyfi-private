@@ -72,7 +72,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.nginx.prod
-          extra-build-args: '--compress'
+          extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1'
           path: ./docker
           platform: linux/amd64
           public-registry: false
