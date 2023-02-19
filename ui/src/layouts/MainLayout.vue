@@ -22,6 +22,7 @@
         :cpus_total="this.stats.cpus_total"
         :deployments="this.stats.deployments"
         :cpus_running="this.stats.cpus_running"
+        ref="toolPalette"
       />
       <ModelToolPalette
         v-if="tools === 'model'"
@@ -2598,6 +2599,12 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+    DataService.getCommit().then( (response) => {
+      console.log("COMMIT", response)
+      let hash = response.data.split('|')[0]
+      let buildDate = response.data.split('|')[1]
+      this.$refs.toolPalette.setCommit(hash, buildDate)
+    })
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
