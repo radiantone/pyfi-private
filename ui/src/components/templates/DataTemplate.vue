@@ -2985,6 +2985,8 @@ export default {
       this.portobjects[port.id] = port.data
     },
     triggerObject (portname) {
+      var me = this
+
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
       const result = this.execute(this.obj.code + '\n\n' + objectname)
@@ -3002,6 +3004,21 @@ export default {
           const node = edge.target.getNode()
           const code = node.data.code
           window.root.$emit(target_id, code, options.function, options.name, result)
+
+          let reslen = resultstr.length
+          tsdb.series('outBytes').insert(
+            {
+              bytes: reslen
+            },
+            new Date()
+          )
+
+          me.bytes_out_5min.unshift(reslen)
+          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+          me.bytes_out += reslen
+          me.calls_out += 1
           // send message to target_id with result, _port
           // receiving node will realize this is an argument port and value
           // and store the value internally until all the arguments for the function
