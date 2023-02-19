@@ -826,8 +826,12 @@
         </q-card-section>
         <q-card-section
           class="row items-center"
-          style="height: 120px;"
-        />
+          style="margin-top:30px"
+        ><b>Build ID</b>: {{ commit }}</q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+        <b>Build Date</b>: {{ buildDate }}</q-card-section>
 
         <q-card-actions align="right">
           <q-btn
@@ -980,7 +984,6 @@ export default {
     })
   },
   computed: {
-
     hasHosted () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
@@ -1002,6 +1005,10 @@ export default {
     }
   },
   methods: {
+    setCommit (commit, buildDate) {
+      this.commit = commit
+      this.buildDate = buildDate
+    },
     hasEnterprise () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
@@ -1096,6 +1103,7 @@ export default {
         'ec_developer-USD-Monthly': 'Developer',
         'ec_hosted-USD-Yearly': 'Hosted'
       },
+      buildDate: 'N/A',
       sublevel: {
         guest: 0,
         free: 1,
