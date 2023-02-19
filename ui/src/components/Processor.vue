@@ -159,7 +159,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         scheduler.stop()
         const cron = parseCronExpression(cronstr)
         scheduler.registerTask(cron, () => {
-          console.log(new Date(), this.name, 'TASK EXECUTED')
           me.$emit('message.received', {
             type: 'trigger'
           })
@@ -194,6 +193,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }
           }
 
+          this.$emit('arg.in', obj)
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
           let port = null
           for (var i = 0; i < me.portobjects[func].length; i++) {

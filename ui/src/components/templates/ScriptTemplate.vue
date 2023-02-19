@@ -2495,6 +2495,25 @@ export default {
         }
       })
     })
+    this.$on('arg.in', (arg) => {
+      if (arg) {
+        console.log('arg.in', arg)
+        try {
+          if (arg instanceof Object) {
+            arg = JSON.stringify(arg)
+          } else if (arg instanceof String) {
+
+          } else {
+            arg = arg.toString()
+          }
+          me.bytes_in += arg.length
+          me.calls_in += 1
+
+        } catch (e) {
+
+        }
+      }
+    })
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
@@ -2522,7 +2541,7 @@ export default {
           me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
-          let resdate = new Date()
+          const resdate = new Date()
           tsdb.series('outBytes').insert(
             {
               bytes: msg.output.length
@@ -2530,9 +2549,9 @@ export default {
             resdate
           )
 
-          let answer = JSON.parse(msg.output)
+          const answer = JSON.parse(msg.output)
 
-          let _arg = msg.arg
+          const _arg = msg.arg
 
           // update resultdata
           me.resultdata.push({
@@ -2546,15 +2565,13 @@ export default {
             output: answer,
             task_id: uuidv4()
           })
-          me.bytes_in += _arg.toString().length
 
-          me.bytes_out_5min.unshift(msg.output.length)
+          //me.bytes_out_5min.unshift(msg.output.length)
           // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          //me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
           // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          me.bytes_out += msg.output.length
+          //me.bytes_out += msg.output.length
 
-          me.calls_in += 1
           me.updateBandwidthChart()
           // update resultdata
 
@@ -2659,7 +2676,7 @@ export default {
           )
         }
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-        me.calls_out += 1
+        //me.calls_out += 1
         me.resultlogs.unshift(json)
         me.resultlogs = me.resultlogs.slice(0, 100)
       }
@@ -2755,7 +2772,7 @@ export default {
 
     load().then(() => {
       console.log('PROCESSOR PYODIDE RESULT', me.pyodide.runPython('1 + 2'))
-    })*/
+    }) */
 
     this.setId(this.obj.id)
     console.log('MOUNTED STORE', this.$store)
@@ -3522,7 +3539,7 @@ export default {
       addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
     },
     showOutput (output) {
-      console.log("showOutput", output)
+      console.log('showOutput', output)
       const editor = this.$refs.resultEditor.editor
       editor.session.setValue(output)
     },
@@ -4142,10 +4159,11 @@ export default {
     },
     triggerObject (portname, result) {
       var me = this
+      let reslen = result.toString().length
 
       tsdb.series('outBytes').insert(
         {
-          bytes: result.length
+          bytes: result.toString().length
         },
         Date.now()
       )
@@ -4159,9 +4177,11 @@ export default {
           const node = edge.target.getNode()
           const code = node.data.code
           me.calls_out += 1
-          me.bytes_out += result.toString().length
+          me.bytes_out += reslen
           window.root.$emit(target_id, code, options.function, options.name, result)
         })
+        me.bytes_out_5min.unshift(reslen)
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
 
         const _plugs = window.pyodide.globals.get('plugs').toJs()
 
