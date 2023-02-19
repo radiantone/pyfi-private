@@ -69,7 +69,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.nginx
-          extra-build-args: '--compress'
+          extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1'
           path: ./docker
           platform: linux/amd64
           public-registry: false
@@ -77,6 +77,9 @@ workflows:
           repo: nginx
           repo-scan-on-push: true
           tag: 'develop'
+          environment:
+            CIRCLE_TAG: $CIRCLE_TAG
+            CIRCLE_COMMIT: $CIRCLE_SHA1
           post-steps:
               - aws-ecr/tag-image:
                   repo: nginx

@@ -4,5 +4,8 @@ ADD ./conf/nginx.conf.dev /etc/nginx/nginx.conf
 ADD ./conf/mime.types /etc/nginx/conf/mime.types
 ADD ./workspace/certs /etc/nginx/certs
 ADD ./conf/elasticcode /etc/nginx/sites-enabled/elasticcode
+ARG COMMIT=None
 
+ENV COMMIT=$COMMIT
+RUN echo $COMMIT
 COPY ./workspace/ui/dist/spa /var/share/html
