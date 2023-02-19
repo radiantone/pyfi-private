@@ -512,7 +512,7 @@ def do_processor(name):
 @cross_origin()
 @requires_auth
 def execute_flow():
-    """Example endpoint returning a list of processors
+    """Execute a saved flow
     Execute a Flow and return the results.
     ---
     definitions:
