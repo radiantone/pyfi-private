@@ -77,9 +77,6 @@ workflows:
           repo: nginx
           repo-scan-on-push: true
           tag: 'develop'
-          environment:
-            CIRCLE_TAG: $CIRCLE_TAG
-            CIRCLE_COMMIT: $CIRCLE_SHA1
           post-steps:
               - aws-ecr/tag-image:
                   repo: nginx
