@@ -7,6 +7,6 @@ ADD ./conf/elasticcode /etc/nginx/sites-enabled/elasticcode
 ARG COMMIT=None
 
 ENV COMMIT=$COMMIT
-RUN echo $COMMIT"|" >./workspace/ui/dist/spa/commit
-RUN date >>./workspace/ui/dist/spa/commit
+RUN echo $COMMIT"|" >/var/share/html/commit
+RUN date >>/var/share/html/commit
 COPY ./workspace/ui/dist/spa /var/share/html
