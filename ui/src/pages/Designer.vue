@@ -312,6 +312,25 @@
             Import Flow
           </q-tooltip>
         </q-btn>
+
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+          @click="importflowdialog = true"
+        >
+          <img
+          src="~assets/images/swagger.svg"
+          style="width:20px;min-width:20px;color:#054848"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Swagger
+          </q-tooltip>
+        </q-btn>
         <q-separator
           vertical
           inset
