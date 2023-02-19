@@ -123,6 +123,10 @@ class DataService {
     })
   }
 
+  getCommit (): Promise<any> {
+    return http.get('/commit')
+  }
+
   getQueues (token: string): Promise<any> {
     return http.get('/api/queues', {
       headers: {
@@ -163,7 +167,7 @@ class DataService {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
     const auth_string = 'Bearer ' + token
-    console.log("AUTH_STRING", auth_string)
+    console.log('AUTH_STRING', auth_string)
     return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
       headers: {
         Authorization: auth_string
