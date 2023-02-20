@@ -1075,7 +1075,7 @@
     </ul>
 
     <ul
-      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
+      v-if="obj.icon === 'icon-processor' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
