@@ -439,7 +439,12 @@ export default {
   components: {},
   props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
   mounted () {
-
+    if (this.$auth.isAuthenticated) {
+      this.$root.$on('update.' + this.collection, this.synchronize)
+      this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
+      this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
+      this.synchronize()
+    }
   },
   watch: {
     '$store.state.designer.token': function (val) {

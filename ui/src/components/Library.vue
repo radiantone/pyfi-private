@@ -229,6 +229,11 @@ export default {
   },
   props: ['objecttype', 'collection', 'icon', 'toolbar'],
   mounted () {
+    if (this.$auth.isAuthenticated) {
+      this.synchronize()
+      this.$root.$on('update.' + this.collection, this.synchronize)
+      window.root.$on('add.library', this.addToLibrary)
+    }
   },
   watch: {
     '$store.state.designer.token': function (val) {
