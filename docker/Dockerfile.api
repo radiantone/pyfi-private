@@ -42,5 +42,5 @@ RUN update-rc.d -f supervisord remove
 RUN venv/bin/pip uninstall -y pytz
 RUN venv/bin/python setup.py install
 
-#CMD ["bash", "/opt/pyfi/supervisor.sh"]
-CMD ["/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
+CMD ["bash", "/opt/pyfi/supervisor.sh"]
+#CMD ["/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
