@@ -3801,6 +3801,12 @@ export default {
           el.style['z-index'] = 0
         }
       })
+      elems.forEach((el) => {
+        if (el != this.$el && el.jtk.node.getType() === 'border') {
+          console.log("HIDING BORDER")
+          el.style['z-index'] = -9999
+        }
+      })
       this.$el.style['z-index'] = 99999
 
       if (show) {
