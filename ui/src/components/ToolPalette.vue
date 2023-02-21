@@ -827,7 +827,7 @@
         <q-card-section
           class="row items-center"
           style="margin-top:30px"
-        ><b>Build ID</b>: {{ commit }}</q-card-section>
+        ><b>Build ID</b>: {{ commit.substring(0,7) }}</q-card-section>
         <q-card-section
           class="row items-center"
         >
