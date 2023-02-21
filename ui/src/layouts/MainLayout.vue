@@ -1754,7 +1754,7 @@
             <p
               style="font-size:16px"
               class="text-black"
-            ><b>NOTE</b>: At present the subscription dialog gives you a free (fake) billing method to subscribe to the product and try features out while we are still actively building it.</p>
+            ><b>NOTE</b>: If the app doesn't display fully on your display, trying scaling it down from your browser until it fits completely.</p>
             <br>
             <b>Recommended Settings:</b>
             <ul style="margin-left:40px">
