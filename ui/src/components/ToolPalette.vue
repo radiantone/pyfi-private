@@ -827,7 +827,11 @@
         <q-card-section
           class="row items-center"
           style="margin-top:30px"
-        ><b>Build ID</b>: {{ commit.substring(0,7) }}</q-card-section>
+        ><b>Build ID</b>: <a href="{{ buildUrl }}">{{ commit.substring(0,7) }}</a></q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="margin-top:30px"
+        ><b>Repo URL</b>: <a href="{{ repoUrl }}">GIT Repo</a></q-card-section>
         <q-card-section
           class="row items-center"
         >
@@ -1005,9 +1009,11 @@ export default {
     }
   },
   methods: {
-    setCommit (commit, buildDate) {
+    setCommit (commit, buildDate, buildUrl, repoUrl) {
       this.commit = commit
       this.buildDate = buildDate
+      this.buildUrl = buildUrl
+      this.repoUrl = repoUrl
     },
     hasEnterprise () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
