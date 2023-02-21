@@ -2603,7 +2603,9 @@ export default defineComponent({
       console.log("COMMIT", response)
       let hash = response.data.split('|')[0]
       let buildDate = response.data.split('|')[1]
-      this.$refs.toolPalette.setCommit(hash, buildDate)
+      let buildUrl = response.data.split('|')[2]
+      let repoUrl = response.data.split('|')[3]
+      this.$refs.toolPalette.setCommit(hash, buildDate, buildUrl, repoUrl)
     })
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
