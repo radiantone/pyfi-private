@@ -748,7 +748,7 @@
       </div>
     </div>
     <ul
-      v-if="obj.icon === 'las la-scroll' || obj.icon === 'fas fa-plug'"
+      v-if="obj.icon === 'fab fa-python' || obj.icon === 'las la-scroll' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -1245,7 +1245,24 @@
           height="fit"
         />
       </q-card-section>
-
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          label="Update"
+          class="bg-primary text-white"
+          color="primary"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Update Packages
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
       <q-card-actions
         align="right"
         style="margin-top: 15px;"
