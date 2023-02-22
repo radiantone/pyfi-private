@@ -1117,6 +1117,9 @@ export default {
       showProfileDialog: false,
       showAboutDialog: false,
       viewStatsLoader: false,
+      commit: '',
+      buildUrl: '',
+      repoUrl: '',
       deployStatsColumns: [
         {
           name: 'name',
