@@ -827,10 +827,7 @@
         <q-card-section
           class="row items-center"
           style="margin-top:30px"
-        ><b>Build ID</b>: <a :href="buildUrl">{{ commit.substring(0,7) }}</a></q-card-section>
-        <q-card-section
-          class="row items-center"
-        ><b>Repo URL</b>: <a :href="repoUrl">GIT Repo</a></q-card-section>
+        ><b>Build ID</b>: <a :href="buildUrl" target="build">{{ commit.substring(0,7) }}</a></q-card-section>
 
         <q-card-section
           class="row items-center"
