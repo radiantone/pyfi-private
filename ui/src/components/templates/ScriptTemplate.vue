@@ -2540,6 +2540,7 @@ export default {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
+          window.root.$emit('console.message', msg.output)
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
           const resdate = new Date()
