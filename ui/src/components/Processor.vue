@@ -179,6 +179,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       setId (id: string) {
         var me = this;
 
+        // TODO: Add parameter for the block json
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
           let obj = data
           this.id = id
@@ -260,6 +261,18 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
+
+            /*
+            If containerized then post to /runblock, the block and call code
+
+            result = DataService.runBlock(....)
+
+            result.then( (res: any) => {
+
+            })
+             */
+
+            // If not containerized then run this code
             const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
             result.then((res: any) => {

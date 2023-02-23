@@ -1483,7 +1483,7 @@
             >
               <q-tab
                 name="settings"
-                label="Processor"
+                label="General"
               />
               <q-tab
                 name="containersettings"
@@ -1661,6 +1661,8 @@
                       v-model="obj.container"
                       label="Containerized"
                     />
+                    <q-space/>
+                    <q-btn flat label="Advanced" class="text-white bg-primary text-primary"/>
                   </q-toolbar>
                 </div>
               </q-tab-panel>
@@ -1736,25 +1738,7 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Save"
-          class="bg-accent text-primary"
-          color="primary"
-          @click="saveProcessor"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Save
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
         <q-btn
           flat
@@ -3699,7 +3683,7 @@ export default {
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
     closePortEdit () {
-      editPort = false
+      this.editPort = false
     },
     saveProcessor () {
       var me = this
@@ -4167,6 +4151,8 @@ export default {
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
         const code = node.data.code
+        debugger
+        // TODO: Insert block JSON here
         window.root.$emit(target_id, code, options.function, options.name, error)
       })
     },
@@ -4177,6 +4163,8 @@ export default {
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
         const code = node.data.code
+        debugger
+        // TODO: Insert block JSON here
         window.root.$emit(target_id, code, options.function, options.name, result)
       })
     },
@@ -4201,6 +4189,8 @@ export default {
           const code = node.data.code
           me.calls_out += 1
           me.bytes_out += reslen
+          debugger
+          // TODO: Insert block JSON here
           window.root.$emit(target_id, code, options.function, options.name, result)
         })
         me.bytes_out_5min.unshift(reslen)

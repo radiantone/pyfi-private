@@ -1117,6 +1117,7 @@ export default {
       showProfileDialog: false,
       showAboutDialog: false,
       viewStatsLoader: false,
+      commit: '',
       deployStatsColumns: [
         {
           name: 'name',
