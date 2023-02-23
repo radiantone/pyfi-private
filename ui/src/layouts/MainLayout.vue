@@ -939,6 +939,16 @@
           label="Blocks"
           icon="las la-cube"
         />
+        <q-tab
+          name="blockspublic"
+          label="Public"
+          icon="las la-globe"
+        />
+        <q-tab
+          name="blocksmine"
+          label="Private"
+          icon="las la-user"
+        />
       </q-tabs>
 
       <q-tab-panels
