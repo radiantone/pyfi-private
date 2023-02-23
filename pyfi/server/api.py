@@ -511,9 +511,10 @@ def do_processor(name):
 @app.route("/runblock", methods=["POST"])
 @cross_origin()
 def run_block():
-    """ Run a given block in a container and return the result"""
-    import docker
+    """Run a given block in a container and return the result"""
     from uuid import uuid4
+
+    import docker
 
     block = request.get_json()
 
@@ -521,17 +522,15 @@ def run_block():
 
     _uuid = str(uuid4())
 
-    with open("out/"+_uuid, "w") as pfile:
+    with open("out/" + _uuid, "w") as pfile:
         pfile.write("print('hello there')")
 
-    result = client.containers.run(block['containerimage'],
+    result = client.containers.run(
+        block["containerimage"],
         auto_remove=True,
-        volumes={
-            os.getcwd()
-            + "/out": {"bind": "/tmp/", "mode": "rw"}
-        },
+        volumes={os.getcwd() + "/out": {"bind": "/tmp/", "mode": "rw"}},
         entrypoint="",
-        command="python /tmp/"+_uuid
+        command="python /tmp/" + _uuid,
     )
     result = result.decode("utf-8")
     print(result)
