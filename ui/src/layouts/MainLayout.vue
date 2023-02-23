@@ -396,6 +396,11 @@
             active-bg-color="accent"
           >
             <q-tab
+              name="console"
+              class="text-dark"
+              label="Console"
+            />
+            <q-tab
               name="messages"
               class="text-dark"
               label="Messages"
@@ -422,6 +427,11 @@
             v-model="drawertab"
             keep-alive
           >
+            <q-tab-panel
+              name="console"
+              ref="console"
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
+            ><q-scroll-area style="height: calc(100vh - 150px); width: 100%;"><pre>{{ consolemsgs }}</pre></q-scroll-area></q-tab-panel>
             <q-tab-panel
               name="messages"
               ref="messages"
@@ -2637,6 +2647,9 @@ export default defineComponent({
     }
 
     this.transmitted()
+    window.root.$on('console.message', (msg) => {
+      me.consolemsgs += "\n"+msg
+    })
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -3083,6 +3096,7 @@ export default defineComponent({
       answer: '',
       infodialog: false,
       infotitle: '',
+      consolemsgs: '',
       separator: ref('vertical'),
       chooseplan: false,
       flowloading: false,
