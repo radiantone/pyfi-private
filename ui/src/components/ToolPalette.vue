@@ -1118,8 +1118,6 @@ export default {
       showAboutDialog: false,
       viewStatsLoader: false,
       commit: '',
-      buildUrl: '',
-      repoUrl: '',
       deployStatsColumns: [
         {
           name: 'name',
