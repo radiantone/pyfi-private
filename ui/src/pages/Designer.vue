@@ -317,7 +317,6 @@
           flat
           style="min-height: 45px;"
           size="md"
-          @click="importflowdialog = true"
         >
           <img
           src="~assets/images/swagger.svg"
