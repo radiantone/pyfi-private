@@ -431,7 +431,18 @@
               name="console"
               ref="console"
               style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
-            ><q-scroll-area style="height: calc(100vh - 150px); width: 100%;"><pre>{{ consolemsgs }}</pre></q-scroll-area></q-tab-panel>
+            >
+              <q-scroll-area style="height: calc(100vh - 220px); width: 100%;">
+                <div v-for="log in consolelog">
+                  <span style="font-weight:bold">{{log.name}}:</span><span>{{log.date}}</span>
+                  <pre>{{log.msg}}</pre>
+                </div>
+              </q-scroll-area>
+              <q-toolbar style="padding:20px">
+                <q-space/>
+                <q-btn flat dense color="secondary" @click="consolelog=[]">Clear</q-btn>
+              </q-toolbar>
+            </q-tab-panel>
             <q-tab-panel
               name="messages"
               ref="messages"
@@ -2647,9 +2658,16 @@ export default defineComponent({
     }
 
     this.transmitted()
-    window.root.$on('console.message', (msg) => {
-      me.consolemsgs += "\n"+msg
-    })
+    window.root.$off('console.message')
+    window.root.$on('console.message', (date, obj, msg) => {
+      me.consolelog.push({
+        name:obj.name,
+        date:date,
+        msg:msg
+      })})
+    if(me.consolelog.length>=1000) {
+      me.consolelog = []
+    }
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -3096,7 +3114,7 @@ export default defineComponent({
       answer: '',
       infodialog: false,
       infotitle: '',
-      consolemsgs: '',
+      consolelog: [],
       separator: ref('vertical'),
       chooseplan: false,
       flowloading: false,

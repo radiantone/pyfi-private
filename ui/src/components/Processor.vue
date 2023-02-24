@@ -6,6 +6,7 @@ import { Wrapper } from '../util'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
 import Moment from 'moment/moment'
+import DataService from 'components/util/DataService'
 
 let scheduler
 
@@ -149,12 +150,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         }
       },
       stopSchedule () {
-        console.log("stopSchedule")
+        console.log('stopSchedule')
         this.scheduler.stop()
       },
       startSchedule (cronstr: string) {
         var me = this
-        console.log("startSchedule")
+        console.log('startSchedule')
         scheduler = new IntervalBasedCronScheduler(this.interval)
         scheduler.stop()
         const cron = parseCronExpression(cronstr)
@@ -180,7 +181,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         var me = this;
 
         // TODO: Add parameter for the block json
-        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
+        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
           let obj = data
           this.id = id
           if (data instanceof Map) {
@@ -262,47 +263,43 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
 
-            /*
-            If containerized then post to /runblock, the block and call code
+            if (block && block.containerized) {
+              DataService.runBlock(block, call, this.$store.state.designer.token).then((result: any) => {
 
-            result = DataService.runBlock(....)
-
-            result.then( (res: any) => {
-
-            })
-             */
-
-            // If not containerized then run this code
-            const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
-
-            result.then((res: any) => {
-              const _plugs = (window as any).pyodide.globals.get('plugs').toJs()
-              let answer = res
-              var end = Moment(new Date())
-              const diff = end.diff(start)
-              var time = Moment.utc(diff).format('HH:mm:ss.SSS')
-              if (res === Object(res)) {
-                answer = Object.fromEntries(res.toJs())
-              }
-              console.log('CODE CALL RESULT', answer)
-              this.$emit('message.received', {
-                type: 'result',
-                id: this.id,
-                function: func,
-                arg: argument.toString().length,
-                duration: time,
-                output: JSON.stringify(answer)
               })
-            }, (error: any) => {
-              debugger
-              console.log('PYTHON ERROR', error)
-              this.$emit('python.error', {
-                type: 'error',
-                id: me.id,
-                function: func,
-                error: error.toString()
+            } else {
+              // If not containerized then run this code
+              const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
+
+              result.then((res: any) => {
+                const _plugs = (window as any).pyodide.globals.get('plugs').toJs()
+                let answer = res
+                var end = Moment(new Date())
+                const diff = end.diff(start)
+                var time = Moment.utc(diff).format('HH:mm:ss.SSS')
+                if (res === Object(res)) {
+                  answer = Object.fromEntries(res.toJs())
+                }
+                console.log('CODE CALL RESULT', answer)
+                this.$emit('message.received', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  arg: argument.toString().length,
+                  duration: time,
+                  output: JSON.stringify(answer)
+                })
+              }, (error: any) => {
+                debugger
+                console.log('PYTHON ERROR', error)
+                this.$emit('python.error', {
+                  type: 'error',
+                  id: me.id,
+                  function: func,
+                  error: error.toString()
+                })
               })
-            })
+            }
           }
 
           this.$emit('refresh')

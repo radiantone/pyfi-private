@@ -258,7 +258,7 @@
         "
       >
         <q-icon
-          name="fab fa-python"
+          name="las la-scroll"
           size="xl"
           color="secondary"
           style="margin-left:-5px;margin-top:-5px"
@@ -2540,7 +2540,7 @@ export default {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
-          window.root.$emit('console.message', msg.output)
+          window.root.$emit('console.message', new Date(), me.obj, msg.output)
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
           const resdate = new Date()
@@ -3090,7 +3090,7 @@ export default {
       },
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'fab fa-python',
+        icon: 'las la-scroll',
         titletab: false,
         consoleview: false,
         receipt: new Date(),
@@ -3105,7 +3105,7 @@ export default {
         bandwidth: true,
         requirements: '',
         gittag: '',
-        container: true,
+        container: false,
         imagerepo: 'local',
         containerimage: 'pyfi/processors:latest',
         environment: '',
@@ -4154,7 +4154,7 @@ export default {
         const code = node.data.code
         debugger
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, error)
+        window.root.$emit(target_id, code, options.function, options.name, error, this.obj)
       })
     },
     triggerRoute (portid, result) {
@@ -4166,7 +4166,7 @@ export default {
         const code = node.data.code
         debugger
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, result)
+        window.root.$emit(target_id, code, options.function, options.name, result, this.obj)
       })
     },
     triggerObject (portname, result) {
@@ -4192,7 +4192,7 @@ export default {
           me.bytes_out += reslen
           debugger
           // TODO: Insert block JSON here
-          window.root.$emit(target_id, code, options.function, options.name, result)
+          window.root.$emit(target_id, code, options.function, options.name, result, this.obj)
         })
         me.bytes_out_5min.unshift(reslen)
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
