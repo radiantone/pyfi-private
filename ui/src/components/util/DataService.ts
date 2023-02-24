@@ -107,6 +107,14 @@ class DataService {
     })
   }
 
+  runBlock (block: any, call: string, token: string): Promise<any> {
+    return http.post('/api/runblock', { block: block, call: call }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getWorkers (processor: string, token: string): Promise<any> {
     return http.get('/api/workers/' + processor, {
       headers: {
