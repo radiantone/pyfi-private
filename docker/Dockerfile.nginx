@@ -10,4 +10,3 @@ COPY ./workspace/ui/dist/spa /var/share/html
 ENV COMMIT=$COMMIT
 RUN echo $COMMIT"|" >/var/share/html/commit
 RUN date >>/var/share/html/commit
-
