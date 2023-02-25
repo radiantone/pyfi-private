@@ -2630,6 +2630,12 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+    async function load() {
+      await pyodide.loadPackage("micropip");
+      const micropip = pyodide.pyimport("micropip");
+      await micropip.install('durable-rules');
+    }
+
     DataService.getCommit().then( (response) => {
       console.log("COMMIT", response)
       let hash = response.data.split('|')[0]
@@ -3101,15 +3107,15 @@ export default defineComponent({
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
       },
-      blocks: [
-      ],
-      blockstabs: 'blocksregistry',
       GUEST: 0,
       FREE: 1,
       DEVELOPER: 2,
       PRO: 3,
       HOSTED: 4,
       ENTERPRISE: 5,
+      blocks: [
+      ],
+      blockstabs: 'blocksregistry',
       loadingchat: false,
       answer: '',
       infodialog: false,

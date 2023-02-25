@@ -48,6 +48,7 @@
       publishableKey: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm',
       isItemsModel: true
     });
+
   </script>
 </head>
 
@@ -74,6 +75,10 @@
     })
     window.pyodide = pyodide
     console.log("PYODIDE RESULT", pyodide.runPython("1 + 2"))
+
+    //await pyodide.loadPackage("micropip");
+    //const micropip = pyodide.pyimport("micropip");
+    //await micropip.install('durable-rules');
   }
 
   main();

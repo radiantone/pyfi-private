@@ -1577,11 +1577,13 @@
                         v-model="obj.endpoint"
                         label="API"
                         style="margin-left: 40px; margin-right: 50px;"
+                        :disable="!hasHosted"
                       />
                       <q-checkbox
                         v-model="obj.streaming"
                         label="Streaming"
                         style=""
+                        :disable="!hasHosted"
                       />
                     </q-toolbar>
                   </q-form>
@@ -1645,7 +1647,7 @@
                       dense
                       hint="Image Repository"
                       lazy-rules
-                      :disable="!obj.container"
+                      :disable="!hasHosted"
                     />
                     <q-input
                       filled
@@ -1653,16 +1655,17 @@
                       dense
                       hint="Container Image"
                       lazy-rules
-                      :disable="!obj.container"
+                      :disable="!hasHosted"
                     />
                   </q-form>
                   <q-toolbar>
                     <q-checkbox
                       v-model="obj.container"
                       label="Containerized"
+                      :disable="!hasHosted"
                     />
                     <q-space/>
-                    <q-btn flat label="Advanced" class="text-white bg-primary text-primary"/>
+                    <q-btn flat label="Advanced" class="text-white bg-primary text-primary" :disable="!hasHosted"/>
                   </q-toolbar>
                 </div>
               </q-tab-panel>
@@ -1681,7 +1684,7 @@
                       dense
                       hint="API Endpoint"
                       lazy-rules
-                      :disable="!obj.endpoint"
+                      :disable="!obj.endpoint || !hasHosted"
                     />
                     <q-input
                       filled
@@ -1689,7 +1692,7 @@
                       dense
                       hint="Websocket URL"
                       lazy-rules
-                      :disable="!obj.streaming"
+                      :disable="!obj.streaming || !hasHosted"
                     />
                   </q-form>
                 </div>
@@ -3787,7 +3790,7 @@ export default {
         }
       })
       elems.forEach((el) => {
-        if (el != this.$el && el.jtk.node.getType() === 'border') {
+        if (el != this.$el && el.jtk && el.jtk.node.getType() === 'border') {
           console.log("HIDING BORDER")
           el.style['z-index'] = -9999
         }
