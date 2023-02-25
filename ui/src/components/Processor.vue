@@ -10,6 +10,13 @@ import DataService from 'components/util/DataService'
 
 let scheduler
 
+const GUEST = 0
+const FREE = 1
+const DEVELOPER = 2
+const PRO = 3
+const HOSTED = 4
+const ENTERPRISE = 5
+
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
@@ -32,6 +39,8 @@ export interface ProcessorState {
   id: string;
   interval: number;
   scheduler: any;
+
+  sublevel: { [key: string]: any };
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
   errorobjects: { [key: string]: any };
@@ -41,6 +50,7 @@ export interface ProcessorState {
 export const ProcessorMixin = Vue.extend({
   data () {
     return {
+      sublevel: {},
       name: 'Processor',
       portobjects: {},
       argobjects: {},
@@ -54,7 +64,7 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   id!: ProcessorState['id'];
   interval!: ProcessorState['interval'];
   scheduler!: ProcessorState['scheduler'];
-
+  sublevel!: ProcessorState['sublevel'];
   tasks!: ProcessorState['tasks'];
 }
 
@@ -101,6 +111,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         tasks: [],
         name: 'MyProcessor',
         id: 'any',
+        sublevel: {},
         portobjects: {},
         argobjects: {},
         errorobjects: {}
@@ -114,6 +125,13 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         me.$store.commit('designer/setMessage', b)
       })
       me.listenMessages()
+      me.sublevel = {
+        guest: 0,
+        free: 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
+      }
     },
     watch: {
       interval: function (newv, oldv) {
@@ -140,6 +158,15 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     mounted () {
 
+    },
+    computed: {
+      hasHosted () {
+        if (this.$store.state.designer.subscription) {
+          return this.sublevel[this.$store.state.designer.subscription] >= HOSTED
+        } else {
+          return false
+        }
+      }
     },
     methods: {
       getVersion () {
@@ -263,7 +290,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
 
-            if (block && block.containerized) {
+            if (block && block.container) {
+              console.log("RUN BLOCK IN CONTAINER")
               DataService.runBlock(block, call, this.$store.state.designer.token).then((result: any) => {
 
               })
