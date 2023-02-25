@@ -19,8 +19,6 @@ import { Auth0Plugin } from './auth'
 import router from './router'
 import '@quasar/quasar-ui-qmarkdown/dist/index.css'
 
-//import Vuetify from 'vuetify'
-
 Vue.use(SecurityPlugin)
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires
 const VueTypedJs = require('vue-typed-js')
@@ -37,7 +35,6 @@ Vue.use(Auth0Plugin, {
 })
 Vue.use(VueTypedJs)
 Vue.use(StreamPlugin)
-//Vue.use(Vuetify)
 Vue.use(JsPlumbToolkitVue2Plugin)
 Vue.config.silent = true
 
