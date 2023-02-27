@@ -17,6 +17,19 @@ const PRO = 3
 const HOSTED = 4
 const ENTERPRISE = 5
 
+const toObject = (map : any): any => {
+  if (!(map instanceof Map)) return map
+  return Object.fromEntries(Array.from(map.entries(), ([k, v]) => {
+    if (v instanceof Array) {
+      return [k, v.map(toObject)]
+    } else if (v instanceof Map) {
+      return [k, toObject(v)]
+    } else {
+      return [k, v]
+    }
+  }))
+}
+
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
@@ -207,7 +220,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       setId (id: string) {
         var me = this;
 
-        // TODO: Add parameter for the block json
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
           let obj = data
           this.id = id
@@ -217,8 +229,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             if (data.type && data.type === 'error') {
               obj = data
             } else {
-              // TODO: Check for instance of PyProxy here
-              obj = Object.fromEntries(data.toJs())
+              if('toJs' in data) {
+                obj = Object.fromEntries(data.toJs())
+              }
             }
           }
 
@@ -244,7 +257,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func)
-            const plugs = "plugs = {'output A':{}}\n"
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
@@ -285,30 +297,34 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               count += 1
             })
             call = call + ')'
-            call = plugs + '\n' + 'import json\n' + call
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
 
             if (block && block.container) {
-              console.log("RUN BLOCK IN CONTAINER")
+              call = 'import json\n_result = ' + call
+              console.log('RUN BLOCK IN CONTAINER', block)
+              call = call + '\nprint(json.dumps(_result))\n'
               DataService.runBlock(block, call, this.$store.state.designer.token).then((result: any) => {
-
-              })
-            } else {
-              // If not containerized then run this code
-              const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
-
-              result.then((res: any) => {
-                const _plugs = (window as any).pyodide.globals.get('plugs').toJs()
-                let answer = res
+                console.log('CONTAINER RESULT', result)
                 var end = Moment(new Date())
                 const diff = end.diff(start)
                 var time = Moment.utc(diff).format('HH:mm:ss.SSS')
-                if (res === Object(res)) {
-                  answer = Object.fromEntries(res.toJs())
+
+                let answer = result.data
+                try {
+                  const parse = JSON.parse(result.data)
+                  answer = parse
+                } catch (error) {
+
                 }
-                console.log('CODE CALL RESULT', answer)
+
+                // TODO: Check answer for "plugs"
+                debugger
+                if (answer.hasOwnProperty('plugs')) {
+                  const _plugs = answer.plugs
+                }
+
                 this.$emit('message.received', {
                   type: 'result',
                   id: this.id,
@@ -316,6 +332,36 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   arg: argument.toString().length,
                   duration: time,
                   output: JSON.stringify(answer)
+                })
+              })
+            } else {
+              call = 'import json\n' + call
+              // If not containerized then run this code
+              const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
+
+              result.then((res: any) => {
+                let answer = res
+                var end = Moment(new Date())
+                const diff = end.diff(start)
+                var time = Moment.utc(diff).format('HH:mm:ss.SSS')
+                debugger
+                console.log('CODE CALL RESULT', res)
+                let _plugs = {}
+                let _result = {}
+                if (res === Object(res)) {
+                  answer = Object.fromEntries(res.toJs())
+                  _plugs = toObject(answer.plugs)
+                  _result = toObject(answer.result)
+                }
+                console.log('CODE CALL ANSWER', answer, _plugs, _result, JSON.stringify(answer))
+                this.$emit('message.received', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  arg: argument.toString().length,
+                  duration: time,
+                  output: JSON.stringify(_result),
+                  plugs: JSON.stringify(_plugs)
                 })
               }, (error: any) => {
                 debugger
@@ -344,8 +390,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       async execute (data: any) {
         console.log('Running: ', data)
         // noinspection TypeScriptUnresolvedVariable
-        const plugs = "plugs = {'output A':{}}\n"
-        data = plugs + '\n' + data
+
+        // TODO: No longer need this, plugs returned explicitly from functions needing them
+        // const plugs = "plugs = {'output A':{}}\n"
+        // data = plugs + '\n' + data
         const result = (window as any).pyodide.runPythonAsync(data)
         return result
       },

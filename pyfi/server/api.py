@@ -521,19 +521,20 @@ def run_block():
     client = docker.from_env()
 
     _uuid = str(uuid4())
-
+    print(type(block["block"]["code"]))
     with open("out/" + _uuid, "w") as pfile:
-        pfile.write("print('hello there')")
+        pfile.write(block["block"]["code"] + "\n\n")
+        pfile.write(block["call"] + "\n")
 
+    print(block["block"]["containerimage"])
     result = client.containers.run(
-        block["containerimage"],
-        auto_remove=True,
+        block["block"]["containerimage"],
+        auto_remove=False,
         volumes={os.getcwd() + "/out": {"bind": "/tmp/", "mode": "rw"}},
         entrypoint="",
         command="python /tmp/" + _uuid,
     )
-    result = result.decode("utf-8")
-    print(result)
+    result = result.decode("utf-8").strip()
     return result
 
 
