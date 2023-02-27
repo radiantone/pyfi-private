@@ -28,14 +28,16 @@
 					"type": "Input",
 					"argument": true,
 					"function": "route",
-					"background": "white",
+					"background": "#eee",
 					"datatype": "Column",
 					"schema": null,
 					"template": "Object",
 					"id": "port08ce56bbdfb14ee28fa6356112eb0f6f",
 					"description": "A description",
 					"queue": "None",
-					"data": null
+					"data": {
+						"name": "object1"
+					}
 				},
 				{
 					"name": "route A",
@@ -86,7 +88,7 @@
 			"modulepath": "ext/processors/sample.py",
 			"readwrite": 0,
 			"status": "stopped",
-			"code": "def route(data):\n    if data['name'] == 'object2':\n        plugs['route A'] = {}\n        plugs['route A']['data'] = data\n        plugs['route A']['message'] = 'Route A gets different data'\n    else:\n        data['enrich'] = 'Enrich with more data'\n        \n    return data"
+			"code": "def route(data):\n    plugs = {}\n    if data['name'] == 'object2':\n        plugs['route A'] = {}\n        plugs['route A']['data'] = data\n        plugs['route A']['message'] = 'Route A gets different data'\n    else:\n        data['enrich'] = 'Enrich with more data'\n        \n    return {\"plugs\":plugs, \"result\":data}"
 		},
 		{
 			"icon": "las la-file-alt",
@@ -242,8 +244,7 @@
 					"template": "Object",
 					"id": "porte2cfc3298b7d487f831d76daffcb67ed",
 					"description": "A description",
-					"queue": "None",
-					"data": null
+					"queue": "None"
 				}
 			],
 			"properties": [],
@@ -312,14 +313,14 @@
 					"type": "Input",
 					"argument": true,
 					"function": "receive",
-					"background": "white",
+					"background": "#eee",
 					"datatype": "Column",
 					"schema": null,
 					"template": "Object",
 					"id": "port9b9e5fe6502443809a5ea7d3ae1f9bc5",
 					"description": "A description",
 					"queue": "None",
-					"data": null
+					"data": "[{\"output A\":{}},{\"name\":\"object1\",\"enrich\":\"Enrich with more data\"}]"
 				}
 			],
 			"properties": [],
@@ -502,14 +503,16 @@
 			"type": "Input",
 			"argument": true,
 			"function": "route",
-			"background": "white",
+			"background": "#eee",
 			"datatype": "Column",
 			"schema": null,
 			"template": "Object",
 			"id": "ca7f2c4e-a66b-4dcf-a96c-4ab5cd3a3b1c.port08ce56bbdfb14ee28fa6356112eb0f6f",
 			"description": "A description",
 			"queue": "None",
-			"data": null
+			"data": {
+				"name": "object1"
+			}
 		},
 		{
 			"name": "route A",
@@ -571,8 +574,7 @@
 			"template": "Object",
 			"id": "2cf28a02-e915-4a2a-827c-f7697b034cfd.porte2cfc3298b7d487f831d76daffcb67ed",
 			"description": "A description",
-			"queue": "None",
-			"data": null
+			"queue": "None"
 		},
 		{
 			"name": "function: receive",
@@ -592,15 +594,16 @@
 			"type": "Input",
 			"argument": true,
 			"function": "receive",
-			"background": "white",
+			"background": "#eee",
 			"datatype": "Column",
 			"schema": null,
 			"template": "Object",
 			"id": "a867ff81-c9e3-4106-870f-cb24455aa600.port9b9e5fe6502443809a5ea7d3ae1f9bc5",
 			"description": "A description",
 			"queue": "None",
-			"data": null
+			"data": "[{\"output A\":{}},{\"name\":\"object1\",\"enrich\":\"Enrich with more data\"}]"
 		}
 	],
-	"groups": []
+	"groups": [],
+	"variables": []
 }
