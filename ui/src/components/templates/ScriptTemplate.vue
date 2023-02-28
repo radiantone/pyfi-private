@@ -1127,7 +1127,7 @@
           style="font-size: 16px; min-height: 600px;"
           lang="python"
           theme="chrome"
-          ref="myEditor"
+          ref="codeEditor"
           width="100%"
           height="fit"
         />
@@ -3599,8 +3599,8 @@ export default {
           // const re = /(def)\s(\w+)/g;
           me.updateFunctions(response.data)
 
-          if (this.$refs.myEditor) {
-            const editor = this.$refs.myEditor.editor
+          if (this.$refs.codeEditor) {
+            const editor = this.$refs.codeEditor.editor
 
             if (editor) {
               editor.session.setValue(me.obj.code)
@@ -3927,8 +3927,13 @@ export default {
       require('brace/mode/less')
       require('brace/theme/chrome')
       require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.myEditor.editor
+      const editor = this.$refs.codeEditor.editor
       editor.setAutoScrollEditorIntoView(true)
+      if(this.obj.usegit) {
+        editor.setReadOnly(true)
+      } else {
+        editor.setReadOnly(false)
+      }
       editor.on('change', function () {
         me.updateFunctions(editor.getValue())
       })
