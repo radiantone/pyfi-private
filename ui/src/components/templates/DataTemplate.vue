@@ -2470,7 +2470,7 @@ export default {
     this.fetchCode()
     this.updateBandwidthChart()
     this.updatePorts()
-    if (obj.crontoggle) {
+    if (this.obj.crontoggle) {
       this.startSchedule(this.obj.cron)
     }
   },
