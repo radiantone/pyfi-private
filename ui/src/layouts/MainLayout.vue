@@ -3041,24 +3041,23 @@ export default defineComponent({
         }
       }
 
-      var router = document.querySelector('#router')
-      router.data = {
-        id: 12,
-        enabled: this.hasHosted,
+      var chatgpt = document.querySelector('#chatgpt')
+      chatgpt.data = {
+        id:13,
+        enabled: true,
         node: {
-          icon: 'alt_route',
+          icon: 'las la-robot',
           style: 'size:50px',
-          type: 'router',
-          name: 'Router',
-          label: 'Router',
+          type: 'chatgpt',
+          name: 'ChatGPT',
+          label: 'ChatGPT',
           disabled: false,
           columns: [],
           properties: []
         }
       }
 
-      //, chord, segment, map, reduce
-      var els = [script, api, processor, markdown, portin, router, portout, group, label, data, schema, border]
+      var els = [script, api, processor, markdown, portin, portout, group, label, data, schema, border, chatgpt]
 
       this.blocks = els
 
