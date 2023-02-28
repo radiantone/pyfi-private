@@ -79,6 +79,7 @@ services:
       - redis
       - postgresdb
     volumes:
+      - /tmp:/tmp
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
       - /var/run/docker.sock:/var/run/docker.sock
 
