@@ -521,10 +521,8 @@ def run_block():
     client = docker.from_env()
 
     _uuid = str(uuid4())
-    print(type(block["block"]["code"]))
     try:
-        os.makedirs("out", exist_ok=True)
-        with open("out/" + _uuid, "w") as pfile:
+        with open("/tmp/" + _uuid, "w") as pfile:
             pfile.write(block["block"]["code"] + "\n\n")
             pfile.write(block["call"] + "\n")
             print(block["block"]["code"] + "\n\n")
@@ -533,7 +531,7 @@ def run_block():
         result = client.containers.run(
             block["block"]["containerimage"],
             auto_remove=False,
-            volumes={os.getcwd() + "/out": {"bind": "/tmp/", "mode": "rw"}},
+            volumes={"/tmp": {"bind": "/tmp/", "mode": "rw"}},
             entrypoint="",
             command="python /tmp/" + _uuid,
         )
