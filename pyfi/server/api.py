@@ -525,8 +525,9 @@ def run_block():
     with open("out/" + _uuid, "w") as pfile:
         pfile.write(block["block"]["code"] + "\n\n")
         pfile.write(block["call"] + "\n")
+        print(block["block"]["code"] + "\n\n")
+        print(block["call"] + "\n")
 
-    print(block["block"]["containerimage"])
     result = client.containers.run(
         block["block"]["containerimage"],
         auto_remove=False,

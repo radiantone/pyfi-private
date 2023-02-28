@@ -305,6 +305,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               call = 'import json\n_result = ' + call
               console.log('RUN BLOCK IN CONTAINER', block)
               call = call + '\nprint(json.dumps(_result))\n'
+              console.log('CODE CALL RUNBLOCK', code + '\n' + call)
               DataService.runBlock(block, call, this.$store.state.designer.token).then((result: any) => {
                 console.log('CONTAINER RESULT', result)
                 var end = Moment(new Date())
@@ -319,10 +320,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
                 }
 
-                // TODO: Check answer for "plugs"
-                debugger
+                let _plugs = {}
                 if (answer.hasOwnProperty('plugs')) {
-                  const _plugs = answer.plugs
+                  _plugs = answer.plugs
                 }
 
                 this.$emit('message.received', {
@@ -331,7 +331,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   function: func,
                   arg: argument.toString().length,
                   duration: time,
-                  output: JSON.stringify(answer)
+                  output: JSON.stringify(answer.result),
+                  plugs: JSON.stringify(_plugs)
                 })
               })
             } else {

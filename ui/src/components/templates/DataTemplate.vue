@@ -2210,7 +2210,9 @@ export default {
   },
   watch: {
     'obj.cron': function (val) {
-      this.startSchedule(val)
+      if(val && obj.crontoggle) {
+        this.startSchedule(val)
+      }
     },
     'obj.status': function (val) {
       window.designer.$root.$emit('toolkit.dirty')
@@ -2468,7 +2470,9 @@ export default {
     this.fetchCode()
     this.updateBandwidthChart()
     this.updatePorts()
-    this.startSchedule(this.obj.cron)
+    if (obj.crontoggle) {
+      this.startSchedule(this.obj.cron)
+    }
   },
   data () {
     return {
