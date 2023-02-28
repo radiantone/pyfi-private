@@ -523,7 +523,8 @@ def run_block():
     _uuid = str(uuid4())
     print(type(block["block"]["code"]))
     try:
-        with open("/tmp/" + _uuid, "w") as pfile:
+        os.makedirs("out", exist_ok=True)
+        with open("out/" + _uuid, "w") as pfile:
             pfile.write(block["block"]["code"] + "\n\n")
             pfile.write(block["call"] + "\n")
             print(block["block"]["code"] + "\n\n")
