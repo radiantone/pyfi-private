@@ -4182,7 +4182,7 @@ export default {
         const code = node.data.code
         debugger
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, { result: result, plugs: plugs }, this.obj)
+        window.root.$emit(target_id, code, options.function, options.name, { result: result, plugs: plugs }, node.data)
       })
     },
     triggerObject (portname, result, plugs) {
@@ -4210,7 +4210,7 @@ export default {
           me.bytes_out += reslen
           debugger
           // TODO: Insert block JSON here
-          window.root.$emit(target_id, code, options.function, options.name, { result: _result, plugs: _plugs }, this.obj)
+          window.root.$emit(target_id, code, options.function, options.name, { result: _result, plugs: _plugs }, node.data)
         })
         me.bytes_out_5min.unshift(reslen)
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
