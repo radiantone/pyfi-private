@@ -1664,8 +1664,13 @@
                       label="Containerized"
                       :disable="!hasHosted"
                     />
-                    <q-space/>
-                    <q-btn flat label="Advanced" class="text-white bg-primary text-primary" :disable="!hasHosted"/>
+                    <q-space />
+                    <q-btn
+                      flat
+                      label="Advanced"
+                      class="text-white bg-primary text-primary"
+                      :disable="!hasHosted"
+                    />
                   </q-toolbar>
                 </div>
               </q-tab-panel>
@@ -2512,7 +2517,6 @@ export default {
           }
           me.bytes_in += arg.length
           me.calls_in += 1
-
         } catch (e) {
 
         }
@@ -2556,8 +2560,6 @@ export default {
 
           const answer = JSON.parse(msg.output)
 
-          const _arg = msg.arg
-
           // update resultdata
           me.resultdata.push({
             name: msg.function,
@@ -2571,11 +2573,11 @@ export default {
             task_id: uuidv4()
           })
 
-          //me.bytes_out_5min.unshift(msg.output.length)
+          // me.bytes_out_5min.unshift(msg.output.length)
           // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          //me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          // me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
           // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          //me.bytes_out += msg.output.length
+          // me.bytes_out += msg.output.length
 
           me.updateBandwidthChart()
           // update resultdata
@@ -2600,7 +2602,7 @@ export default {
         for (var key in this.portobjects) {
           key = key.replace('func:', '')
           if (key === func) {
-            me.triggerObject('func:' + key, msg.output)
+            me.triggerObject('func:' + key, msg.output, msg.plugs)
           }
         }
       }
@@ -2681,7 +2683,7 @@ export default {
           )
         }
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-        //me.calls_out += 1
+        // me.calls_out += 1
         me.resultlogs.unshift(json)
         me.resultlogs = me.resultlogs.slice(0, 100)
       }
@@ -3791,7 +3793,7 @@ export default {
       })
       elems.forEach((el) => {
         if (el != this.$el && el.jtk && el.jtk.node.getType() === 'border') {
-          console.log("HIDING BORDER")
+          console.log('HIDING BORDER')
           el.style['z-index'] = -9999
         }
       })
@@ -4100,7 +4102,6 @@ export default {
     },
     executeObject (portname, data) {
       var me = this
-      const plugs = "plugs = {'output A':{}}\n"
       const call = this.portobjects[portname].name.replace('function: ', '')
       let code = this.obj.code
       code = code + '\n' + call + '()'
@@ -4123,24 +4124,35 @@ export default {
           Date.now()
         )
         me.updateBandwidthChart()
+        // TODO: No longer need this, plugs returned explicitly from functions needing them
+        // So check the response for dictionary with "plugs" key
+        // const _plugs = window.pyodide.globals.get('plugs').toJs()
         debugger
-        const _plugs = window.pyodide.globals.get('plugs').toJs()
+        let _plugs = {}
+        let _result = {}
+        if (res === Object(res)) {
+          answer = Object.fromEntries(res.toJs())
+          _plugs = toObject(answer.plugs)
+          _result = toObject(answer.result)
+        }
+
         console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
-          debugger
           if (port.data.type === 'Plug') {
-            const plug_result = _plugs.get(port.data.name)
-            me.triggerRoute(port.data.id, plug_result)
+            debugger
+            if (_plugs.hasOwnProperty(port.data.name)) {
+              const plug_result = _plugs.get(port.data.name)
+              me.triggerRoute(port.data.id, plug_result, {})
+            }
           }
         })
         if (res === Object(res)) {
-          answer = Object.fromEntries(res.toJs())
-          console.log('CODE CALL RESULT', answer)
+          console.log('CODE CALL RESULT', _result, _plugs)
           this.$emit('message.received', {
             type: 'result',
             id: this.obj.id,
             function: call,
-            output: JSON.stringify(answer)
+            output: JSON.stringify(_result)
           })
         }
       }, (error) => {
@@ -4160,7 +4172,8 @@ export default {
         window.root.$emit(target_id, code, options.function, options.name, error, this.obj)
       })
     },
-    triggerRoute (portid, result) {
+    triggerRoute (portid, result, plugs) {
+      debugger
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
@@ -4169,12 +4182,14 @@ export default {
         const code = node.data.code
         debugger
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, result, this.obj)
+        window.root.$emit(target_id, code, options.function, options.name, { result: result, plugs: plugs }, node.data)
       })
     },
-    triggerObject (portname, result) {
+    triggerObject (portname, result, plugs) {
       var me = this
-      let reslen = result.toString().length
+      const reslen = result.toString().length
+      const _result = JSON.parse(result)
+      const _plugs = JSON.parse(plugs)
 
       tsdb.series('outBytes').insert(
         {
@@ -4195,18 +4210,17 @@ export default {
           me.bytes_out += reslen
           debugger
           // TODO: Insert block JSON here
-          window.root.$emit(target_id, code, options.function, options.name, result, this.obj)
+          window.root.$emit(target_id, code, options.function, options.name, { result: _result, plugs: _plugs }, node.data)
         })
         me.bytes_out_5min.unshift(reslen)
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
 
-        const _plugs = window.pyodide.globals.get('plugs').toJs()
-
-        console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
-            const plug_result = _plugs.get(port.data.name)
-            me.triggerRoute(port.data.id, plug_result)
+            if (_plugs.hasOwnProperty(port.data.name)) {
+              const plug_result = _plugs[port.data.name]
+              me.triggerRoute(port.data.id, plug_result, {}) // plugs
+            }
           }
         })
       } else {
