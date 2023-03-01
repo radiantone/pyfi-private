@@ -398,35 +398,38 @@
             <q-tab
               name="console"
               class="text-dark"
-            icon="fas fa-terminal"
+              icon="las la-terminal"
               label="Console"
+              style="font-size:16px"
             />
             <q-tab
               name="messages"
               class="text-dark"
-            icon="las la-envelope"
+              icon="las la-envelope"
               label="Messages"
+              style="font-size:16px"
             />
             <q-tab
               name="queues"
               class="text-dark"
               icon="input"
               label="Queues"
+              style="font-size:16px"
             />
             <q-tab
               name="monitor"
               class="text-dark"
-
-            icon="las la-desktop"
+              icon="las la-desktop"
               label="Monitor"
+              style="font-size:16px"
               disable
             />
             <q-tab
               name="error"
               class="text-dark"
-
-            icon="las la-exclamation"
+              icon="las la-exclamation"
               label="Errors"
+              style="font-size:16px"
               disable
             />
           </q-tabs>
@@ -439,7 +442,7 @@
               ref="console"
               style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
             >
-              <q-scroll-area style="height: calc(100vh - 220px); width: 100%;">
+              <q-scroll-area style="height: calc(100vh - 240px); width: 100%;">
                 <div v-for="log in consolelog">
                   <span style="font-weight:bold">{{log.name}}:</span><span>{{log.date}}</span>
                   <pre>{{log.msg}}</pre>
@@ -3424,7 +3427,7 @@ export default defineComponent({
           id: 1
         }
       ],
-      drawertab: 'messages',
+      drawertab: 'console',
       drawer: true,
       tab: 'flow1',
       tools: 'code',
