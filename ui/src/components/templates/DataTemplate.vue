@@ -1218,7 +1218,7 @@
           style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
           flat
           icon="published_with_changes"
-          class="bg-secondary text-accent"
+          class="bg-primary text-secondary"
           color="primary"
           v-close-popup
           @click="fetchCode"
@@ -1234,7 +1234,7 @@
         </q-btn>
 
         <q-btn
-          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
           flat
           icon="fas fa-home"
           class="bg-secondary text-accent"
