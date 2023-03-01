@@ -398,27 +398,34 @@
             <q-tab
               name="console"
               class="text-dark"
+            icon="fas fa-terminal"
               label="Console"
             />
             <q-tab
               name="messages"
               class="text-dark"
+            icon="las la-envelope"
               label="Messages"
             />
             <q-tab
               name="queues"
               class="text-dark"
+              icon="input"
               label="Queues"
             />
             <q-tab
               name="monitor"
               class="text-dark"
+
+            icon="las la-desktop"
               label="Monitor"
               disable
             />
             <q-tab
               name="error"
               class="text-dark"
+
+            icon="las la-exclamation"
               label="Errors"
               disable
             />
@@ -954,21 +961,25 @@
         active-color="dark"
         indicator-color="primary"
         active-bg-color="accent"
+        color="accent"
       >
         <q-tab
           name="blocksregistry"
           label="Blocks"
           icon="las la-cube"
+          class="text-dark"
         />
         <q-tab
           name="blockspublic"
           label="Public"
           icon="las la-globe"
+          class="text-dark"
         />
         <q-tab
           name="blocksmine"
           label="Private"
           icon="las la-user"
+          class="text-dark"
         />
       </q-tabs>
 
@@ -2874,42 +2885,6 @@ export default defineComponent({
         }
       }
 
-      var portin = document.querySelector('#portin')
-      portin.data = {
-        id: 6,
-        enabled: this.hasHosted,
-        node: {
-          icon: 'icon-port-in',
-          style: 'size:50px',
-          type: 'portin',
-          name: 'Port In',
-          label: 'Port In',
-          description: 'A port in description',
-          package: 'queue name',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var portout = document.querySelector('#portout')
-      portout.data = {
-        id: 7,
-        enabled: this.hasHosted,
-        node: {
-          icon: 'icon-port-out',
-          style: 'size:50px',
-          type: 'portout',
-          name: 'Port Out',
-          label: 'Port Out',
-          description: 'A port out description',
-          package: 'queue name',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
       var group = document.querySelector('#processorgroup')
       group.data = {
         id: 8,
@@ -3073,7 +3048,25 @@ export default defineComponent({
         }
       }
 
-      var els = [script, api, processor, markdown, portin, portout, group, label, data, schema, border, chatgpt, inference]
+
+      var queue = document.querySelector('#queue')
+      queue.data = {
+        id: 14,
+        enabled: true,
+        node: {
+          icon: 'input',
+          style: 'size:50px',
+          type: 'queue',
+          name: 'Queue',
+          label: 'Queue',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt,
+        inference, queue]
 
       this.blocks = els
 

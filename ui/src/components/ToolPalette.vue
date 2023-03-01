@@ -79,23 +79,6 @@
       <q-btn
         flat
         align="left"
-        icon="las la-cloud-upload-alt"
-        aria-label="API"
-        size="xl"
-        id="api"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          API
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        align="left"
         icon="icon-processor"
         aria-label="Processor"
         size="large"
@@ -113,45 +96,42 @@
           Processor
         </q-tooltip>
       </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-cloud-upload-alt"
+        aria-label="API"
+        size="xl"
+        id="api"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          API
+        </q-tooltip>
+      </q-btn>
 
       <q-btn
         flat
         align="left"
-        icon="icon-port-in"
-        aria-label="Port In"
-        size="large"
-        id="portin"
+        icon="input"
+        aria-label="Label"
+        size="xl"
+        id="queue"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Port In
+          Queue
         </q-tooltip>
       </q-btn>
-      <q-btn
-        flat
-        align="left"
-        icon="icon-port-out"
-        aria-label="Port Out"
-        id="portout"
-        size="large"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Port Out
-        </q-tooltip>
-      </q-btn>
+
       <q-btn
         flat
         align="left"

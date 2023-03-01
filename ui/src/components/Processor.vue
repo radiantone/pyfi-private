@@ -256,7 +256,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           }
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
-            console.log('   INVOKING:', func)
+            console.log('   INVOKING:', func, data)
             let call = func + '('
             let count = 0
             me.portobjects[func].forEach((_arg: any) => {
@@ -355,6 +355,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   _result = toObject(answer.result)
                 }
                 console.log('CODE CALL ANSWER', answer, _plugs, _result, JSON.stringify(answer))
+
                 this.$emit('message.received', {
                   type: 'result',
                   id: this.id,
