@@ -1042,6 +1042,71 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog
+      v-model="confirmCodeFetch"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Fetch Code</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Fetch code from GIT and overwrite current code?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Yes"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="fetchCode"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <!-- Delete dialog -->
     <q-dialog
       v-model="deleteConfirm"
@@ -1176,7 +1241,8 @@
           class="bg-secondary text-accent"
           color="primary"
           v-close-popup
-          @click="fetchCode"
+          @click="confirmFetch"
+          :disable="!this.obj.usegit"
         >
           <q-tooltip
             anchor="top middle"
@@ -1209,22 +1275,12 @@
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="codeview = false"
-          v-close-popup
-        />
-        <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click=""
         />
       </q-card-actions>
     </q-card>
@@ -2599,10 +2655,22 @@ export default {
         const func = msg.function
         // Find the port for the function
         // Emit result over the port edges
+        let _plugs = JSON.parse(msg.plugs)
         for (var key in this.portobjects) {
+          let port = this.portobjects[key]
           key = key.replace('func:', '')
+
+          if (key in _plugs) {
+            let plug_data = _plugs[key]
+            if (port.id) {
+              me.triggerRoute(port.id, plug_data, msg.plugs)
+            }
+          }
           if (key === func) {
-            me.triggerObject('func:' + key, msg.output, msg.plugs)
+            //me.triggerObject('func:' + key, msg.output, msg.plugs)
+            if (port.id) {
+              me.triggerRoute(port.id, JSON.parse(msg.output), msg.plugs)
+            }
           }
         }
       }
@@ -2825,6 +2893,7 @@ export default {
   },
   data () {
     return {
+      confirmCodeFetch: false,
       currentresult: '',
       resulttype: 'finished',
       queues: [],
@@ -3376,12 +3445,12 @@ export default {
     showArgumentData (data) {
       var me = this
       this.argumentview = !this.argumentview
-
+      console.log("showArgumentData", data)
       if (this.argumentview) {
         setTimeout(() => {
           if (me.$refs.jsonArgumentEditor) {
             const editor = me.$refs.jsonArgumentEditor.editor
-            editor.session.setValue(JSON.stringify(data))
+            editor.session.setValue(data)
           }
         })
       }
@@ -3586,30 +3655,38 @@ export default {
     },
     fetchCode (callback) {
       var me = this
+      var url = new URL(this.obj.gitrepo)
+      console.log('FETCHCODE URL ', url)
+      if (this.obj.gitrepo === undefined || this.obj.gitrepo.length === 0 || !this.obj.usegit) {
+        console.log("Criteria not met", this.obj.gitrepo, this.obj.gitrepo.length, this.usegit)
+        return
+      }
+
+      // TODO: Choose branch name
+      var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
+      http.get(codeUrl).then((response) => {
+        console.log('CODE RESPONSE', response)
+
+        me.obj.code = response.data
+        // const re = /(def)\s(\w+)/g;
+        me.updateFunctions(response.data)
+
+        if (this.$refs.codeEditor) {
+          const editor = this.$refs.codeEditor.editor
+
+          if (editor) {
+            editor.session.setValue(me.obj.code)
+            callback(me.obj.code)
+          }
+        }
+      })
+    },
+    confirmFetch () {
       if (this.obj.gitrepo === undefined || this.obj.gitrepo.length == 0) {
         return
       }
-      var url = new URL(this.obj.gitrepo)
-      console.log('FETCHCODE URL ', url)
-      var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
-      console.log('CODE', codeUrl)
-      if (this.obj.code === undefined) {
-        http.get(codeUrl).then((response) => {
-          console.log('CODE RESPONSE', response)
-
-          me.obj.code = response.data
-          // const re = /(def)\s(\w+)/g;
-          me.updateFunctions(response.data)
-
-          if (this.$refs.codeEditor) {
-            const editor = this.$refs.codeEditor.editor
-
-            if (editor) {
-              editor.session.setValue(me.obj.code)
-              callback(me.obj.code)
-            }
-          }
-        })
+      if (this.obj.code && this.obj.code.length > 0) {
+        this.confirmCodeFetch = true
       }
     },
     copyNode () {

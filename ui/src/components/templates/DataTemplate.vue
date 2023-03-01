@@ -1254,22 +1254,12 @@
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="codeview = false"
-          v-close-popup
-        />
-        <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click=""
         />
       </q-card-actions>
     </q-card>
