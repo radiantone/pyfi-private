@@ -1557,6 +1557,10 @@
                 name="versions"
                 label="Version"
               />
+              <q-tab
+                name="aitab"
+                label="AI"
+              />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
               <q-tab-panel
@@ -1576,7 +1580,7 @@
                       filled
                       v-model="obj.name"
                       dense
-                      hint="Processor Name"
+                      hint="Script Name"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1585,7 +1589,7 @@
                       filled
                       v-model="obj.description"
                       dense
-                      hint="Processor Description"
+                      hint="Script Description"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1593,7 +1597,7 @@
                       filled
                       v-model="obj.package"
                       dense
-                      hint="Processor Package"
+                      hint="Script Package"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1770,6 +1774,21 @@
                     v-model.number="obj.version"
                   />
                 </q-toolbar>
+              </q-tab-panel>
+              <q-tab-panel
+                name="aitab"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+ <q-toolbar style="margin-left: 30px;">
+                      <q-checkbox
+                        v-model="obj.envfacts"
+                        label="Add ENV Variables as Facts"
+                      />
+                      <q-checkbox
+                        v-model="obj.infengine"
+                        label="Import Inference Engine"
+                      />
+ </q-toolbar>
               </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
@@ -3170,6 +3189,8 @@ export default {
         receipt: new Date(),
         notes: '',
         style: '',
+        envfacts: true,
+        infengine: true,
         x: 0,
         y: 0,
         version: 'v1.2.2',
