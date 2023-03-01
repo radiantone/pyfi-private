@@ -2897,7 +2897,7 @@ export default defineComponent({
         id: 7,
         enabled: this.hasHosted,
         node: {
-          icon: 'fas fa-plug',
+          icon: 'icon-port-out',
           style: 'size:50px',
           type: 'portout',
           name: 'Port Out',
@@ -3041,24 +3041,39 @@ export default defineComponent({
         }
       }
 
-      var router = document.querySelector('#router')
-      router.data = {
-        id: 12,
-        enabled: this.hasHosted,
+      var chatgpt = document.querySelector('#chatgpt')
+      chatgpt.data = {
+        id: 13,
+        enabled: true,
         node: {
-          icon: 'alt_route',
+          icon: 'las la-robot',
           style: 'size:50px',
-          type: 'router',
-          name: 'Router',
-          label: 'Router',
+          type: 'chatgpt',
+          name: 'ChatGPT',
+          label: 'ChatGPT',
           disabled: false,
           columns: [],
           properties: []
         }
       }
 
-      //, chord, segment, map, reduce
-      var els = [script, api, processor, markdown, portin, router, portout, group, label, data, schema, border]
+      var inference = document.querySelector('#inference')
+      inference.data = {
+        id: 14,
+        enabled: true,
+        node: {
+          icon: 'las la-brain',
+          style: 'size:50px',
+          type: 'inference',
+          name: 'Inference',
+          label: 'Inference',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var els = [script, api, processor, markdown, portin, portout, group, label, data, schema, border, chatgpt, inference]
 
       this.blocks = els
 

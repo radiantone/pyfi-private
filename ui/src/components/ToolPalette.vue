@@ -271,6 +271,40 @@
           Markdown
         </q-tooltip>
       </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-robot"
+        aria-label="Label"
+        size="xl"
+        id="chatgpt"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          ChatGPT
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-brain"
+        aria-label="Label"
+        size="xl"
+        id="inference"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Inference
+        </q-tooltip>
+      </q-btn>
       <!--
       <q-btn
         flat
@@ -337,7 +371,7 @@
         icon="las la-ellipsis-h"
         aria-label="Elipsis"
         size="large"
-        id="router"
+        id="openblocks"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openBlocks"
