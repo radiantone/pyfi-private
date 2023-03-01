@@ -3379,8 +3379,10 @@ export default {
 
       if (this.argumentview) {
         setTimeout(() => {
-          const editor = me.$refs.jsonArgumentEditor.editor
-          editor.session.setValue(JSON.stringify(data))
+          if (me.$refs.jsonArgumentEditor) {
+            const editor = me.$refs.jsonArgumentEditor.editor
+            editor.session.setValue(JSON.stringify(data))
+          }
         })
       }
     },
