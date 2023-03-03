@@ -345,7 +345,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 var end = Moment(new Date())
                 const diff = end.diff(start)
                 var time = Moment.utc(diff).format('HH:mm:ss.SSS')
-                debugger
+
                 console.log('CODE CALL RESULT', res)
                 let _plugs = {}
                 let _result = {}
@@ -366,7 +366,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   plugs: JSON.stringify(_plugs)
                 })
               }, (error: any) => {
-                debugger
+
                 console.log('PYTHON ERROR', error)
                 this.$emit('python.error', {
                   type: 'error',

@@ -3665,7 +3665,7 @@ export default {
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-          debugger
+
           console.log('beforeStartConnect', source, source.getType(), edgetype)
           if (!source.data.name) {
             source.data.name = source.data.id
@@ -4227,7 +4227,7 @@ export default {
                     // }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
-                    debugger
+
                     if (component.source.attributes['data-jtk-port-id']) {
                       nodeValue =
                         component.source.attributes['data-jtk-port-id']

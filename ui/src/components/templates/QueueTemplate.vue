@@ -1,15 +1,12 @@
 <template>
   <div
     class="aGroup"
-    style="-webkit-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
--moz-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);
-box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px solid;background-color: white; min-height: 75px; z-index: -9999;"
+    style="min-height: 75px; z-index: -9999;"
     :id="obj.id"
-
     @mouseenter="setMouseIn(false)"
   >
     <div
-      style="position:absolute;right:0px;top:-35px;width:100px;height:35px"
+      style="position:absolute;left:0px;top:-15px;width:120px;height:120px"
       @mouseenter="showbuttons=true"
       @mouseleave="showbuttons=false"
     >
@@ -30,8 +27,28 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
         style="position:absolute;right:30px;top:0px"
       />
     </div>
-<q-icon name="input"/>
-
+    <q-icon name="input" color="secondary"  style="z-index:-9999;font-size:8em"/>
+        <q-item-label style="position:absolute;bottom:-1.2em;left:10px;font-family: 'Indie Flower', cursive;font-size:2em;font-weight:bold;">
+      {{ obj.name }}
+      <q-popup-edit
+        v-model="obj.name"
+        buttons
+      >
+        <q-input
+          type="string"
+          v-model="obj.name"
+          dense
+          autofocus
+          color="white"
+        />
+      </q-popup-edit>
+    </q-item-label>
+    <div class=" jtk-droppable" data-port-name="queue" data-port-event="queue" data-port-id="Queue" style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);right:-12px;min-width:25px;min-height:25px;">
+      <jtk-source name="source" port-id="Queue" port-type="queue" scope="Column" filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon" filter-exclude="true"/>
+     </div>
+    <div class=" jtk-droppable" data-port-name="queue" data-port-event="queue" data-port-id="Queue" style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);left:-12px;min-width:25px;min-height:25px;">
+      <jtk-source name="target" port-id="Queue" port-type="queue" scope="Column" filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon" filter-exclude="true"/>
+     </div>
   </div>
 </template>
 <style scoped>
@@ -166,7 +183,7 @@ export default {
       obj: {
         w: 500,
         h: 200,
-        name: 'Border Title',
+        name: 'Queue',
         color: '',
         markdown: `:::
 This is a **test** of markdown
@@ -269,7 +286,7 @@ This is a **test** of markdown
         })
     },
     deleteAGroup (all) {
-      debugger
+
       console.log('Removing group', this.obj)
       window.toolkit.removeGroup(this.obj, all)
     },

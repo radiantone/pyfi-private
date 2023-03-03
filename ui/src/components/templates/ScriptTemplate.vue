@@ -1861,7 +1861,7 @@
         <q-table
           dense
           :columns="variablecolumns"
-          :data="variabledata"
+          :data="obj.variabledata"
           row-key="name"
           flat
           style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
@@ -2685,6 +2685,7 @@ export default {
         // Find the port for the function
         // Emit result over the port edges
         let _plugs = JSON.parse(msg.plugs)
+
         for (var key in this.portobjects) {
           let port = this.portobjects[key]
           key = key.replace('func:', '')
@@ -2995,7 +2996,6 @@ export default {
           align: 'left'
         }
       ],
-      variabledata: [],
       owner: 'darren',
       historycolumns: [
         {
@@ -3203,6 +3203,7 @@ export default {
         receipt: new Date(),
         notes: '',
         style: '',
+        variabledata: [],
         envfacts: true,
         infengine: true,
         x: 0,
@@ -3615,7 +3616,7 @@ export default {
         })
     },
     addVariable () {
-      this.variabledata.push({
+      this.obj.variabledata.push({
         name: 'NAME',
         value: 'VALUE',
         scope: 'FLOW'
@@ -4246,7 +4247,7 @@ export default {
         // TODO: No longer need this, plugs returned explicitly from functions needing them
         // So check the response for dictionary with "plugs" key
         // const _plugs = window.pyodide.globals.get('plugs').toJs()
-        debugger
+
         let _plugs = {}
         let _result = {}
         if (res === Object(res)) {
@@ -4258,7 +4259,7 @@ export default {
         console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
-            debugger
+
             if (_plugs.hasOwnProperty(port.data.name)) {
               const plug_result = _plugs.get(port.data.name)
               me.triggerRoute(port.data.id, plug_result, {})
@@ -4275,7 +4276,7 @@ export default {
           })
         }
       }, (error) => {
-        debugger
+
         console.log('PYTHON ERROR', error)
       })
     },
@@ -4286,20 +4287,20 @@ export default {
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
         const code = node.data.code
-        debugger
+
         // TODO: Insert block JSON here
         window.root.$emit(target_id, code, options.function, options.name, error, this.obj)
       })
     },
     triggerRoute (portid, result, plugs) {
-      debugger
+
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
         const code = node.data.code
-        debugger
+
         // TODO: Insert block JSON here
         window.root.$emit(target_id, code, options.function, options.name, { result: result, plugs: plugs }, node.data)
       })
@@ -4327,7 +4328,7 @@ export default {
           const code = node.data.code
           me.calls_out += 1
           me.bytes_out += reslen
-          debugger
+
           // TODO: Insert block JSON here
           window.root.$emit(target_id, code, options.function, options.name, { result: _result, plugs: _plugs }, node.data)
         })
