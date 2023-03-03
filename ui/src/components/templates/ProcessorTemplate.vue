@@ -4489,7 +4489,7 @@ export default {
       // window.renderer.repaint(this.obj);
     },
     addPort (port) {
-      debugger
+
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {

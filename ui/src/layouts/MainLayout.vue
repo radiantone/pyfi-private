@@ -2201,7 +2201,7 @@ export default defineComponent({
       })
     },
     getToken () {
-      debugger
+
       const accessToken = this.security.token()
       accessToken.then(function (result) {
         // here you can use the result of promiseB

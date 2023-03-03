@@ -131,7 +131,23 @@
           Queue
         </q-tooltip>
       </q-btn>
-
+      <q-btn
+        flat
+        align="left"
+        icon="las la-clipboard-check"
+        aria-label="Label"
+        size="xl"
+        id="answer"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Answer
+        </q-tooltip>
+      </q-btn>
       <q-btn
         flat
         align="left"
