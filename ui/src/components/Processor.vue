@@ -220,6 +220,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       setId (id: string) {
         var me = this;
 
+        (window as any).root.$off(id);
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
           let obj = data
           this.id = id
@@ -347,12 +348,19 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 var time = Moment.utc(diff).format('HH:mm:ss.SSS')
 
                 console.log('CODE CALL RESULT', res)
-                let _plugs = {}
-                let _result = {}
+                //let _result = {}
                 if (res === Object(res)) {
                   answer = Object.fromEntries(res.toJs())
+                //  _plugs = toObject(answer.plugs)
+                //  _result = toObject(answer.result)
+                }
+
+                let _result = toObject(answer)
+                let _plugs = {}
+                if (answer.hasOwnProperty('plugs')) {
                   _plugs = toObject(answer.plugs)
                   _result = toObject(answer.result)
+                  console.log('CODE CALL PLUGS', _plugs)
                 }
                 console.log('CODE CALL ANSWER', answer, _plugs, _result, JSON.stringify(answer))
 
