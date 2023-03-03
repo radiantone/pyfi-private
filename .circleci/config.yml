@@ -5,6 +5,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@8.2.1
   aws-ecs: circleci/aws-ecs@3.2.0
   node: circleci/node@5.1.0
+  jira: circleci/jira@1.3.1
 
 jobs:
   build-and-test:
@@ -12,6 +13,7 @@ jobs:
       - image: cimg/python:3.10.2
     steps:
       - checkout
+      - run: cat ui/auth_config.json
       - run: mkdir -p ./workspace/certs
       - run: echo "$elasticcode_crt" > ./workspace/certs/elasticcode.crt
       - run: echo "$elasticcode_app_crt" > ./workspace/certs/elasticcode-app.crt
@@ -68,7 +70,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.nginx
-          extra-build-args: '--compress'
+          extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1'
           path: ./docker
           platform: linux/amd64
           public-registry: false
@@ -85,6 +87,9 @@ workflows:
                   repo: nginx
                   source-tag: 'local'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: development
+                  job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-api
           requires:
@@ -111,6 +116,9 @@ workflows:
                   repo: api
                   source-tag: 'local'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: development
+                  job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
@@ -137,3 +145,6 @@ workflows:
                   repo: clientsocket
                   source-tag: 'local'
                   target-tag: $CIRCLE_SHA1
+              - jira/notify:
+                  environment_type: development
+                  job_type: deployment
