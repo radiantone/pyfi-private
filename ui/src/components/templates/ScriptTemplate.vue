@@ -2629,6 +2629,7 @@ export default {
         }
       }
       if (msg.type && msg.type === 'result') {
+        console.log("triggerRoute: RESULT: ", this.obj.name)
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
@@ -2636,6 +2637,9 @@ export default {
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
           const resdate = new Date()
+          if (msg.output === undefined) {
+            debugger
+          }
           tsdb.series('outBytes').insert(
             {
               bytes: msg.output.length
@@ -2685,21 +2689,24 @@ export default {
         // Find the port for the function
         // Emit result over the port edges
         let _plugs = JSON.parse(msg.plugs)
-
+        console.log("  triggerRoute: ports", this.portobjects)
         for (var key in this.portobjects) {
+          console.log("  triggerRoute: key:", key,"func:", func,"name:",this.obj.name)
           let port = this.portobjects[key]
           key = key.replace('func:', '')
-
+          console.log("  triggerRoute: key:", key,"plugs:",_plugs)
           if (_plugs[key] !== undefined) {
             let plug_data = _plugs[key]
             if (port.id) {
+              console.log("    triggerRoute 1:",  this.obj.name, plug_data)
               me.triggerRoute(port.id, plug_data, msg.plugs)
             }
           }
           if (key === func) {
-            //me.triggerObject('func:' + key, msg.output, msg.plugs)
             if (port.id) {
-              me.triggerRoute(port.id, JSON.parse(msg.output), msg.plugs)
+              let output = JSON.parse(msg.output)
+              console.log("    triggerRoute 2:", this.obj.name, output)
+              me.triggerRoute(port.id, output, msg.plugs)
             }
           }
         }
@@ -4262,6 +4269,7 @@ export default {
 
             if (_plugs.hasOwnProperty(port.data.name)) {
               const plug_result = _plugs.get(port.data.name)
+              console.log("triggerRoute 3:", plug_result)
               me.triggerRoute(port.data.id, plug_result, {})
             }
           }
@@ -4295,6 +4303,7 @@ export default {
     triggerRoute (portid, result, plugs) {
 
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
+      console.log("triggerRoute: # edges",this.obj.name, _port.getEdges().length)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
@@ -4302,7 +4311,8 @@ export default {
         const code = node.data.code
 
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, { result: result, plugs: plugs }, node.data)
+        console.log("triggerRoute: edge:",edge, target_id)
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data)
       })
     },
     triggerObject (portname, result, plugs) {
@@ -4330,7 +4340,8 @@ export default {
           me.bytes_out += reslen
 
           // TODO: Insert block JSON here
-          window.root.$emit(target_id, code, options.function, options.name, { result: _result, plugs: _plugs }, node.data)
+          console.log("triggerObject: triggerRoute:",target_id)
+          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
         })
         me.bytes_out_5min.unshift(reslen)
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
@@ -4339,6 +4350,7 @@ export default {
           if (port.data.type === 'Plug') {
             if (_plugs.hasOwnProperty(port.data.name)) {
               const plug_result = _plugs[port.data.name]
+              console.log("triggerRoute 4:", plug_result)
               me.triggerRoute(port.data.id, plug_result, {}) // plugs
             }
           }

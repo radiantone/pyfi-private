@@ -2988,10 +2988,10 @@ export default {
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
       result.then((result) => {
         const resultstr = result.toString()
-        console.log('DATA TEMPLATE RESULT', resultstr)
-        console.log('PORT EDGES', _port.getEdges())
+        console.log('DATA EDGE TEMPLATE RESULT', resultstr)
+        console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
         _port.getEdges().forEach((edge) => {
-          console.log('EDGE->NODE', edge, edge.target.getNode())
+          console.log('DATA EDGE->NODE', edge, edge.target.getNode())
           const options = edge.target.data
           const target_id = edge.target.getNode().data.id
           console.log('target node id', target_id)
