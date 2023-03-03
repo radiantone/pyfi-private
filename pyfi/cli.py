@@ -4899,7 +4899,7 @@ def api_start(context, ip, port):
         server.app_context().push()
 
         try:
-            """
+
             options = {
                 "bind": "%s:%s" % ("0.0.0.0", str(port)),
                 "workers": cpus,
@@ -4907,8 +4907,8 @@ def api_start(context, ip, port):
                 "timeout": 120,
             }
             StandaloneApplication(server, options).run()
-            """
-            bjoern.run(server, ip, port)
+
+            #bjoern.run(server, ip, port)
         except Exception as ex:
             logging.error(ex)
             logger.info("Shutting down...")
