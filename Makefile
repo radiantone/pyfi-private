@@ -44,11 +44,11 @@ pull:
 
 .PHONY: up
 up:
-	docker compose -f docker-compose-dev.yml up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api
+	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api pgadmin
 
 .PHONY: stop
 stop:
-	docker compose -f docker-compose-dev.yml stop
+	docker compose stop
 
 # Refresh dockers
 .PHONY: refresh

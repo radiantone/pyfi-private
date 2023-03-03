@@ -26,7 +26,7 @@
             { icon: 'far fa-object-group', value: 'select', slot: 'select' },
           ]"
         >
-          <template v-slot:pan>
+          <template #pan>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -35,7 +35,7 @@
               Pan Mode
             </q-tooltip>
           </template>
-          <template v-slot:select>
+          <template #select>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -1731,7 +1731,7 @@
           horizontal
           style="height: calc(100% - 40px);"
         >
-          <template v-slot:before>
+          <template #before>
             <q-table
               dense
               :columns="versioncolumns"
@@ -1746,7 +1746,7 @@
                 border-bottom-radius: 0px;
               "
             >
-              <template v-slot:body="props">
+              <template #body="props">
                 <q-tr
                   :props="props"
                   :key="getUuid"
@@ -1795,7 +1795,7 @@
             </q-table>
           </template>
           <template
-            v-slot:after
+            #after
           >
             <div style="height: 100%; width: 100%;">
               <Designer
@@ -1909,7 +1909,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -2032,8 +2032,7 @@
         <q-card-section
           class="row items-center"
           style="height: 120px; width: 100%;"
-        >
-        </q-card-section>
+        />
 
         <q-card-actions align="right">
           <q-btn
@@ -2106,7 +2105,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -2380,6 +2379,7 @@ import ProcessorTemplate from 'components/templates/ProcessorTemplate.vue'
 import GroupTemplate from 'components/templates/GroupTemplate.vue'
 import PatternTemplate from 'components/templates/PatternTemplate.vue'
 import BorderTemplate from 'components/templates/BorderTemplate.vue'
+import QueueTemplate from 'components/templates/QueueTemplate.vue'
 import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
@@ -3111,8 +3111,8 @@ export default {
       HOSTED: 4,
       ENTERPRISE: 5,
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
@@ -3665,7 +3665,7 @@ export default {
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-          debugger
+
           console.log('beforeStartConnect', source, source.getType(), edgetype)
           if (!source.data.name) {
             source.data.name = source.data.id
@@ -3800,6 +3800,9 @@ export default {
                 // toolkit.toggleSelection(params.node);
               }
             }
+          },
+          queue: {
+            component: QueueTemplate
           },
           border: {
             component: BorderTemplate
@@ -4224,7 +4227,7 @@ export default {
                     // }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
-                    debugger
+
                     if (component.source.attributes['data-jtk-port-id']) {
                       nodeValue =
                         component.source.attributes['data-jtk-port-id']
