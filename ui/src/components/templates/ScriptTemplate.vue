@@ -1280,7 +1280,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          v-close-popup
+          @click="codeview=false"
         />
       </q-card-actions>
     </q-card>
@@ -1717,6 +1717,16 @@
                       lazy-rules
                       :disable="!hasHosted"
                     />
+                    <q-select
+                      filled
+                      dense
+                      v-model="obj.containerimage"
+                      use-input
+                      input-debounce="0"
+                      hint="Prebuilt Images"
+                      :options="containers"
+                      style="width: 250px"
+                    ></q-select>
                   </q-form>
                   <q-toolbar>
                     <q-checkbox
@@ -2679,7 +2689,7 @@ export default {
           let port = this.portobjects[key]
           key = key.replace('func:', '')
 
-          if (key in _plugs) {
+          if (_plugs[key] !== undefined) {
             let plug_data = _plugs[key]
             if (port.id) {
               me.triggerRoute(port.id, plug_data, msg.plugs)
@@ -2912,6 +2922,10 @@ export default {
   },
   data () {
     return {
+      containers: [
+        'pyfi/processor:latest',
+        'pyfi/chatgpt:latest'
+      ],
       confirmCodeFetch: false,
       currentresult: '',
       resulttype: 'finished',
