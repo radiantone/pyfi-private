@@ -1726,7 +1726,7 @@
                       hint="Prebuilt Images"
                       :options="containers"
                       style="width: 250px"
-                    ></q-select>
+                    />
                   </q-form>
                   <q-toolbar>
                     <q-checkbox
@@ -1789,16 +1789,16 @@
                 name="aitab"
                 style="padding-top: 0px; padding-bottom: 0px;"
               >
- <q-toolbar style="margin-left: 30px;">
-                      <q-checkbox
-                        v-model="obj.envfacts"
-                        label="Add ENV Variables as Facts"
-                      />
-                      <q-checkbox
-                        v-model="obj.infengine"
-                        label="Import Inference Engine"
-                      />
- </q-toolbar>
+                <q-toolbar style="margin-left: 30px;">
+                  <q-checkbox
+                    v-model="obj.envfacts"
+                    label="Add ENV Variables as Facts"
+                  />
+                  <q-checkbox
+                    v-model="obj.infengine"
+                    label="Import Inference Engine"
+                  />
+                </q-toolbar>
               </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
@@ -2629,7 +2629,6 @@ export default {
         }
       }
       if (msg.type && msg.type === 'result') {
-        console.log("triggerRoute: RESULT: ", this.obj.name)
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
@@ -2688,25 +2687,26 @@ export default {
         const func = msg.function
         // Find the port for the function
         // Emit result over the port edges
-        let _plugs = JSON.parse(msg.plugs)
-        console.log("  triggerRoute: ports", this.portobjects)
+        const _plugs = JSON.parse(msg.plugs)
         for (var key in this.portobjects) {
-          console.log("  triggerRoute: key:", key,"func:", func,"name:",this.obj.name)
-          let port = this.portobjects[key]
+          const port = this.portobjects[key]
           key = key.replace('func:', '')
-          console.log("  triggerRoute: key:", key,"plugs:",_plugs)
           if (_plugs[key] !== undefined) {
-            let plug_data = _plugs[key]
+            const plug_data = _plugs[key]
             if (port.id) {
-              console.log("    triggerRoute 1:",  this.obj.name, plug_data)
               me.triggerRoute(port.id, plug_data, msg.plugs)
             }
-          }
-          if (key === func) {
-            if (port.id) {
-              let output = JSON.parse(msg.output)
-              console.log("    triggerRoute 2:", this.obj.name, output)
-              me.triggerRoute(port.id, output, msg.plugs)
+          } else {
+            if (key === func) {
+              if (port.id) {
+                const output = JSON.parse(msg.output)
+
+                me.calls_out += 1
+                me.bytes_out += msg.output.length
+                me.bytes_out_5min.unshift(msg.output.length)
+                me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+                me.triggerRoute(port.id, output, msg.plugs)
+              }
             }
           }
         }
@@ -3488,7 +3488,7 @@ export default {
     showArgumentData (data) {
       var me = this
       this.argumentview = !this.argumentview
-      console.log("showArgumentData", data)
+      console.log('showArgumentData', data)
       if (this.argumentview) {
         setTimeout(() => {
           if (me.$refs.jsonArgumentEditor) {
@@ -3701,7 +3701,7 @@ export default {
       var url = new URL(this.obj.gitrepo)
       console.log('FETCHCODE URL ', url)
       if (this.obj.gitrepo === undefined || this.obj.gitrepo.length === 0 || !this.obj.usegit) {
-        console.log("Criteria not met", this.obj.gitrepo, this.obj.gitrepo.length, this.usegit)
+        console.log('Criteria not met', this.obj.gitrepo, this.obj.gitrepo.length, this.usegit)
         return
       }
 
@@ -4051,7 +4051,7 @@ export default {
       require('brace/snippets/javascript') // snippet
       const editor = this.$refs.codeEditor.editor
       editor.setAutoScrollEditorIntoView(true)
-      if(this.obj.usegit) {
+      if (this.obj.usegit) {
         editor.setReadOnly(true)
       } else {
         editor.setReadOnly(false)
@@ -4266,10 +4266,9 @@ export default {
         console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
-
             if (_plugs.hasOwnProperty(port.data.name)) {
               const plug_result = _plugs.get(port.data.name)
-              console.log("triggerRoute 3:", plug_result)
+              console.log('triggerRoute 3:', plug_result)
               me.triggerRoute(port.data.id, plug_result, {})
             }
           }
@@ -4284,7 +4283,6 @@ export default {
           })
         }
       }, (error) => {
-
         console.log('PYTHON ERROR', error)
       })
     },
@@ -4301,9 +4299,8 @@ export default {
       })
     },
     triggerRoute (portid, result, plugs) {
-
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
-      console.log("triggerRoute: # edges",this.obj.name, _port.getEdges().length)
+      console.log('triggerRoute: # edges', this.obj.name, _port.getEdges().length)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
@@ -4311,7 +4308,7 @@ export default {
         const code = node.data.code
 
         // TODO: Insert block JSON here
-        console.log("triggerRoute: edge:",edge, target_id)
+        console.log('triggerRoute: edge:', edge, target_id)
         window.root.$emit(target_id, code, options.function, options.name, result, node.data)
       })
     },
@@ -4340,7 +4337,7 @@ export default {
           me.bytes_out += reslen
 
           // TODO: Insert block JSON here
-          console.log("triggerObject: triggerRoute:",target_id)
+          console.log('triggerObject: triggerRoute:', target_id)
           window.root.$emit(target_id, code, options.function, options.name, result, node.data)
         })
         me.bytes_out_5min.unshift(reslen)
@@ -4350,7 +4347,7 @@ export default {
           if (port.data.type === 'Plug') {
             if (_plugs.hasOwnProperty(port.data.name)) {
               const plug_result = _plugs[port.data.name]
-              console.log("triggerRoute 4:", plug_result)
+              console.log('triggerRoute 4:', plug_result)
               me.triggerRoute(port.data.id, plug_result, {}) // plugs
             }
           }
