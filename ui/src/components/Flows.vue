@@ -250,6 +250,7 @@
             label="Cancel"
             class="bg-accent text-dark"
             color="primary"
+            @click="cancelSave"
             v-close-popup
           />
           <q-btn
@@ -466,11 +467,16 @@ export default {
     this.$root.$off('save.flow.to.folder.' + this.flowid)
   },
   methods: {
+    cancelSave () {
+      this.$root.$emit('save.flow.succeeded')
+    },
     async doOverwriteFlow () {
       console.log('doOverwriteFlow')
       await this.saveFlow()
     },
     async saveFlow () {
+
+      this.$root.$emit('save.flow.started', this.flowid)
       const me = this
       this.loading = true
       console.log(
