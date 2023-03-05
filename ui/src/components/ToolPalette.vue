@@ -117,7 +117,7 @@
       <q-btn
         flat
         align="left"
-        icon="input"
+        icon="las la-sign-in-alt"
         aria-label="Label"
         size="xl"
         id="queue"
