@@ -2729,6 +2729,7 @@ export default {
     },
     saveFlow () {
       const graph = window.toolkit.getGraph().serialize()
+      this.loading = true
       graph.variables = this.variabledata
       var thecode = JSON.stringify(
         graph,
@@ -2921,6 +2922,12 @@ export default {
       me.showName = true
     }, 1000)
 
+    this.$root.$on('save.flow.succeeded', (flowuid) => {
+      me.loading = false
+    })
+    this.$root.$on('save.flow.error', (flowuid) => {
+      me.loading = false
+    })
     this.$root.$on('log.message', (message) => {
       me.messages.unshift(message)
     })

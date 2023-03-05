@@ -502,12 +502,14 @@ export default {
             message: 'Save flow ' + this.flowname + ' succeeded!',
             icon: 'save'
           })
+          this.$root.$emit('save.flow.succeeded', this.flowuuid)
           me.flowuuid = response.data.id
           console.log('this.flowuuid is', this.flowuuid)
           this.$root.$emit('flow.uuid', this.flowid, this.flowuuid)
         })
         .catch(({ response }) => {
           console.log(response)
+          this.$root.$emit('save.flow.error', this.flowuuid)
           me.loading = false
           me.saveas = false
           if (response.status === 409) {
