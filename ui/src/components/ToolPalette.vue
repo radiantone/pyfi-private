@@ -86,7 +86,7 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         :disabled="!hasHosted"
-        title="Upgrade to PRO Plan"
+        title="Upgrade to Hosted Plan"
       >
         <!--:disabled="false"-->
         <q-tooltip
@@ -202,8 +202,8 @@
         id="database"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
+        :disabled="!hasHosted"
+        title="Upgrade to Hosted Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
