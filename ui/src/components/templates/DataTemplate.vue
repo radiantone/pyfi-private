@@ -1260,6 +1260,7 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
+          @click="codeview = false"
         />
       </q-card-actions>
     </q-card>
