@@ -2729,7 +2729,6 @@ export default {
     },
     saveFlow () {
       const graph = window.toolkit.getGraph().serialize()
-      this.loading = true
       graph.variables = this.variabledata
       var thecode = JSON.stringify(
         graph,
@@ -2921,7 +2920,9 @@ export default {
     setTimeout(() => {
       me.showName = true
     }, 1000)
-
+    this.$root.$on('save.flow.started', (flowuid) => {
+      me.loading = true
+    })
     this.$root.$on('save.flow.succeeded', (flowuid) => {
       me.loading = false
     })
