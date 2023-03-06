@@ -2649,7 +2649,8 @@ export default {
 
           const answer = JSON.parse(msg.output)
 
-          let result = {
+          // update resultdata
+          me.resultdata.push({
             name: msg.function,
             id: me.resultdata.length,
             created: resdate,
@@ -2659,9 +2660,7 @@ export default {
             size: msg.output.length,
             output: answer,
             task_id: uuidv4()
-          }
-          // update resultdata
-          me.resultdata.push(result)
+          })
 
           // me.bytes_out_5min.unshift(msg.output.length)
           // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
