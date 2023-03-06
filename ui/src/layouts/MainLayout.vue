@@ -3068,8 +3068,24 @@ export default defineComponent({
         }
       }
 
+
+      var database = document.querySelector('#database')
+      database.data = {
+        id: 14,
+        enabled: true,
+        node: {
+          icon: 'input',
+          style: 'size:50px',
+          type: 'database',
+          name: 'Database',
+          label: 'Database',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
       var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt,
-        inference, queue]
+        inference, queue, database]
 
       this.blocks = els
 

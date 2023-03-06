@@ -79,7 +79,10 @@
             Start Nodes
           </q-tooltip>
         </q-btn>
-
+        <q-separator
+          vertical
+          inset
+        />
         <q-btn
           flat
           style="min-height: 45px;"
@@ -94,7 +97,7 @@
           >
             Clear Nodes
           </q-tooltip>
-        </q-btn>
+        </q-btn><!--
         <q-separator
           vertical
           inset
@@ -115,7 +118,7 @@
             Run Flow
           </q-tooltip>
         </q-btn>
-
+-->
         <q-separator
           vertical
           inset
@@ -317,11 +320,26 @@
           flat
           style="min-height: 45px;"
           size="md"
+          @click="viewConfigureDialog = true"
+          icon="las la-cog"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Configure
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
         >
           <img
-          src="~assets/images/swagger.svg"
-          style="width:20px;min-width:20px;color:#054848"
-        >
+            src="~assets/images/swagger.svg"
+            style="width:20px;min-width:20px;color:#054848"
+          >
           <q-tooltip
             content-class
             content-style="font-size: 16px"
@@ -677,6 +695,7 @@
               clickable
               v-close-popup
               @click="nodeStatus('running')"
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-play" />
@@ -692,6 +711,8 @@
               clickable
               v-close-popup
               @click="nodeStatus('stopped')"
+
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-stop" />
@@ -785,6 +806,7 @@
               clickable
               v-close-popup
               @click="emptyQueuesDialog = true"
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-minus-circle" />
@@ -826,6 +848,24 @@
     >
       Zoom: {{ zoom }}
     </q-item-label>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; left:310px;top:55px"
+      size="xl"
+      round
+      icon="far fa-play-circle"
+      class="q-mr-xs"
+      @click="runFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Run Flow
+      </q-tooltip>
+    </q-btn>
     <div
       elevated
       class="q-pa-md"
@@ -2380,6 +2420,7 @@ import GroupTemplate from 'components/templates/GroupTemplate.vue'
 import PatternTemplate from 'components/templates/PatternTemplate.vue'
 import BorderTemplate from 'components/templates/BorderTemplate.vue'
 import QueueTemplate from 'components/templates/QueueTemplate.vue'
+import DatabaseTemplate from 'components/templates/DatabaseTemplate.vue'
 import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
@@ -2485,33 +2526,6 @@ export default {
     connected () {
       return this.$store.state.designer.connected
     },
-    htmlDataComponent () {
-      return {
-        template:
-          "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
-          "<span style='font-weight: bold; color: #775351' data-source=''>Queue</span><i class='pull-right fas fa-cog text-primary'/>" +
-          '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +
-          "<span style='font-weight: bold; color: #775351'>0 (0 bytes)</span>" +
-          '</div>' +
-          '</div>',
-
-        data () {
-          return {
-            name: 'component',
-            value: ''
-          }
-        },
-        created () {
-          // value of "this" is formComponent
-          console.log(this.name + ' created')
-        },
-        methods: {
-          // proxy components method to parent method,
-          // actually you done have to
-          onInputProxy: this.onInput
-        }
-      }
-    },
     fname: {
       get () {
         return this.flowname
@@ -2537,6 +2551,13 @@ export default {
     hasFree () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] > this.FREE
+      } else {
+        return false
+      }
+    },
+    hasHosted () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
         return false
       }
@@ -3673,17 +3694,27 @@ export default {
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-
           console.log('beforeStartConnect', source, source.getType(), edgetype)
           if (!source.data.name) {
             source.data.name = source.data.id
           }
-          return {
+          let dataobject = {
             label: source.data.id,
             name: source.data.name,
             type: source.data.datatype,
             template: source.data.template
           }
+          if (!dataobject['template']) {
+            for (let k in source.params.source.dataset) {
+              if (k.indexOf("port") === 0) {
+
+                let field = k.replace("port", "").toLowerCase()
+                console.log(field, source.params.source.dataset[k])
+                dataobject[field] = source.params.source.dataset[k]
+              }
+            }
+          }
+          return dataobject
         },
         beforeConnect: function (source, target) {
           console.log('beforeConnect:', source, target)
@@ -3808,6 +3839,9 @@ export default {
                 // toolkit.toggleSelection(params.node);
               }
             }
+          },
+          database: {
+            component: DatabaseTemplate
           },
           queue: {
             component: QueueTemplate
@@ -4248,7 +4282,8 @@ export default {
                       propsData: {
                         node: nodeValue,
                         component: component,
-                        hide: data.template && data.template === 'Object',
+                        hide: (data.template && data.template === 'Object') || (component.source.dataset['portTemplate'] &&
+                                component.source.dataset['portTemplate'] === 'Object'),
                         name: 'default' // component.getData()['name'],
                       }
                     })
