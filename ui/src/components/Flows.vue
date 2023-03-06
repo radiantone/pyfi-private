@@ -475,7 +475,6 @@ export default {
       await this.saveFlow()
     },
     async saveFlow () {
-
       this.$root.$emit('save.flow.started', this.flowid)
       const me = this
       this.loading = true
