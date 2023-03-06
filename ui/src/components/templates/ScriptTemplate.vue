@@ -758,6 +758,7 @@
         :style="'background:'+column.background+';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
+        data-port-template="Object"
       >
         <div class="table-column-edit text-primary">
           <div

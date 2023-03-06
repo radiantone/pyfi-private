@@ -165,7 +165,7 @@
     <q-card
       style="
         width: 350px;
-        height: 400px
+        height: 400px;
         z-index: 999;
         display: block;
         position: absolute;

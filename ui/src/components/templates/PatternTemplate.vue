@@ -305,7 +305,6 @@ export default {
   },
   methods: {
     resize: function () {},
-    saveTrope() {},
     groupSettings: function () {
       var me = this;
       console.log("new.group.dialog", this.obj);

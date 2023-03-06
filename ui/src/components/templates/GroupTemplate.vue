@@ -542,7 +542,6 @@ export default {
       window.toolkit.removeGroup(this.obj, all)
     },
     resize: function () {},
-    saveTrope () {},
     groupSettings: function () {
       var me = this
       console.log('new.group.dialog', this.obj)
@@ -571,4 +570,3 @@ export default {
   }
 }
 </script>
-saveTrope
