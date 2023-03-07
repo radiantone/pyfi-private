@@ -44,7 +44,7 @@ pull:
 
 .PHONY: up
 up:
-	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api pgadmin
+	docker compose up -f docker-compose-dev.yml -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api pgadmin
 
 .PHONY: stop
 stop:
