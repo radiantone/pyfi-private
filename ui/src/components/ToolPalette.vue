@@ -857,7 +857,7 @@
         <q-card-section
           class="row items-center"
           style="margin-top:30px"
-        ><b>Build ID</b>: <a :href="buildUrl" target="build">{{ commit.substring(0,7) }}</a></q-card-section>
+        ><b>Awesome! Build ID</b>: <a :href="buildUrl" target="build">{{ commit.substring(0,7) }}</a></q-card-section>
 
         <q-card-section
           class="row items-center"
