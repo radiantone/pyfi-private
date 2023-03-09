@@ -47,4 +47,4 @@ RUN venv/bin/python setup.py install
 ENV NEW_RELIC_CONFIG_FILE=/opt/pyfi/newrelic.ini
 
 #CMD ["bash", "/opt/pyfi/supervisor.sh"]
-CMD ["/opt/pyfi/venv/bin/newrelic-admin", "run-program", "/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
+CMD ["/opt/pyfi/venv/bin/newrelic-admin", "run-python", "/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
