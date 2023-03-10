@@ -2636,7 +2636,10 @@ export default defineComponent({
         this.graph = window.toolkit.getGraph().serialize()
         window.renderer = window.toolkit.renderer
         console.log('Refreshing designer')
-        this.$refs[tab + 'designer'][0].redraw() // TODO: refresh
+        setTimeout( () => {
+          me.$refs[tab + 'designer'][0].redraw()
+        })
+
       }
     }
   },
