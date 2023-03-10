@@ -45,7 +45,7 @@ jobs:
           command: make install-ui
       - run:
           name: Patch UI
-          command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js
+          command: cp workspace/ui/patches/jsplumbtoolkit-latest.js workspace/ui/node_modules/jsplumbtoolkit/dist/js
       - run:
           name: Build UI
           command: make ui
