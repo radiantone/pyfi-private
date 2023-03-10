@@ -2144,7 +2144,7 @@ export default defineComponent({
       const x = window.screen.width * window.devicePixelRatio
       const y = window.screen.height * window.devicePixelRatio
       if (x < 2460 || y < 1440) {
-        this.resolutiondialog = true
+        //this.resolutiondialog = true
       }
     },
     hasEnterprise () {
