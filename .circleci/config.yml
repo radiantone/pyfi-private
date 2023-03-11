@@ -43,7 +43,7 @@ jobs:
       - run:
           name: Install UI
           command: make install-ui
-          timeout: 900
+          no_output_timeout: 20m
       - run:
           name: Patch UI
           command: cp workspace/ui/patches/jsplumbtoolkit-latest.js workspace/ui/node_modules/jsplumbtoolkit/dist/js
