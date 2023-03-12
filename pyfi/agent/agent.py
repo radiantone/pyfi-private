@@ -166,7 +166,14 @@ class AgentWebServerPlugin(AgentPlugin):
                     "[AgentWebServerPlugin] Starting web server on %s", agent.port
                 )
                 logger.debug("[AgentWebServerPlugin] Startup Complete")
-                bjoern.run(app, "0.0.0.0", agent.port)
+                #bjoern.run(app, "0.0.0.0", agent.port)
+                options = {
+                    "bind": "%s:%s" % ("0.0.0.0", str(agent.port)),
+                    "workers": cpus,
+                    # 'threads': number_of_workers(),
+                    "timeout": 120,
+                }
+                StandaloneApplication(app, options).run()
             except Exception as ex:
                 logging.error(ex)
                 logger.info("web_server: exiting...")

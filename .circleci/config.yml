@@ -43,9 +43,10 @@ jobs:
       - run:
           name: Install UI
           command: make install-ui
+          no_output_timeout: 20m
       - run:
           name: Patch UI
-          command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js
+          command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js
       - run:
           name: Build UI
           command: make ui
@@ -63,7 +64,9 @@ jobs:
 workflows:
   build-and-push:
     jobs:
-      - build-and-test
+      - build-and-test:
+          post-steps:
+            - jira/notify
       - aws-ecr/build-and-push-image:
           name: build-nginx
           requires:
@@ -73,7 +76,7 @@ workflows:
           aws-cli-version: latest
           create-repo: true
           dockerfile: Dockerfile.nginx
-          extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1'
+          extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1 --build-arg BUILD_URL=$CIRCLE_BUILD_URL --build-arg REPO_URL=$CIRCLE_REPOSITORY_URL'
           path: ./docker
           platform: linux/amd64
           public-registry: false
