@@ -512,8 +512,9 @@ def do_processor(name):
 @cross_origin()
 def run_block():
     """Run a given block in a container and return the result"""
-    from uuid import uuid4
     import os
+    from uuid import uuid4
+
     import docker
 
     block = request.get_json()
