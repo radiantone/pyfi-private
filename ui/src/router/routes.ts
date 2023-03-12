@@ -12,6 +12,10 @@ const routes: RouteConfig[] = [
     path: '/app',
     component: () => import('layouts/AppLayout.vue')
   },
+  {
+    path: '/block',
+    component: () => import('layouts/BlockLayout.vue')
+  },
   // Always leave this as last one,
   // but you can also remove it
   {
