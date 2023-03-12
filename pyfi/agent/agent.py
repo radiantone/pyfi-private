@@ -131,7 +131,6 @@ class AgentWebServerPlugin(AgentPlugin):
         logger.debug("[AgentWebServerPlugin] Starting")
         import bjoern
         import gunicorn
-
         from billiard.context import Process
 
         cpus = multiprocessing.cpu_count()
@@ -166,7 +165,7 @@ class AgentWebServerPlugin(AgentPlugin):
                     "[AgentWebServerPlugin] Starting web server on %s", agent.port
                 )
                 logger.debug("[AgentWebServerPlugin] Startup Complete")
-                #bjoern.run(app, "0.0.0.0", agent.port)
+                # bjoern.run(app, "0.0.0.0", agent.port)
                 options = {
                     "bind": "%s:%s" % ("0.0.0.0", str(agent.port)),
                     "workers": cpus,
