@@ -15,7 +15,7 @@
         />
 
         <q-toolbar-title>
-          {{ this.$route.params.name }} Block
+          {{ block.name }} Block
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -130,6 +130,9 @@
 
     <q-page-container>
       <router-view />
+      {{ block.description }}
+      {{ block.package }}
+      {{ block.gitrepo }}
     </q-page-container>
   </q-layout>
 </template>
@@ -140,8 +143,12 @@ export default {
 
   data () {
     return {
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      block: {}
     }
+  },
+  mounted () {
+    this.block = this.$route.params.block
   },
   methods: {
     toggleLeftDrawer () {
