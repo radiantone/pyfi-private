@@ -444,13 +444,20 @@
             >
               <q-scroll-area style="height: calc(100vh - 240px); width: 100%;">
                 <div v-for="log in consolelog">
-                  <span style="font-weight:bold">{{log.name}}:</span><span>{{log.date}}</span>
-                  <pre>{{log.msg}}</pre>
+                  <span style="font-weight:bold">{{ log.name }}:</span><span>{{ log.date }}</span>
+                  <pre>{{ log.msg }}</pre>
                 </div>
               </q-scroll-area>
               <q-toolbar style="padding:20px">
-                <q-space/>
-                <q-btn flat dense color="secondary" @click="consolelog=[]">Clear</q-btn>
+                <q-space />
+                <q-btn
+                  flat
+                  dense
+                  color="secondary"
+                  @click="consolelog=[]"
+                >
+                  Clear
+                </q-btn>
               </q-toolbar>
             </q-tab-panel>
             <q-tab-panel
@@ -1005,6 +1012,7 @@
             :id="'block'+block.data.id"
             style="cursor:pointer;font-size:2em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
             :disabled="!block.data.enabled"
+            @click="showBlock(block.data.node)"
           >
             <div style="font-size:18px;font-family: arial">
               {{ block.data.node.name }}
@@ -1019,6 +1027,88 @@
           </q-inner-loading>
         </q-tab-panel>
       </q-tab-panels>
+    </q-drawer>
+    <q-drawer
+      v-model="blockdrawer"
+      side="right"
+      bordered
+      :width="650"
+      style="overflow: hidden;padding-top:35px"
+    >
+      <q-toolbar
+        class="bg-primary text-dark"
+        style="padding:5px"
+      >
+        <q-icon
+          :name="blockshown.icon"
+          style="font-size:2em;margin-right:10px"
+        />
+        <q-item-label
+          style="
+            font-size: 2em;
+            font-style: italic;
+            margin-top: 5px;
+            margin-right: 1em"
+        >
+          {{ blockshown.name }}
+        </q-item-label>
+        <q-space />
+        <q-btn
+          dense
+          flat
+          size="md"
+          color="secondary"
+          icon="close"
+          @click="blockdrawer=false"
+        />
+      </q-toolbar>
+      <div style="padding:20px;" >
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 5px;
+            margin-right: 1em"
+        >Description</span>
+        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          {{ blockshown.description }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Package</span>
+        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          {{ blockshown.package }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Version</span>
+        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          {{ blockshown.version }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Container</span>
+        <div style="padding-left: 25px">
+          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+            Container: {{ blockshown.container }}
+          </p>
+          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+            Container Image: {{ blockshown.containerimage }}
+          </p>
+        </div>
+      </div>
     </q-drawer>
     <q-drawer
       v-model="librarydrawer"
@@ -1095,7 +1185,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1494,7 +1583,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1705,7 +1793,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1844,7 +1931,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1956,7 +2042,16 @@ import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'
 import ModelToolPalette from 'src/components/ModelToolPalette.vue'
 import Console from 'src/components/Console'
-import { mdiBorderNoneVariant } from '@mdi/js'
+import {
+  mdiBorderNoneVariant,
+  mdiFlash,
+  mdiFlashOutline,
+  mdiWavesArrowRight,
+  mdiCodeBraces,
+  mdiEmailFast,
+  mdiEmailAlert,
+  mdiEmailCheck
+} from '@mdi/js'
 
 import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
@@ -1982,16 +2077,6 @@ import 'assets/fonts/fontawesome-webfont.svg'
 import 'assets/fonts/fontawesome-webfont.woff2'
 import 'assets/fonts/fontawesome-webfont.woff'
 import 'assets/fonts/flowfont2.woff2'
-
-import {
-  mdiFlash,
-  mdiFlashOutline,
-  mdiWavesArrowRight,
-  mdiCodeBraces,
-  mdiEmailFast,
-  mdiEmailAlert,
-  mdiEmailCheck
-} from '@mdi/js'
 
 import { io, Socket } from 'socket.io-client'
 
@@ -2140,11 +2225,15 @@ export default defineComponent({
     }
   },
   methods: {
+    showBlock (block) {
+      this.blockshown = block
+      this.blockdrawer = true
+    },
     checkResolution () {
       const x = window.screen.width * window.devicePixelRatio
       const y = window.screen.height * window.devicePixelRatio
       if (x < 2460 || y < 1440) {
-        //this.resolutiondialog = true
+        // this.resolutiondialog = true
       }
     },
     hasEnterprise () {
@@ -2201,7 +2290,6 @@ export default defineComponent({
       })
     },
     getToken () {
-
       const accessToken = this.security.token()
       accessToken.then(function (result) {
         // here you can use the result of promiseB
@@ -2636,10 +2724,9 @@ export default defineComponent({
         this.graph = window.toolkit.getGraph().serialize()
         window.renderer = window.toolkit.renderer
         console.log('Refreshing designer')
-        setTimeout( () => {
+        setTimeout(() => {
           me.$refs[tab + 'designer'][0].redraw()
         })
-
       }
     }
   },
@@ -2647,18 +2734,18 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
-    async function load() {
-      await pyodide.loadPackage("micropip");
-      const micropip = pyodide.pyimport("micropip");
-      await micropip.install('durable-rules');
+    async function load () {
+      await pyodide.loadPackage('micropip')
+      const micropip = pyodide.pyimport('micropip')
+      await micropip.install('durable-rules')
     }
 
-    DataService.getCommit().then( (response) => {
-      console.log("COMMIT", response)
-      let hash = response.data.split('|')[0]
-      let buildDate = response.data.split('|')[1]
-      let buildUrl = response.data.split('|')[2]
-      let repoUrl = response.data.split('|')[3]
+    DataService.getCommit().then((response) => {
+      console.log('COMMIT', response)
+      const hash = response.data.split('|')[0]
+      const buildDate = response.data.split('|')[1]
+      const buildUrl = response.data.split('|')[2]
+      const repoUrl = response.data.split('|')[3]
       this.$refs.toolPalette.setCommit(hash, buildDate, buildUrl, repoUrl)
     })
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
@@ -2684,11 +2771,12 @@ export default defineComponent({
     window.root.$off('console.message')
     window.root.$on('console.message', (date, obj, msg) => {
       me.consolelog.push({
-        name:obj.name,
-        date:date,
-        msg:msg
-      })})
-    if(me.consolelog.length>=1000) {
+        name: obj.name,
+        date: date,
+        msg: msg
+      })
+    })
+    if (me.consolelog.length >= 1000) {
       me.consolelog = []
     }
     window.root.$on('message.count', (count) => {
@@ -2816,6 +2904,7 @@ export default defineComponent({
           label: 'Script',
           description: 'A script description',
           package: 'my.python.package',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2834,6 +2923,7 @@ export default defineComponent({
           label: 'API',
           description: 'A web API',
           package: 'my.python.package',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2848,6 +2938,7 @@ export default defineComponent({
         node: {
           style: '',
           icon: this.borderIcon,
+          version: '1.0.0',
           type: 'border',
           name: 'Border',
           label: 'Border'
@@ -2866,6 +2957,7 @@ export default defineComponent({
           name: 'Processor',
           label: 'Script',
           description: 'A script processor description',
+          version: '1.0.0',
           package: 'my.python.package',
           disabled: false,
           columns: [],
@@ -2885,6 +2977,7 @@ export default defineComponent({
           name: 'Markdown',
           label: 'Markdown',
           description: 'A markdown block',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2902,6 +2995,7 @@ export default defineComponent({
           name: 'Group',
           label: 'Group',
           description: 'A processor group description',
+          version: '1.0.0',
           package: 'my.python.package',
           disabled: false,
           group: true,
@@ -2983,7 +3077,10 @@ export default defineComponent({
           style: 'size:50px',
           type: 'note',
           name: 'Label',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'Label',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2999,6 +3096,9 @@ export default defineComponent({
           style: 'size:50px',
           type: 'data',
           name: 'Data',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          version: '1.0.0',
           label: 'Data',
           disabled: false,
           columns: [],
@@ -3015,7 +3115,10 @@ export default defineComponent({
           style: 'size:50px',
           type: 'schema',
           name: 'Schema',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'Schema',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -3031,7 +3134,10 @@ export default defineComponent({
           style: 'size:50px',
           type: 'chatgpt',
           name: 'ChatGPT',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'ChatGPT',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -3046,14 +3152,16 @@ export default defineComponent({
           icon: 'las la-brain',
           style: 'size:50px',
           type: 'inference',
+          description: 'A description',
+          package: 'ec.blocks.ai',
           name: 'Inference',
           label: 'Inference',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
         }
       }
-
 
       var queue = document.querySelector('#queue')
       queue.data = {
@@ -3064,13 +3172,15 @@ export default defineComponent({
           style: 'size:50px',
           type: 'queue',
           name: 'Queue',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'Queue',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
         }
       }
-
 
       var database = document.querySelector('#database')
       database.data = {
@@ -3081,7 +3191,10 @@ export default defineComponent({
           style: 'size:50px',
           type: 'database',
           name: 'Database',
+          description: 'A description',
+          package: 'ec.blocks.data',
           label: 'Database',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -3094,7 +3207,7 @@ export default defineComponent({
 
       els.forEach((el) => {
         var data = el.data
-        //data.id = uuidv4()
+        // data.id = uuidv4()
         var draghandle = dd.drag(el, {
           image: true // default drag image
         })
@@ -3103,7 +3216,7 @@ export default defineComponent({
         })
       })
 
-      setTimeout( () => {
+      setTimeout(() => {
         this.blocks.forEach((el) => {
           const _el = document.querySelector('#block' + el.data.id)
           if (el.data.enabled) {
@@ -3117,7 +3230,6 @@ export default defineComponent({
           }
         })
       })
-
     })
     var me = this
 
@@ -3130,6 +3242,7 @@ export default defineComponent({
   },
   data () {
     return {
+      blockdrawer: false,
       sublevel: {
         guest: 0,
         free: 1,
@@ -3143,6 +3256,7 @@ export default defineComponent({
       PRO: 3,
       HOSTED: 4,
       ENTERPRISE: 5,
+      blockshown: {},
       blocks: [
       ],
       blockstabs: 'blocksregistry',
