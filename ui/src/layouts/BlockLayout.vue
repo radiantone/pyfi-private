@@ -15,7 +15,7 @@
         />
 
         <q-toolbar-title>
-          ElasticCode Block
+          {{ this.$route.params.name }} Block
         </q-toolbar-title>
       </q-toolbar>
     </q-header>

@@ -301,7 +301,7 @@
           Inference
         </q-tooltip>
       </q-btn>
-      <!--
+
       <q-btn
         flat
         align="left"
@@ -318,7 +318,7 @@
         >
           App
         </q-tooltip>
-      </q-btn>-->
+      </q-btn>
       <q-btn
         flat
         align="left"
@@ -1006,6 +1006,8 @@ export default {
   },
   mounted () {
     const me = this
+
+    window.$router = this.$router
 
     console.log('TOOLPALETTE STORE', this.$store)
     this.$root.$on('show.objects', (objects) => {
