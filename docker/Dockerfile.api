@@ -29,11 +29,13 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 ADD conf/supervisord-api.conf /opt/pyfi/supervisord.conf
 ADD conf/pyfi.ini /home/pyfi/pyfi.ini
 ADD pyfi.polar /root/pyfi.polar
+ADD newrelic.ini /opt/pyfi/newrelic.ini
 
 RUN useradd pyfi -d /home/pyfi
 RUN chown -R pyfi /opt/pyfi /home/pyfi
 RUN virtualenv --python=python3 venv
 #RUN python3.9 -m venv venv
+
 RUN venv/bin/pip uninstall -y setuptools
 RUN venv/bin/pip install setuptools==59.1.1
 RUN venv/bin/pip install --upgrade flask
@@ -42,5 +44,7 @@ RUN update-rc.d -f supervisord remove
 RUN venv/bin/pip uninstall -y pytz
 RUN venv/bin/python setup.py install
 
+ENV NEW_RELIC_CONFIG_FILE=/opt/pyfi/newrelic.ini
+
 #CMD ["bash", "/opt/pyfi/supervisor.sh"]
-CMD ["/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
+CMD ["/opt/pyfi/venv/bin/newrelic-admin", "run-python", "/opt/pyfi/venv/bin/flow","--debug","-i", "/opt/pyfi/pyfi.ini","api","start","-ip","0.0.0.0","-p","8003"]
