@@ -625,6 +625,11 @@ def get_subscription(user):
     return _sub
 
 
+@app.route("/health", methods=["GET"])
+def consult_chatgpt():
+    return "OK", 200
+
+
 @app.route("/chatgpt", methods=["POST"])
 @cross_origin()
 @requires_auth
