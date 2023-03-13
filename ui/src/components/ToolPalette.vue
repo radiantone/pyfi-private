@@ -1007,6 +1007,8 @@ export default {
   mounted () {
     const me = this
 
+    window.$router = this.$router
+
     console.log('TOOLPALETTE STORE', this.$store)
     this.$root.$on('show.objects', (objects) => {
       console.log('show.objects ', objects)

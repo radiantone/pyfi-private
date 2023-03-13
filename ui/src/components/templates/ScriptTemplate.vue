@@ -743,6 +743,21 @@
                 Requirements
               </q-item-section>
             </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showComponent"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-cube" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Component
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </div>
@@ -2038,6 +2053,7 @@
         >
           <div v-if="jsonmode">
             <editor
+              v-model="jsonresult"
               @init="jsonEditorInit"
               style="font-size: 1.5em;"
               lang="javascript"
@@ -2080,7 +2096,7 @@
           class="bg-primary text-white"
           color="primary"
           v-close-popup
-          @click="consolelogs = []"
+          @click="clearOutput"
         />
         <q-btn
           flat
@@ -2552,7 +2568,8 @@ export default {
     },
     currentresult: function (val) {
       if (this.$refs.jsonEditor) {
-        this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
+        //this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
+        this.jsonresult = JSON.stringify(JSON.parse(val), null, 2)
       }
     },
     inBytes: function (val) {
@@ -2936,6 +2953,7 @@ export default {
         'pyfi/processor:latest',
         'pyfi/chatgpt:latest'
       ],
+      jsonresult: '',
       confirmCodeFetch: false,
       currentresult: '',
       resulttype: 'finished',
@@ -3484,6 +3502,16 @@ export default {
     }
   },
   methods: {
+    showComponent () {
+      window.$router.push({
+          name: 'block',
+          params: { name: this.obj.name }
+      })
+    },
+    clearOutput () {
+      this.consolelogs = []
+      this.jsonresult = ''
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
