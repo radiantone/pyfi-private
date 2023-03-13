@@ -743,6 +743,21 @@
                 Requirements
               </q-item-section>
             </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showComponent"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-cube" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Component
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </div>
@@ -3487,6 +3502,12 @@ export default {
     }
   },
   methods: {
+    showComponent () {
+      window.$router.push({
+          name: 'block',
+          params: { name: this.obj.name }
+      })
+    },
     clearOutput () {
       this.consolelogs = []
       this.jsonresult = ''
