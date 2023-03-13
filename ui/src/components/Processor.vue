@@ -260,9 +260,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('   INVOKING:', func, data)
             let call = func + '('
             let count = 0
+            let argdata = Array()
+
             me.portobjects[func].forEach((_arg: any) => {
               let jsonarg = _arg.data
 
+              argdata.push(jsonarg)
               // If we already have JSON encoded data, then pass it along
               // otherwise, convert it to JSON
               let isobj = false
@@ -368,7 +371,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'result',
                   id: this.id,
                   function: func,
-                  arg: argument.toString().length,
+                  arg: argument.toString(),
                   duration: time,
                   output: JSON.stringify(_result),
                   plugs: JSON.stringify(_plugs)
@@ -379,6 +382,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 this.$emit('python.error', {
                   type: 'error',
                   id: me.id,
+                  args: argdata,
                   function: func,
                   error: error.toString()
                 })
