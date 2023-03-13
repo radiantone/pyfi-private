@@ -3680,10 +3680,12 @@ export default {
         edgeFactory: function (params, data, callback) {
           // you must hit the callback if you provide the edgeFactory.
           console.log('EDGE FACTORY:', params, data, callback)
-          if (!data.name) {
+          if (!data.name && data.label) {
             data.name = data.label
           }
-          data.event = data.label.toLowerCase()
+          if (data.label) {
+            data.event = data.label.toLowerCase()
+          }
           callback(data)
         },
         // the name of the property in each node's data that is the key for the data for the ports for that node.
