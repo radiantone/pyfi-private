@@ -538,7 +538,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="far fa-envelope" />
+                <q-icon name="fas fa-sign-in-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -548,38 +548,22 @@
               </q-item-section>
             </q-item>
 
-            <q-separator />
             <q-item
               clickable
               v-close-popup
+              @click="newQueue"
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-table" />
+                <q-icon name="fas fa-sign-in-alt" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Summary
+                Manage Queues
               </q-item-section>
             </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              disabled
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-calculator" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Counters
-              </q-item-section>
-            </q-item>
-
             <q-separator />
 
             <q-item
@@ -588,13 +572,13 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-database" />
+                <q-icon name="fab fa-docker" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Data Provenance
+                Containers
               </q-item-section>
             </q-item>
             <q-item
@@ -603,13 +587,13 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-wrench" />
+                <q-icon name="fas fa-cog" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Controller Settings
+                Configure
               </q-item-section>
             </q-item>
             <q-separator />
@@ -619,31 +603,32 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-list-alt" />
+                <q-icon name="fas fa-users" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Parameter Contexts
+                Manage Groups
               </q-item-section>
             </q-item>
-            <q-separator />
+
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fa fa-history" />
+                <q-icon name="fas fa-user" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Flow Configuration History
+                Manage Users
               </q-item-section>
             </q-item>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
@@ -656,22 +641,7 @@
                 side
                 class="text-blue-grey-8"
               >
-                Node Status History
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              disabled
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-project-diagram" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Templates
+                Server History
               </q-item-section>
             </q-item>
             <q-separator />
