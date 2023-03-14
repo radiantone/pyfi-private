@@ -626,7 +626,6 @@ def get_subscription(user):
 
 
 @app.route("/health", methods=["GET"])
-@cross_origin()
 def health():
     return "OK", 200
 
