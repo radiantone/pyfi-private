@@ -627,7 +627,7 @@ def get_subscription(user):
 
 @app.route("/health", methods=["GET"])
 @cross_origin()
-def consult_chatgpt():
+def health():
     return "OK", 200
 
 
