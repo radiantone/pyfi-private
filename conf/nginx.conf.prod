@@ -138,6 +138,10 @@ http {
     access_log /var/log/nginx/nginx.vhost.access.log;
     error_log /var/log/nginx/nginx.vhost.error.log;
 
+    if ($http_origin ~* (.*\.elasticcode.ai)) {
+        set $cors "true";
+    }
+
     access_log   logs/domain1.access.log  main;
 
     add_header Access-Control-Allow-Origin "*.elasticcode.ai";
