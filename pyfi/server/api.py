@@ -626,7 +626,7 @@ def get_subscription(user):
 
 
 @app.route("/health", methods=["GET"])
-def consult_chatgpt():
+def health():
     return "OK", 200
 
 
