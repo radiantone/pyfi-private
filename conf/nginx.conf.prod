@@ -138,9 +138,9 @@ http {
     access_log /var/log/nginx/nginx.vhost.access.log;
     error_log /var/log/nginx/nginx.vhost.error.log;
 
-    # if ($http_origin ~* (.*\.elasticcode.ai)) {
-    #    set $cors "true";
-    # }
+    if ($http_origin ~* (.*\.elasticcode.ai)) {
+        set $cors "true";
+    }
 
     access_log   logs/domain1.access.log  main;
 
@@ -150,7 +150,6 @@ http {
       proxy_set_header Host $http_host;
       proxy_set_header X-NginX-Proxy true;
 
-      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
       proxy_pass http://api_servers/;
       proxy_redirect off;
     }
