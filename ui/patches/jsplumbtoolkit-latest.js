@@ -28047,7 +28047,8 @@ if (typeof exports !== "undefined") {
                     targetType:target.objectType
                 };
 
-            var doAbort = _dataSource.getEdgeFactory()(edgeType, info.connection.getData() || {}, function (data) {
+            var doAbort = _dataSource.getEdgeFactory()(edgeType, source.data || {}, function (data) {
+            //var doAbort = _dataSource.getEdgeFactory()(edgeType, info.connection.getData() || {}, function (data) {
 
                 data = JUTIL.populate(data, source.data, null, true);
 

@@ -4225,6 +4225,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
+                console.log("double tap ", params)
                 _editEdge(params.edge)
               }
             },
@@ -4239,6 +4240,7 @@ export default {
                   name: '${name}',
                   events: {
                     tap: function (params) {
+                      console.log("edge params", params)
                     }
                   }
                 }
@@ -4253,7 +4255,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                _editEdge(params.edge)
+                console.log("dbltap params",params)
               }
             },
             overlays: [
