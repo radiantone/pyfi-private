@@ -173,26 +173,26 @@
           Process Group
         </q-tooltip>
       </q-btn>
-<!--
-      <q-btn
-        flat
-        align="left"
-        icon="alt_route"
-        aria-label="Router"
-        size="large"
-        id="router"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
-      >
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Router
-        </q-tooltip>
-      </q-btn>-->
+      <!--
+            <q-btn
+              flat
+              align="left"
+              icon="alt_route"
+              aria-label="Router"
+              size="large"
+              id="router"
+              style="min-height: 56px; cursor: grabbing;"
+              class="text-dark text-bold"
+              :disabled="!isProPlan"
+              title="Upgrade to PRO Plan"
+            >
+              <q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Router
+              </q-tooltip>
+            </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -380,9 +380,9 @@
         </q-tooltip>
       </q-btn>
       <q-item-label class="text-secondary">BETA SOFTWARE</q-item-label>
-      <q-space />
+      <q-space/>
       <q-toolbar v-if="$auth.isAuthenticated && hasHosted">
-        <q-space />
+        <q-space/>
         <q-item-label
           class="text-secondary"
           style="margin-top: 40px; margin-right: 20px;"
@@ -521,7 +521,7 @@
               @click="newFlow"
             >
               <q-item-section side>
-                <q-icon name="fas fa-plus" />
+                <q-icon name="fas fa-plus"/>
               </q-item-section>
               <q-item-section
                 side
@@ -530,7 +530,7 @@
                 New Flow
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
@@ -538,7 +538,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-sign-in-alt" />
+                <q-icon name="fas fa-sign-in-alt"/>
               </q-item-section>
               <q-item-section
                 side
@@ -548,23 +548,7 @@
               </q-item-section>
             </q-item>
 
-            <q-item
-              clickable
-              v-close-popup
-              @click="newQueue"
-              disabled
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-sign-in-alt" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Manage Queues
-              </q-item-section>
-            </q-item>
-            <q-separator />
+            <q-separator/>
 
             <q-item
               clickable
@@ -572,7 +556,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fab fa-docker" />
+                <q-icon name="fab fa-docker"/>
               </q-item-section>
               <q-item-section
                 side
@@ -584,10 +568,10 @@
             <q-item
               clickable
               v-close-popup
-              disabled
+              :disabled="!this.$auth.isAuthenticated"
             >
               <q-item-section side>
-                <q-icon name="fas fa-cog" />
+                <q-icon name="fas fa-cog"/>
               </q-item-section>
               <q-item-section
                 side
@@ -596,14 +580,14 @@
                 Configure
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-users" />
+                <q-icon name="fas fa-users"/>
               </q-item-section>
               <q-item-section
                 side
@@ -619,7 +603,7 @@
               disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-user" />
+                <q-icon name="fas fa-user"/>
               </q-item-section>
               <q-item-section
                 side
@@ -628,14 +612,14 @@
                 Manage Users
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
               disabled
             >
               <q-item-section side>
-                <q-icon name="fa fa-area-chart" />
+                <q-icon name="fa fa-area-chart"/>
               </q-item-section>
               <q-item-section
                 side
@@ -644,7 +628,7 @@
                 Server History
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
@@ -652,7 +636,7 @@
               @click="showProfile"
             >
               <q-item-section side>
-                <q-icon name="fas fa-user" />
+                <q-icon name="fas fa-user"/>
               </q-item-section>
               <q-item-section
                 side
@@ -668,7 +652,7 @@
               @click="manage"
             >
               <q-item-section side>
-                <q-icon name="far fa-envelope" />
+                <q-icon name="far fa-envelope"/>
               </q-item-section>
               <q-item-section
                 side
@@ -677,13 +661,13 @@
                 Manage Plan
               </q-item-section>
             </q-item>
-            <q-separator />
+            <q-separator/>
             <q-item
               clickable
               v-close-popup
             >
               <q-item-section side>
-                <q-icon name="fas fa-question-circle" />
+                <q-icon name="fas fa-question-circle"/>
               </q-item-section>
               <q-item-section
                 side
@@ -697,7 +681,7 @@
               v-close-popup
             >
               <q-item-section side>
-                <q-icon name="fas fa-info-circle" />
+                <q-icon name="fas fa-info-circle"/>
               </q-item-section>
               <q-item-section
                 side
@@ -733,7 +717,7 @@
           >
             <q-toolbar>
               <q-item-label>{{ statname }}</q-item-label>
-              <q-space />
+              <q-space/>
               <q-icon
                 class="text-primary"
                 name="fas fa-close"
@@ -810,7 +794,7 @@
                   style="margin-right:20px"
                 />About ElasticCode
               </q-item-label>
-              <q-space />
+              <q-space/>
               <q-btn
                 class="text-primary"
                 flat
@@ -827,12 +811,13 @@
         <q-card-section
           class="row items-center"
           style="margin-top:30px"
-        ><b>Build ID</b>: <a :href="buildUrl" target="build">{{ commit.substring(0,7) }}</a></q-card-section>
+        ><b>Build ID</b>: <a :href="buildUrl" target="build">{{ commit.substring(0, 7) }}</a></q-card-section>
 
         <q-card-section
           class="row items-center"
         >
-        <b>Build Date</b>: {{ buildDate }}</q-card-section>
+          <b>Build Date</b>: {{ buildDate }}
+        </q-card-section>
 
         <q-card-actions align="right">
           <q-btn
@@ -878,7 +863,7 @@
                   style="margin-right:20px"
                 />Your Profile
               </q-item-label>
-              <q-space />
+              <q-space/>
               <q-btn
                 class="text-primary"
                 flat
@@ -958,23 +943,23 @@
 </style>
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { mdiCodeBraces } from '@mdi/js'
-import { mdiBorderNoneVariant } from '@mdi/js'
-import { mdiLanguagePython } from '@mdi/js'
-import { mdiLanguageMarkdownOutline } from '@mdi/js';
+import {mdiCodeBraces} from '@mdi/js'
+import {mdiBorderNoneVariant} from '@mdi/js'
+import {mdiLanguagePython} from '@mdi/js'
+import {mdiLanguageMarkdownOutline} from '@mdi/js';
 
 import DataService from './util/DataService'
 
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
-  created () {
+  created() {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
     this.python = mdiLanguagePython
     this.markdown = mdiLanguageMarkdownOutline
   },
-  mounted () {
+  mounted() {
     const me = this
 
     window.$router = this.$router
@@ -987,14 +972,14 @@ export default {
     })
   },
   computed: {
-    hasHosted () {
+    hasHosted() {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
         return false
       }
     },
-    isProPlan () {
+    isProPlan() {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
       } else {
@@ -1008,30 +993,30 @@ export default {
     }
   },
   methods: {
-    setCommit (commit, buildDate, buildUrl, repoUrl) {
+    setCommit(commit, buildDate, buildUrl, repoUrl) {
       this.commit = commit
       this.buildDate = buildDate
       this.buildUrl = buildUrl
       this.repoUrl = repoUrl
     },
-    hasEnterprise () {
+    hasEnterprise() {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
       } else {
         return false
       }
     },
-    showProfile () {
+    showProfile() {
       console.log(this.$auth.user)
       this.showProfileDialog = this.$auth.isAuthenticated
     },
-    logout () {
-      this.$auth.logout({ returnTo: '/logout' })
+    logout() {
+      this.$auth.logout({returnTo: '/logout'})
     },
-    login () {
+    login() {
       this.$root.$emit('login')
     },
-    showStats (name, columns, objects) {
+    showStats(name, columns, objects) {
       const me = this
       if (this.false) {
         return
@@ -1051,7 +1036,7 @@ export default {
       })
     },
 
-    notifyMessage (color, icon, message) {
+    notifyMessage(color, icon, message) {
       this.$q.notify({
         color: color,
         timeout: 2000,
@@ -1060,7 +1045,7 @@ export default {
         icon: icon
       })
     },
-    loadPython () {
+    loadPython() {
       const head = document.getElementById('head')
       const script = document.createElement('script')
       const style = document.createElement('link')
@@ -1071,32 +1056,32 @@ export default {
       head.appendChild(style)
       head.appendChild(script)
     },
-    openBlocks () {
+    openBlocks() {
       this.$root.$emit('open.blocks')
     },
-    openChat () {
+    openChat() {
       this.$root.$emit('open.chat')
     },
-    openLibrary () {
+    openLibrary() {
       this.$root.$emit('open.library')
     },
-    newFlow () {
+    newFlow() {
       this.$root.$emit('new.flow')
     },
-    newQueue () {
+    newQueue() {
       this.$root.$emit('new.queue')
     },
-    checkout () {
+    checkout() {
       this.$root.$emit('checkout')
     },
-    manage () {
+    manage() {
       this.$root.$emit('manage.subscription')
     },
-    upgrade () {
+    upgrade() {
       this.$root.$emit('upgrade.subscription')
     }
   },
-  data () {
+  data() {
     return {
       GUEST: 0,
       FREE: 1,
