@@ -2962,7 +2962,8 @@ export default {
     },
     removePort (objid, col) {
       window.toolkit.removePort(objid, col)
-      this.portobjects.remove(col)
+      delete this.portobjects[col]
+      //this.portobjects.remove(col)
       this.ports
       this.argobjects
     },
