@@ -1198,11 +1198,11 @@
       "
       v-if="codeview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important; padding-bottom: 10px;">
         <editor
           v-model="obj.code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 600px;"
+          style="font-size: 16px; min-height: 600px; "
           lang="python"
           theme="chrome"
           ref="codeEditor"
@@ -2456,6 +2456,7 @@
   </div>
 </template>
 <style>
+
 .parentBox {
   padding: 0px;
   margin-left: 5px;
@@ -2480,7 +2481,16 @@ tbody tr:nth-child(odd) {
 }
 
 .ace_gutter > .ace_layer {
-  background-color: #e3e8ec;
+    background-color: #eaebeb;
+}
+
+.ace_gutter-cell {
+    padding-left: 19px;
+    padding-right: 6px;
+    background-repeat: no-repeat;
+    font-size: 1.2em;
+    width: 0.5em;
+    color: #a3a4a5;
 }
 
 .resizable-content {

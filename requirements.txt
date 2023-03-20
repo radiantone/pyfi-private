@@ -23,6 +23,7 @@ black==22.10.0
 bs4==0.0.1
 case==1.5.3
 celery==5.2.6
+emergefs
 certifi==2021.10.8
 cffi==1.15.0
 chargebee==2.21.0

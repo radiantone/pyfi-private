@@ -8,6 +8,7 @@ APScheduler==3.9.1
 asgiref==3.5.0
 newrelic
 astroid==2.11.3
+emergefs
 async-generator==1.10
 async-timeout==4.0.2
 durable-rules
