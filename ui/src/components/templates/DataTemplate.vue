@@ -1164,7 +1164,7 @@
       "
       v-if="codeview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
         <editor
           v-model="obj.code"
           @init="editorInit"
