@@ -32,6 +32,14 @@ services:
     networks:
       - dev
 
+  processor:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.processor
+    container_name: processor
+    image: pyfi/processor:latest
+    environment:
+      - "EVENTS=events"
 
   websockets:
     build:
