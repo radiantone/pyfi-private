@@ -257,7 +257,7 @@
         aria-label="Label"
         size="xl"
         id="markdown"
-        style=" min-height: 56px; cursor: grabbing;"
+        style="display:none;min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
         <q-tooltip
@@ -291,7 +291,7 @@
         aria-label="Label"
         size="xl"
         id="inference"
-        style="display:none;min-height: 56px; cursor: grabbing;"
+        style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
         <q-tooltip
