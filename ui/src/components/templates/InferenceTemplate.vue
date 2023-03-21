@@ -167,7 +167,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="las la-list" />
+            <q-icon name="las la-list-alt" />
           </q-item-section>
           <q-item-section
             side
@@ -285,7 +285,7 @@
         "
         >
           <q-icon
-            name="fas fa-database"
+            name="las la-brain"
             size="lg"
             color="secondary"
             style="margin-left:-5px;margin-top:-5px"
@@ -400,7 +400,6 @@
             Bandwidth Toggle
           </q-tooltip>
         </div>
-
         <div
           class="text-secondary"
           style="margin-right: 10px;"
@@ -412,7 +411,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            dropdown-icon="las la-table"
+            :dropdown-icon="plugIcon"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -426,10 +425,10 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-table')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list-alt')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-table" />
+                  <q-icon name="las la-list-alt" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -446,55 +445,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Table
-          </q-tooltip>
-        </div>
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-        >
-          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
-
-          <q-btn-dropdown
-            flat
-            content-class="text-dark bg-white "
-            dense
-            menu-self="top left"
-            dropdown-icon="las la-list"
-            color="secondary"
-            padding="0px"
-            size=".8em"
-            style="margin-right: 0px;"
-          >
-            <q-list
-              dense
-              v-for="func in funcs"
-              :key="func.name"
-            >
-              <q-item
-                clickable
-                v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')"
-              >
-                <q-item-section side>
-                  <q-icon name="las la-list" />
-                </q-item-section>
-                <q-item-section
-                  side
-                  class="text-blue-grey-8"
-                >
-                  {{ func.name }}
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Query
+            Add Object
           </q-tooltip>
         </div>
         <div style="position: absolute; right: 8px; top: 0px;">
@@ -586,7 +537,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list" />
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -749,7 +700,7 @@
               <q-popup-edit
                 v-model="column.name"
                 buttons
-                v-if="column.icon === 'las la-list'"
+                v-if="column.icon === 'las la-list-alt'"
               >
                 <q-input
                   type="string"
@@ -2623,7 +2574,7 @@ export default {
       },
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'fas fa-database',
+        icon: 'las la-brain',
         titletab: false,
         receipt: new Date(),
         notes: '',
@@ -3023,7 +2974,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list-alt')
     },
     showOutput (resultid) {
       this.resultdataloading = true

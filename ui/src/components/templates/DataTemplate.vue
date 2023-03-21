@@ -484,10 +484,10 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            :dropdown-icon="plugIcon"
+            dropdown-icon="fas fa-cube"
             color="secondary"
             padding="0px"
-            size=".8em"
+            size=".6em"
             style="margin-right: 0px;"
           >
             <q-list
@@ -2770,7 +2770,7 @@ export default {
         disabled: false,
         commit: '',
         gitrepo:
-          'https://radiantone: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@github.com/radiantone/pyfi-processors#egg=ext-processor',
+          'https://github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
         modulepath: 'ext/processors/data.py',
         readwrite: 0,

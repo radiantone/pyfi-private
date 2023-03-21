@@ -3187,7 +3187,7 @@ export default defineComponent({
         id: 14,
         enabled: true,
         node: {
-          icon: 'input',
+          icon: 'fas fa-database',
           style: 'size:50px',
           type: 'database',
           name: 'Database',

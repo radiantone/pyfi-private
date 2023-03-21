@@ -2422,6 +2422,7 @@ import BorderTemplate from 'components/templates/BorderTemplate.vue'
 import QueueTemplate from 'components/templates/QueueTemplate.vue'
 import DatabaseTemplate from 'components/templates/DatabaseTemplate.vue'
 import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
+import InferenceTemplate from 'components/templates/InferenceTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue'
@@ -3853,6 +3854,9 @@ export default {
           },
           markdown: {
             component: MarkdownTemplate
+          },
+          inference: {
+            component: InferenceTemplate
           },
           api: {
             component: ApiTemplate,
