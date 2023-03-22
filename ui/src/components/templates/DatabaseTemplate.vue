@@ -497,6 +497,55 @@
             Add Query
           </q-tooltip>
         </div>
+
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="fas fa-bolt"
+            color="secondary"
+            padding="0px"
+            size=".6em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="event in events"
+              :key="event"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewPort({ function: event, args: [] }, 'Output', 'fas fa-bolt')"
+              >
+                <q-item-section side>
+                  <q-icon name="fas fa-bolt" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  {{ event }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Trigger
+          </q-tooltip>
+        </div>
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
@@ -586,7 +635,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list" />
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -625,6 +674,22 @@
                 class="text-blue-grey-8"
               >
                 Lock
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('middlewareview', !middlewareview)"
+            >
+              <q-item-section side>
+                <q-icon name="las la-exchange-alt" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Middleware
               </q-item-section>
             </q-item>
             <q-separator />
@@ -695,15 +760,6 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <q-btn
-            icon="fa fa-play"
-            size="xs"
-            title="Run Object"
-            flat
-            dense
-            :data-portname="column.id"
-            @click="triggerObject(column.id)"
-          />
-          <q-btn
             icon="fa fa-times"
             size="xs"
             itle="Delete Object"
@@ -712,28 +768,6 @@
             @click="confirmDeletePort(column.id)"
           />
 
-          <i
-            v-if="column.type === 'Input'"
-            class="fa fa-list"
-            title="Default Input"
-          />
-        </div>
-        <div
-          class="table-column-edit text-primary"
-          style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
-        >
-          <q-select
-            dense
-            borderless
-            v-if="column.type === 'Input'"
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 5px;"
-            label-color="orange"
-            v-model="column.schema"
-            :options="types"
-            value="string"
-            :menu-offset="[5, -9]"
-          />
         </div>
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
@@ -763,7 +797,6 @@
         </div>
         <div
           v-if="column.type === 'Input'"
-          style="margin-left: 30px;"
         >
           <div class="float-left text-secondary">
             <i
@@ -1352,7 +1385,7 @@
       style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1366,6 +1399,10 @@
           <q-tab
             name="settings"
             label="Settings"
+          />
+          <q-tab
+            name="containersettings"
+            label="Container"
           />
           <q-tab
             name="schedule"
@@ -1395,7 +1432,7 @@
                   filled
                   v-model="obj.name"
                   dense
-                  hint="Processor Name"
+                  hint="Database Name"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
@@ -1404,15 +1441,26 @@
                   filled
                   v-model="obj.description"
                   dense
-                  hint="Processor Description"
+                  hint="Database Description"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
+                <q-select
+                  dense
+                  borderless
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="database"
+                  :options="databases"
+                  hint="Database Type"
+                  value="string"
+                  :menu-offset="[5, -9]"
+                />
                 <q-input
                   filled
-                  v-model="obj.icon"
+                  v-model="obj.connection"
                   dense
-                  hint="Icon Class"
+                  hint="Connection String"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
@@ -1432,6 +1480,58 @@
               </q-form>
             </div>
           </q-tab-panel>
+                        <q-tab-panel
+                name="containersettings"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%; padding-bottom: 0px;"
+                >
+                  <q-form class="q-gutter-md">
+                    <q-input
+                      filled
+                      v-model="obj.imagerepo"
+                      dense
+                      hint="Image Repository"
+                      lazy-rules
+                      :disable="!hasHosted"
+                    />
+                    <q-input
+                      filled
+                      v-model="obj.containerimage"
+                      dense
+                      hint="Container Image"
+                      lazy-rules
+                      :disable="!hasHosted"
+                    />
+                    <q-select
+                      filled
+                      dense
+                      v-model="obj.containerimage"
+                      use-input
+                      input-debounce="0"
+                      hint="Prebuilt Images"
+                      :options="containers"
+                      style="width: 250px"
+                    />
+                  </q-form>
+                  <q-toolbar>
+                    <q-checkbox
+                      v-model="obj.container"
+                      label="Containerized"
+                      :disable="!hasHosted"
+                    />
+                    <q-space />
+                    <q-btn
+                      flat
+                      label="Advanced"
+                      class="text-white bg-primary text-primary"
+                      :disable="!hasHosted"
+                    />
+                  </q-toolbar>
+                </div>
+              </q-tab-panel>
           <q-tab-panel
             name="schedule"
             style="padding: 20px;"
@@ -1475,10 +1575,10 @@
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
           flat
-          label="Save"
-          class="bg-accent text-primary"
-          color="primary"
-          @click="saveProcessor"
+          label="Test"
+          class="bg-accent text-dark"
+          color="dark"
+          @click="testConnection"
         >
           <q-tooltip
             anchor="top middle"
@@ -1486,7 +1586,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Save
+            Test
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -1822,6 +1922,36 @@
       </q-card-actions>
     </q-card>
 
+    <q-card
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      v-if="middlewareview"
+    >
+      <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
+        <div style="height: 100%; width: 100%;">
+          <editor
+            v-model="obj.middleware"
+            @init="middlewareEditorInit"
+            style="font-size: 1.5em;"
+            lang="python"
+            theme="chrome"
+            ref="middlewareEditor"
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="middlewareview = false"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="securityview"
@@ -2355,6 +2485,9 @@ export default {
   },
   data () {
     return {
+      events: ['Start', 'Error', 'Completed'],
+      database: 'SQLite',
+      databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -2630,6 +2763,8 @@ export default {
         style: '',
         x: 0,
         y: 0,
+        middleware: '# middleware will receive the input, make API call to database service, receive output and pass it along\n',
+        connection: 'sqllite://elasticdb',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -2673,6 +2808,7 @@ export default {
       logsview: false,
       requirementsview: false,
       notesview: false,
+      middlewareview: false,
       securityview: false,
       environmentview: false,
       scalingview: false,
@@ -3317,6 +3453,21 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
         me.obj.requirements = editor.getValue()
+      })
+    },
+    middlewareEditorInit: function () {
+      var me = this
+
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.middlewareEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        me.obj.middleware = editor.getValue()
       })
     },
     notesEditorInit: function () {
