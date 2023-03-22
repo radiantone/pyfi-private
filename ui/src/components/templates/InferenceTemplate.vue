@@ -425,7 +425,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list-alt')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-list-alt')"
               >
                 <q-item-section side>
                   <q-icon name="las la-list-alt" />
@@ -445,7 +445,56 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Object
+            Add Inference
+          </q-tooltip>
+        </div>
+
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="fas fa-bolt"
+            color="secondary"
+            padding="0px"
+            size=".6em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="event in events"
+              :key="event"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewPort({ function: event, args: [] }, 'Output', 'fas fa-bolt')"
+              >
+                <q-item-section side>
+                  <q-icon name="fas fa-bolt" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  {{ event }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Trigger
           </q-tooltip>
         </div>
         <div style="position: absolute; right: 8px; top: 0px;">
@@ -646,15 +695,6 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <q-btn
-            icon="fa fa-play"
-            size="xs"
-            title="Run Object"
-            flat
-            dense
-            :data-portname="column.id"
-            @click="triggerObject(column.id)"
-          />
-          <q-btn
             icon="fa fa-times"
             size="xs"
             itle="Delete Object"
@@ -663,28 +703,6 @@
             @click="confirmDeletePort(column.id)"
           />
 
-          <i
-            v-if="column.type === 'Input'"
-            class="fa fa-list"
-            title="Default Input"
-          />
-        </div>
-        <div
-          class="table-column-edit text-primary"
-          style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
-        >
-          <q-select
-            dense
-            borderless
-            v-if="column.type === 'Input'"
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 5px;"
-            label-color="orange"
-            v-model="column.schema"
-            :options="types"
-            value="string"
-            :menu-offset="[5, -9]"
-          />
         </div>
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
@@ -700,7 +718,7 @@
               <q-popup-edit
                 v-model="column.name"
                 buttons
-                v-if="column.icon === 'las la-list-alt'"
+                v-if="column.icon === 'las la-list'"
               >
                 <q-input
                   type="string"
@@ -714,7 +732,6 @@
         </div>
         <div
           v-if="column.type === 'Input'"
-          style="margin-left: 30px;"
         >
           <div class="float-left text-secondary">
             <i
@@ -2306,6 +2323,7 @@ export default {
   },
   data () {
     return {
+      events: ['Start', 'Error', 'Completed'],
       resulttype: 'finished',
       queues: [],
       argports: {},
