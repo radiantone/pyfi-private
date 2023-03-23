@@ -554,7 +554,7 @@
             flat
             @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="position: absolute; right: 100px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -563,6 +563,24 @@
               content-class="bg-black text-white"
             >
               Code
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            size="xs"
+            icon="fas fa-table"
+            dense
+            flat
+            @click="showPanel('tableview', !tableview)"
+            class="show-code text-secondary"
+            style="position: absolute; right: 90px; top: -68px; width: 25px; height: 30px;"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              View
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -767,7 +785,6 @@
             dense
             @click="confirmDeletePort(column.id)"
           />
-
         </div>
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
@@ -1076,6 +1093,105 @@
       v-if="pythonview && codeview"
       :codewidth="codewidth"
     />
+
+    <q-card
+      :style="
+        'width: ' +
+          codewidth +
+          'px;z-index: 999;display: block;position: absolute;right: -' +
+          (codewidth + 5) +
+          'px;top: 0px;min-height:600px'
+      "
+      v-if="tableview"
+    >
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;" />
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="codewidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="codewidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
+          flat
+          icon="published_with_changes"
+          class="bg-primary text-secondary"
+          color="primary"
+          v-close-popup
+          @click="fetchData"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Fetch Data
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="tableview = false"
+        />
+      </q-card-actions>
+    </q-card>
     <q-card
       :style="
         'width: ' +
@@ -1401,6 +1517,10 @@
             label="Settings"
           />
           <q-tab
+            name="schema"
+            label="Schema"
+          />
+          <q-tab
             name="containersettings"
             label="Container"
           />
@@ -1414,6 +1534,11 @@
           v-model="tab"
           keep-alive
         >
+          <q-tab-panel ref="schema"
+            name="schema"
+            style="padding: 0px;">
+
+          </q-tab-panel>
           <q-tab-panel
             ref="settings"
             name="settings"
@@ -1480,58 +1605,58 @@
               </q-form>
             </div>
           </q-tab-panel>
-                        <q-tab-panel
-                name="containersettings"
-                style="padding-top: 0px; padding-bottom: 0px;"
-              >
-                <div
-                  class="q-pa-md"
-                  style="max-width: 100%; padding-bottom: 0px;"
-                >
-                  <q-form class="q-gutter-md">
-                    <q-input
-                      filled
-                      v-model="obj.imagerepo"
-                      dense
-                      hint="Image Repository"
-                      lazy-rules
-                      :disable="!hasHosted"
-                    />
-                    <q-input
-                      filled
-                      v-model="obj.containerimage"
-                      dense
-                      hint="Container Image"
-                      lazy-rules
-                      :disable="!hasHosted"
-                    />
-                    <q-select
-                      filled
-                      dense
-                      v-model="obj.containerimage"
-                      use-input
-                      input-debounce="0"
-                      hint="Prebuilt Images"
-                      :options="containers"
-                      style="width: 250px"
-                    />
-                  </q-form>
-                  <q-toolbar>
-                    <q-checkbox
-                      v-model="obj.container"
-                      label="Containerized"
-                      :disable="!hasHosted"
-                    />
-                    <q-space />
-                    <q-btn
-                      flat
-                      label="Advanced"
-                      class="text-white bg-primary text-primary"
-                      :disable="!hasHosted"
-                    />
-                  </q-toolbar>
-                </div>
-              </q-tab-panel>
+          <q-tab-panel
+            name="containersettings"
+            style="padding-top: 0px; padding-bottom: 0px;"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px;"
+            >
+              <q-form class="q-gutter-md">
+                <q-input
+                  filled
+                  v-model="obj.imagerepo"
+                  dense
+                  hint="Image Repository"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-input
+                  filled
+                  v-model="obj.containerimage"
+                  dense
+                  hint="Container Image"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-select
+                  filled
+                  dense
+                  v-model="obj.containerimage"
+                  use-input
+                  input-debounce="0"
+                  hint="Prebuilt Images"
+                  :options="containers"
+                  style="width: 250px"
+                />
+              </q-form>
+              <q-toolbar>
+                <q-checkbox
+                  v-model="obj.container"
+                  label="Containerized"
+                  :disable="!hasHosted"
+                />
+                <q-space />
+                <q-btn
+                  flat
+                  label="Advanced"
+                  class="text-white bg-primary text-primary"
+                  :disable="!hasHosted"
+                />
+              </q-toolbar>
+            </div>
+          </q-tab-panel>
           <q-tab-panel
             name="schedule"
             style="padding: 20px;"
@@ -2485,7 +2610,7 @@ export default {
   },
   data () {
     return {
-      events: ['Start', 'Error', 'Completed'],
+      events: ['Begin', 'Error', 'Commit'],
       database: 'SQLite',
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
@@ -2942,6 +3067,7 @@ export default {
           }
         }
       ],
+      tableview: false,
       codeview: false,
       pythonview: false,
       gitview: false,
@@ -3395,6 +3521,8 @@ export default {
       this.requirementsview = false
       this.logsview = false
       this.securityview = false
+      this.middlewareview = false
+      this.tableview = false
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
