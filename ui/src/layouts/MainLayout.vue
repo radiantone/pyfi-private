@@ -3165,7 +3165,7 @@ export default defineComponent({
 
       var queue = document.querySelector('#queue')
       queue.data = {
-        id: 14,
+        id: 15,
         enabled: true,
         node: {
           icon: 'input',
@@ -3184,7 +3184,7 @@ export default defineComponent({
 
       var database = document.querySelector('#database')
       database.data = {
-        id: 14,
+        id: 16,
         enabled: true,
         node: {
           icon: 'fas fa-database',

@@ -411,7 +411,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            :dropdown-icon="plugIcon"
+            dropdown-icon="las la-brain"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -425,10 +425,10 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-list-alt')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-brain')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-list-alt" />
+                  <q-icon name="las la-brain" />
                 </q-item-section>
                 <q-item-section
                   side
