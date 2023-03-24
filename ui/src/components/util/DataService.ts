@@ -19,6 +19,14 @@ class DataService {
     })
   }
 
+  createSchema(schema: string, token: string): Promise<any> {
+    return http.post('/api/db/schema', { schema: schema }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getObjects (object: string, token: string): Promise<any> {
     return http.get('/api/' + object, {
       headers: {
