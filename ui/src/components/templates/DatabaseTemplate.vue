@@ -1517,7 +1517,7 @@
             label="Settings"
           />
           <q-tab
-            name="schema"
+            name="schemaconfig"
             label="Schema"
           />
           <q-tab
@@ -1534,10 +1534,45 @@
           v-model="tab"
           keep-alive
         >
-          <q-tab-panel ref="schema"
-            name="schema"
-            style="padding: 0px;">
-
+          <q-tab-panel
+            ref="schemaconfig"
+            name="schemaconfig"
+            style="padding: 0px;"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 430px;"
+            >
+              <editor
+                v-model="obj.schema"
+                @init="schemaEditorInit"
+                style="font-size: 1.5em; min-height: 370px;"
+                lang="sql"
+                theme="chrome"
+                ref="schemaEditor"
+                width="100%"
+                height="100%"
+              />
+            </div>
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="Create"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="createSchema"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Create Schema
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
           </q-tab-panel>
           <q-tab-panel
             ref="settings"
@@ -1604,6 +1639,26 @@
                 </q-toolbar>
               </q-form>
             </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="Test"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="testConnection"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Test Connection
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
           </q-tab-panel>
           <q-tab-panel
             name="containersettings"
@@ -1696,25 +1751,7 @@
           />
         </q-tab-panels>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Test"
-          class="bg-accent text-dark"
-          color="dark"
-          @click="testConnection"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Test
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2883,13 +2920,14 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fas fa-database',
         titletab: false,
+        schema: '',
         receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
         y: 0,
         middleware: '# middleware will receive the input, make API call to database service, receive output and pass it along\n',
-        connection: 'sqllite://elasticdb',
+        connection: 'sqlite://elasticdb',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -3108,6 +3146,13 @@ export default {
     }
   },
   methods: {
+    createSchema () {
+      DataService.createSchema(this.obj.schema, this.$store.state.designer.token).then ( () => {
+
+      }).catch( () => {
+
+      })
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
@@ -3557,6 +3602,16 @@ export default {
       edges.forEach((edge) => {
         edge.innerText = value
       })
+    },
+    schemaEditorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/sql') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.schemaEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
     },
     gitEditorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...

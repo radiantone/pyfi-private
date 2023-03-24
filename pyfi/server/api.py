@@ -1322,6 +1322,28 @@ def post_files(collection, path):
         return jsonify(status)
 
 
+@app.route("/db/tables", methods=['POST'])
+@cross_origin()
+@requires_auth
+def tables():
+    """ Get all the tables for the database info in the POST json """
+
+    return jsonify({'status': 'ok'})
+
+
+@app.route("/db/schema", methods=['POST'])
+@cross_origin()
+@requires_auth
+def schema():
+    """ Create one or more schemas/tables for the provided database info """
+    data: Any = request.get_json()
+
+    ddl = data["schema"]
+    logging.info("DDL %s", ddl)
+
+    return jsonify({'status': 'ok'})
+
+
 @app.route("/assets/<path:path>")
 def send_js(path):
     return send_from_directory("static/assets", path)
