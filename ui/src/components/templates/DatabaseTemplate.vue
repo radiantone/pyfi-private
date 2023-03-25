@@ -420,13 +420,13 @@
           >
             <q-list
               dense
-              v-for="func in funcs"
-              :key="func.name"
+              v-for="table in tables"
+              :key="table.name"
             >
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-table')"
+                @click="addNewTablePort({ name: table.name, args: [] }, 'Input', 'las la-table')"
               >
                 <q-item-section side>
                   <q-icon name="las la-table" />
@@ -435,7 +435,7 @@
                   side
                   class="text-blue-grey-8"
                 >
-                  {{ func.name }}
+                  {{ table.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -485,6 +485,7 @@
                 >
                   {{ func.name }}
                 </q-item-section>
+
               </q-item>
             </q-list>
           </q-btn-dropdown>
@@ -778,13 +779,32 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <q-btn
+            icon="fa fa-play"
+            size="xs"
+            itle="Configure Query"
+            flat
+            dense
+            round
+            v-if="column.type !== 'Input'"
+          />
+          <q-btn
+            icon="fa fa-cog"
+            size="xs"
+            itle="Configure Query"
+            flat
+            dense
+            round
+          />
+          <q-btn
             icon="fa fa-times"
             size="xs"
             itle="Delete Object"
             flat
             dense
+            round
             @click="confirmDeletePort(column.id)"
           />
+
         </div>
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
@@ -1104,7 +1124,29 @@
       "
       v-if="tableview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;" />
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
+          <q-select
+            dense
+            :options-dense="true"
+            style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+            v-model="viewtable"
+            :options="tables"
+            hint="Database Table"
+            option-value="name"
+            option-label="name"
+            value="string"
+            :menu-offset="[5, -9]"
+          />
+        <div style="padding:20px">
+              <q-table
+                dense
+                flat
+                :data="tablerows"
+                :columns="viewcols"
+                row-key="id"
+                style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+              ></q-table></div>
+      </q-card-section>
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
@@ -1501,6 +1543,8 @@
       style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
+
+            <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">{{ schemaResult }}</q-item-label>
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-tabs
           v-model="tab"
@@ -1541,7 +1585,7 @@
           >
             <div
               class="q-pa-md"
-              style="max-width: 100%; padding-bottom: 0px; min-height: 430px;"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
             >
               <editor
                 v-model="obj.schema"
@@ -1572,7 +1616,25 @@
                   Create Schema
                 </q-tooltip>
               </q-btn>
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                flat
+                label="Pull"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="pullSchema"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Pull Schema
+                </q-tooltip>
+              </q-btn>
             </q-card-actions>
+
           </q-tab-panel>
           <q-tab-panel
             ref="settings"
@@ -1610,7 +1672,7 @@
                   borderless
                   :options-dense="true"
                   style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                  v-model="database"
+                  v-model="obj.database"
                   :options="databases"
                   hint="Database Type"
                   value="string"
@@ -1642,7 +1704,7 @@
 
             <q-card-actions align="left">
               <q-btn
-                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                style="position: absolute; bottom: 20px; left: 20px; width: 100px;"
                 flat
                 label="Test"
                 class="bg-primary text-dark"
@@ -1659,6 +1721,7 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
+            <q-item-label style="position:absolute;bottom:0px;left:20px">{{ connectResult }}</q-item-label>
           </q-tab-panel>
           <q-tab-panel
             name="containersettings"
@@ -2091,7 +2154,7 @@
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
         <div style="height: 100%; width: 100%;">
           <editor
-            v-model="obj.middleware"
+            v-model="middleware"
             @init="middlewareEditorInit"
             style="font-size: 1.5em;"
             lang="python"
@@ -2547,7 +2610,23 @@ export default {
     }, 3000)
   },
   computed: {
-
+    viewtable: {
+      get: function () {
+        return this.table.name
+      },
+      set: function (val) {
+        console.log("SETTING VIEW TABLE", val)
+        this.viewcols = []
+        this.table = val
+        val.cols.forEach( (col) => {
+          this.viewcols.push( {
+            'name':col,
+            'label':col,
+            'id':col
+          })
+        })
+      }
+    },
     crontoggle: {
       get: function () {
         return this.obj.useschedule
@@ -2607,6 +2686,7 @@ export default {
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 
+    me.middleware = me.obj.middleware
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
@@ -2647,8 +2727,13 @@ export default {
   },
   data () {
     return {
-      events: ['Begin', 'Error', 'Commit'],
-      database: 'SQLite',
+      schemaResult: 'Ready',
+      viewcols: [],
+      tables: [],
+      table: '',
+      tablerows: [],
+      connectResult: '',
+      events: ['Begin', 'Error', 'Complete'],
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
@@ -2921,12 +3006,14 @@ export default {
         icon: 'fas fa-database',
         titletab: false,
         schema: '',
+        data: [],
+        database: 'SQLite',
         receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
         y: 0,
-        middleware: '# middleware will receive the input, make API call to database service, receive output and pass it along\n',
+        middleware: '# object middleware',
         connection: 'sqlite://elasticdb',
         version: 'v1.2.2',
         perworker: true,
@@ -3146,11 +3233,30 @@ export default {
     }
   },
   methods: {
+    pullSchema () {
+      var me = this
+      DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        console.log(result)
+        me.tables = result.data.tables
+        me.schemaResult = "Pull Schema succeeded"
+      }).catch(() => {
+        me.schemaResult = "Pull Schema failure"
+      })
+    },
+    testConnection () {
+      var me = this
+      DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
+        me.connectResult = 'Connection Success!'
+      }).catch(() => {
+        me.connectResult = 'Connection Error!'
+      })
+    },
     createSchema () {
-      DataService.createSchema(this.obj.schema, this.$store.state.designer.token).then ( () => {
-
-      }).catch( () => {
-
+      var me = this
+      DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
+        me.schemaResult = "Create Schema succeeded"
+      }).catch(() => {
+        me.schemaResult = "Create Schema failure"
       })
     },
     setZoomLevel () {
@@ -3178,8 +3284,18 @@ export default {
     triggerObject (portname) {
       var me = this
 
+      // TODO: Execute middleware begin
+      console.log("TRIGGER ALL BEGIN")
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+
+      // TODO: Instead of this.obj.code, the middleware is run, passing
+      // in the data and the return value of the middleware is the result
+      // The middleware wraps the incoming data, along with the port properties
+      // e.g. incoming row data, port is table=contacts, and middleware
+      // calls remote service to add row to contacts table
+      console.log("MIDDLEWARE EXECUTE")
+
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
@@ -3194,6 +3310,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data.code
+
           window.root.$emit(target_id, code, options.function, options.name, result, node.data)
 
           const reslen = resultstr.length
@@ -3215,8 +3332,12 @@ export default {
           // and store the value internally until all the arguments for the function
           // are present, then trigger the function with all the parameters
         })
-      }, (error) => {
 
+        // TODO: Execute middleware complete
+        console.log("TRIGGER ALL COMPLETE")
+      }, (error) => {
+        // TODO: Execute middleware error
+        console.log("TRIGGER ALL ERROR")
       })
 
       console.log('PORT RESULT ', _port, result)
@@ -3568,6 +3689,7 @@ export default {
       this.securityview = false
       this.middlewareview = false
       this.tableview = false
+      this.connectResult = ''
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
@@ -3650,7 +3772,8 @@ export default {
       const editor = this.$refs.middlewareEditor.editor
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
-        me.obj.middleware = editor.getValue()
+        me.middleware = editor.getValue()
+        me.obj.middleware = me.middleware
       })
     },
     notesEditorInit: function () {
@@ -3795,6 +3918,22 @@ export default {
         })
         this.types = schemas
       })
+    },
+    addNewTablePort (table, type, icon) {
+
+      var port = this.addPort({
+        name: table.name,
+        icon: icon,
+        type: type
+      })
+
+      this.ports[table.name] = true
+      this.portobjects[port.id] = port
+
+
+      if (type === 'Error') {
+
+      }
     },
     addNewPort (func, type, icon) {
       var me = this

@@ -4341,6 +4341,8 @@ export default {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
+
+        // TODO: Check if the node has code to run or middleware?
         const code = node.data.code
 
         // TODO: Insert block JSON here
