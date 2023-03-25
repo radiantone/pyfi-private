@@ -53,6 +53,7 @@ export interface ProcessorState {
   interval: number;
   scheduler: any;
 
+  middleware: string;
   sublevel: { [key: string]: any };
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
@@ -66,6 +67,7 @@ export const ProcessorMixin = Vue.extend({
       sublevel: {},
       name: 'Processor',
       portobjects: {},
+      middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
       argobjects: {},
       errorobjects: {}
     }
@@ -75,6 +77,7 @@ export const ProcessorMixin = Vue.extend({
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
   id!: ProcessorState['id'];
+  middleware!: ProcessorState['middleware'];
   interval!: ProcessorState['interval'];
   scheduler!: ProcessorState['scheduler'];
   sublevel!: ProcessorState['sublevel'];
@@ -124,6 +127,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         tasks: [],
         name: 'MyProcessor',
         id: 'any',
+        middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
         sublevel: {},
         portobjects: {},
         argobjects: {},
@@ -224,6 +228,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
           let obj = data
           this.id = id
+
+          // TODO: If there is middleware then use that instead of code?
+
+
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
