@@ -2631,7 +2631,12 @@ export default {
         }
       }
     })
-
+    this.$on('call.completed', (call) => {
+        // TODO: Trigger sequential ports that are satisfied
+        for(let fname in this.portobjects) {
+          console.log("SEQUENCE FUNC",fname)
+        }
+    })
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')

@@ -485,7 +485,6 @@
                 >
                   {{ func.name }}
                 </q-item-section>
-
               </q-item>
             </q-list>
           </q-btn-dropdown>
@@ -804,7 +803,6 @@
             round
             @click="confirmDeletePort(column.id)"
           />
-
         </div>
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
@@ -1125,27 +1123,28 @@
       v-if="tableview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
-          <q-select
-            dense
-            :options-dense="true"
-            style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-            v-model="viewtable"
-            :options="tables"
-            hint="Database Table"
-            option-value="name"
-            option-label="name"
-            value="string"
-            :menu-offset="[5, -9]"
-          />
+        <q-select
+          dense
+          :options-dense="true"
+          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+          v-model="viewtable"
+          :options="tables"
+          hint="Database Table"
+          option-value="name"
+          option-label="name"
+          value="string"
+          :menu-offset="[5, -9]"
+        />
         <div style="padding:20px">
-              <q-table
-                dense
-                flat
-                :data="tablerows"
-                :columns="viewcols"
-                row-key="id"
-                style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
-              ></q-table></div>
+          <q-table
+            dense
+            flat
+            :data="tablerows"
+            :columns="viewcols"
+            row-key="id"
+            style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+          />
+        </div>
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -1540,12 +1539,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height:500px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-
-            <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">{{ schemaResult }}</q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
+        {{ schemaResult }}
+      </q-item-label>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 420px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1581,7 +1581,7 @@
           <q-tab-panel
             ref="schemaconfig"
             name="schemaconfig"
-            style="padding: 0px;"
+            style="padding: 0px;height:420px"
           >
             <div
               class="q-pa-md"
@@ -1590,7 +1590,7 @@
               <editor
                 v-model="obj.schema"
                 @init="schemaEditorInit"
-                style="font-size: 1.5em; min-height: 370px;"
+                style="font-size: 1.5em; min-height: 360px;"
                 lang="sql"
                 theme="chrome"
                 ref="schemaEditor"
@@ -1634,12 +1634,11 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
-
           </q-tab-panel>
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;"
+            style="padding: 0px;height:420px"
           >
             <div
               class="q-pa-md"
@@ -1689,6 +1688,16 @@
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
                   <q-checkbox
+                    v-model="obj.usemiddleware"
+                    label="Use Middleware"
+                    style="margin-left: 40px;"
+                  />
+                  <q-checkbox
+                    v-model="obj.middlewareonly"
+                    label="Middleware Only"
+                    style="margin-left: 40px;"
+                  />
+                  <q-checkbox
                     v-model="obj.titletab"
                     label="Title Tab"
                     style="margin-left: 40px;"
@@ -1704,7 +1713,7 @@
 
             <q-card-actions align="left">
               <q-btn
-                style="position: absolute; bottom: 20px; left: 20px; width: 100px;"
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
                 flat
                 label="Test"
                 class="bg-primary text-dark"
@@ -1721,7 +1730,6 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
-            <q-item-label style="position:absolute;bottom:0px;left:20px">{{ connectResult }}</q-item-label>
           </q-tab-panel>
           <q-tab-panel
             name="containersettings"
@@ -2047,7 +2055,7 @@
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="consoleview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
         <q-scroll-area
           style="height:475px;width:auto"
           ref="scroll"
@@ -2443,6 +2451,12 @@ export default {
     Console
   },
   watch: {
+    'obj.usemiddleware': function (val) {
+      this.usemiddleware = val
+    },
+    'obj.middlewareonly': function (val) {
+      this.middlewareonly = val
+    },
     'obj.cron': function (val) {
       if (val && obj.crontoggle) {
         this.startSchedule(val)
@@ -2462,6 +2476,9 @@ export default {
     this.braces = mdiCodeBraces
     this.lambdaIcon = mdiLambda
     this.abacusIcon = mdiAbacus
+    this.obj.usemiddleware = true
+    this.obj.middlewareonly = true
+
     this.id = uuidv4()
     console.log('THIS.ID', this.id)
 
@@ -2480,7 +2497,12 @@ export default {
     window.designer.$on('trigger.data', () => {
       me.triggerExecute()
     })
-
+    this.$on('call.completed', (call) => {
+      // TODO: Trigger sequential ports that are satisfied
+      for (const fname in this.portobjects) {
+        console.log('SEQUENCE FUNC', fname)
+      }
+    })
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
@@ -2615,14 +2637,14 @@ export default {
         return this.table.name
       },
       set: function (val) {
-        console.log("SETTING VIEW TABLE", val)
+        console.log('SETTING VIEW TABLE', val)
         this.viewcols = []
         this.table = val
-        val.cols.forEach( (col) => {
-          this.viewcols.push( {
-            'name':col,
-            'label':col,
-            'id':col
+        val.cols.forEach((col) => {
+          this.viewcols.push({
+            name: col,
+            label: col,
+            id: col
           })
         })
       }
@@ -3007,6 +3029,8 @@ export default {
         titletab: false,
         schema: '',
         data: [],
+        usemiddleware: false,
+        middlewareonly: false,
         database: 'SQLite',
         receipt: new Date(),
         notes: '',
@@ -3238,25 +3262,25 @@ export default {
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
         me.tables = result.data.tables
-        me.schemaResult = "Pull Schema succeeded"
+        me.schemaResult = 'Pull Schema succeeded'
       }).catch(() => {
-        me.schemaResult = "Pull Schema failure"
+        me.schemaResult = 'Pull Schema failure'
       })
     },
     testConnection () {
       var me = this
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
-        me.connectResult = 'Connection Success!'
+        me.schemaResult = 'Connection Success!'
       }).catch(() => {
-        me.connectResult = 'Connection Error!'
+        me.schemaResult = 'Connection Error!'
       })
     },
     createSchema () {
       var me = this
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
-        me.schemaResult = "Create Schema succeeded"
+        me.schemaResult = 'Create Schema succeeded'
       }).catch(() => {
-        me.schemaResult = "Create Schema failure"
+        me.schemaResult = 'Create Schema failure'
       })
     },
     setZoomLevel () {
@@ -3281,24 +3305,21 @@ export default {
     updateDataPort (port) {
       this.portobjects[port.id] = port.data
     },
+    triggerQuery (portname) {
+
+    },
     triggerObject (portname) {
       var me = this
 
-      // TODO: Execute middleware begin
-      console.log("TRIGGER ALL BEGIN")
+      console.log('TRIGGER ALL BEGIN')
+      this.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
-
-      // TODO: Instead of this.obj.code, the middleware is run, passing
-      // in the data and the return value of the middleware is the result
-      // The middleware wraps the incoming data, along with the port properties
-      // e.g. incoming row data, port is table=contacts, and middleware
-      // calls remote service to add row to contacts table
-      console.log("MIDDLEWARE EXECUTE")
 
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA EDGE TEMPLATE RESULT', resultstr)
@@ -3334,21 +3355,29 @@ export default {
         })
 
         // TODO: Execute middleware complete
-        console.log("TRIGGER ALL COMPLETE")
+        console.log('TRIGGER ALL COMPLETE')
+        this.root.$emit('trigger.complete')
+        // Trigger all the ports after me
+        this.triggerExecute(portname)
       }, (error) => {
         // TODO: Execute middleware error
-        console.log("TRIGGER ALL ERROR")
+        console.log('TRIGGER ALL ERROR')
+        this.root.$emit('trigger.error')
       })
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute () {
-      // For each data object port create a new object dict holding the values
-      // and append to the code string, then retrieve that object to obtain each
-      // port objects value in one evaluation
+    triggerExecute (port) {
+      let exe = false
 
       for (var portname in this.portobjects) {
-        this.triggerObject(portname)
+        if (port === undefined || exe) {
+          this.triggerObject(portname)
+        } else {
+          if (portname === port) {
+            exe = true
+          }
+        }
       }
     },
     updateBandwidthChart () {
@@ -3920,7 +3949,6 @@ export default {
       })
     },
     addNewTablePort (table, type, icon) {
-
       var port = this.addPort({
         name: table.name,
         icon: icon,
@@ -3929,7 +3957,6 @@ export default {
 
       this.ports[table.name] = true
       this.portobjects[port.id] = port
-
 
       if (type === 'Error') {
 
