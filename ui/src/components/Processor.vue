@@ -53,6 +53,8 @@ export interface ProcessorState {
   interval: number;
   scheduler: any;
 
+  middlewareonly: boolean;
+  usemiddleware: boolean;
   middleware: string;
   sublevel: { [key: string]: any };
   portobjects: { [key: string]: any };
@@ -67,6 +69,8 @@ export const ProcessorMixin = Vue.extend({
       sublevel: {},
       name: 'Processor',
       portobjects: {},
+      middlewareonly: true,
+      usemiddleware: false,
       middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
       argobjects: {},
       errorobjects: {}
@@ -77,6 +81,8 @@ export const ProcessorMixin = Vue.extend({
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
   id!: ProcessorState['id'];
+  middlewareonly!: ProcessorState['middlewareonly'];
+  usemiddleware!: ProcessorState['usemiddleware'];
   middleware!: ProcessorState['middleware'];
   interval!: ProcessorState['interval'];
   scheduler!: ProcessorState['scheduler'];
@@ -127,6 +133,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         tasks: [],
         name: 'MyProcessor',
         id: 'any',
+        middlewareonly: true,
+        usemiddleware: false,
         middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
         sublevel: {},
         portobjects: {},
@@ -230,20 +238,24 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           this.id = id
 
           // TODO: If there is middleware then use that instead of code?
+          if (me.usemiddleware) {
+            console.log('RUN MIDDLEWARE', me.middleware)
+          }
 
-
+          // Set object based on its incoming type
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
             if (data.type && data.type === 'error') {
               obj = data
             } else {
-              if('toJs' in data) {
+              if ('toJs' in data) {
                 obj = Object.fromEntries(data.toJs())
               }
             }
           }
 
+          // Find the matching port receiving the call
           this.$emit('arg.in', obj)
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
           let port = null
@@ -255,6 +267,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           }
           console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
 
+          // Determine if the port arguments are complete
           let complete = true
           for (var i = 0; i < me.portobjects[func].length; i++) {
             const port = me.portobjects[func][i]
@@ -263,13 +276,18 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               break
             }
           }
+
+          // Execute on port if complete
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
             console.log('   INVOKING:', func, data)
             let call = func + '('
-            let count = 0
-            let argdata = Array()
 
+            let count = 0
+            let argdata: any[] = []
+            let funcargs: any = ''
+
+            // For all ports associated with the requested function
             me.portobjects[func].forEach((_arg: any) => {
               let jsonarg = _arg.data
 
@@ -294,7 +312,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
               console.log('    ARG:', _arg, jsonarg)
               if (count > 0) {
-                call = call + ','
+                funcargs = funcargs + ','
               }
 
               // We have to double encode and decode the data because the raw
@@ -302,17 +320,26 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               // JSON result to a JSON string which can then be converted to a python object
               // with json.loads
               if (isobj) {
-                call = call + 'json.loads(' + JSON.stringify(jsonarg) + ')'
+                funcargs = funcargs + 'json.loads(' + JSON.stringify(jsonarg) + ')'
               } else {
-                call = call + jsonarg
+                funcargs = funcargs + jsonarg
               }
               count += 1
             })
-            call = call + ')'
+            call = call + funcargs + ')'
+            // If middleware is selected, do not call the
+
+            if (this.usemiddleware && !this.middlewareonly) {
+              call = 'middleware  ( ' + call + ' )'
+            } else if (this.usemiddleware && this.middlewareonly) {
+              call = 'middleware  ( ' + funcargs + ' )'
+            }
+
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
 
+            // Run in container
             if (block && block.container) {
               call = 'import json\n_result = ' + call
               console.log('RUN BLOCK IN CONTAINER', block)
@@ -359,7 +386,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 var time = Moment.utc(diff).format('HH:mm:ss.SSS')
 
                 console.log('CODE CALL RESULT', res)
-                //let _result = {}
+                // let _result = {}
                 if (res === Object(res)) {
                   answer = Object.fromEntries(res.toJs())
                 //  _plugs = toObject(answer.plugs)
@@ -384,8 +411,19 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   output: JSON.stringify(_result),
                   plugs: JSON.stringify(_plugs)
                 })
-              }, (error: any) => {
 
+                this.$emit('call.completed', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  finished: new Date(),
+                  arg: argument.toString(),
+                  duration: time,
+                  output: JSON.stringify(_result),
+                  plugs: JSON.stringify(_plugs)
+                })
+
+              }, (error: any) => {
                 console.log('PYTHON ERROR', error)
                 this.$emit('python.error', {
                   type: 'error',
