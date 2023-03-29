@@ -1011,8 +1011,8 @@
             class="brightness text-primary"
             :id="'block'+block.data.id"
             style="cursor:pointer;font-size:2em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
-            :disabled="!block.data.enabled"
             @click="showBlock(block.data.node)"
+            :disabled="true"
           >
             <div style="font-size:18px;font-family: arial">
               {{ block.data.node.name }}
@@ -2123,6 +2123,7 @@ export default defineComponent({
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
+      console.log("$auth.isAuthenticated", val)
       var me = this
       if (val) {
         this.security.token().then((token) => {
@@ -2174,20 +2175,6 @@ export default defineComponent({
     }
   },
   computed: {
-    hasHosted () {
-      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
-        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
-      } else {
-        return false
-      }
-    },
-    isProPlan () {
-      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
-        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
-      } else {
-        return false
-      }
-    },
     modeModel: {
       get () {
         return this.mode
@@ -2225,6 +2212,48 @@ export default defineComponent({
     }
   },
   methods: {
+    updateBlocks () {
+      setTimeout(() => {
+        this.blocks.forEach((el) => {
+          const _el = document.querySelector('#block' + el.data.id)
+          if (el.data.enabled && this.checkPlan(el.data.enabled)) {
+            var data = el.data
+            var draghandle = dd.drag(_el, {
+              image: true // default drag image
+            })
+            draghandle.on('start', function (setData, e) {
+              setData('object', JSON.stringify(data))
+            })
+            _el.disabled = false
+          } else {
+            _el.disabled = true
+          }
+        })
+      })
+    },
+    hasHosted () {
+      console.log("hasHosted", this.$store.state.designer.subscription)
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
+    isProPlan () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
+      } else {
+        return false
+      }
+    },
+    allPlan () {
+      return true
+    },
+    checkPlan (plan) {
+      let cp = this[plan]()
+      console.log("CHECKPLAN",plan, cp)
+      return cp
+    },
     showBlock (block) {
       this.blockshown = block
       this.blockdrawer = true
@@ -2257,6 +2286,7 @@ export default defineComponent({
         } else {
           me.$store.commit('designer/setSubscription', 'cancelled')
         }
+        me.updateBlocks()
       }).catch((error) => {
         me.notifyMessage(
           'dark',
@@ -2895,7 +2925,7 @@ export default defineComponent({
 
       script.data = {
         id: 1,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'las la-scroll',
           style: '',
@@ -2914,7 +2944,7 @@ export default defineComponent({
 
       api.data = {
         id: 2,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'las la-cloud-upload-alt',
           style: '',
@@ -2934,7 +2964,7 @@ export default defineComponent({
 
       border.data = {
         id: 3,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           style: '',
           icon: this.borderIcon,
@@ -2949,7 +2979,7 @@ export default defineComponent({
 
       processor.data = {
         id: 4,
-        enabled: this.hasHosted,
+        enabled: 'hasHosted',
         node: {
           icon: 'icon-processor',
           style: '',
@@ -2969,7 +2999,7 @@ export default defineComponent({
 
       markdown.data = {
         id: 5,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'lab la-markdown',
           style: '',
@@ -2987,7 +3017,7 @@ export default defineComponent({
       var group = document.querySelector('#processorgroup')
       group.data = {
         id: 8,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'far fa-object-group',
           style: 'size:50px',
@@ -3071,7 +3101,7 @@ export default defineComponent({
       var label = document.querySelector('#label')
       label.data = {
         id: 9,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'icon-label',
           style: 'size:50px',
@@ -3090,7 +3120,7 @@ export default defineComponent({
       var data = document.querySelector('#data')
       data.data = {
         id: 10,
-        enabled: true,
+        enabled: 'allPlan',
         node: {
           icon: 'las la-file-alt',
           style: 'size:50px',
@@ -3109,7 +3139,7 @@ export default defineComponent({
       var schema = document.querySelector('#schema')
       schema.data = {
         id: 11,
-        enabled: this.hasHosted,
+        enabled: 'hasHosted',
         node: {
           icon: this.schemaIcon,
           style: 'size:50px',
@@ -3128,7 +3158,7 @@ export default defineComponent({
       var chatgpt = document.querySelector('#chatgpt')
       chatgpt.data = {
         id: 13,
-        enabled: true,
+        enabled: 'hasHosted',
         node: {
           icon: 'las la-robot',
           style: 'size:50px',
@@ -3147,7 +3177,7 @@ export default defineComponent({
       var inference = document.querySelector('#inference')
       inference.data = {
         id: 14,
-        enabled: true,
+        enabled: 'hasHosted',
         node: {
           icon: 'las la-brain',
           style: 'size:50px',
@@ -3165,8 +3195,8 @@ export default defineComponent({
 
       var queue = document.querySelector('#queue')
       queue.data = {
-        id: 14,
-        enabled: true,
+        id: 15,
+        enabled: 'allPlan',
         node: {
           icon: 'input',
           style: 'size:50px',
@@ -3184,8 +3214,8 @@ export default defineComponent({
 
       var database = document.querySelector('#database')
       database.data = {
-        id: 14,
-        enabled: true,
+        id: 16,
+        enabled: 'hasHosted',
         node: {
           icon: 'fas fa-database',
           style: 'size:50px',
@@ -3213,21 +3243,6 @@ export default defineComponent({
         })
         draghandle.on('start', function (setData, e) {
           setData('object', JSON.stringify(data))
-        })
-      })
-
-      setTimeout(() => {
-        this.blocks.forEach((el) => {
-          const _el = document.querySelector('#block' + el.data.id)
-          if (el.data.enabled) {
-            var data = el.data
-            var draghandle = dd.drag(_el, {
-              image: true // default drag image
-            })
-            draghandle.on('start', function (setData, e) {
-              setData('object', JSON.stringify(data))
-            })
-          }
         })
       })
     })

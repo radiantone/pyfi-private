@@ -19,6 +19,30 @@ class DataService {
     })
   }
 
+  testConnection (type: string, url: string, token: string): Promise<any> {
+    return http.post('/api/db/test', { type: type, url: url }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  createSchema (type: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/schema', { type: type, url: url, schema: schema }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  fetchTables (type: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/tables', { type: type, url: url, schema: schema }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getObjects (object: string, token: string): Promise<any> {
     return http.get('/api/' + object, {
       headers: {

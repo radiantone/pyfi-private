@@ -1322,6 +1322,85 @@ def post_files(collection, path):
         return jsonify(status)
 
 
+@app.route("/db/tables", methods=['POST'])
+@cross_origin()
+@requires_auth
+def tables():
+    """ Get all the tables for the database info in the POST json """
+    data: Any = request.get_json()
+
+    database = data['type']
+    url = data['url']
+    ddl = data["schema"]
+
+    conn, cursor = get_cursor(database, url)
+    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+
+    _tables = list(tables)
+
+    results = []
+
+    for table in _tables:
+        cur = conn.execute(f'select * from {table[0]}')
+        # instead of cursor.description:
+        desc = cur.description
+        cols = [val[0] for val in desc]
+        results += [{'name':table[0], 'cols':cols}]
+        print(cols)
+
+    return jsonify({'status': 'ok', 'tables':results})
+
+
+def get_cursor(database, url):
+    import sqlite3
+    from urllib.parse import urlparse
+
+    dbname = urlparse(url).hostname
+
+    if database == 'SQLite':
+        con = sqlite3.connect(f"{dbname}.db")
+        cur = con.cursor()
+        return con, cur
+
+    return None
+
+
+@app.route("/db/test", methods=['POST'])
+@cross_origin()
+@requires_auth
+def test():
+    """ Test database connection """
+
+    data: Any = request.get_json()
+
+    database = data['type']
+    url = data['url']
+
+    if get_cursor(database, url):
+
+        return jsonify({'status': 'ok'})
+
+    return jsonify({'status': 'error'}), 500
+
+
+@app.route("/db/schema", methods=['POST'])
+@cross_origin()
+@requires_auth
+def schema():
+    """ Create one or more schemas/tables for the provided database info """
+    data: Any = request.get_json()
+
+    database = data['type']
+    url = data['url']
+    ddl = data["schema"]
+    logging.info("DDL %s", ddl)
+
+    conn, cursor = get_cursor(database, url)
+    cursor.execute(ddl)
+
+    return jsonify({'status': 'ok'})
+
+
 @app.route("/assets/<path:path>")
 def send_js(path):
     return send_from_directory("static/assets", path)

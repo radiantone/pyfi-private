@@ -420,13 +420,13 @@
           >
             <q-list
               dense
-              v-for="func in funcs"
-              :key="func.name"
+              v-for="table in tables"
+              :key="table.name"
             >
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-table')"
+                @click="addNewTablePort({ name: table.name, args: [] }, 'Input', 'las la-table')"
               >
                 <q-item-section side>
                   <q-icon name="las la-table" />
@@ -435,7 +435,7 @@
                   side
                   class="text-blue-grey-8"
                 >
-                  {{ func.name }}
+                  {{ table.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -497,15 +497,64 @@
             Add Query
           </q-tooltip>
         </div>
+
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="fas fa-bolt"
+            color="secondary"
+            padding="0px"
+            size=".6em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="event in events"
+              :key="event"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewPort({ function: event, args: [] }, 'Output', 'fas fa-bolt')"
+              >
+                <q-item-section side>
+                  <q-icon name="fas fa-bolt" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  {{ event }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Trigger
+          </q-tooltip>
+        </div>
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
-            icon="fas fa-code"
+            icon="fas fa-search"
             dense
             flat
             @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="position: absolute; right: 100px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
               anchor="top middle"
@@ -513,7 +562,25 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Code
+              Queries
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            size="xs"
+            icon="fas fa-table"
+            dense
+            flat
+            @click="showPanel('tableview', !tableview)"
+            class="show-code text-secondary"
+            style="position: absolute; right: 90px; top: -68px; width: 25px; height: 30px;"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              View
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -586,7 +653,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list" />
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -625,6 +692,22 @@
                 class="text-blue-grey-8"
               >
                 Lock
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item
+              clickable
+              v-close-popup
+              @click="showPanel('middlewareview', !middlewareview)"
+            >
+              <q-item-section side>
+                <q-icon name="las la-exchange-alt" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Middleware
               </q-item-section>
             </q-item>
             <q-separator />
@@ -697,11 +780,19 @@
           <q-btn
             icon="fa fa-play"
             size="xs"
-            title="Run Object"
+            itle="Configure Query"
             flat
             dense
-            :data-portname="column.id"
-            @click="triggerObject(column.id)"
+            round
+            v-if="column.type !== 'Input'"
+          />
+          <q-btn
+            icon="fa fa-cog"
+            size="xs"
+            itle="Configure Query"
+            flat
+            dense
+            round
           />
           <q-btn
             icon="fa fa-times"
@@ -709,30 +800,8 @@
             itle="Delete Object"
             flat
             dense
+            round
             @click="confirmDeletePort(column.id)"
-          />
-
-          <i
-            v-if="column.type === 'Input'"
-            class="fa fa-list"
-            title="Default Input"
-          />
-        </div>
-        <div
-          class="table-column-edit text-primary"
-          style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
-        >
-          <q-select
-            dense
-            borderless
-            v-if="column.type === 'Input'"
-            :options-dense="true"
-            style="font-size: 1em; margin-right: 5px;"
-            label-color="orange"
-            v-model="column.schema"
-            :options="types"
-            value="string"
-            :menu-offset="[5, -9]"
           />
         </div>
         <div v-if="column.type !== 'Input'">
@@ -763,7 +832,6 @@
         </div>
         <div
           v-if="column.type === 'Input'"
-          style="margin-left: 30px;"
         >
           <div class="float-left text-secondary">
             <i
@@ -1043,6 +1111,128 @@
       v-if="pythonview && codeview"
       :codewidth="codewidth"
     />
+
+    <q-card
+      :style="
+        'width: ' +
+          codewidth +
+          'px;z-index: 999;display: block;position: absolute;right: -' +
+          (codewidth + 5) +
+          'px;top: 0px;min-height:600px'
+      "
+      v-if="tableview"
+    >
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
+        <q-select
+          dense
+          :options-dense="true"
+          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+          v-model="viewtable"
+          :options="tables"
+          hint="Database Table"
+          option-value="name"
+          option-label="name"
+          value="string"
+          :menu-offset="[5, -9]"
+        />
+        <div style="padding:20px">
+          <q-table
+            dense
+            flat
+            :data="tablerows"
+            :columns="viewcols"
+            row-key="id"
+            style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+          />
+        </div>
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="codewidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="codewidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
+          flat
+          icon="published_with_changes"
+          class="bg-primary text-secondary"
+          color="primary"
+          v-close-popup
+          @click="fetchData"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Fetch Data
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          v-close-popup
+          @click="tableview = false"
+        />
+      </q-card-actions>
+    </q-card>
     <q-card
       :style="
         'width: ' +
@@ -1349,10 +1539,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height:500px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+      <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
+        {{ schemaResult }}
+      </q-item-label>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 420px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1368,6 +1561,14 @@
             label="Settings"
           />
           <q-tab
+            name="schemaconfig"
+            label="Schema"
+          />
+          <q-tab
+            name="containersettings"
+            label="Container"
+          />
+          <q-tab
             name="schedule"
             label="Schedule"
           />
@@ -1378,9 +1579,66 @@
           keep-alive
         >
           <q-tab-panel
+            ref="schemaconfig"
+            name="schemaconfig"
+            style="padding: 0px;height:420px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <editor
+                v-model="obj.schema"
+                @init="schemaEditorInit"
+                style="font-size: 1.5em; min-height: 360px;"
+                lang="sql"
+                theme="chrome"
+                ref="schemaEditor"
+                width="100%"
+                height="100%"
+              />
+            </div>
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="Create"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="createSchema"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Create Schema
+                </q-tooltip>
+              </q-btn>
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                flat
+                label="Pull"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="pullSchema"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Pull Schema
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+          <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;"
+            style="padding: 0px;height:420px"
           >
             <div
               class="q-pa-md"
@@ -1395,7 +1653,7 @@
                   filled
                   v-model="obj.name"
                   dense
-                  hint="Processor Name"
+                  hint="Database Name"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
@@ -1404,20 +1662,41 @@
                   filled
                   v-model="obj.description"
                   dense
-                  hint="Processor Description"
+                  hint="Database Description"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
+                <q-select
+                  dense
+                  borderless
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="obj.database"
+                  :options="databases"
+                  hint="Database Type"
+                  value="string"
+                  :menu-offset="[5, -9]"
+                />
                 <q-input
                   filled
-                  v-model="obj.icon"
+                  v-model="obj.connection"
                   dense
-                  hint="Icon Class"
+                  hint="Connection String"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
+                  <q-checkbox
+                    v-model="obj.usemiddleware"
+                    label="Use Middleware"
+                    style="margin-left: 40px;"
+                  />
+                  <q-checkbox
+                    v-model="obj.middlewareonly"
+                    label="Middleware Only"
+                    style="margin-left: 40px;"
+                  />
                   <q-checkbox
                     v-model="obj.titletab"
                     label="Title Tab"
@@ -1430,6 +1709,78 @@
                   />
                 </q-toolbar>
               </q-form>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="Test"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="testConnection"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Test Connection
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+          <q-tab-panel
+            name="containersettings"
+            style="padding-top: 0px; padding-bottom: 0px;"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px;"
+            >
+              <q-form class="q-gutter-md">
+                <q-input
+                  filled
+                  v-model="obj.imagerepo"
+                  dense
+                  hint="Image Repository"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-input
+                  filled
+                  v-model="obj.containerimage"
+                  dense
+                  hint="Container Image"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-select
+                  filled
+                  dense
+                  v-model="obj.containerimage"
+                  use-input
+                  input-debounce="0"
+                  hint="Prebuilt Images"
+                  :options="containers"
+                  style="width: 250px"
+                />
+              </q-form>
+              <q-toolbar>
+                <q-checkbox
+                  v-model="obj.container"
+                  label="Containerized"
+                  :disable="!hasHosted"
+                />
+                <q-space />
+                <q-btn
+                  flat
+                  label="Advanced"
+                  class="text-white bg-primary text-primary"
+                  :disable="!hasHosted"
+                />
+              </q-toolbar>
             </div>
           </q-tab-panel>
           <q-tab-panel
@@ -1471,25 +1822,7 @@
           />
         </q-tab-panels>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Save"
-          class="bg-accent text-primary"
-          color="primary"
-          @click="saveProcessor"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Save
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
         <q-btn
           flat
@@ -1722,7 +2055,7 @@
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="consoleview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
         <q-scroll-area
           style="height:475px;width:auto"
           ref="scroll"
@@ -1822,6 +2155,36 @@
       </q-card-actions>
     </q-card>
 
+    <q-card
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      v-if="middlewareview"
+    >
+      <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
+        <div style="height: 100%; width: 100%;">
+          <editor
+            v-model="middleware"
+            @init="middlewareEditorInit"
+            style="font-size: 1.5em;"
+            lang="python"
+            theme="chrome"
+            ref="middlewareEditor"
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="middlewareview = false"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
     <q-card
       style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="securityview"
@@ -2088,6 +2451,12 @@ export default {
     Console
   },
   watch: {
+    'obj.usemiddleware': function (val) {
+      this.usemiddleware = val
+    },
+    'obj.middlewareonly': function (val) {
+      this.middlewareonly = val
+    },
     'obj.cron': function (val) {
       if (val && obj.crontoggle) {
         this.startSchedule(val)
@@ -2107,6 +2476,9 @@ export default {
     this.braces = mdiCodeBraces
     this.lambdaIcon = mdiLambda
     this.abacusIcon = mdiAbacus
+    this.obj.usemiddleware = true
+    this.obj.middlewareonly = true
+
     this.id = uuidv4()
     console.log('THIS.ID', this.id)
 
@@ -2125,7 +2497,12 @@ export default {
     window.designer.$on('trigger.data', () => {
       me.triggerExecute()
     })
-
+    this.$on('call.completed', (call) => {
+      // TODO: Trigger sequential ports that are satisfied
+      for (const fname in this.portobjects) {
+        console.log('SEQUENCE FUNC', fname)
+      }
+    })
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
@@ -2255,7 +2632,23 @@ export default {
     }, 3000)
   },
   computed: {
-
+    viewtable: {
+      get: function () {
+        return this.table.name
+      },
+      set: function (val) {
+        console.log('SETTING VIEW TABLE', val)
+        this.viewcols = []
+        this.table = val
+        val.cols.forEach((col) => {
+          this.viewcols.push({
+            name: col,
+            label: col,
+            id: col
+          })
+        })
+      }
+    },
     crontoggle: {
       get: function () {
         return this.obj.useschedule
@@ -2315,6 +2708,7 @@ export default {
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
 
+    me.middleware = me.obj.middleware
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
@@ -2355,6 +2749,14 @@ export default {
   },
   data () {
     return {
+      schemaResult: 'Ready',
+      viewcols: [],
+      tables: [],
+      table: '',
+      tablerows: [],
+      connectResult: '',
+      events: ['Begin', 'Error', 'Complete'],
+      databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -2625,11 +3027,18 @@ export default {
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fas fa-database',
         titletab: false,
+        schema: '',
+        data: [],
+        usemiddleware: false,
+        middlewareonly: false,
+        database: 'SQLite',
         receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
         y: 0,
+        middleware: '# object middleware',
+        connection: 'sqlite://elasticdb',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -2673,6 +3082,7 @@ export default {
       logsview: false,
       requirementsview: false,
       notesview: false,
+      middlewareview: false,
       securityview: false,
       environmentview: false,
       scalingview: false,
@@ -2806,6 +3216,7 @@ export default {
           }
         }
       ],
+      tableview: false,
       codeview: false,
       pythonview: false,
       gitview: false,
@@ -2846,6 +3257,32 @@ export default {
     }
   },
   methods: {
+    pullSchema () {
+      var me = this
+      DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        console.log(result)
+        me.tables = result.data.tables
+        me.schemaResult = 'Pull Schema succeeded'
+      }).catch(() => {
+        me.schemaResult = 'Pull Schema failure'
+      })
+    },
+    testConnection () {
+      var me = this
+      DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
+        me.schemaResult = 'Connection Success!'
+      }).catch(() => {
+        me.schemaResult = 'Connection Error!'
+      })
+    },
+    createSchema () {
+      var me = this
+      DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
+        me.schemaResult = 'Create Schema succeeded'
+      }).catch(() => {
+        me.schemaResult = 'Create Schema failure'
+      })
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
@@ -2868,14 +3305,21 @@ export default {
     updateDataPort (port) {
       this.portobjects[port.id] = port.data
     },
+    triggerQuery (portname) {
+
+    },
     triggerObject (portname) {
       var me = this
 
+      console.log('TRIGGER ALL BEGIN')
+      this.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA EDGE TEMPLATE RESULT', resultstr)
@@ -2887,6 +3331,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data.code
+
           window.root.$emit(target_id, code, options.function, options.name, result, node.data)
 
           const reslen = resultstr.length
@@ -2908,19 +3353,31 @@ export default {
           // and store the value internally until all the arguments for the function
           // are present, then trigger the function with all the parameters
         })
-      }, (error) => {
 
+        // TODO: Execute middleware complete
+        console.log('TRIGGER ALL COMPLETE')
+        this.root.$emit('trigger.complete')
+        // Trigger all the ports after me
+        this.triggerExecute(portname)
+      }, (error) => {
+        // TODO: Execute middleware error
+        console.log('TRIGGER ALL ERROR')
+        this.root.$emit('trigger.error')
       })
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute () {
-      // For each data object port create a new object dict holding the values
-      // and append to the code string, then retrieve that object to obtain each
-      // port objects value in one evaluation
+    triggerExecute (port) {
+      let exe = false
 
       for (var portname in this.portobjects) {
-        this.triggerObject(portname)
+        if (port === undefined || exe) {
+          this.triggerObject(portname)
+        } else {
+          if (portname === port) {
+            exe = true
+          }
+        }
       }
     },
     updateBandwidthChart () {
@@ -3259,6 +3716,9 @@ export default {
       this.requirementsview = false
       this.logsview = false
       this.securityview = false
+      this.middlewareview = false
+      this.tableview = false
+      this.connectResult = ''
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
@@ -3294,6 +3754,16 @@ export default {
         edge.innerText = value
       })
     },
+    schemaEditorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/sql') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.schemaEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+    },
     gitEditorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3317,6 +3787,22 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
         me.obj.requirements = editor.getValue()
+      })
+    },
+    middlewareEditorInit: function () {
+      var me = this
+
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.middlewareEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        me.middleware = editor.getValue()
+        me.obj.middleware = me.middleware
       })
     },
     notesEditorInit: function () {
@@ -3461,6 +3947,20 @@ export default {
         })
         this.types = schemas
       })
+    },
+    addNewTablePort (table, type, icon) {
+      var port = this.addPort({
+        name: table.name,
+        icon: icon,
+        type: type
+      })
+
+      this.ports[table.name] = true
+      this.portobjects[port.id] = port
+
+      if (type === 'Error') {
+
+      }
     },
     addNewPort (func, type, icon) {
       var me = this

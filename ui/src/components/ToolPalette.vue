@@ -96,6 +96,7 @@
           Processor
         </q-tooltip>
       </q-btn>
+
       <q-btn
         flat
         align="left"
@@ -123,6 +124,7 @@
         id="queue"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!hasPro"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -163,7 +165,7 @@
         data-node-id="group"
         jtk-is-group="true"
         id="processorgroup"
-        style="min-height: 56px; cursor: grabbing;"
+        style="display:none; min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold sidebar-item"
       >
         <q-tooltip
@@ -171,6 +173,24 @@
           content-class="bg-black text-white"
         >
           Process Group
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-table"
+        aria-label="spreadsheet"
+        size="xl"
+        id="spreadsheet"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <!--:disabled="false"-->
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Spreadsheet
         </q-tooltip>
       </q-btn>
       <!--
@@ -293,6 +313,7 @@
         id="inference"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!hasPro"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -329,7 +350,7 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openLibrary"
-        :disabled="!isProPlan"
+        :disabled="!hasPro"
         title="Upgrade to PRO Plan"
       >
         <q-tooltip
@@ -972,14 +993,14 @@ export default {
     })
   },
   computed: {
-    hasHosted() {
+    hasHosted () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
         return false
       }
     },
-    isProPlan() {
+    hasPro () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
       } else {

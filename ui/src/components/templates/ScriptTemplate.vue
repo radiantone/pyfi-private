@@ -2631,7 +2631,12 @@ export default {
         }
       }
     })
-
+    this.$on('call.completed', (call) => {
+        // TODO: Trigger sequential ports that are satisfied
+        for(let fname in this.portobjects) {
+          console.log("SEQUENCE FUNC",fname)
+        }
+    })
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
@@ -4341,6 +4346,8 @@ export default {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
+
+        // TODO: Check if the node has code to run or middleware?
         const code = node.data.code
 
         // TODO: Insert block JSON here
