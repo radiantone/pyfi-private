@@ -124,6 +124,7 @@
         id="queue"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!hasPro"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -183,8 +184,6 @@
         id="spreadsheet"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!hasHosted"
-        title="Upgrade to Hosted Plan"
       >
         <!--:disabled="false"-->
         <q-tooltip
@@ -314,6 +313,7 @@
         id="inference"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!hasPro"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -350,7 +350,7 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openLibrary"
-        :disabled="!isProPlan"
+        :disabled="!hasPro"
         title="Upgrade to PRO Plan"
       >
         <q-tooltip
@@ -993,14 +993,14 @@ export default {
     })
   },
   computed: {
-    hasHosted() {
+    hasHosted () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
         return false
       }
     },
-    isProPlan() {
+    hasPro () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
       } else {

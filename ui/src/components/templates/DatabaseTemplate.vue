@@ -549,7 +549,7 @@
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
-            icon="fas fa-code"
+            icon="fas fa-search"
             dense
             flat
             @click="showPanel('codeview', !codeview)"
@@ -562,7 +562,7 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Code
+              Queries
             </q-tooltip>
           </q-btn>
           <q-btn
