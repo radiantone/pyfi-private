@@ -53,10 +53,13 @@ export interface ProcessorState {
   interval: number;
   scheduler: any;
 
+  obj: any;
   middlewareonly: boolean;
   usemiddleware: boolean;
   middleware: string;
   sublevel: { [key: string]: any };
+
+  environment: { [key: string]: any };
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
   errorobjects: { [key: string]: any };
@@ -71,6 +74,8 @@ export const ProcessorMixin = Vue.extend({
       portobjects: {},
       middlewareonly: true,
       usemiddleware: false,
+      obj: {},
+      environment: {},
       middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
       argobjects: {},
       errorobjects: {}
@@ -84,7 +89,11 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   middlewareonly!: ProcessorState['middlewareonly'];
   usemiddleware!: ProcessorState['usemiddleware'];
   middleware!: ProcessorState['middleware'];
+
+  environment!: ProcessorState['environment'];
   interval!: ProcessorState['interval'];
+
+  obj!: ProcessorState['obj'];
   scheduler!: ProcessorState['scheduler'];
   sublevel!: ProcessorState['sublevel'];
   tasks!: ProcessorState['tasks'];
@@ -137,7 +146,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         usemiddleware: false,
         middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
         sublevel: {},
+        environment: {},
         portobjects: {},
+        obj: {},
         argobjects: {},
         errorobjects: {}
       }
@@ -280,6 +291,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           // Execute on port if complete
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
+            console.log('ENV',me.obj.variabledata)
             console.log('   INVOKING:', func, data)
             let call = func + '('
 
