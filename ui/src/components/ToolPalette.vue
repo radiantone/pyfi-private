@@ -136,10 +136,10 @@
       <q-btn
         flat
         align="left"
-        icon="las la-clipboard-check"
-        aria-label="Label"
+        icon="las la-redo-alt"
+        aria-label="Loop"
         size="xl"
-        id="answer"
+        id="loop"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
@@ -147,7 +147,7 @@
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Answer
+          Loop
         </q-tooltip>
       </q-btn>
       <q-btn
