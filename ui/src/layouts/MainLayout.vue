@@ -2250,9 +2250,11 @@ export default defineComponent({
       return true
     },
     checkPlan (plan) {
-      let cp = this[plan]()
-      console.log("CHECKPLAN",plan, cp)
-      return cp
+      if (plan) {
+        console.log("CHECKPLAN", plan, cp)
+        let cp = this[plan]()
+        return cp
+      }
     },
     showBlock (block) {
       this.blockshown = block
@@ -3230,8 +3232,47 @@ export default defineComponent({
           properties: []
         }
       }
+
+      var loop = document.querySelector('#loop')
+      loop.data = {
+        id: 17,
+        enabled: 'free',
+        node: {
+          icon: 'las la-redo-alt',
+          style: 'size:50px',
+          type: 'loop',
+          name: 'Loop',
+          description: 'A description',
+          package: 'ec.blocks.data',
+          label: 'Loop',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var spreadsheet = document.querySelector('#spreadsheet')
+      spreadsheet.data = {
+        id: 18,
+        enabled: 'free',
+        node: {
+          icon: 'las la-table',
+          style: 'size:50px',
+          type: 'spreadsheet',
+          name: 'Spreadsheet',
+          description: 'A description',
+          package: 'ec.blocks.data',
+          label: 'Spreadsheet',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
       var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt,
-        inference, queue, database]
+        inference, queue, database, loop, spreadsheet]
 
       this.blocks = els
 

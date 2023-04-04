@@ -2190,7 +2190,7 @@ Delete
 
 */
 export default {
-  name: 'ScriptTemplate',
+  name: 'DataTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {
