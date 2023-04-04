@@ -2413,6 +2413,7 @@ import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue'
 import SegmentTemplate from 'components/templates/SegmentTemplate.vue'
 import ChordTemplate from 'components/templates/ChordTemplate.vue'
 import DataTemplate from 'components/templates/DataTemplate.vue'
+import LoopTemplate from 'components/templates/LoopTemplate.vue'
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue'
 import ApiTemplate from 'components/templates/ApiTemplate.vue'
 import ProcessorTemplate from 'components/templates/ProcessorTemplate.vue'
@@ -2421,6 +2422,7 @@ import PatternTemplate from 'components/templates/PatternTemplate.vue'
 import BorderTemplate from 'components/templates/BorderTemplate.vue'
 import QueueTemplate from 'components/templates/QueueTemplate.vue'
 import DatabaseTemplate from 'components/templates/DatabaseTemplate.vue'
+import SpreadsheetTemplate from 'components/templates/SpreadsheetTemplate.vue'
 import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
 import InferenceTemplate from 'components/templates/InferenceTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
@@ -3843,6 +3845,9 @@ export default {
               }
             }
           },
+          spreadsheet: {
+            component: SpreadsheetTemplate
+          },
           database: {
             component: DatabaseTemplate
           },
@@ -4034,6 +4039,9 @@ export default {
                 }
               }
             }
+          },
+          loop: {
+            component: LoopTemplate
           },
           data: {
             component: DataTemplate
