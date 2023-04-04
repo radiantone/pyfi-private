@@ -551,10 +551,14 @@ class WorkerService:
             os.chdir("git")
 
         process = None
+        flow_cmd = "venv/bin/flow"
+
+        if 'FLOW_CMD' in os.environ:
+            flow_cmd = os.environ['FLOW_CMD']
 
         if not self.usecontainer:
             cmd = [
-                "venv/bin/flow",
+                flow_cmd,
                 "worker",
                 "start",
                 "-s",
@@ -569,7 +573,7 @@ class WorkerService:
             ]
             if self.user:
                 cmd = [
-                    "venv/bin/flow",
+                    flow_cmd,
                     "worker",
                     "start",
                     "-s",
@@ -588,7 +592,7 @@ class WorkerService:
                 logging.info("Launching worker %s %s", cmd_str, name)
                 dir = os.getcwd()
 
-                if os.path.exists("venv/bin/flow"):
+                if os.path.exists(flow_cmd):
                     self.process = process = Popen(
                         cmd,
                         stdout=sys.stdout,
@@ -2825,10 +2829,15 @@ class WorkerService:
                             )  # inside git directory
 
                             login = os.environ["GIT_LOGIN"]
+                            branch = 'development'
+
+                            if 'PYFI_BRANCH' in os.environ:
+                                branch = os.environ['PYFI_BRANCH']
 
                             pyfi_repo = (
-                                "-e git+" + login + "/radiantone/pyfi-private@production#egg=pyfi"
+                                "-e git+" + login + "/radiantone/pyfi-private@" + branch + "#egg=pyfi"
                             )
+                            logging.info("PYFI_REPO %s", pyfi_repo)
                             # Install pyfi
                             # TODO: Make this URL a setting so it can be overridden
                             env.install("psycopg2")

@@ -83,6 +83,7 @@ linecache2==1.0.0
 lizard==1.17.10
 lxml==4.8.0
 Mako==1.2.0
+newrelic==8.7.0
 mando==0.6.4
 MarkupSafe==2.1.1
 marshmallow==3.19.0
