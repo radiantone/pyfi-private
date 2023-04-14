@@ -550,6 +550,8 @@ class WorkerService:
             logging.debug("Changing to git directory")
             os.chdir("git")
 
+        process = None
+
         if not self.usecontainer:
             cmd = [
                 "venv/bin/flow",
@@ -2825,7 +2827,7 @@ class WorkerService:
                             login = os.environ["GIT_LOGIN"]
 
                             pyfi_repo = (
-                                "-e git+" + login + "/radiantone/pyfi-private#egg=pyfi"
+                                "-e git+" + login + "/radiantone/pyfi-private@production#egg=pyfi"
                             )
                             # Install pyfi
                             # TODO: Make this URL a setting so it can be overridden
