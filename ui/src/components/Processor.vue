@@ -57,6 +57,7 @@ export interface ProcessorState {
   middlewareonly: boolean;
   usemiddleware: boolean;
   middleware: string;
+  middlewarefunc: string;
   sublevel: { [key: string]: any };
 
   environment: { [key: string]: any };
@@ -74,6 +75,7 @@ export const ProcessorMixin = Vue.extend({
       portobjects: {},
       middlewareonly: true,
       usemiddleware: false,
+      middlewarefunc: '',
       obj: {},
       environment: {},
       middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
@@ -88,6 +90,7 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   id!: ProcessorState['id'];
   middlewareonly!: ProcessorState['middlewareonly'];
   usemiddleware!: ProcessorState['usemiddleware'];
+  middlewarefunc!: ProcessorState['middlewarefunc'];
   middleware!: ProcessorState['middleware'];
 
   environment!: ProcessorState['environment'];
@@ -144,6 +147,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         id: 'any',
         middlewareonly: true,
         usemiddleware: false,
+        middlewarefunc: '',
         middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
         sublevel: {},
         environment: {},
@@ -250,7 +254,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
           // TODO: If there is middleware then use that instead of code?
           if (me.usemiddleware) {
-            console.log('RUN MIDDLEWARE', me.middleware)
+            console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
           }
 
           // Set object based on its incoming type
@@ -270,28 +274,42 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           this.$emit('arg.in', obj)
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
           let port = null
-          for (var i = 0; i < me.portobjects[func].length; i++) {
-            if (me.portobjects[func][i].name === argument) {
-              port = me.portobjects[func][i]
-              port.data = obj
+          let complete = false
+
+          // TODO: This fails for database object
+          if (func && me.portobjects[func]) {
+            for (var i = 0; i < me.portobjects[func].length; i++) {
+              if (me.portobjects[func][i].name === argument) {
+                port = me.portobjects[func][i]
+                port.data = obj
+              }
+            }
+            console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
+
+            // Determine if the port arguments are complete
+            complete = true
+            for (var i = 0; i < me.portobjects[func].length; i++) {
+              const port = me.portobjects[func][i]
+              if (port.data === undefined || port.data === null) {
+                complete = false
+                break
+              }
             }
           }
-          console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
+          else {
+            if (func === undefined) {
+              console.log('MIDDLEWARE',this.usemiddleware, this.middlewareonly)
+              if (this.usemiddleware && this.middlewareonly) {
+                console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
 
-          // Determine if the port arguments are complete
-          let complete = true
-          for (var i = 0; i < me.portobjects[func].length; i++) {
-            const port = me.portobjects[func][i]
-            if (port.data === undefined || port.data === null) {
-              complete = false
-              break
+              }
             }
           }
-
           // Execute on port if complete
+          console.log('COMPLETE', complete)
           if (complete) {
             console.log('FUNCTION', func, 'IS COMPLETE!')
-            console.log('ENV',me.obj.variabledata)
+            console.log('ENV', me.obj.variabledata)
             console.log('   INVOKING:', func, data)
             let call = func + '('
 

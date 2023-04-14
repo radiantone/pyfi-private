@@ -1220,6 +1220,24 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-plus"
+          class="bg-primary text-accent"
+          color="primary"
+          v-close-popup
+          @click="addRow"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Row
+          </q-tooltip>
+        </q-btn>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1539,13 +1557,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; height:500px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height:580px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ schemaResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 420px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1581,7 +1599,7 @@
           <q-tab-panel
             ref="schemaconfig"
             name="schemaconfig"
-            style="padding: 0px;height:420px"
+            style="padding: 0px;height:480px"
           >
             <div
               class="q-pa-md"
@@ -1590,7 +1608,7 @@
               <editor
                 v-model="obj.schema"
                 @init="schemaEditorInit"
-                style="font-size: 1.5em; min-height: 360px;"
+                style="font-size: 1.5em; min-height: 420px;"
                 lang="sql"
                 theme="chrome"
                 ref="schemaEditor"
@@ -1638,7 +1656,7 @@
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height:420px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1684,6 +1702,16 @@
                   hint="Connection String"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                />
+                <q-select
+                  filled
+                  dense
+                  v-model="obj.middlewarefunc"
+                  use-input
+                  input-debounce="0"
+                  hint="Middleware Function"
+                  :options="mwfunctions"
+                  style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
@@ -2451,6 +2479,10 @@ export default {
     Console
   },
   watch: {
+    'obj.middlewarefunc': function (val) {
+      this.middlewarefunc = val
+      console.log("SET MIDDLEWARE FUNC", val)
+    },
     'obj.usemiddleware': function (val) {
       this.usemiddleware = val
     },
@@ -2478,6 +2510,7 @@ export default {
     this.abacusIcon = mdiAbacus
     this.obj.usemiddleware = true
     this.obj.middlewareonly = true
+    this.usemiddleware = true
 
     this.id = uuidv4()
     console.log('THIS.ID', this.id)
@@ -2749,6 +2782,8 @@ export default {
   },
   data () {
     return {
+      mwfunction: '',
+      mwfunctions: ['funca','funcb','funcc'],
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3031,6 +3066,7 @@ export default {
         data: [],
         usemiddleware: false,
         middlewareonly: false,
+        middlewarefunc: '',
         database: 'SQLite',
         receipt: new Date(),
         notes: '',
@@ -3196,6 +3232,16 @@ export default {
       ],
       data: [
         {
+          name: 'In',
+          bytes: 'inBytes',
+          time: '5 min',
+          spark: {
+            name: 'in',
+            labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
+            value: [200, 675, 410, 390, 310, 460, 250, 240]
+          }
+        },
+        {
           name: 'Out',
           bytes: 'outBytes',
           time: '5 min',
@@ -3261,7 +3307,12 @@ export default {
       var me = this
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
+        me.obj.schema = ''
         me.tables = result.data.tables
+        result.data.tables.forEach( (table) => {
+          me.obj.schema += table.schema+'\n'
+        })
+
         me.schemaResult = 'Pull Schema succeeded'
       }).catch(() => {
         me.schemaResult = 'Pull Schema failure'
@@ -3312,7 +3363,7 @@ export default {
       var me = this
 
       console.log('TRIGGER ALL BEGIN')
-      this.root.$emit('trigger.begin')
+      window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
 
@@ -3356,13 +3407,13 @@ export default {
 
         // TODO: Execute middleware complete
         console.log('TRIGGER ALL COMPLETE')
-        this.root.$emit('trigger.complete')
+        window.root.$emit('trigger.complete')
         // Trigger all the ports after me
         this.triggerExecute(portname)
       }, (error) => {
         // TODO: Execute middleware error
         console.log('TRIGGER ALL ERROR')
-        this.root.$emit('trigger.error')
+        window.root.$emit('trigger.error')
       })
 
       console.log('PORT RESULT ', _port, result)

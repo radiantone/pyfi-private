@@ -1345,7 +1345,9 @@ def tables():
         # instead of cursor.description:
         desc = cur.description
         cols = [val[0] for val in desc]
-        results += [{'name':table[0], 'cols':cols}]
+        cur = conn.execute(f"SELECT sql FROM sqlite_schema WHERE name = '{table[0]}';")
+
+        results += [{'name':table[0], 'cols':cols, 'schema':list(cur)[0][0]}]
         print(cols)
 
     return jsonify({'status': 'ok', 'tables':results})

@@ -1539,7 +1539,7 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; height:500px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height:580px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
@@ -1581,7 +1581,7 @@
           <q-tab-panel
             ref="schemaconfig"
             name="schemaconfig"
-            style="padding: 0px;height:420px"
+            style="padding: 0px;height:480px"
           >
             <div
               class="q-pa-md"
@@ -1590,7 +1590,7 @@
               <editor
                 v-model="obj.schema"
                 @init="schemaEditorInit"
-                style="font-size: 1.5em; min-height: 360px;"
+                style="font-size: 1.5em; min-height: 420px;"
                 lang="sql"
                 theme="chrome"
                 ref="schemaEditor"
@@ -1638,7 +1638,7 @@
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height:420px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1684,6 +1684,17 @@
                   hint="Connection String"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                />
+
+                <q-select
+                  filled
+                  dense
+                  v-model="obj.middlewarefunc"
+                  use-input
+                  input-debounce="0"
+                  hint="Middleware Function"
+                  :options="mwfunctions"
+                  style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
@@ -1931,7 +1942,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
       v-if="scalingview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2749,6 +2760,8 @@ export default {
   },
   data () {
     return {
+      mwfunction: '',
+      mwfunctions: ['funca','funcb','funcc'],
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3031,6 +3044,7 @@ export default {
         data: [],
         usemiddleware: false,
         middlewareonly: false,
+        middlewarefunc: '',
         database: 'SQLite',
         receipt: new Date(),
         notes: '',

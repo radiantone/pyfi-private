@@ -129,8 +129,7 @@ class AgentWebServerPlugin(AgentPlugin):
     def start(self, agent: AgentService, **kwargs):
 
         logger.debug("[AgentWebServerPlugin] Starting")
-        import bjoern
-        import gunicorn
+        import gunicorn.app.base
         from billiard.context import Process
 
         cpus = multiprocessing.cpu_count()
