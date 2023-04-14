@@ -2200,7 +2200,7 @@ export default {
   },
   watch: {
     'obj.cron': function (val) {
-      if(val && obj.crontoggle) {
+      if (val && obj.crontoggle) {
         this.startSchedule(val)
       }
     },
@@ -2455,7 +2455,7 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
+    // window.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     this.fetchCode()
     this.updateBandwidthChart()
@@ -2963,7 +2963,7 @@ export default {
     removePort (objid, col) {
       window.toolkit.removePort(objid, col)
       delete this.portobjects[col]
-      //this.portobjects.remove(col)
+      // this.portobjects.remove(col)
       this.ports
       this.argobjects
     },
@@ -3000,7 +3000,7 @@ export default {
           const code = node.data.code
           window.root.$emit(target_id, code, options.function, options.name, result, node.data)
 
-          let reslen = resultstr.length
+          const reslen = resultstr.length
           tsdb.series('outBytes').insert(
             {
               bytes: reslen

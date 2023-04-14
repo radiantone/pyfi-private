@@ -650,6 +650,12 @@ export default {
     synchronize () {
       this.loading = true
       var me = this
+      let token = this.$store.state.designer.token
+      if ((!this.$auth.isAuthenticated && token) ||
+        (!token || token === 'none')) {
+          console.log("Library: Not yet authenticated, returning")
+          return
+      }
       try {
         var files = DataService.getFiles(this.collection, this.foldername, this.$store.state.designer.token)
         files

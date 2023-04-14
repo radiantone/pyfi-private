@@ -369,6 +369,13 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
+          <q-btn flat dense size="md" icon="las la-plus" color="dark" @click="addNewFlow">                            <q-tooltip
+                              content-class=""
+                              content-style="font-size: 16px"
+                              :offset="[10, 10]"
+                            >
+                              Add New Flow
+                            </q-tooltip></q-btn>
           </q-tabs>
           <q-btn
             flat
@@ -384,6 +391,25 @@
       </template>
       <template #after>
         <div style="height: 100vh; width: 100%; padding-top: 5px; position: relative; top: 95px; overflow: hidden;">
+           <q-tabs
+            v-model="drawertab"
+            dense
+            class="bg-primary"
+            align="left"
+            v-if="false"
+            narrow-indicator
+            active-color="dark"
+            indicator-color="primary"
+            active-bg-color="accent"
+          >
+            <q-tab
+              name="console"
+              class="text-dark"
+              icon="las la-book"
+              label="Tutorial"
+              style="font-size:16px"
+            />
+           </q-tabs>
           <q-tabs
             v-model="drawertab"
             dense
@@ -2212,6 +2238,9 @@ export default defineComponent({
     }
   },
   methods: {
+    addNewFlow () {
+      this.$root.$emit('new.flow')
+    },
     updateBlocks () {
       setTimeout(() => {
         this.blocks.forEach((el) => {
@@ -2250,7 +2279,7 @@ export default defineComponent({
       return true
     },
     checkPlan (plan) {
-      if (plan) {
+      if (plan && this[plan]) {
         console.log("CHECKPLAN", plan, cp)
         let cp = this[plan]()
         return cp
