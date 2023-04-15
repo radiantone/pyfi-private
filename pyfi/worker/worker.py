@@ -2859,7 +2859,7 @@ class WorkerService:
                                 """If we are not running the processor tasks in a container, then load it into the venv"""
                                 try:
                                     logging.debug(
-                                        "Installing package1 %s with %s into %s",
+                                        "Installing package %s with %s into %s",
                                         deployment.processor.gitrepo.strip(),
                                         sys.executable,
                                         os.getcwd(),
@@ -2868,7 +2868,7 @@ class WorkerService:
                                         "-e git+" + deployment.processor.gitrepo.strip()
                                     )
                                     logging.info(
-                                        "Installing: -e git+%s"
+                                        "Installed: -e git+%s"
                                         + deployment.processor.gitrepo.strip()
                                     )
                                     logging.debug(
