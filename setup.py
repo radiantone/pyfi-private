@@ -179,6 +179,7 @@ setup(
         'sphinx',
         'rejson',
         # 'simpy',
+        'newrelic',
         'oso',
         'sqlalchemy-oso',
         'pyschedule',
