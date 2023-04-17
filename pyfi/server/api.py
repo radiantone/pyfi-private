@@ -680,8 +680,6 @@ def get_files(collection, path):
 
     from pyfi.db.model import UserModel
 
-    assert hasPlan("developer")
-
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
