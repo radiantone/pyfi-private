@@ -31,7 +31,7 @@ interface SocketData {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  process.env.SOCKETIO
+  <string>process.env.SOCKETIO
 );
 
 export default mixins(CountComponentBase).extend<
