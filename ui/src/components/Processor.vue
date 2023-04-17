@@ -102,8 +102,10 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   tasks!: ProcessorState['tasks'];
 }
 
+let socketserver = <string>process.env.SOCKETIO
+
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  <string>process.env.SOCKETIO
+  socketserver
 )
 
 const mapToObj = (m: Map<string, any>) => {
