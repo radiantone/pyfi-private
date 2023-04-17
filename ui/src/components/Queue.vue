@@ -269,7 +269,7 @@
 <script>
 import { io, Socket } from 'socket.io-client'
 
-const socket = io('https://app.elasticcode.ai')
+const socket = io(process.env.SOCKETIO)
 
 export default {
   name: 'Button',
