@@ -2106,7 +2106,7 @@ import 'assets/fonts/flowfont2.woff2'
 
 import { io, Socket } from 'socket.io-client'
 
-const socket = io('https://app.elasticcode.ai')
+const socket = io(process.env.SOCKETIO)
 
 export default defineComponent({
   name: 'MainLayout',

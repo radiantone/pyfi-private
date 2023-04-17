@@ -31,7 +31,7 @@ interface SocketData {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'https://app.elasticcode.ai'
+  process.env.SOCKETIO
 );
 
 export default mixins(CountComponentBase).extend<
