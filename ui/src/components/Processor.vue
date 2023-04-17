@@ -103,7 +103,7 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:3003'
+  <string>process.env.SOCKETIO
 )
 
 const mapToObj = (m: Map<string, any>) => {
