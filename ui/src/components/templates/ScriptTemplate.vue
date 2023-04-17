@@ -2636,6 +2636,201 @@ export default {
         console.log('SEQUENCE FUNC', fname)
       }
     })
+    this.$on('message.received', (msg) => {
+      if (msg.type && msg.type === 'DeploymentModel') {
+        console.log('DEPLOYMENT UPDATED')
+        me.refreshDeployments(false)
+      }
+      if (msg.type && msg.type === 'ProcessorModel') {
+        if (msg.name === me.obj.name) {
+          if (msg.object.receipt > me.obj.receipt) {
+            console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
+            for (var key in me.obj) {
+              if (key in msg.object && !avoid.includes(key)) {
+                me.obj[key] = msg.object[key]
+              }
+            }
+          } else {
+            console.log('Ignoring update since receipt is obsolete', msg.object, me.obj)
+          }
+          console.log('PROCESSOR ID', me.obj.id)
+        }
+      }
+      if (msg.type && msg.type === 'result') {
+        if (msg.id === this.obj.id) {
+          me.currentresult = msg.output
+          me.consolelogs.push({ date: new Date(), output: msg.output })
+          window.root.$emit('console.message', new Date(), me.obj, msg.output)
+          me.consolelogs = me.consolelogs.slice(0, 100)
+          me.task_time = msg.duration
+          const resdate = new Date()
+          if (msg.output === undefined) {
+            debugger
+          }
+          tsdb.series('outBytes').insert(
+            {
+              bytes: msg.output.length
+            },
+            resdate
+          )
+
+          const answer = JSON.parse(msg.output)
+
+          const result = {
+            name: msg.function,
+            id: me.resultdata.length,
+            created: resdate,
+            state: 'COMPLETE',
+            lastupdated: resdate,
+            owner: me.$auth.user !== undefined ? me.$auth.user.name : 'guest',
+            size: msg.output.length,
+            output: answer,
+            task_id: uuidv4()
+          }
+          // update resultdata
+          me.resultdata.push(result)
+
+          // me.bytes_out_5min.unshift(msg.output.length)
+          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+          // me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+          // me.bytes_out += msg.output.length
+
+          me.updateBandwidthChart()
+          // update resultdata
+
+          me.error = false
+        }
+        Object.entries(this.argobjects).forEach((tuple) => {
+          const argobject = tuple[1]
+          me.obj.columns.forEach((column) => {
+            if (column.argument) {
+              if (column.name === argobject.name && column.function === argobject.function) {
+                column.data = null
+                argobject.data = null
+              }
+            }
+          })
+        })
+        me.updateColumns()
+        const func = msg.function
+        // Find the port for the function
+        // Emit result over the port edges
+        const _plugs = JSON.parse(msg.plugs)
+        for (var key in this.portobjects) {
+          const port = this.portobjects[key]
+          key = key.replace('func:', '')
+          if (_plugs[key] !== undefined) {
+            const plug_data = _plugs[key]
+            if (port.id) {
+              me.triggerRoute(port.id, plug_data, msg.plugs)
+            }
+          } else {
+            if (key === func) {
+              if (port.id) {
+                const output = JSON.parse(msg.output)
+
+                me.calls_out += 1
+                me.bytes_out += msg.output.length
+                me.bytes_out_5min.unshift(msg.output.length)
+                me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+                me.triggerRoute(port.id, output, msg.plugs)
+              }
+            }
+          }
+        }
+      }
+
+      if (msg.type && msg.type === 'output') {
+        if (msg.id === this.obj.id) {
+          me.consolelogs.push({ date: new Date(), output: msg.output })
+          me.consolelogs = me.consolelogs.slice(0, 100)
+        }
+      }
+
+      if (msg.room && msg.room !== me.obj.name) {
+        return
+      }
+
+      if (msg.channel === 'task' && msg.state) {
+        var bytes = JSON.stringify(msg).length
+        window.root.$emit('message.count', 1)
+        window.root.$emit('message.size', bytes)
+        tsdb.series('inBytes').insert(
+          {
+            bytes: bytes
+          },
+          Date.now()
+        )
+
+        var timedata = tsdb.series('inBytes').query({
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
+          where: {
+            time: { is: '<', than: Date.now() - 5 * 60 }
+          }
+        })
+
+        // me.bytes_in_5min = averaged_data
+        me.bytes_in_5min.unshift(bytes)
+        // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+        me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
+        // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+        me.bytes_in += bytes
+
+        me.calls_in += 1
+        me.tasklogs.unshift(msg)
+        me.tasklogs = me.tasklogs.slice(0, 100)
+      }
+      if (msg.channel === 'task' && msg.message) {
+        const now = Date.now()
+        var timedata = tsdb.series('outBytes').query({
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
+          where: {
+            time: { is: '<', than: Date.now() - 5 * 60 }
+          }
+        })
+        console.log('TIMEDATA', timedata)
+        tsdb.series('outBytes').insert(
+          {
+            bytes: bytes
+          },
+          now
+        )
+        var json = JSON.parse(msg.message)
+        me.bytes_out += msg.message.length
+        me.bytes_out_5min.unshift(msg.message.length)
+        if (msg.state === 'postrun' && msg.duration) {
+          const moment = Moment(msg.duration, 'H:mm:ss.SSS')
+          // console.log('MOMENT', moment);
+          me.tasktime_out_5min.unshift(moment.seconds() + moment.milliseconds())
+          me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8)
+
+          me.task_time = json.duration
+
+          tsdb.series('durations').insert(
+            {
+              duration: moment,
+              seconds: moment.seconds(),
+              milliseconds: moment.milliseconds()
+            },
+            now
+          )
+        }
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+        // me.calls_out += 1
+        me.resultlogs.unshift(json)
+        me.resultlogs = me.resultlogs.slice(0, 100)
+      }
+      if (msg.channel === 'log' && msg.message) {
+        me.msglogs.unshift(msg)
+        me.msglogs = me.msglogs.slice(0, 100)
+      }
+      me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out)
+      me.totalbytes_5min = me.totalbytes_5min.slice(0, 8)
+      if (msg.channel === 'task') {
+        this.updateBandwidthChart()
+      }
+    })
     // Print some fields from the mixin component
     console.log('BetterCounter: ', this.delayMs, this.internalPerformAsyncIncrement)
     console.log('getcount', this.countLabel)

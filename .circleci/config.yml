@@ -49,7 +49,7 @@ jobs:
           command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js
       - run:
           name: Build UI
-          command: make ui
+          command: SOCKETIO=http://localhost:3003 make ui
       - run:
           name: Copy UI
           command: mkdir -p workspace/ui/dist/spa; cp -r ui/dist/spa/* workspace/ui/dist/spa/
