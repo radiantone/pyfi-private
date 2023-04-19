@@ -780,7 +780,7 @@
           <q-btn
             icon="fa fa-play"
             size="xs"
-            itle="Configure Query"
+            title="Configure Query"
             flat
             dense
             round
@@ -789,7 +789,7 @@
           <q-btn
             icon="fa fa-cog"
             size="xs"
-            itle="Configure Query"
+            title="Configure Query"
             flat
             dense
             round
@@ -797,13 +797,28 @@
           <q-btn
             icon="fa fa-times"
             size="xs"
-            itle="Delete Object"
+            title="Delete Object"
             flat
             dense
             round
             @click="confirmDeletePort(column.id)"
           />
         </div>
+        <q-expansion-item
+          class="text-dark"
+          style="padding-left:0px"
+        :icon="column.icon"
+        :label="column.name"
+        dense
+      ><q-card>
+          <q-card-section>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem, eius reprehenderit eos corrupti
+            commodi magni quaerat ex numquam, dolorum officiis modi facere maiores architecto suscipit iste
+            eveniet doloribus ullam aliquid.
+          </q-card-section>
+        </q-card>
+      </q-expansion-item>
+        <!--
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
             <i
@@ -829,7 +844,7 @@
               </q-popup-edit>
             </span>
           </span>
-        </div>
+        </div>-->
         <div
           v-if="column.type === 'Input'"
         >
@@ -2396,7 +2411,13 @@
     </q-card>
   </div>
 </template>
-<style>
+<style scoped>
+.q-item {
+  padding-left: 0px;
+}
+.q-item__section {
+  padding-right: 5px;
+}
 .parentBox {
   padding: 0px;
   margin-left: 5px;

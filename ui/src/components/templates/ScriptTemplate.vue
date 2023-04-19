@@ -780,20 +780,27 @@
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
-          <i
+          <q-btn
             v-if="column.type !== 'Input' && column.type !== 'Plug' && column.type !== 'Error'"
-            class="fa fa-play table-column-delete-icon"
+            icon="fa fa-play"
+            size="xs"
             title="Trigger Port"
+            flat
+            round
+            dense
             style="margin-right: 5px;"
             @click="executeObject('func:'+column.name.replace('function: ',''))"
           />
-          <i
+          <q-btn
+            icon="fa fa-times"
+            size="xs"
+            itle="Delete Port"
+            flat
+            round
+            dense
             v-if="column.type !== 'Input'"
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
             @click="confirmDeletePort(column.id)"
           />
-
           <i
             v-if="column.data"
             class="fas fa-envelope text-secondary"
