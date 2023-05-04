@@ -772,6 +772,7 @@
         :data-port-id="column.id"
         data-port-template="Object"
       >
+        <!--
         <div class="table-column-edit text-primary">
           <div
             class="table-column-edit text-primary"
@@ -793,6 +794,7 @@
             flat
             dense
             round
+            v-if="column.type !== 'Input'"
           />
           <q-btn
             icon="fa fa-times"
@@ -802,23 +804,77 @@
             dense
             round
             @click="confirmDeletePort(column.id)"
+            v-if="column.type !== 'Input'"
           />
         </div>
         <q-expansion-item
           class="text-dark"
           style="padding-left:0px"
-        :icon="column.icon"
-        :label="column.name"
-        dense
-      ><q-card>
-          <q-card-section>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem, eius reprehenderit eos corrupti
-            commodi magni quaerat ex numquam, dolorum officiis modi facere maiores architecto suscipit iste
-            eveniet doloribus ullam aliquid.
-          </q-card-section>
-        </q-card>
-      </q-expansion-item>
-        <!--
+          :icon="column.icon"
+          :label="column.name"
+          dense
+          default-opened
+          :content-inset-level="1"
+          hide-expand-icon
+          v-if="column.type === 'Input'"
+        >
+          <template #header>
+            <q-item-section avatar>
+              <q-icon
+                color="primary"
+                :class="column.icon"
+              />
+            </q-item-section>
+            <q-item-section>
+              {{ column.name }}
+            </q-item-section>
+
+            <q-item-section side>
+              <div class="row items-center">
+                <q-btn
+                  icon="fa fa-cog"
+                  size="xs"
+                  title="Configure Table"
+                  flat
+                  color="primary"
+                  dense
+                  round
+                />
+                <q-btn
+                  icon="fa fa-times"
+                  size="xs"
+                  title="Delete Object"
+                  flat
+                  color="primary"
+                  dense
+                  round
+                  @click="confirmDeletePort(column.id)"
+                />
+              </div>
+            </q-item-section>
+          </template>
+          <q-card>
+            <q-card-section>
+              <div class="float-left text-secondary">
+                <i
+                  class="fas fa-bolt"
+                  style="margin-right: 5px;"
+                />
+              </div>
+              <jtk-source
+                port-id="commit"
+                name="commit"
+                scope="Column"
+                filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
+                filter-exclude="true"
+                type="Output"
+              >
+                Commit
+              </jtk-source>
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+        -->
         <div v-if="column.type !== 'Input'">
           <div class="float-left text-secondary">
             <i
@@ -844,7 +900,7 @@
               </q-popup-edit>
             </span>
           </span>
-        </div>-->
+        </div><!--
         <div
           v-if="column.type === 'Input'"
         >
@@ -860,11 +916,11 @@
               {{ column.name }}
             </span>
           </span>
-        </div>
+        </div>-->
         <jtk-source
           v-if="column.type !== 'Input'"
-          name="source"
           :port-id="column.id"
+          name="source"
           :scope="column.datatype"
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
@@ -2412,10 +2468,20 @@
   </div>
 </template>
 <style scoped>
-.q-item {
+.q-expansion-item__container > .q-item {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.q-expansion-item__content {
+  padding-left: 20px !important;
+}
+
+.q-item--dense {
+  margin-right: 0px;
   padding-left: 0px;
 }
-.q-item__section {
+.table-columns .q-item__section {
   padding-right: 5px;
 }
 .parentBox {
@@ -2491,7 +2557,7 @@ Delete
 
 */
 export default {
-  name: 'ScriptTemplate',
+  name: 'DatabaseTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
   components: {
@@ -2502,7 +2568,7 @@ export default {
   watch: {
     'obj.middlewarefunc': function (val) {
       this.middlewarefunc = val
-      console.log("SET MIDDLEWARE FUNC", val)
+      console.log('SET MIDDLEWARE FUNC', val)
     },
     'obj.usemiddleware': function (val) {
       this.usemiddleware = val
@@ -2804,7 +2870,7 @@ export default {
   data () {
     return {
       mwfunction: '',
-      mwfunctions: ['funca','funcb','funcc'],
+      mwfunctions: ['funca', 'funcb', 'funcc'],
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3330,8 +3396,8 @@ export default {
         console.log(result)
         me.obj.schema = ''
         me.tables = result.data.tables
-        result.data.tables.forEach( (table) => {
-          me.obj.schema += table.schema+'\n'
+        result.data.tables.forEach((table) => {
+          me.obj.schema += table.schema + '\n'
         })
 
         me.schemaResult = 'Pull Schema succeeded'
