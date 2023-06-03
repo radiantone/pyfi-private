@@ -553,8 +553,8 @@ class WorkerService:
         process = None
         flow_cmd = "venv/bin/flow"
 
-        if 'FLOW_CMD' in os.environ:
-            flow_cmd = os.environ['FLOW_CMD']
+        if "FLOW_CMD" in os.environ:
+            flow_cmd = os.environ["FLOW_CMD"]
 
         if not self.usecontainer:
             cmd = [
@@ -2829,13 +2829,17 @@ class WorkerService:
                             )  # inside git directory
 
                             login = os.environ["GIT_LOGIN"]
-                            branch = 'development'
+                            branch = "development"
 
-                            if 'PYFI_BRANCH' in os.environ:
-                                branch = os.environ['PYFI_BRANCH']
+                            if "PYFI_BRANCH" in os.environ:
+                                branch = os.environ["PYFI_BRANCH"]
 
                             pyfi_repo = (
-                                "-e git+" + login + "/radiantone/pyfi-private@" + branch + "#egg=pyfi"
+                                "-e git+"
+                                + login
+                                + "/radiantone/pyfi-private@"
+                                + branch
+                                + "#egg=pyfi"
                             )
                             logging.info("PYFI_REPO %s", pyfi_repo)
                             # Install pyfi
