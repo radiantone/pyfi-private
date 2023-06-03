@@ -446,7 +446,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Table
+            Add Worksheet
           </q-tooltip>
         </div>
         <div
@@ -780,7 +780,7 @@
           <q-btn
             icon="fa fa-play"
             size="xs"
-            itle="Configure Query"
+            title="Configure Query"
             flat
             dense
             round
@@ -789,7 +789,7 @@
           <q-btn
             icon="fa fa-cog"
             size="xs"
-            itle="Configure Query"
+            title="Configure Query"
             flat
             dense
             round
@@ -797,7 +797,7 @@
           <q-btn
             icon="fa fa-times"
             size="xs"
-            itle="Delete Object"
+            title="Delete Object"
             flat
             dense
             round
@@ -1673,7 +1673,7 @@
                   style="font-size: 1em; margin-left:20px; margin-right: 5px;"
                   v-model="obj.database"
                   :options="databases"
-                  hint="Database Type"
+                  hint="Spreadsheet Type"
                   value="string"
                   :menu-offset="[5, -9]"
                 />
@@ -1681,7 +1681,7 @@
                   filled
                   v-model="obj.connection"
                   dense
-                  hint="Connection String"
+                  hint="Spreadsheet URL"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
@@ -2769,7 +2769,7 @@ export default {
       tablerows: [],
       connectResult: '',
       events: ['Begin', 'Error', 'Complete'],
-      databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
+      databases: ['Google Sheets', 'Excel', 'CSV'],
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -3052,7 +3052,7 @@ export default {
         x: 0,
         y: 0,
         middleware: '# object middleware',
-        connection: 'sqlite://elasticdb',
+        connection: '',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',

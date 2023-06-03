@@ -810,6 +810,7 @@
             size="xs"
             title="Run Object"
             flat
+            round
             dense
             :data-portname="column.id"
             @click="triggerObject(column.id)"
@@ -819,6 +820,7 @@
             size="xs"
             itle="Delete Object"
             flat
+            round
             dense
             @click="confirmDeletePort(column.id)"
           />
