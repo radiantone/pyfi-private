@@ -102,7 +102,7 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   tasks!: ProcessorState['tasks'];
 }
 
-let socketserver = <string>process.env.SOCKETIO
+const socketserver = <string>process.env.SOCKETIO
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   socketserver
@@ -164,7 +164,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       var me = this
 
       socket.on('basicEmit', (a, b, c) => {
-        me.$store.commit('designer/setMessage', b)
+        if(me.$store) {
+          me.$store.commit('designer/setMessage', b)
+        }
       })
       me.listenMessages()
       me.sublevel = {
@@ -254,11 +256,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           let obj = data
           this.id = id
 
-          // TODO: If there is middleware then use that instead of code?
-          if (me.usemiddleware) {
-            console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
-          }
-
           // Set object based on its incoming type
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
@@ -270,6 +267,25 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 obj = Object.fromEntries(data.toJs())
               }
             }
+          }
+
+          // TODO: If there is middleware then use that instead of code?
+          if (me.usemiddleware) {
+            console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
+            const code = me.middleware + '\n\nrun(' + JSON.stringify(obj) + ')\n'
+            console.log('RUN CODE', code)
+            const result = (window as any).pyodide.runPythonAsync(code)
+            result.then((res: any) => {
+              let jsonoutput = res.toJs()
+              let _result = toObject(jsonoutput)
+              console.log('RUN CODE RESULT', jsonoutput, _result, JSON.stringify(_result))
+              this.$emit('message.received', {
+                type: 'result',
+                id: id,
+                function: 'run',
+                output: JSON.stringify(_result)
+              })
+            })
           }
 
           // Find the matching port receiving the call
@@ -297,13 +313,14 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 break
               }
             }
-          }
-          else {
+          } else {
             if (func === undefined) {
-              console.log('MIDDLEWARE',this.usemiddleware, this.middlewareonly)
+              console.log('MIDDLEWARE', this.usemiddleware, this.middlewareonly)
               if (this.usemiddleware && this.middlewareonly) {
                 console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
-
+                this.$emit('middleware.complete', {
+                  type: 'middleware'
+                })
               }
             }
           }
@@ -316,7 +333,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             let call = func + '('
 
             let count = 0
-            let argdata: any[] = []
+            const argdata: any[] = []
             let funcargs: any = ''
 
             // For all ports associated with the requested function
@@ -454,7 +471,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   output: JSON.stringify(_result),
                   plugs: JSON.stringify(_plugs)
                 })
-
               }, (error: any) => {
                 console.log('PYTHON ERROR', error)
                 this.$emit('python.error', {

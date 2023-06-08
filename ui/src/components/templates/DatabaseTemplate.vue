@@ -426,7 +426,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewTablePort({ name: table.name, args: [] }, 'Input', 'las la-table')"
+                @click="addNewTablePort({ name: table.name, args: [] }, 'Table', 'las la-table')"
               >
                 <q-item-section side>
                   <q-icon name="las la-table" />
@@ -772,7 +772,6 @@
         :data-port-id="column.id"
         data-port-template="Object"
       >
-        <!--
         <div class="table-column-edit text-primary">
           <div
             class="table-column-edit text-primary"
@@ -781,128 +780,34 @@
           <q-btn
             icon="fa fa-play"
             size="xs"
-            title="Configure Query"
+            title="Execute Query"
             flat
             dense
             round
-            v-if="column.type !== 'Input'"
+            v-if="column.type === 'Output'"
           />
           <q-btn
             icon="fa fa-cog"
             size="xs"
-            title="Configure Query"
+            title="Configure Table"
             flat
             dense
             round
-            v-if="column.type !== 'Input'"
+            v-if="column.type === 'Table'"
           />
           <q-btn
             icon="fa fa-times"
             size="xs"
-            title="Delete Object"
+            title="Delete Table Port"
             flat
             dense
             round
             @click="confirmDeletePort(column.id)"
-            v-if="column.type !== 'Input'"
+            v-if="column.type === 'Table'"
           />
         </div>
-        <q-expansion-item
-          class="text-dark"
-          style="padding-left:0px"
-          :icon="column.icon"
-          :label="column.name"
-          dense
-          default-opened
-          :content-inset-level="1"
-          hide-expand-icon
-          v-if="column.type === 'Input'"
-        >
-          <template #header>
-            <q-item-section avatar>
-              <q-icon
-                color="primary"
-                :class="column.icon"
-              />
-            </q-item-section>
-            <q-item-section>
-              {{ column.name }}
-            </q-item-section>
-
-            <q-item-section side>
-              <div class="row items-center">
-                <q-btn
-                  icon="fa fa-cog"
-                  size="xs"
-                  title="Configure Table"
-                  flat
-                  color="primary"
-                  dense
-                  round
-                />
-                <q-btn
-                  icon="fa fa-times"
-                  size="xs"
-                  title="Delete Object"
-                  flat
-                  color="primary"
-                  dense
-                  round
-                  @click="confirmDeletePort(column.id)"
-                />
-              </div>
-            </q-item-section>
-          </template>
-          <q-card>
-            <q-card-section>
-              <div class="float-left text-secondary">
-                <i
-                  class="fas fa-bolt"
-                  style="margin-right: 5px;"
-                />
-              </div>
-              <jtk-source
-                port-id="commit"
-                name="commit"
-                scope="Column"
-                filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
-                filter-exclude="true"
-                type="Output"
-              >
-                Commit
-              </jtk-source>
-            </q-card-section>
-          </q-card>
-        </q-expansion-item>
-        -->
-        <div v-if="column.type !== 'Input'">
-          <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
-          </div>
-          <span>
-            <span :id="column.id">
-              {{ column.name }}
-              <q-popup-edit
-                v-model="column.name"
-                buttons
-                v-if="column.icon === 'las la-list'"
-              >
-                <q-input
-                  type="string"
-                  v-model="column.name"
-                  dense
-                  autofocus
-                />
-              </q-popup-edit>
-            </span>
-          </span>
-        </div><!--
         <div
-          v-if="column.type === 'Input'"
+          v-if="column.type === 'Table' || column.type === 'Output'"
         >
           <div class="float-left text-secondary">
             <i
@@ -916,9 +821,9 @@
               {{ column.name }}
             </span>
           </span>
-        </div>-->
+        </div>
         <jtk-source
-          v-if="column.type !== 'Input'"
+          v-if="column.type === 'Table' || column.type === 'Output'"
           :port-id="column.id"
           name="source"
           :scope="column.datatype"
@@ -928,10 +833,10 @@
         />
 
         <jtk-target
-          v-if="column.type === 'Input'"
+          v-if="column.type === 'Table'"
           name="target"
           :port-id="column.id"
-          type="Input"
+          type="Table"
           :scope="column.datatype"
         />
       </li>
@@ -2623,7 +2528,18 @@ export default {
         console.log('SEQUENCE FUNC', fname)
       }
     })
+    this.$on('middleware.complete', (msg) => {
+      console.log('DATABASE TEMPLATE: ', msg)
+    })
+
     this.$on('message.received', (msg) => {
+      if (msg.type && msg.type === 'result') {
+        if (msg.id === this.obj.id) {
+          me.currentresult = msg.output
+          me.consolelogs.push({ date: new Date(), output: msg.output })
+        }
+      }
+
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
@@ -4101,8 +4017,6 @@ export default {
       }
     },
     addNewPort (func, type, icon) {
-      var me = this
-
       var port = this.addPort({
         name: func.function,
         icon: icon,

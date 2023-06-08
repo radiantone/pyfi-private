@@ -3762,8 +3762,12 @@ export default {
               var targetType = params.target.data.type
 
               console.log(sourceType, targetType)
-              if (!((sourceType === 'Output' || sourceType === 'InputOutput' || sourceType === 'Plug' || sourceType === 'Error') && (targetType === 'Input' || targetType === 'InputOutput'))) {
-                window.toolkit.removeEdge(params.edge)
+              if ((sourceType === 'Output' && targetType === 'Table') || (sourceType === 'Table' && targetType === 'Input')) {
+                // Allow the edge
+              } else {
+                if (!((sourceType === 'Output' || sourceType === 'InputOutput' || sourceType === 'Plug' || sourceType === 'Error') && (targetType === 'Input' || targetType === 'InputOutput'))) {
+                  window.toolkit.removeEdge(params.edge)
+                }
               }
 
               console.log(params.target.getEdges())

@@ -1,5 +1,17 @@
 ## MVP
 
+June 6, 2023
+- Database block
+- Connect Data object to table port on database block. Data is inserted into table. 
+  - Add schema popdown for table row
+  - Output edges from Table row have popdown widget that selects the type of output event.
+    - Transaction Success
+    - Transaction Error
+      - Additional submenu items in popdown for different Transaction Errors
+    - Schema Error
+  - (Optional) Output edge from data object has popdown for types like:
+    - Insert, Upsert, Delete
+
 BUG:
 
 - Can't search on Scratch flow until switching between tabs
