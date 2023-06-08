@@ -22,7 +22,7 @@ bjoern==3.2.1
 black==22.10.0
 bs4==0.0.1
 case==1.5.3
-celery==5.3.0
+celery==5.2.6
 certifi==2021.10.8
 cffi==1.15.0
 chargebee==2.21.0
@@ -195,7 +195,7 @@ types-requests==2.28.11.2
 types-six==1.16.21.4
 types-urllib3==1.26.25.1
 typing_extensions==4.2.0
-tzdata>=2022.7
+tzdata==2022.1
 tzlocal==4.2
 ujson==5.2.0
 undetected-chromedriver==3.2.1
