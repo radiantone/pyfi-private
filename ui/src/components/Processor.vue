@@ -164,7 +164,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       var me = this
 
       socket.on('basicEmit', (a, b, c) => {
-        me.$store.commit('designer/setMessage', b)
+        if(me.$store) {
+          me.$store.commit('designer/setMessage', b)
+        }
       })
       me.listenMessages()
       me.sublevel = {
