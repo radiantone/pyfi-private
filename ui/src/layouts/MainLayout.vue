@@ -2106,7 +2106,6 @@ import 'assets/fonts/flowfont2.woff2'
 
 import { io, Socket } from 'socket.io-client'
 
-const socket = io(process.env.SOCKETIO)
 
 export default defineComponent({
   name: 'MainLayout',
@@ -2171,10 +2170,15 @@ export default defineComponent({
       if (newv) {
         // This means the flow is receiving streaming messages in real-time
         console.log('Turning on messages')
+
+        // TODO: Only enable this if Streaming is on
+        let socket = io(process.env.SOCKETIO)
+        window.socket = socket
         this.listenGlobal()
       } else {
-        socket.off('global')
         console.log('Turning off messages')
+        window.socket.off('global')
+        window.socket.close()
       }
     },
     viewQueueDialog: function (val) {
@@ -2517,7 +2521,7 @@ export default defineComponent({
     },
     listenGlobal () {
       var me = this
-
+      let socket = window.socket
       socket.on('global', (msg) => {
         // console.log('MAINLAYOUT', msg)
         if (msg.type && msg.type === 'DeploymentModel') {
