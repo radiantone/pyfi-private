@@ -113,6 +113,7 @@ module.exports = configure(function (ctx) {
             protocol: 'http:',
             port: 3003
           },
+          ws: true,
           changeOrigin: true
         }
       },

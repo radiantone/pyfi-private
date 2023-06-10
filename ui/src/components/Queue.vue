@@ -267,9 +267,6 @@
   </div>
 </template>
 <script>
-import { io, Socket } from 'socket.io-client'
-
-const socket = io(process.env.SOCKETIO)
 
 export default {
   name: 'Button',
@@ -285,12 +282,14 @@ export default {
     if(this.hide) {
       this.visibility = 'hidden'
     }
-    socket.on('global', (data) => {
-      // console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      if (data.type && data.type === 'queues') {
-        me.messageReceived(data)
-      }
-    })
+    if(window.socket) {
+      window.socket.on('global', (data) => {
+        // console.log('QUEUE SERVER GLOBAL MESSAGE', data);
+        if (data.type && data.type === 'queues') {
+          me.messageReceived(data)
+        }
+      })
+    }
     this.$on('message.received', (msg) => {
       // console.log('QUEUE MESSAGE RECEIVED', msg);
     })
@@ -300,8 +299,11 @@ export default {
       this.queueName = 'None'
     }
   },
-  computed: {},
+  computed: {
+
+  },
   methods: {
+
     queueSelect (val) {
       console.log('QUEUE SELECTED ', val)
       this.component.edge.data.queue = val
