@@ -460,7 +460,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            dropdown-icon="las la-list"
+            dropdown-icon="las la-search"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -474,10 +474,10 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-list" />
+                  <q-icon name="las la-search" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -823,7 +823,7 @@
             dense
             round
             @click="confirmDeletePort(column.id)"
-            v-if="column.type === 'Table'"
+            v-if="column.type === 'Table' || column.type === 'Output'"
           />
         </div>
         <div
@@ -2180,7 +2180,9 @@
     </q-card>
 
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      :style="'width: '+middlewarewidth+'px; height: 465px; z-index: 999; display: block; position: absolute; right: -' +
+          (middlewarewidth + 5) +
+          'px; top: 0px;'"
       v-if="middlewareview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2197,6 +2199,63 @@
           />
         </div>
       </q-card-section>
+
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2822,6 +2881,7 @@ export default {
       funcs: [],
       afuncs: [],
       codewidth: 650,
+      middlewarewidth: 875,
       queuecolumns: [
         {
           name: 'task',
@@ -3554,7 +3614,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')
     },
     showOutput (resultid) {
       this.resultdataloading = true
