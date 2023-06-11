@@ -2178,7 +2178,9 @@ export default defineComponent({
       } else {
         console.log('Turning off messages')
         window.socket.off('global')
-        window.socket.close()
+        //if (window.socket.connected) {
+        //  window.socket.close()
+        //}
       }
     },
     viewQueueDialog: function (val) {

@@ -3336,7 +3336,8 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
+    // TODO: This throws exception in browser
+    // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
       .then((deployments) => {
