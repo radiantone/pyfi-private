@@ -549,6 +549,26 @@
         <div style="position: absolute; right: 8px; top: 0px;">
           <q-btn
             size="xs"
+            icon="las la-exchange-alt"
+            dense
+            flat
+            class="show-code text-secondary"
+            style="position: absolute; right: 140px; top: -68px; width: 25px; height: 30px;"
+            clickable
+            v-close-popup
+            @click="showPanel('middlewareview', !middlewareview)"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Middleware
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            size="xs"
             icon="fas fa-search"
             dense
             flat

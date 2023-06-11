@@ -1,4 +1,20 @@
 ## MVP
+June 11, 2023
+
+- Added "includes" code before any block code runs. Has HTTP request convenience function that automatically adds the Auth0 bearer token
+- Data block functionality:
+  - Create a schema
+  - Pull a schema
+  - Add a table from schema
+  - Add a query
+  - Table port accepts input
+    - invokes middleware with input
+  - Table port is also output (invoked after call succeeds)
+  - Middleware is pre-set based on config of block (e.g. what database etc)
+    - The middleware code might change
+  - TODO:
+    - Block config properties to be set as env vars so they are accessible from middleware
+      - For example, name of database to store the data, type of db etc
 
 June 6, 2023
 - Database block
