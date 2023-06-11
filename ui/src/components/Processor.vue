@@ -129,6 +129,8 @@ interface ProcessorInterface {
 
 type Methods = ProcessorInterface
 
+let includes = ""
+
 interface Computed {
 }
 
@@ -136,33 +138,6 @@ interface Props {
   wrapper: Wrapper;
 }
 
-const includes = "from pyodide.http import pyfetch, FetchResponse\n" +
-  "from typing import Optional, Any\n" +
-  "\n" +
-  "async def request(url: str, method: str = \"GET\", body: Optional[str] = None,\n" +
-  "                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n" +
-  "    \"\"\"\n" +
-  "    Async request function. Pass in Method and make sure to await!\n" +
-  "    Parameters:\n" +
-  "        url: str = URL to make request to\n" +
-  "        method: str = {\"GET\", \"POST\", \"PUT\", \"DELETE\"} from `JavaScript` global fetch())\n" +
-  "        body: str = body as json string. Example, body=json.dumps(my_dict)\n" +
-  "        headers: dict[str, str] = header as dict, will be converted to string...\n" +
-  "            Example, headers=json.dumps({\"Content-Type\": \"application/json\"})\n" +
-  "        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n" +
-  "    Return:\n" +
-  "        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n" +
-  "    \"\"\"\n" +
-  "    kwargs = {\"method\": method, \"mode\": \"cors\"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n" +
-  "    if body and method not in [\"GET\", \"HEAD\"]:\n" +
-  "        kwargs[\"body\"] = body\n" +
-  "    if headers:\n" +
-  "        kwargs[\"headers\"] = headers\n" +
-  "    kwargs.update(fetch_kwargs)\n" +
-  "\n" +
-  "    response = await pyfetch(url, **kwargs)\n" +
-  "    return response" +
-  "\n"
 
 export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
@@ -190,6 +165,36 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
     created () {
       var me = this
+
+
+includes = "from pyodide.http import pyfetch, FetchResponse\n" +
+  "from typing import Optional, Any\n" +
+  "\n" +
+  "async def request(url: str, method: str = \"GET\", body: Optional[str] = None,\n" +
+  "                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n" +
+  "    \"\"\"\n" +
+  "    Async request function. Pass in Method and make sure to await!\n" +
+  "    Parameters:\n" +
+  "        url: str = URL to make request to\n" +
+  "        method: str = {\"GET\", \"POST\", \"PUT\", \"DELETE\"} from `JavaScript` global fetch())\n" +
+  "        body: str = body as json string. Example, body=json.dumps(my_dict)\n" +
+  "        headers: dict[str, str] = header as dict, will be converted to string...\n" +
+  "            Example, headers=json.dumps({\"Content-Type\": \"application/json\"})\n" +
+  "        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n" +
+  "    Return:\n" +
+  "        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n" +
+  "    \"\"\"\n" +
+  "    headers = {\"Authorization\":\"Bearer "+this.$store.state.designer.token+"\"}\n" +
+  "    kwargs = {\"method\": method, \"mode\": \"cors\"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n" +
+  "    if body and method not in [\"GET\", \"HEAD\"]:\n" +
+  "        kwargs[\"body\"] = body\n" +
+  "    if headers:\n" +
+  "        kwargs[\"headers\"] = headers\n" +
+  "    kwargs.update(fetch_kwargs)\n" +
+  "\n" +
+  "    response = await pyfetch(url, **kwargs)\n" +
+  "    return response" +
+  "\n"
 
       socket.on('basicEmit', (a, b, c) => {
         if(me.$store) {
