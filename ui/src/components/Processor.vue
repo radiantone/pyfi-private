@@ -456,6 +456,15 @@ includes = "from pyodide.http import pyfetch, FetchResponse\n" +
                   output: JSON.stringify(answer.result),
                   plugs: JSON.stringify(_plugs)
                 })
+              }, (error: any) => {
+                console.log('runBlock ERROR', error)
+                this.$emit('runblock.error', {
+                  type: 'error',
+                  block: block,
+                  call: call,
+                  function: func,
+                  error: error.toString()
+                })
               })
             } else {
               call = 'import json\n' + call;
