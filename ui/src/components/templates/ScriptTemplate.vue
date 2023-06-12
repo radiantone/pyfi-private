@@ -2620,6 +2620,15 @@ export default {
         }
       })
     })
+    this.$on('runblock.error', (error) => {
+      me.getNode().getPorts().forEach((port) => {
+        if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
+          me.errorMsg = 'Error in ' + error.function
+          me.error = true
+          me.triggerRoute(port.data.id, error)
+        }
+      })
+    })
     this.$on('arg.in', (arg) => {
       if (arg) {
         console.log('arg.in', arg)
