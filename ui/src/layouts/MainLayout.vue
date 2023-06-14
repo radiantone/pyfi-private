@@ -2062,6 +2062,7 @@ icon-processor:before {
 <script>
 const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
+import { rest, setupWorker } from 'msw'
 
 import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
@@ -2085,6 +2086,20 @@ import DataService from 'components/util/DataService'
 import { Auth0Lock } from 'auth0-lock'
 
 const chargebee = require('chargebee')
+
+export const handlers = [
+
+  rest.get('/api1/', (req, res, ctx) => {
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        username: 'admin'
+      })
+    )
+  })
+]
+
 
 chargebee.configure({
   site: 'elasticcode-test',
@@ -2127,6 +2142,8 @@ export default defineComponent({
     this.mdiFlash = mdiFlash
     this.borderIcon = mdiBorderNoneVariant
 
+    this.worker = setupWorker(...handlers)
+
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false)
     this.$store.commit('designer/setStreaming', false)
@@ -2145,6 +2162,7 @@ export default defineComponent({
     window.layout = this
 
     this.listenGlobal()
+    this.worker.start()
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
@@ -2803,6 +2821,9 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+DataService.getMock().then( (res) => {
+console.log("DATA MOCK", res)
+})
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
