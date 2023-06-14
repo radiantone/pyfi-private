@@ -369,13 +369,22 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
-          <q-btn flat dense size="md" icon="las la-plus" color="dark" @click="addNewFlow">                            <q-tooltip
-                              content-class=""
-                              content-style="font-size: 16px"
-                              :offset="[10, 10]"
-                            >
-                              Add New Flow
-                            </q-tooltip></q-btn>
+            <q-btn
+              flat
+              dense
+              size="md"
+              icon="las la-plus"
+              color="dark"
+              @click="addNewFlow"
+            >
+              <q-tooltip
+                content-class=""
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Add New Flow
+              </q-tooltip>
+            </q-btn>
           </q-tabs>
           <q-btn
             flat
@@ -391,7 +400,7 @@
       </template>
       <template #after>
         <div style="height: 100vh; width: 100%; padding-top: 5px; position: relative; top: 95px; overflow: hidden;">
-           <q-tabs
+          <q-tabs
             v-model="drawertab"
             dense
             class="bg-primary"
@@ -409,7 +418,7 @@
               label="Tutorial"
               style="font-size:16px"
             />
-           </q-tabs>
+          </q-tabs>
           <q-tabs
             v-model="drawertab"
             dense
@@ -1088,7 +1097,7 @@
           @click="blockdrawer=false"
         />
       </q-toolbar>
-      <div style="padding:20px;" >
+      <div style="padding:20px;">
         <span
           style="
             font-size: 1.5em;
@@ -1096,7 +1105,10 @@
             margin-top: 5px;
             margin-right: 1em"
         >Description</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.description }}
         </p>
         <span
@@ -1106,7 +1118,10 @@
             margin-top: 25px;
             margin-right: 1em"
         >Package</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.package }}
         </p>
         <span
@@ -1116,7 +1131,10 @@
             margin-top: 25px;
             margin-right: 1em"
         >Version</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.version }}
         </p>
         <span
@@ -1127,10 +1145,16 @@
             margin-right: 1em"
         >Container</span>
         <div style="padding-left: 25px">
-          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
             Container: {{ blockshown.container }}
           </p>
-          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
             Container Image: {{ blockshown.containerimage }}
           </p>
         </div>
@@ -2062,7 +2086,7 @@ icon-processor:before {
 <script>
 const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
-//import { rest, setupWorker } from 'msw'
+// import { rest, setupWorker } from 'msw'
 
 import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
@@ -2101,7 +2125,6 @@ export const handlers = [
 ]
  */
 
-
 chargebee.configure({
   site: 'elasticcode-test',
   api_key: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm'
@@ -2121,7 +2144,6 @@ import 'assets/fonts/fontawesome-webfont.woff'
 import 'assets/fonts/flowfont2.woff2'
 
 import { io, Socket } from 'socket.io-client'
-
 
 export default defineComponent({
   name: 'MainLayout',
@@ -2143,7 +2165,7 @@ export default defineComponent({
     this.mdiFlash = mdiFlash
     this.borderIcon = mdiBorderNoneVariant
 
-    //this.worker = setupWorker(...handlers)
+    // this.worker = setupWorker(...handlers)
 
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false)
@@ -2163,11 +2185,11 @@ export default defineComponent({
     window.layout = this
 
     this.listenGlobal()
-    //this.worker.start({ onUnhandledRequest: 'bypass'})
+    // this.worker.start({ onUnhandledRequest: 'bypass'})
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
-      console.log("$auth.isAuthenticated", val)
+      console.log('$auth.isAuthenticated', val)
       var me = this
       if (val) {
         this.security.token().then((token) => {
@@ -2191,15 +2213,15 @@ export default defineComponent({
         console.log('Turning on messages')
 
         // TODO: Only enable this if Streaming is on
-        let socket = io(process.env.SOCKETIO)
+        const socket = io(process.env.SOCKETIO)
         window.socket = socket
         this.listenGlobal()
       } else {
         console.log('Turning off messages')
         window.socket.off('global')
-        //if (window.socket.connected) {
+        // if (window.socket.connected) {
         //  window.socket.close()
-        //}
+        // }
       }
     },
     viewQueueDialog: function (val) {
@@ -2286,7 +2308,7 @@ export default defineComponent({
       })
     },
     hasHosted () {
-      console.log("hasHosted", this.$store.state.designer.subscription)
+      console.log('hasHosted', this.$store.state.designer.subscription)
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
@@ -2305,8 +2327,8 @@ export default defineComponent({
     },
     checkPlan (plan) {
       if (plan && this[plan]) {
-        console.log("CHECKPLAN", plan, cp)
-        let cp = this[plan]()
+        console.log('CHECKPLAN', plan, cp)
+        const cp = this[plan]()
         return cp
       }
     },
@@ -2542,8 +2564,8 @@ export default defineComponent({
     },
     listenGlobal () {
       var me = this
-      let socket = window.socket
-      if(socket) {
+      const socket = window.socket
+      if (socket) {
         socket.on('global', (msg) => {
           // console.log('MAINLAYOUT', msg)
           if (msg.type && msg.type === 'DeploymentModel') {
@@ -2822,9 +2844,9 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
-DataService.getMock().then( (res) => {
-console.log("DATA MOCK", res)
-})
+    DataService.getMock().then((res) => {
+      console.log('DATA MOCK', res)
+    })
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
