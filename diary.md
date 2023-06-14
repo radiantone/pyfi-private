@@ -1,3 +1,19 @@
+June 14, 2023
+
+## TWO MAIN USAGE PATTERNS FOR ELASTICCODE
+
+### Embedded in Your App
+- Tested mocking a server with mws package. Works great. 
+  - Idea here will be that ElasicCode is embedded in your app and acts like a virtual server
+    - Your app issues normal AJAX calls to a specified URL to interact with ElasicCode
+    - Your app can also obtain references to the ElasticCode singleton object where it can register event listeners.
+    - Use Cases
+      1. Invoke a web service, get some data back. EC will intercept the service call and execute a flow or block
+      2. Register an event listener and receive event data from EC as data flows execute
+      3. 
+      
+### Server Side Flows
+
 ## MVP
 June 11, 2023
 

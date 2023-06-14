@@ -10,6 +10,25 @@ import { LoadingBar } from 'quasar'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import { SecurityPlugin } from './security'
+import { rest, setupWorker } from 'msw'
+
+export const handlers = [
+  // TODO: Implement flow block dispatcher here
+  // It will be up to the app to load the flows first
+  // e.g. let flow = ElasticCode.loadFlow("/Home/Database Example")
+  // let result = flow.block("Service").run({"some":"data"})
+  rest.get('/api1/', (req, res, ctx) => {
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        username: 'admin'
+      })
+    )
+  })
+]
+const worker = setupWorker(...handlers)
+worker.start({ onUnhandledRequest: 'bypass'})
 
 Vue.use(VueRouter)
 import { JsPlumbToolkitVue2Plugin } from 'jsplumbtoolkit-vue2'
@@ -54,6 +73,10 @@ export default Vue.extend({
     console.log('CLIENT', process.env.CLIENT)
     console.log('SERVER', process.env.SERVER)
     console.log('NODE_ENV', process.env.NODE_ENV)
+
+  },
+  mounted () {
+
   },
   data () {
     return {

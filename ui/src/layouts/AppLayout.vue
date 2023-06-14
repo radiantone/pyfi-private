@@ -135,6 +135,8 @@
 </template>
 
 <script>
+import DataService from "components/util/DataService"
+
 export default {
   name: 'MyLayout',
 
@@ -142,6 +144,11 @@ export default {
     return {
       leftDrawerOpen: false
     }
+  },
+  mounted () {
+    DataService.getMock().then( (res) => {
+    console.log("DATA MOCK FROM APP", res)
+    })
   },
   methods: {
     toggleLeftDrawer () {
