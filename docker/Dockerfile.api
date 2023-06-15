@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.11
 
 RUN mkdir -p /var/log/supervisor
 RUN apt-get update
