@@ -3,6 +3,9 @@ version: '3.9'
 services:
 
   clientsocket:
+    build:
+      context: socket
+      dockerfile: Dockerfile.prod
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
     container_name: clientsocket
     ports:
@@ -64,6 +67,9 @@ services:
         - 3001:3000
 
   api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
     container_name: api
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
     environment:
@@ -197,12 +203,13 @@ services:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     build:
       context: .
-      dockerfile: docker/Dockerfile.nginx
+      dockerfile: docker/Dockerfile.nginx.prod
     container_name: nginx
     volumes:
       - ./certs:/etc/nginx/certs
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
+      - ./ui/dist/spa:/var/share/html
     depends_on:
       - rabbitmq
       - rabbitmq2
