@@ -111,6 +111,7 @@ workflows:
           platform: linux/amd64
           public-registry: false
           push-image: true
+          remote-docker-version: '20.10.22'
           repo: api
           repo-scan-on-push: true
           tag: 'production'
