@@ -82,6 +82,7 @@ workflows:
           public-registry: false
           push-image: true
           repo: nginx
+          remote-docker-version: '20.10.22'
           repo-scan-on-push: true
           tag: 'production'
           post-steps:
