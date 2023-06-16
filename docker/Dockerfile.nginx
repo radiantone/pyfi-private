@@ -2,7 +2,7 @@ FROM nginx:alpine
 
 ADD ./conf/nginx.conf.dev /etc/nginx/nginx.conf
 ADD ./conf/mime.types /etc/nginx/conf/mime.types
-ADD ./certs/etc/nginx/certs
+ADD ./certs /etc/nginx/certs
 ADD ./conf/elasticcode /etc/nginx/sites-enabled/elasticcode
 ARG COMMIT=None
 ARG BUILD_URL=None
