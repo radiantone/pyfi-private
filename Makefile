@@ -92,9 +92,13 @@ clean:
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
 
+.PHONY: build-local
+build-local:
+	docker compose build
+
 .PHONY: build
 build:
-	docker compose build
+	docker compose -f docker-compose-ecr.yml build
 
 .PHONY: login
 login:
