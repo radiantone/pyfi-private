@@ -5,7 +5,7 @@ services:
   clientsocket:
     build:
       context: socket
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     image: pyfi/clientsocket:latest
     container_name: clientsocket
     ports:
