@@ -94,7 +94,7 @@ clean:
 
 .PHONY: build
 build:
-	docker compose -f docker-compose-ecr.yml build
+	docker compose build
 
 .PHONY: login
 login:
