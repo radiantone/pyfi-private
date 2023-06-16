@@ -2164,6 +2164,7 @@ export default defineComponent({
     this.mdiFlashOutline = mdiFlashOutline
     this.mdiFlash = mdiFlash
     this.borderIcon = mdiBorderNoneVariant
+    this.designers = []
 
     // this.worker = setupWorker(...handlers)
 
@@ -2988,6 +2989,7 @@ export default defineComponent({
     console.log('Mounting....')
     console.log('REFS', this.$refs)
     window.toolkit = this.$refs.flow1designer[0].toolkit
+    window.layout = this
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
     window.toolkit.load({
