@@ -71,7 +71,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; quasar build
+	cd ui; SOCKETIO=https://dev.elasticcode.ai quasar build
 
 .PHONY: docs
 docs:
