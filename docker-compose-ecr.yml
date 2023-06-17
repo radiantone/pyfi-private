@@ -209,7 +209,6 @@ services:
       - ./certs:/etc/nginx/certs
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
-      - ./ui/dist/spa:/var/share/html
     depends_on:
       - rabbitmq
       - rabbitmq2
