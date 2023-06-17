@@ -91,6 +91,7 @@ clean:
 	python setup.py clean
 	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
 	git status
+	exit 0
 
 .PHONY: build
 build:
