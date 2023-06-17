@@ -2472,7 +2472,7 @@
 
 .q-item {
   margin-right: 0px;
-  padding-left: 0px;
+  /*padding-left: 0px;*/
 }
 
 .ace-editor {

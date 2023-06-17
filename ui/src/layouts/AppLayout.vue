@@ -4,7 +4,7 @@
     class="bg-white"
   >
     <q-header elevated>
-      <q-toolbar class="bg-secondary">
+      <q-toolbar class="bg-blue">
         <q-btn
           flat
           dense
@@ -37,7 +37,7 @@
           href="https://quasar.dev"
         >
           <q-item-section avatar>
-            <q-icon name="school" />
+            <q-icon name="school"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Docs</q-item-label>
@@ -53,7 +53,7 @@
           href="https://github.quasar.dev"
         >
           <q-item-section avatar>
-            <q-icon name="code" />
+            <q-icon name="code"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>GitHub</q-item-label>
@@ -69,7 +69,7 @@
           href="http://chat.quasar.dev"
         >
           <q-item-section avatar>
-            <q-icon name="chat" />
+            <q-icon name="chat"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Discord Chat Channel</q-item-label>
@@ -85,7 +85,7 @@
           href="https://forum.quasar.dev"
         >
           <q-item-section avatar>
-            <q-icon name="record_voice_over" />
+            <q-icon name="record_voice_over"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Forum</q-item-label>
@@ -101,7 +101,7 @@
           href="https://twitter.quasar.dev"
         >
           <q-item-section avatar>
-            <q-icon name="rss_feed" />
+            <q-icon name="rss_feed"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Twitter</q-item-label>
@@ -116,7 +116,7 @@
           rel="noopener"
         >
           <q-item-section avatar>
-            <q-icon name="public" />
+            <q-icon name="public"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Designer</q-item-label>
@@ -129,23 +129,43 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <div class="q-pa-md" style="max-width: 1200px; max-height:600px">
+        <q-input
+          v-model="text"
+          filled
+          type="textarea"
+        />
+        <q-btn label="Fetch" @click="fetch"></q-btn>
+      </div>
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-export default {
-  name: 'MyLayout',
+import DataService from "components/util/DataService"
 
-  data () {
+export default {
+  name: 'AppLayout',
+
+  data() {
     return {
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      text: "No Data"
     }
   },
+  mounted() {
+    DataService.getMock().then((res) => {
+      console.log("DATA MOCK FROM APP", res)
+    })
+  },
   methods: {
-    toggleLeftDrawer () {
+    toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value
+    },
+    fetch() {
+      DataService.getMock().then((res) => {
+        this.text = JSON.stringify(res.data)
+      })
     }
   }
 }

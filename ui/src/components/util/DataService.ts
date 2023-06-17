@@ -3,6 +3,10 @@
 import http from 'src/http-common'
 
 class DataService {
+
+  getMock (): Promise<any> {
+    return http.get('/api1/')
+  }
   getFiles (collection: string, folder: string, token: string): Promise<any> {
     return http.get('/api/files/' + collection + '/' + folder, {
       headers: {
