@@ -369,13 +369,22 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
-          <q-btn flat dense size="md" icon="las la-plus" color="dark" @click="addNewFlow">                            <q-tooltip
-                              content-class=""
-                              content-style="font-size: 16px"
-                              :offset="[10, 10]"
-                            >
-                              Add New Flow
-                            </q-tooltip></q-btn>
+            <q-btn
+              flat
+              dense
+              size="md"
+              icon="las la-plus"
+              color="dark"
+              @click="addNewFlow"
+            >
+              <q-tooltip
+                content-class=""
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Add New Flow
+              </q-tooltip>
+            </q-btn>
           </q-tabs>
           <q-btn
             flat
@@ -1088,7 +1097,7 @@
           @click="blockdrawer=false"
         />
       </q-toolbar>
-      <div style="padding:20px;" >
+      <div style="padding:20px;">
         <span
           style="
             font-size: 1.5em;
@@ -1096,7 +1105,10 @@
             margin-top: 5px;
             margin-right: 1em"
         >Description</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.description }}
         </p>
         <span
@@ -1106,7 +1118,10 @@
             margin-top: 25px;
             margin-right: 1em"
         >Package</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.package }}
         </p>
         <span
@@ -1116,7 +1131,10 @@
             margin-top: 25px;
             margin-right: 1em"
         >Version</span>
-        <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
           {{ blockshown.version }}
         </p>
         <span
@@ -1127,10 +1145,16 @@
             margin-right: 1em"
         >Container</span>
         <div style="padding-left: 25px">
-          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
             Container: {{ blockshown.container }}
           </p>
-          <p class="text-secondary" style="margin-left:20px;margin-bottom:25px">
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
             Container Image: {{ blockshown.containerimage }}
           </p>
         </div>
@@ -2062,6 +2086,7 @@ icon-processor:before {
 <script>
 const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
+// import { rest, setupWorker } from 'msw'
 
 import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
@@ -2085,6 +2110,20 @@ import DataService from 'components/util/DataService'
 import { Auth0Lock } from 'auth0-lock'
 
 const chargebee = require('chargebee')
+/*
+export const handlers = [
+
+  rest.get('/api1/', (req, res, ctx) => {
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        username: 'admin'
+      })
+    )
+  })
+]
+ */
 
 chargebee.configure({
   site: 'elasticcode-test',
@@ -2106,8 +2145,6 @@ import 'assets/fonts/flowfont2.woff2'
 
 import { io, Socket } from 'socket.io-client'
 
-const socket = io(process.env.SOCKETIO)
-
 export default defineComponent({
   name: 'MainLayout',
   components: {
@@ -2127,6 +2164,9 @@ export default defineComponent({
     this.mdiFlashOutline = mdiFlashOutline
     this.mdiFlash = mdiFlash
     this.borderIcon = mdiBorderNoneVariant
+    this.designers = []
+
+    // this.worker = setupWorker(...handlers)
 
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false)
@@ -2146,10 +2186,11 @@ export default defineComponent({
     window.layout = this
 
     this.listenGlobal()
+    // this.worker.start({ onUnhandledRequest: 'bypass'})
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
-      console.log("$auth.isAuthenticated", val)
+      console.log('$auth.isAuthenticated', val)
       var me = this
       if (val) {
         this.security.token().then((token) => {
@@ -2171,10 +2212,17 @@ export default defineComponent({
       if (newv) {
         // This means the flow is receiving streaming messages in real-time
         console.log('Turning on messages')
+
+        // TODO: Only enable this if Streaming is on
+        const socket = io(process.env.SOCKETIO)
+        window.socket = socket
         this.listenGlobal()
       } else {
-        socket.off('global')
         console.log('Turning off messages')
+        window.socket.off('global')
+        // if (window.socket.connected) {
+        //  window.socket.close()
+        // }
       }
     },
     viewQueueDialog: function (val) {
@@ -2261,7 +2309,7 @@ export default defineComponent({
       })
     },
     hasHosted () {
-      console.log("hasHosted", this.$store.state.designer.subscription)
+      console.log('hasHosted', this.$store.state.designer.subscription)
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
       } else {
@@ -2280,8 +2328,8 @@ export default defineComponent({
     },
     checkPlan (plan) {
       if (plan && this[plan]) {
-        console.log("CHECKPLAN", plan, cp)
-        let cp = this[plan]()
+        console.log('CHECKPLAN', plan, cp)
+        const cp = this[plan]()
         return cp
       }
     },
@@ -2517,144 +2565,146 @@ export default defineComponent({
     },
     listenGlobal () {
       var me = this
-
-      socket.on('global', (msg) => {
-        // console.log('MAINLAYOUT', msg)
-        if (msg.type && msg.type === 'DeploymentModel') {
-          console.log('DEPLOYMENT WAS UPDATED ', msg)
-          window.root.$emit('message.received', msg)
-        }
-        if (msg.type && msg.type === 'ProcessorModel') {
-          // console.log('PROCESSOR WAS UPDATED ', msg)
-          window.root.$emit('message.received', msg)
-        }
-        if (msg.channel === 'task') {
-          me.msglogs.unshift(msg)
-          me.msglogs = me.msglogs.slice(0, 200)
-
-          window.root.$emit('message.count', 1)
-          var bytes = JSON.stringify(msg).length
-          window.root.$emit('message.size', bytes)
-        } else if (msg.type && msg.type === 'stats') {
-          me.stats = msg
-        } else {
-          var qs = []
-
-          if (msg.type && msg.type === 'queues') {
-            var queued_tasks = 0
-            me.detailedqueues = msg.queues
-            msg.queues.forEach((queue) => {
-              if (queue.name.indexOf('celery') === -1) {
-                var ack_rate = 0
-                var deliver_rate = 0
-
-                var properties = []
-                if ('message_stats' in queue) {
-                  ack_rate = queue.message_stats && queue.message_stats.ack_details ? queue.message_stats.ack_details.rate : 0
-                  deliver_rate = queue.message_stats && queue.message_stats.deliver_get_details ? queue.message_stats.deliver_get_details.rate : 0
-                }
-
-                qs.push({
-                  name: queue.name,
-                  messages: queue.messages,
-                  ready: queue.messages_ready,
-                  acked_rate: ack_rate,
-                  deliver_rate: deliver_rate,
-                  unacked: queue.messages_unacknowledged,
-                  ready_rate: queue.messages_ready_details,
-                  unacked_rate: queue.messages_unacknowledged_details,
-                  bytes: queue.message_bytes,
-                  action: ''
-                })
-
-                properties.push({
-                  name: 'Messages Ready',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Messages Ackd',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Avg Ack Ingress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_ack_ingress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Avg Ingress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_ingress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Avg Engress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_egress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Memory',
-                  value: queue.memory
-                })
-                properties.push({
-                  name: 'Message Bytes',
-                  value: queue.message_bytes
-                })
-                properties.push({
-                  name: 'Message Bytes Persistent',
-                  value: queue.message_bytes_persistent
-                })
-                properties.push({
-                  name: 'Message Bytes Ram',
-                  value: queue.message_bytes_ram
-                })
-                properties.push({
-                  name: 'Message Bytes Ready',
-                  value: queue.message_bytes_ready
-                })
-                properties.push({
-                  name: 'Message Bytes UnAckd',
-                  value: queue.message_bytes_unacknowledged
-                })
-                properties.push({
-                  name: 'Messages',
-                  value: queue.messages
-                })
-                properties.push({
-                  name: 'Messages Persistent',
-                  value: queue.messages_persistent
-                })
-                properties.push({
-                  name: 'Messages Ram',
-                  value: queue.messages_ram
-                })
-                properties.push({
-                  name: 'Messages Ready',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Messages Ready Rate',
-                  value: parseFloat(queue.messages_ready_details.rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Messages UnAckd Rate',
-                  value: parseFloat(queue.messages_unacknowledged_details.rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Messages Ready Ram',
-                  value: queue.messages_ready_ram
-                })
-                properties.push({
-                  name: 'Node',
-                  value: queue.node
-                })
-
-                this.queueDetails[queue.name] = properties
-                queued_tasks += parseInt(queue.messages)
-                this.queuedTasks = queued_tasks
-              }
-            })
-
-            me.queues = qs
-            window.root.$emit('update.queues', qs)
+      const socket = window.socket
+      if (socket) {
+        socket.on('global', (msg) => {
+          // console.log('MAINLAYOUT', msg)
+          if (msg.type && msg.type === 'DeploymentModel') {
+            console.log('DEPLOYMENT WAS UPDATED ', msg)
+            window.root.$emit('message.received', msg)
           }
-        }
-      })
+          if (msg.type && msg.type === 'ProcessorModel') {
+            // console.log('PROCESSOR WAS UPDATED ', msg)
+            window.root.$emit('message.received', msg)
+          }
+          if (msg.channel === 'task') {
+            me.msglogs.unshift(msg)
+            me.msglogs = me.msglogs.slice(0, 200)
+
+            window.root.$emit('message.count', 1)
+            var bytes = JSON.stringify(msg).length
+            window.root.$emit('message.size', bytes)
+          } else if (msg.type && msg.type === 'stats') {
+            me.stats = msg
+          } else {
+            var qs = []
+
+            if (msg.type && msg.type === 'queues') {
+              var queued_tasks = 0
+              me.detailedqueues = msg.queues
+              msg.queues.forEach((queue) => {
+                if (queue.name.indexOf('celery') === -1) {
+                  var ack_rate = 0
+                  var deliver_rate = 0
+
+                  var properties = []
+                  if ('message_stats' in queue) {
+                    ack_rate = queue.message_stats && queue.message_stats.ack_details ? queue.message_stats.ack_details.rate : 0
+                    deliver_rate = queue.message_stats && queue.message_stats.deliver_get_details ? queue.message_stats.deliver_get_details.rate : 0
+                  }
+
+                  qs.push({
+                    name: queue.name,
+                    messages: queue.messages,
+                    ready: queue.messages_ready,
+                    acked_rate: ack_rate,
+                    deliver_rate: deliver_rate,
+                    unacked: queue.messages_unacknowledged,
+                    ready_rate: queue.messages_ready_details,
+                    unacked_rate: queue.messages_unacknowledged_details,
+                    bytes: queue.message_bytes,
+                    action: ''
+                  })
+
+                  properties.push({
+                    name: 'Messages Ready',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Messages Ackd',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Avg Ack Ingress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_ack_ingress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Avg Ingress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_ingress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Avg Engress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_egress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Memory',
+                    value: queue.memory
+                  })
+                  properties.push({
+                    name: 'Message Bytes',
+                    value: queue.message_bytes
+                  })
+                  properties.push({
+                    name: 'Message Bytes Persistent',
+                    value: queue.message_bytes_persistent
+                  })
+                  properties.push({
+                    name: 'Message Bytes Ram',
+                    value: queue.message_bytes_ram
+                  })
+                  properties.push({
+                    name: 'Message Bytes Ready',
+                    value: queue.message_bytes_ready
+                  })
+                  properties.push({
+                    name: 'Message Bytes UnAckd',
+                    value: queue.message_bytes_unacknowledged
+                  })
+                  properties.push({
+                    name: 'Messages',
+                    value: queue.messages
+                  })
+                  properties.push({
+                    name: 'Messages Persistent',
+                    value: queue.messages_persistent
+                  })
+                  properties.push({
+                    name: 'Messages Ram',
+                    value: queue.messages_ram
+                  })
+                  properties.push({
+                    name: 'Messages Ready',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Messages Ready Rate',
+                    value: parseFloat(queue.messages_ready_details.rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Messages UnAckd Rate',
+                    value: parseFloat(queue.messages_unacknowledged_details.rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Messages Ready Ram',
+                    value: queue.messages_ready_ram
+                  })
+                  properties.push({
+                    name: 'Node',
+                    value: queue.node
+                  })
+
+                  this.queueDetails[queue.name] = properties
+                  queued_tasks += parseInt(queue.messages)
+                  this.queuedTasks = queued_tasks
+                }
+              })
+
+              me.queues = qs
+              window.root.$emit('update.queues', qs)
+            }
+          }
+        })
+      }
     },
     showMessagePayload (payload) {
       const editor = this.$refs.resultEditor.editor
@@ -2795,6 +2845,9 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+    DataService.getMock().then((res) => {
+      console.log('DATA MOCK', res)
+    })
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
@@ -2936,6 +2989,7 @@ export default defineComponent({
     console.log('Mounting....')
     console.log('REFS', this.$refs)
     window.toolkit = this.$refs.flow1designer[0].toolkit
+    window.layout = this
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
     window.toolkit.load({
