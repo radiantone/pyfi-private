@@ -94,7 +94,7 @@ clean:
 
 .PHONY: build-local
 build-local:
-	docker compose build
+	docker compose build --no-cache
 
 .PHONY: build
 build:
@@ -124,6 +124,9 @@ push:
 
 	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
+
+	docker tag pyfi/nginx:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
 
 .PHONY: all
 all: format lint freeze update docs install clean

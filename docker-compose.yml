@@ -253,7 +253,7 @@ services:
       - 8180:80
 
   nginx:
-    image: nginx:latest
+    image: pyfi/nginx:latest
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
