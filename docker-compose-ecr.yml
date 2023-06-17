@@ -200,7 +200,7 @@ services:
       - 8180:80
 
   nginx:
-    image: pyfi/nginx:latest #013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx.prod
