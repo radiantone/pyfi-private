@@ -1699,8 +1699,6 @@
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
-                <!-- TODO: When this is selected or changed, call method to set the middlewarefunc
-                for the processor (i.e. not the obj) -->
                 <q-select
                   filled
                   dense
@@ -1708,8 +1706,6 @@
                   use-input
                   input-debounce="0"
                   :options="getfuncs"
-                  option-value="name"
-                  option-label="name"
                   hint="Middleware Function"
                   style="width: 250px"
                 />
@@ -2754,7 +2750,7 @@ export default {
     getfuncs () {
       this.updateFunctions(this.obj.middleware)
       console.log("GETFUNCS",this.funcs)
-      return this.funcs
+      return this.funcs.map(a => a.name);
     },
     viewtable: {
       get: function () {
@@ -2873,8 +2869,6 @@ export default {
   },
   data () {
     return {
-      mwfunction: '',
-      mwfunctions: ['funca', 'funcb', 'funcc'],
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3497,7 +3491,6 @@ export default {
           // are present, then trigger the function with all the parameters
         })
 
-        // TODO: Execute middleware complete
         console.log('TRIGGER ALL COMPLETE')
         window.root.$emit('trigger.complete')
         // Trigger all the ports after me
