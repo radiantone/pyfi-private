@@ -866,6 +866,21 @@ def get_pattern(pid):
         return jsonify(_pattern)
 
 
+@app.route("/db/submit", methods=["POST"])
+@cross_origin()
+@requires_auth
+def db_submit():
+    r = request
+    data = request.get_json(silent=True)
+
+    dbtype = data['database']['type']
+    dburl = data['database']['url']
+    # data['db'] = metadata for database
+    # data['rows'] = rows to store
+    print(data)
+    return jsonify({"operation":"commit", "status":"success"})
+
+
 @app.route("/code/extract", methods=["POST"])
 @cross_origin()
 @requires_auth

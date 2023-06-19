@@ -1,3 +1,10 @@
+June 18, 2023
+
+- Pass label into make so you can change the version of the stack being deployed
+  - e.g. make up  will default to production on the production branch
+  - make up --version=<commit hash> will bring up that version of the stack build
+  - This allows for an effective blue/green deployment where the blue deployment can quickly be reinstated
+
 June 14, 2023
 
 ## TWO MAIN USAGE PATTERNS FOR ELASTICCODE

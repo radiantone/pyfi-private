@@ -184,7 +184,7 @@ includes = "from pyodide.http import pyfetch, FetchResponse\n" +
   "    Return:\n" +
   "        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n" +
   "    \"\"\"\n" +
-  "    headers = {\"Authorization\":\"Bearer "+this.$store.state.designer.token+"\"}\n" +
+  "    headers = {\"Authorization\":\"Bearer "+this.$store.state.designer.token+"\", \"Content-type\": \"application/json\"}\n" +
   "    kwargs = {\"method\": method, \"mode\": \"cors\"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n" +
   "    if body and method not in [\"GET\", \"HEAD\"]:\n" +
   "        kwargs[\"body\"] = body\n" +
@@ -302,18 +302,20 @@ includes = "from pyodide.http import pyfetch, FetchResponse\n" +
             }
           }
 
-          // TODO: If there is middleware then use that instead of code?
           if (me.usemiddleware) {
             console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
 
             let _ = (window as any).pyodide.runPython(includes)
-            const mcode = me.middleware + '\n\nrun(' + JSON.stringify(obj) + ')\n'
-            console.log('RUN CODE', mcode)
+            let param = {data:data, database:{url:this.obj.connection, type:this.obj.database}}
+
+            // TODO: Replace "run" with middlewar function selected from config dropdown
+            const mcode = me.middleware + '\n\n'+me.middlewarefunc+'(' + JSON.stringify(param) + ')\n'
+            console.log('CODE MIDDLEWARE', mcode)
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
               let jsonoutput = res.toJs()
               let _result = toObject(jsonoutput)
-              console.log('RUN CODE RESULT', jsonoutput, _result, JSON.stringify(_result))
+              console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
               this.$emit('message.received', {
                 type: 'result',
                 id: id,

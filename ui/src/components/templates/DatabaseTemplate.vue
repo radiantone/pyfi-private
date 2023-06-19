@@ -1699,14 +1699,18 @@
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
+                <!-- TODO: When this is selected or changed, call method to set the middlewarefunc
+                for the processor (i.e. not the obj) -->
                 <q-select
                   filled
                   dense
                   v-model="obj.middlewarefunc"
                   use-input
                   input-debounce="0"
+                  :options="getfuncs"
+                  option-value="name"
+                  option-label="name"
                   hint="Middleware Function"
-                  :options="mwfunctions"
                   style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
@@ -2747,6 +2751,11 @@ export default {
     }, 3000)
   },
   computed: {
+    getfuncs () {
+      this.updateFunctions(this.obj.middleware)
+      console.log("GETFUNCS",this.funcs)
+      return this.funcs
+    },
     viewtable: {
       get: function () {
         return this.table.name
@@ -3647,16 +3656,17 @@ export default {
           this.resultloading = false
         })
     },
-    updateFunctions (data) {
+    updateFunctions (code) {
       /* Parse out named objects from editor */
-      const re = /(\w+)\s*=/gm
+      const re = /def (\w+)\s*\((.*?)\):/g
 
-      var matches = data.matchAll(re)
+      console.log("updateFunctions code", code)
+      var matches = code.matchAll(re)
 
       this.funcs = []
 
       for (const match of matches) {
-        var name = match[0].split('=')[0].trim()
+        var name = match[0].split('(')[0].split(' ').at(-1)
         this.funcs.push({ name: name, args: [] })
       }
     },
