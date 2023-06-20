@@ -129,7 +129,7 @@ interface ProcessorInterface {
 
 type Methods = ProcessorInterface
 
-let includes = ""
+let includes = ''
 
 interface Computed {
 }
@@ -137,7 +137,6 @@ interface Computed {
 interface Props {
   wrapper: Wrapper;
 }
-
 
 export default mixins(ProcessorBase).extend<ProcessorState,
   Methods,
@@ -166,38 +165,37 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     created () {
       var me = this
 
-
-includes = "from pyodide.http import pyfetch, FetchResponse\n" +
-  "from typing import Optional, Any\n" +
-  "\n" +
-  "async def request(url: str, method: str = \"GET\", body: Optional[str] = None,\n" +
-  "                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n" +
-  "    \"\"\"\n" +
-  "    Async request function. Pass in Method and make sure to await!\n" +
-  "    Parameters:\n" +
-  "        url: str = URL to make request to\n" +
-  "        method: str = {\"GET\", \"POST\", \"PUT\", \"DELETE\"} from `JavaScript` global fetch())\n" +
-  "        body: str = body as json string. Example, body=json.dumps(my_dict)\n" +
-  "        headers: dict[str, str] = header as dict, will be converted to string...\n" +
-  "            Example, headers=json.dumps({\"Content-Type\": \"application/json\"})\n" +
-  "        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n" +
-  "    Return:\n" +
-  "        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n" +
-  "    \"\"\"\n" +
-  "    headers = {\"Authorization\":\"Bearer "+this.$store.state.designer.token+"\", \"Content-type\": \"application/json\"}\n" +
-  "    kwargs = {\"method\": method, \"mode\": \"cors\"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n" +
-  "    if body and method not in [\"GET\", \"HEAD\"]:\n" +
-  "        kwargs[\"body\"] = body\n" +
-  "    if headers:\n" +
-  "        kwargs[\"headers\"] = headers\n" +
-  "    kwargs.update(fetch_kwargs)\n" +
-  "\n" +
-  "    response = await pyfetch(url, **kwargs)\n" +
-  "    return response" +
-  "\n"
+      includes = 'from pyodide.http import pyfetch, FetchResponse\n' +
+  'from typing import Optional, Any\n' +
+  '\n' +
+  'async def request(url: str, method: str = "GET", body: Optional[str] = None,\n' +
+  '                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n' +
+  '    """\n' +
+  '    Async request function. Pass in Method and make sure to await!\n' +
+  '    Parameters:\n' +
+  '        url: str = URL to make request to\n' +
+  '        method: str = {"GET", "POST", "PUT", "DELETE"} from `JavaScript` global fetch())\n' +
+  '        body: str = body as json string. Example, body=json.dumps(my_dict)\n' +
+  '        headers: dict[str, str] = header as dict, will be converted to string...\n' +
+  '            Example, headers=json.dumps({"Content-Type": "application/json"})\n' +
+  '        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n' +
+  '    Return:\n' +
+  '        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n' +
+  '    """\n' +
+  '    headers = {"Authorization":"Bearer ' + this.$store.state.designer.token + '", "Content-type": "application/json"}\n' +
+  '    kwargs = {"method": method, "mode": "cors"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n' +
+  '    if body and method not in ["GET", "HEAD"]:\n' +
+  '        kwargs["body"] = body\n' +
+  '    if headers:\n' +
+  '        kwargs["headers"] = headers\n' +
+  '    kwargs.update(fetch_kwargs)\n' +
+  '\n' +
+  '    response = await pyfetch(url, **kwargs)\n' +
+  '    return response' +
+  '\n'
 
       socket.on('basicEmit', (a, b, c) => {
-        if(me.$store) {
+        if (me.$store) {
           me.$store.commit('designer/setMessage', b)
         }
       })
@@ -303,18 +301,20 @@ includes = "from pyodide.http import pyfetch, FetchResponse\n" +
           }
 
           if (me.usemiddleware) {
-            console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
+            console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
 
-            let _ = (window as any).pyodide.runPython(includes)
-            let param = {data:data, database:{url:this.obj.connection, type:this.obj.database}}
+            const _ = (window as any).pyodide.runPython(includes)
+
+            // TODO: This needs to be controlled by the block and the middleware, not heres
+            const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
 
             // TODO: Replace "run" with middlewar function selected from config dropdown
-            const mcode = me.middleware + '\n\n'+me.middlewarefunc+'(' + JSON.stringify(param) + ')\n'
+            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + JSON.stringify(param) + ')\n'
             console.log('CODE MIDDLEWARE', mcode)
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
-              let jsonoutput = res.toJs()
-              let _result = toObject(jsonoutput)
+              const jsonoutput = res.toJs()
+              const _result = toObject(jsonoutput)
               console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
               this.$emit('message.received', {
                 type: 'result',

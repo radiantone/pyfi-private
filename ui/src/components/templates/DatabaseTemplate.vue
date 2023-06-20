@@ -1186,7 +1186,7 @@
           class="bg-primary text-secondary"
           color="primary"
           v-close-popup
-          @click="fetchData"
+          @click="refreshTables"
         >
           <q-tooltip
             anchor="top middle"
@@ -2602,6 +2602,8 @@ export default {
       me.triggerExecute()
     })
     this.$on('call.completed', (call) => {
+      // TODO: Refresh data tables
+      this.refreshTables()
       // TODO: Trigger sequential ports that are satisfied
       for (const fname in this.portobjects) {
         console.log('SEQUENCE FUNC', fname)
@@ -3389,6 +3391,13 @@ export default {
     }
   },
   methods: {
+    refreshTables () {
+      DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        console.log("DataService.getRows", result)
+      }).catch((err) => {
+        console.log("ERROR", err)
+      })
+    },
     pullSchema () {
       var me = this
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {

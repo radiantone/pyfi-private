@@ -870,13 +870,30 @@ def get_pattern(pid):
 @cross_origin()
 @requires_auth
 def db_submit():
-    r = request
+    import warnings
+    from pandas import json_normalize
+    import sqlalchemy
+
+    # Create the engine to connect to the PostgreSQL database
     data = request.get_json(silent=True)
 
     dbtype = data['database']['type']
     dburl = data['database']['url']
-    # data['db'] = metadata for database
-    # data['rows'] = rows to store
+    table = data['database']['table']
+    rows = data['data']
+    engine = sqlalchemy.create_engine(dburl)
+
+    df = json_normalize(rows)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        df.to_sql(
+            table,
+            con=engine,
+            if_exists="append",
+            index=False,
+        )
+
     print(data)
     return jsonify({"operation":"commit", "status":"success"})
 
@@ -1333,6 +1350,16 @@ def post_files(collection, path):
         status = {"status": "ok", "id": file.id}
         print("STATUS", status)
         return jsonify(status)
+
+
+@app.route("/db/rows/", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rows():
+    """Get all the tables for the database info in the POST json"""
+    data: Any = request.get_json()
+
+    return jsonify([data])
 
 
 @app.route("/db/tables", methods=["POST"])

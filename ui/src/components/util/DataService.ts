@@ -3,10 +3,14 @@
 import http from 'src/http-common'
 
 class DataService {
-
-  getMock (): Promise<any> {
-    return http.get('/api1/')
+  getRows (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/rows/', { viewtable: viewtable, database: database, url: url }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
+
   getFiles (collection: string, folder: string, token: string): Promise<any> {
     return http.get('/api/files/' + collection + '/' + folder, {
       headers: {

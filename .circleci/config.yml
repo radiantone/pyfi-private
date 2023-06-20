@@ -99,6 +99,9 @@ workflows:
                   job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-api
+          executor:
+            name: aws-ecr/default
+            image: "ubuntu-2004:2023.04.2"
           requires:
             - build-and-test
           attach-workspace: true
