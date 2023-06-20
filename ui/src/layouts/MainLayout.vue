@@ -2845,9 +2845,6 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
-    DataService.getMock().then((res) => {
-      console.log('DATA MOCK', res)
-    })
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
