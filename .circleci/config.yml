@@ -13,6 +13,7 @@ jobs:
       - image: cimg/python:3.10.2
     steps:
       - checkout
+      - run: cat conf/nginx.conf.dev
       - run: cat ui/auth_config.json
       - run: mkdir -p ./workspace/certs
       - run: echo "$elasticcode_crt" > ./workspace/certs/elasticcode.crt
