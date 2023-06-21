@@ -76,7 +76,7 @@ workflows:
           workspace-root: workspace
           aws-cli-version: latest
           create-repo: true
-          dockerfile: Dockerfile.nginx.dev
+          dockerfile: Dockerfile.nginx
           extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1 --build-arg BUILD_URL=$CIRCLE_BUILD_URL --build-arg REPO_URL=$CIRCLE_REPOSITORY_URL'
           path: ./docker
           platform: linux/amd64
