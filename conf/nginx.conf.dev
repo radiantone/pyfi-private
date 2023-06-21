@@ -100,9 +100,6 @@ http {
 
     client_max_body_size 50m;
 
-    listen 443 ssl;
-
-    # ssl    on;
 
     ssl_certificate    /etc/nginx/certs/elasticcode.crt;
     ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
@@ -132,9 +129,6 @@ http {
 
     client_max_body_size 50m;
 
-    listen 443 ssl;
-
-    # ssl    on;
 
     ssl_certificate    /etc/nginx/certs/elasticcode-dev.crt;
     ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
@@ -168,9 +162,6 @@ http {
 
     client_max_body_size 50m;
 
-    listen 443 ssl;
-
-    # ssl    on;
 
     ssl_certificate    /etc/nginx/certs/elasticcode-dev.crt;
     ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
