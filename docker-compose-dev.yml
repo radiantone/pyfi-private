@@ -3,7 +3,10 @@ version: '3.9'
 services:
 
   clientsocket:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
+    build:
+      context: socket
+      dockerfile: Dockerfile
+    image: pyfi/clientsocket:develop
     container_name: clientsocket
     networks:
       - dev
@@ -37,7 +40,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.processor
     container_name: processor
-    image: pyfi/processor:latest
+    image: pyfi/processor:develop
     environment:
       - "EVENTS=events"
 
@@ -79,7 +82,7 @@ services:
 
   api:
     container_name: api
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:develop
+    image: pyfi/api:develop
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
@@ -221,7 +224,7 @@ services:
       - dev
 
   nginx:
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
+    image: pyfi/nginx:develop
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx

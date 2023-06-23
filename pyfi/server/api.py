@@ -871,16 +871,17 @@ def get_pattern(pid):
 @requires_auth
 def db_submit():
     import warnings
-    from pandas import json_normalize
+
     import sqlalchemy
+    from pandas import json_normalize
 
     # Create the engine to connect to the PostgreSQL database
     data = request.get_json(silent=True)
 
-    dbtype = data['database']['type']
-    dburl = data['database']['url']
-    table = data['database']['table']
-    rows = data['data']
+    dbtype = data["database"]["type"]
+    dburl = data["database"]["url"]
+    table = data["database"]["table"]
+    rows = data["data"]
     engine = sqlalchemy.create_engine(dburl)
 
     df = json_normalize(rows)
@@ -895,7 +896,7 @@ def db_submit():
         )
 
     print(data)
-    return jsonify({"operation":"commit", "status":"success"})
+    return jsonify({"operation": "commit", "status": "success"})
 
 
 @app.route("/code/extract", methods=["POST"])
