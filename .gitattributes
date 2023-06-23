@@ -2,3 +2,4 @@ ui/auth_config.json merge=ours
 .circleci/config.yml merge=ours
 Makefile merge=ours
 newrelic.ini merge=ours
+scripts/check.sh merge=ours

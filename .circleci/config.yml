@@ -44,7 +44,10 @@ jobs:
       - run:
           name: Install UI
           command: make install-ui
-          no_output_timeout: 20m
+          no_output_timeout: 40m
+      - run:
+          name: npm ls
+          command: npm ls
       - run:
           name: Patch UI
           command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js
@@ -100,6 +103,9 @@ workflows:
                   job_type: deployment
       - aws-ecr/build-and-push-image:
           name: build-api
+          executor:
+            name: aws-ecr/default
+            image: "ubuntu-2004:2023.04.2"
           requires:
             - build-and-test
           attach-workspace: true
@@ -112,7 +118,6 @@ workflows:
           platform: linux/amd64
           public-registry: false
           push-image: true
-          remote-docker-version: '24.0.2'
           repo: api
           repo-scan-on-push: true
           tag: 'production'
