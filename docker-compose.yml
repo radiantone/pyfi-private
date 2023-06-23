@@ -6,7 +6,7 @@ services:
     build:
       context: socket
       dockerfile: Dockerfile
-    image: pyfi/clientsocket:latest
+    image: pyfi/clientsocket:local
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -15,7 +15,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:local
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -26,7 +26,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:local
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:local
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -86,7 +86,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.processor
     container_name: processor
-    image: pyfi/processor:latest
+    image: pyfi/processor:local
     environment:
       - "EVENTS=events"
 
@@ -95,7 +95,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: pyfi/api:latest
+    image: pyfi/api:local
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
@@ -116,7 +116,7 @@ services:
   agent3.docker:
     container_name: agent3.docker
     hostname: agent3
-    image: elasticcode/agent:latest
+    image: elasticcode/agent:local
     environment:
       - "EVENTS=events"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
@@ -139,7 +139,7 @@ services:
       dockerfile: docker/Dockerfile.agent
     container_name: agent3
     hostname: agent3
-    image: agent:latest
+    image: elasticcode/agent:local
     environment:
       - "EVENTS=events"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
@@ -162,7 +162,7 @@ services:
       dockerfile: docker/Dockerfile.agent
     container_name: agent2
     hostname: agent2
-    image: agent:latest
+    image: elasticcode/agent:local
     environment:
       - "EVENTS=events"
     command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent2 --clean --size 20 --user pyfi --cpus 4"
@@ -184,7 +184,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.logs
     container_name: logs
-    image: logs:latest
+    image: pyfi/logs:local
 
   metabase:
     image: metabase/metabase:latest
@@ -331,7 +331,7 @@ services:
         - mongodb_data_container:/data/db
 
   web:
-    image: elasticcode/web:latest
+    image: elasticcode/web:local
     container_name: web
     build:
       context: /home/darren/git/elasticcode-web
@@ -342,7 +342,7 @@ services:
       - 8180:80
 
   nginx:
-    image: nginx:latest
+    image: pyfi/nginx:local
     container_name: nginx
     build:
       context: .

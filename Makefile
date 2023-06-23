@@ -40,7 +40,7 @@ deploy: login pull up
 
 .PHONY: pull
 pull:
-	docker compose -f docker-compose-dev.yml pull nginx api clientsocket rabbitmq
+	docker compose pull nginx api clientsocket rabbitmq
 
 .PHONY: up
 up:
@@ -61,7 +61,7 @@ update: freeze format lint
 	git add docker-*
 	git add docker/
 	git commit --allow-empty -m "Updates"
-	git push origin develop
+	git push origin local
 	python setup.py install
 	git status
 
@@ -94,7 +94,11 @@ clean:
 	exit 0
 
 .PHONY: build
-build:
+build-no-cache: ui
+	docker compose -f docker-compose.yml build --no-cache
+
+.PHONY: build
+build: ui
 	docker compose -f docker-compose.yml build
 
 .PHONY: login
@@ -107,20 +111,23 @@ login:
 push:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+	docker tag pyfi/nginx:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:local
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
 
-	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
+	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
 
-	docker tag pyfi/clientsocket:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
+	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
 
-	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
+	docker tag pyfi/clientsocket:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
+
+	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
 
 .PHONY: all
 all: format lint freeze update docs install clean
