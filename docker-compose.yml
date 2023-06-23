@@ -5,8 +5,8 @@ services:
   clientsocket:
     build:
       context: socket
-      dockerfile: Dockerfile.prod
-    image: pyfi/clientsocket:latest
+      dockerfile: Dockerfile
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -15,7 +15,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:production
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -26,7 +26,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:production
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:latest
+    image: pyfi/websockets:production
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -66,43 +66,19 @@ services:
       ports:
         - 3001:3000
 
-  influxdb:
-    image: influxdb:2.0
-    container_name: influxdb
-    ports:
-      - 8083:8083
-      - 8086:8086
-      - 8088:8088
-    environment:
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=password
-      - DOCKER_INFLUXDB_INIT_ORG=pyfi
-      - DOCKER_INFLUXDB_INIT_BUCKET=pyfi
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
-
-  processor:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.processor
-    container_name: processor
-    image: pyfi/processor:latest
-    environment:
-      - "EVENTS=events"
-
   api:
     build:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: pyfi/api:latest
+    image: pyfi/api:production
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
       - "CB_SITE=elasticcode-test"
-      - "AUTH0_DOMAIN=elasticcode-local.us.auth0.com"
-      - "API_AUDIENCE=http://localhost:8000/"
-      - "API_HOST=localhost:8000/"
+      - "AUTH0_DOMAIN=elasticcode.us.auth0.com"
+      - "API_AUDIENCE=https://app.elasticcode.ai/"
+      - "API_HOST=api.elasticcode.ai"
     ports:
       - 8000:8003
     depends_on:
@@ -120,44 +96,20 @@ services:
     container_name: logs
     image: logs:latest
 
-  metabase:
-    image: metabase/metabase:latest
-    ports:
-      - 3001:3000
-    container_name: metabase
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.com
       - PGADMIN_DEFAULT_PASSWORD=SuperSecret
-    volumes:
-      - ./tmp:/tmp
     ports:
       - 8008:80
-
-  flower:
-    image: mher/flower:latest
-    container_name: flower
-    hostname: flower
-    environment:
-      - CELERY_BROKER_URL=pyamqp://rabbitmq
-      - CELERY_ACCEPT_CONTENT=['json']
-      - CELERY_TASK_SERIALIZER='json'
-      - CELERY_RESULT_SERIALIZER='json'
-      - FLOWER_PORT=8888
-    ports:
-      - 8888:8888
 
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
     image: rabbitmq:management
     restart: always
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.rabbitmq
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./data:/var/lib/rabbitmq/mnesia/
@@ -174,9 +126,6 @@ services:
     container_name: rabbitmq2
     hostname: rabbitmq2
     image: rabbitmq:management
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.rabbitmq
     volumes:
       - ./conf/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - ./conf/rabbit-cluster.sh:/tmp/rabbit-cluster.sh
@@ -229,8 +178,6 @@ services:
     image: redislabs/redisinsight:latest
     ports:
       - 8001:8001
-    #volumes:
-    #  - ./data/redisinsight:/db
 
   mongodb:
       image: mongo:latest
@@ -244,7 +191,7 @@ services:
         - mongodb_data_container:/data/db
 
   web:
-    image: elasticcode/web:latest
+    image: elasticcode/web:production
     container_name: web
     build:
       context: /home/darren/git/elasticcode-web
@@ -253,16 +200,15 @@ services:
       - 8180:80
 
   nginx:
-    image: pyfi/nginx:latest
+    image: pyfi/nginx:production
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
     container_name: nginx
     volumes:
-      - ./conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./certs:/etc/nginx/certs
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
-      - ./ui/dist/spa:/var/share/html
     depends_on:
       - rabbitmq
       - rabbitmq2

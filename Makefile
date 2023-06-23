@@ -40,11 +40,11 @@ deploy: login pull up
 
 .PHONY: pull
 pull:
-	docker compose -f docker-compose-ecr.yml pull nginx api clientsocket rabbitmq
+	docker compose pull nginx api clientsocket rabbitmq
 
 .PHONY: up
 up:
-	docker compose -f docker-compose-ecr.yml up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api
+	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api
 
 .PHONY: stop
 stop:
@@ -71,7 +71,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; SOCKETIO=https://app.elasticcode.ai quasar build
+	cd ui; SOCKETIO=${SOCKETIO} quasar build
 
 .PHONY: docs
 docs:
@@ -94,12 +94,12 @@ clean:
 	exit 0
 
 .PHONY: build
-build-no-cache:
-	docker compose -f docker-compose-dev.yml build --no-cache
+build-no-cache: ui
+	docker compose build --no-cache
 
 .PHONY: build
-build:
-	docker compose -f docker-compose-ecr.yml build
+build: ui
+	docker compose build
 
 .PHONY: login
 login:
