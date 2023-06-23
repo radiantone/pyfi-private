@@ -107,20 +107,23 @@ login:
 push:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 
-	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
+	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 
-	docker tag pyfi/clientsocket:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
+	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 
-	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
+	docker tag pyfi/clientsocket:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
+
+	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
 
 .PHONY: all
 all: format lint freeze update docs install clean
