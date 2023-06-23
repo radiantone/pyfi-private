@@ -94,11 +94,11 @@ clean:
 	exit 0
 
 .PHONY: build
-build-no-cache:
+build-no-cache: ui
 	docker compose -f docker-compose-dev.yml build --no-cache
 
 .PHONY: build
-build:
+build: ui
 	docker compose -f docker-compose-dev.yml build
 
 .PHONY: login
