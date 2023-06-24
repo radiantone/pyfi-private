@@ -40,11 +40,11 @@ deploy: login pull up
 
 .PHONY: pull
 pull:
-	docker compose -f docker-compose-dev.yml pull nginx api clientsocket rabbitmq
+	docker compose pull nginx api clientsocket rabbitmq
 
 .PHONY: up
 up:
-	docker compose -f docker-compose-dev.yml up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web api pgadmin
+	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web pgadmin api
 
 .PHONY: stop
 stop:
@@ -95,11 +95,11 @@ clean:
 
 .PHONY: build
 build-no-cache: ui
-	docker compose -f docker-compose-dev.yml build --no-cache
+	docker compose build --no-cache
 
 .PHONY: build
 build: ui
-	docker compose -f docker-compose-dev.yml build
+	docker compose build
 
 .PHONY: login
 login:
