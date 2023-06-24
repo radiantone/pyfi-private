@@ -282,7 +282,7 @@ services:
 
   postgresdb:
     container_name: postgresdb
-    image: postgres:latest
+    image: postgres:14
     hostname: postgresdb
     #restart: always
     environment:
