@@ -120,7 +120,7 @@ push:
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 
-	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
+	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 
 	docker tag pyfi/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
