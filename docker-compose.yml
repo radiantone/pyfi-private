@@ -6,7 +6,7 @@ services:
     build:
       context: socket
       dockerfile: Dockerfile
-    image: pyfi/clientsocket:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -71,7 +71,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: pyfi/api:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:production
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
@@ -202,7 +202,7 @@ services:
       - 8180:80
 
   nginx:
-    image: pyfi/nginx:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
