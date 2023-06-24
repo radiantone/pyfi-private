@@ -39,7 +39,7 @@ install: depends init
 deploy: login pull up
 
 .PHONY: pull
-pull:
+pull: login
 	docker compose pull nginx api clientsocket rabbitmq
 
 .PHONY: up
