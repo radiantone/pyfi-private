@@ -71,7 +71,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; quasar build
+	cd ui; SOCKETIO=http://localhost quasar build
 
 .PHONY: docs
 docs:
@@ -95,11 +95,11 @@ clean:
 
 .PHONY: build
 build-no-cache: ui
-	docker compose -f docker-compose.yml build --no-cache
+	docker compose build --no-cache
 
 .PHONY: build
 build: ui
-	docker compose -f docker-compose.yml build
+	docker compose build
 
 .PHONY: login
 login:
@@ -123,10 +123,10 @@ push:
 	docker tag postgres:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
 
-	docker tag pyfi/clientsocket:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
+	docker tag pyfi/clientsocket:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
 
-	docker tag pyfi/websockets:latest 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
 
 .PHONY: all
