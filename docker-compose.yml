@@ -6,7 +6,7 @@ services:
     build:
       context: socket
       dockerfile: Dockerfile
-    image: pyfi/clientsocket:local
+    image: pyfi/clientsocket:develop
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -15,7 +15,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:local
+    image: pyfi/websockets:develop
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -26,7 +26,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:local
+    image: pyfi/websockets:develop
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:local
+    image: pyfi/websockets:develop
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -86,7 +86,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.processor
     container_name: processor
-    image: pyfi/processor:local
+    image: pyfi/processor:develop
     environment:
       - "EVENTS=events"
 
@@ -95,14 +95,14 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: pyfi/api:local
+    image: pyfi/api:develop
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
       - "CB_SITE=elasticcode-test"
-      - "AUTH0_DOMAIN=elasticcode-local.us.auth0.com"
-      - "API_AUDIENCE=http://localhost:8000/"
-      - "API_HOST=localhost:8000/"
+      - "AUTH0_DOMAIN=dev-3583lxyoewhh4ymf.us.auth0.com"
+      - "API_AUDIENCE=https://dev.elasticcode.ai/"
+      - "API_HOST=api.elasticcode.ai"
     ports:
       - 8000:8003
     profiles:
@@ -113,78 +113,12 @@ services:
     volumes:
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
 
-  agent3.docker:
-    container_name: agent3.docker
-    hostname: agent3
-    image: elasticcode/agent:local
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
-    ports:
-      - 8004:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
-
-  agent3:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.agent
-    container_name: agent3
-    hostname: agent3
-    image: elasticcode/agent:local
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent3 --clean --size 20 --user pyfi --cpus 5"
-    ports:
-      - 8004:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
-
-  agent2:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.agent
-    container_name: agent2
-    hostname: agent2
-    image: elasticcode/agent:local
-    environment:
-      - "EVENTS=events"
-    command:  "runuser -u pyfi -- /opt/pyfi/venv/bin/flow --debug -i /home/pyfi/pyfi.ini agent start -n agent2 --clean --size 20 --user pyfi --cpus 4"
-    ports:
-      - 8003:8002
-    profiles:
-      - agent
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-    volumes:
-      - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
-      - ./conf/pyfi.ini:/home/pyfi/pyfi.ini
-      - ./pyfi.polar:/home/pyfi/pyfi.polar
-
   logs:
     build:
       context: .
       dockerfile: docker/Dockerfile.logs
     container_name: logs
-    image: pyfi/logs:local
+    image: pyfi/logs:develop
 
   metabase:
     image: metabase/metabase:latest
@@ -331,7 +265,7 @@ services:
         - mongodb_data_container:/data/db
 
   web:
-    image: elasticcode/web:local
+    image: elasticcode/web:develop
     container_name: web
     build:
       context: /home/darren/git/elasticcode-web
@@ -342,7 +276,7 @@ services:
       - 8180:80
 
   nginx:
-    image: pyfi/nginx:local
+    image: pyfi/nginx:develop
     container_name: nginx
     build:
       context: .
