@@ -205,7 +205,7 @@ services:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
     build:
       context: .
-      dockerfile: docker/Dockerfile.nginx
+      dockerfile: docker/Dockerfile.nginx.prod
     container_name: nginx
     volumes:
       - ./certs:/etc/nginx/certs
