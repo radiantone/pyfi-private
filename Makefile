@@ -61,7 +61,7 @@ update: freeze format lint
 	git add docker-*
 	git add docker/
 	git commit --allow-empty -m "Updates"
-	git push origin develop
+	git push origin production
 	python setup.py install
 	git status
 
@@ -71,7 +71,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; SOCKETIO=${SOCKETIO} quasar build
+	cd ui; SOCKETIO=https://app.elasticcode.ai quasar build
 
 .PHONY: docs
 docs:
@@ -89,7 +89,7 @@ freeze:
 .PHONY: clean
 clean:
 	python setup.py clean
-	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
+	-find . -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 	git status
 	exit 0
 

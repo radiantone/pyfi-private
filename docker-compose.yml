@@ -6,7 +6,7 @@ services:
     build:
       context: socket
       dockerfile: Dockerfile
-    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
+    image: pyfi/clientsocket:production
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -81,6 +81,8 @@ services:
       - "API_HOST=api.elasticcode.ai"
     ports:
       - 8000:8003
+    profiles:
+      - api
     depends_on:
       - redis
       - postgresdb
