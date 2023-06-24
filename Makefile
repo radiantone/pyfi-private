@@ -89,7 +89,7 @@ freeze:
 .PHONY: clean
 clean:
 	python setup.py clean
-	-find . -type d -name __pycache__ -print -exec rm -rf {} \; 2> /dev/null
+	-find . -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 	git status
 	exit 0
 
