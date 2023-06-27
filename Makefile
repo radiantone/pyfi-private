@@ -110,7 +110,7 @@ login:
 push:
 	aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 013035288901.dkr.ecr.us-east-1.amazonaws.com
 
-	docker tag pyfi/nginx:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
+	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
 
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
@@ -122,10 +122,10 @@ push:
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 
-	docker tag pyfi/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
+	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 
-	docker tag pyfi/websockets:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
+	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
 
 .PHONY: all

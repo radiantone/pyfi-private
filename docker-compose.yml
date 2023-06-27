@@ -6,7 +6,7 @@ services:
     build:
       context: socket
       dockerfile: Dockerfile
-    image: pyfi/clientsocket:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
     container_name: clientsocket
     ports:
       - 3003:3003
@@ -15,7 +15,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:develop
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -26,7 +26,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:develop
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:develop
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
@@ -119,12 +119,6 @@ services:
       dockerfile: docker/Dockerfile.logs
     container_name: logs
     image: pyfi/logs:develop
-
-  metabase:
-    image: metabase/metabase:latest
-    ports:
-      - 3001:3000
-    container_name: metabase
 
   pgadmin:
     image: dpage/pgadmin4
@@ -255,7 +249,7 @@ services:
       - 8180:80
 
   nginx:
-    image: pyfi/nginx:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
     container_name: nginx
     build:
       context: .
