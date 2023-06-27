@@ -95,7 +95,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.api
     container_name: api
-    image: py013035288901.dkr.ecr.us-east-1.amazonaws.com/api:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/api:develop
     environment:
       - "EVENTS=events"
       - "CB_KEY=test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm"
