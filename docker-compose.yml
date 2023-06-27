@@ -263,12 +263,10 @@ services:
       - rabbitmq
       - rabbitmq2
       - clientsocket
-      - api
     links:
       - clientsocket
       - rabbitmq2
       - rabbitmq
-      - api
     ports:
       - 80:80
       - 443:443
