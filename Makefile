@@ -93,12 +93,8 @@ clean:
 	exit 0
 
 .PHONY: build
-build-no-cache: ui
-	docker compose build --no-cache
-
-.PHONY: build
 build: ui
-	docker compose build
+	docker compose build --no-cache
 
 .PHONY: login
 login:
