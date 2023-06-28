@@ -15,7 +15,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: globalsocket
     environment:
       - PYFI_CHANNEL=global
@@ -26,7 +26,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: websockets2
     environment:
       - PYFI_CHANNEL=proc2.task
@@ -37,7 +37,7 @@ services:
     build:
       context: docker/websockets
       dockerfile: Dockerfile
-    image: pyfi/websockets:production
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:production
     container_name: websockets
     environment:
       - PYFI_CHANNEL=proc1.task
