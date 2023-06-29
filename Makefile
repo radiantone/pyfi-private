@@ -97,9 +97,10 @@ build:
 	@read -p "Build UI? [y/N] " ans && ans=$${ans:-N} ; \
     if [ $${ans} = y ] || [ $${ans} = Y ]; then \
         make ui ; \
-        CACHE = "--no-cache" ; \
+		docker compose build --no-cache ;\
+    else \
+		docker compose build ;\
     fi
-	docker compose build $(CACHE)
 
 .PHONY: login
 login:
