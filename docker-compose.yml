@@ -219,7 +219,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbitmq
-    image: rabbitmq:management
+    image: rabbitmq:3.12.1-management-alpine
     restart: always
     build:
       context: .
@@ -239,7 +239,7 @@ services:
   rabbitmq2:
     container_name: rabbitmq2
     hostname: rabbitmq2
-    image: rabbitmq:management
+    image: rabbitmq:3.12.1-management-alpine
     build:
       context: .
       dockerfile: docker/Dockerfile.rabbitmq
