@@ -3,7 +3,6 @@ black = black --target-version py39 pyfi
 isort = isort --profile black pyfi
 flake8 = flake8 --ignore=E203,F401,E402,F841,E501,E722,W503 pyfi
 
-
 .PHONY: depends
 depends:
 	./bin/depends.sh
@@ -119,17 +118,21 @@ push:
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
-
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 
 	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 
-	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/websockets:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
+	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
+
+	# Remove local remote tags
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
 
 .PHONY: all
 all: format lint freeze update docs install clean
