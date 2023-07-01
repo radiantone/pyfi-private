@@ -97,8 +97,10 @@ build:
 	@read -p "Build UI? [y/N] " ans && ans=$${ans:-N} ; \
     if [ $${ans} = y ] || [ $${ans} = Y ]; then \
         make ui ; \
+		docker compose build --no-cache ;\
+    else \
+		docker compose build ;\
     fi
-	docker compose build --no-cache
 
 .PHONY: login
 login:
@@ -113,9 +115,6 @@ push:
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
-
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
 
@@ -123,7 +122,12 @@ push:
 
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
 
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
+	# Remove local remote tags
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:production
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:production
 
 .PHONY: all
 all: format lint freeze update docs install clean
