@@ -118,9 +118,6 @@ push:
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
 
-	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
-
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
 
@@ -129,6 +126,13 @@ push:
 
 	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+
+	# Remove local remote tags
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:local
 
 .PHONY: all
 all: format lint freeze update docs install clean
