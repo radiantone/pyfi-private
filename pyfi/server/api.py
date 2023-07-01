@@ -1358,9 +1358,19 @@ def post_files(collection, path):
 @requires_auth
 def rows():
     """Get all the tables for the database info in the POST json"""
+
     data: Any = request.get_json()
 
-    return jsonify([data])
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    conn, cursor = get_cursor(database, url)
+    rows = cursor.execute(f"SELECT * from {table}")
+    rows = list(rows)
+
+    rows += [{'name':'Joe','location':'Virginia'}]
+    return jsonify(rows)
 
 
 @app.route("/db/tables", methods=["POST"])
