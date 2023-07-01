@@ -1187,6 +1187,7 @@
           color="primary"
           v-close-popup
           @click="refreshTables"
+          :disable="!viewtable"
         >
           <q-tooltip
             anchor="top middle"
@@ -2766,7 +2767,7 @@ export default {
           this.viewcols.push({
             name: col,
             label: col,
-            id: col
+            field: col
           })
         })
       }
@@ -2871,6 +2872,7 @@ export default {
   },
   data () {
     return {
+      fetchDisabled: true,
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3392,8 +3394,10 @@ export default {
   },
   methods: {
     refreshTables () {
+      var me = this
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log("DataService.getRows", result)
+        me.tablerows = result.data
       }).catch((err) => {
         console.log("ERROR", err)
       })
