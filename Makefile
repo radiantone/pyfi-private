@@ -48,11 +48,11 @@ up:
 
 .PHONY: stop
 stop:
-	docker compose stop
+	@docker compose stop
 
 .PHONY: refresh
 refresh: stop
-	./bin/docker-refresh.sh
+	@./bin/docker-refresh.sh
 
 .PHONY: update
 update: freeze format lint
