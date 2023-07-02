@@ -632,6 +632,60 @@ def add_node_to_network(context, name, node):
 
 @db.command()
 @click.option(
+    "-f", "--file", default="elastic.sql", help="Database backup file"
+)
+@click.pass_context
+def restore(context, file):
+    """ Restore the database from a backup file """
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ['pg_restore',
+             '--no-owner',
+             '--dbname='+context.obj["dburi"],
+             file],
+            stdout=subprocess.PIPE
+        )
+        output = process.communicate()[0]
+        if int(process.returncode) != 0:
+            print('Command failed. Return code : {}'.format(process.returncode))
+
+        print("Restore successful from "+os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+
+
+@db.command()
+@click.option(
+    "-f", "--file", default="elastic.sql", help="Database backup file"
+)
+@click.pass_context
+def backup(context, file):
+    """ Backup the database into a SQL file """
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ['pg_dump',
+             '--dbname='+context.obj["dburi"],
+             '-f', file],
+            stdout=subprocess.PIPE
+        )
+        output = process.communicate()[0]
+        if process.returncode != 0:
+            print('Command failed. Return code : {}'.format(process.returncode))
+            exit(1)
+        print("Backup successful to "+os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+        exit(1)
+
+
+@db.command()
+@click.option(
     "-d", "--directory", default="migrations", help="Directory of migration pyfi agent"
 )
 @click.pass_context
