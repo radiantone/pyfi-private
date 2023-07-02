@@ -86,7 +86,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.processor
     container_name: processor
-    image: pyfi/processor:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/processor:develop
     environment:
       - "EVENTS=events"
 
@@ -118,7 +118,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.logs
     container_name: logs
-    image: pyfi/logs:develop
+    image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/logs:develop
 
   pgadmin:
     image: dpage/pgadmin4

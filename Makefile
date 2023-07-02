@@ -48,11 +48,11 @@ up:
 
 .PHONY: stop
 stop:
-	docker compose stop
+	@docker compose stop
 
 .PHONY: refresh
 refresh: stop
-	./bin/docker-refresh.sh
+	@./bin/docker-refresh.sh
 
 .PHONY: update
 update: freeze format lint
@@ -118,21 +118,21 @@ push:
 	docker tag rabbitmq:management 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
 
+	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/processor:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/processor:develop
+
+	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/logs:develop
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/logs:develop
+
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
 
 	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 
-	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
 
-	# Remove local remote tags
-	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
-	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
-	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:develop
-	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:develop
-	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:develop
 
 .PHONY: all
 all: format lint freeze update docs install clean
