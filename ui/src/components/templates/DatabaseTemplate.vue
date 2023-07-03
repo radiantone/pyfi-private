@@ -2623,6 +2623,13 @@ export default {
     })
     this.$on('middleware.complete', (msg) => {
       console.log('DATABASE TEMPLATE: ', msg)
+      let bytes = msg.bytes
+      me.calls_in += 1
+      me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
+      // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+      me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
+      // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+      me.bytes_in += bytes
     })
 
     this.$on('message.received', (msg) => {
