@@ -872,7 +872,6 @@ def get_pattern(pid):
 @requires_auth
 def db_submit():
     import warnings
-
     from urllib.parse import urlparse
 
     import sqlalchemy
@@ -1375,9 +1374,9 @@ def rows():
 
     results = []
     for schema in schemas:
-        if schema['name'] == table:
+        if schema["name"] == table:
             for row in rows:
-                results += [{col:data for col, data in zip(schema['cols'], row)}]
+                results += [{col: data for col, data in zip(schema["cols"], row)}]
 
     return jsonify(results)
 
@@ -1402,6 +1401,7 @@ def get_tables(database, url):
 
     return results
 
+
 @app.route("/db/tables", methods=["POST"])
 @cross_origin()
 @requires_auth
@@ -1422,9 +1422,8 @@ def get_cursor(database, url):
     import sqlite3
     from urllib.parse import urlparse
 
-
     if database == "SQLite":
-        dbname = urlparse(url).path.split('/')[1]
+        dbname = urlparse(url).path.split("/")[1]
         con = sqlite3.connect(f"{dbname}")
         cur = con.cursor()
         return con, cur
@@ -1464,7 +1463,7 @@ def schema():
 
     conn, cursor = get_cursor(database, url)
 
-    stmts = ddl.split(';')
+    stmts = ddl.split(";")
 
     for stmt in stmts:
         cursor.execute(stmt)
