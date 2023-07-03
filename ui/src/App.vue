@@ -17,7 +17,7 @@ export const handlers = [
   // It will be up to the app to load the flows first
   // e.g. let flow = ElasticCode.loadFlow("/Home/Database Example")
   // let result = flow.block("Service").run({"some":"data"})
-  rest.get('/api1/', (req, res, ctx) => {
+  rest.get('/apitest/', (req, res, ctx) => {
 
     return res(
       ctx.status(200),

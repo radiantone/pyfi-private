@@ -6,6 +6,8 @@ import getpass
 import hashlib
 import logging
 
+import newrelic.agent
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(filename)s: "
@@ -32,6 +34,9 @@ from sqlalchemy import exc as sa_exc
 from sqlalchemy import literal_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
+
+if "NEW_RELIC_CONFIG_FILE" in os.environ:
+    newrelic.agent.initialize(os.environ["NEW_RELIC_CONFIG_FILE"])
 
 from pyfi.db.model import (
     AgentModel,
