@@ -300,16 +300,18 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }
           }
 
+          // TODO: This needs to be controlled by the block and the middleware, not heres
+          const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
+
+          let param_string = JSON.stringify(param)
+
           if (me.usemiddleware) {
             console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
 
             const _ = (window as any).pyodide.runPython(includes)
 
-            // TODO: This needs to be controlled by the block and the middleware, not heres
-            const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
-
             // TODO: Replace "run" with middlewar function selected from config dropdown
-            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + JSON.stringify(param) + ')\n'
+            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
             console.log('CODE MIDDLEWARE', mcode)
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
@@ -356,7 +358,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               if (this.usemiddleware && this.middlewareonly) {
                 console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
                 this.$emit('middleware.complete', {
-                  type: 'middleware'
+                  type: 'middleware',
+                  bytes: param_string.length
                 })
               }
             }
