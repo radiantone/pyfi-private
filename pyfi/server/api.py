@@ -283,6 +283,7 @@ def requires_auth(f):
             raise AuthError(
                 {
                     "code": "invalid_header",
+                    "code": "invalid_header",
                     "description": "Unable to find appropriate key",
                 },
                 401,
@@ -872,16 +873,19 @@ def get_pattern(pid):
 def db_submit():
     import warnings
 
+    from urllib.parse import urlparse
+
     import sqlalchemy
     from pandas import json_normalize
 
     # Create the engine to connect to the PostgreSQL database
     data = request.get_json(silent=True)
 
-    dbtype = data["database"]["type"]
     dburl = data["database"]["url"]
     table = data["database"]["table"]
     rows = data["data"]
+
+    dbname = urlparse(dburl).hostname
     engine = sqlalchemy.create_engine(dburl)
 
     df = json_normalize(rows)
@@ -1365,25 +1369,20 @@ def rows():
     database = data["database"]
     url = data["url"]
 
+    schemas = get_tables(database, url)
     conn, cursor = get_cursor(database, url)
-    rows = cursor.execute(f"SELECT * from {table}")
-    rows = list(rows)
+    rows = cursor.execute(f"SELECT * from {table} limit 100")
 
-    rows += [{'name':'Joe','location':'Virginia'}]
-    return jsonify(rows)
+    results = []
+    for schema in schemas:
+        if schema['name'] == table:
+            for row in rows:
+                results += [{col:data for col, data in zip(schema['cols'], row)}]
+
+    return jsonify(results)
 
 
-@app.route("/db/tables", methods=["POST"])
-@cross_origin()
-@requires_auth
-def tables():
-    """Get all the tables for the database info in the POST json"""
-    data: Any = request.get_json()
-
-    database = data["type"]
-    url = data["url"]
-    ddl = data["schema"]
-
+def get_tables(database, url):
     conn, cursor = get_cursor(database, url)
     tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
@@ -1401,6 +1400,21 @@ def tables():
         results += [{"name": table[0], "cols": cols, "schema": list(cur)[0][0]}]
         print(cols)
 
+    return results
+
+@app.route("/db/tables", methods=["POST"])
+@cross_origin()
+@requires_auth
+def tables():
+    """Get all the tables for the database info in the POST json"""
+    data: Any = request.get_json()
+
+    database = data["type"]
+    url = data["url"]
+    ddl = data["schema"]
+
+    results = get_tables(database, url)
+
     return jsonify({"status": "ok", "tables": results})
 
 
@@ -1408,10 +1422,10 @@ def get_cursor(database, url):
     import sqlite3
     from urllib.parse import urlparse
 
-    dbname = urlparse(url).hostname
 
     if database == "SQLite":
-        con = sqlite3.connect(f"{dbname}.db")
+        dbname = urlparse(url).path.split('/')[1]
+        con = sqlite3.connect(f"{dbname}")
         cur = con.cursor()
         return con, cur
 
@@ -1449,7 +1463,11 @@ def schema():
     logging.info("DDL %s", ddl)
 
     conn, cursor = get_cursor(database, url)
-    cursor.execute(ddl)
+
+    stmts = ddl.split(';')
+
+    for stmt in stmts:
+        cursor.execute(stmt)
 
     return jsonify({"status": "ok"})
 

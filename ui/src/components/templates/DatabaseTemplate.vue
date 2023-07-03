@@ -1118,6 +1118,7 @@
       "
       v-if="tableview"
     >
+
       <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
         <q-select
           dense
@@ -1128,6 +1129,7 @@
           hint="Database Table"
           option-value="name"
           option-label="name"
+          @update:model-value="tableSelected"
           value="string"
           :menu-offset="[5, -9]"
         />
@@ -1247,6 +1249,15 @@
           @click="tableview = false"
         />
       </q-card-actions>
+      <q-inner-loading
+        :showing="saving"
+        style="z-index: 999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
+      </q-inner-loading>
     </q-card>
     <q-card
       :style="
@@ -2761,6 +2772,7 @@ export default {
       },
       set: function (val) {
         console.log('SETTING VIEW TABLE', val)
+        this.tablerows = []
         this.viewcols = []
         this.table = val
         val.cols.forEach((col) => {
@@ -2832,6 +2844,8 @@ export default {
     console.log('BYTES_IN', this.bytes_in)
 
     me.middleware = me.obj.middleware
+    me.middlewarefunc = me.obj.middlewarefunc
+
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
@@ -2869,6 +2883,7 @@ export default {
     if (this.obj.crontoggle) {
       this.startSchedule(this.obj.cron)
     }
+    this.pullSchema()
   },
   data () {
     return {
@@ -3393,17 +3408,24 @@ export default {
     }
   },
   methods: {
+    tableSelected () {
+      console.log("TABLE SELECTED")
+    },
     refreshTables () {
       var me = this
+      this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log("DataService.getRows", result)
         me.tablerows = result.data
+        me.saving = false
       }).catch((err) => {
         console.log("ERROR", err)
+        me.saving = false
       })
     },
     pullSchema () {
       var me = this
+      this.saving = true
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
         me.obj.schema = ''
@@ -3413,24 +3435,32 @@ export default {
         })
 
         me.schemaResult = 'Pull Schema succeeded'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Pull Schema failure'
+        me.saving = false
       })
     },
     testConnection () {
       var me = this
+      this.saving = true
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Connection Success!'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Connection Error!'
+        me.saving = false
       })
     },
     createSchema () {
       var me = this
+      this.saving = true
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Create Schema failure'
+        me.saving = false
       })
     },
     setZoomLevel () {
