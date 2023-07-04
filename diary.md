@@ -1,3 +1,32 @@
+July 4, 2023
+
+- create mindsdb database # points to real database too
+   - list tables (lists in the target db or in mindsdb?)
+
+- projects
+   - models
+   - 
+Inference Block
+   - Uses remote mindsb container
+   - Configures the target DB credentials
+   - Represents "a project"
+   - Holds various models
+   - Lists the tables from the target DB
+   
+   - When receiving an event from a database block, it also receives
+   the table. This data is used to configure the inbound request
+   - Inputs to the inference block connect to models which are configured
+   with target database/query, and a predicted value
+   - The model emits the predictions
+   - The view tab shows the predictions based on the selected model in real time
+
+Flow
+- Browser invokes Elastic API, which invokes MindsDB container/service, which connects  
+   to remote (or other container) database. 
+  - Database block talks to Elastic API, which talks to remote database via sqlalchemy
+    - Elastic API connects to MindsDB via sqlalchemy, which talks to remote database in 
+      in order to get the data to make predictions
+
 June 19, 2023
 
 - Database block
