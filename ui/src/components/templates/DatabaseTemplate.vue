@@ -806,6 +806,12 @@
             round
             v-if="column.type === 'Output'"
           />
+          <i
+            class="spinload"
+            v-if="column.loading"
+            style="font-size:1.3em;margin-right:3px"
+          />
+
           <q-btn
             icon="fa fa-cog"
             size="xs"
@@ -1118,7 +1124,6 @@
       "
       v-if="tableview"
     >
-
       <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
         <q-select
           dense
@@ -2193,8 +2198,8 @@
 
     <q-card
       :style="'width: '+middlewarewidth+'px; height: 465px; z-index: 999; display: block; position: absolute; right: -' +
-          (middlewarewidth + 5) +
-          'px; top: 0px;'"
+        (middlewarewidth + 5) +
+        'px; top: 0px;'"
       v-if="middlewareview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2464,6 +2469,27 @@
   </div>
 </template>
 <style scoped>
+
+.spinload {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #abbcc3;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    }
+
 .q-expansion-item__container > .q-item {
   padding-left: 0px !important;
   padding-right: 0px !important;
@@ -2516,7 +2542,7 @@ import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
-
+import { ref } from 'vue'
 import { TSDB } from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
@@ -2556,6 +2582,11 @@ export default {
   name: 'DatabaseTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
+  setup () {
+    // expose to template and other options API hooks
+    return {
+    }
+  },
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -2623,7 +2654,7 @@ export default {
     })
     this.$on('middleware.complete', (msg) => {
       console.log('DATABASE TEMPLATE: ', msg)
-      let bytes = msg.bytes
+      const bytes = msg.bytes
       me.calls_in += 1
       me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
       // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
@@ -2770,8 +2801,8 @@ export default {
   computed: {
     getfuncs () {
       this.updateFunctions(this.obj.middleware)
-      console.log("GETFUNCS",this.funcs)
-      return this.funcs.map(a => a.name);
+      console.log('GETFUNCS', this.funcs)
+      return this.funcs.map(a => a.name)
     },
     viewtable: {
       get: function () {
@@ -3416,17 +3447,17 @@ export default {
   },
   methods: {
     tableSelected () {
-      console.log("TABLE SELECTED")
+      console.log('TABLE SELECTED')
     },
     refreshTables () {
       var me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
-        console.log("DataService.getRows", result)
+        console.log('DataService.getRows', result)
         me.tablerows = result.data
         me.saving = false
       }).catch((err) => {
-        console.log("ERROR", err)
+        console.log('ERROR', err)
         me.saving = false
       })
     },
@@ -3558,7 +3589,28 @@ export default {
 
       for (var portname in this.portobjects) {
         if (port === undefined || exe) {
+          console.log('TRIGGER PORT:', portname)
+
+          this.obj.columns.forEach((column) => {
+            if (column.id === portname) {
+              column.loading = true
+              console.log('TRIGGER PORT LOADING:', column)
+            }
+          })
+          window.toolkit.surface.refresh()
+          this.$forceUpdate()
+
           this.triggerObject(portname)
+
+          setTimeout(() => {
+            this.obj.columns.forEach((column) => {
+              column.loading = false
+              console.log('TRIGGER PORT LOADING DONE:', column)
+            })
+            this.$forceUpdate()
+          }, 1000)
+
+          this.$forceUpdate()
         } else {
           if (portname === port) {
             exe = true
@@ -3703,7 +3755,7 @@ export default {
       /* Parse out named objects from editor */
       const re = /def (\w+)\s*\((.*?)\):/g
 
-      console.log("updateFunctions code", code)
+      console.log('updateFunctions code', code)
       var matches = code.matchAll(re)
 
       this.funcs = []
@@ -4109,7 +4161,7 @@ export default {
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
-
+      port.loading = '#fff'
       port.queue = 'None'
 
       console.log('Port:', port)
