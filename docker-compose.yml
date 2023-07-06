@@ -81,6 +81,21 @@ services:
     volumes:
       - influxdb_data:/var/lib/influxdb2
 
+  mindsdb:
+    image: mindsdb/mindsdb
+    container_name: mindsdb
+    environment:
+      - "MINDSDB_STORAGE_DIR=/root/data"
+    volumes:
+      - mindsdb:/root/data
+    links:
+      - postgresdb
+    depends_on:
+      - postgresdb
+    ports:
+      - "47334:47334"
+      - "47335:47335"
+
   processor:
     build:
       context: .
@@ -367,6 +382,7 @@ services:
       - 443:443
 
 volumes:
+  mindsdb:
   mongodb_data_container:
   pgdata:
   influxdb_data:

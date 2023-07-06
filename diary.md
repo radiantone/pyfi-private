@@ -1,5 +1,16 @@
+July 5, 2023
+
+## Inference Block
+- Maps to a MindsDB Project
+  - Created Once
+- Add new models to the block, which are part of the project
+- API interacts with MindsDB service/container for the block
+- Block reads current project, models from API
+- Adding a model to the block port to receive input
+- 
 July 4, 2023
 
+## Inference Block
 - create mindsdb database # points to real database too
    - list tables (lists in the target db or in mindsdb?)
 

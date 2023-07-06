@@ -44,7 +44,7 @@ pull: login
 
 .PHONY: up
 up:
-	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web pgadmin api influxdb
+	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web pgadmin api influxdb mindsdb
 
 .PHONY: stop
 stop:

@@ -449,54 +449,6 @@
             Add Model
           </q-tooltip>
         </div>
-        <div
-          class="text-secondary"
-          style="margin-right: 10px;"
-        >
-          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
-
-          <q-btn-dropdown
-            flat
-            content-class="text-dark bg-white "
-            dense
-            menu-self="top left"
-            dropdown-icon="las la-search"
-            color="secondary"
-            padding="0px"
-            size=".8em"
-            style="margin-right: 0px;"
-          >
-            <q-list
-              dense
-              v-for="func in funcs"
-              :key="func.name"
-            >
-              <q-item
-                clickable
-                v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')"
-              >
-                <q-item-section side>
-                  <q-icon name="las la-search" />
-                </q-item-section>
-                <q-item-section
-                  side
-                  class="text-blue-grey-8"
-                >
-                  {{ func.name }}
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Query
-          </q-tooltip>
-        </div>
 
         <div
           class="text-secondary"
@@ -553,7 +505,7 @@
             dense
             flat
             class="show-code text-secondary"
-            style="position: absolute; right: 140px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
             clickable
             v-close-popup
             @click="showPanel('middlewareview', !middlewareview)"
@@ -565,24 +517,6 @@
               content-class="bg-black text-white"
             >
               Middleware
-            </q-tooltip>
-          </q-btn>
-          <q-btn
-            size="xs"
-            icon="fas fa-search"
-            dense
-            flat
-            @click="showPanel('codeview', !codeview)"
-            class="show-code text-secondary"
-            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
-          >
-            <q-tooltip
-              anchor="top middle"
-              :offset="[-30, 40]"
-              content-style="font-size: 16px"
-              content-class="bg-black text-white"
-            >
-              Queries
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -1102,11 +1036,6 @@
       </q-card>
     </q-dialog>
 
-    <!-- Code dialog -->
-    <Console
-      v-if="pythonview && codeview"
-      :codewidth="codewidth"
-    />
 
     <q-card
       :style="
@@ -1257,115 +1186,6 @@
           color="primary"
         />
       </q-inner-loading>
-    </q-card>
-    <q-card
-      :style="
-        'width: ' +
-          codewidth +
-          'px;z-index: 999;display: block;position: absolute;right: -' +
-          (codewidth + 5) +
-          'px;top: 0px;'
-      "
-      v-if="codeview"
-    >
-      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
-        <editor
-          v-model="obj.code"
-          @init="editorInit"
-          style="font-size: 16px; min-height: 400px;"
-          lang="python"
-          theme="chrome"
-          ref="myEditor"
-          width="100%"
-          height="fit"
-        />
-      </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
-          flat
-          icon="far fa-arrow-alt-circle-left"
-          class="bg-primary text-white"
-          color="primary"
-          v-close-popup
-          @click="codewidth -= 100"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Shrink
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
-          flat
-          icon="far fa-arrow-alt-circle-right"
-          class="bg-accent text-dark"
-          color="primary"
-          v-close-popup
-          @click="codewidth += 100"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Expand
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
-          flat
-          icon="published_with_changes"
-          class="bg-primary text-secondary"
-          color="primary"
-          v-close-popup
-          @click="fetchCode"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Fetch Code
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
-          flat
-          icon="fas fa-home"
-          class="bg-secondary text-accent"
-          color="primary"
-          v-close-popup
-          @click="setZoomLevel"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Reset Zoom Level
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Close"
-          class="bg-secondary text-white"
-          color="primary"
-          v-close-popup
-          @click="codeview = false"
-        />
-      </q-card-actions>
     </q-card>
 
     <q-card
@@ -1788,6 +1608,7 @@
                   hint="Project Name"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                  :disable="projectExists"
                 />
 
                 <q-input
@@ -1858,10 +1679,11 @@
               <q-btn
                 style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
                 flat
-                label="Test"
+                label="Create"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="testConnection"
+                :disable="projectExists"
+                @click="createProject"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1869,7 +1691,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Test Connection
+                  Create Project
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -2625,6 +2447,20 @@
                 hint="Model Name"
               />
 
+              <q-select
+                dense
+                filled
+                :options-dense="true"
+                style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                v-model="modelDatabase"
+                :options="databaseList"
+                hint="Database"
+                option-value="name"
+                option-label="name"
+                value="string"
+                :menu-offset="[5, -9]"
+              />
+
               <q-input
                 filled
                 v-model="model.predict"
@@ -2660,6 +2496,7 @@
             label="Create"
             class="bg-secondary text-white"
             v-close-popup
+            :disable="!model.name || model.name.length === 0"
           />
         </q-card-actions>
       </q-card>
@@ -3097,6 +2934,9 @@ export default {
   },
   data () {
     return {
+      modelDatabase: '',
+      databaseList: ['mydatabase','database2'],
+      projectExists: false,
       newModelDialog: false,
       modelrows: [{
         name: 'model1',
@@ -3656,6 +3496,16 @@ export default {
     }
   },
   methods: {
+    createProject () {
+      var me = this
+      this.saving = true
+      DataService.createProject(this.obj.name, this.$store.state.designer.token).then((result) => {
+        me.saving = false
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+      })
+    },
     tableSelected () {
       console.log('TABLE SELECTED')
     },

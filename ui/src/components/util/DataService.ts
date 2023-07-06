@@ -35,6 +35,15 @@ class DataService {
     })
   }
 
+
+  createProject (name: string, token: string): Promise<any> {
+    return http.post('/api/minds/project', { name: name }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   createSchema (type: string, url: string, schema: string, token: string): Promise<any> {
     return http.post('/api/db/schema', { type: type, url: url, schema: schema }, {
       headers: {
