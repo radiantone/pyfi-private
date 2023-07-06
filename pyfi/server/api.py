@@ -1356,7 +1356,52 @@ def post_files(collection, path):
         return jsonify(status)
 
 
-@app.route("/db/rows/", methods=["POST"])
+@app.route("/minds/project", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_project():
+
+    data: Any = request.get_json()
+
+    print(data)
+
+
+@app.route("/minds/project", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_project():
+    pass
+
+
+@app.route("/minds/model", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_model():
+    pass
+
+
+@app.route("/minds/model", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_model():
+    pass
+
+
+@app.route("/minds/projects", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_projects():
+    pass
+
+
+@app.route("/minds/models", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_models():
+    pass
+
+
+@app.route("/db/rows", methods=["POST"])
 @cross_origin()
 @requires_auth
 def rows():
