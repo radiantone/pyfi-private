@@ -4,7 +4,7 @@ import http from 'src/http-common'
 
 class DataService {
   getRows (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
-    return http.post('/api/db/rows/', { viewtable: viewtable, database: database, url: url }, {
+    return http.post('/api/db/rows', { viewtable: viewtable, database: database, url: url }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -42,6 +42,10 @@ class DataService {
         Authorization: 'Bearer ' + token
       }
     })
+  }
+
+  getMock (): Promise<any> {
+    return http.get('/apitest/')
   }
 
   createSchema (type: string, url: string, schema: string, token: string): Promise<any> {
