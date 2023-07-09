@@ -283,7 +283,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         var me = this;
 
         (window as any).root.$off(id);
-        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
+        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any, portname: string) => {
           let obj = data
           this.id = id
 
@@ -310,9 +310,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
             const _ = (window as any).pyodide.runPython(includes)
 
-            // TODO: Replace "run" with middlewar function selected from config dropdown
+            // TODO: Replace "run" with middleware function selected from config dropdown
             const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
             console.log('CODE MIDDLEWARE', mcode)
+            this.$emit('middleware.started', {
+              portname:portname
+            })
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
               const jsonoutput = res.toJs()
@@ -322,6 +325,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 type: 'result',
                 id: id,
                 function: 'run',
+                portname: portname,
                 output: JSON.stringify(_result)
               })
             })
@@ -359,7 +363,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
                 this.$emit('middleware.complete', {
                   type: 'middleware',
-                  bytes: param_string.length
+                  bytes: param_string.length,
+                  portname: portname
                 })
               }
             }
@@ -458,6 +463,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   function: func,
                   arg: argument.toString().length,
                   duration: time,
+                  port: portname,
                   output: JSON.stringify(answer.result),
                   plugs: JSON.stringify(_plugs)
                 })
@@ -467,6 +473,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'error',
                   block: block,
                   call: call,
+                  port: portname,
                   function: func,
                   error: error.toString()
                 })
@@ -504,6 +511,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'result',
                   id: this.id,
                   function: func,
+                  port: portname,
                   arg: argument.toString(),
                   duration: time,
                   output: JSON.stringify(_result),
@@ -514,6 +522,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'result',
                   id: this.id,
                   function: func,
+                  port: portname,
                   finished: new Date(),
                   arg: argument.toString(),
                   duration: time,
@@ -526,6 +535,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'error',
                   id: me.id,
                   args: argdata,
+                  port: portname,
                   function: func,
                   error: error.toString()
                 })

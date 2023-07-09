@@ -2642,7 +2642,8 @@ export default {
 
     const avoid = ['icon', 'id']
     window.designer.$on('trigger.data', () => {
-      me.triggerExecute()
+      // In this case, the Run Flow button was pressed and
+      // Queries added to this database template should be fired
     })
     this.$on('call.completed', (call) => {
       // TODO: Refresh data tables
@@ -2661,10 +2662,59 @@ export default {
       me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
       // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
       me.bytes_in += bytes
+/*
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          if (column.loaders) {
+            column.loaders.pop()
+          }
+          if (column.loaders.length === 0) {
+            column.loading = false
+          }
+          // Trigger the port AFTER a result has been emitted
+          console.log('TRIGGER PORT LOADING:', column)
+          this.triggerObject(msg.portname, column, (_column) => {
+            console.log('TRIGGER PORT CALLBACK', _column)
+          })
+        }
+      })
+*/
+      this.$forceUpdate()
+    })
+
+    this.$on('middleware.started', (msg) => {
+      // When middleware has been started, show
+      // the spinner icon
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          column.loading = true
+
+          if (!column.loaders) {
+            column.loaders = []
+          }
+          column.loaders.push({})
+        }
+      })
+      setTimeout(me.$forceUpdate)
     })
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'result') {
+        this.obj.columns.forEach((column) => {
+          if (column.id === msg.portname) {
+            if (column.loaders) {
+              column.loaders.pop()
+            }
+            if (column.loaders.length === 0) {
+                column.loading = false
+            }
+            this.$forceUpdate()
+            // Trigger the port AFTER a result has been emitted
+            console.log('TRIGGER PORT LOADING:', column)
+            this.triggerObject(msg.portname, column, (_column) => {
+            })
+          }
+        })
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
@@ -3526,7 +3576,7 @@ export default {
     triggerQuery (portname) {
 
     },
-    triggerObject (portname) {
+    triggerObject (portname, column, callback) {
       var me = this
 
       console.log('TRIGGER ALL BEGIN')
@@ -3534,51 +3584,59 @@ export default {
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
 
-      const result = this.execute(this.obj.code + '\n\n' + objectname)
+      const result = this.execute(this.obj.code) // TODO: ?? + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
 
-      result.then((result) => {
-        const resultstr = result.toString()
-        console.log('DATA EDGE TEMPLATE RESULT', resultstr)
-        console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
-        _port.getEdges().forEach((edge) => {
-          console.log('DATA EDGE->NODE', edge, edge.target.getNode())
-          const options = edge.target.data
-          const target_id = edge.target.getNode().data.id
-          console.log('target node id', target_id)
-          const node = edge.target.getNode()
-          const code = node.data.code
+      result.then((_result) => {
+        if (_result) {
+          const resultstr = _result.toString()
+          console.log('DATA EDGE TEMPLATE RESULT', resultstr)
+          console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
 
-          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+          if (callback) {
+            setTimeout(callback(column))
+          }
+          _port.getEdges().forEach((edge) => {
+            console.log('DATA EDGE->NODE', edge, edge.target.getNode())
+            const options = edge.target.data
+            const target_id = edge.target.getNode().data.id
+            console.log('target node id', target_id)
+            const node = edge.target.getNode()
+            const code = node.data.code
 
-          const reslen = resultstr.length
-          tsdb.series('outBytes').insert(
-            {
-              bytes: reslen
-            },
-            new Date()
-          )
+            window.root.$emit(target_id, code, options.function, options.name, result, node.data, portname)
 
-          me.bytes_out_5min.unshift(reslen)
-          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          me.bytes_out += reslen
-          me.calls_out += 1
-          // send message to target_id with result, _port
-          // receiving node will realize this is an argument port and value
-          // and store the value internally until all the arguments for the function
-          // are present, then trigger the function with all the parameters
-        })
+            const reslen = resultstr.length
+            tsdb.series('outBytes').insert(
+              {
+                bytes: reslen
+              },
+              new Date()
+            )
 
+            me.bytes_out_5min.unshift(reslen)
+            // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+            me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+            // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+            me.bytes_out += reslen
+            me.calls_out += 1
+            // send message to target_id with result, _port
+            // receiving node will realize this is an argument port and value
+            // and store the value internally until all the arguments for the function
+            // are present, then trigger the function with all the parameters
+          })
+        }
         console.log('TRIGGER ALL COMPLETE')
         window.root.$emit('trigger.complete')
         // Trigger all the ports after me
         this.triggerExecute(portname)
       }, (error) => {
+        if (callback) {
+          setTimeout(() => { callback(column, error) })
+        }
         // TODO: Execute middleware error
-        console.log('TRIGGER ALL ERROR')
+        console.log('TRIGGER ALL ERROR', error)
         window.root.$emit('trigger.error')
       })
 
@@ -3589,28 +3647,7 @@ export default {
 
       for (var portname in this.portobjects) {
         if (port === undefined || exe) {
-          console.log('TRIGGER PORT:', portname)
-
-          this.obj.columns.forEach((column) => {
-            if (column.id === portname) {
-              column.loading = true
-              console.log('TRIGGER PORT LOADING:', column)
-            }
-          })
-          window.toolkit.surface.refresh()
-          this.$forceUpdate()
-
           this.triggerObject(portname)
-
-          setTimeout(() => {
-            this.obj.columns.forEach((column) => {
-              column.loading = false
-              console.log('TRIGGER PORT LOADING DONE:', column)
-            })
-            this.$forceUpdate()
-          }, 1000)
-
-          this.$forceUpdate()
         } else {
           if (portname === port) {
             exe = true

@@ -884,7 +884,6 @@ def db_submit():
     table = data["database"]["table"]
     rows = data["data"]
 
-    dbname = urlparse(dburl).hostname
     engine = sqlalchemy.create_engine(dburl)
 
     df = json_normalize(rows)
