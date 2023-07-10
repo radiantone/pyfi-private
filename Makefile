@@ -118,6 +118,9 @@ push:
 	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:production
 
+	docker tag postgres:14 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
+	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
+
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
 
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:production
