@@ -1145,6 +1145,7 @@
             :data="tablerows"
             :columns="viewcols"
             row-key="id"
+            :rows-per-page-options="[15]"
             style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
           />
         </div>
