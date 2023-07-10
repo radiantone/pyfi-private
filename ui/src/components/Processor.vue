@@ -325,6 +325,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 type: 'result',
                 id: id,
                 function: 'run',
+                obj: obj,
                 portname: portname,
                 output: JSON.stringify(_result)
               })
