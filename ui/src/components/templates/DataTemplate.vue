@@ -3000,7 +3000,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data.code
-          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+          window.root.$emit(target_id, code, options.function, options.name, result, node.data, edge.target.id)
 
           const reslen = resultstr.length
           tsdb.series('outBytes').insert(

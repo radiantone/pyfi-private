@@ -4350,7 +4350,7 @@ export default {
         const code = node.data.code
 
         // TODO: Insert block JSON here
-        window.root.$emit(target_id, code, options.function, options.name, error, this.obj)
+        window.root.$emit(target_id, code, options.function, options.name, error, this.obj, edge.target.id)
       })
     },
     triggerRoute (portid, result, plugs) {

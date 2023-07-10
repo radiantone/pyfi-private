@@ -806,6 +806,12 @@
             round
             v-if="column.type === 'Output'"
           />
+          <i
+            class="spinload"
+            v-if="column.loading"
+            style="font-size:1.3em;margin-right:3px"
+          />
+
           <q-btn
             icon="fa fa-cog"
             size="xs"
@@ -1118,7 +1124,6 @@
       "
       v-if="tableview"
     >
-
       <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
         <q-select
           dense
@@ -2193,8 +2198,8 @@
 
     <q-card
       :style="'width: '+middlewarewidth+'px; height: 465px; z-index: 999; display: block; position: absolute; right: -' +
-          (middlewarewidth + 5) +
-          'px; top: 0px;'"
+        (middlewarewidth + 5) +
+        'px; top: 0px;'"
       v-if="middlewareview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2464,6 +2469,27 @@
   </div>
 </template>
 <style scoped>
+
+.spinload {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #abbcc3;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    }
+
 .q-expansion-item__container > .q-item {
   padding-left: 0px !important;
   padding-right: 0px !important;
@@ -2516,7 +2542,7 @@ import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
-
+import { ref } from 'vue'
 import { TSDB } from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
@@ -2556,6 +2582,11 @@ export default {
   name: 'DatabaseTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
+  setup () {
+    // expose to template and other options API hooks
+    return {
+    }
+  },
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -2611,7 +2642,8 @@ export default {
 
     const avoid = ['icon', 'id']
     window.designer.$on('trigger.data', () => {
-      me.triggerExecute()
+      // In this case, the Run Flow button was pressed and
+      // Queries added to this database template should be fired
     })
     this.$on('call.completed', (call) => {
       // TODO: Refresh data tables
@@ -2623,17 +2655,66 @@ export default {
     })
     this.$on('middleware.complete', (msg) => {
       console.log('DATABASE TEMPLATE: ', msg)
-      let bytes = msg.bytes
+      const bytes = msg.bytes
       me.calls_in += 1
       me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
       // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
       me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
       // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
       me.bytes_in += bytes
+/*
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          if (column.loaders) {
+            column.loaders.pop()
+          }
+          if (column.loaders.length === 0) {
+            column.loading = false
+          }
+          // Trigger the port AFTER a result has been emitted
+          console.log('TRIGGER PORT LOADING:', column)
+          this.triggerObject(msg.portname, column, (_column) => {
+            console.log('TRIGGER PORT CALLBACK', _column)
+          })
+        }
+      })
+*/
+      this.$forceUpdate()
+    })
+
+    this.$on('middleware.started', (msg) => {
+      // When middleware has been started, show
+      // the spinner icon
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          column.loading = true
+
+          if (!column.loaders) {
+            column.loaders = []
+          }
+          column.loaders.push({})
+        }
+      })
+      setTimeout(me.$forceUpdate)
     })
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'result') {
+        this.obj.columns.forEach((column) => {
+          if (column.id === msg.portname) {
+            if (column.loaders) {
+              column.loaders.pop()
+            }
+            if (column.loaders.length === 0) {
+                column.loading = false
+            }
+            this.$forceUpdate()
+            // Trigger the port AFTER a result has been emitted
+            console.log('TRIGGER PORT LOADING:', column)
+            this.triggerObject(msg.portname, column, msg.obj,(_column) => {
+            })
+          }
+        })
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
@@ -2770,8 +2851,8 @@ export default {
   computed: {
     getfuncs () {
       this.updateFunctions(this.obj.middleware)
-      console.log("GETFUNCS",this.funcs)
-      return this.funcs.map(a => a.name);
+      console.log('GETFUNCS', this.funcs)
+      return this.funcs.map(a => a.name)
     },
     viewtable: {
       get: function () {
@@ -3416,17 +3497,17 @@ export default {
   },
   methods: {
     tableSelected () {
-      console.log("TABLE SELECTED")
+      console.log('TABLE SELECTED')
     },
     refreshTables () {
       var me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
-        console.log("DataService.getRows", result)
+        console.log('DataService.getRows', result)
         me.tablerows = result.data
         me.saving = false
       }).catch((err) => {
-        console.log("ERROR", err)
+        console.log('ERROR', err)
         me.saving = false
       })
     },
@@ -3495,76 +3576,69 @@ export default {
     triggerQuery (portname) {
 
     },
-    triggerObject (portname) {
+    triggerObject (portname, column, result, callback) {
       var me = this
 
       console.log('TRIGGER ALL BEGIN')
       window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+      let resultstr = JSON.stringify(result)
 
-      const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+      _port.getEdges().forEach((edge) => {
+        console.log('DATA EDGE->NODE', edge, edge.target.getNode())
+        const options = edge.target.data
+        const target_id = edge.target.getNode().data.id
+        console.log('myid, target node id', me.obj.id, target_id)
+        if (me.obj.id === target_id) {
+          return
+        }
+        const node = edge.target.getNode()
+        const code = node.data.code
 
-      result.then((result) => {
-        const resultstr = result.toString()
-        console.log('DATA EDGE TEMPLATE RESULT', resultstr)
-        console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
-        _port.getEdges().forEach((edge) => {
-          console.log('DATA EDGE->NODE', edge, edge.target.getNode())
-          const options = edge.target.data
-          const target_id = edge.target.getNode().data.id
-          console.log('target node id', target_id)
-          const node = edge.target.getNode()
-          const code = node.data.code
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data, portname)
 
-          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+        const reslen = resultstr.length
+        tsdb.series('outBytes').insert(
+          {
+            bytes: reslen
+          },
+          new Date()
+        )
 
-          const reslen = resultstr.length
-          tsdb.series('outBytes').insert(
-            {
-              bytes: reslen
-            },
-            new Date()
-          )
-
-          me.bytes_out_5min.unshift(reslen)
-          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          me.bytes_out += reslen
-          me.calls_out += 1
-          // send message to target_id with result, _port
-          // receiving node will realize this is an argument port and value
-          // and store the value internally until all the arguments for the function
-          // are present, then trigger the function with all the parameters
-        })
-
-        console.log('TRIGGER ALL COMPLETE')
-        window.root.$emit('trigger.complete')
-        // Trigger all the ports after me
-        this.triggerExecute(portname)
-      }, (error) => {
-        // TODO: Execute middleware error
-        console.log('TRIGGER ALL ERROR')
-        window.root.$emit('trigger.error')
+        me.bytes_out_5min.unshift(reslen)
+        // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+        // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+        me.bytes_out += reslen
+        me.calls_out += 1
+        // send message to target_id with result, _port
+        // receiving node will realize this is an argument port and value
+        // and store the value internally until all the arguments for the function
+        // are present, then trigger the function with all the parameters
       })
+      console.log('TRIGGER ALL COMPLETE')
+      window.root.$emit('trigger.complete')
+      // Trigger all the ports after me
+      //this.triggerExecute(portname, column, result, callback)
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute (port) {
+    triggerExecute (port, column, result, callback) {
+      /*
       let exe = false
 
       for (var portname in this.portobjects) {
         if (port === undefined || exe) {
-          this.triggerObject(portname)
+          this.triggerObject(portname, column, result, callback)
         } else {
           if (portname === port) {
             exe = true
           }
         }
-      }
+      }*/
     },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
@@ -3703,7 +3777,7 @@ export default {
       /* Parse out named objects from editor */
       const re = /def (\w+)\s*\((.*?)\):/g
 
-      console.log("updateFunctions code", code)
+      console.log('updateFunctions code', code)
       var matches = code.matchAll(re)
 
       this.funcs = []
@@ -4109,7 +4183,7 @@ export default {
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
-
+      port.loading = '#fff'
       port.queue = 'None'
 
       console.log('Port:', port)
