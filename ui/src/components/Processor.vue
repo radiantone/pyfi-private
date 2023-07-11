@@ -1,5 +1,5 @@
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { Wrapper } from '../util'
@@ -303,7 +303,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           // TODO: This needs to be controlled by the block and the middleware, not heres
           const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
 
-          let param_string = JSON.stringify(param)
+          const param_string = JSON.stringify(param)
 
           if (me.usemiddleware) {
             console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
@@ -326,6 +326,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                 id: id,
                 function: 'run',
                 obj: obj,
+                param: param,
                 portname: portname,
                 output: JSON.stringify(_result)
               })
