@@ -498,7 +498,7 @@
             Add Trigger
           </q-tooltip>
         </div>
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="las la-exchange-alt"
@@ -1189,7 +1189,7 @@
     </q-card>
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="requirementsview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1364,7 +1364,7 @@
     </q-card>
 
     <q-card
-      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
+      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
@@ -1384,7 +1384,7 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; height:580px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height:580px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
@@ -1810,7 +1810,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="environmentview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1896,7 +1896,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="scalingview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2017,7 +2017,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="consoleview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
@@ -2090,7 +2090,7 @@
       :style="'width:200px;height:300px;z-index:9999;position:absolute;top:' + cardY + 'px;left:' + cardX + 'px'"
     />
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="notesview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2210,7 +2210,7 @@
       </q-card-actions>
     </q-card>
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="securityview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2275,7 +2275,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="logsview"
     >
       <q-tabs
@@ -2363,7 +2363,7 @@
 
     <!-- Chart dialog -->
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="dataview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2551,7 +2551,8 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
@@ -2625,7 +2626,7 @@ export default {
     }
   },
   created () {
-    var me = this
+    const me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
@@ -2684,7 +2685,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (var key in me.obj) {
+            for (let key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2712,7 +2713,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        var bytes = JSON.stringify(msg).length
+        let bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2845,7 +2846,7 @@ export default {
       }
     },
     myhistory () {
-      var me = this
+      const me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -2881,7 +2882,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
 
     console.log('setId ', this.obj.id)
     this.setId(this.obj.id)
@@ -3497,7 +3498,7 @@ export default {
   },
   methods: {
     createProject () {
-      var me = this
+      const me = this
       this.saving = true
       DataService.createProject(this.obj.name, this.$store.state.designer.token).then((result) => {
         me.saving = false
@@ -3510,7 +3511,7 @@ export default {
       console.log('TABLE SELECTED')
     },
     refreshTables () {
-      var me = this
+      const me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log('DataService.getRows', result)
@@ -3522,13 +3523,13 @@ export default {
       })
     },
     pullSchema () {
-      var me = this
+      const me = this
       this.saving = true
       this.saving = false
 
     },
     testConnection () {
-      var me = this
+      const me = this
       this.saving = true
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Connection Success!'
@@ -3539,7 +3540,7 @@ export default {
       })
     },
     createSchema () {
-      var me = this
+      const me = this
       this.saving = true
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
@@ -3560,7 +3561,7 @@ export default {
       this.argobjects
     },
     updatePorts () {
-      var me = this
+      const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
 
@@ -3575,7 +3576,7 @@ export default {
 
     },
     triggerObject (portname) {
-      var me = this
+      const me = this
 
       console.log('TRIGGER ALL BEGIN')
       window.root.$emit('trigger.begin')
@@ -3646,21 +3647,21 @@ export default {
       }
     },
     updateBandwidthChart () {
-      var outBytes = tsdb.series('outBytes').query({
+      let outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      var inBytes = tsdb.series('inBytes').query({
+      let inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      var durations = tsdb.series('durations').query({
+      let durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3700,7 +3701,7 @@ export default {
       })
     },
     doLogin () {
-      var me = this
+      const me = this
 
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
@@ -3721,7 +3722,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      var node = this.toolkit.getNode(this.obj)
+      let node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3731,7 +3732,7 @@ export default {
       })
     },
     centerOnNode () {
-      var node = this.toolkit.getNode(this.obj)
+      let node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3783,7 +3784,7 @@ export default {
       const re = /def (\w+)\s*\((.*?)\):/g
 
       console.log('updateFunctions code', code)
-      var matches = code.matchAll(re)
+      let matches = code.matchAll(re)
 
       this.funcs = []
 
@@ -3793,7 +3794,7 @@ export default {
       }
     },
     fetchCode () {
-      var me = this
+      const me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
@@ -3822,7 +3823,7 @@ export default {
       console.log('COPY NODE')
 
       function findMatch (list, obj) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
             return true
@@ -3832,7 +3833,7 @@ export default {
       }
 
       function findEdge (list, edge) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
             return true
@@ -3842,9 +3843,9 @@ export default {
       }
 
       function haveAllNodes (nodes, edge) {
-        var source = false
-        var target = false
-        for (var i = 0; i < nodes.length; i++) {
+        let source = false
+        let target = false
+        for (let i = 0; i < nodes.length; i++) {
           var node = nodes[i]
           if (edge.source.split('.')[0] === node.id) source = true
           if (edge.target.split('.')[0] === node.id) target = true
@@ -3867,19 +3868,19 @@ export default {
       jsonData.nodes = []
       jsonData.edges = []
       jsonData.ports = []
-      for (var i = 0; i < data.nodes.length; i++) {
+      for (let i = 0; i < data.nodes.length; i++) {
         const n = data.nodes[i]
         if (findMatch(nodes, n)) {
           jsonData.nodes.push(n)
         }
       }
-      for (var i = 0; i < data.edges.length; i++) {
+      for (let i = 0; i < data.edges.length; i++) {
         const e = data.edges[i]
         if (haveAllNodes(jsonData.nodes, e)) {
           jsonData.edges.push(e)
         }
       }
-      for (var i = 0; i < jsonData.nodes.length; i++) {
+      for (let i = 0; i < jsonData.nodes.length; i++) {
         const node = jsonData.nodes[i]
         for (var p = 0; p < data.ports.length; p++) {
           var port = data.ports[p]
@@ -3891,7 +3892,7 @@ export default {
 
       window.clipboard = jsonData
       var nodes = []
-      for (var i = 0; i < window.clipboard.nodes.length; i++) {
+      for (let i = 0; i < window.clipboard.nodes.length; i++) {
         nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
       }
       window.nodes = nodes
@@ -3902,7 +3903,7 @@ export default {
       this.editPort = false
     },
     saveProcessor () {
-      var me = this
+      const me = this
 
       this.refreshing = true
 
@@ -3993,7 +3994,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        var node = this.toolkit.getNode(this.obj)
+        let node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -4041,7 +4042,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     reqEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4056,7 +4057,7 @@ export default {
       })
     },
     middlewareEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4072,7 +4073,7 @@ export default {
       })
     },
     notesEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4087,7 +4088,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4102,7 +4103,7 @@ export default {
       })
     },
     editorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4144,8 +4145,8 @@ export default {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i]
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        let col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -4156,7 +4157,7 @@ export default {
 
       var edges = window.toolkit.getAllEdges()
 
-      for (var i = 0; i < edges.length; i++) {
+      for (let i = 0; i < edges.length; i++) {
         console.log(edge)
         const edge = edges[i]
         console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column)
@@ -4204,7 +4205,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        var schemas = []
+        let schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {

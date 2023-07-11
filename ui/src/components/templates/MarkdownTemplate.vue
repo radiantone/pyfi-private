@@ -58,7 +58,7 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
         :step="10"
         :min="400"
         :max="3000"
-        style="z-index:99999;height: 100%; position: absolute; right: 0px; top: 0px;"
+        style="z-index:99999;height: 100%; position: absolute; right: 0px; top: 0;"
       />
     </div>
     <div
@@ -186,6 +186,8 @@ box-shadow: 10px 9px 5px -6px rgba(0,0,0,0.21);padding:10px;border: black 1px so
 <style src="@quasar/quasar-ui-qmarkdown/dist/index.css"></style>
 
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { v4 as uuidv4 } from 'uuid'
 
 import { QMarkdown } from '@quasar/quasar-ui-qmarkdown'
@@ -206,7 +208,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
     this.toolkit = window.toolkit
   },
   created () {
@@ -262,7 +264,7 @@ This is a **test** of markdown
       this.showEditor = false
     },
     savePattern () {
-      var me = this
+      const me = this
       this.savePatternDialog = false
       var el = document.getElementById(this.obj.id + 'inner')
       this.showing = true
@@ -331,7 +333,7 @@ This is a **test** of markdown
     },
     resize: function () {},
     groupSettings: function () {
-      var me = this
+      const me = this
       console.log('new.group.dialog', this.obj)
       this.$root.$emit('new.group.dialog', {
         obj: this.obj,

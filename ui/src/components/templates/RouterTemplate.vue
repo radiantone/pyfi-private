@@ -408,7 +408,7 @@
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -1520,7 +1520,7 @@
               <q-tab-panel
                 name="lambda"
                 v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
@@ -1545,7 +1545,7 @@
               <q-tab-panel
                 name="database"
                 v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
@@ -2319,6 +2319,8 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
 import { v4 as uuidv4 } from 'uuid';
 import Vuetify from 'vuetify';
@@ -2353,7 +2355,7 @@ export default {
     },
   },
   created() {
-    var me = this;
+    const me = this;
 
     this.lambdaIcon = mdiLambda;
     console.log('me.tooltips ', me.tooltips);
@@ -2373,7 +2375,7 @@ export default {
       }
       if (msg['channel'] === 'task' && msg['state']) {
         //console.log('MESSAGE STATUS received', msg);
-        var bytes = JSON.stringify(msg).length;
+        let bytes = JSON.stringify(msg).length;
 
         tsdb.series('inBytes').insert(
           {
@@ -2489,7 +2491,7 @@ export default {
     },
   },
   mounted() {
-    var me = this;
+    const me = this;
     console.log('MOUNTED STORE', this.$store);
     console.log('BYTES_IN', this['bytes_in']);
 
@@ -3255,7 +3257,7 @@ export default {
     onSubmit() {},
     onReset() {},
     refreshWorkers() {
-      var me = this;
+      const me = this;
       this.workersLoading = true;
       setTimeout(() => {
         me.workersLoading = false;
@@ -3265,7 +3267,7 @@ export default {
       this.login = true;
     },
     refreshProcessor() {
-      var me = this;
+      const me = this;
       this.refreshing = true;
       setTimeout(() => {
         me.refreshing = false;
@@ -3280,7 +3282,7 @@ export default {
       }
     },
     workerviewSetup() {
-      var me = this;
+      const me = this;
       setTimeout(() => {
         me.workersLoading = false;
       }, 2000);
@@ -3306,7 +3308,7 @@ export default {
       if (show) {
         //window.toolkit.surface.setZoom(1.0);
 
-        var node = this.toolkit.getNode(this.obj);
+        let node = this.toolkit.getNode(this.obj);
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
@@ -3337,7 +3339,7 @@ export default {
       });
     },
     editorInit: function () {
-      var me = this;
+      const me = this;
 
       require('brace/ext/language_tools'); // language extension prerequsite...
       require('brace/mode/html');
@@ -3378,8 +3380,8 @@ export default {
     removeColumn(column) {
       console.log('Removing column: ', column);
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i];
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        let col = this.obj.columns[i];
         console.log(col);
         if (col.id === column) {
           console.log('Deleted column');
@@ -3390,7 +3392,7 @@ export default {
 
       var edges = window.toolkit.getAllEdges();
 
-      for (var i = 0; i < edges.length; i++) {
+      for (let i = 0; i < edges.length; i++) {
         console.log(edge);
         const edge = edges[i];
         console.log(

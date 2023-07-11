@@ -147,6 +147,8 @@
 <style src="@quasar/quasar-ui-qmarkdown/dist/index.css"></style>
 
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { v4 as uuidv4 } from 'uuid'
 
 import { QMarkdown } from '@quasar/quasar-ui-qmarkdown'
@@ -167,7 +169,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
     this.toolkit = window.toolkit
   },
   created () {
