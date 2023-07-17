@@ -88,6 +88,7 @@ services:
       - "MINDSDB_STORAGE_DIR=/root/data"
     volumes:
       - mindsdb:/root/data
+      - ./elasticdb.db:/root/elasticdb.db
     links:
       - postgresdb
     depends_on:
@@ -118,6 +119,7 @@ services:
       - "AUTH0_DOMAIN=elasticcode-local.us.auth0.com"
       - "API_AUDIENCE=http://localhost:8000/"
       - "API_HOST=localhost:8000/"
+      - "MINDSDB_SERVER=http://mindsdb:47334"
     ports:
       - 8000:8003
     profiles:
