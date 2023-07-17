@@ -11,7 +11,10 @@ from base64 import b64decode, b64encode
 import chargebee
 import requests
 from flasgger import Swagger
+import mindsdb_sdk
 
+# connects to the specified host and port
+server = mindsdb_sdk.connect(os.environ['MINDSDB_SERVER'])
 # from .chatgpt import configure
 
 # configure()
@@ -875,7 +878,6 @@ def get_pattern(pid):
 @requires_auth
 def db_submit():
     import warnings
-    from urllib.parse import urlparse
 
     import sqlalchemy
     from pandas import json_normalize
@@ -1358,14 +1360,137 @@ def post_files(collection, path):
         return jsonify(status)
 
 
-@app.route("/minds/project", methods=["POST"])
+@app.route("/minds/database", methods=["POST"])
 @cross_origin()
 @requires_auth
-def create_project():
+def create_database():
 
     data: Any = request.get_json()
 
     print(data)
+
+
+@app.route("/minds/database", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_database():
+    pass
+
+
+@app.route("/minds/projects", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_projects():
+    projects = server.list_projects()
+
+    return jsonify(projects)
+
+
+@app.route("/minds/<project>/models", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_models(project):
+    project = server.get_project(project)
+
+    return jsonify(project.list_models())
+
+
+@app.route("/minds/<project>/<model>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.get_model(model))
+
+
+@app.route("/minds/<project>/<model>/status", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_status(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.get_status())
+
+
+@app.route("/minds/<project>/<model>/info", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_info(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.describe())
+
+
+@app.route("/minds/<project>/<model>/refresh", methods=["POST"])
+@cross_origin()
+@requires_auth
+def refresh_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.refresh())
+
+
+@app.route("/minds/<project>/<model>/retrain", methods=["POST"])
+@cross_origin()
+@requires_auth
+def retrain_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.retrain())
+
+
+@app.route("/minds/<project>/<model>", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.drop_model(model))
+
+
+@app.route("/minds/databases", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_databases():
+
+    databases = server.list_databases()
+
+    return jsonify(databases)
+
+@app.route("/minds/project", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_project():
+    from urllib.parse import urlparse
+
+    data: Any = request.get_json()
+    # data.block.id should be bound to data.project.name
+    # which are both bound to the newly created project(id)
+    # in minds db. If they differ return an error
+    # Renaming the block in the UI is not allowed once a project
+    # is created (unless mindsdb also allows projects to be renamed
+    database = data['database']
+    if database == "SQLite":
+        print(urlparse(data['connection']).path.split("/"))
+        dbname = urlparse(data['connection']).path.split("/")[1]
+        mdb = server.create_database(
+            engine="sqlite",
+            name=data['name'],
+            connection_args={
+                "db_file": "/root/"+dbname
+            }
+        )
+        print(mdb)
+    return jsonify({"status": "ok", "project": data})
 
 
 @app.route("/minds/project", methods=["DELETE"])
@@ -1379,27 +1504,6 @@ def delete_project():
 @cross_origin()
 @requires_auth
 def create_model():
-    pass
-
-
-@app.route("/minds/model", methods=["DELETE"])
-@cross_origin()
-@requires_auth
-def delete_model():
-    pass
-
-
-@app.route("/minds/projects", methods=["GET"])
-@cross_origin()
-@requires_auth
-def list_projects():
-    pass
-
-
-@app.route("/minds/models", methods=["GET"])
-@cross_origin()
-@requires_auth
-def list_models():
     pass
 
 
