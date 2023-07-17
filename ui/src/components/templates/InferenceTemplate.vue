@@ -1384,11 +1384,11 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; height:580px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
+      style="width: 850px; height:580px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
-        {{ schemaResult }}
+        {{ projectResult }}
       </q-item-label>
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
         <q-tabs
@@ -1409,9 +1409,24 @@
             name="schemaconfig"
             label="Schema"
           />-->
+
+          <q-tab
+            name="tablesconfig"
+            label="Tables"
+          />
           <q-tab
             name="modelsconfig"
             label="Models"
+          />
+
+          <q-tab
+            name="jobsconfig"
+            label="Jobs"
+          />
+
+          <q-tab
+            name="viewsconfig"
+            label="Views"
           />
           <q-tab
             name="containersettings"
@@ -1454,7 +1469,7 @@
                 label="Create"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="createSchema"
+                @click="createMindsDatabase"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1462,7 +1477,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Create Schema
+                  Create Database
                 </q-tooltip>
               </q-btn>
               <q-btn
@@ -1587,6 +1602,227 @@
             </q-card-actions>
           </q-tab-panel>
 
+          <q-tab-panel
+            ref="jobsconfig"
+            name="jobsconfig"
+            style="padding: 0px;height:480px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+
+          <q-tab-panel
+            ref="viewsconfig"
+            name="viewsconfig"
+            style="padding: 0px;height:480px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
           <q-tab-panel
             ref="settings"
             name="settings"
@@ -2972,7 +3208,7 @@ export default {
         }
       ],
       fetchDisabled: true,
-      schemaResult: 'Ready',
+      projectResult: 'No project',
       viewcols: [],
       tables: [],
       table: '',
@@ -3500,11 +3736,14 @@ export default {
     createProject () {
       const me = this
       this.saving = true
-      DataService.createProject(this.obj.name, this.$store.state.designer.token).then((result) => {
+      DataService.createProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
         me.saving = false
+        me.projectResult = "Project Created Successfully"
+        me.projectExists = true
       }).catch((err) => {
         console.log('ERROR', err)
         me.saving = false
+        me.projectResult = "Project Creation Error"
       })
     },
     tableSelected () {
@@ -3528,27 +3767,9 @@ export default {
       this.saving = false
 
     },
-    testConnection () {
-      const me = this
+    createMindsDatabase () {
       this.saving = true
-      DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
-        me.schemaResult = 'Connection Success!'
-        me.saving = false
-      }).catch(() => {
-        me.schemaResult = 'Connection Error!'
-        me.saving = false
-      })
-    },
-    createSchema () {
-      const me = this
-      this.saving = true
-      DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
-        me.schemaResult = 'Create Schema succeeded'
-        me.saving = false
-      }).catch(() => {
-        me.schemaResult = 'Create Schema failure'
-        me.saving = false
-      })
+      DataService.createMindsDatabase()
     },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
