@@ -54,6 +54,8 @@
 </template>
 <style></style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -87,7 +89,7 @@ export default {
   mounted () {
     // set the dimensions and margins of the graph
     this.update()
-    var me = this
+    const me = this
 
     /*
     setTimeout(() => {
@@ -156,7 +158,7 @@ export default {
       return el.getAttribute('data-x') - this.obj.x - 20
     },
     update () {
-      var me = this
+      const me = this
 
       setTimeout(() => {
         const width = 400

@@ -36,8 +36,8 @@ class DataService {
   }
 
 
-  createProject (name: string, token: string): Promise<any> {
-    return http.post('/api/minds/project', { name: name }, {
+  createProject (name: string, database: string, connection: string, token: string): Promise<any> {
+    return http.post('/api/minds/project', { name: name, database: database, connection: connection }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -187,6 +187,15 @@ class DataService {
       }
     })
   }
+
+  createMindsDatabase (database: any, token: string): Promise<any> {
+    return http.post('/api/minds/database' + database.name, database, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
 
   saveProcessor (processor: any, token: string): Promise<any> {
     return http.post('/api/processor/' + processor.name, processor, {

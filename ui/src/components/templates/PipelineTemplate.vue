@@ -408,7 +408,7 @@
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -1520,7 +1520,7 @@
               <q-tab-panel
                 name="lambda"
                 v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
@@ -1545,7 +1545,7 @@
               <q-tab-panel
                 name="database"
                 v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
                 <div class="q-pa-md" style="max-width: 100%;">
                   <q-form
@@ -2314,6 +2314,7 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
 import ScriptTemplate from 'components/templates/ProcessorTemplate';
 

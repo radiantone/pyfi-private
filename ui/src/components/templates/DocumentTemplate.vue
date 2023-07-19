@@ -93,6 +93,8 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -103,7 +105,7 @@ export default {
     editor: require('vue2-ace-editor')
   },
   created() {
-    var me = this;
+    const me = this;
     console.log('me.tooltips ', me.tooltips);
     console.log('start listening for show.tooltips');
     window.root.$on('show.tooltips', (value) => {
@@ -234,7 +236,7 @@ export default {
       this.initialValue = initialValue;
     },
     editorInit: function () {
-      var me = this;
+      const me = this;
 
       require('brace/ext/language_tools'); // language extension prerequsite...
       require('brace/mode/html');
@@ -275,8 +277,8 @@ export default {
     removeColumn(column) {
       console.log('Removing column: ', column);
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i];
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        let col = this.obj.columns[i];
         console.log(col);
         if (col.id === column) {
           console.log('Deleted column');
@@ -287,7 +289,7 @@ export default {
 
       var edges = window.toolkit.getAllEdges();
 
-      for (var i = 0; i < edges.length; i++) {
+      for (let i = 0; i < edges.length; i++) {
         console.log(edge);
         const edge = edges[i];
         console.log(
@@ -347,7 +349,7 @@ export default {
       this.error = true;
     },
     showNewSpeechDialog() {
-      var me = this;
+      const me = this;
       this.$refs.speechDialog.showDialog(
         {
           name: 'Test',
@@ -369,7 +371,7 @@ export default {
       );
     },
     showEditSpeechDialog(data) {
-      var me = this;
+      const me = this;
       this.$refs.speechDialog.showDialog(data, 'Edit', function (obj) {
         me.addPort(obj);
       });

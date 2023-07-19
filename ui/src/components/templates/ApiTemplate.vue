@@ -490,7 +490,7 @@
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -1172,7 +1172,7 @@
     </q-card>
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="requirementsview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1205,7 +1205,7 @@
     </q-card>
 
     <q-card
-      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
+      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
@@ -1225,7 +1225,7 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="configview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
@@ -1405,7 +1405,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="environmentview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1547,7 +1547,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="consoleview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
@@ -1639,7 +1639,7 @@
       :style="'width:200px;height:300px;z-index:9999;position:absolute;top:' + cardY + 'px;left:' + cardX + 'px'"
     />
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="notesview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1669,7 +1669,7 @@
       </q-card-actions>
     </q-card>
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="logsview"
     >
       <q-tabs
@@ -1757,7 +1757,7 @@
 
     <!-- Chart dialog -->
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="dataview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2004,6 +2004,7 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
 import { TSDB } from 'uts'
 import SwaggerParser from '@apidevtools/swagger-parser'
@@ -2033,7 +2034,7 @@ export default {
   methods: {
 
     async generateClient () {
-      var me = this
+      const me = this
 
       var code = ''
       const get = async () => {
