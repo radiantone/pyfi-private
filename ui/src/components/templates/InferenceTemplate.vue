@@ -1442,34 +1442,96 @@
           v-model="tab"
           keep-alive
         >
+
           <q-tab-panel
-            ref="schemaconfig"
-            name="schemaconfig"
+            ref="tablesconfig"
+            name="tablesconfig"
             style="padding: 0px;height:480px"
           >
             <div
               class="q-pa-md"
               style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
             >
-              <editor
-                v-model="obj.schema"
-                @init="schemaEditorInit"
-                style="font-size: 1.5em; min-height: 420px;"
-                lang="sql"
-                theme="chrome"
-                ref="schemaEditor"
-                width="100%"
-                height="100%"
-              />
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
             </div>
+
             <q-card-actions align="left">
               <q-btn
                 style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
                 flat
-                label="Create"
+                label="New"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="createMindsDatabase"
+                @click="newModelDialog = true"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1477,16 +1539,17 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Create Database
+                  New Model
                 </q-tooltip>
               </q-btn>
+            </q-card-actions>
+            <q-card-actions align="right">
               <q-btn
-                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
                 flat
-                label="Pull"
-                class="bg-primary text-dark"
+                icon="las la-recycle"
+                class="bg-accent text-dark"
                 color="dark"
-                @click="pullSchema"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1494,7 +1557,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Pull Schema
+                  Refresh List
                 </q-tooltip>
               </q-btn>
             </q-card-actions>

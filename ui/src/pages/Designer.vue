@@ -3853,7 +3853,37 @@ export default {
             component: SpreadsheetTemplate
           },
           database: {
-            component: DatabaseTemplate
+            component: DatabaseTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           queue: {
             component: QueueTemplate
@@ -4048,10 +4078,70 @@ export default {
             component: LoopTemplate
           },
           data: {
-            component: DataTemplate
+            component: DataTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           schema: {
-            component: SchemaTemplate
+            component: SchemaTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           router: {
             component: RouterTemplate,
