@@ -9,12 +9,12 @@ import platform
 from base64 import b64decode, b64encode
 
 import chargebee
+import mindsdb_sdk
 import requests
 from flasgger import Swagger
-import mindsdb_sdk
 
 # connects to the specified host and port
-server = mindsdb_sdk.connect(os.environ['MINDSDB_SERVER'])
+server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
 # from .chatgpt import configure
 
 # configure()
@@ -1466,6 +1466,7 @@ def list_databases():
 
     return jsonify(databases)
 
+
 @app.route("/minds/project", methods=["POST"])
 @cross_origin()
 @requires_auth
@@ -1478,16 +1479,14 @@ def create_project():
     # in minds db. If they differ return an error
     # Renaming the block in the UI is not allowed once a project
     # is created (unless mindsdb also allows projects to be renamed
-    database = data['database']
+    database = data["database"]
     if database == "SQLite":
-        print(urlparse(data['connection']).path.split("/"))
-        dbname = urlparse(data['connection']).path.split("/")[1]
+        print(urlparse(data["connection"]).path.split("/"))
+        dbname = urlparse(data["connection"]).path.split("/")[1]
         mdb = server.create_database(
             engine="sqlite",
-            name=data['name'],
-            connection_args={
-                "db_file": "/root/"+dbname
-            }
+            name=data["name"],
+            connection_args={"db_file": "/root/" + dbname},
         )
         print(mdb)
     return jsonify({"status": "ok", "project": data})
