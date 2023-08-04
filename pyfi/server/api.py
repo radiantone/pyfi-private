@@ -1506,6 +1506,25 @@ def create_model():
     pass
 
 
+@app.route("/db/clear", methods=["POST"])
+@cross_origin()
+@requires_auth
+def clear():
+    """Clear data from the database table"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    conn, cursor = get_cursor(database, url)
+    cursor.execute(f"DELETE from {table}")
+    cursor.execute("COMMIT")
+
+    return jsonify({"status": "ok"})
+
+
 @app.route("/db/rows", methods=["POST"])
 @cross_origin()
 @requires_auth

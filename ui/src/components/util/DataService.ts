@@ -3,6 +3,14 @@
 import http from 'src/http-common'
 
 class DataService {
+  clearData (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/clear', { viewtable: viewtable, database: database, url: url }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getRows (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
     return http.post('/api/db/rows', { viewtable: viewtable, database: database, url: url }, {
       headers: {
@@ -34,7 +42,6 @@ class DataService {
       }
     })
   }
-
 
   createProject (name: string, database: string, connection: string, token: string): Promise<any> {
     return http.post('/api/minds/project', { name: name, database: database, connection: connection }, {
@@ -195,7 +202,6 @@ class DataService {
       }
     })
   }
-
 
   saveProcessor (processor: any, token: string): Promise<any> {
     return http.post('/api/processor/' + processor.name, processor, {
