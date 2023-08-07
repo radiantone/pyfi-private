@@ -477,7 +477,7 @@
               ref="console"
               style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
             >
-              <q-scroll-area style="height: calc(100vh - 240px); width: 100%;">
+              <q-scroll-area style="padding:10px; height: calc(100vh - 240px); width: 100%;">
                 <div v-for="log in consolelog">
                   <span style="font-weight:bold">{{ log.name }}:</span><span>{{ log.date }}</span>
                   <pre>{{ log.msg }}</pre>

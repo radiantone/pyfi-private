@@ -258,7 +258,7 @@
         "
       >
         <q-icon
-          name="las la-scroll"
+          :name="obj.icon"
           size="xl"
           color="secondary"
           style="margin-left:-5px;margin-top:-5px"
@@ -1831,6 +1831,7 @@
               hint="Enter CRON Expression"
               placeholder="* * * * *"
               v-model.number="obj.cron"
+              :disable="crontoggle"
             />
             <q-input
               style="width: 100px;"
@@ -2489,16 +2490,16 @@ tbody tr:nth-child(odd) {
 }
 
 .ace_gutter > .ace_layer {
-    background-color: #eaebeb;
+  background-color: #eaebeb;
 }
 
 .ace_gutter-cell {
-    padding-left: 19px;
-    padding-right: 6px;
-    background-repeat: no-repeat;
-    font-size: 1.2em;
-    width: 0.5em;
-    color: #a3a4a5;
+  padding-left: 19px;
+  padding-right: 6px;
+  background-repeat: no-repeat;
+  font-size: 1.2em;
+  width: 0.5em;
+  color: #a3a4a5;
 }
 
 .resizable-content {
@@ -2519,6 +2520,19 @@ import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
 
 import http from 'src/http-common'
+
+const toObject = (map) => {
+  if (!(map instanceof Map)) return map
+  return Object.fromEntries(Array.from(map.entries(), ([k, v]) => {
+    if (v instanceof Array) {
+      return [k, v.map(toObject)]
+    } else if (v instanceof Map) {
+      return [k, toObject(v)]
+    } else {
+      return [k, v]
+    }
+  }))
+}
 
 var Moment = require('moment') // require
 
@@ -2655,6 +2669,10 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
+      console.log("MESSAGE RECEIVED", me)
+      if (msg.type && msg.type === 'trigger') {
+        me.triggerExecute()
+      }
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
         me.refreshDeployments(false)
@@ -2663,7 +2681,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (let key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2734,14 +2752,18 @@ export default {
         const func = msg.function
         // Find the port for the function
         // Emit result over the port edges
-        const _plugs = JSON.parse(msg.plugs)
+        var _plugs = {}
+
+        if (msg.plugs) {
+          _plugs = JSON.parse(msg.plugs)
+        }
         for (let key in this.portobjects) {
           const port = this.portobjects[key]
           key = key.replace('func:', '')
           if (_plugs[key] !== undefined) {
             const plug_data = _plugs[key]
             if (port.id) {
-              me.triggerRoute(port.id, plug_data, msg.plugs)
+              me.triggerRoute(port.id, plug_data, _plugs)
             }
           } else {
             if (key === func) {
@@ -2752,7 +2774,7 @@ export default {
                 me.bytes_out += msg.output.length
                 me.bytes_out_5min.unshift(msg.output.length)
                 me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-                me.triggerRoute(port.id, output, msg.plugs)
+                me.triggerRoute(port.id, output, _plugs)
               }
             }
           }
@@ -2771,7 +2793,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2947,6 +2969,10 @@ export default {
       me.getNode().component = this
     }, 3000)
     this.$el.component = this
+    window.designer.$on('trigger.data', () => {
+      me.triggerExecute()
+    })
+
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
       console.log('toggle bandwidth', bandwidth)
       me.obj.bandwidth = bandwidth
@@ -2974,6 +3000,9 @@ export default {
     })
     this.updateBandwidthChart()
     this.updatePorts()
+    if (this.crontoggle) {
+      this.startSchedule(this.obj.cron)
+    }
   },
   data () {
     return {
@@ -3609,21 +3638,21 @@ export default {
       })
     },
     updateBandwidthChart () {
-      let outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      let inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      let durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3691,7 +3720,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3701,7 +3730,7 @@ export default {
       })
     },
     centerOnNode () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3982,15 +4011,13 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
         if (view === 'gitview') {
           this.getCommits()
         }
-
-
       }
     },
     updateDescription (value, initialValue) {
@@ -4145,7 +4172,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -4204,7 +4231,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        let schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {
@@ -4315,8 +4342,17 @@ export default {
         let _result = {}
         if (res === Object(res)) {
           answer = Object.fromEntries(res.toJs())
-          _plugs = toObject(answer.plugs)
-          _result = toObject(answer.result)
+          if (answer.plus) {
+            _plugs = toObject(answer.plugs)
+          } else {
+            _plugs = []
+          }
+
+          if (answer.result) {
+            _result = toObject(answer.result)
+          } else {
+            _result = answer
+          }
         }
 
         console.log('_PLUGS', _plugs)
@@ -4369,6 +4405,11 @@ export default {
         console.log('triggerRoute: edge:', edge, target_id)
         window.root.$emit(target_id, code, options.function, options.name, result, node.data)
       })
+    },
+    triggerExecute () {
+      for (var portname in this.portobjects) {
+        this.executeObject(portname)
+      }
     },
     triggerObject (portname, result, plugs) {
       const me = this
