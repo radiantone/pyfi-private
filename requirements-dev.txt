@@ -5,13 +5,12 @@ amqp==5.1.1
 aniso8601==9.0.1
 anyio==3.5.0
 APScheduler==3.9.1
-asgiref==3.5.0
+durable-rules
 newrelic
+asgiref==3.5.0
 astroid==2.11.3
-emergefs
 async-generator==1.10
 async-timeout==4.0.2
-durable-rules
 attrs==21.4.0
 autopep8==1.6.0
 Babel==2.10.1
@@ -24,12 +23,12 @@ black==22.10.0
 bs4==0.0.1
 case==1.5.3
 celery==5.2.6
+emergefs
 certifi==2021.10.8
 cffi==1.15.0
 chargebee==2.21.0
 charset-normalizer==2.0.12
 click==8.1.3
-newrelic==8.7.0
 click-didyoumean==0.3.0
 click-plugins==1.1.1
 click-repl==0.2.0
@@ -42,6 +41,8 @@ Deprecated==1.2.13
 dill==0.3.4
 distlib==0.3.4
 dnspython==2.2.1
+mindsdb-sql==0.6.7
+mindsdb-sdk
 docker==5.0.3
 docutils==0.17.1
 ecdsa==0.18.0
@@ -85,6 +86,7 @@ linecache2==1.0.0
 lizard==1.17.10
 lxml==4.8.0
 Mako==1.2.0
+newrelic==8.7.0
 mando==0.6.4
 MarkupSafe==2.1.1
 marshmallow==3.19.0
@@ -100,7 +102,6 @@ numpy==1.22.3
 oso==0.26.0
 outcome==1.2.0
 packaging==20.9
-pandas==1.4.2
 paramiko==2.10.4
 pathspec==0.9.0
 pep8==1.7.1
