@@ -4391,6 +4391,7 @@ export default {
       })
     },
     triggerRoute (portid, result, plugs) {
+      // TODO: If current flow is different from CRON block in another flow, then this fails
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
       console.log('triggerRoute: # edges', this.obj.name, _port.getEdges().length)
       _port.getEdges().forEach((edge) => {
