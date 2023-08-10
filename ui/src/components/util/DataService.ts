@@ -43,6 +43,14 @@ class DataService {
     })
   }
 
+  deleteProject (name: string, token: string): Promise<any> {
+    return http.delete('/api/minds/project/' + name, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   createProject (name: string, database: string, connection: string, token: string): Promise<any> {
     return http.post('/api/minds/project', { name: name, database: database, connection: connection }, {
       headers: {

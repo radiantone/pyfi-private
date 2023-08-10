@@ -1482,7 +1482,8 @@ def create_project():
     database = data["database"]
     if database == "SQLite":
         print(urlparse(data["connection"]).path.split("/"))
-        dbname = urlparse(data["connection"]).path.split("/")[1]
+        dbname = data["connection"].rsplit("/")[-1]
+        #urlparse(data["connection"]).path.split("/")[1]
         mdb = server.create_database(
             engine="sqlite",
             name=data["name"],
