@@ -12,10 +12,9 @@ import chargebee
 import mindsdb_sdk
 import requests
 from flasgger import Swagger
-import mindsdb_sdk
 
 # connects to the specified host and port
-server = mindsdb_sdk.connect(os.environ['MINDSDB_SERVER'])
+server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
 # from .chatgpt import configure
 
 # configure()
@@ -1493,7 +1492,7 @@ def create_project():
             )
             print(mdb)
         except Exception as ex:
-            return jsonify({"status":"error", "message":str(ex)}), 500
+            return jsonify({"status": "error", "message": str(ex)}), 500
     return jsonify({"status": "ok", "project": data})
 
 
