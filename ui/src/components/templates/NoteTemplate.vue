@@ -15,8 +15,6 @@
         z-index: 99999;
         background: white !important;
         color: black;
-        position: relative;
-        top: -100px;
         left: 80px;
         padding-left: 20px;
         font-size: 20px;

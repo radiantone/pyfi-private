@@ -33,17 +33,20 @@
         :content-style="contentStyle"
         :thumb-style="thumbStyle"
         :content-active-style="contentActiveStyle"
-        ><span style="height: 200px;">
-          <q-popup-edit v-model="obj.name" title="Start Label" buttons>
+      >
+        <span style="height: 200px;">
+          <q-popup-edit
+            v-model="obj.name"
+            title="Start Label"
+            buttons
+          >
             <q-input
               type="string"
               v-model="obj.name"
               dense
               autofocus
-            /> </q-popup-edit
-          >{{ this.obj.name }}</span
-        ></q-scroll-area
-      >
+            /> </q-popup-edit>{{ this.obj.name }}</span>
+      </q-scroll-area>
     </div>
     <div
       class="jtk-droppable"
@@ -95,8 +98,8 @@ tbody tr:nth-child(odd) {
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
-import { v4 as uuidv4 } from 'uuid';
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   name: 'PortInTemplate',
@@ -104,18 +107,18 @@ export default {
   components: {
     editor: require('vue2-ace-editor')
   },
-  created() {
-    const me = this;
-    console.log('me.tooltips ', me.tooltips);
-    console.log('start listening for show.tooltips');
+  created () {
+    const me = this
+    console.log('me.tooltips ', me.tooltips)
+    console.log('start listening for show.tooltips')
     window.root.$on('show.tooltips', (value) => {
-      console.log('start tooltips:', value);
-      me.tooltips = value;
-      console.log('ME:', me);
-      console.log('TOOLTIPS', me.tooltips);
-    });
+      console.log('start tooltips:', value)
+      me.tooltips = value
+      console.log('ME:', me)
+      console.log('TOOLTIPS', me.tooltips)
+    })
   },
-  data() {
+  data () {
     return {
       collapsed: false,
       obj: {
@@ -130,7 +133,7 @@ export default {
         package: 'my.python.package',
         disabled: false,
         columns: [],
-        properties: [],
+        properties: []
       },
       text: '',
       configview: false,
@@ -142,43 +145,43 @@ export default {
           name: 'name',
           label: 'Name',
           field: 'name',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'bytes',
           align: 'center',
           label: 'Bytes',
-          field: 'bytes',
+          field: 'bytes'
         },
         {
           name: 'time',
           align: 'right',
           classes: 'text-secondary',
           label: 'Time',
-          field: 'time',
-        },
+          field: 'time'
+        }
       ],
       data: [
         {
           name: 'In',
           bytes: '0 (0 bytes)',
-          time: '5 min',
+          time: '5 min'
         },
         {
           name: 'Read/Write',
           bytes: '0 (0 bytes)',
-          time: '5 min',
+          time: '5 min'
         },
         {
           name: 'Out',
           bytes: '0 (0 bytes)',
-          time: '5 min',
+          time: '5 min'
         },
         {
           name: 'Tasks/Time',
           bytes: '0 (0 bytes)',
-          time: '5 min',
-        },
+          time: '5 min'
+        }
       ],
       codeview: false,
       entityName: '',
@@ -192,7 +195,7 @@ export default {
         error: false,
         join: false,
         split: false,
-        complete: false,
+        complete: false
       },
       confirm: false,
       deleteItem: false,
@@ -200,12 +203,12 @@ export default {
       prompt: false,
       contentStyle: {
         backgroundColor: 'rgba(0,0,0,0.02)',
-        color: '#555',
+        color: '#555'
       },
 
       contentActiveStyle: {
         backgroundColor: '#eee',
-        color: 'black',
+        color: 'black'
       },
 
       thumbStyle: {
@@ -213,143 +216,143 @@ export default {
         borderRadius: '5px',
         backgroundColor: '#027be3',
         width: '5px',
-        opacity: 0.75,
-      },
-    };
+        opacity: 0.75
+      }
+    }
   },
   methods: {
-    showPanel(view, show) {
-      this.configview = false;
-      this.codeview = false;
-      this[view] = show;
+    showPanel (view, show) {
+      this.configview = false
+      this.codeview = false
+      this[view] = show
     },
-    updateDescription(value, initialValue) {
-      console.log('updateDesc', value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
+    updateDescription (value, initialValue) {
+      console.log('updateDesc', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
     },
-    updateName(value, initialValue) {
-      console.log('updateName', value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
+    updateName (value, initialValue) {
+      console.log('updateName', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
     },
     editorInit: function () {
-      const me = this;
+      const me = this
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
-      console.log('editorInit');
-      const editor = this.$refs.myEditor.editor;
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      console.log('editorInit')
+      const editor = this.$refs.myEditor.editor
 
-      editor.setAutoScrollEditorIntoView(true);
+      editor.setAutoScrollEditorIntoView(true)
 
       setTimeout(function () {
         // me.thecode = me.obj.code;
-      }, 500);
+      }, 500)
     },
-    showCode() {
+    showCode () {
       // this.code = true;
     },
-    showTooltip(show) {
-      this.tooltip = show;
+    showTooltip (show) {
+      this.tooltip = show
     },
-    confirmDeleteSpeech(id) {
-      this.deleteSpeechID = id;
-      this.deleteItem = true;
+    confirmDeleteSpeech (id) {
+      this.deleteSpeechID = id
+      this.deleteItem = true
     },
-    resetToolkit() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', false);
+    resetToolkit () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', true);
+    valueChanged () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode() {
-      window.toolkit.removeNode(this.obj);
+    deleteNode () {
+      window.toolkit.removeNode(this.obj)
     },
-    removeColumn(column) {
-      console.log('Removing column: ', column);
+    removeColumn (column) {
+      console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i];
-        console.log(col);
+        const col = this.obj.columns[i]
+        console.log(col)
         if (col.id === column) {
-          console.log('Deleted column');
-          this.obj.columns.splice(i, 1);
-          break;
+          console.log('Deleted column')
+          this.obj.columns.splice(i, 1)
+          break
         }
       }
 
-      var edges = window.toolkit.getAllEdges();
+      var edges = window.toolkit.getAllEdges()
 
       for (let i = 0; i < edges.length; i++) {
-        console.log(edge);
-        const edge = edges[i];
+        console.log(edge)
+        const edge = edges[i]
         console.log(
           edge.source.getNode().id,
           this.obj.id,
           edge.data.label,
           column
-        );
+        )
         if (
           edge.source.getNode().id === this.obj.id &&
           edge.data.label === column
         ) {
-          window.toolkit.removeEdge(edge);
+          window.toolkit.removeEdge(edge)
         }
       }
       // Delete all the edges for this column id
-      console.log(this.obj);
-      window.toolkit.removePort(this.obj.id, column);
+      console.log(this.obj)
+      window.toolkit.removePort(this.obj.id, column)
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
-      port.background = 'white';
-      port.datatype = 'Column';
-      port.id = 'speech' + uuidv4();
+    addPort (port) {
+      port.background = 'white'
+      port.datatype = 'Column'
+      port.id = 'speech' + uuidv4()
 
-      console.log('Port:', port);
-      window.toolkit.addNewPort(this.obj.id, 'column', port);
-      window.renderer.repaint(this.obj);
-      console.log('Firing node updated...');
+      console.log('Port:', port)
+      window.toolkit.addNewPort(this.obj.id, 'column', port)
+      window.renderer.repaint(this.obj)
+      console.log('Firing node updated...')
 
-      console.log(this.obj.columns);
+      console.log(this.obj.columns)
     },
-    addNewPort(name, icon) {
+    addNewPort (name, icon) {
       this.addPort({
         name: name,
         icon: icon,
-        type: name,
-      });
-      this.ports[name] = true;
+        type: name
+      })
+      this.ports[name] = true
     },
-    addErrorPort() {
+    addErrorPort () {
       if (this.error) {
         this.$q.notify({
           color: 'negative',
           timeout: 2000,
           position: 'bottom',
           message: 'Error is already created',
-          icon: 'fas fa-exclamation',
-        });
-        return;
+          icon: 'fas fa-exclamation'
+        })
+        return
       }
       this.addPort({
         name: 'Error',
         icon: 'fas fa-exclamation',
-        type: 'Error',
-      });
-      this.error = true;
+        type: 'Error'
+      })
+      this.error = true
     },
-    showNewSpeechDialog() {
-      const me = this;
+    showNewSpeechDialog () {
+      const me = this
       this.$refs.speechDialog.showDialog(
         {
           name: 'Test',
@@ -362,37 +365,37 @@ export default {
           properties: [],
           conditionals: [],
           rules: [],
-          notes: [],
+          notes: []
         },
         'New',
         function (obj) {
-          me.addPort(obj);
+          me.addPort(obj)
         }
-      );
+      )
     },
-    showEditSpeechDialog(data) {
-      const me = this;
+    showEditSpeechDialog (data) {
+      const me = this
       this.$refs.speechDialog.showDialog(data, 'Edit', function (obj) {
-        me.addPort(obj);
-      });
+        me.addPort(obj)
+      })
     },
-    showEditEntityDialog() {
+    showEditEntityDialog () {
       window.root.$emit('new.speaker.dialog', {
         mode: 'edit',
-        obj: this.obj,
-      });
+        obj: this.obj
+      })
     },
     selectNode: function () {
-      console.log('selected: ', this.obj.id);
-      window.root.$emit('node.selected', this.obj);
+      console.log('selected: ', this.obj.id)
+      window.root.$emit('node.selected', this.obj)
     },
     deleteEntity: function (name) {
-      this.entityName = name;
-      this.confirm = true;
+      this.entityName = name
+      this.confirm = true
     },
     clicked: function () {
-      console.log('clicked');
-    },
-  },
-};
+      console.log('clicked')
+    }
+  }
+}
 </script>

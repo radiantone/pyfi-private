@@ -1,3 +1,5 @@
+# type: ignore
+
 import configparser
 import logging
 from contextlib import contextmanager

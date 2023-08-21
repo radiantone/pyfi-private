@@ -1042,6 +1042,73 @@
       </q-card>
     </q-dialog>
 
+
+    <q-dialog
+      v-model="clearDataConfirm"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Clear Data</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to clear the data from this table?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Clear"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="clearData"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
     <!-- Delete dialog -->
     <q-dialog
       v-model="deleteConfirm"
@@ -1241,6 +1308,24 @@
             content-class="bg-black text-white"
           >
             Add Row
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 250px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-trash"
+          class="bg-accent text-secondary"
+          color="primary"
+          v-close-popup
+          @click="clearDataConfirm = true"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Clear Data
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -2617,7 +2702,7 @@ export default {
     }
   },
   created () {
-    var me = this
+    let me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
@@ -2663,6 +2748,7 @@ export default {
       me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
       // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
       me.bytes_in += bytes
+      setTimeout(me.refreshTables,1000)
 /*
       this.obj.columns.forEach((column) => {
         if (column.id === msg.portname) {
@@ -2887,7 +2973,7 @@ export default {
       }
     },
     myhistory () {
-      var me = this
+      let me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -2923,7 +3009,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    let me = this
 
     console.log('setId ', this.obj.id)
     this.setId(this.obj.id)
@@ -2976,6 +3062,7 @@ export default {
   },
   data () {
     return {
+      clearDataConfirm: false,
       fetchDisabled: true,
       schemaResult: 'Ready',
       viewcols: [],
@@ -3497,14 +3584,25 @@ export default {
     }
   },
   methods: {
+    clearData () {
+      let me = this
+      this.saving = true
+      DataService.clearData(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        me.tablerows = []
+        me.saving = false
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+      })
+    },
     tableSelected () {
       console.log('TABLE SELECTED')
     },
     refreshTables () {
-      var me = this
+      let me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
-        console.log('DataService.getRows', result)
+        console.log('REFRESH DataService.getRows', result)
         me.tablerows = result.data
         me.saving = false
       }).catch((err) => {
@@ -3513,7 +3611,7 @@ export default {
       })
     },
     pullSchema () {
-      var me = this
+      let me = this
       this.saving = true
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
@@ -3531,7 +3629,7 @@ export default {
       })
     },
     testConnection () {
-      var me = this
+      let me = this
       this.saving = true
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Connection Success!'
@@ -3542,7 +3640,7 @@ export default {
       })
     },
     createSchema () {
-      var me = this
+      let me = this
       this.saving = true
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
@@ -3563,7 +3661,7 @@ export default {
       this.argobjects
     },
     updatePorts () {
-      var me = this
+      let me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
 
@@ -3578,7 +3676,7 @@ export default {
 
     },
     triggerObject (portname, column, result, callback) {
-      var me = this
+      let me = this
 
       console.log('TRIGGER ALL BEGIN')
       window.root.$emit('trigger.begin')
@@ -3696,7 +3794,7 @@ export default {
       })
     },
     doLogin () {
-      var me = this
+      let me = this
 
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
@@ -3789,7 +3887,7 @@ export default {
       }
     },
     fetchCode () {
-      var me = this
+      let me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
@@ -3898,7 +3996,7 @@ export default {
       this.editPort = false
     },
     saveProcessor () {
-      var me = this
+      let me = this
 
       this.refreshing = true
 
@@ -4037,7 +4135,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     reqEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4052,7 +4150,7 @@ export default {
       })
     },
     middlewareEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4068,7 +4166,7 @@ export default {
       })
     },
     notesEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4083,7 +4181,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4098,7 +4196,7 @@ export default {
       })
     },
     editorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')

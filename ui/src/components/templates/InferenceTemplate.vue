@@ -1036,7 +1036,6 @@
       </q-card>
     </q-dialog>
 
-
     <q-card
       :style="
         'width: ' +
@@ -1384,13 +1383,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 850px; height:580px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
+      style="width: 850px; height:670px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ projectResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 570px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1443,33 +1442,94 @@
           keep-alive
         >
           <q-tab-panel
-            ref="schemaconfig"
-            name="schemaconfig"
+            ref="tablesconfig"
+            name="tablesconfig"
             style="padding: 0px;height:480px"
           >
             <div
               class="q-pa-md"
               style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
             >
-              <editor
-                v-model="obj.schema"
-                @init="schemaEditorInit"
-                style="font-size: 1.5em; min-height: 420px;"
-                lang="sql"
-                theme="chrome"
-                ref="schemaEditor"
-                width="100%"
-                height="100%"
-              />
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
             </div>
+
             <q-card-actions align="left">
               <q-btn
                 style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
                 flat
-                label="Create"
+                label="New"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="createMindsDatabase"
+                @click="newModelDialog = true"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1477,16 +1537,17 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Create Database
+                  New Model
                 </q-tooltip>
               </q-btn>
+            </q-card-actions>
+            <q-card-actions align="right">
               <q-btn
-                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
                 flat
-                label="Pull"
-                class="bg-primary text-dark"
+                icon="las la-recycle"
+                class="bg-accent text-dark"
                 color="dark"
-                @click="pullSchema"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1494,7 +1555,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  Pull Schema
+                  Refresh List
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -1725,7 +1786,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:480px"
+            style="padding: 0px;height:530px"
           >
             <div
               class="q-pa-md"
@@ -1822,11 +1883,30 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
+
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
           </q-tab-panel>
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
           >
             <div
               class="q-pa-md"
@@ -1846,7 +1926,31 @@
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                   :disable="projectExists"
                 />
-
+                <q-input
+                  filled
+                  v-model="obj.databasename"
+                  dense
+                  hint="Database Name"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                  :disable="databaseExist"
+                >
+                  <template #before>
+                    <i
+                      class="fas fa-lock text-secondary"
+                      style="font-size: 0.8em;"
+                    />
+                  </template>
+                  <template #after>
+                    <q-btn
+                      dense
+                      flat
+                      label="Create"
+                      color="secondary"
+                      @click="doLogin"
+                    />
+                  </template>
+                </q-input>
                 <q-input
                   filled
                   v-model="obj.description"
@@ -1928,6 +2032,25 @@
                   content-class="bg-black text-white"
                 >
                   Create Project
+                </q-tooltip>
+              </q-btn>
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                flat
+                label="Delete"
+
+                class="bg-secondary text-white"
+                color="primary"
+                :disable="!projectExists"
+                @click="deleteProject"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Delete Project
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -2753,9 +2876,11 @@
   margin-right: 0px;
   padding-left: 0px;
 }
+
 .table-columns .q-item__section {
   padding-right: 5px;
 }
+
 .parentBox {
   padding: 0px;
   margin-left: 5px;
@@ -2921,7 +3046,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (let key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2949,7 +3074,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -3172,7 +3297,7 @@ export default {
   data () {
     return {
       modelDatabase: '',
-      databaseList: ['mydatabase','database2'],
+      databaseList: ['mydatabase', 'database2'],
       projectExists: false,
       newModelDialog: false,
       modelrows: [{
@@ -3494,6 +3619,7 @@ export default {
         titletab: false,
         schema: '',
         data: [],
+        databasename: '',
         usemiddleware: false,
         middlewareonly: false,
         middlewarefunc: '',
@@ -3733,17 +3859,31 @@ export default {
     }
   },
   methods: {
+    deleteProject () {
+      const me = this
+      this.saving = true
+      DataService.deleteProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
+        me.saving = false
+        me.projectResult = 'Project Successfully Deleted'
+        me.projectExists = true
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+        me.projectResult = 'Project Deletion Error'
+      })
+    },
     createProject () {
       const me = this
       this.saving = true
       DataService.createProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
         me.saving = false
-        me.projectResult = "Project Created Successfully"
+        me.projectResult = 'Project Created Successfully'
         me.projectExists = true
       }).catch((err) => {
+        debugger
         console.log('ERROR', err)
         me.saving = false
-        me.projectResult = "Project Creation Error"
+        me.projectResult = err.response.data.message
       })
     },
     tableSelected () {
@@ -3765,7 +3905,6 @@ export default {
       const me = this
       this.saving = true
       this.saving = false
-
     },
     createMindsDatabase () {
       this.saving = true
@@ -3868,21 +4007,21 @@ export default {
       }
     },
     updateBandwidthChart () {
-      let outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      let inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      let durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3943,7 +4082,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3953,7 +4092,7 @@ export default {
       })
     },
     centerOnNode () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -4005,7 +4144,7 @@ export default {
       const re = /def (\w+)\s*\((.*?)\):/g
 
       console.log('updateFunctions code', code)
-      let matches = code.matchAll(re)
+      const matches = code.matchAll(re)
 
       this.funcs = []
 
@@ -4215,7 +4354,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -4367,7 +4506,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -4426,7 +4565,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        let schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {

@@ -35,9 +35,7 @@
 					"id": "port08ce56bbdfb14ee28fa6356112eb0f6f",
 					"description": "A description",
 					"queue": "None",
-					"data": {
-						"name": "object1"
-					}
+					"data": null
 				},
 				{
 					"name": "route A",
@@ -88,7 +86,10 @@
 			"modulepath": "ext/processors/sample.py",
 			"readwrite": 0,
 			"status": "stopped",
-			"code": "def route(data):\n    plugs = {}\n    if data['name'] == 'object2':\n        plugs['route A'] = {}\n        plugs['route A']['data'] = data\n        plugs['route A']['message'] = 'Route A gets different data'\n    else:\n        data['enrich'] = 'Enrich with more data'\n        \n    return {\"plugs\":plugs, \"result\":data}"
+			"code": "def route(data):\n    plugs = {}\n    if data['name'] == 'object2':\n        plugs['route A'] = {}\n        plugs['route A']['data'] = data\n        plugs['route A']['message'] = 'Route A gets different data'\n    else:\n        data['enrich'] = 'Enrich with more data'\n        \n    return {\"plugs\":plugs, \"result\":data}",
+			"variabledata": [],
+			"envfacts": true,
+			"infengine": true
 		},
 		{
 			"icon": "las la-file-alt",
@@ -244,7 +245,8 @@
 					"template": "Object",
 					"id": "porte2cfc3298b7d487f831d76daffcb67ed",
 					"description": "A description",
-					"queue": "None"
+					"queue": "None",
+					"data": null
 				}
 			],
 			"properties": [],
@@ -283,7 +285,10 @@
 			"modulepath": "ext/processors/sample.py",
 			"readwrite": 0,
 			"status": "stopped",
-			"code": "def receive(data):\n    \n    data['received'] = True\n    \n    return data"
+			"code": "def receive(data):\n    \n    data['received'] = True\n    \n    return data",
+			"variabledata": [],
+			"envfacts": true,
+			"infengine": true
 		},
 		{
 			"icon": "fab fa-python",
@@ -320,7 +325,7 @@
 					"id": "port9b9e5fe6502443809a5ea7d3ae1f9bc5",
 					"description": "A description",
 					"queue": "None",
-					"data": "[{\"output A\":{}},{\"name\":\"object1\",\"enrich\":\"Enrich with more data\"}]"
+					"data": null
 				}
 			],
 			"properties": [],
@@ -359,7 +364,10 @@
 			"modulepath": "ext/processors/sample.py",
 			"readwrite": 0,
 			"status": "stopped",
-			"code": "def receive(data):\n    \n    data['received'] = True\n    data['ack'] = True\n    \n    return data"
+			"code": "def receive(data):\n    \n    data['received'] = True\n    data['ack'] = True\n    \n    return data",
+			"variabledata": [],
+			"envfacts": true,
+			"infengine": true
 		},
 		{
 			"style": "",
@@ -398,8 +406,8 @@
 			"disabled": false,
 			"columns": [],
 			"properties": [],
-			"left": 973,
-			"top": 323,
+			"left": 1123,
+			"top": 211,
 			"x": 991,
 			"y": 143.5,
 			"id": "6d4aba37-7973-4c53-9ad4-640966d42b69",
@@ -414,8 +422,8 @@
 			"disabled": false,
 			"columns": [],
 			"properties": [],
-			"left": 397,
-			"top": 485,
+			"left": 492,
+			"top": 394,
 			"x": 341,
 			"y": 333.5,
 			"id": "2fe468b2-006e-4540-a416-06e039bb643c",
@@ -430,8 +438,8 @@
 			"disabled": false,
 			"columns": [],
 			"properties": [],
-			"left": 1675,
-			"top": 561,
+			"left": 1807,
+			"top": 463,
 			"x": 1639,
 			"y": 423.5,
 			"id": "ec5cf67d-1ab5-41fa-86dd-fa24d7acf1b2",
@@ -510,9 +518,7 @@
 			"id": "ca7f2c4e-a66b-4dcf-a96c-4ab5cd3a3b1c.port08ce56bbdfb14ee28fa6356112eb0f6f",
 			"description": "A description",
 			"queue": "None",
-			"data": {
-				"name": "object1"
-			}
+			"data": null
 		},
 		{
 			"name": "route A",
@@ -574,7 +580,8 @@
 			"template": "Object",
 			"id": "2cf28a02-e915-4a2a-827c-f7697b034cfd.porte2cfc3298b7d487f831d76daffcb67ed",
 			"description": "A description",
-			"queue": "None"
+			"queue": "None",
+			"data": null
 		},
 		{
 			"name": "function: receive",
@@ -601,7 +608,7 @@
 			"id": "a867ff81-c9e3-4106-870f-cb24455aa600.port9b9e5fe6502443809a5ea7d3ae1f9bc5",
 			"description": "A description",
 			"queue": "None",
-			"data": "[{\"output A\":{}},{\"name\":\"object1\",\"enrich\":\"Enrich with more data\"}]"
+			"data": null
 		}
 	],
 	"groups": [],

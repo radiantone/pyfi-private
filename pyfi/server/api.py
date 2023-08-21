@@ -12,9 +12,10 @@ import chargebee
 import mindsdb_sdk
 import requests
 from flasgger import Swagger
+import mindsdb_sdk
 
 # connects to the specified host and port
-server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
+server = mindsdb_sdk.connect(os.environ['MINDSDB_SERVER'])
 # from .chatgpt import configure
 
 # configure()
@@ -1482,13 +1483,17 @@ def create_project():
     database = data["database"]
     if database == "SQLite":
         print(urlparse(data["connection"]).path.split("/"))
-        dbname = urlparse(data["connection"]).path.split("/")[1]
-        mdb = server.create_database(
-            engine="sqlite",
-            name=data["name"],
-            connection_args={"db_file": "/root/" + dbname},
-        )
-        print(mdb)
+        dbname = data["connection"].rsplit("/")[-1]
+        # urlparse(data["connection"]).path.split("/")[1]
+        try:
+            mdb = server.create_database(
+                engine="sqlite",
+                name=data["name"],
+                connection_args={"db_file": "/root/" + dbname},
+            )
+            print(mdb)
+        except Exception as ex:
+            return jsonify({"status":"error", "message":str(ex)}), 500
     return jsonify({"status": "ok", "project": data})
 
 
@@ -1504,6 +1509,25 @@ def delete_project():
 @requires_auth
 def create_model():
     pass
+
+
+@app.route("/db/clear", methods=["POST"])
+@cross_origin()
+@requires_auth
+def clear():
+    """Clear data from the database table"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    conn, cursor = get_cursor(database, url)
+    cursor.execute(f"DELETE from {table}")
+    cursor.execute("COMMIT")
+
+    return jsonify({"status": "ok"})
 
 
 @app.route("/db/rows", methods=["POST"])
