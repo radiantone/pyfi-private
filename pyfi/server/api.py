@@ -1483,13 +1483,16 @@ def create_project():
     if database == "SQLite":
         print(urlparse(data["connection"]).path.split("/"))
         dbname = data["connection"].rsplit("/")[-1]
-        #urlparse(data["connection"]).path.split("/")[1]
-        mdb = server.create_database(
-            engine="sqlite",
-            name=data["name"],
-            connection_args={"db_file": "/root/" + dbname},
-        )
-        print(mdb)
+        # urlparse(data["connection"]).path.split("/")[1]
+        try:
+            mdb = server.create_database(
+                engine="sqlite",
+                name=data["name"],
+                connection_args={"db_file": "/root/" + dbname},
+            )
+            print(mdb)
+        except Exception as ex:
+            return jsonify({"status":"error", "message":str(ex)}), 500
     return jsonify({"status": "ok", "project": data})
 
 

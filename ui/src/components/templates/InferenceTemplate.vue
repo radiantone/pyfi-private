@@ -1383,13 +1383,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 850px; height:580px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
+      style="width: 850px; height:670px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ projectResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 570px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1786,7 +1786,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:480px"
+            style="padding: 0px;height:530px"
           >
             <div
               class="q-pa-md"
@@ -1883,11 +1883,30 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
+
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
           </q-tab-panel>
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
           >
             <div
               class="q-pa-md"
@@ -1907,7 +1926,31 @@
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                   :disable="projectExists"
                 />
-
+                <q-input
+                  filled
+                  v-model="obj.databasename"
+                  dense
+                  hint="Database Name"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                  :disable="databaseExist"
+                >
+                  <template #before>
+                    <i
+                      class="fas fa-lock text-secondary"
+                      style="font-size: 0.8em;"
+                    />
+                  </template>
+                  <template #after>
+                    <q-btn
+                      dense
+                      flat
+                      label="Create"
+                      color="secondary"
+                      @click="doLogin"
+                    />
+                  </template>
+                </q-input>
                 <q-input
                   filled
                   v-model="obj.description"
@@ -2833,9 +2876,11 @@
   margin-right: 0px;
   padding-left: 0px;
 }
+
 .table-columns .q-item__section {
   padding-right: 5px;
 }
+
 .parentBox {
   padding: 0px;
   margin-left: 5px;
@@ -3574,6 +3619,7 @@ export default {
         titletab: false,
         schema: '',
         data: [],
+        databasename: '',
         usemiddleware: false,
         middlewareonly: false,
         middlewarefunc: '',
@@ -3834,9 +3880,10 @@ export default {
         me.projectResult = 'Project Created Successfully'
         me.projectExists = true
       }).catch((err) => {
+        debugger
         console.log('ERROR', err)
         me.saving = false
-        me.projectResult = 'Project Creation Error'
+        me.projectResult = err.response.data.message
       })
     },
     tableSelected () {
