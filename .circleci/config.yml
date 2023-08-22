@@ -42,26 +42,6 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: Install UI
-          command: make install-ui
-          no_output_timeout: 40m
-      - run:
-          name: npm ls
-          command: npm ls
-      - run:
-          name: Patch UI
-          command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js
-      - run:
-          name: Build UI
-          command: SOCKETIO=https://dev.elasticcode.ai make ui
-      - run:
-          name: Copy UI
-          command: mkdir -p workspace/ui/dist/spa; cp -r ui/dist/spa/* workspace/ui/dist/spa/
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - ui/dist/spa
-      - run:
           name: Run tests
           command: make test
 
