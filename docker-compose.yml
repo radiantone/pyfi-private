@@ -120,8 +120,6 @@ services:
       - "API_HOST=api.elasticcode.ai"
     ports:
       - 8000:8003
-    profiles:
-      - api
     depends_on:
       - redis
       - postgresdb
