@@ -122,8 +122,6 @@ services:
       - "MINDSDB_SERVER=http://mindsdb:47334"
     ports:
       - 8000:8003
-    profiles:
-      - api
     depends_on:
       - redis
       - postgresdb

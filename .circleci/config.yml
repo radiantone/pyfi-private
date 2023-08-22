@@ -21,7 +21,7 @@ jobs:
       - run: ls -l ./workspace/certs
       - node/install:
           node-version: '14.18.1'
-      - run: npm install -g --force @quasar/cli@1.3.2  @quasar/app@2.4.3 quasar@1.22.1  @quasar/extras@1.15.5 @quasar/quasar-app-extension-qmarkdown@1.4.4
+      - run: npm install -g --force @quasar/cli@1.3.2  @quasar/app@2.4.3 quasar@1.22.8  @quasar/extras@1.15.5 @quasar/quasar-app-extension-qmarkdown@1.4.4
       - run: npm install -g typescript
       - run: npm update -g @quasar/cli
       - persist_to_workspace:
@@ -42,23 +42,6 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: Install UI
-          command: make install-ui
-          no_output_timeout: 40m
-      - run:
-          name: Patch UI
-          command: cp ui/patches/jsplumbtoolkit-latest.js ui/node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js
-      - run:
-          name: Build UI
-          command: SOCKETIO=http://localhost:3003 make ui
-      - run:
-          name: Copy UI
-          command: mkdir -p workspace/ui/dist/spa; cp -r ui/dist/spa/* workspace/ui/dist/spa/
-      - persist_to_workspace:
-          root: workspace
-          paths:
-            - ui/dist/spa
-      - run:
           name: Run tests
           command: make test
 
@@ -76,7 +59,7 @@ workflows:
           workspace-root: workspace
           aws-cli-version: latest
           create-repo: true
-          dockerfile: Dockerfile.nginx.prod
+          dockerfile: Dockerfile.nginx
           extra-build-args: '--compress --build-arg COMMIT=$CIRCLE_SHA1 --build-arg BUILD_URL=$CIRCLE_BUILD_URL --build-arg REPO_URL=$CIRCLE_REPOSITORY_URL'
           path: ./docker
           platform: linux/amd64
