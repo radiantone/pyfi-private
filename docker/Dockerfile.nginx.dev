@@ -8,7 +8,7 @@ ARG COMMIT=None
 ARG BUILD_URL=None
 ARG REPO_URL=None
 
-#COPY ./workspace/ui/dist/spa /var/share/html
+COPY ./ui/dist/spa /var/share/html
 ENV COMMIT=$COMMIT
 ENV BUILD_URL=$BUILD_URL
 RUN echo $COMMIT"|" >/var/share/html/commit
