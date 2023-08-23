@@ -118,6 +118,7 @@ services:
       - "AUTH0_DOMAIN=dev-3583lxyoewhh4ymf.us.auth0.com"
       - "API_AUDIENCE=https://dev.elasticcode.ai/"
       - "API_HOST=api.elasticcode.ai"
+      - "MINDSDB_SERVER=http://mindsb:47334"
     ports:
       - 8000:8003
     depends_on:
