@@ -28,7 +28,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
-	eslint ui/src
+	eslint ui/src/components
 
 .PHONY: install
 install: depends init

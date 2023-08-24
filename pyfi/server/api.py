@@ -1492,7 +1492,7 @@ def create_project():
             )
             print(mdb)
         except Exception as ex:
-            return jsonify({"status":"error", "message":str(ex)}), 500
+            return jsonify({"status": "error", "message": str(ex)}), 500
     return jsonify({"status": "ok", "project": data})
 
 

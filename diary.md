@@ -1,3 +1,16 @@
+Aug 24, 2023
+
+- Fixed circleci problems
+  - UI is built locally and stored in git now
+- Fixed eslint/typescript versioning
+- Updated plan to embed vue grid layout in app view and allow for drag/drop of HTML components onto the view and connect them to internal data APIs
+  - Drag/drop VUE components to build UI
+
+## Inference  Block
+- API for mindsdb
+- mindsdb container
+- Block settings
+
 July 5, 2023
 
 ## Inference Block
