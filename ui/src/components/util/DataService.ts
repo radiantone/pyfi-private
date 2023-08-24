@@ -168,6 +168,7 @@ class DataService {
   }
 
   runBlock (block: any, call: string, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return http.post('/api/runblock', { block: block, call: call }, {
       headers: {
         Authorization: 'Bearer ' + token
@@ -204,6 +205,7 @@ class DataService {
   }
 
   createMindsDatabase (database: any, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
     return http.post('/api/minds/database' + database.name, database, {
       headers: {
         Authorization: 'Bearer ' + token
@@ -212,6 +214,7 @@ class DataService {
   }
 
   saveProcessor (processor: any, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
     return http.post('/api/processor/' + processor.name, processor, {
       headers: {
         Authorization: 'Bearer ' + token
@@ -242,11 +245,11 @@ class DataService {
   newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
-    const auth_string = 'Bearer ' + token
-    console.log('AUTH_STRING', auth_string)
+    const authString = 'Bearer ' + token
+    console.log('AUTH_STRING', authString)
     return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
       headers: {
-        Authorization: auth_string
+        Authorization: authString
       }
     })
   }
