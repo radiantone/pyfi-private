@@ -2,7 +2,7 @@
  * Takes any FunctionTree and adds an ActionContext as first parameter of each function, to make a
  * valid ActionTree type.
  */
-import { ActionContext, ActionMethod } from 'vuex';
+import { ActionContext, ActionMethod } from 'vuex'
 
 export type GetterTreeAdaptor<Type, State, RootState> = {
     [Key in keyof Type]: (state: State, getters: any, rootState: RootState, rootGetters: any) => Type[Key];

@@ -4,8 +4,8 @@ export interface UserStateInterface {
 
 function state (): UserStateInterface {
   return {
-    logged_in: false,
-  };
+    logged_in: false
+  }
 }
 
-export default state;
+export default state
