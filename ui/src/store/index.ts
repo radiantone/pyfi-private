@@ -5,7 +5,7 @@ import client from './client'
 import { State } from './Store'
 import { CountState, CountStore } from './CountStore'
 import { DesignerStore, StatusState } from './DesignerStore'
-import state, { UserStateInterface } from './client/state';
+import state, { UserStateInterface } from './client/state'
 // import example from './module-example';
 // import { ExampleStateInterface } from './module-example/state';
 
@@ -23,8 +23,8 @@ export interface StateInterface {
   status: StatusState
 }
 
-let count = CountStore;
-let designer = DesignerStore;
+const count = CountStore
+const designer = DesignerStore
 
 export default store(({ Vue }) => {
   Vue.use(Vuex)
@@ -43,4 +43,3 @@ export default store(({ Vue }) => {
 
   return Store
 })
-
