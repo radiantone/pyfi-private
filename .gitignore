@@ -1,3 +1,5 @@
+ui.tar.gz
+ui/package-lock.json
 tmp
 elasticdb.db
 elastic.sql
