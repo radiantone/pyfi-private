@@ -28,6 +28,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
+	eslint ui/src/components
 
 .PHONY: install
 install: depends init
@@ -92,6 +93,12 @@ clean:
 	git status
 	exit 0
 
+.PHONY: build-clean
+build-clean:
+	make ui ; \
+	docker compose build --no-cache ;\
+
+
 .PHONY: build
 build:
 	@read -p "Build UI? [y/N] " ans && ans=$${ans:-N} ; \
@@ -130,9 +137,12 @@ push:
 	docker tag 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:develop
 
-	docker tag pyfi/websockets:local 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
-	docker push  013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:develop
-
+	# Remove local remote tags
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/globalsocket:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/postgres:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/rabbitmq:local
+	docker rmi 013035288901.dkr.ecr.us-east-1.amazonaws.com/nginx:local
 
 .PHONY: all
 all: format lint freeze update docs install clean
