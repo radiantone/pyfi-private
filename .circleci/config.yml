@@ -114,7 +114,7 @@ workflows:
                   job_type: deployment
               - run:
                   name: New Relic Deployment
-                  command: docker run api:develop newrelic entity deployment create --guid $CIRCLE_SHA1 --version 0.0.1
+                  command: echo "New Relic CLI" #docker run api:develop newrelic entity deployment create --guid $CIRCLE_SHA1 --version 0.0.1
       - aws-ecr/build-and-push-image:
           name: build-socket
           requires:
