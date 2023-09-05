@@ -1444,7 +1444,7 @@
           <q-tab-panel
             ref="tablesconfig"
             name="tablesconfig"
-            style="padding: 0px;height:480px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1530,6 +1530,7 @@
                 class="bg-primary text-dark"
                 color="dark"
                 @click="newModelDialog = true"
+                :disabled="!obj.databasename"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1564,7 +1565,7 @@
           <q-tab-panel
             ref="modelsconfig"
             name="modelsconfig"
-            style="padding: 0px;height:480px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1650,6 +1651,7 @@
                 class="bg-primary text-dark"
                 color="dark"
                 @click="newModelDialog = true"
+                :disabled="!obj.databasename"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1666,7 +1668,7 @@
           <q-tab-panel
             ref="jobsconfig"
             name="jobsconfig"
-            style="padding: 0px;height:480px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1752,6 +1754,7 @@
                 class="bg-primary text-dark"
                 color="dark"
                 @click="newModelDialog = true"
+                :disabled="!obj.databasename"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1786,7 +1789,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:530px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1872,6 +1875,7 @@
                 class="bg-primary text-dark"
                 color="dark"
                 @click="newModelDialog = true"
+                :disabled="!obj.databasename"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1926,31 +1930,39 @@
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                   :disable="projectExists"
                 />
-                <q-input
-                  filled
-                  v-model="obj.databasename"
+
+                <q-select
                   dense
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="obj.databasename"
+                  :options="databasenames"
                   hint="Database Name"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                  :disable="databaseExist"
+                  value="string"
+                  :menu-offset="[5, -9]"
                 >
-                  <template #before>
-                    <i
-                      class="fas fa-lock text-secondary"
-                      style="font-size: 0.8em;"
-                    />
+                  <template v-if="!obj.databasename" v-slot:selected>
+                    <div class="text-grey-6" style="font-style: italic">Select a Database</div>
                   </template>
                   <template #after>
                     <q-btn
                       dense
                       flat
-                      label="Create"
+                      icon="fas fa-ellipsis-h"
                       color="secondary"
-                      @click="doLogin"
-                    />
+                      @click="configureDatabaseDialog = true"
+                    >
+                      <q-tooltip
+                        anchor="top middle"
+                        :offset="[-30, 40]"
+                        content-style="font-size: 16px"
+                        content-class="bg-black text-white"
+                      >
+                        Manage Databases
+                      </q-tooltip>
+                    </q-btn>
                   </template>
-                </q-input>
+                </q-select>
                 <q-input
                   filled
                   v-model="obj.description"
@@ -1961,7 +1973,6 @@
                 />
                 <q-select
                   dense
-                  borderless
                   :options-dense="true"
                   style="font-size: 1em; margin-left:20px; margin-right: 5px;"
                   v-model="obj.database"
@@ -2751,6 +2762,67 @@
     </q-card>
 
     <q-dialog
+      v-model="configureDatabaseDialog"
+      persistent
+    >
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 60vw; height: 70%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-icon
+                name="fas fa-database"
+                color="primary"
+                style="margin-right:10px"
+              />
+              <q-item-label>Manage Databases</q-item-label>
+              <q-space/>
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="configureDatabaseDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog
       v-model="newModelDialog"
       persistent
     >
@@ -3296,6 +3368,7 @@ export default {
   },
   data() {
     return {
+      configureDatabaseDialog: false,
       modelDatabase: '',
       databaseList: ['mydatabase', 'database2'],
       projectExists: false,
@@ -3340,6 +3413,8 @@ export default {
       predictedrows: [],
       connectResult: '',
       events: ['Begin', 'Error', 'Complete'],
+      databasename: null,
+      databasenames: [],
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
@@ -4006,70 +4081,12 @@ export default {
         }
       }
     },
-    updateBandwidthChart() {
-      const outBytes = tsdb.series('outBytes').query({
-        metrics: {outBytes: TSDB.map('bytes'), time: TSDB.map('time')},
-        where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
-        }
-      })
-      // this.series[1].data = outBytes[0].results.outBytes
-      const inBytes = tsdb.series('inBytes').query({
-        metrics: {inBytes: TSDB.map('bytes'), time: TSDB.map('time')},
-        where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
-        }
-      })
-      // this.series[0].data = inBytes[0].results.inBytes
-      const durations = tsdb.series('durations').query({
-        metrics: {seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds')},
-        where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
-        }
-      })
-      // this.series[2].data = durations[0].results.data
-
-      const xaxis = inBytes[0].results.time.map((x) => {
-        const d = new Date(x)
-        return d.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
-      })
-      console.log('XAXIS', xaxis)
-      this.chartOptions.xaxis.categories = xaxis
-      // console.log('updateBandwidthChart: inBytes', inBytes)
-      // console.log('updateBandwidthChart: outBytes', outBytes)
-      // console.log('updateBandwidthChart: durations', durations)
-      if (this.$refs.bandwidthChart) {
-        this.$refs.bandwidthChart.updateSeries([{
-          name: 'Bytes Out',
-          data: outBytes[0].results.outBytes.slice(0, 25)
-        }, {
-          name: 'Bytes In',
-          data: inBytes[0].results.inBytes.slice(0, 25)
-        }])
-      }
-    },
     showCommit(hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
       this.gitdate = date
-    },
-    getCommits() {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath, this.$store.state.designer.token).then((result) => {
-        this.gitdata = result.data
-      })
-    },
-    doLogin() {
-      const me = this
-
-      DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
-        .then((result) => {
-          me.login = false
-          console.log(result)
-        })
-        .catch((error) => {
-        })
     },
     addVariable() {
       this.variabledata.push({
@@ -4319,9 +4336,6 @@ export default {
     },
     onReset() {
     },
-    loginProcessor() {
-      this.login = true
-    },
     getUuid() {
       return 'key_' + uuidv4()
     },
@@ -4379,41 +4393,6 @@ export default {
 
       edges.forEach((edge) => {
         edge.innerText = value
-      })
-    },
-    schemaEditorInit: function () {
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/sql') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.schemaEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-    },
-    gitEditorInit: function () {
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.gitEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-    },
-    reqEditorInit: function () {
-      const me = this
-
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.requirementsEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-      editor.on('change', function () {
-        me.obj.requirements = editor.getValue()
       })
     },
     middlewareEditorInit: function () {
@@ -4560,20 +4539,6 @@ export default {
       console.log(this.obj.columns)
 
       return port
-    },
-    updateSchemas() {
-      setTimeout(() => {
-        var graph = window.toolkit.getGraph().serialize()
-
-        const schemas = []
-
-        graph.nodes.forEach((node) => {
-          if (node.type === 'schema') {
-            schemas.push(node.name)
-          }
-        })
-        this.types = schemas
-      })
     },
     addNewTablePort(table, type, icon) {
       var port = this.addPort({

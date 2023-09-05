@@ -148,9 +148,7 @@
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import { BaseGroupComponent } from 'jsplumbtoolkit-vue2'
 import * as htmlToImage from 'html-to-image'
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 import { v4 as uuidv4 } from 'uuid'
 
 export default {
@@ -166,7 +164,6 @@ export default {
     }
   },
   mounted () {
-    const me = this
     this.toolkit = window.toolkit
   },
   created () {
