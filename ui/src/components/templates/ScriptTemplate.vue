@@ -454,6 +454,7 @@
                 clickable
                 v-close-popup
                 @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
+                v-if="!isUsed('function: ' + func.name)"
               >
                 <q-item-section side>
                   <q-icon name="fab fa-python" />
@@ -519,10 +520,9 @@
             icon="fa fa-play"
             size="xs"
             dense
-            v-if="obj.status === 'stopped'"
             flat
             class="edit-name text-secondary"
-            @click="obj.status = 'running'"
+            @click="triggerExecute"
             style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
@@ -1947,6 +1947,21 @@
           color="primary"
           @click="addVariable"
         />
+
+        <q-checkbox
+          v-model="obj.passenv"
+          label="Pass Environment"
+          style="position: absolute; bottom: 0px; left: 120px;"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Pass Environment Variables to Next Block
+          </q-tooltip>
+        </q-checkbox>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2669,7 +2684,7 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      console.log("MESSAGE RECEIVED", me)
+      console.log('MESSAGE RECEIVED', me)
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
       }
@@ -2964,6 +2979,7 @@ export default {
     // Execute method on mixed in component, which sends to server using socket.io
     this.sayHello({ name: 'darren', age: 51 })
 
+    this.updateFunctions(this.obj.code)
     setTimeout(() => {
       console.log('ME.getNode()', me.getNode())
       me.getNode().component = this
@@ -3284,11 +3300,13 @@ export default {
         icon: 'las la-scroll',
         titletab: false,
         consoleview: false,
+        portcounters: {},
         receipt: new Date(),
         notes: '',
         style: '',
         variabledata: [],
         envfacts: true,
+        passenv: false,
         infengine: true,
         x: 0,
         y: 0,
@@ -3559,6 +3577,9 @@ export default {
     }
   },
   methods: {
+    isUsed (portname) {
+      return portname in this.obj.portcounters
+    },
     showComponent () {
       window.$router.push({
         name: 'block',
@@ -3587,6 +3608,8 @@ export default {
     },
     removePort (objid, col) {
       const _port = window.toolkit.getNode(objid).getPort(col)
+      console.log("Removing port ", col, _port.data.name)
+      delete this.obj.portcounters[_port.data.name]
       window.toolkit.removePort(objid, col)
       const fname = _port.data.name.replace('function: ', '')
 
@@ -3600,11 +3623,13 @@ export default {
           }
         }
       }
-      this.argports[col].forEach((portid) => {
-        window.toolkit.removePort(objid, portid)
-      })
+      if (col in this.argports) {
+        this.argports[col].forEach((portid) => {
+          window.toolkit.removePort(objid, portid)
+        })
+        delete this.argports[col]
+      }
       delete this.portobjects[col]
-      delete this.argports[col]
     },
     updatePorts () {
       const me = this
@@ -4267,7 +4292,14 @@ export default {
     },
     addNewPort (func, type, icon) {
       const me = this
+      let mod = ""
 
+      if( func.function in this.obj.portcounters ) {
+        console.log("Function port exists already")
+        return
+      } else {
+        this.obj.portcounters[func.function] = 1
+      }
       var port = this.addPort({
         name: func.function,
         icon: icon,

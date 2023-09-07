@@ -64,14 +64,14 @@
       style="border: 1px solid black;"
     >
       <q-list dense>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="configview = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-cog"/>
+            <q-icon name="fas fa-cog" />
           </q-item-section>
           <q-item-section
             side
@@ -80,7 +80,7 @@
             Configure
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
@@ -88,7 +88,7 @@
           @click="obj.status = 'stopped'"
         >
           <q-item-section side>
-            <q-icon name="fas fa-stop"/>
+            <q-icon name="fas fa-stop" />
           </q-item-section>
           <q-item-section
             side
@@ -104,7 +104,7 @@
           @click="triggerExecute"
         >
           <q-item-section side>
-            <q-icon name="fas fa-play"/>
+            <q-icon name="fas fa-play" />
           </q-item-section>
           <q-item-section
             side
@@ -113,14 +113,14 @@
             Run All
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="addToLibrary"
         >
           <q-item-section side>
-            <q-icon name="fas fa-book"/>
+            <q-icon name="fas fa-book" />
           </q-item-section>
           <q-item-section
             side
@@ -129,15 +129,15 @@
             Add to Library
           </q-item-section>
         </q-item>
-        <q-separator/>
-        <q-separator/>
+        <q-separator />
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           disabled
         >
           <q-item-section side>
-            <q-icon :name="this.abacusIcon"/>
+            <q-icon :name="this.abacusIcon" />
           </q-item-section>
           <q-item-section
             side
@@ -152,7 +152,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-book"/>
+            <q-icon name="fas fa-book" />
           </q-item-section>
           <q-item-section
             side
@@ -167,7 +167,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="las la-list"/>
+            <q-icon name="las la-list" />
           </q-item-section>
           <q-item-section
             side
@@ -176,14 +176,14 @@
             View Connections
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="centerOnNode"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group"/>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
           <q-item-section
             side
@@ -198,7 +198,7 @@
           @click="cornerInView"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group"/>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
           <q-item-section
             side
@@ -223,7 +223,7 @@
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Group</q-item-section>
         </q-item>-->
-        <q-separator/>
+        <q-separator />
 
         <q-item
           clickable
@@ -231,7 +231,7 @@
           @click="copyNode"
         >
           <q-item-section side>
-            <q-icon name="fas fa-copy"/>
+            <q-icon name="fas fa-copy" />
           </q-item-section>
           <q-item-section
             side
@@ -240,7 +240,7 @@
             Copy
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
 
         <q-item
           clickable
@@ -248,7 +248,7 @@
           @click="deleteConfirm = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-trash"/>
+            <q-icon name="fas fa-trash" />
           </q-item-section>
           <q-item-section
             side
@@ -429,7 +429,7 @@
                 @click="addNewTablePort({ name: model.name, args: [] }, 'Table', 'las la-table')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-table"/>
+                  <q-icon name="las la-table" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -478,7 +478,7 @@
                 @click="addNewPort({ function: event, args: [] }, 'Output', 'fas fa-bolt')"
               >
                 <q-item-section side>
-                  <q-icon name="fas fa-bolt"/>
+                  <q-icon name="fas fa-bolt" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -607,7 +607,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list-alt"/>
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -616,7 +616,7 @@
                 Environment
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
 
             <q-item
               clickable
@@ -624,7 +624,7 @@
               @click="showPanel('notesview', !notesview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-sticky-note"/>
+                <q-icon name="far fa-sticky-note" />
               </q-item-section>
               <q-item-section
                 side
@@ -639,7 +639,7 @@
               @click="loginProcessor"
             >
               <q-item-section side>
-                <q-icon name="fas fa-lock"/>
+                <q-icon name="fas fa-lock" />
               </q-item-section>
               <q-item-section
                 side
@@ -648,14 +648,14 @@
                 Lock
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
               @click="showPanel('middlewareview', !middlewareview)"
             >
               <q-item-section side>
-                <q-icon name="las la-exchange-alt"/>
+                <q-icon name="las la-exchange-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -664,14 +664,14 @@
                 Middleware
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-history"/>
+                <q-icon name="fas fa-history" />
               </q-item-section>
               <q-item-section
                 side
@@ -686,7 +686,7 @@
               @click="showPanel('logsview', !logsview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-glasses"/>
+                <q-icon name="fas fa-glasses" />
               </q-item-section>
               <q-item-section
                 side
@@ -701,7 +701,7 @@
               @click="showPanel('requirementsview', !requirementsview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-python"/>
+                <q-icon name="fab fa-python" />
               </q-item-section>
               <q-item-section
                 side
@@ -796,7 +796,7 @@
       </li>
     </ul>
 
-    <q-separator/>
+    <q-separator />
     <div
       class="row"
       id="bandwidth"
@@ -926,7 +926,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Socket</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -992,7 +992,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Processor</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -1239,7 +1239,7 @@
           v-model="codeSplitterModel"
           separator-style="background-color: #e3e8ec;height:5px"
           horizontal
-          style="height: 100%;"
+          style="height: 100%; width: 100%"
         >
           <template #before>
             <div class="q-pa-md">
@@ -1323,7 +1323,7 @@
           </template>
         </q-splitter>
       </q-card-section>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;"/>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;" />
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -1346,7 +1346,7 @@
       </q-card-actions>
       <q-item-label style="position: absolute; left: 120px; bottom: 5px; font-size: 1.5em;">
         {{ gitcommit }}
-        <span style="margin-right: 40px;"/>
+        <span style="margin-right: 40px;" />
         {{ gitdate }}
       </q-item-label>
       <q-card-actions align="right">
@@ -1366,7 +1366,7 @@
       style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;"/>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
 
       <q-card-actions align="right">
         <q-btn
@@ -1383,13 +1383,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 850px; height:670px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
+      style="width: 850px; height:730px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ projectResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 570px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 620px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1444,7 +1444,7 @@
           <q-tab-panel
             ref="tablesconfig"
             name="tablesconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:560px"
           >
             <div
               class="q-pa-md"
@@ -1565,7 +1565,7 @@
           <q-tab-panel
             ref="modelsconfig"
             name="modelsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:560px"
           >
             <div
               class="q-pa-md"
@@ -1668,7 +1668,7 @@
           <q-tab-panel
             ref="jobsconfig"
             name="jobsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:560px"
           >
             <div
               class="q-pa-md"
@@ -1789,7 +1789,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:560px"
           >
             <div
               class="q-pa-md"
@@ -1910,7 +1910,7 @@
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height:570px"
+            style="padding: 0px;height: 620px"
           >
             <div
               class="q-pa-md"
@@ -1925,11 +1925,51 @@
                   filled
                   v-model="obj.name"
                   dense
-                  hint="Project Name"
+                  hint="Block Name"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                   :disable="projectExists"
                 />
+                <q-select
+                  dense
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="obj.projectname"
+                  :options="projectnames"
+                  hint="Project Name"
+                  value="string"
+                  :menu-offset="[5, -9]"
+                >
+                  <template
+                    v-if="!obj.projectname"
+                    #selected
+                  >
+                    <div
+                      class="text-grey-6"
+                      style="font-style: italic"
+                    >
+                      Select a Project
+                    </div>
+                  </template>
+                  <template #after>
+                    <q-btn
+                      dense
+                      flat
+                      icon="fas fa-ellipsis-h"
+                      color="secondary"
+                      @click="configureDatabaseDialog = true"
+                    >
+                      <q-tooltip
+                        anchor="top middle"
+                        :offset="[-30, 40]"
+                        content-style="font-size: 16px"
+                        content-class="bg-black text-white"
+                      >
+                        Manage Projects
+                      </q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
 
                 <q-select
                   dense
@@ -1941,8 +1981,16 @@
                   value="string"
                   :menu-offset="[5, -9]"
                 >
-                  <template v-if="!obj.databasename" v-slot:selected>
-                    <div class="text-grey-6" style="font-style: italic">Select a Database</div>
+                  <template
+                    v-if="!obj.databasename"
+                    #selected
+                  >
+                    <div
+                      class="text-grey-6"
+                      style="font-style: italic"
+                    >
+                      Select a Database
+                    </div>
                   </template>
                   <template #after>
                     <q-btn
@@ -2001,7 +2049,7 @@
                   style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
-                  <q-space/>
+                  <q-space />
                   <q-checkbox
                     v-model="obj.usemiddleware"
                     label="Use Middleware"
@@ -2108,7 +2156,7 @@
                   label="Containerized"
                   :disable="!hasHosted"
                 />
-                <q-space/>
+                <q-space />
                 <q-btn
                   flat
                   label="Advanced"
@@ -2412,7 +2460,7 @@
               ]"
               :content-type="'html'"
             >
-              <pre class="typing"/>
+              <pre class="typing" />
             </vue-typed-js>
           </div>
         </q-scroll-area>
@@ -2747,7 +2795,7 @@
           />
         </div>
       </q-card-section>
-      <q-card-actions align="left"/>
+      <q-card-actions align="left" />
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2766,7 +2814,7 @@
       persistent
     >
       <q-card
-        style="padding: 10px; padding-top: 30px; min-width: 60vw; height: 70%;"
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 70%;"
       >
         <q-card-section
           class="bg-secondary"
@@ -2790,12 +2838,12 @@
           >
             <q-toolbar>
               <q-icon
-                name="fas fa-database"
+                name="las la-brain"
                 color="primary"
-                style="margin-right:10px"
+                style="margin-right:10px;font-size:1.5em"
               />
-              <q-item-label>Manage Databases</q-item-label>
-              <q-space/>
+              <q-item-label>Inference Engine</q-item-label>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-close"
@@ -2808,7 +2856,107 @@
         <q-card-section
           class="row items-center"
           style="height: 120px; width: 100%;"
-        />
+        >
+          <q-splitter
+            v-model="configureSplitterModel"
+            style="height: calc(70vh - 115px); margin-top: 10px; width:100%"
+          >
+            <template #before>
+              <div class="q-pa-md q-gutter-sm">
+                <q-tree
+                  :nodes="lazy"
+                  default-expand-all
+                  node-key="label"
+                  @lazy-load="onLazyLoad"
+                  @update:selected="selectTreeNode"
+                  :selected="selected"
+                />
+              </div>
+            </template>
+
+            <template #after>
+              <div
+                class="q-pa-md"
+                style="width:650px;height:450px"
+              >
+                <q-inner-loading
+                  :showing="loadingObject"
+                  style="z-index: 999999;"
+                >
+                  <q-spinner-gears
+                    size="50px"
+                    color="primary"
+                  />
+                </q-inner-loading>
+                <q-tab-panels
+                  v-model="inferencetabs"
+                  animated
+                  style="width:100%;height:100%"
+                >
+                  <q-tab-panel name="intro">
+                    <h2>Select an object in the tree to the left to view/edit its properties</h2>
+                    <ul>
+                      <li>Databases->Tables</li>
+                      <li>Projects->Models</li>
+                      <li>Projects->Views</li>
+                      <li>Projects->Jobs</li>
+                    </ul>
+                  </q-tab-panel>
+                  <q-tab-panel name="mails">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+                </q-tab-panels>
+              </div>
+            </template>
+          </q-splitter>
+        </q-card-section>
 
         <q-card-actions align="right">
           <q-btn
@@ -2849,7 +2997,7 @@
           >
             <q-toolbar>
               <q-item-label>New Model</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-table"
@@ -2935,6 +3083,7 @@
   </div>
 </template>
 <style scoped>
+
 .q-expansion-item__container > .q-item {
   padding-left: 0px !important;
   padding-right: 0px !important;
@@ -2986,16 +3135,17 @@ tbody tr:nth-child(odd) {
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import {BaseNodeComponent} from 'jsplumbtoolkit-vue2'
-import {v4 as uuidv4} from 'uuid'
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
-import {mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces} from '@mdi/js'
+import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
-import {TSDB} from 'uts'
+import { TSDB } from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
+import { ref } from 'vue'
 
 import http from 'src/http-common'
 
@@ -3030,9 +3180,13 @@ export default {
   name: 'InferenceTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
+  setup () {
+    return {
+      configureSplitterModel: ref(50) // start at 50%
+    }
+  },
   components: {
     editor: require('vue2-ace-editor'),
-    BetterCounter,
     Console
   },
   watch: {
@@ -3058,7 +3212,7 @@ export default {
       // console.log('inBytes', val);
     }
   },
-  created() {
+  created () {
     const me = this
 
     this.plugIcon = mdiPowerSocketUs
@@ -3110,7 +3264,7 @@ export default {
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
-          me.consolelogs.push({date: new Date(), output: msg.output})
+          me.consolelogs.push({ date: new Date(), output: msg.output })
         }
       }
 
@@ -3136,7 +3290,7 @@ export default {
 
       if (msg.type && msg.type === 'output') {
         if (msg.processor === this.obj.name) {
-          me.consolelogs.push({date: new Date(), output: msg.output})
+          me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
       }
@@ -3157,9 +3311,9 @@ export default {
         )
 
         var timedata = tsdb.series('inBytes').query({
-          metrics: {data: TSDB.map('bytes'), time: TSDB.map('time')},
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
-            time: {is: '<', than: Date.now() - 5 * 60}
+            time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
 
@@ -3177,9 +3331,9 @@ export default {
       if (msg.channel === 'task' && msg.message) {
         const now = Date.now()
         var timedata = tsdb.series('outBytes').query({
-          metrics: {data: TSDB.map('bytes'), time: TSDB.map('time')},
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
-            time: {is: '<', than: Date.now() - 5 * 60}
+            time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
         console.log('TIMEDATA', timedata)
@@ -3242,7 +3396,7 @@ export default {
     }, 3000)
   },
   computed: {
-    getfuncs() {
+    getfuncs () {
       this.updateFunctions(this.obj.middleware)
       console.log('GETFUNCS', this.funcs)
       return this.funcs.map(a => a.name)
@@ -3278,7 +3432,7 @@ export default {
         }
       }
     },
-    myhistory() {
+    myhistory () {
       const me = this
 
       var myhist = []
@@ -3290,31 +3444,31 @@ export default {
 
       return myhist
     },
-    rateLimit(val) {
+    rateLimit (val) {
     },
-    taskTime() {
+    taskTime () {
       return this.task_time
     },
-    inBytes() {
+    inBytes () {
       return this.calls_in + ' (' + this.bytes_in_human + ' bytes)'
     },
-    outBytes() {
+    outBytes () {
       return this.calls_out + ' (' + this.bytes_out_human + ' bytes)'
     },
-    totalBytes() {
+    totalBytes () {
       return this.calls_out + this.calls_in + ' (' + this.sizeOf(this.bytes_out + this.bytes_in) + ' bytes)'
     },
-    bytes_in_human() {
+    bytes_in_human () {
       return this.sizeOf(this.bytes_in)
     },
-    bytes_out_human() {
+    bytes_out_human () {
       return this.sizeOf(this.bytes_out)
     },
-    readwrite() {
+    readwrite () {
       return this.obj.readwrite
     }
   },
-  mounted() {
+  mounted () {
     const me = this
 
     console.log('setId ', this.obj.id)
@@ -3330,7 +3484,7 @@ export default {
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({name: 'darren', age: 51})
+    this.sayHello({ name: 'darren', age: 51 })
 
     setTimeout(() => {
       console.log('ME.getNode()', me.getNode())
@@ -3350,9 +3504,6 @@ export default {
         this.configview = !this.configview
       }
     })
-    window.designer.$root.$on('toolkit.dirty', (val) => {
-      this.updateSchemas()
-    })
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
@@ -3366,8 +3517,63 @@ export default {
     }
     this.pullSchema()
   },
-  data() {
+  data () {
     return {
+      loadingObject: false,
+      selected: null,
+      inferencetabs: 'intro',
+      lazy: [
+        {
+          label: 'Databases',
+          icon: 'las la-database',
+          lazy: true
+        },
+        {
+          label: 'Projects',
+          icon: 'las la-clipboard',
+          lazy: true
+        }
+      ],
+      databasenames: [],
+      expanded: ['Satisfied customers (with avatar)', 'Good food (with icon)'],
+
+      simple: [
+        {
+          label: 'Satisfied customers (with avatar)',
+          avatar: 'https://cdn.quasar.dev/img/boy-avatar.png',
+          children: [
+            {
+              label: 'Good food (with icon)',
+              icon: 'restaurant_menu',
+              children: [
+                { label: 'Quality ingredients' },
+                { label: 'Good recipe' }
+              ]
+            },
+            {
+              label: 'Good service (disabled node with icon)',
+              icon: 'room_service',
+              disabled: true,
+              children: [
+                { label: 'Prompt attention' },
+                { label: 'Professional waiter' }
+              ]
+            },
+            {
+              label: 'Pleasant surroundings (with icon)',
+              icon: 'photo',
+              children: [
+                {
+                  label: 'Happy atmosphere (with image)',
+                  img: 'https://cdn.quasar.dev/img/logo_calendar_128px.png'
+                },
+                { label: 'Good table presentation' },
+                { label: 'Pleasing decor' }
+              ]
+            }
+          ]
+        }
+      ],
       configureDatabaseDialog: false,
       modelDatabase: '',
       databaseList: ['mydatabase', 'database2'],
@@ -3413,8 +3619,9 @@ export default {
       predictedrows: [],
       connectResult: '',
       events: ['Begin', 'Error', 'Complete'],
+      projectname: null,
+      projectnames: [],
       databasename: null,
-      databasenames: [],
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
@@ -3694,7 +3901,6 @@ export default {
         titletab: false,
         schema: '',
         data: [],
-        databasename: '',
         usemiddleware: false,
         middlewareonly: false,
         middlewarefunc: '',
@@ -3934,7 +4140,41 @@ export default {
     }
   },
   methods: {
-    deleteProject() {
+    selectTreeNode (v) {
+      if (v !== null) {
+        this.selected = v
+        console.log('Selected Node', v)
+        this.loadingObject = true
+        setTimeout(() => {
+          this.loadingObject = false
+        }, 1000)
+      }
+    },
+    onLazyLoad ({ node, key, done, fail }) {
+      // call fail() if any error occurs
+
+      setTimeout(() => {
+        // simulate loading and setting an empty node
+        if (key.indexOf('Lazy load empty') > -1) {
+          done([])
+          return
+        }
+
+        const label = node.label
+        done([
+          { label: `${label}.1` },
+          { label: `${label}.2`, lazy: true },
+          {
+            label: `${label}.3`,
+            children: [
+              { label: `${label}.3.1`, lazy: true },
+              { label: `${label}.3.2`, lazy: true }
+            ]
+          }
+        ])
+      }, 1000)
+    },
+    deleteProject () {
       const me = this
       this.saving = true
       DataService.deleteProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
@@ -3947,7 +4187,7 @@ export default {
         me.projectResult = 'Project Deletion Error'
       })
     },
-    createProject() {
+    createProject () {
       const me = this
       this.saving = true
       DataService.createProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
@@ -3961,10 +4201,10 @@ export default {
         me.projectResult = err.response.data.message
       })
     },
-    tableSelected() {
+    tableSelected () {
       console.log('TABLE SELECTED')
     },
-    refreshTables() {
+    refreshTables () {
       const me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
@@ -3976,26 +4216,26 @@ export default {
         me.saving = false
       })
     },
-    pullSchema() {
+    pullSchema () {
       const me = this
       this.saving = true
       this.saving = false
     },
-    createMindsDatabase() {
+    createMindsDatabase () {
       this.saving = true
       DataService.createMindsDatabase()
     },
-    setZoomLevel() {
+    setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
-    removePort(objid, col) {
+    removePort (objid, col) {
       window.toolkit.removePort(objid, col)
       delete this.portobjects[col]
       // this.portobjects.remove(col)
       this.ports
       this.argobjects
     },
-    updatePorts() {
+    updatePorts () {
       const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
@@ -4004,13 +4244,13 @@ export default {
         me.updateDataPort(port)
       })
     },
-    updateDataPort(port) {
+    updateDataPort (port) {
       this.portobjects[port.id] = port.data
     },
-    triggerQuery(portname) {
+    triggerQuery (portname) {
 
     },
-    triggerObject(portname) {
+    triggerObject (portname) {
       const me = this
 
       console.log('TRIGGER ALL BEGIN')
@@ -4068,7 +4308,7 @@ export default {
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute(port) {
+    triggerExecute (port) {
       let exe = false
 
       for (var portname in this.portobjects) {
@@ -4081,24 +4321,66 @@ export default {
         }
       }
     },
-    showCommit(hash, date) {
+    updateBandwidthChart () {
+      const outBytes = tsdb.series('outBytes').query({
+        metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
+        where: {
+          time: { is: '<', than: Date.now() - 60 * 60 }
+        }
+      })
+      // this.series[1].data = outBytes[0].results.outBytes
+      const inBytes = tsdb.series('inBytes').query({
+        metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
+        where: {
+          time: { is: '<', than: Date.now() - 60 * 60 }
+        }
+      })
+      // this.series[0].data = inBytes[0].results.inBytes
+      const durations = tsdb.series('durations').query({
+        metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
+        where: {
+          time: { is: '<', than: Date.now() - 60 * 60 }
+        }
+      })
+      // this.series[2].data = durations[0].results.data
+
+      const xaxis = inBytes[0].results.time.map((x) => {
+        const d = new Date(x)
+        return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+      })
+      console.log('XAXIS', xaxis)
+      this.chartOptions.xaxis.categories = xaxis
+      // console.log('updateBandwidthChart: inBytes', inBytes)
+      // console.log('updateBandwidthChart: outBytes', outBytes)
+      // console.log('updateBandwidthChart: durations', durations)
+      if (this.$refs.bandwidthChart) {
+        this.$refs.bandwidthChart.updateSeries([{
+          name: 'Bytes Out',
+          data: outBytes[0].results.outBytes.slice(0, 25)
+        }, {
+          name: 'Bytes In',
+          data: inBytes[0].results.inBytes.slice(0, 25)
+        }])
+      }
+    },
+    showCommit (hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
       this.gitdate = date
     },
-    addVariable() {
+    addVariable () {
       this.variabledata.push({
         name: 'NAME',
         value: 'VALUE',
         scope: 'FLOW'
       })
     },
-    addToLibrary() {
+    addToLibrary () {
       window.root.$emit('add.library', this.obj)
     },
-    cornerInView() {
+    cornerInView () {
       const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
@@ -4108,7 +4390,7 @@ export default {
         }
       })
     },
-    centerOnNode() {
+    centerOnNode () {
       const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
@@ -4121,11 +4403,11 @@ export default {
         }
       })
     },
-    addFunc(func) {
+    addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({function: func.name, args: func.args}, 'Output', 'las la-search')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')
     },
-    showOutput(resultid) {
+    showOutput (resultid) {
       this.resultdataloading = true
 
       DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
@@ -4135,7 +4417,7 @@ export default {
         editor.session.setValue(result.data)
       })
     },
-    showResult(resultid) {
+    showResult (resultid) {
       this.resultdataloading = true
 
       DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
@@ -4145,7 +4427,7 @@ export default {
         editor.session.setValue(JSON.stringify(result.data, null, 2))
       })
     },
-    refreshResultsData() {
+    refreshResultsData () {
       this.resultloading = true
       DataService.getCalls(this.obj.name, this.$store.state.designer.token)
         .then((calls) => {
@@ -4156,7 +4438,7 @@ export default {
           this.resultloading = false
         })
     },
-    updateFunctions(code) {
+    updateFunctions (code) {
       /* Parse out named objects from editor */
       const re = /def (\w+)\s*\((.*?)\):/g
 
@@ -4167,10 +4449,10 @@ export default {
 
       for (const match of matches) {
         var name = match[0].split('(')[0].split(' ').at(-1)
-        this.funcs.push({name: name, args: []})
+        this.funcs.push({ name: name, args: [] })
       }
     },
-    fetchCode() {
+    fetchCode () {
       const me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
@@ -4196,10 +4478,10 @@ export default {
         })
       }
     },
-    copyNode() {
+    copyNode () {
       console.log('COPY NODE')
 
-      function findMatch(list, obj) {
+      function findMatch (list, obj) {
         for (let i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
@@ -4209,7 +4491,7 @@ export default {
         return false
       }
 
-      function findEdge(list, edge) {
+      function findEdge (list, edge) {
         for (let i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
@@ -4219,7 +4501,7 @@ export default {
         return false
       }
 
-      function haveAllNodes(nodes, edge) {
+      function haveAllNodes (nodes, edge) {
         let source = false
         let target = false
         for (let i = 0; i < nodes.length; i++) {
@@ -4276,10 +4558,10 @@ export default {
       console.log('jsonData:', jsonData)
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
-    closePortEdit() {
+    closePortEdit () {
       this.editPort = false
     },
-    saveProcessor() {
+    saveProcessor () {
       const me = this
 
       this.refreshing = true
@@ -4307,44 +4589,44 @@ export default {
           this.refreshing = false
         })
     },
-    sizeOf(bytes) {
+    sizeOf (bytes) {
       if (bytes === 0) {
         return '0.00 B'
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024))
       return (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
     },
-    mouseEnter(event) {
+    mouseEnter (event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       this.mousecard = true
     },
-    mouseExit(event) {
+    mouseExit (event) {
       console.log('mouseExit')
       // this.mousecard = false;
     },
-    mouseMove(event) {
+    mouseMove (event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       console.log(this.cardX, this.cardY)
     },
-    setBandwidth(value) {
+    setBandwidth (value) {
       console.log('SET BANDWIDTH', value)
       this.obj.bandwidth = value
     },
-    onSubmit() {
+    onSubmit () {
     },
-    onReset() {
+    onReset () {
     },
-    getUuid() {
+    getUuid () {
       return 'key_' + uuidv4()
     },
-    rowStripe(row) {
+    rowStripe (row) {
       if (row % 2 === 0) {
         return 'background-color:white'
       }
     },
-    showPanel(view, show) {
+    showPanel (view, show) {
       this.configview = false
       this.codeview = false
       this.dataview = false
@@ -4377,13 +4659,13 @@ export default {
         }
       }
     },
-    updateDescription(value, initialValue) {
+    updateDescription (value, initialValue) {
       console.log('updateDesc', value, initialValue)
       this.renameConfirm = true
       this.renameValue = value
       this.initialValue = initialValue
     },
-    updateName(value, initialValue, column) {
+    updateName (value, initialValue, column) {
       console.log('column edited ', column)
       console.log('updateName', value, initialValue)
       this.renameConfirm = true
@@ -4459,28 +4741,28 @@ export default {
         editor.session.setValue(me.obj.code)
       }
     },
-    showCode() {
+    showCode () {
       // this.code = true;
     },
-    showTooltip(show) {
+    showTooltip (show) {
       this.tooltip = show
     },
-    confirmDeletePort(id) {
+    confirmDeletePort (id) {
       this.deletePortID = id
       this.deleteItem = true
     },
-    resetToolkit() {
+    resetToolkit () {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged() {
+    valueChanged () {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode() {
+    deleteNode () {
       window.toolkit.removeNode(this.obj)
     },
-    removeColumn(column) {
+    removeColumn (column) {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
@@ -4516,7 +4798,7 @@ export default {
       }
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
+    addPort (port) {
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {
@@ -4540,7 +4822,7 @@ export default {
 
       return port
     },
-    addNewTablePort(table, type, icon) {
+    addNewTablePort (table, type, icon) {
       var port = this.addPort({
         name: table.name,
         icon: icon,
@@ -4554,7 +4836,7 @@ export default {
 
       }
     },
-    addNewPort(func, type, icon) {
+    addNewPort (func, type, icon) {
       var port = this.addPort({
         name: func.function,
         icon: icon,
@@ -4570,7 +4852,7 @@ export default {
 
       }
     },
-    addErrorPort() {
+    addErrorPort () {
       if (this.error) {
         this.$q.notify({
           color: 'negative',
