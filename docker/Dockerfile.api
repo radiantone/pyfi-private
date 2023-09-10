@@ -43,6 +43,8 @@ RUN venv/bin/pip install -r requirements.txt
 RUN update-rc.d -f supervisord remove
 RUN venv/bin/pip uninstall -y pytz
 RUN venv/bin/python setup.py install
+#RUN curl -Ls https://download.newrelic.com/install/newrelic-cli/scripts/install.sh | bash
+
 
 ENV NEW_RELIC_CONFIG_FILE=/opt/pyfi/newrelic.ini
 

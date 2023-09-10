@@ -5,9 +5,16 @@
 /* --- Node common -------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------- */
 
+.q-splitter--vertical > .q-splitter__separator > div {
+  cursor: col-resize;
+}
 
 .brightness {
   background-color:rgba(227,232,236,0.4);
+}
+
+.q-field__bottom {
+    padding-left: 0px !important;
 }
 
 .brightness:hover {
@@ -39,6 +46,11 @@
   margin-left: -5px;
   background: url("~assets/images/outlet.svg");
   background-size: 45px 45px;
+}
+
+.q-tree__node--selected {
+  background-color: #e3e8ec !important;
+  color: black;
 }
 
 .outlet-svg {

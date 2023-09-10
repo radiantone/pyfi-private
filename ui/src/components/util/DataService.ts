@@ -59,6 +59,86 @@ class DataService {
     })
   }
 
+  listProjects (token: string): Promise<any> {
+    return http.get('/api/minds/projects', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listDatabases (token: string): Promise<any> {
+    return http.get('/api/minds/databases', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listTables (database: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + database + '/tables', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listModels (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/models', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getModel (model: string, token: string): Promise<any> {
+    return http.get('/api/minds/models/' + model, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listJobs (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/jobs', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getJob (job: string, token: string): Promise<any> {
+    return http.get('/api/minds/jobs/' + job, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getProject (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/projects/' + project, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listViews (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/views', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getView (view: string, token: string): Promise<any> {
+    return http.get('/api/minds/views/' + view, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getMock (): Promise<any> {
     return http.get('/apitest/')
   }
@@ -242,7 +322,7 @@ class DataService {
     })
   }
 
-  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
+  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon: string, file: string, token: string): Promise<any> {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
     const authString = 'Bearer ' + token

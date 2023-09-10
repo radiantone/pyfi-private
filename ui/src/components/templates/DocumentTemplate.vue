@@ -4,7 +4,6 @@
     @mouseleave="showTooltip(false)"
     @mouseover="showTooltip(true)"
     style="
-      color: primary;
       text-size: 0.8em;
       max-width: 100px;
       height: 100px;
