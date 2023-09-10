@@ -2866,7 +2866,8 @@
                 <q-tree
                   :nodes="lazy"
                   default-expand-all
-                  node-key="label"
+                  node-key="id"
+                  ref="tree"
                   @lazy-load="onLazyLoad"
                   @update:selected="selectTreeNode"
                   :selected="selected"
@@ -2902,7 +2903,211 @@
                       <li>Projects->Jobs</li>
                     </ul>
                   </q-tab-panel>
-                  <q-tab-panel name="mails">
+                  <q-tab-panel name="database">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="project">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="model">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="view">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+
+                  <q-tab-panel name="job">
                     <div
                       class="q-pa-md"
                       style="max-width: 100%; padding-bottom: 0px;"
@@ -3526,12 +3731,14 @@ export default {
         {
           label: 'Databases',
           icon: 'las la-database',
+          id: 0,
           lazy: true
         },
         {
           label: 'Projects',
           icon: 'las la-clipboard',
-          lazy: true
+          lazy: true,
+          id: 9
         }
       ],
       databasenames: [],
@@ -4140,11 +4347,13 @@ export default {
     }
   },
   methods: {
-    selectTreeNode (v) {
+    selectTreeNode (v, n) {
       if (v !== null) {
-        this.selected = v
-        console.log('Selected Node', v)
+        const node = this.$refs.tree.getNodeByKey(v)
+        this.selected = node.id
+        console.log('Selected Node', v, node)
         this.loadingObject = true
+        this.inferencetabs = node.type
         setTimeout(() => {
           this.loadingObject = false
         }, 1000)
@@ -4155,20 +4364,28 @@ export default {
 
       setTimeout(() => {
         // simulate loading and setting an empty node
-        if (key.indexOf('Lazy load empty') > -1) {
-          done([])
-          return
-        }
 
         const label = node.label
+
+        var type = null
+
+        if (node.label === 'Databases') {
+          type = 'database'
+        }
+        if (node.label === 'Projects') {
+          type = 'project'
+        }
+
         done([
-          { label: `${label}.1` },
-          { label: `${label}.2`, lazy: true },
+          { label: `${label}.1`, id: 1, type: type },
+          { label: `${label}.2`, id: 2, type: type, lazy: true },
           {
             label: `${label}.3`,
+           id: 5,
+            type: type,
             children: [
-              { label: `${label}.3.1`, lazy: true },
-              { label: `${label}.3.2`, lazy: true }
+              { label: `${label}.3.1`, id: 3, type: type, lazy: true },
+              { label: `${label}.3.2`, id: 4, type: type, lazy: true }
             ]
           }
         ])
@@ -4872,6 +5089,7 @@ export default {
     },
     selectNode: function () {
       console.log('selected: ', this.obj.id)
+
       window.root.$emit('node.selected', this.obj)
     },
     deleteEntity: function (name) {
