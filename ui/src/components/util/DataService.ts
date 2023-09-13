@@ -284,9 +284,17 @@ class DataService {
     })
   }
 
-  createMindsDatabase (database: any, token: string): Promise<any> {
+  createMindsDatabase (name: string, dbtype: string, user: string, pwd: string, host: string, port: string, dbname: string, token: string): Promise<any> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
-    return http.post('/api/minds/database' + database.name, database, {
+    return http.post('/api/minds/database', {
+      dbname: dbname,
+      dbtype: dbtype,
+      name: name,
+      user: user,
+      pwd: pwd,
+      host: host,
+      port: port
+    }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
