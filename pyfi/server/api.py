@@ -1367,7 +1367,21 @@ def create_database():
 
     data: Any = request.get_json()
 
-    print(data)
+    try:
+        if data["dbtype"] == "SQLite":
+            mdb = server.create_database(
+                engine=data["dbtype"],
+                name=data["name"],
+                connection_args={
+                    "db_file": data["name"]+".db"
+                },
+            )
+
+            status = {"status": "ok"}
+            return jsonify(status)
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
 
 
 @app.route("/minds/database", methods=["DELETE"])
@@ -1383,7 +1397,7 @@ def delete_database():
 def list_projects():
     projects = server.list_projects()
 
-    return jsonify(projects)
+    return jsonify([project.name for project in projects])
 
 
 @app.route("/minds/<project>/models", methods=["GET"])
@@ -1461,10 +1475,21 @@ def delete_model(project, model):
 @cross_origin()
 @requires_auth
 def list_databases():
+    import itertools
+
+    counter = itertools.count(0)
 
     databases = server.list_databases()
 
-    return jsonify(databases)
+    names = [{
+        "label": database.name,
+        "icon": "las la-database",
+        "lazy": True,
+        "type": "database",
+        "id": "db{}".format(next(counter))
+    } for database in databases]
+
+    return jsonify(names)
 
 
 @app.route("/minds/project", methods=["POST"])
