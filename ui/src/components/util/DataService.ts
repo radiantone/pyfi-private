@@ -51,8 +51,8 @@ class DataService {
     })
   }
 
-  createProject (name: string, database: string, connection: string, token: string): Promise<any> {
-    return http.post('/api/minds/project', { name: name, database: database, connection: connection }, {
+  createProject (name: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + name, {}, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -284,9 +284,10 @@ class DataService {
     })
   }
 
-  createMindsDatabase (database: any, token: string): Promise<any> {
+  // name: string, dbtype: string, user: string, pwd: string, host: string, port: string, dbname: string
+  createDatabase (mindsobj: any, token: string): Promise<any> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
-    return http.post('/api/minds/database' + database.name, database, {
+    return http.post('/api/minds/database', mindsobj, {
       headers: {
         Authorization: 'Bearer ' + token
       }

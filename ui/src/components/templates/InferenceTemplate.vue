@@ -426,7 +426,7 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewTablePort({ name: model.name, args: [] }, 'Table', 'las la-table')"
+                @click="addNewTablePort({ name: model.name, args: [] }, 'Input', 'las la-table')"
               >
                 <q-item-section side>
                   <q-icon name="las la-table" />
@@ -747,7 +747,7 @@
             flat
             dense
             round
-            v-if="column.type === 'Table'"
+            v-if="column.type === 'Input'"
           />
           <q-btn
             icon="fa fa-times"
@@ -757,11 +757,11 @@
             dense
             round
             @click="confirmDeletePort(column.id)"
-            v-if="column.type === 'Table' || column.type === 'Output'"
+            v-if="column.type === 'Input' || column.type === 'Output'"
           />
         </div>
         <div
-          v-if="column.type === 'Table' || column.type === 'Output'"
+          v-if="column.type === 'Input' || column.type === 'Output'"
         >
           <div class="float-left text-secondary">
             <i
@@ -777,7 +777,7 @@
           </span>
         </div>
         <jtk-source
-          v-if="column.type === 'Table' || column.type === 'Output'"
+          v-if="column.type === 'Input' || column.type === 'Output'"
           :port-id="column.id"
           name="source"
           :scope="column.datatype"
@@ -787,10 +787,10 @@
         />
 
         <jtk-target
-          v-if="column.type === 'Table'"
+          v-if="column.type === 'Input'"
           name="target"
           :port-id="column.id"
-          type="Table"
+          type="column"
           :scope="column.datatype"
         />
       </li>
@@ -1383,13 +1383,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 850px; height:730px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
+      style="width: 850px; height:630px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ projectResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 620px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1910,7 +1910,7 @@
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height: 620px"
+            style="padding: 0px;height: 520px"
           >
             <div
               class="q-pa-md"
@@ -2020,25 +2020,6 @@
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
                 <q-select
-                  dense
-                  :options-dense="true"
-                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                  v-model="obj.database"
-                  :options="databases"
-                  hint="Database Type"
-                  value="string"
-                  :menu-offset="[5, -9]"
-                />
-                <q-input
-                  filled
-                  v-model="obj.connection"
-                  dense
-                  hint="Connection String"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                />
-
-                <q-select
                   filled
                   dense
                   v-model="obj.middlewarefunc"
@@ -2073,46 +2054,6 @@
                 </q-toolbar>
               </q-form>
             </div>
-
-            <q-card-actions align="left">
-              <q-btn
-                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
-                flat
-                label="Create"
-                class="bg-primary text-dark"
-                color="dark"
-                :disable="projectExists"
-                @click="createProject"
-              >
-                <q-tooltip
-                  anchor="top middle"
-                  :offset="[-30, 40]"
-                  content-style="font-size: 16px"
-                  content-class="bg-black text-white"
-                >
-                  Create Project
-                </q-tooltip>
-              </q-btn>
-              <q-btn
-                style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
-                flat
-                label="Delete"
-
-                class="bg-secondary text-white"
-                color="primary"
-                :disable="!projectExists"
-                @click="deleteProject"
-              >
-                <q-tooltip
-                  anchor="top middle"
-                  :offset="[-30, 40]"
-                  content-style="font-size: 16px"
-                  content-class="bg-black text-white"
-                >
-                  Delete Project
-                </q-tooltip>
-              </q-btn>
-            </q-card-actions>
           </q-tab-panel>
           <q-tab-panel
             name="containersettings"
@@ -2811,7 +2752,6 @@
 
     <q-dialog
       v-model="configureDatabaseDialog"
-      persistent
     >
       <q-card
         style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 70%;"
@@ -2878,7 +2818,7 @@
             <template #after>
               <div
                 class="q-pa-md"
-                style="width:650px;height:450px"
+                style="width:650px;height:650px"
               >
                 <q-inner-loading
                   :showing="loadingObject"
@@ -2903,7 +2843,7 @@
                       <li>Projects->Jobs</li>
                     </ul>
                   </q-tab-panel>
-                  <q-tab-panel name="database">
+                  <q-tab-panel name="databases">
                     <div
                       class="q-pa-md"
                       style="max-width: 100%; padding-bottom: 0px;"
@@ -2917,44 +2857,139 @@
                           filled
                           v-model="obj.name"
                           dense
-                          hint="Processor Name"
+                          hint="Database Name"
                           lazy-rules
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
 
-                        <q-input
-                          filled
-                          v-model="obj.description"
+                        <q-select
                           dense
-                          hint="Processor Description"
-                          lazy-rules
-                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                          :options-dense="true"
+                          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                          v-model="obj.database"
+                          :options="databases"
+                          hint="Database Type"
+                          value="string"
+                          :menu-offset="[5, -9]"
                         />
-                        <q-input
-                          filled
-                          v-model="obj.icon"
-                          dense
-                          hint="Icon Class"
-                          lazy-rules
-                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                        />
-                        <q-toolbar style="">
-                          <q-checkbox
-                            v-model="obj.titletab"
-                            label="Title Tab"
-                            style="margin-left: 40px;"
-                          />
-                          <q-checkbox
-                            v-model="obj.enabled"
-                            label="Enabled"
-                            style="margin-left: 40px;"
-                          />
-                        </q-toolbar>
+                        <q-tab-panels
+                          v-model="obj.database"
+                          animated
+                          style="width:100%;height:100%"
+                        >
+                          <q-tab-panel name="SQLite">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbfile"
+                              dense
+                              hint="DB File"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+
+                          <q-tab-panel name="Postgres">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbuser"
+                              dense
+                              hint="User"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbpwd"
+                              dense
+                              hint="Password"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbhost"
+                              dense
+                              hint="Host"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbport"
+                              dense
+                              hint="Port"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbname"
+                              dense
+                              hint="Database"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+                          <q-tab-panel name="MySQL">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbuser"
+                              dense
+                              hint="User"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbpwd"
+                              dense
+                              hint="Password"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbhost"
+                              dense
+                              hint="Host"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbport"
+                              dense
+                              hint="Port"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbname"
+                              dense
+                              hint="Database"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+                        </q-tab-panels>
                       </q-form>
+                      <q-card-actions align="left">
+                        <q-btn
+                          flat
+                          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+                          label="Create"
+                          class="bg-secondary text-white"
+                          @click="createMindsDatabase"
+                        />
+                        <q-item-label style="position: absolute; bottom: 10px; left: 120px;">
+                          {{ createDatabaseResult }}
+                        </q-item-label>
+                      </q-card-actions>
                     </div>
                   </q-tab-panel>
 
-                  <q-tab-panel name="project">
+                  <q-tab-panel name="projects">
                     <div
                       class="q-pa-md"
                       style="max-width: 100%; padding-bottom: 0px;"
@@ -2968,7 +3003,7 @@
                           filled
                           v-model="obj.name"
                           dense
-                          hint="Processor Name"
+                          hint="Project Name"
                           lazy-rules
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
@@ -2989,19 +3024,28 @@
                           lazy-rules
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
-                        <q-toolbar style="">
-                          <q-checkbox
-                            v-model="obj.titletab"
-                            label="Title Tab"
-                            style="margin-left: 40px;"
-                          />
-                          <q-checkbox
-                            v-model="obj.enabled"
-                            label="Enabled"
-                            style="margin-left: 40px;"
-                          />
-                        </q-toolbar>
                       </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Create"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          :disable="projectExists"
+                          @click="createProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Create Project
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
                     </div>
                   </q-tab-panel>
 
@@ -3387,7 +3431,7 @@ export default {
   vuetify: new Vuetify(),
   setup () {
     return {
-      configureSplitterModel: ref(50) // start at 50%
+      configureSplitterModel: ref(35) // start at 50%
     }
   },
   components: {
@@ -3411,7 +3455,6 @@ export default {
       }
     },
     'obj.status': function (val) {
-      window.designer.$root.$emit('toolkit.dirty')
     },
     inBytes: function (val) {
       // console.log('inBytes', val);
@@ -3732,12 +3775,14 @@ export default {
           label: 'Databases',
           icon: 'las la-database',
           id: 0,
+          type: 'databases',
           lazy: true
         },
         {
           label: 'Projects',
           icon: 'las la-clipboard',
           lazy: true,
+          type: 'projects',
           id: 9
         }
       ],
@@ -3820,6 +3865,7 @@ export default {
       ],
       fetchDisabled: true,
       projectResult: 'No project',
+      createDatabaseResult: '',
       viewcols: [],
       tables: [],
       table: '',
@@ -4103,6 +4149,9 @@ export default {
         query: ''
       },
       obj: {
+        mindsobj: {
+
+        },
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-brain',
         titletab: false,
@@ -4352,44 +4401,26 @@ export default {
         const node = this.$refs.tree.getNodeByKey(v)
         this.selected = node.id
         console.log('Selected Node', v, node)
-        this.loadingObject = true
         this.inferencetabs = node.type
         setTimeout(() => {
-          this.loadingObject = false
         }, 1000)
       }
     },
     onLazyLoad ({ node, key, done, fail }) {
-      // call fail() if any error occurs
+      const label = node.label
 
-      setTimeout(() => {
-        // simulate loading and setting an empty node
-
-        const label = node.label
-
-        var type = null
-
-        if (node.label === 'Databases') {
-          type = 'database'
-        }
-        if (node.label === 'Projects') {
-          type = 'project'
-        }
-
-        done([
-          { label: `${label}.1`, id: 1, type: type },
-          { label: `${label}.2`, id: 2, type: type, lazy: true },
-          {
-            label: `${label}.3`,
-           id: 5,
-            type: type,
-            children: [
-              { label: `${label}.3.1`, id: 3, type: type, lazy: true },
-              { label: `${label}.3.2`, id: 4, type: type, lazy: true }
-            ]
-          }
-        ])
-      }, 1000)
+      if (label === 'Databases') {
+        DataService.listDatabases(this.$store.state.designer.token).then((result) => {
+          this.databasenames = result.data.map(db => db.label)
+          done(result.data)
+        })
+      }
+      if (label === 'Projects') {
+        DataService.listProjects(this.$store.state.designer.token).then((result) => {
+          this.projectnames = result.data.map(proj => proj.label)
+          done(result.data)
+        })
+      }
     },
     deleteProject () {
       const me = this
@@ -4412,7 +4443,6 @@ export default {
         me.projectResult = 'Project Created Successfully'
         me.projectExists = true
       }).catch((err) => {
-        debugger
         console.log('ERROR', err)
         me.saving = false
         me.projectResult = err.response.data.message
@@ -4438,9 +4468,28 @@ export default {
       this.saving = true
       this.saving = false
     },
+
+    createMindsProject () {
+      this.loadingObject = true
+      DataService.createMindsProject(this.obj.projectname,
+        this.$store.state.designer.token).then((res) => {
+        this.loadingObject = false
+        this.createDatabaseResult = res.response.data.message
+      }).catch((err) => {
+        this.loadingObject = false
+        this.createDatabaseResult = err.response.data.message
+      })
+    },
     createMindsDatabase () {
-      this.saving = true
-      DataService.createMindsDatabase()
+      this.loadingObject = true
+      DataService.createDatabase(this.obj.mindsobj,
+        this.$store.state.designer.token).then((res) => {
+        this.loadingObject = false
+        this.createDatabaseResult = res.response.data.message
+      }).catch((err) => {
+        this.loadingObject = false
+        this.createDatabaseResult = err.response.data.message
+      })
     },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)

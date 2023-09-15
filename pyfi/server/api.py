@@ -1367,7 +1367,21 @@ def create_database():
 
     data: Any = request.get_json()
 
-    print(data)
+    try:
+        if data["dbtype"] == "SQLite":
+            mdb = server.create_database(
+                engine=data["dbtype"],
+                name=data["name"],
+                connection_args={
+                    "db_file": data["name"]+".db"
+                },
+            )
+
+            status = {"status": "ok", "message":"Database created successfully!"}
+            return jsonify(status)
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
 
 
 @app.route("/minds/database", methods=["DELETE"])
@@ -1381,9 +1395,21 @@ def delete_database():
 @cross_origin()
 @requires_auth
 def list_projects():
+    import itertools
+
+    counter = itertools.count(0)
+
     projects = server.list_projects()
 
-    return jsonify(projects)
+    names = [{
+        "label": project.name,
+        "icon": "las la-clipboard",
+        "lazy": True,
+        "type": "project",
+        "id": "proj{}".format(next(counter))
+    } for project in projects]
+
+    return jsonify(names)
 
 
 @app.route("/minds/<project>/models", methods=["GET"])
@@ -1461,39 +1487,34 @@ def delete_model(project, model):
 @cross_origin()
 @requires_auth
 def list_databases():
+    import itertools
+
+    counter = itertools.count(0)
 
     databases = server.list_databases()
 
-    return jsonify(databases)
+    names = [{
+        "label": database.name,
+        "icon": "las la-database",
+        "lazy": True,
+        "type": "database",
+        "id": "db{}".format(next(counter))
+    } for database in databases]
+
+    return jsonify(names)
 
 
-@app.route("/minds/project", methods=["POST"])
+@app.route("/minds/project/<name>", methods=["POST"])
 @cross_origin()
 @requires_auth
-def create_project():
-    from urllib.parse import urlparse
-
+def create_project(name):
     data: Any = request.get_json()
-    # data.block.id should be bound to data.project.name
-    # which are both bound to the newly created project(id)
-    # in minds db. If they differ return an error
-    # Renaming the block in the UI is not allowed once a project
-    # is created (unless mindsdb also allows projects to be renamed
-    database = data["database"]
-    if database == "SQLite":
-        print(urlparse(data["connection"]).path.split("/"))
-        dbname = data["connection"].rsplit("/")[-1]
-        # urlparse(data["connection"]).path.split("/")[1]
-        try:
-            mdb = server.create_database(
-                engine="sqlite",
-                name=data["name"],
-                connection_args={"db_file": "/root/" + dbname},
-            )
-            print(mdb)
-        except Exception as ex:
-            return jsonify({"status": "error", "message": str(ex)}), 500
-    return jsonify({"status": "ok", "project": data})
+    try:
+        server.create_project(name)
+        return jsonify({"status": "ok", "message":"Project created successfully!"})
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
 
 
 @app.route("/minds/project", methods=["DELETE"])
