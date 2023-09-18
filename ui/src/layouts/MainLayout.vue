@@ -1188,7 +1188,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1615,6 +1614,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
     <q-dialog
       v-model="viewQueueDialog"
       transition-show="none"
@@ -1762,6 +1762,70 @@
         </q-inner-loading>
       </q-card>
     </q-dialog>
+
+
+    <q-dialog
+      v-model="viewEdgeDialog"
+      persistent
+    >
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-icon
+                name="fas fa-cog"
+                color="primary"
+                style="margin-right:10px"
+              />
+              <q-item-label>Edge</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewEdgeDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
 
     <q-dialog
       v-model="newQueueDialog"
@@ -2905,6 +2969,9 @@ export default defineComponent({
         }
       }
     })
+    window.root.$on('edge.clicked', (edge) => {
+      this.viewEdgeDialog = true
+    })
     window.root.$on('view.queue', (queue) => {
       this.queuename = queue
       this.viewQueueDialog = true
@@ -3560,6 +3627,7 @@ export default defineComponent({
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,
+      viewEdgeDialog: false,
       betanoticedialog: true,
       chatModel: 40,
       splitterModel: 100,

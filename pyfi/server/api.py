@@ -1121,6 +1121,20 @@ def delete_file(fid):
             return jsonify(status), 500
 
 
+@app.route("/rename/flow/<flowid>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rename_flow(flowid):
+
+    data = request.get_json(silent=True)
+    flow = session.query(FileModel).filter(FileModel.id == flowid).first()
+    flow.filename = data['name']
+    session.add(flow)
+    session.commit()
+
+    status = {"status": "ok", "id": flowid}
+    return jsonify(status)
+
 @app.route("/versions/<flowid>", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -1412,13 +1426,30 @@ def list_projects():
     return jsonify(names)
 
 
-@app.route("/minds/<project>/models", methods=["GET"])
+@app.route("/minds/project/<project>/models", methods=["GET"])
 @cross_origin()
 @requires_auth
 def list_models(project):
-    project = server.get_project(project)
 
-    return jsonify(project.list_models())
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        models = project.list_models()
+
+        names = [{
+            "label": model.name,
+            "icon": "las la-table",
+            "lazy": True,
+            "type": "model",
+            "id": "proj{}".format(next(counter))
+        } for model in models]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
 
 
 @app.route("/minds/<project>/<model>", methods=["GET"])
@@ -1483,6 +1514,29 @@ def delete_model(project, model):
     return jsonify(project.drop_model(model))
 
 
+@app.route("/minds/database/<database>/tables", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_tables(database):
+    import itertools
+
+    counter = itertools.count(0)
+
+    database = server.get_database(database)
+
+    tables = database.list_tables()
+
+    names = [{
+        "label": table.name,
+        "icon": "las la-table",
+        "lazy": True,
+        "type": "table",
+        "id": "table{}".format(next(counter))
+    } for table in tables]
+
+    return jsonify(names)
+
+
 @app.route("/minds/databases", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -1524,11 +1578,17 @@ def delete_project():
     pass
 
 
-@app.route("/minds/model", methods=["POST"])
+@app.route("/minds/project/<project>/model", methods=["POST"])
 @cross_origin()
 @requires_auth
-def create_model():
-    pass
+def create_model(project):
+    data: Any = request.get_json()
+    project = server.get_project(project)
+
+    table = server.get_database(data['database']).get_table(data['table'])
+    project.create_model(name=data['name'], predict=data['predict'], query=table)
+
+    return jsonify({"status": "ok"})
 
 
 @app.route("/db/clear", methods=["POST"])

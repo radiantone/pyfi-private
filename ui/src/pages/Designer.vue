@@ -1285,7 +1285,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1357,7 +1356,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1429,7 +1427,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1506,7 +1503,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1670,7 +1666,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1742,7 +1737,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1908,7 +1902,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -2045,7 +2038,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -2108,7 +2100,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -2208,7 +2199,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -4347,6 +4337,7 @@ export default {
                   events: {
                     tap: function (params) {
                       console.log("edge params", params)
+                      window.root.$emit("edge.clicked", params)
                     }
                   }
                 }
