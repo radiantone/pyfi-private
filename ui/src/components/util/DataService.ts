@@ -76,7 +76,7 @@ class DataService {
   }
 
   listTables (database: string, token: string): Promise<any> {
-    return http.get('/api/minds/' + database + '/tables', {
+    return http.get('/api/minds/database/' + database + '/tables', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -84,7 +84,7 @@ class DataService {
   }
 
   listModels (project: string, token: string): Promise<any> {
-    return http.get('/api/minds/' + project + '/models', {
+    return http.get('/api/minds/project/' + project + '/models', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -225,6 +225,14 @@ class DataService {
 
   getCalls (processor: string, token: string): Promise<any> {
     return http.get('/api/calls/' + processor, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  renameFlow (flow: string, name: string, token: string): Promise<any> {
+    return http.post('/api/rename/flow/' + flow, { "name" : name }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
