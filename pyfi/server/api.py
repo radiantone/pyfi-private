@@ -1514,6 +1514,18 @@ def delete_model(project, model):
     return jsonify(project.drop_model(model))
 
 
+@app.route("/minds/database/<database>/<table>/<limit>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_table(database, table, limit):
+    database = server.get_database(database)
+
+    _table = database.get_table(table)
+
+    _table.limit(limit)
+    return jsonify(_table.fetch())
+
+
 @app.route("/minds/database/<database>/tables", methods=["GET"])
 @cross_origin()
 @requires_auth
