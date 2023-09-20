@@ -232,7 +232,7 @@ class DataService {
   }
 
   renameFlow (flow: string, name: string, token: string): Promise<any> {
-    return http.post('/api/rename/flow/' + flow, { "name" : name }, {
+    return http.post('/api/rename/flow/' + flow, { name: name }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -296,6 +296,15 @@ class DataService {
   createDatabase (mindsobj: any, token: string): Promise<any> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
     return http.post('/api/minds/database', mindsobj, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  createTable (database: string, table: string, query: string, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
+    return http.post('/api/minds/database/' + database + '/' + table, { query: query }, {
       headers: {
         Authorization: 'Bearer ' + token
       }

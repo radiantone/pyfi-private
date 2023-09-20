@@ -21,6 +21,7 @@ test:
 format:
 	$(isort)
 	$(black)
+	eslint --fix ui/src/components
 
 .PHONY: lint
 lint:

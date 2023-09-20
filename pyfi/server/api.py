@@ -1128,12 +1128,13 @@ def rename_flow(flowid):
 
     data = request.get_json(silent=True)
     flow = session.query(FileModel).filter(FileModel.id == flowid).first()
-    flow.filename = data['name']
+    flow.filename = data["name"]
     session.add(flow)
     session.commit()
 
     status = {"status": "ok", "id": flowid}
     return jsonify(status)
+
 
 @app.route("/versions/<flowid>", methods=["GET"])
 @cross_origin()
@@ -1374,6 +1375,19 @@ def post_files(collection, path):
         return jsonify(status)
 
 
+@app.route("/minds/database/<database>/<table>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_table(database, table):
+
+    data: Any = request.get_json()
+
+    db = server.get_database(database)
+    db.create_table(table, data["query"])
+    status = {"status": "ok"}
+    return jsonify(status)
+
+
 @app.route("/minds/database", methods=["POST"])
 @cross_origin()
 @requires_auth
@@ -1386,12 +1400,10 @@ def create_database():
             mdb = server.create_database(
                 engine=data["dbtype"],
                 name=data["name"],
-                connection_args={
-                    "db_file": data["name"]+".db"
-                },
+                connection_args={"db_file": data["name"] + ".db"},
             )
 
-            status = {"status": "ok", "message":"Database created successfully!"}
+            status = {"status": "ok", "message": "Database created successfully!"}
             return jsonify(status)
     except Exception as ex:
         status = {"status": "ok", "message": str(ex)}
@@ -1415,13 +1427,16 @@ def list_projects():
 
     projects = server.list_projects()
 
-    names = [{
-        "label": project.name,
-        "icon": "las la-clipboard",
-        "lazy": True,
-        "type": "project",
-        "id": "proj{}".format(next(counter))
-    } for project in projects]
+    names = [
+        {
+            "label": project.name,
+            "icon": "las la-clipboard",
+            "lazy": True,
+            "type": "project",
+            "id": "proj{}".format(next(counter)),
+        }
+        for project in projects
+    ]
 
     return jsonify(names)
 
@@ -1439,13 +1454,16 @@ def list_models(project):
     try:
         models = project.list_models()
 
-        names = [{
-            "label": model.name,
-            "icon": "las la-table",
-            "lazy": True,
-            "type": "model",
-            "id": "proj{}".format(next(counter))
-        } for model in models]
+        names = [
+            {
+                "label": model.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "model",
+                "id": "proj{}".format(next(counter)),
+            }
+            for model in models
+        ]
 
         return jsonify(names)
     except:
@@ -1538,13 +1556,16 @@ def list_tables(database):
 
     tables = database.list_tables()
 
-    names = [{
-        "label": table.name,
-        "icon": "las la-table",
-        "lazy": True,
-        "type": "table",
-        "id": "table{}".format(next(counter))
-    } for table in tables]
+    names = [
+        {
+            "label": table.name,
+            "icon": "las la-table",
+            "lazy": True,
+            "type": "table",
+            "id": "table{}".format(next(counter)),
+        }
+        for table in tables
+    ]
 
     return jsonify(names)
 
@@ -1559,13 +1580,16 @@ def list_databases():
 
     databases = server.list_databases()
 
-    names = [{
-        "label": database.name,
-        "icon": "las la-database",
-        "lazy": True,
-        "type": "database",
-        "id": "db{}".format(next(counter))
-    } for database in databases]
+    names = [
+        {
+            "label": database.name,
+            "icon": "las la-database",
+            "lazy": True,
+            "type": "database",
+            "id": "db{}".format(next(counter)),
+        }
+        for database in databases
+    ]
 
     return jsonify(names)
 
@@ -1577,7 +1601,7 @@ def create_project(name):
     data: Any = request.get_json()
     try:
         server.create_project(name)
-        return jsonify({"status": "ok", "message":"Project created successfully!"})
+        return jsonify({"status": "ok", "message": "Project created successfully!"})
     except Exception as ex:
         status = {"status": "ok", "message": str(ex)}
         return jsonify(status), 500
@@ -1597,8 +1621,8 @@ def create_model(project):
     data: Any = request.get_json()
     project = server.get_project(project)
 
-    table = server.get_database(data['database']).get_table(data['table'])
-    project.create_model(name=data['name'], predict=data['predict'], query=table)
+    table = server.get_database(data["database"]).get_table(data["table"])
+    project.create_model(name=data["name"], predict=data["predict"], query=table)
 
     return jsonify({"status": "ok"})
 
