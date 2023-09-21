@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY server.ts server.ts
+COPY socket/server.ts server.ts
 
 EXPOSE 3003
 
