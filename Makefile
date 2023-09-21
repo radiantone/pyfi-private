@@ -28,6 +28,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
+	eslint ui/src/components
 
 .PHONY: install
 install: depends init
@@ -48,11 +49,11 @@ up:
 
 .PHONY: stop
 stop:
-	docker compose stop
+	@docker compose stop
 
 .PHONY: refresh
 refresh: stop
-	./bin/docker-refresh.sh
+	@./bin/docker-refresh.sh
 
 .PHONY: update
 update: freeze format lint
@@ -91,6 +92,12 @@ clean:
 	-find . -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 	git status
 	exit 0
+
+.PHONY: build-clean
+build-clean:
+	make ui ; \
+	docker compose build --no-cache ;\
+
 
 .PHONY: build
 build:
