@@ -246,6 +246,7 @@ services:
       - 443:443
 
 volumes:
+  mindsdb:
   mongodb_data_container:
   pgdata:
   influxdb_data:
