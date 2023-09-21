@@ -9,9 +9,12 @@ import platform
 from base64 import b64decode, b64encode
 
 import chargebee
+import mindsdb_sdk
 import requests
 from flasgger import Swagger
 
+# connects to the specified host and port
+server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
 # from .chatgpt import configure
 
 # configure()
@@ -222,6 +225,8 @@ def requires_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
+        if "user" in SESSION:
+            return f(*args, **kwargs)
         token = get_token_auth_header()
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
@@ -283,11 +288,13 @@ def requires_auth(f):
             raise AuthError(
                 {
                     "code": "invalid_header",
+                    "code": "invalid_header",
                     "description": "Unable to find appropriate key",
                 },
                 401,
             )
         except JWTError as ex:
+            SESSION["user"] = None
             logging.error(ex)
             raise AuthError(
                 {"code": "invalid_jwt", "description": "Token did not validate"},
@@ -866,6 +873,39 @@ def get_pattern(pid):
         return jsonify(_pattern)
 
 
+@app.route("/db/submit", methods=["POST"])
+@cross_origin()
+@requires_auth
+def db_submit():
+    import warnings
+
+    import sqlalchemy
+    from pandas import json_normalize
+
+    # Create the engine to connect to the PostgreSQL database
+    data = request.get_json(silent=True)
+
+    dburl = data["database"]["url"]
+    table = data["database"]["table"]
+    rows = data["data"]
+
+    engine = sqlalchemy.create_engine(dburl)
+
+    df = json_normalize(rows)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        df.to_sql(
+            table,
+            con=engine,
+            if_exists="append",
+            index=False,
+        )
+
+    print(data)
+    return jsonify({"operation": "commit", "status": "success"})
+
+
 @app.route("/code/extract", methods=["POST"])
 @cross_origin()
 @requires_auth
@@ -1079,6 +1119,21 @@ def delete_file(fid):
             print(ex)
             status = {"status": "error", "message": str(ex)}
             return jsonify(status), 500
+
+
+@app.route("/rename/flow/<flowid>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rename_flow(flowid):
+
+    data = request.get_json(silent=True)
+    flow = session.query(FileModel).filter(FileModel.id == flowid).first()
+    flow.filename = data["name"]
+    session.add(flow)
+    session.commit()
+
+    status = {"status": "ok", "id": flowid}
+    return jsonify(status)
 
 
 @app.route("/versions/<flowid>", methods=["GET"])
@@ -1320,17 +1375,303 @@ def post_files(collection, path):
         return jsonify(status)
 
 
-@app.route("/db/tables", methods=["POST"])
+@app.route("/minds/database/<database>/<table>", methods=["POST"])
 @cross_origin()
 @requires_auth
-def tables():
-    """Get all the tables for the database info in the POST json"""
+def create_table(database, table):
+
     data: Any = request.get_json()
 
-    database = data["type"]
-    url = data["url"]
-    ddl = data["schema"]
+    db = server.get_database(database)
+    db.create_table(table, data["query"])
+    status = {"status": "ok"}
+    return jsonify(status)
 
+
+@app.route("/minds/database", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_database():
+
+    data: Any = request.get_json()
+
+    try:
+        if data["dbtype"] == "SQLite":
+            mdb = server.create_database(
+                engine=data["dbtype"],
+                name=data["name"],
+                connection_args={"db_file": data["name"] + ".db"},
+            )
+
+            status = {"status": "ok", "message": "Database created successfully!"}
+            return jsonify(status)
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
+
+
+@app.route("/minds/database", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_database():
+    pass
+
+
+@app.route("/minds/projects", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_projects():
+    import itertools
+
+    counter = itertools.count(0)
+
+    projects = server.list_projects()
+
+    names = [
+        {
+            "label": project.name,
+            "icon": "las la-clipboard",
+            "lazy": True,
+            "type": "project",
+            "id": "proj{}".format(next(counter)),
+        }
+        for project in projects
+    ]
+
+    return jsonify(names)
+
+
+@app.route("/minds/project/<project>/models", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_models(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        models = project.list_models()
+
+        names = [
+            {
+                "label": model.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "model",
+                "id": "proj{}".format(next(counter)),
+            }
+            for model in models
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/<project>/<model>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.get_model(model))
+
+
+@app.route("/minds/<project>/<model>/status", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_status(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.get_status())
+
+
+@app.route("/minds/<project>/<model>/info", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_info(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.describe())
+
+
+@app.route("/minds/<project>/<model>/refresh", methods=["POST"])
+@cross_origin()
+@requires_auth
+def refresh_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.refresh())
+
+
+@app.route("/minds/<project>/<model>/retrain", methods=["POST"])
+@cross_origin()
+@requires_auth
+def retrain_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.retrain())
+
+
+@app.route("/minds/<project>/<model>", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.drop_model(model))
+
+
+@app.route("/minds/database/<database>/<table>/<limit>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_table(database, table, limit):
+    database = server.get_database(database)
+
+    _table = database.get_table(table)
+
+    _table.limit(limit)
+    return jsonify(_table.fetch())
+
+
+@app.route("/minds/database/<database>/tables", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_tables(database):
+    import itertools
+
+    counter = itertools.count(0)
+
+    database = server.get_database(database)
+
+    tables = database.list_tables()
+
+    names = [
+        {
+            "label": table.name,
+            "icon": "las la-table",
+            "lazy": True,
+            "type": "table",
+            "id": "table{}".format(next(counter)),
+        }
+        for table in tables
+    ]
+
+    return jsonify(names)
+
+
+@app.route("/minds/databases", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_databases():
+    import itertools
+
+    counter = itertools.count(0)
+
+    databases = server.list_databases()
+
+    names = [
+        {
+            "label": database.name,
+            "icon": "las la-database",
+            "lazy": True,
+            "type": "database",
+            "id": "db{}".format(next(counter)),
+        }
+        for database in databases
+    ]
+
+    return jsonify(names)
+
+
+@app.route("/minds/project/<name>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_project(name):
+    data: Any = request.get_json()
+    try:
+        server.create_project(name)
+        return jsonify({"status": "ok", "message": "Project created successfully!"})
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
+
+
+@app.route("/minds/project", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_project():
+    pass
+
+
+@app.route("/minds/project/<project>/model", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_model(project):
+    data: Any = request.get_json()
+    project = server.get_project(project)
+
+    table = server.get_database(data["database"]).get_table(data["table"])
+    project.create_model(name=data["name"], predict=data["predict"], query=table)
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/db/clear", methods=["POST"])
+@cross_origin()
+@requires_auth
+def clear():
+    """Clear data from the database table"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    conn, cursor = get_cursor(database, url)
+    cursor.execute(f"DELETE from {table}")
+    cursor.execute("COMMIT")
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/db/rows", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rows():
+    """Get all the tables for the database info in the POST json"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    schemas = get_tables(database, url)
+    conn, cursor = get_cursor(database, url)
+    rows = cursor.execute(f"SELECT * from {table} limit 100")
+
+    results = []
+    for schema in schemas:
+        if schema["name"] == table:
+            for row in rows:
+                results += [{col: data for col, data in zip(schema["cols"], row)}]
+
+    return jsonify(results)
+
+
+def get_tables(database, url):
     conn, cursor = get_cursor(database, url)
     tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
@@ -1348,6 +1689,22 @@ def tables():
         results += [{"name": table[0], "cols": cols, "schema": list(cur)[0][0]}]
         print(cols)
 
+    return results
+
+
+@app.route("/db/tables", methods=["POST"])
+@cross_origin()
+@requires_auth
+def tables():
+    """Get all the tables for the database info in the POST json"""
+    data: Any = request.get_json()
+
+    database = data["type"]
+    url = data["url"]
+    ddl = data["schema"]
+
+    results = get_tables(database, url)
+
     return jsonify({"status": "ok", "tables": results})
 
 
@@ -1355,10 +1712,9 @@ def get_cursor(database, url):
     import sqlite3
     from urllib.parse import urlparse
 
-    dbname = urlparse(url).hostname
-
     if database == "SQLite":
-        con = sqlite3.connect(f"{dbname}.db")
+        dbname = urlparse(url).path.split("/")[1]
+        con = sqlite3.connect(f"{dbname}")
         cur = con.cursor()
         return con, cur
 
@@ -1396,7 +1752,11 @@ def schema():
     logging.info("DDL %s", ddl)
 
     conn, cursor = get_cursor(database, url)
-    cursor.execute(ddl)
+
+    stmts = ddl.split(";")
+
+    for stmt in stmts:
+        cursor.execute(stmt)
 
     return jsonify({"status": "ok"})
 

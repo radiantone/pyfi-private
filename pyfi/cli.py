@@ -5,8 +5,8 @@ import configparser
 import getpass
 import hashlib
 import logging
-import newrelic.agent
 
+import newrelic.agent
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,8 +35,8 @@ from sqlalchemy import literal_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 
-if 'NEW_RELIC_CONFIG_FILE' in os.environ:
-    newrelic.agent.initialize(os.environ['NEW_RELIC_CONFIG_FILE'])
+if "NEW_RELIC_CONFIG_FILE" in os.environ:
+    newrelic.agent.initialize(os.environ["NEW_RELIC_CONFIG_FILE"])
 
 from pyfi.db.model import (
     AgentModel,
@@ -633,6 +633,51 @@ def add_node_to_network(context, name, node):
     context.obj["database"].session.commit()
     logging.debug("committed")
     print(f"Node {node.name} added to network {network.name}")
+
+
+@db.command()
+@click.option("-f", "--file", default="elastic.sql", help="Database backup file")
+@click.pass_context
+def restore(context, file):
+    """Restore the database from a backup file"""
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ["pg_restore", "--no-owner", "--dbname=" + context.obj["dburi"], file],
+            stdout=subprocess.PIPE,
+        )
+        output = process.communicate()[0]
+        if int(process.returncode) != 0:
+            print("Command failed. Return code : {}".format(process.returncode))
+
+        print("Restore successful from " + os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+
+
+@db.command()
+@click.option("-f", "--file", default="elastic.sql", help="Database backup file")
+@click.pass_context
+def backup(context, file):
+    """Backup the database into a SQL file"""
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ["pg_dump", "--dbname=" + context.obj["dburi"], "-f", file],
+            stdout=subprocess.PIPE,
+        )
+        output = process.communicate()[0]
+        if process.returncode != 0:
+            print("Command failed. Return code : {}".format(process.returncode))
+            exit(1)
+        print("Backup successful to " + os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+        exit(1)
 
 
 @db.command()

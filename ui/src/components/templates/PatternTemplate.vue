@@ -21,7 +21,7 @@
       :step="10"
       :min="400"
       :max="3000"
-      style="height: 100%; position: absolute; left: -30px; top: 0px;"
+      style="height: 100%; position: absolute; left: -30px; top: 0;"
     />
     <h4 class="group-title">
       <span style="min-width: 500px;">
@@ -256,6 +256,8 @@
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
 import DataService from "../util/DataService";
 
@@ -264,7 +266,7 @@ export default {
   mixins: [BaseNodeComponent],
   components: {},
   mounted() {
-    var me = this;
+    const me = this;
     this.toolkit = window.toolkit;
     var group = this.toolkit.getObjectInfo(this.obj);
     console.log("PATTERN GROUP",group);
@@ -305,7 +307,7 @@ export default {
   methods: {
     resize: function () {},
     groupSettings: function () {
-      var me = this;
+      const me = this;
       console.log("new.group.dialog", this.obj);
       this.$root.$emit("new.group.dialog", {
         obj: this.obj,

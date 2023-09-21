@@ -15,8 +15,6 @@
         z-index: 99999;
         background: white !important;
         color: black;
-        position: relative;
-        top: -100px;
         left: 80px;
         padding-left: 20px;
         font-size: 20px;
@@ -52,6 +50,8 @@
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 
 export default {
@@ -59,7 +59,7 @@ export default {
   mixins: [BaseNodeComponent],
   components: {},
   created () {
-    var me = this
+    const me = this
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
     /*

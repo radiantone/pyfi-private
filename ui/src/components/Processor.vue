@@ -1,5 +1,5 @@
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { Wrapper } from '../util'
@@ -129,6 +129,8 @@ interface ProcessorInterface {
 
 type Methods = ProcessorInterface
 
+let includes = ''
+
 interface Computed {
 }
 
@@ -163,8 +165,37 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     created () {
       var me = this
 
+      includes = 'from pyodide.http import pyfetch, FetchResponse\n' +
+  'from typing import Optional, Any\n' +
+  '\n' +
+  'async def request(url: str, method: str = "GET", body: Optional[str] = None,\n' +
+  '                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n' +
+  '    """\n' +
+  '    Async request function. Pass in Method and make sure to await!\n' +
+  '    Parameters:\n' +
+  '        url: str = URL to make request to\n' +
+  '        method: str = {"GET", "POST", "PUT", "DELETE"} from `JavaScript` global fetch())\n' +
+  '        body: str = body as json string. Example, body=json.dumps(my_dict)\n' +
+  '        headers: dict[str, str] = header as dict, will be converted to string...\n' +
+  '            Example, headers=json.dumps({"Content-Type": "application/json"})\n' +
+  '        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n' +
+  '    Return:\n' +
+  '        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n' +
+  '    """\n' +
+  '    headers = {"Authorization":"Bearer ' + this.$store.state.designer.token + '", "Content-type": "application/json"}\n' +
+  '    kwargs = {"method": method, "mode": "cors"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n' +
+  '    if body and method not in ["GET", "HEAD"]:\n' +
+  '        kwargs["body"] = body\n' +
+  '    if headers:\n' +
+  '        kwargs["headers"] = headers\n' +
+  '    kwargs.update(fetch_kwargs)\n' +
+  '\n' +
+  '    response = await pyfetch(url, **kwargs)\n' +
+  '    return response' +
+  '\n'
+
       socket.on('basicEmit', (a, b, c) => {
-        if(me.$store) {
+        if (me.$store) {
           me.$store.commit('designer/setMessage', b)
         }
       })
@@ -252,7 +283,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         var me = this;
 
         (window as any).root.$off(id);
-        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any) => {
+        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any, portname: string) => {
           let obj = data
           this.id = id
 
@@ -269,20 +300,34 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             }
           }
 
-          // TODO: If there is middleware then use that instead of code?
+          // TODO: This needs to be controlled by the block and the middleware, not heres
+          const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
+
+          const param_string = JSON.stringify(param)
+
           if (me.usemiddleware) {
-            console.log('RUN MIDDLEWARE', me.middlewarefunc, me.middleware)
-            const code = me.middleware + '\n\nrun(' + JSON.stringify(obj) + ')\n'
-            console.log('RUN CODE', code)
-            const result = (window as any).pyodide.runPythonAsync(code)
+            console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
+
+            const _ = (window as any).pyodide.runPython(includes)
+
+            // TODO: Replace "run" with middleware function selected from config dropdown
+            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            console.log('CODE MIDDLEWARE', mcode)
+            this.$emit('middleware.started', {
+              portname:portname
+            })
+            const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
-              let jsonoutput = res.toJs()
-              let _result = toObject(jsonoutput)
-              console.log('RUN CODE RESULT', jsonoutput, _result, JSON.stringify(_result))
+              const jsonoutput = res.toJs()
+              const _result = toObject(jsonoutput)
+              console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
               this.$emit('message.received', {
                 type: 'result',
                 id: id,
                 function: 'run',
+                obj: obj,
+                param: param,
+                portname: portname,
                 output: JSON.stringify(_result)
               })
             })
@@ -319,7 +364,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               if (this.usemiddleware && this.middlewareonly) {
                 console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
                 this.$emit('middleware.complete', {
-                  type: 'middleware'
+                  type: 'middleware',
+                  bytes: param_string.length,
+                  portname: portname
                 })
               }
             }
@@ -376,7 +423,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               count += 1
             })
             call = call + funcargs + ')'
-            // If middleware is selected, do not call the
 
             if (this.usemiddleware && !this.middlewareonly) {
               call = 'middleware  ( ' + call + ' )'
@@ -419,13 +465,25 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   function: func,
                   arg: argument.toString().length,
                   duration: time,
+                  port: portname,
                   output: JSON.stringify(answer.result),
                   plugs: JSON.stringify(_plugs)
                 })
+              }, (error: any) => {
+                console.log('runBlock ERROR', error)
+                this.$emit('runblock.error', {
+                  type: 'error',
+                  block: block,
+                  call: call,
+                  port: portname,
+                  function: func,
+                  error: error.toString()
+                })
               })
             } else {
-              call = 'import json\n' + call
+              call = 'import json\n' + call;
               // If not containerized then run this code
+              (window as any).pyodide.runPython(includes)
               const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
               result.then((res: any) => {
@@ -455,6 +513,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'result',
                   id: this.id,
                   function: func,
+                  port: portname,
                   arg: argument.toString(),
                   duration: time,
                   output: JSON.stringify(_result),
@@ -465,6 +524,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'result',
                   id: this.id,
                   function: func,
+                  port: portname,
                   finished: new Date(),
                   arg: argument.toString(),
                   duration: time,
@@ -477,6 +537,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   type: 'error',
                   id: me.id,
                   args: argdata,
+                  port: portname,
                   function: func,
                   error: error.toString()
                 })

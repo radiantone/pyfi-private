@@ -29,7 +29,7 @@ const routes: RouteConfig[] = [
     path: '/profile',
     name: 'profile',
     component: () => import('components/Profile.vue')
-  },*/
+  }, */
   {
     path: '/logout',
     name: 'logout',

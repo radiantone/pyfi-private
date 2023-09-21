@@ -322,7 +322,7 @@
           Inference
         </q-tooltip>
       </q-btn>
-      <!--
+
       <q-btn
         flat
         align="left"
@@ -339,7 +339,7 @@
         >
           App
         </q-tooltip>
-      </q-btn>-->
+      </q-btn>
       <q-btn
         flat
         align="left"

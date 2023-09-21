@@ -48,7 +48,7 @@ export const useAuth0 = ({
           this.popupOpen = false
         }
 
-        let user = await this.auth0Client.getUser()
+        const user = await this.auth0Client.getUser()
         this.user = user
         this.isAuthenticated = user !== undefined
         callback(this.user)
@@ -117,7 +117,6 @@ export const useAuth0 = ({
       } catch (e) {
         this.error = e
       } finally {
-
         // Initialize our internal authentication state
         this.isAuthenticated = await this.auth0Client.isAuthenticated()
         this.user = await this.auth0Client.getUser()

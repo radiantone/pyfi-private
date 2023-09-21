@@ -167,7 +167,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="las la-list-alt" />
+            <q-icon name="las la-list" />
           </q-item-section>
           <q-item-section
             side
@@ -275,7 +275,7 @@
         "
       >
         <div
-          title="Database"
+          title="Inference Engine"
           style="
           margin-top: -15px;
           padding: 10px;
@@ -400,6 +400,7 @@
             Bandwidth Toggle
           </q-tooltip>
         </div>
+
         <div
           class="text-secondary"
           style="margin-right: 10px;"
@@ -411,7 +412,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            dropdown-icon="las la-brain"
+            dropdown-icon="las la-table"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -419,22 +420,22 @@
           >
             <q-list
               dense
-              v-for="func in funcs"
-              :key="func.name"
+              v-for="model in modelrows"
+              :key="model.name"
             >
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Input', 'las la-brain')"
+                @click="addNewTablePort({ name: model.name, args: [] }, 'Input', 'las la-table')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-brain" />
+                  <q-icon name="las la-table" />
                 </q-item-section>
                 <q-item-section
                   side
                   class="text-blue-grey-8"
                 >
-                  {{ func.name }}
+                  {{ model.name }}
                 </q-item-section>
               </q-item>
             </q-list>
@@ -445,7 +446,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Add Inference
+            Add Model
           </q-tooltip>
         </div>
 
@@ -497,15 +498,17 @@
             Add Trigger
           </q-tooltip>
         </div>
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
-            icon="fas fa-code"
+            icon="las la-exchange-alt"
             dense
             flat
-            @click="showPanel('codeview', !codeview)"
             class="show-code text-secondary"
-            style="position: absolute; right: 100px; top: -68px; width: 25px; height: 30px;"
+            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
+            clickable
+            v-close-popup
+            @click="showPanel('middlewareview', !middlewareview)"
           >
             <q-tooltip
               anchor="top middle"
@@ -513,7 +516,25 @@
               content-style="font-size: 16px"
               content-class="bg-black text-white"
             >
-              Code
+              Middleware
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            size="xs"
+            icon="fas fa-table"
+            dense
+            flat
+            @click="showPanel('tableview', !tableview)"
+            class="show-code text-secondary"
+            style="position: absolute; right: 90px; top: -68px; width: 25px; height: 30px;"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              View
             </q-tooltip>
           </q-btn>
           <q-btn
@@ -631,6 +652,22 @@
             <q-item
               clickable
               v-close-popup
+              @click="showPanel('middlewareview', !middlewareview)"
+            >
+              <q-item-section side>
+                <q-icon name="las la-exchange-alt" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Middleware
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item
+              clickable
+              v-close-popup
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
@@ -695,43 +732,36 @@
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
           <q-btn
-            icon="fa fa-times"
+            icon="fa fa-play"
             size="xs"
-            itle="Delete Object"
+            title="Execute Query"
             flat
             dense
-            @click="confirmDeletePort(column.id)"
+            round
+            v-if="column.type === 'Output'"
           />
-
-        </div>
-        <div v-if="column.type !== 'Input'">
-          <div class="float-left text-secondary">
-            <i
-              :class="column.icon"
-              :title="column.name"
-              style="margin-right: 5px;"
-            />
-          </div>
-          <span>
-            <span :id="column.id">
-              {{ column.name }}
-              <q-popup-edit
-                v-model="column.name"
-                buttons
-                v-if="column.icon === 'las la-list'"
-              >
-                <q-input
-                  type="string"
-                  v-model="column.name"
-                  dense
-                  autofocus
-                />
-              </q-popup-edit>
-            </span>
-          </span>
+          <q-btn
+            icon="fa fa-cog"
+            size="xs"
+            title="Configure Table"
+            flat
+            dense
+            round
+            v-if="column.type === 'Input'"
+          />
+          <q-btn
+            icon="fa fa-times"
+            size="xs"
+            title="Delete Table Port"
+            flat
+            dense
+            round
+            @click="confirmDeletePort(column.id)"
+            v-if="column.type === 'Input' || column.type === 'Output'"
+          />
         </div>
         <div
-          v-if="column.type === 'Input'"
+          v-if="column.type === 'Input' || column.type === 'Output'"
         >
           <div class="float-left text-secondary">
             <i
@@ -747,9 +777,9 @@
           </span>
         </div>
         <jtk-source
-          v-if="column.type !== 'Input'"
-          name="source"
+          v-if="column.type === 'Input' || column.type === 'Output'"
           :port-id="column.id"
+          name="source"
           :scope="column.datatype"
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
@@ -760,7 +790,7 @@
           v-if="column.type === 'Input'"
           name="target"
           :port-id="column.id"
-          type="Input"
+          type="column"
           :scope="column.datatype"
         />
       </li>
@@ -1006,32 +1036,40 @@
       </q-card>
     </q-dialog>
 
-    <!-- Code dialog -->
-    <Console
-      v-if="pythonview && codeview"
-      :codewidth="codewidth"
-    />
     <q-card
       :style="
         'width: ' +
           codewidth +
           'px;z-index: 999;display: block;position: absolute;right: -' +
           (codewidth + 5) +
-          'px;top: 0px;'
+          'px;top: 0px;min-height:600px'
       "
-      v-if="codeview"
+      v-if="tableview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important;padding-bottom: 10px;">
-        <editor
-          v-model="obj.code"
-          @init="editorInit"
-          style="font-size: 16px; min-height: 400px;"
-          lang="python"
-          theme="chrome"
-          ref="myEditor"
-          width="100%"
-          height="fit"
+        <q-select
+          dense
+          :options-dense="true"
+          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+          v-model="viewtable"
+          :options="tables"
+          hint="Prediction Model"
+          option-value="name"
+          option-label="name"
+          @update:model-value="tableSelected"
+          value="string"
+          :menu-offset="[5, -9]"
         />
+        <div style="padding:20px">
+          <q-table
+            dense
+            flat
+            :data="predictedrows"
+            :columns="viewcols"
+            row-key="id"
+            style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+          />
+        </div>
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -1077,7 +1115,8 @@
           class="bg-primary text-secondary"
           color="primary"
           v-close-popup
-          @click="fetchCode"
+          @click="refreshTables"
+          :disable="!viewtable"
         >
           <q-tooltip
             anchor="top middle"
@@ -1085,7 +1124,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Fetch Code
+            Fetch Data
           </q-tooltip>
         </q-btn>
 
@@ -1107,6 +1146,24 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-plus"
+          class="bg-primary text-accent"
+          color="primary"
+          v-close-popup
+          @click="addRow"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Row
+          </q-tooltip>
+        </q-btn>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1116,13 +1173,22 @@
           class="bg-secondary text-white"
           color="primary"
           v-close-popup
-          @click="codeview = false"
+          @click="tableview = false"
         />
       </q-card-actions>
+      <q-inner-loading
+        :showing="saving"
+        style="z-index: 999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
+      </q-inner-loading>
     </q-card>
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="requirementsview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1173,7 +1239,7 @@
           v-model="codeSplitterModel"
           separator-style="background-color: #e3e8ec;height:5px"
           horizontal
-          style="height: 100%;"
+          style="height: 100%; width: 100%"
         >
           <template #before>
             <div class="q-pa-md">
@@ -1297,7 +1363,7 @@
     </q-card>
 
     <q-card
-      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
+      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
@@ -1317,10 +1383,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 850px; height:630px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+      <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
+        {{ projectResult }}
+      </q-item-label>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1334,11 +1403,38 @@
           <q-tab
             name="settings"
             label="Settings"
+          /><!--
+          <q-tab
+            name="schemaconfig"
+            label="Schema"
+          />-->
+
+          <q-tab
+            name="tablesconfig"
+            label="Tables"
           />
+          <q-tab
+            name="modelsconfig"
+            label="Models"
+          />
+
+          <q-tab
+            name="jobsconfig"
+            label="Jobs"
+          />
+
+          <q-tab
+            name="viewsconfig"
+            label="Views"
+          />
+          <q-tab
+            name="containersettings"
+            label="Container"
+          /><!--
           <q-tab
             name="schedule"
             label="Schedule"
-          />
+          />-->
         </q-tabs>
 
         <q-tab-panels
@@ -1346,9 +1442,475 @@
           keep-alive
         >
           <q-tab-panel
+            ref="tablesconfig"
+            name="tablesconfig"
+            style="padding: 0px;height:560px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+                :disabled="!obj.databasename"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+
+          <q-tab-panel
+            ref="modelsconfig"
+            name="modelsconfig"
+            style="padding: 0px;height:560px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+                :disabled="!obj.databasename"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+
+          <q-tab-panel
+            ref="jobsconfig"
+            name="jobsconfig"
+            style="padding: 0px;height:560px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+                :disabled="!obj.databasename"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+
+          <q-tab-panel
+            ref="viewsconfig"
+            name="viewsconfig"
+            style="padding: 0px;height:560px"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px; min-height: 425px;"
+            >
+              <q-table
+                dense
+                :columns="modelcols"
+                :data="modelrows"
+                row-key="name"
+                flat
+                style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.cols[1].name }}</a>
+                      <q-popup-edit
+                        v-model="props.cols[1].name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.cols[1].name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+                    <q-td
+                      :key="props.cols[2].name"
+                      :props="props"
+                    >
+                      {{ props.cols[2].value }}
+                    </q-td>
+                    <q-td
+                      :key="props.cols[3].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      />
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
+            </div>
+
+            <q-card-actions align="left">
+              <q-btn
+                style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                flat
+                label="New"
+                class="bg-primary text-dark"
+                color="dark"
+                @click="newModelDialog = true"
+                :disabled="!obj.databasename"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  New Model
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
+          </q-tab-panel>
+          <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;"
+            style="padding: 0px;height: 520px"
           >
             <div
               class="q-pa-md"
@@ -1363,29 +1925,122 @@
                   filled
                   v-model="obj.name"
                   dense
-                  hint="Processor Name"
+                  hint="Block Name"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                  :disable="projectExists"
                 />
+                <q-select
+                  dense
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="obj.projectname"
+                  :options="projectnames"
+                  hint="Project Name"
+                  value="string"
+                  :menu-offset="[5, -9]"
+                >
+                  <template
+                    v-if="!obj.projectname"
+                    #selected
+                  >
+                    <div
+                      class="text-grey-6"
+                      style="font-style: italic"
+                    >
+                      Select a Project
+                    </div>
+                  </template>
+                  <template #after>
+                    <q-btn
+                      dense
+                      flat
+                      icon="fas fa-ellipsis-h"
+                      color="secondary"
+                      @click="configureDatabaseDialog = true"
+                    >
+                      <q-tooltip
+                        anchor="top middle"
+                        :offset="[-30, 40]"
+                        content-style="font-size: 16px"
+                        content-class="bg-black text-white"
+                      >
+                        Manage Projects
+                      </q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
 
+                <q-select
+                  dense
+                  :options-dense="true"
+                  style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                  v-model="obj.databasename"
+                  :options="databasenames"
+                  hint="Database Name"
+                  value="string"
+                  :menu-offset="[5, -9]"
+                >
+                  <template
+                    v-if="!obj.databasename"
+                    #selected
+                  >
+                    <div
+                      class="text-grey-6"
+                      style="font-style: italic"
+                    >
+                      Select a Database
+                    </div>
+                  </template>
+                  <template #after>
+                    <q-btn
+                      dense
+                      flat
+                      icon="fas fa-ellipsis-h"
+                      color="secondary"
+                      @click="configureDatabaseDialog = true"
+                    >
+                      <q-tooltip
+                        anchor="top middle"
+                        :offset="[-30, 40]"
+                        content-style="font-size: 16px"
+                        content-class="bg-black text-white"
+                      >
+                        Manage Databases
+                      </q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
                 <q-input
                   filled
                   v-model="obj.description"
                   dense
-                  hint="Processor Description"
+                  hint="Block Description"
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
-                <q-input
+                <q-select
                   filled
-                  v-model="obj.icon"
                   dense
-                  hint="Icon Class"
-                  lazy-rules
-                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                  v-model="obj.middlewarefunc"
+                  use-input
+                  input-debounce="0"
+                  :options="getfuncs"
+                  hint="Middleware Function"
+                  style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
+                  <q-checkbox
+                    v-model="obj.usemiddleware"
+                    label="Use Middleware"
+                    style="margin-left: 40px;"
+                  />
+                  <q-checkbox
+                    v-model="obj.middlewareonly"
+                    label="Middleware Only"
+                    style="margin-left: 40px;"
+                  />
                   <q-checkbox
                     v-model="obj.titletab"
                     label="Title Tab"
@@ -1398,6 +2053,58 @@
                   />
                 </q-toolbar>
               </q-form>
+            </div>
+          </q-tab-panel>
+          <q-tab-panel
+            name="containersettings"
+            style="padding-top: 0px; padding-bottom: 0px;"
+          >
+            <div
+              class="q-pa-md"
+              style="max-width: 100%; padding-bottom: 0px;"
+            >
+              <q-form class="q-gutter-md">
+                <q-input
+                  filled
+                  v-model="obj.imagerepo"
+                  dense
+                  hint="Image Repository"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-input
+                  filled
+                  v-model="obj.containerimage"
+                  dense
+                  hint="Container Image"
+                  lazy-rules
+                  :disable="!hasHosted"
+                />
+                <q-select
+                  filled
+                  dense
+                  v-model="obj.containerimage"
+                  use-input
+                  input-debounce="0"
+                  hint="Prebuilt Images"
+                  :options="containers"
+                  style="width: 250px"
+                />
+              </q-form>
+              <q-toolbar>
+                <q-checkbox
+                  v-model="obj.container"
+                  label="Containerized"
+                  :disable="!hasHosted"
+                />
+                <q-space />
+                <q-btn
+                  flat
+                  label="Advanced"
+                  class="text-white bg-primary text-primary"
+                  :disable="!hasHosted"
+                />
+              </q-toolbar>
             </div>
           </q-tab-panel>
           <q-tab-panel
@@ -1439,25 +2146,7 @@
           />
         </q-tab-panels>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Save"
-          class="bg-accent text-primary"
-          color="primary"
-          @click="saveProcessor"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Save
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
         <q-btn
           flat
@@ -1480,7 +2169,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="environmentview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1566,7 +2255,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="scalingview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1687,10 +2376,10 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="consoleview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
         <q-scroll-area
           style="height:475px;width:auto"
           ref="scroll"
@@ -1760,7 +2449,7 @@
       :style="'width:200px;height:300px;z-index:9999;position:absolute;top:' + cardY + 'px;left:' + cardX + 'px'"
     />
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="notesview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1791,7 +2480,96 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      :style="'width: '+middlewarewidth+'px; height: 465px; z-index: 999; display: block; position: absolute; right: -' +
+        (middlewarewidth + 5) +
+        'px; top: 0px;'"
+      v-if="middlewareview"
+    >
+      <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
+        <div style="height: 100%; width: 100%;">
+          <editor
+            v-model="middleware"
+            @init="middlewareEditorInit"
+            style="font-size: 1.5em;"
+            lang="python"
+            theme="chrome"
+            ref="middlewareEditor"
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </q-card-section>
+
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="middlewareview = false"
+          v-close-popup
+        />
+      </q-card-actions>
+    </q-card>
+    <q-card
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="securityview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1856,7 +2634,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="logsview"
     >
       <q-tabs
@@ -1944,7 +2722,7 @@
 
     <!-- Chart dialog -->
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="dataview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -1971,9 +2749,905 @@
         />
       </q-card-actions>
     </q-card>
+
+    <q-dialog
+      v-model="configureDatabaseDialog"
+    >
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 70%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-icon
+                name="las la-brain"
+                color="primary"
+                style="margin-right:10px;font-size:1.5em"
+              />
+              <q-item-label>Inference Engine</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="configureDatabaseDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        >
+          <q-splitter
+            v-model="configureSplitterModel"
+            style="height: calc(70vh - 115px); margin-top: 10px; width:100%"
+          >
+            <template #before>
+              <div class="q-pa-md q-gutter-sm">
+                <q-tree
+                  :nodes="lazy"
+                  default-expand-all
+                  node-key="id"
+                  ref="tree"
+                  @lazy-load="onLazyLoad"
+                  @update:selected="selectTreeNode"
+                  :selected="selected"
+                />
+              </div>
+            </template>
+
+            <template #after>
+              <div
+                class="q-pa-md"
+                style="width:650px;height:650px"
+              >
+                <q-inner-loading
+                  :showing="loadingObject"
+                  style="z-index: 999999;"
+                >
+                  <q-spinner-gears
+                    size="50px"
+                    color="primary"
+                  />
+                </q-inner-loading>
+                <q-tab-panels
+                  v-model="inferencetabs"
+                  animated
+                  style="width:100%;height:100%"
+                >
+                  <q-tab-panel name="intro">
+                    <h2>Select an object in the tree to the left to view/edit its properties</h2>
+                    <ul>
+                      <li>Databases->Tables</li>
+                      <li>Projects->Models</li>
+                      <li>Projects->Views</li>
+                      <li>Projects->Jobs</li>
+                    </ul>
+                  </q-tab-panel>
+                  <q-tab-panel name="databases">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Database Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-select
+                          dense
+                          :options-dense="true"
+                          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                          v-model="obj.database"
+                          :options="databases"
+                          hint="Database Type"
+                          value="string"
+                          :menu-offset="[5, -9]"
+                        />
+                        <q-tab-panels
+                          v-model="obj.database"
+                          animated
+                          style="width:100%;height:100%"
+                        >
+                          <q-tab-panel name="SQLite">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbfile"
+                              dense
+                              hint="DB File"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+
+                          <q-tab-panel name="Postgres">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbuser"
+                              dense
+                              hint="User"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbpwd"
+                              dense
+                              hint="Password"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbhost"
+                              dense
+                              hint="Host"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbport"
+                              dense
+                              hint="Port"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbname"
+                              dense
+                              hint="Database"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+                          <q-tab-panel name="MySQL">
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbuser"
+                              dense
+                              hint="User"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbpwd"
+                              dense
+                              hint="Password"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbhost"
+                              dense
+                              hint="Host"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbport"
+                              dense
+                              hint="Port"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                            <q-input
+                              filled
+                              v-model="obj.mindsobj.dbname"
+                              dense
+                              hint="Database"
+                              lazy-rules
+                              :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                            />
+                          </q-tab-panel>
+                        </q-tab-panels>
+                      </q-form>
+                      <q-card-actions align="left">
+                        <q-btn
+                          flat
+                          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+                          label="Create"
+                          class="bg-secondary text-white"
+                          @click="createMindsDatabase"
+                        />
+                        <q-item-label style="position: absolute; bottom: 10px; left: 120px;">
+                          {{ createDatabaseResult }}
+                        </q-item-label>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="table">
+                    <q-table
+                      dense
+                      flat
+                      :data="tablerows"
+                      :columns="tablecols"
+                      row-key="id"
+                      :rows-per-page-options="[15]"
+                      style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
+                    />
+                  </q-tab-panel>
+                  <q-tab-panel name="database">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Database Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Database Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="tablename"
+                          dense
+                          hint="Table Name"
+                          lazy-rules
+                          style="padding-top:5em"
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          bottom-slots
+                          v-model="tablequery"
+                          label="Query"
+                          dense="true"
+                        >
+                          <template #hint>
+                            Create Table
+                          </template>
+
+                          <template #after>
+                            <q-btn
+                              dense
+                              flat
+                              label="Create"
+                              @click="createMindsTable"
+                              :disable="!(tablename.length && tablequery.length)"
+                            />
+                          </template>
+                        </q-input>
+                      </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Delete"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          @click="deleteDatabase"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Delete Database
+                          </q-tooltip>
+                        </q-btn>
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                          flat
+                          label="Update"
+                          class="bg-secondary text-white"
+                          color="dark"
+                          @click="updateDatabase"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Update Database
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="projects">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Project Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                      </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Create"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          :disable="projectExists"
+                          @click="createProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Create Project
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="project">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Project Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Project Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                      </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Delete"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          @click="deleteProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Delete Project
+                          </q-tooltip>
+                        </q-btn>
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                          flat
+                          label="Update"
+                          class="bg-secondary text-white"
+                          color="dark"
+                          @click="updateProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Update Project
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="project">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Project Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                      </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Delete"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          @click="deleteProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Delete Project
+                          </q-tooltip>
+                        </q-btn>
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
+                          flat
+                          label="Update"
+                          class="bg-secondary text-white"
+                          color="dark"
+                          @click="updateProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Update Project
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="models">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Model Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Model Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-select
+                          dense
+                          filled
+                          :options-dense="true"
+                          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                          v-model="obj.databasename"
+                          :options="databasenames"
+                          hint="Database"
+                          value="string"
+                          :menu-offset="[5, -9]"
+                          @update:model-value="modelDatabaseSelect"
+                        />
+                        <q-select
+                          dense
+                          filled
+                          :options-dense="true"
+                          style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                          v-model="databaseTable"
+                          :options="tableList"
+                          hint="Table"
+                          option-value="name"
+                          option-label="name"
+                          value="string"
+                          :menu-offset="[5, -9]"
+                        />
+                      </q-form>
+
+                      <q-card-actions align="left">
+                        <q-btn
+                          style="position: absolute; bottom: 0px; left: 20px; width: 100px;"
+                          flat
+                          label="Create"
+                          class="bg-primary text-dark"
+                          color="dark"
+                          :disable="projectExists"
+                          @click="createProject"
+                        >
+                          <q-tooltip
+                            anchor="top middle"
+                            :offset="[-30, 40]"
+                            content-style="font-size: 16px"
+                            content-class="bg-black text-white"
+                          >
+                            Create Project
+                          </q-tooltip>
+                        </q-btn>
+                      </q-card-actions>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="view">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+                  <q-tab-panel name="job">
+                    <div
+                      class="q-pa-md"
+                      style="max-width: 100%; padding-bottom: 0px;"
+                    >
+                      <q-form
+                        @submit="onSubmit"
+                        @reset="onReset"
+                        class="q-gutter-md"
+                      >
+                        <q-input
+                          filled
+                          v-model="obj.name"
+                          dense
+                          hint="Processor Name"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+
+                        <q-input
+                          filled
+                          v-model="obj.description"
+                          dense
+                          hint="Processor Description"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-input
+                          filled
+                          v-model="obj.icon"
+                          dense
+                          hint="Icon Class"
+                          lazy-rules
+                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                        />
+                        <q-toolbar style="">
+                          <q-checkbox
+                            v-model="obj.titletab"
+                            label="Title Tab"
+                            style="margin-left: 40px;"
+                          />
+                          <q-checkbox
+                            v-model="obj.enabled"
+                            label="Enabled"
+                            style="margin-left: 40px;"
+                          />
+                        </q-toolbar>
+                      </q-form>
+                    </div>
+                  </q-tab-panel>
+                </q-tab-panels>
+              </div>
+            </template>
+          </q-splitter>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="newModelDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>New Model</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-table"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <div
+            class="q-pa-lg"
+            style="padding-top: 2em;max-width: 800px; width:500px"
+          >
+            <q-form
+              @submit="onSubmit"
+              @reset="onReset"
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="model.name"
+                dense
+                style="width:100%"
+                hint="Model Name"
+              />
+
+              <q-select
+                dense
+                filled
+                :options-dense="true"
+                style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                v-model="modelDatabase"
+                :options="databaseList"
+                hint="Database"
+                option-value="name"
+                option-label="name"
+                value="string"
+                :menu-offset="[5, -9]"
+              />
+
+              <q-input
+                filled
+                v-model="model.predict"
+                style="width:100%"
+                dense
+                hint="Predicted Column"
+              />
+
+              <q-input
+                dense
+                v-model="model.query"
+                style="width:100%"
+                filled
+                type="textarea"
+                hint="Query"
+              />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Cancel"
+            class="bg-secondary text-white"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Create"
+            class="bg-secondary text-white"
+            v-close-popup
+            :disable="!model.name || model.name.length === 0"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
-<style>
+<style scoped>
+
+.q-expansion-item__container > .q-item {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.q-expansion-item__content {
+  padding-left: 20px !important;
+}
+
+.q-item--dense {
+  margin-right: 0px;
+  padding-left: 0px;
+}
+
+.table-columns .q-item__section {
+  padding-right: 5px;
+}
+
 .parentBox {
   padding: 0px;
   margin-left: 5px;
@@ -2005,7 +3679,8 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
@@ -2016,6 +3691,7 @@ import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
+import { ref } from 'vue'
 
 import http from 'src/http-common'
 
@@ -2047,34 +3723,51 @@ Delete
 
 */
 export default {
-  name: 'ScriptTemplate',
+  name: 'InferenceTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
+  setup () {
+    return {
+      configureSplitterModel: ref(35) // start at 50%
+    }
+  },
   components: {
     editor: require('vue2-ace-editor'),
-    BetterCounter,
     Console
   },
   watch: {
+    'obj.middlewarefunc': function (val) {
+      this.middlewarefunc = val
+      console.log('SET MIDDLEWARE FUNC', val)
+    },
+    'obj.usemiddleware': function (val) {
+      this.usemiddleware = val
+    },
+    'obj.middlewareonly': function (val) {
+      this.middlewareonly = val
+    },
     'obj.cron': function (val) {
       if (val && obj.crontoggle) {
         this.startSchedule(val)
       }
     },
     'obj.status': function (val) {
-      window.designer.$root.$emit('toolkit.dirty')
     },
     inBytes: function (val) {
       // console.log('inBytes', val);
     }
   },
   created () {
-    var me = this
+    const me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
     this.lambdaIcon = mdiLambda
     this.abacusIcon = mdiAbacus
+    this.obj.usemiddleware = true
+    this.obj.middlewareonly = true
+    this.usemiddleware = true
+
     this.id = uuidv4()
     console.log('THIS.ID', this.id)
 
@@ -2093,13 +3786,37 @@ export default {
     window.designer.$on('trigger.data', () => {
       me.triggerExecute()
     })
+    this.$on('call.completed', (call) => {
+      this.refreshTables()
+      // TODO: Trigger sequential ports that are satisfied
+      for (const fname in this.portobjects) {
+        console.log('SEQUENCE FUNC', fname)
+      }
+    })
+    this.$on('middleware.complete', (msg) => {
+      console.log('DATABASE TEMPLATE: ', msg)
+      const bytes = msg.bytes
+      me.calls_in += 1
+      me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
+      // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+      me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
+      // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+      me.bytes_in += bytes
+    })
 
     this.$on('message.received', (msg) => {
+      if (msg.type && msg.type === 'result') {
+        if (msg.id === this.obj.id) {
+          me.currentresult = msg.output
+          me.consolelogs.push({ date: new Date(), output: msg.output })
+        }
+      }
+
       if (msg.type && msg.type === 'ProcessorModel') {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (var key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2127,7 +3844,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        var bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2223,7 +3940,29 @@ export default {
     }, 3000)
   },
   computed: {
-
+    getfuncs () {
+      this.updateFunctions(this.obj.middleware)
+      console.log('GETFUNCS', this.funcs)
+      return this.funcs.map(a => a.name)
+    },
+    viewtable: {
+      get: function () {
+        return this.table.name
+      },
+      set: function (val) {
+        console.log('SETTING VIEW TABLE', val)
+        this.predictedrows = []
+        this.viewcols = []
+        this.table = val
+        val.cols.forEach((col) => {
+          this.viewcols.push({
+            name: col,
+            label: col,
+            field: col
+          })
+        })
+      }
+    },
     crontoggle: {
       get: function () {
         return this.obj.useschedule
@@ -2238,7 +3977,7 @@ export default {
       }
     },
     myhistory () {
-      var me = this
+      const me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -2274,7 +4013,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
 
     console.log('setId ', this.obj.id)
     this.setId(this.obj.id)
@@ -2282,6 +4021,9 @@ export default {
     console.log('SETTING PROCESSOR ID', this.id)
     console.log('MOUNTED STORE', this.$store)
     console.log('BYTES_IN', this.bytes_in)
+
+    me.middleware = me.obj.middleware
+    me.middlewarefunc = me.obj.middlewarefunc
 
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
@@ -2306,9 +4048,6 @@ export default {
         this.configview = !this.configview
       }
     })
-    window.designer.$root.$on('toolkit.dirty', (val) => {
-      this.updateSchemas()
-    })
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
@@ -2320,10 +4059,256 @@ export default {
     if (this.obj.crontoggle) {
       this.startSchedule(this.obj.cron)
     }
+    this.pullSchema()
   },
   data () {
     return {
-      events: ['Start', 'Error', 'Completed'],
+      tablename: '',
+      tablequery: '',
+      tablerows: [
+        {
+          name: 'Frozen Yogurt',
+          calories: 159,
+          fat: 6.0,
+          carbs: 24,
+          protein: 4.0,
+          sodium: 87,
+          calcium: '14%',
+          iron: '1%'
+        },
+        {
+          name: 'Ice cream sandwich',
+          calories: 237,
+          fat: 9.0,
+          carbs: 37,
+          protein: 4.3,
+          sodium: 129,
+          calcium: '8%',
+          iron: '1%'
+        },
+        {
+          name: 'Eclair',
+          calories: 262,
+          fat: 16.0,
+          carbs: 23,
+          protein: 6.0,
+          sodium: 337,
+          calcium: '6%',
+          iron: '7%'
+        },
+        {
+          name: 'Cupcake',
+          calories: 305,
+          fat: 3.7,
+          carbs: 67,
+          protein: 4.3,
+          sodium: 413,
+          calcium: '3%',
+          iron: '8%'
+        },
+        {
+          name: 'Gingerbread',
+          calories: 356,
+          fat: 16.0,
+          carbs: 49,
+          protein: 3.9,
+          sodium: 327,
+          calcium: '7%',
+          iron: '16%'
+        },
+        {
+          name: 'Jelly bean',
+          calories: 375,
+          fat: 0.0,
+          carbs: 94,
+          protein: 0.0,
+          sodium: 50,
+          calcium: '0%',
+          iron: '0%'
+        },
+        {
+          name: 'Lollipop',
+          calories: 392,
+          fat: 0.2,
+          carbs: 98,
+          protein: 0,
+          sodium: 38,
+          calcium: '0%',
+          iron: '2%'
+        },
+        {
+          name: 'Honeycomb',
+          calories: 408,
+          fat: 3.2,
+          carbs: 87,
+          protein: 6.5,
+          sodium: 562,
+          calcium: '0%',
+          iron: '45%'
+        },
+        {
+          name: 'Donut',
+          calories: 452,
+          fat: 25.0,
+          carbs: 51,
+          protein: 4.9,
+          sodium: 326,
+          calcium: '2%',
+          iron: '22%'
+        },
+        {
+          name: 'KitKat',
+          calories: 518,
+          fat: 26.0,
+          carbs: 65,
+          protein: 7,
+          sodium: 54,
+          calcium: '12%',
+          iron: '6%'
+        }
+      ],
+      tablecols: [
+        {
+          name: 'name',
+          required: true,
+          label: 'Dessert (100g serving)',
+          align: 'left',
+          field: row => row.name,
+          format: val => `${val}`,
+          sortable: true
+        },
+        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
+        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
+        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
+        { name: 'protein', label: 'Protein (g)', field: 'protein' },
+        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
+        {
+          name: 'calcium',
+          label: 'Calcium (%)',
+          field: 'calcium',
+          sortable: true,
+          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10)
+        },
+        {
+          name: 'iron',
+          label: 'Iron (%)',
+          field: 'iron',
+          sortable: true,
+          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10)
+        }
+      ],
+      loadingObject: false,
+      selected: null,
+      selectedNode: null,
+      inferencetabs: 'intro',
+      lazy: [
+        {
+          label: 'Databases',
+          icon: 'las la-database',
+          id: 0,
+          type: 'databases',
+          lazy: true
+        },
+        {
+          label: 'Projects',
+          icon: 'las la-clipboard',
+          lazy: true,
+          type: 'projects',
+          id: 9
+        }
+      ],
+      databasenames: [],
+      expanded: ['Satisfied customers (with avatar)', 'Good food (with icon)'],
+
+      simple: [
+        {
+          label: 'Satisfied customers (with avatar)',
+          avatar: 'https://cdn.quasar.dev/img/boy-avatar.png',
+          children: [
+            {
+              label: 'Good food (with icon)',
+              icon: 'restaurant_menu',
+              children: [
+                { label: 'Quality ingredients' },
+                { label: 'Good recipe' }
+              ]
+            },
+            {
+              label: 'Good service (disabled node with icon)',
+              icon: 'room_service',
+              disabled: true,
+              children: [
+                { label: 'Prompt attention' },
+                { label: 'Professional waiter' }
+              ]
+            },
+            {
+              label: 'Pleasant surroundings (with icon)',
+              icon: 'photo',
+              children: [
+                {
+                  label: 'Happy atmosphere (with image)',
+                  img: 'https://cdn.quasar.dev/img/logo_calendar_128px.png'
+                },
+                { label: 'Good table presentation' },
+                { label: 'Pleasing decor' }
+              ]
+            }
+          ]
+        }
+      ],
+      configureDatabaseDialog: false,
+      modelDatabase: '',
+      databaseTable: '',
+      tableList: [],
+      databaseList: [],
+      projectExists: false,
+      newModelDialog: false,
+      modelrows: [{
+        name: 'model1',
+        predict: 'target',
+        query: 'SELECT * FROM my_table',
+        actions: ''
+      }],
+      modelcols: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
+        },
+        {
+          name: 'predict',
+          label: 'Predict',
+          field: 'predict',
+          align: 'left'
+        },
+        {
+          name: 'query',
+          label: 'Query',
+          field: 'query',
+          align: 'left'
+        },
+        {
+          name: 'actions',
+          label: 'Actions',
+          field: 'actions',
+          align: 'left'
+        }
+      ],
+      fetchDisabled: true,
+      projectResult: 'No project',
+      createDatabaseResult: '',
+      viewcols: [],
+      tables: [],
+      table: '',
+      predictedrows: [],
+      connectResult: '',
+      events: ['Begin', 'Error', 'Complete'],
+      projectname: null,
+      projectnames: [],
+      databasename: null,
+      databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -2331,6 +4316,7 @@ export default {
       funcs: [],
       afuncs: [],
       codewidth: 650,
+      middlewarewidth: 875,
       queuecolumns: [
         {
           name: 'task',
@@ -2590,15 +4576,29 @@ export default {
           borderColor: '#f1f1f1'
         }
       },
+      model: {
+        name: '',
+        predict: '',
+        query: ''
+      },
       obj: {
+        mindsobj: {},
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-brain',
         titletab: false,
+        schema: '',
+        data: [],
+        usemiddleware: false,
+        middlewareonly: false,
+        middlewarefunc: '',
+        database: 'SQLite',
         receipt: new Date(),
         notes: '',
         style: '',
         x: 0,
         y: 0,
+        middleware: '# object middleware',
+        connection: 'sqlite://elasticdb',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -2617,9 +4617,9 @@ export default {
         streaming: true,
         api: '/api/processor',
         type: 'script',
-        name: 'Data Processor',
-        label: 'Data',
-        description: 'A data processor description',
+        name: 'Inference Processor',
+        label: 'Inference',
+        description: 'An inference processor description',
         package: 'my.python.package',
         concurrency: 3,
         cron: '* * * * *',
@@ -2642,6 +4642,7 @@ export default {
       logsview: false,
       requirementsview: false,
       notesview: false,
+      middlewareview: false,
       securityview: false,
       environmentview: false,
       scalingview: false,
@@ -2785,6 +4786,7 @@ export default {
           }
         }
       ],
+      tableview: false,
       codeview: false,
       pythonview: false,
       gitview: false,
@@ -2825,6 +4827,151 @@ export default {
     }
   },
   methods: {
+    createMindsTable () {
+      this.loadingObject = true
+
+      DataService.createTable(this.selectedNode.label, this.tablename, this.tablequery).then(() => {
+        this.loadingObject = false
+        this.projectResult = 'Table created successfully.'
+      }).catch((err) => {
+        this.loadingObject = false
+        this.projectResult = err.response.data.message
+      })
+    },
+    selectTreeNode (v, n) {
+      if (v !== null) {
+        const node = this.$refs.tree.getNodeByKey(v)
+        this.selected = node.id
+        this.selectedNode = node
+        console.log('Selected Node', v, node)
+        this.inferencetabs = node.type
+        setTimeout(() => {
+        }, 1000)
+      }
+    },
+    onLazyLoad ({ node, key, done, fail }) {
+      console.log('NODE', node)
+      if (node.type === 'database') {
+        DataService.listTables(node.label, this.$store.state.designer.token).then((result) => {
+          this.tablenames = result.data.map(db => db.label)
+          done(result.data)
+        })
+      }
+      if (node.type === 'databases') {
+        DataService.listDatabases(this.$store.state.designer.token).then((result) => {
+          this.databasenames = result.data.map(db => db.label)
+          done(result.data)
+        })
+      }
+      if (node.type === 'projects') {
+        DataService.listProjects(this.$store.state.designer.token).then((result) => {
+          this.projectnames = result.data.map(proj => proj.label)
+          done(result.data)
+        })
+      }
+
+      if (node.type === 'models') {
+        DataService.listModels(node.project.label, this.$store.state.designer.token).then((result) => {
+          done(result.data)
+        })
+      }
+      if (node.type === 'project') {
+        done([
+          {
+            label: 'Models',
+            icon: 'las la-pencil-ruler text-bold',
+            lazy: true,
+            type: 'models',
+            project: node,
+            id: 'models' + node.id
+          },
+          {
+            label: 'Views',
+            icon: 'las la-table',
+            lazy: true,
+            type: 'views',
+            project: node,
+            id: 'views' + node.id
+          },
+          {
+            label: 'Jobs',
+            icon: 'las la-hard-hat',
+            lazy: true,
+            type: 'jobs',
+            project: node,
+            id: 'jobs' + node.id
+          }])
+      }
+    },
+    deleteProject () {
+      const me = this
+      this.saving = true
+      DataService.deleteProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
+        me.saving = false
+        me.projectResult = 'Project Successfully Deleted'
+        me.projectExists = true
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+        me.projectResult = 'Project Deletion Error'
+      })
+    },
+    createProject () {
+      const me = this
+      this.saving = true
+      DataService.createProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
+        me.saving = false
+        me.projectResult = 'Project Created Successfully'
+        me.projectExists = true
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+        me.projectResult = err.response.data.message
+      })
+    },
+    tableSelected () {
+      console.log('TABLE SELECTED')
+    },
+    refreshTables () {
+      const me = this
+      this.saving = true
+      DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        console.log('DataService.getRows', result)
+        me.predictedrows = result.data
+        me.saving = false
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+      })
+    },
+    pullSchema () {
+      const me = this
+      this.saving = true
+      this.saving = false
+    },
+
+    createMindsProject () {
+      this.loadingObject = true
+      DataService.createMindsProject(this.obj.projectname,
+        this.$store.state.designer.token).then((res) => {
+        this.loadingObject = false
+        this.createDatabaseResult = res.response.data.message
+      }).catch((err) => {
+        this.loadingObject = false
+        this.createDatabaseResult = err.response.data.message
+      })
+    },
+    createMindsDatabase () {
+      this.loadingObject = true
+      DataService.createDatabase(this.obj.mindsobj,
+        this.$store.state.designer.token).then((res) => {
+        this.loadingObject = false
+        this.createDatabaseResult = res.response.data.message
+      }).catch((err) => {
+        this.loadingObject = false
+        this.createDatabaseResult = err.response.data.message
+      })
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
@@ -2836,7 +4983,7 @@ export default {
       this.argobjects
     },
     updatePorts () {
-      var me = this
+      const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
 
@@ -2847,14 +4994,21 @@ export default {
     updateDataPort (port) {
       this.portobjects[port.id] = port.data
     },
-    triggerObject (portname) {
-      var me = this
+    triggerQuery (portname) {
 
+    },
+    triggerObject (portname) {
+      const me = this
+
+      console.log('TRIGGER ALL BEGIN')
+      window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA EDGE TEMPLATE RESULT', resultstr)
@@ -2866,6 +5020,7 @@ export default {
           console.log('target node id', target_id)
           const node = edge.target.getNode()
           const code = node.data.code
+
           window.root.$emit(target_id, code, options.function, options.name, result, node.data)
 
           const reslen = resultstr.length
@@ -2887,37 +5042,48 @@ export default {
           // and store the value internally until all the arguments for the function
           // are present, then trigger the function with all the parameters
         })
-      }, (error) => {
 
+        console.log('TRIGGER ALL COMPLETE')
+        window.root.$emit('trigger.complete')
+        // Trigger all the ports after me
+        this.triggerExecute(portname)
+      }, (error) => {
+        // TODO: Execute middleware error
+        console.log('TRIGGER ALL ERROR')
+        window.root.$emit('trigger.error')
       })
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute () {
-      // For each data object port create a new object dict holding the values
-      // and append to the code string, then retrieve that object to obtain each
-      // port objects value in one evaluation
+    triggerExecute (port) {
+      let exe = false
 
       for (var portname in this.portobjects) {
-        this.triggerObject(portname)
+        if (port === undefined || exe) {
+          this.triggerObject(portname)
+        } else {
+          if (portname === port) {
+            exe = true
+          }
+        }
       }
     },
     updateBandwidthChart () {
-      var outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      var inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      var durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -2951,22 +5117,6 @@ export default {
       this.gitcommit = hash
       this.gitdate = date
     },
-    getCommits () {
-      DataService.getCommits(this.obj.gitrepo.split('#')[0], this.obj.modulepath, this.$store.state.designer.token).then((result) => {
-        this.gitdata = result.data
-      })
-    },
-    doLogin () {
-      var me = this
-
-      DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
-        .then((result) => {
-          me.login = false
-          console.log(result)
-        })
-        .catch((error) => {
-        })
-    },
     addVariable () {
       this.variabledata.push({
         name: 'NAME',
@@ -2978,7 +5128,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      var node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -2988,7 +5138,7 @@ export default {
       })
     },
     centerOnNode () {
-      var node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3002,7 +5152,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list-alt')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')
     },
     showOutput (resultid) {
       this.resultdataloading = true
@@ -3035,21 +5185,22 @@ export default {
           this.resultloading = false
         })
     },
-    updateFunctions (data) {
+    updateFunctions (code) {
       /* Parse out named objects from editor */
-      const re = /(\w+)\s*=/gm
+      const re = /def (\w+)\s*\((.*?)\):/g
 
-      var matches = data.matchAll(re)
+      console.log('updateFunctions code', code)
+      const matches = code.matchAll(re)
 
       this.funcs = []
 
       for (const match of matches) {
-        var name = match[0].split('=')[0].trim()
+        var name = match[0].split('(')[0].split(' ').at(-1)
         this.funcs.push({ name: name, args: [] })
       }
     },
     fetchCode () {
-      var me = this
+      const me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
@@ -3078,7 +5229,7 @@ export default {
       console.log('COPY NODE')
 
       function findMatch (list, obj) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
             return true
@@ -3088,7 +5239,7 @@ export default {
       }
 
       function findEdge (list, edge) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
             return true
@@ -3098,9 +5249,9 @@ export default {
       }
 
       function haveAllNodes (nodes, edge) {
-        var source = false
-        var target = false
-        for (var i = 0; i < nodes.length; i++) {
+        let source = false
+        let target = false
+        for (let i = 0; i < nodes.length; i++) {
           var node = nodes[i]
           if (edge.source.split('.')[0] === node.id) source = true
           if (edge.target.split('.')[0] === node.id) target = true
@@ -3123,19 +5274,19 @@ export default {
       jsonData.nodes = []
       jsonData.edges = []
       jsonData.ports = []
-      for (var i = 0; i < data.nodes.length; i++) {
+      for (let i = 0; i < data.nodes.length; i++) {
         const n = data.nodes[i]
         if (findMatch(nodes, n)) {
           jsonData.nodes.push(n)
         }
       }
-      for (var i = 0; i < data.edges.length; i++) {
+      for (let i = 0; i < data.edges.length; i++) {
         const e = data.edges[i]
         if (haveAllNodes(jsonData.nodes, e)) {
           jsonData.edges.push(e)
         }
       }
-      for (var i = 0; i < jsonData.nodes.length; i++) {
+      for (let i = 0; i < jsonData.nodes.length; i++) {
         const node = jsonData.nodes[i]
         for (var p = 0; p < data.ports.length; p++) {
           var port = data.ports[p]
@@ -3147,7 +5298,7 @@ export default {
 
       window.clipboard = jsonData
       var nodes = []
-      for (var i = 0; i < window.clipboard.nodes.length; i++) {
+      for (let i = 0; i < window.clipboard.nodes.length; i++) {
         nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
       }
       window.nodes = nodes
@@ -3158,7 +5309,7 @@ export default {
       this.editPort = false
     },
     saveProcessor () {
-      var me = this
+      const me = this
 
       this.refreshing = true
 
@@ -3214,9 +5365,6 @@ export default {
     },
     onReset () {
     },
-    loginProcessor () {
-      this.login = true
-    },
     getUuid () {
       return 'key_' + uuidv4()
     },
@@ -3238,6 +5386,9 @@ export default {
       this.requirementsview = false
       this.logsview = false
       this.securityview = false
+      this.middlewareview = false
+      this.tableview = false
+      this.connectResult = ''
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
@@ -3246,7 +5397,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        var node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -3273,18 +5424,8 @@ export default {
         edge.innerText = value
       })
     },
-    gitEditorInit: function () {
-      require('brace/ext/language_tools') // language extension prerequsite...
-      require('brace/mode/html')
-      require('brace/mode/python') // language
-      require('brace/mode/less')
-      require('brace/theme/chrome')
-      require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.gitEditor.editor
-      editor.setAutoScrollEditorIntoView(true)
-    },
-    reqEditorInit: function () {
-      var me = this
+    middlewareEditorInit: function () {
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3292,14 +5433,15 @@ export default {
       require('brace/mode/less')
       require('brace/theme/chrome')
       require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.requirementsEditor.editor
+      const editor = this.$refs.middlewareEditor.editor
       editor.setAutoScrollEditorIntoView(true)
       editor.on('change', function () {
-        me.obj.requirements = editor.getValue()
+        me.middleware = editor.getValue()
+        me.obj.middleware = me.middleware
       })
     },
     notesEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3314,7 +5456,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3329,7 +5471,7 @@ export default {
       })
     },
     editorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3371,8 +5513,8 @@ export default {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i]
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -3383,7 +5525,7 @@ export default {
 
       var edges = window.toolkit.getAllEdges()
 
-      for (var i = 0; i < edges.length; i++) {
+      for (let i = 0; i < edges.length; i++) {
         console.log(edge)
         const edge = edges[i]
         console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column)
@@ -3427,23 +5569,21 @@ export default {
 
       return port
     },
-    updateSchemas () {
-      setTimeout(() => {
-        var graph = window.toolkit.getGraph().serialize()
-
-        var schemas = []
-
-        graph.nodes.forEach((node) => {
-          if (node.type === 'schema') {
-            schemas.push(node.name)
-          }
-        })
-        this.types = schemas
+    addNewTablePort (table, type, icon) {
+      var port = this.addPort({
+        name: table.name,
+        icon: icon,
+        type: type
       })
+
+      this.ports[table.name] = true
+      this.portobjects[port.id] = port
+
+      if (type === 'Error') {
+
+      }
     },
     addNewPort (func, type, icon) {
-      var me = this
-
       var port = this.addPort({
         name: func.function,
         icon: icon,
@@ -3479,6 +5619,7 @@ export default {
     },
     selectNode: function () {
       console.log('selected: ', this.obj.id)
+
       window.root.$emit('node.selected', this.obj)
     },
     deleteEntity: function (name) {

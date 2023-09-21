@@ -1,6 +1,8 @@
+ui.tar.gz
+ui/package-lock.json
 tmp
 elasticdb.db
-certs
+elastic.sql
 dist
 out
 scratch

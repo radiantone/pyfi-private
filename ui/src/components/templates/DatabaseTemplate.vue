@@ -460,7 +460,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            dropdown-icon="las la-list"
+            dropdown-icon="las la-search"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -474,10 +474,10 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')"
+                @click="addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-list" />
+                  <q-icon name="las la-search" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -547,6 +547,26 @@
           </q-tooltip>
         </div>
         <div style="position: absolute; right: 8px; top: 0px;">
+          <q-btn
+            size="xs"
+            icon="las la-exchange-alt"
+            dense
+            flat
+            class="show-code text-secondary"
+            style="position: absolute; right: 140px; top: -68px; width: 25px; height: 30px;"
+            clickable
+            v-close-popup
+            @click="showPanel('middlewareview', !middlewareview)"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Middleware
+            </q-tooltip>
+          </q-btn>
           <q-btn
             size="xs"
             icon="fas fa-search"
@@ -786,6 +806,12 @@
             round
             v-if="column.type === 'Output'"
           />
+          <i
+            class="spinload"
+            v-if="column.loading"
+            style="font-size:1.3em;margin-right:3px"
+          />
+
           <q-btn
             icon="fa fa-cog"
             size="xs"
@@ -803,7 +829,7 @@
             dense
             round
             @click="confirmDeletePort(column.id)"
-            v-if="column.type === 'Table'"
+            v-if="column.type === 'Table' || column.type === 'Output'"
           />
         </div>
         <div
@@ -1016,6 +1042,73 @@
       </q-card>
     </q-dialog>
 
+
+    <q-dialog
+      v-model="clearDataConfirm"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Clear Data</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to clear the data from this table?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Clear"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="clearData"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+
     <!-- Delete dialog -->
     <q-dialog
       v-model="deleteConfirm"
@@ -1108,6 +1201,7 @@
           hint="Database Table"
           option-value="name"
           option-label="name"
+          @update:model-value="tableSelected"
           value="string"
           :menu-offset="[5, -9]"
         />
@@ -1118,6 +1212,7 @@
             :data="tablerows"
             :columns="viewcols"
             row-key="id"
+            :rows-per-page-options="[15]"
             style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
           />
         </div>
@@ -1166,7 +1261,8 @@
           class="bg-primary text-secondary"
           color="primary"
           v-close-popup
-          @click="fetchData"
+          @click="refreshTables"
+          :disable="!viewtable"
         >
           <q-tooltip
             anchor="top middle"
@@ -1214,6 +1310,24 @@
             Add Row
           </q-tooltip>
         </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 250px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-trash"
+          class="bg-accent text-secondary"
+          color="primary"
+          v-close-popup
+          @click="clearDataConfirm = true"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Clear Data
+          </q-tooltip>
+        </q-btn>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1226,6 +1340,15 @@
           @click="tableview = false"
         />
       </q-card-actions>
+      <q-inner-loading
+        :showing="saving"
+        style="z-index: 999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
+      </q-inner-loading>
     </q-card>
     <q-card
       :style="
@@ -1685,8 +1808,8 @@
                   v-model="obj.middlewarefunc"
                   use-input
                   input-debounce="0"
+                  :options="getfuncs"
                   hint="Middleware Function"
-                  :options="mwfunctions"
                   style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
@@ -2160,7 +2283,9 @@
     </q-card>
 
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      :style="'width: '+middlewarewidth+'px; height: 465px; z-index: 999; display: block; position: absolute; right: -' +
+        (middlewarewidth + 5) +
+        'px; top: 0px;'"
       v-if="middlewareview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2177,6 +2302,63 @@
           />
         </div>
       </q-card-section>
+
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="middlewarewidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-secondary text-accent"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2373,6 +2555,27 @@
   </div>
 </template>
 <style scoped>
+
+.spinload {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #abbcc3;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    }
+
 .q-expansion-item__container > .q-item {
   padding-left: 0px !important;
   padding-right: 0px !important;
@@ -2425,7 +2628,7 @@ import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
-
+import { ref } from 'vue'
 import { TSDB } from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
@@ -2465,6 +2668,11 @@ export default {
   name: 'DatabaseTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
+  setup () {
+    // expose to template and other options API hooks
+    return {
+    }
+  },
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -2494,7 +2702,7 @@ export default {
     }
   },
   created () {
-    var me = this
+    let me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
@@ -2520,9 +2728,12 @@ export default {
 
     const avoid = ['icon', 'id']
     window.designer.$on('trigger.data', () => {
-      me.triggerExecute()
+      // In this case, the Run Flow button was pressed and
+      // Queries added to this database template should be fired
     })
     this.$on('call.completed', (call) => {
+      // TODO: Refresh data tables
+      this.refreshTables()
       // TODO: Trigger sequential ports that are satisfied
       for (const fname in this.portobjects) {
         console.log('SEQUENCE FUNC', fname)
@@ -2530,10 +2741,67 @@ export default {
     })
     this.$on('middleware.complete', (msg) => {
       console.log('DATABASE TEMPLATE: ', msg)
+      const bytes = msg.bytes
+      me.calls_in += 1
+      me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
+      // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+      me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
+      // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+      me.bytes_in += bytes
+      setTimeout(me.refreshTables,1000)
+/*
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          if (column.loaders) {
+            column.loaders.pop()
+          }
+          if (column.loaders.length === 0) {
+            column.loading = false
+          }
+          // Trigger the port AFTER a result has been emitted
+          console.log('TRIGGER PORT LOADING:', column)
+          this.triggerObject(msg.portname, column, (_column) => {
+            console.log('TRIGGER PORT CALLBACK', _column)
+          })
+        }
+      })
+*/
+      this.$forceUpdate()
+    })
+
+    this.$on('middleware.started', (msg) => {
+      // When middleware has been started, show
+      // the spinner icon
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          column.loading = true
+
+          if (!column.loaders) {
+            column.loaders = []
+          }
+          column.loaders.push({})
+        }
+      })
+      setTimeout(me.$forceUpdate)
     })
 
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'result') {
+        this.obj.columns.forEach((column) => {
+          if (column.id === msg.portname) {
+            if (column.loaders) {
+              column.loaders.pop()
+            }
+            if (column.loaders.length === 0) {
+                column.loading = false
+            }
+            this.$forceUpdate()
+            // Trigger the port AFTER a result has been emitted
+            console.log('TRIGGER PORT LOADING:', column)
+            this.triggerObject(msg.portname, column, msg.obj,(_column) => {
+            })
+          }
+        })
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
@@ -2668,19 +2936,25 @@ export default {
     }, 3000)
   },
   computed: {
+    getfuncs () {
+      this.updateFunctions(this.obj.middleware)
+      console.log('GETFUNCS', this.funcs)
+      return this.funcs.map(a => a.name)
+    },
     viewtable: {
       get: function () {
         return this.table.name
       },
       set: function (val) {
         console.log('SETTING VIEW TABLE', val)
+        this.tablerows = []
         this.viewcols = []
         this.table = val
         val.cols.forEach((col) => {
           this.viewcols.push({
             name: col,
             label: col,
-            id: col
+            field: col
           })
         })
       }
@@ -2699,7 +2973,7 @@ export default {
       }
     },
     myhistory () {
-      var me = this
+      let me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -2735,7 +3009,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    let me = this
 
     console.log('setId ', this.obj.id)
     this.setId(this.obj.id)
@@ -2745,6 +3019,8 @@ export default {
     console.log('BYTES_IN', this.bytes_in)
 
     me.middleware = me.obj.middleware
+    me.middlewarefunc = me.obj.middlewarefunc
+
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
@@ -2782,11 +3058,12 @@ export default {
     if (this.obj.crontoggle) {
       this.startSchedule(this.obj.cron)
     }
+    this.pullSchema()
   },
   data () {
     return {
-      mwfunction: '',
-      mwfunctions: ['funca', 'funcb', 'funcc'],
+      clearDataConfirm: false,
+      fetchDisabled: true,
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -2802,6 +3079,7 @@ export default {
       funcs: [],
       afuncs: [],
       codewidth: 650,
+      middlewarewidth: 875,
       queuecolumns: [
         {
           name: 'task',
@@ -3306,8 +3584,35 @@ export default {
     }
   },
   methods: {
+    clearData () {
+      let me = this
+      this.saving = true
+      DataService.clearData(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        me.tablerows = []
+        me.saving = false
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+      })
+    },
+    tableSelected () {
+      console.log('TABLE SELECTED')
+    },
+    refreshTables () {
+      let me = this
+      this.saving = true
+      DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+        console.log('REFRESH DataService.getRows', result)
+        me.tablerows = result.data
+        me.saving = false
+      }).catch((err) => {
+        console.log('ERROR', err)
+        me.saving = false
+      })
+    },
     pullSchema () {
-      var me = this
+      let me = this
+      this.saving = true
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
         me.obj.schema = ''
@@ -3317,24 +3622,32 @@ export default {
         })
 
         me.schemaResult = 'Pull Schema succeeded'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Pull Schema failure'
+        me.saving = false
       })
     },
     testConnection () {
-      var me = this
+      let me = this
+      this.saving = true
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Connection Success!'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Connection Error!'
+        me.saving = false
       })
     },
     createSchema () {
-      var me = this
+      let me = this
+      this.saving = true
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
+        me.saving = false
       }).catch(() => {
         me.schemaResult = 'Create Schema failure'
+        me.saving = false
       })
     },
     setZoomLevel () {
@@ -3348,7 +3661,7 @@ export default {
       this.argobjects
     },
     updatePorts () {
-      var me = this
+      let me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
 
@@ -3362,77 +3675,69 @@ export default {
     triggerQuery (portname) {
 
     },
-    triggerObject (portname) {
-      var me = this
+    triggerObject (portname, column, result, callback) {
+      let me = this
 
       console.log('TRIGGER ALL BEGIN')
       window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+      let resultstr = JSON.stringify(result)
 
-      const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
+      _port.getEdges().forEach((edge) => {
+        console.log('DATA EDGE->NODE', edge, edge.target.getNode())
+        const options = edge.target.data
+        const target_id = edge.target.getNode().data.id
+        console.log('myid, target node id', me.obj.id, target_id)
+        if (me.obj.id === target_id) {
+          return
+        }
+        const node = edge.target.getNode()
+        const code = node.data.code
 
-      result.then((result) => {
-        const resultstr = result.toString()
-        console.log('DATA EDGE TEMPLATE RESULT', resultstr)
-        console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
-        _port.getEdges().forEach((edge) => {
-          console.log('DATA EDGE->NODE', edge, edge.target.getNode())
-          const options = edge.target.data
-          const target_id = edge.target.getNode().data.id
-          console.log('target node id', target_id)
-          const node = edge.target.getNode()
-          const code = node.data.code
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data, portname)
 
-          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+        const reslen = resultstr.length
+        tsdb.series('outBytes').insert(
+          {
+            bytes: reslen
+          },
+          new Date()
+        )
 
-          const reslen = resultstr.length
-          tsdb.series('outBytes').insert(
-            {
-              bytes: reslen
-            },
-            new Date()
-          )
-
-          me.bytes_out_5min.unshift(reslen)
-          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          me.bytes_out += reslen
-          me.calls_out += 1
-          // send message to target_id with result, _port
-          // receiving node will realize this is an argument port and value
-          // and store the value internally until all the arguments for the function
-          // are present, then trigger the function with all the parameters
-        })
-
-        // TODO: Execute middleware complete
-        console.log('TRIGGER ALL COMPLETE')
-        window.root.$emit('trigger.complete')
-        // Trigger all the ports after me
-        this.triggerExecute(portname)
-      }, (error) => {
-        // TODO: Execute middleware error
-        console.log('TRIGGER ALL ERROR')
-        window.root.$emit('trigger.error')
+        me.bytes_out_5min.unshift(reslen)
+        // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+        // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+        me.bytes_out += reslen
+        me.calls_out += 1
+        // send message to target_id with result, _port
+        // receiving node will realize this is an argument port and value
+        // and store the value internally until all the arguments for the function
+        // are present, then trigger the function with all the parameters
       })
+      console.log('TRIGGER ALL COMPLETE')
+      window.root.$emit('trigger.complete')
+      // Trigger all the ports after me
+      //this.triggerExecute(portname, column, result, callback)
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute (port) {
+    triggerExecute (port, column, result, callback) {
+      /*
       let exe = false
 
       for (var portname in this.portobjects) {
         if (port === undefined || exe) {
-          this.triggerObject(portname)
+          this.triggerObject(portname, column, result, callback)
         } else {
           if (portname === port) {
             exe = true
           }
         }
-      }
+      }*/
     },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
@@ -3489,7 +3794,7 @@ export default {
       })
     },
     doLogin () {
-      var me = this
+      let me = this
 
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
@@ -3534,7 +3839,7 @@ export default {
     },
     addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-list')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')
     },
     showOutput (resultid) {
       this.resultdataloading = true
@@ -3567,21 +3872,22 @@ export default {
           this.resultloading = false
         })
     },
-    updateFunctions (data) {
+    updateFunctions (code) {
       /* Parse out named objects from editor */
-      const re = /(\w+)\s*=/gm
+      const re = /def (\w+)\s*\((.*?)\):/g
 
-      var matches = data.matchAll(re)
+      console.log('updateFunctions code', code)
+      var matches = code.matchAll(re)
 
       this.funcs = []
 
       for (const match of matches) {
-        var name = match[0].split('=')[0].trim()
+        var name = match[0].split('(')[0].split(' ').at(-1)
         this.funcs.push({ name: name, args: [] })
       }
     },
     fetchCode () {
-      var me = this
+      let me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
@@ -3690,7 +3996,7 @@ export default {
       this.editPort = false
     },
     saveProcessor () {
-      var me = this
+      let me = this
 
       this.refreshing = true
 
@@ -3829,7 +4135,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     reqEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3844,7 +4150,7 @@ export default {
       })
     },
     middlewareEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3860,7 +4166,7 @@ export default {
       })
     },
     notesEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3875,7 +4181,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3890,7 +4196,7 @@ export default {
       })
     },
     editorInit: function () {
-      var me = this
+      let me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3976,7 +4282,7 @@ export default {
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
-
+      port.loading = '#fff'
       port.queue = 'None'
 
       console.log('Port:', port)
@@ -4064,3 +4370,4 @@ export default {
   }
 }
 </script>
+

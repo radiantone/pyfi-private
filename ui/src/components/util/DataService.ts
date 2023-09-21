@@ -3,6 +3,22 @@
 import http from 'src/http-common'
 
 class DataService {
+  clearData (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/clear', { viewtable: viewtable, database: database, url: url }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getRows (viewtable: string, database: string, url: string, schema: string, token: string): Promise<any> {
+    return http.post('/api/db/rows', { viewtable: viewtable, database: database, url: url }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getFiles (collection: string, folder: string, token: string): Promise<any> {
     return http.get('/api/files/' + collection + '/' + folder, {
       headers: {
@@ -25,6 +41,106 @@ class DataService {
         Authorization: 'Bearer ' + token
       }
     })
+  }
+
+  deleteProject (name: string, token: string): Promise<any> {
+    return http.delete('/api/minds/project/' + name, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  createProject (name: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + name, {}, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listProjects (token: string): Promise<any> {
+    return http.get('/api/minds/projects', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listDatabases (token: string): Promise<any> {
+    return http.get('/api/minds/databases', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listTables (database: string, token: string): Promise<any> {
+    return http.get('/api/minds/database/' + database + '/tables', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listModels (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/project/' + project + '/models', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getModel (model: string, token: string): Promise<any> {
+    return http.get('/api/minds/models/' + model, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listJobs (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/jobs', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getJob (job: string, token: string): Promise<any> {
+    return http.get('/api/minds/jobs/' + job, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getProject (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/projects/' + project, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  listViews (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/views', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getView (view: string, token: string): Promise<any> {
+    return http.get('/api/minds/views/' + view, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getMock (): Promise<any> {
+    return http.get('/apitest/')
   }
 
   createSchema (type: string, url: string, schema: string, token: string): Promise<any> {
@@ -115,6 +231,14 @@ class DataService {
     })
   }
 
+  renameFlow (flow: string, name: string, token: string): Promise<any> {
+    return http.post('/api/rename/flow/' + flow, { name: name }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getVersions (flow: string, token: string): Promise<any> {
     return http.get('/api/versions/' + flow, {
       headers: {
@@ -132,6 +256,7 @@ class DataService {
   }
 
   runBlock (block: any, call: string, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     return http.post('/api/runblock', { block: block, call: call }, {
       headers: {
         Authorization: 'Bearer ' + token
@@ -167,7 +292,27 @@ class DataService {
     })
   }
 
+  // name: string, dbtype: string, user: string, pwd: string, host: string, port: string, dbname: string
+  createDatabase (mindsobj: any, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
+    return http.post('/api/minds/database', mindsobj, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  createTable (database: string, table: string, query: string, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
+    return http.post('/api/minds/database/' + database + '/' + table, { query: query }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   saveProcessor (processor: any, token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-plus-operands
     return http.post('/api/processor/' + processor.name, processor, {
       headers: {
         Authorization: 'Bearer ' + token
@@ -195,14 +340,14 @@ class DataService {
     })
   }
 
-  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon:string, file: string, token: string): Promise<any> {
+  newFile (collection: string, folder: string, fid: string, name: string, saveas: boolean, type: string, icon: string, file: string, token: string): Promise<any> {
     const path = encodeURI('/api/files/' + collection + '/' + folder)
 
-    const auth_string = 'Bearer ' + token
-    console.log('AUTH_STRING', auth_string)
+    const authString = 'Bearer ' + token
+    console.log('AUTH_STRING', authString)
     return http.post(path, { saveas: saveas, name: name, id: fid, file: file, type: type, icon: icon }, {
       headers: {
-        Authorization: auth_string
+        Authorization: authString
       }
     })
   }
