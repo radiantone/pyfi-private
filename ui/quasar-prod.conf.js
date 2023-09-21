@@ -68,7 +68,7 @@ module.exports = configure(function (ctx) {
       // showProgress: false,
       // gzip: true,
       // analyze: true,
-
+      sourceMap: true,
       // Options below are automatically set depending on the env, set them if you want to override
       // extractCSS: false,
 
