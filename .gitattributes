@@ -1,5 +1,6 @@
 ui/auth_config.json merge=ours
 .circleci/config.yml merge=ours
+ui/src/index.template.html merge=ours
 Makefile merge=ours
 newrelic.ini merge=ours
 docker-compose.yml
