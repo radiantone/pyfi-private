@@ -66,9 +66,26 @@ services:
       ports:
         - 3001:3000
 
+  influxdb:
+    image: influxdb:2.0
+    container_name: influxdb
+    restart: always
+    ports:
+      - 8083:8083
+      - 8086:8086
+      - 8088:8088
+    environment:
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=pyfi
+      - DOCKER_INFLUXDB_INIT_BUCKET=pyfi
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
   mindsdb:
     image: mindsdb/mindsdb
     container_name: mindsdb
+    restart: always
     environment:
       - "MINDSDB_STORAGE_DIR=/root/data"
     volumes:
@@ -118,9 +135,12 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
+    restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.com
       - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    volumes:
+      - ./tmp:/tmp
     ports:
       - 8008:80
 
@@ -144,7 +164,8 @@ services:
   rabbitmq2:
     container_name: rabbitmq2
     hostname: rabbitmq2
-    image: rabbitmq:management
+    image: rabbitmq:3.12.1-management-alpine
+    restart: always
     build:
       context: .
       dockerfile: docker/Dockerfile.rabbitmq
@@ -168,7 +189,7 @@ services:
     container_name: postgresdb
     image: postgres:14
     hostname: postgresdb
-    #restart: always
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pyfi101
@@ -202,19 +223,21 @@ services:
       - 8001:8001
 
   mongodb:
-      image: mongo:latest
-      container_name: mongodb
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: root
-        MONGO_INITDB_ROOT_PASSWORD: rootpassword
-      ports:
-        - 27017:27017
-      volumes:
-        - mongodb_data_container:/data/db
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
 
   web:
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/web:production
     container_name: web
+    restart: always
     build:
       context: /home/darren/git/elasticcode-web
     ports:
