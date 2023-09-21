@@ -181,9 +181,9 @@ module.exports = configure(function (ctx) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: 'Lambda Flow',
-        short_name: 'Flow',
-        description: 'A Quasar Framework app',
+        name: 'ElasticCode.AI',
+        short_name: 'ElasticCode',
+        description: 'A building-blocks platform',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
