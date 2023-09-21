@@ -66,6 +66,22 @@ services:
       ports:
         - 3001:3000
 
+  mindsdb:
+    image: mindsdb/mindsdb
+    container_name: mindsdb
+    environment:
+      - "MINDSDB_STORAGE_DIR=/root/data"
+    volumes:
+      - mindsdb:/root/data
+      - ./elasticdb.db:/root/elasticdb.db
+    links:
+      - postgresdb
+    depends_on:
+      - postgresdb
+    ports:
+      - "47334:47334"
+      - "47335:47335"
+
   api:
     build:
       context: .
@@ -79,6 +95,7 @@ services:
       - "AUTH0_DOMAIN=elasticcode.us.auth0.com"
       - "API_AUDIENCE=https://app.elasticcode.ai/"
       - "API_HOST=api.elasticcode.ai"
+      - "MINDSDB_SERVER=http://mindsdb:47334"
     ports:
       - 8000:8003
     profiles:
