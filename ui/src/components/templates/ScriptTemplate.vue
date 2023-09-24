@@ -109,7 +109,40 @@
             side
             class="text-blue-grey-8"
           >
-            Run
+            Run All
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="!scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule On
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule Off
           </q-item-section>
         </q-item>
         <q-separator />
@@ -346,6 +379,24 @@
         class="buttons"
         style="position: absolute; right: 00px; top: 68px;"
       >
+        <div
+          class="text-secondary"
+          style="margin-right: 15px;"
+          v-if="scheduleon"
+        >
+          <i
+            class="far fa-clock"
+            style="cursor: pointer;"
+          />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Scheduler On
+          </q-tooltip>
+        </div>
         <div
           class="text-secondary"
           @click="cornerInView"
@@ -3022,6 +3073,7 @@ export default {
   },
   data () {
     return {
+      scheduleon: false,
       containers: [
         'pyfi/processor:latest',
         'pyfi/chatgpt:latest'
@@ -3577,6 +3629,9 @@ export default {
     }
   },
   methods: {
+    toggleScheduler () {
+      this.scheduleon = !this.scheduleon
+    },
     isUsed (portname) {
       return portname in this.obj.portcounters
     },
@@ -3608,7 +3663,7 @@ export default {
     },
     removePort (objid, col) {
       const _port = window.toolkit.getNode(objid).getPort(col)
-      console.log("Removing port ", col, _port.data.name)
+      console.log('Removing port ', col, _port.data.name)
       delete this.obj.portcounters[_port.data.name]
       window.toolkit.removePort(objid, col)
       const fname = _port.data.name.replace('function: ', '')
@@ -4292,10 +4347,10 @@ export default {
     },
     addNewPort (func, type, icon) {
       const me = this
-      let mod = ""
+      const mod = ''
 
-      if( func.function in this.obj.portcounters ) {
-        console.log("Function port exists already")
+      if (func.function in this.obj.portcounters) {
+        console.log('Function port exists already')
         return
       } else {
         this.obj.portcounters[func.function] = 1

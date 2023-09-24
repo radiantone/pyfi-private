@@ -1128,13 +1128,15 @@ def delete_file(fid):
 def rename_flow(flowid):
 
     data = request.get_json(silent=True)
-    flow = session.query(FileModel).filter(FileModel.id == flowid).first()
-    flow.filename = data["name"]
-    session.add(flow)
-    session.commit()
 
-    status = {"status": "ok", "id": flowid}
-    return jsonify(status)
+    with get_session() as session:
+        flow = session.query(FileModel).filter(FileModel.id == flowid).first()
+        flow.filename = data["name"]
+        session.add(flow)
+        session.commit()
+
+        status = {"status": "ok", "id": flowid}
+        return jsonify(status)
 
 
 @app.route("/versions/<flowid>", methods=["GET"])

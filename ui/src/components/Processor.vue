@@ -59,7 +59,7 @@ export interface ProcessorState {
   middleware: string;
   middlewarefunc: string;
   sublevel: { [key: string]: any };
-
+  variables: [];
   environment: { [key: string]: any };
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
@@ -76,6 +76,7 @@ export const ProcessorMixin = Vue.extend({
       middlewareonly: true,
       usemiddleware: false,
       middlewarefunc: '',
+      variables: [],
       obj: {},
       environment: {},
       middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
@@ -92,10 +93,9 @@ export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   usemiddleware!: ProcessorState['usemiddleware'];
   middlewarefunc!: ProcessorState['middlewarefunc'];
   middleware!: ProcessorState['middleware'];
-
   environment!: ProcessorState['environment'];
   interval!: ProcessorState['interval'];
-
+  variables!: ProcessorState['variables'];
   obj!: ProcessorState['obj'];
   scheduler!: ProcessorState['scheduler'];
   sublevel!: ProcessorState['sublevel'];
@@ -122,6 +122,7 @@ interface ProcessorInterface {
   getPort(func: string, name: string): any;
   listenMessages(): void;
   setId(id: string): void;
+  getEnvironment(): any;
   execute(data: any): void;
   startSchedule(cron: string): void;
   stopSchedule(): void;
@@ -152,6 +153,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         middlewareonly: true,
         usemiddleware: false,
         middlewarefunc: '',
+        variables: [],
         middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
         sublevel: {},
         environment: {},
@@ -251,6 +253,9 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           return 'DEV'
         }
       },
+      getEnvironment () {
+        return this.environment
+      },
       stopSchedule () {
         console.log('stopSchedule')
         this.scheduler.stop()
@@ -309,12 +314,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
 
             const _ = (window as any).pyodide.runPython(includes)
-
-            // TODO: Replace "run" with middleware function selected from config dropdown
             const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
             console.log('CODE MIDDLEWARE', mcode)
             this.$emit('middleware.started', {
-              portname:portname
+              portname: portname
             })
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
@@ -339,7 +342,6 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           let port = null
           let complete = false
 
-          // TODO: This fails for database object
           if (func && me.portobjects[func]) {
             for (var i = 0; i < me.portobjects[func].length; i++) {
               if (me.portobjects[func][i].name === argument) {
@@ -383,6 +385,12 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             const argdata: any[] = []
             let funcargs: any = ''
 
+            if (this.obj.passenv) {
+              const env = ''
+
+              // set env string
+              code = 'import os' + '\n' + env + '\n' + code
+            }
             // For all ports associated with the requested function
             me.portobjects[func].forEach((_arg: any) => {
               let jsonarg = _arg.data
@@ -484,6 +492,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               call = 'import json\n' + call;
               // If not containerized then run this code
               (window as any).pyodide.runPython(includes)
+              console.log('RUN PYTHON ENVIRONMENT', this.obj.variabledata)
+              // TODO: Set the code os.environ variables using this.obj.variabledata if this.obj.passenv is true
               const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
               result.then((res: any) => {
