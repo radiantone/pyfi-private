@@ -238,8 +238,6 @@ export default {
       this.initialValue = initialValue
     },
     editorInit: function () {
-      const me = this
-
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
       require('brace/mode/python') // language

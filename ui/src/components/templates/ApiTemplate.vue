@@ -1147,7 +1147,6 @@
             Expand
           </q-tooltip>
         </q-btn>
-
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1268,7 +1267,6 @@
                 name="settings"
                 label="Processor"
               />
-
             </q-tabs>
             <q-tab-panels v-model="settingstab">
               <q-tab-panel
@@ -2018,15 +2016,15 @@ export default {
   name: 'ApiTemplate',
   extends: ScriptTemplate,
   created () {
-      this.obj.gitrepo = ''
+    this.obj.gitrepo = ''
   },
   async mounted () {
     try {
       const api = await SwaggerParser.validate('https://apitools.dev/swagger-parser/online/sample/swagger.yaml')
       console.log('API name: %s, Version: %s', api.info.title, api.info.version)
       this.obj.swagger = 'https://petstore.swagger.io/v2/swagger.json'
-      this.obj.mode = "CORS"
-      this.obj.credentials = "same-origin"
+      this.obj.mode = 'CORS'
+      this.obj.credentials = 'same-origin'
     } catch (err) {
       console.error(err)
     }
@@ -2074,7 +2072,7 @@ export default {
             func = func + '    from pyodide.http import pyfetch\n'
             func = func + '    import json\n'
             func = func + "    data = json.dumps({'this':'that'})\n"
-            func = func + '    response = pyfetch(url+f"' + path + "\", mode=\"" + me.obj.mode + "\", cache=\"no-cache\", credentials=\"" + me.obj.credentials + "\", headers={'Content-Type': 'application/json'}, body=data, method=\"" + method.toUpperCase() + '")\n\n'
+            func = func + '    response = pyfetch(url+f"' + path + '", mode="' + me.obj.mode + '", cache="no-cache", credentials="' + me.obj.credentials + "\", headers={'Content-Type': 'application/json'}, body=data, method=\"" + method.toUpperCase() + '")\n\n'
             code = code + func + '\n'
             console.log(func)
           }

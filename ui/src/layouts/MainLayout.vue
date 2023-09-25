@@ -42,7 +42,7 @@
           icon="fa fa-list"
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -60,7 +60,7 @@
           icon="fa fa-bullseye"
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -78,7 +78,7 @@
           icon="fas fa-satellite-dish"
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -96,7 +96,7 @@
           icon="las la-play"
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -114,7 +114,7 @@
           icon="fa fa-play"
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -132,7 +132,7 @@
           icon="fa fa-stop"
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -150,7 +150,7 @@
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -168,7 +168,7 @@
           :icon="mdiEmailFast"
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -186,7 +186,7 @@
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -204,7 +204,7 @@
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
-          :disabled="!hasHosted"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -236,7 +236,7 @@
             { icon: 'fa fa-database', value: 'model' },
             { icon: 'fab fa-python', value: 'code' },
           ]"
-          :disabled="getVersion() === 'FREE'"
+          :disable="getVersion() === 'FREE'"
         >
         <template #one>
           <div style="font-size: 0.5em; margin-left: 20px;">
@@ -1047,7 +1047,7 @@
             :id="'block'+block.data.id"
             style="cursor:pointer;font-size:2em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
             @click="showBlock(block.data.node)"
-            :disabled="true"
+            :disable="block.disabled"
           >
             <div style="font-size:18px;font-family: arial">
               {{ block.data.node.name }}
@@ -1828,6 +1828,68 @@
 
 
     <q-dialog
+      v-model="viewEdgeDialog"
+      persistent
+    >
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-icon
+                name="fas fa-cog"
+                color="primary"
+                style="margin-right:10px"
+              />
+              <q-item-label>Edge</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewEdgeDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
       v-model="newQueueDialog"
       persistent
     >
@@ -2347,6 +2409,17 @@ export default defineComponent({
     },
     getSurfaceId () {
       return window.toolkit.surfaceId
+    },
+    hasHosted () {
+      console.log('hasHosted', this.$auth.isAuthenticated, this.$store.state.designer.subscription)
+      if (!this.$auth.isAuthenticated) {
+        return false
+      }
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
     }
   },
   methods: {
@@ -2357,6 +2430,7 @@ export default defineComponent({
       setTimeout(() => {
         this.blocks.forEach((el) => {
           const _el = document.querySelector('#block' + el.data.id)
+          console.log('updateBlock: checkPlan ', el.data.enabled)
           if (el.data.enabled && this.checkPlan(el.data.enabled)) {
             var data = el.data
             var draghandle = dd.drag(_el, {
@@ -2366,19 +2440,14 @@ export default defineComponent({
               setData('object', JSON.stringify(data))
             })
             _el.disabled = false
+            el.disabled = false
           } else {
             _el.disabled = true
+            el.disabled = true
+            console.log('updateBlock: disable block ', _el)
           }
         })
       })
-    },
-    hasHosted () {
-      console.log('hasHosted', this.$store.state.designer.subscription)
-      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
-        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
-      } else {
-        return false
-      }
     },
     isProPlan () {
       if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
@@ -2392,8 +2461,8 @@ export default defineComponent({
     },
     checkPlan (plan) {
       if (plan && this[plan]) {
-        console.log('CHECKPLAN', plan, cp)
         const cp = this[plan]()
+        console.log('CHECKPLAN', plan, cp)
         return cp
       }
     },

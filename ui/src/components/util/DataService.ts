@@ -396,8 +396,12 @@ class DataService {
     return http.post('/api/login', data)
   }
 
-  logout (): Promise<any> {
-    return http.get('/api/logout')
+  logout (token: string): Promise<any> {
+    return http.get('/api/logout', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
   }
 }
 
