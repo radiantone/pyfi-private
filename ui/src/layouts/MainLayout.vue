@@ -2395,6 +2395,17 @@ export default defineComponent({
     allPlan () {
       return true
     },
+    hasHostedPlan () {
+      console.log('hasHosted', this.$auth.isAuthenticated, this.$store.state.designer.subscription)
+      if (!this.$auth.isAuthenticated) {
+        return false
+      }
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
     checkPlan (plan) {
       if (plan && this[plan]) {
         const cp = this[plan]()
@@ -3133,7 +3144,7 @@ export default defineComponent({
 
       processor.data = {
         id: 4,
-        enabled: 'hasHosted',
+        enabled: 'hasHostedPlan',
         node: {
           icon: 'icon-processor',
           style: '',
@@ -3293,7 +3304,7 @@ export default defineComponent({
       var schema = document.querySelector('#schema')
       schema.data = {
         id: 11,
-        enabled: 'hasHosted',
+        enabled: 'hasHostedPlan',
         node: {
           icon: this.schemaIcon,
           style: 'size:50px',
@@ -3312,7 +3323,7 @@ export default defineComponent({
       var chatgpt = document.querySelector('#chatgpt')
       chatgpt.data = {
         id: 13,
-        enabled: 'hasHosted',
+        enabled: 'hasHostedPlan',
         node: {
           icon: 'las la-robot',
           style: 'size:50px',
@@ -3331,7 +3342,7 @@ export default defineComponent({
       var inference = document.querySelector('#inference')
       inference.data = {
         id: 14,
-        enabled: 'hasHosted',
+        enabled: 'hasHostedPlan',
         node: {
           icon: 'las la-brain',
           style: 'size:50px',
@@ -3369,7 +3380,7 @@ export default defineComponent({
       var database = document.querySelector('#database')
       database.data = {
         id: 16,
-        enabled: 'hasHosted',
+        enabled: 'hasHostedPlan',
         node: {
           icon: 'fas fa-database',
           style: 'size:50px',
