@@ -4491,6 +4491,9 @@ export default {
 
         // TODO: Insert block JSON here
         console.log('triggerRoute: edge:', edge, target_id)
+
+        // TODO: If passenv set, then pass the variabledata to the next block for it to
+        // set locally to itself before it runs its code
         window.root.$emit(target_id, code, options.function, options.name, result, node.data)
       })
     },

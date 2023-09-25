@@ -3190,10 +3190,6 @@ export default {
         }
       })
     },
-    addFunc (func) {
-      console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')
-    },
     showOutput (resultid) {
       this.resultdataloading = true
 

@@ -1039,7 +1039,7 @@ export default {
       this.showProfileDialog = this.$auth.isAuthenticated
     },
     logout () {
-      this.$auth.logout({ returnTo: '/logout' })
+      DataService.logout(this.$store.state.designer.token).then(this.$auth.logout({ returnTo: '/logout' }))
     },
     login () {
       this.$root.$emit('login')

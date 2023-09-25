@@ -386,10 +386,14 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             let funcargs: any = ''
 
             if (this.obj.passenv) {
-              const env = ''
+              let env = 'import os\n'
+              // TODO: Set the code os.environ variables using this.obj.variabledata if this.obj.passenv is true
 
+              this.obj.variabledata.forEach((variable: { [key: string]: string }) => {
+                env += "os.environ['" + variable.name + "'] = \"" + variable.value + '"'
+              })
               // set env string
-              code = 'import os' + '\n' + env + '\n' + code
+              code = env + '\n\n' + code
             }
             // For all ports associated with the requested function
             me.portobjects[func].forEach((_arg: any) => {
@@ -493,7 +497,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               // If not containerized then run this code
               (window as any).pyodide.runPython(includes)
               console.log('RUN PYTHON ENVIRONMENT', this.obj.variabledata)
-              // TODO: Set the code os.environ variables using this.obj.variabledata if this.obj.passenv is true
+
               const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
               result.then((res: any) => {

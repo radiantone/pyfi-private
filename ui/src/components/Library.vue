@@ -133,7 +133,10 @@
               size="lg"
             />
           </q-item-section>
-          <q-item-section style="margin-left:50px;width:100%" class="absolute">
+          <q-item-section
+            style="margin-left:50px;width:100%"
+            class="absolute"
+          >
             <a
               class="text-secondary"
               style="
@@ -327,8 +330,6 @@ export default {
       this.synchronize()
     },
     selectFileOrFolder (item) {
-      const me = this
-
       console.log('selectFileOrFolder ', item.id, item, this.objecttype)
       item._id = item.id
 
@@ -364,14 +365,14 @@ export default {
     synchronize () {
       this.loading = true
       const me = this
-      let token = this.$store.state.designer.token
+      const token = this.$store.state.designer.token
       if ((!this.$auth.isAuthenticated && token) ||
         (!token || token === 'none')) {
-          console.log("Library: Not yet authenticated, returning")
-          return
+        console.log('Library: Not yet authenticated, returning')
+        return
       }
       try {
-        console.log("Library: ",this.$auth.isAuthenticated, token)
+        console.log('Library: ', this.$auth.isAuthenticated, token)
         const files = DataService.getFiles(this.collection, this.foldername, this.$store.state.designer.token)
         files
           .then(function (result) {
@@ -380,9 +381,9 @@ export default {
             }, 100)
 
             result = result.data
-            result.forEach( (entry) => {
+            result.forEach((entry) => {
               if (entry.code.length > 0) {
-                let code = JSON.parse(entry.code)
+                const code = JSON.parse(entry.code)
                 entry.description = code.description
               }
             })
@@ -405,7 +406,7 @@ export default {
                   if (!result[i].columns) result[i].columns = []
                   draghandle.on('start', function (setData, e) {
                     console.log('drag:start:', el, e)
-                    let code = JSON.parse(result[i].code)
+                    const code = JSON.parse(result[i].code)
                     setData('object', JSON.stringify({ node: code }))
                   })
                 }
