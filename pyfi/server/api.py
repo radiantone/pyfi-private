@@ -1266,128 +1266,130 @@ def post_files(collection, path):
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
-    with get_session(user=user) as session:
-        password = user["sub"].split("|")[1]
-        uname = user["email"].split("@")[0] + "." + password
-        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+    try:
+        with get_session(user=user) as session:
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+            _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
 
-        if "id" in data and (
-            ("saveas" in data and not data["saveas"]) or "saveas" not in data
-        ):
-            print("FINDING FILE BY ID", data["id"])
-            file = session.query(FileModel).filter_by(id=data["id"], user=USER).first()
-        else:
-            print("FINDING FILE BY PATH", path + "/" + data["name"])
-            file = (
-                session.query(FileModel)
-                .filter_by(
-                    name=path + "/" + data["name"],
-                    path=path,
-                    collection=collection,
-                    type=data["type"],
-                    user=USER,
-                )
-                .first()
-            )
-        print("FILE FOUND", file)
-        if file:
-            if ("id" in data and data["id"] == file.id) and (
-                "saveas" in data and data["saveas"]
+            if "id" in data and (
+                ("saveas" in data and not data["saveas"]) or "saveas" not in data
             ):
-                # overwrite file
-                print("Overwriting ", data)
-                file.name = path + "/" + data["name"]
-                if "file" not in data:
-                    data["file"] = ""
-                file.code = data["file"]
-                session.add(file)
-                fid = file.id
-                try:
-                    session.commit()
-                    print("Committed")
-                except:
-                    import traceback
-
-                    print(traceback.format_exc())
-                    error = {"status": "error", "message": "Unable to overwrite file"}
-                    session.rollback()
-                    return jsonify(error), 409
-            elif "id" in data and data["id"] == file.id:
-                print("Overwriting ", data)
-                if "file" not in data:
-                    data["file"] = ""
-                file.code = data["file"]
-                session.add(file)
-                fid = file.id
-                try:
-                    session.commit()
-                except:
-                    import traceback
-
-                    print(traceback.format_exc())
-                    error = {"status": "error", "message": "Unable to overwrite file"}
-                    session.rollback()
-                    return jsonify(error), 409
+                print("FINDING FILE BY ID", data["id"])
+                file = session.query(FileModel).filter_by(id=data["id"], user=USER).first()
             else:
-                session.rollback()
-                error = {
-                    "status": "error",
-                    "message": "File name exists",
-                    "id": file.id,
-                }
-                return jsonify(error), 409
+                print("FINDING FILE BY PATH", path + "/" + data["name"])
+                file = (
+                    session.query(FileModel)
+                    .filter_by(
+                        name=path + "/" + data["name"],
+                        path=path,
+                        collection=collection,
+                        type=data["type"],
+                        user=USER,
+                    )
+                    .first()
+                )
+            print("FILE FOUND", file)
+            if file:
+                if ("id" in data and data["id"] == file.id) and (
+                    "saveas" in data and data["saveas"]
+                ):
+                    # overwrite file
+                    print("Overwriting ", data)
+                    file.name = path + "/" + data["name"]
+                    if "file" not in data:
+                        data["file"] = ""
+                    file.code = data["file"]
+                    session.add(file)
+                    fid = file.id
+                    try:
+                        session.commit()
+                        print("Committed")
+                    except:
+                        import traceback
 
-        else:
-            file = (
-                session.query(FileModel)
-                .filter_by(
+                        print(traceback.format_exc())
+                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        session.rollback()
+                        return jsonify(error), 409
+                elif "id" in data and data["id"] == file.id:
+                    print("Overwriting ", data)
+                    if "file" not in data:
+                        data["file"] = ""
+                    file.code = data["file"]
+                    session.add(file)
+                    fid = file.id
+                    try:
+                        session.commit()
+                    except:
+                        import traceback
+
+                        print(traceback.format_exc())
+                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        session.rollback()
+                        return jsonify(error), 409
+                else:
+                    session.rollback()
+                    error = {
+                        "status": "error",
+                        "message": "File name exists",
+                        "id": file.id,
+                    }
+                    return jsonify(error), 409
+
+            else:
+                file = (
+                    session.query(FileModel)
+                    .filter_by(
+                        name=path + "/" + data["name"],
+                        path=path,
+                        collection=collection,
+                        type=data["type"],
+                        user=USER,
+                    )
+                    .first()
+                )
+
+                if file:
+                    error = {
+                        "status": "error",
+                        "message": "File name exists",
+                        "id": file.id,
+                    }
+                    return jsonify(error), 409
+
+                file = FileModel(
                     name=path + "/" + data["name"],
-                    path=path,
+                    filename=data["name"],
                     collection=collection,
                     type=data["type"],
+                    icon=data["icon"],
+                    path=path,
+                    code=data["file"],
                     user=USER,
                 )
-                .first()
-            )
 
-            if file:
-                error = {
-                    "status": "error",
-                    "message": "File name exists",
-                    "id": file.id,
-                }
-                return jsonify(error), 409
+                if "saveas" in data:
+                    print("SAVEAS", file)
 
-            file = FileModel(
-                name=path + "/" + data["name"],
-                filename=data["name"],
-                collection=collection,
-                type=data["type"],
-                icon=data["icon"],
-                path=path,
-                code=data["file"],
-                user=USER,
-            )
+            if data["type"] == "flow":
+                logging.info("Creating version %s %s", file.name, file.id)
+                version = VersionModel(name=file.name, file=file, flow=file.code)
+                session.add(version)
+                logging.info("Added version %s", version)
 
-            if "saveas" in data:
-                print("SAVEAS", file)
+            session.add(file)
+            try:
+                session.commit()
+            except Exception as ex:
+                print(ex)
 
-        if data["type"] == "flow":
-            logging.info("Creating version %s %s", file.name, file.id)
-            version = VersionModel(name=file.name, file=file, flow=file.code)
-            session.add(version)
-            logging.info("Added version %s", version)
-
-        session.add(file)
-        try:
-            session.commit()
-        except Exception as ex:
-            print(ex)
-
-        status = {"status": "ok", "id": file.id}
-        print("STATUS", status)
-        return jsonify(status)
-
+            status = {"status": "ok", "id": file.id}
+            print("STATUS", status)
+            return jsonify(status)
+    except Exception as ex:
+        return jsonify({"status": "error", "message":str(ex)})
 
 @app.route("/minds/database/<database>/<table>", methods=["POST"])
 @cross_origin()
