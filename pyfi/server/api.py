@@ -1383,7 +1383,7 @@ def post_files(collection, path):
                 session.commit()
             except Exception as ex:
                 print(ex)
-                return jsonify({"status": "error", "message": str(ex)})
+                return jsonify({"status": "error", "message": str(ex)}), 500
 
             status = {"status": "ok", "id": file.id}
             print("STATUS", status)
