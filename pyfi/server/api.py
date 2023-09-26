@@ -297,7 +297,7 @@ def requires_auth(f):
                 401,
             )
         except JWTError as ex:
-            SESSION[get_token_auth_header()] = None
+            SESSION["user"] = None
             logging.error(ex)
             raise AuthError(
                 {"code": "invalid_jwt", "description": "Token did not validate"},
@@ -1263,7 +1263,7 @@ def post_files(collection, path):
     print("POST_FILE", data)
     print("POST_NAME", path + "/" + data["name"])
 
-    user_bytes = b64decode(SESSION[get_token_auth_header()])
+    user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
