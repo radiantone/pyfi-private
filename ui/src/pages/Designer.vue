@@ -1637,6 +1637,15 @@
           <q-btn
             flat
             style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Upload"
+            class="bg-primary text-dark"
+            color="primary"
+            v-close-popup
+            @click="uploadFlow"
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
             label="Import"
             class="bg-secondary text-white"
             color="primary"
@@ -3693,17 +3702,16 @@ export default {
           if (!source.data.name) {
             source.data.name = source.data.id
           }
-          let dataobject = {
+          const dataobject = {
             label: source.data.id,
             name: source.data.name,
             type: source.data.datatype,
             template: source.data.template
           }
-          if (!dataobject['template']) {
-            for (let k in source.params.source.dataset) {
-              if (k.indexOf("port") === 0) {
-
-                let field = k.replace("port", "").toLowerCase()
+          if (!dataobject.template) {
+            for (const k in source.params.source.dataset) {
+              if (k.indexOf('port') === 0) {
+                const field = k.replace('port', '').toLowerCase()
                 console.log(field, source.params.source.dataset[k])
                 dataobject[field] = source.params.source.dataset[k]
               }
@@ -4321,7 +4329,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                console.log("double tap ", params)
+                console.log('double tap ', params)
                 _editEdge(params.edge)
               }
             },
@@ -4336,8 +4344,8 @@ export default {
                   name: '${name}',
                   events: {
                     tap: function (params) {
-                      console.log("edge params", params)
-                      window.root.$emit("edge.clicked", params)
+                      console.log('edge params', params)
+                      window.root.$emit('edge.clicked', params)
                     }
                   }
                 }
@@ -4352,7 +4360,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                console.log("dbltap params",params)
+                console.log('dbltap params', params)
               }
             },
             overlays: [
@@ -4383,8 +4391,8 @@ export default {
                       propsData: {
                         node: nodeValue,
                         component: component,
-                        hide: (data.template && data.template === 'Object') || (component.source.dataset['portTemplate'] &&
-                                component.source.dataset['portTemplate'] === 'Object'),
+                        hide: (data.template && data.template === 'Object') || (component.source.dataset.portTemplate &&
+                                component.source.dataset.portTemplate === 'Object'),
                         name: 'default' // component.getData()['name'],
                       }
                     })
