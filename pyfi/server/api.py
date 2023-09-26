@@ -80,7 +80,7 @@ app.secret_key = "super secret key"
 app.register_blueprint(blueprint)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
 app.config["SESSION_PERMANENT"] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = 60 #in seconds
+app.config["PERMANENT_SESSION_LIFETIME"] = 60  # in seconds
 
 api = Api(
     app,
@@ -397,6 +397,7 @@ def logout():
     session.clear()
     return jsonify({"status": "ok"})
 
+
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -701,9 +702,9 @@ def get_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        #password = user["sub"].split("|")[1]
-        #uname = user["email"].split("@")[0] + "." + password
-        #_user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+        # password = user["sub"].split("|")[1]
+        # uname = user["email"].split("@")[0] + "." + password
+        # _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
         try:
             files = (
                 session.query(FileModel)
@@ -757,7 +758,7 @@ def new_folder(collection, path):
                 icon="fas fa-folder",
                 path=_path,
                 code="",
-                user=USER
+                user=USER,
             )
             _session.add(folder)
 
