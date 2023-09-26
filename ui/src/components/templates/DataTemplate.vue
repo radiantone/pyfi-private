@@ -113,6 +113,39 @@
             Run All
           </q-item-section>
         </q-item>
+
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="!scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule On
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule Off
+          </q-item-section>
+        </q-item>
         <q-separator />
         <q-item
           clickable
@@ -129,6 +162,7 @@
             Add to Library
           </q-item-section>
         </q-item>
+
         <q-separator />
         <q-separator />
         <q-item
@@ -437,6 +471,24 @@
         class="buttons"
         style="position: absolute; right: 00px; top: 68px;"
       >
+        <div
+          class="text-secondary"
+          style="margin-right: 15px;"
+          v-if="scheduleon"
+        >
+          <i
+            class="far fa-clock"
+            style="cursor: pointer;"
+          />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Scheduler On
+          </q-tooltip>
+        </div>
         <div
           class="text-secondary"
           @click="cornerInView"
@@ -2244,7 +2296,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (let key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2272,7 +2324,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2468,6 +2520,7 @@ export default {
   },
   data () {
     return {
+      scheduleon: false,
       resulttype: 'finished',
       queues: [],
       argports: {},
@@ -2959,6 +3012,9 @@ export default {
     }
   },
   methods: {
+    toggleScheduler () {
+      this.scheduleon = !this.scheduleon
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
@@ -3037,21 +3093,21 @@ export default {
       }
     },
     updateBandwidthChart () {
-      let outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      let inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      let durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3112,7 +3168,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3122,7 +3178,7 @@ export default {
       })
     },
     centerOnNode () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3133,10 +3189,6 @@ export default {
           window.toolkit.surface.pan(0, -200)
         }
       })
-    },
-    addFunc (func) {
-      console.log('FUNCS2', this.funcs)
-      addNewPort({ function: func.name, args: func.args }, 'Output', 'fas fa-cube')
     },
     showOutput (resultid) {
       this.resultdataloading = true
@@ -3380,7 +3432,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -3506,7 +3558,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -3565,7 +3617,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        let schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {

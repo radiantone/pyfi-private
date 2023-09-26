@@ -56,10 +56,10 @@ from pyfi.db.model import (
 )
 
 CONFIG = configparser.ConfigParser()
-SESSION = session
 
 from pathlib import Path
 
+SESSION = session
 HOME = str(Path.home())
 AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
 API_AUDIENCE = os.environ["API_AUDIENCE"]
@@ -79,6 +79,8 @@ app = Flask(__name__)
 app.secret_key = "super secret key"
 app.register_blueprint(blueprint)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
+app.config["SESSION_PERMANENT"] = False
+app.config['PERMANENT_SESSION_LIFETIME'] = 60 #in seconds
 
 api = Api(
     app,
@@ -225,9 +227,10 @@ def requires_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
+        SESSION = session
+        token = get_token_auth_header()
         if "user" in SESSION:
             return f(*args, **kwargs)
-        token = get_token_auth_header()
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
         try:
@@ -277,11 +280,11 @@ def requires_auth(f):
                         401,
                     )
 
-                # if "user" not in SESSION:
-                user = requests.get(
-                    payload["aud"][1], headers={"Authorization": "Bearer " + token}
-                ).json()
-                SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+                if "user" not in SESSION:
+                    user = requests.get(
+                        payload["aud"][1], headers={"Authorization": "Bearer " + token}
+                    ).json()
+                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
@@ -294,7 +297,7 @@ def requires_auth(f):
                 401,
             )
         except JWTError as ex:
-            SESSION["user"] = None
+            SESSION[get_token_auth_header()] = None
             logging.error(ex)
             raise AuthError(
                 {"code": "invalid_jwt", "description": "Token did not validate"},
@@ -386,6 +389,13 @@ def create_endpoint(modulename, taskname):
 
 setattr(app, "json_encodore", AlchemyEncoder)
 
+
+@app.route("/logout", methods=["GET"])
+@cross_origin()
+@requires_auth
+def logout():
+    session.clear()
+    return jsonify({"status": "ok"})
 
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
 @cross_origin()
@@ -691,20 +701,20 @@ def get_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        password = user["sub"].split("|")[1]
-        uname = user["email"].split("@")[0] + "." + password
-        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+        #password = user["sub"].split("|")[1]
+        #uname = user["email"].split("@")[0] + "." + password
+        #_user = session.query(UserModel).filter_by(name=uname, clear=password).first()
         try:
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=_user)
+                .filter_by(collection=collection, path=path, user=USER)
                 .all()
             )
         except:
             session.rollback()
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=_user)
+                .filter_by(collection=collection, path=path, user=USER)
                 .all()
             )
 
@@ -747,6 +757,7 @@ def new_folder(collection, path):
                 icon="fas fa-folder",
                 path=_path,
                 code="",
+                user=USER
             )
             _session.add(folder)
 
@@ -1127,13 +1138,15 @@ def delete_file(fid):
 def rename_flow(flowid):
 
     data = request.get_json(silent=True)
-    flow = session.query(FileModel).filter(FileModel.id == flowid).first()
-    flow.filename = data["name"]
-    session.add(flow)
-    session.commit()
 
-    status = {"status": "ok", "id": flowid}
-    return jsonify(status)
+    with get_session() as session:
+        flow = session.query(FileModel).filter(FileModel.id == flowid).first()
+        flow.filename = data["name"]
+        session.add(flow)
+        session.commit()
+
+        status = {"status": "ok", "id": flowid}
+        return jsonify(status)
 
 
 @app.route("/versions/<flowid>", methods=["GET"])
@@ -1249,7 +1262,7 @@ def post_files(collection, path):
     print("POST_FILE", data)
     print("POST_NAME", path + "/" + data["name"])
 
-    user_bytes = b64decode(SESSION["user"])
+    user_bytes = b64decode(SESSION[get_token_auth_header()])
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
@@ -1261,7 +1274,7 @@ def post_files(collection, path):
             ("saveas" in data and not data["saveas"]) or "saveas" not in data
         ):
             print("FINDING FILE BY ID", data["id"])
-            file = session.query(FileModel).filter_by(id=data["id"], user=_user).first()
+            file = session.query(FileModel).filter_by(id=data["id"], user=USER).first()
         else:
             print("FINDING FILE BY PATH", path + "/" + data["name"])
             file = (
@@ -1271,7 +1284,7 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
-                    user=_user,
+                    user=USER,
                 )
                 .first()
             )
@@ -1331,7 +1344,7 @@ def post_files(collection, path):
                     path=path,
                     collection=collection,
                     type=data["type"],
-                    user=_user,
+                    user=USER,
                 )
                 .first()
             )
@@ -1352,7 +1365,7 @@ def post_files(collection, path):
                 icon=data["icon"],
                 path=path,
                 code=data["file"],
-                user=_user,
+                user=USER,
             )
 
             if "saveas" in data:

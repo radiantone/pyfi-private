@@ -96,7 +96,6 @@ export default {
     runPython () {
       const result = window.pyodide.runPython(this.code)
 
-
       console.log(result)
       this.output = result
     }

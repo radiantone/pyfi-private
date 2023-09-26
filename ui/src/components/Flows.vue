@@ -52,7 +52,7 @@
               @click="addFolder"
               :disabled="newfolder.length === 0"
             />
-            <q-space/>
+            <q-space />
             <q-btn
               dense
               flat
@@ -65,7 +65,7 @@
             />
           </q-toolbar>
         </div>
-        <q-space/>
+        <q-space />
         <q-btn
           flat
           round
@@ -139,9 +139,9 @@
               @click="selectFileOrFolder(item)"
             >{{ (item.filename ? item.filename : item.name) }}</a>
           </q-item-section>
-          <q-space/>
+          <q-space />
           <q-toolbar>
-            <q-space/>
+            <q-space />
             <q-btn
               flat
               dense
@@ -160,7 +160,7 @@
               <q-popup-edit
                 v-model="item.filename"
                 buttons
-                @save="renameFlow"
+                @save="renameFlow(item)"
               >
                 <q-input
                   type="string"
@@ -221,7 +221,7 @@
           >
             <q-toolbar>
               <q-item-label>Save Flow</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-save"
@@ -291,7 +291,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete {{ deleteobjectname }}</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -364,7 +364,7 @@
           >
             <q-toolbar>
               <q-item-label>Filename Exists</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -436,7 +436,7 @@ var dd = require('drip-drop')
 export default {
   components: {},
   props: ['objecttype', 'collection', 'icon', 'toolbar', 'flowid'],
-  mounted() {
+  mounted () {
     if (this.$auth.isAuthenticated) {
       this.$root.$on('update.' + this.collection, this.synchronize)
       this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
@@ -458,24 +458,24 @@ export default {
       }
     }
   },
-  beforeDestroy() {
+  beforeDestroy () {
     this.$root.$off('update.' + this.collection, this.synchronize)
     this.$root.$off('save.flow' + this.flowid)
     this.$root.$off('save.flow.to.folder.' + this.flowid)
   },
   methods: {
-    renameFlow(val, old) {
-      console.log("renameFlow", old, val)
-      DataService.renameFlow(this.flowid, val, this.$store.state.designer.token)
+    renameFlow (item) {
+      console.log('renameFlow id, old, val', item.id, item.filename)
+      DataService.renameFlow(item.id, item.filename, this.$store.state.designer.token)
     },
-    cancelSave() {
+    cancelSave () {
       this.$root.$emit('save.flow.succeeded')
     },
-    async doOverwriteFlow() {
+    async doOverwriteFlow () {
       console.log('doOverwriteFlow')
       await this.saveFlow()
     },
-    async saveFlow() {
+    async saveFlow () {
       this.$root.$emit('save.flow.started', this.flowid)
       const me = this
       this.loading = true
@@ -513,7 +513,7 @@ export default {
           console.log('this.flowuuid is', this.flowuuid)
           this.$root.$emit('flow.uuid', this.flowid, this.flowuuid)
         })
-        .catch(({response}) => {
+        .catch(({ response }) => {
           console.log(response)
           this.$root.$emit('save.flow.error', this.flowuuid)
           me.loading = false
@@ -528,7 +528,7 @@ export default {
       // DataService call to create or save flow in foldername
       // with flowcode as the code
     },
-    async deleteObject() {
+    async deleteObject () {
       console.log('DELETE: ', this.deleteobjectid)
       var me = this
       var res = await DataService.deleteFile(this.deleteobjectid, this.$store.state.designer.token)
@@ -549,7 +549,7 @@ export default {
         })
     },
 
-    saveToFolderEvent(name, uuid, id, flow) {
+    saveToFolderEvent (name, uuid, id, flow) {
       this.flowcode = flow
       this.flowname = name
       this.flowid = id
@@ -557,7 +557,7 @@ export default {
       this.saveflow = true
       this.saveas = true
     },
-    saveFlowEvent(name, uuid, id, flow) {
+    saveFlowEvent (name, uuid, id, flow) {
       this.flowcode = flow
       this.flowname = name
       this.flowid = id
@@ -568,7 +568,7 @@ export default {
         this.saveFlow()
       }
     },
-    addFolder() {
+    addFolder () {
       var me = this
       this.showaddfolder = false
       this.showpath = true
@@ -587,7 +587,7 @@ export default {
           )
         })
     },
-    breadcrumbClick(crumb) {
+    breadcrumbClick (crumb) {
       console.log('CRUMB:', crumb.path)
       var path = crumb.path
       if (crumb.path[0] === '/') {
@@ -608,7 +608,7 @@ export default {
       paths[0].icon = 'home'
       this.navigate(path)
     },
-    selectFileOrFolder(item) {
+    selectFileOrFolder (item) {
       var me = this
 
       console.log('selectFileOrFolder ', item.id, item, this.objecttype)
@@ -642,7 +642,7 @@ export default {
         this.synchronize()
       }
     },
-    notifyMessage(color, icon, message) {
+    notifyMessage (color, icon, message) {
       this.$q.notify({
         color: color,
         timeout: 2000,
@@ -651,13 +651,13 @@ export default {
         icon: icon
       })
     },
-    synchronize() {
+    synchronize () {
       this.loading = true
       var me = this
-      let token = this.$store.state.designer.token
+      const token = this.$store.state.designer.token
       if ((!this.$auth.isAuthenticated && token) ||
         (!token || token === 'none')) {
-        console.log("Library: Not yet authenticated, returning")
+        console.log('Library: Not yet authenticated, returning')
         return
       }
       try {
@@ -686,7 +686,7 @@ export default {
                   if (!result[i].columns) result[i].columns = []
                   draghandle.on('start', function (setData, e) {
                     console.log('drag:start:', el, e)
-                    setData('object', JSON.stringify({node: result[i]}))
+                    setData('object', JSON.stringify({ node: result[i] }))
                   })
                 }
               }
@@ -710,18 +710,18 @@ export default {
         )
       }
     },
-    navigate(folder) {
+    navigate (folder) {
       this.foldername = folder
       this.synchronize()
     },
-    showDeleteObject(item) {
+    showDeleteObject (item) {
       this.deleteobjectname = item.name
       this.deleteobjectid = item.id
       this.deleteobjecttype = item.type
       this.deleteobject = true
     }
   },
-  data() {
+  data () {
     return {
       token: null,
       saveas: false,
@@ -729,7 +729,7 @@ export default {
       showpath: true,
       showaddfolder: false,
       columns: [
-        {name: 'type', align: 'left', label: 'Type', field: 'type'},
+        { name: 'type', align: 'left', label: 'Type', field: 'type' },
         {
           name: 'name',
           required: true,
