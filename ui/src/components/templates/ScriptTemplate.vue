@@ -3841,6 +3841,9 @@ export default {
     updateFunctions (data) {
       const re = /def (\w+)\s*\((.*?)\):/g
 
+      if (data === undefined || !(Object.prototype.toString.call(data) === '[object String]')) {
+        return
+      }
       var matches = data.matchAll(re)
 
       this.funcs = []
