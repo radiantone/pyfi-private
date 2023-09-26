@@ -1270,13 +1270,17 @@ def post_files(collection, path):
         with get_session(user=user) as session:
             password = user["sub"].split("|")[1]
             uname = user["email"].split("@")[0] + "." + password
-            _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
+            )
 
             if "id" in data and (
                 ("saveas" in data and not data["saveas"]) or "saveas" not in data
             ):
                 print("FINDING FILE BY ID", data["id"])
-                file = session.query(FileModel).filter_by(id=data["id"], user=USER).first()
+                file = (
+                    session.query(FileModel).filter_by(id=data["id"], user=USER).first()
+                )
             else:
                 print("FINDING FILE BY PATH", path + "/" + data["name"])
                 file = (
@@ -1310,7 +1314,10 @@ def post_files(collection, path):
                         import traceback
 
                         print(traceback.format_exc())
-                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
                         session.rollback()
                         return jsonify(error), 409
                 elif "id" in data and data["id"] == file.id:
@@ -1326,7 +1333,10 @@ def post_files(collection, path):
                         import traceback
 
                         print(traceback.format_exc())
-                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
                         session.rollback()
                         return jsonify(error), 409
                 else:
@@ -1390,7 +1400,8 @@ def post_files(collection, path):
             print("STATUS", status)
             return jsonify(status)
     except Exception as ex:
-        return jsonify({"status": "error", "message":str(ex)})
+        return jsonify({"status": "error", "message": str(ex)})
+
 
 @app.route("/minds/database/<database>/<table>", methods=["POST"])
 @cross_origin()
