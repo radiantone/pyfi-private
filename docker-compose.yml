@@ -126,7 +126,9 @@ services:
       - redis
       - postgresdb
     volumes:
+      - /tmp:/tmp
       - ./conf/supervisord-agent.conf:/etc/supervisor/conf.d/supervisord.conf
+      - /var/run/docker.sock:/var/run/docker.sock
 
   agent3.docker:
     container_name: agent3.docker
