@@ -29,6 +29,7 @@
     "drip-drop": "^2.0.3",
     "filesize": "^10.0.5",
     "flexsearch": "^0.7.21",
+    "fs": "^0.0.1-security",
     "html-to-image": "^1.9.0",
     "jsplumbtoolkit": "file:jsplumb/jsplumbtoolkit.tgz",
     "jsplumbtoolkit-demo-support": "file:jsplumb/jsplumbtoolkit-demo-support.tgz",

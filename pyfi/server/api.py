@@ -702,20 +702,20 @@ def get_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        # password = user["sub"].split("|")[1]
-        # uname = user["email"].split("@")[0] + "." + password
-        # _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+        password = user["sub"].split("|")[1]
+        uname = user["email"].split("@")[0] + "." + password
+        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
         try:
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=USER)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
         except:
             session.rollback()
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=USER)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
 
@@ -744,6 +744,10 @@ def new_folder(collection, path):
         if not folder:
             name = path.rsplit("/")[-1:]
             _path = "/".join(path.rsplit("/")[:-1])
+
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
+            )
             if len(name) == 1:
                 name = name[0]
             else:
@@ -758,7 +762,7 @@ def new_folder(collection, path):
                 icon="fas fa-folder",
                 path=_path,
                 code="",
-                user=USER,
+                user=_user,
             )
             _session.add(folder)
 
@@ -1279,7 +1283,7 @@ def post_files(collection, path):
             ):
                 print("FINDING FILE BY ID", data["id"])
                 file = (
-                    session.query(FileModel).filter_by(id=data["id"], user=USER).first()
+                    session.query(FileModel).filter_by(id=data["id"], user=_user).first()
                 )
             else:
                 print("FINDING FILE BY PATH", path + "/" + data["name"])
@@ -1290,7 +1294,7 @@ def post_files(collection, path):
                         path=path,
                         collection=collection,
                         type=data["type"],
-                        user=USER,
+                        user=_user,
                     )
                     .first()
                 )
@@ -1356,7 +1360,7 @@ def post_files(collection, path):
                         path=path,
                         collection=collection,
                         type=data["type"],
-                        user=USER,
+                        user=_user,
                     )
                     .first()
                 )
@@ -1377,7 +1381,7 @@ def post_files(collection, path):
                     icon=data["icon"],
                     path=path,
                     code=data["file"],
-                    user=USER,
+                    user=_user,
                 )
 
                 if "saveas" in data:
