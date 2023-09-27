@@ -1527,8 +1527,8 @@
           style="
             padding-top: 45px;
             padding-bottom: 20px;
-            padding-left: 0px;
-            padding-right: 0px;
+
+            padding-left: 0px !important;padding-right: 0px !important
           "
         >
           <editor
@@ -1609,13 +1609,12 @@
           style="
             padding-top: 45px;
             padding-bottom: 20px;
-            padding-left: 0px;
-            padding-right: 0px;
+            padding-left: 0px !important;padding-right: 0px !important
           "
         >
           <editor
             v-model="importcode"
-            id="editor"
+            id="importeditor"
             @init="importEditorInit"
             style="font-size: 25px; height: 60vh;margin-top:40px;margin-bottom:15px;padding-left: 0px !important"
             lang="javascript"
@@ -1630,17 +1629,22 @@
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
             label="Close"
-            class="bg-primary text-dark"
+            class="bg-secondary text-white"
             color="dark"
             v-close-popup
           />
+          <input
+            ref="file" type="file" id="file"
+            hidden
+            v-on:change="insertFlow"
+          >
+
           <q-btn
             flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Upload"
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            label="File"
             class="bg-primary text-dark"
-            color="primary"
-            v-close-popup
+            color="dark"
             @click="uploadFlow"
           />
           <q-btn
@@ -2288,6 +2292,7 @@
 
 .q-card__section--vert {
   padding: 5px !important;
+  padding-left: 0px;
   padding-top: 0px !important;
 }
 
@@ -2444,8 +2449,6 @@ var typeFunction = function (n) {
   return n.type
 }
 
-var dd = require('drip-drop')
-
 import { v4 as uuidv4 } from 'uuid'
 
 import 'assets/css/jsplumbtoolkit.css'
@@ -2458,7 +2461,6 @@ import Patterns from 'components/Patterns.vue'
 import { mdiContentSaveMove } from '@mdi/js'
 import DataService from 'src/components/util/DataService'
 
-// import 'floating-vue/dist/style.css'
 
 function downloadFile (file) {
   // Create a link and set the URL using `createObjectURL`
@@ -2538,6 +2540,19 @@ export default {
     }
   },
   methods: {
+    insertFlow (ev) {
+      const file = ev.target.files[0];
+      const reader = new FileReader()
+      reader.onload = e => {
+        console.log(e.target.result)
+        this.$refs.importEditor.editor.session.setValue(e.target.result)
+      }
+      reader.readAsText(file)
+    },
+    uploadFlow () {
+      console.log("Clicking upload")
+      this.$refs.file.click()
+    },
     importFlow () {
       const editor = this.$refs.importEditor.editor
       var code = editor.getValue()

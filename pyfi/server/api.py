@@ -80,7 +80,7 @@ app.secret_key = "super secret key"
 app.register_blueprint(blueprint)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
 app.config["SESSION_PERMANENT"] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = 60 #in seconds
+app.config["PERMANENT_SESSION_LIFETIME"] = 60  # in seconds
 
 api = Api(
     app,
@@ -397,6 +397,7 @@ def logout():
     session.clear()
     return jsonify({"status": "ok"})
 
+
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -701,20 +702,20 @@ def get_files(collection, path):
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
-        #password = user["sub"].split("|")[1]
-        #uname = user["email"].split("@")[0] + "." + password
-        #_user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+        password = user["sub"].split("|")[1]
+        uname = user["email"].split("@")[0] + "." + password
+        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
         try:
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=USER)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
         except:
             session.rollback()
             files = (
                 session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=USER)
+                .filter_by(collection=collection, path=path, user=_user)
                 .all()
             )
 
@@ -743,6 +744,10 @@ def new_folder(collection, path):
         if not folder:
             name = path.rsplit("/")[-1:]
             _path = "/".join(path.rsplit("/")[:-1])
+
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
+            )
             if len(name) == 1:
                 name = name[0]
             else:
@@ -757,7 +762,7 @@ def new_folder(collection, path):
                 icon="fas fa-folder",
                 path=_path,
                 code="",
-                user=USER
+                user=_user,
             )
             _session.add(folder)
 
@@ -1269,13 +1274,17 @@ def post_files(collection, path):
         with get_session(user=user) as session:
             password = user["sub"].split("|")[1]
             uname = user["email"].split("@")[0] + "." + password
-            _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
+            )
 
             if "id" in data and (
                 ("saveas" in data and not data["saveas"]) or "saveas" not in data
             ):
                 print("FINDING FILE BY ID", data["id"])
-                file = session.query(FileModel).filter_by(id=data["id"], user=USER).first()
+                file = (
+                    session.query(FileModel).filter_by(id=data["id"], user=_user).first()
+                )
             else:
                 print("FINDING FILE BY PATH", path + "/" + data["name"])
                 file = (
@@ -1285,7 +1294,7 @@ def post_files(collection, path):
                         path=path,
                         collection=collection,
                         type=data["type"],
-                        user=USER,
+                        user=_user,
                     )
                     .first()
                 )
@@ -1309,7 +1318,10 @@ def post_files(collection, path):
                         import traceback
 
                         print(traceback.format_exc())
-                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
                         session.rollback()
                         return jsonify(error), 409
                 elif "id" in data and data["id"] == file.id:
@@ -1325,7 +1337,10 @@ def post_files(collection, path):
                         import traceback
 
                         print(traceback.format_exc())
-                        error = {"status": "error", "message": "Unable to overwrite file"}
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
                         session.rollback()
                         return jsonify(error), 409
                 else:
@@ -1345,7 +1360,7 @@ def post_files(collection, path):
                         path=path,
                         collection=collection,
                         type=data["type"],
-                        user=USER,
+                        user=_user,
                     )
                     .first()
                 )
@@ -1366,7 +1381,7 @@ def post_files(collection, path):
                     icon=data["icon"],
                     path=path,
                     code=data["file"],
-                    user=USER,
+                    user=_user,
                 )
 
                 if "saveas" in data:
@@ -1389,7 +1404,8 @@ def post_files(collection, path):
             print("STATUS", status)
             return jsonify(status)
     except Exception as ex:
-        return jsonify({"status": "error", "message":str(ex)})
+        return jsonify({"status": "error", "message": str(ex)})
+
 
 @app.route("/minds/database/<database>/<table>", methods=["POST"])
 @cross_origin()
