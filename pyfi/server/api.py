@@ -735,6 +735,10 @@ def get_files(collection, path):
 @cross_origin()
 @requires_auth
 def new_folder(collection, path):
+    from pyfi.db.model import Base, UserModel
+
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
     with get_session() as _session:
         folder = (
             _session.query(FileModel)
@@ -743,6 +747,9 @@ def new_folder(collection, path):
         )
         if not folder:
             name = path.rsplit("/")[-1:]
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+
             _path = "/".join(path.rsplit("/")[:-1])
 
             _user = (
@@ -1283,7 +1290,9 @@ def post_files(collection, path):
             ):
                 print("FINDING FILE BY ID", data["id"])
                 file = (
-                    session.query(FileModel).filter_by(id=data["id"], user=_user).first()
+                    session.query(FileModel)
+                    .filter_by(id=data["id"], user=_user)
+                    .first()
                 )
             else:
                 print("FINDING FILE BY PATH", path + "/" + data["name"])
