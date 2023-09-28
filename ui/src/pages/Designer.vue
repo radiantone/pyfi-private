@@ -2417,6 +2417,7 @@ import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue'
 import SegmentTemplate from 'components/templates/SegmentTemplate.vue'
 import ChordTemplate from 'components/templates/ChordTemplate.vue'
 import DataTemplate from 'components/templates/DataTemplate.vue'
+import LambdaTemplate from 'components/templates/LambdaTemplate.vue'
 import LoopTemplate from 'components/templates/LoopTemplate.vue'
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue'
 import ApiTemplate from 'components/templates/ApiTemplate.vue'
@@ -4089,6 +4090,39 @@ export default {
           },
           loop: {
             component: LoopTemplate
+          },
+          lambda: {
+            component: LambdaTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           data: {
             component: DataTemplate,

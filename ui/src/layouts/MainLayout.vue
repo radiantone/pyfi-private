@@ -3365,6 +3365,25 @@ export default defineComponent({
         }
       }
 
+      var lambda = document.querySelector('#lambda')
+      lambda.data = {
+        id: 19,
+        enabled: 'allPlan',
+        node: {
+          icon: 'las la-code',
+          style: 'size:50px',
+          type: 'lambda',
+          name: 'Lambda',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          version: '1.0.0',
+          label: 'Lambda',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
       var schema = document.querySelector('#schema')
       schema.data = {
         id: 11,
@@ -3498,7 +3517,7 @@ export default defineComponent({
         }
       }
 
-      var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt,
+      var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt, lambda,
         inference, queue, database, loop, spreadsheet]
 
       this.blocks = els

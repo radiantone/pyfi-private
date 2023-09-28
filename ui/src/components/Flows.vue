@@ -465,8 +465,25 @@ export default {
   },
   methods: {
     renameFlow (item) {
+      var me = this
       console.log('renameFlow id, old, val', item.id, item.filename)
-      DataService.renameFlow(item.id, item.filename, this.$store.state.designer.token)
+      DataService.renameFlow(item.id, item.filename, this.$store.state.designer.token).then(() => {
+        me.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Rename flow ' + item.id + ' to ' + item.filename + ' succeeded!',
+          icon: 'save'
+        })
+      }).catch((err) => {
+        me.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'top',
+          message: 'An error occurred renaming flow ' + item.id + ' to ' + item.filename,
+          icon: 'error'
+        })
+      })
     },
     cancelSave () {
       this.$root.$emit('save.flow.succeeded')
@@ -583,7 +600,7 @@ export default {
           me.notifyMessage(
             'dark',
             'error',
-            'There was an error creating the folder.'
+            'There was an error creating the folder'
           )
         })
     },
