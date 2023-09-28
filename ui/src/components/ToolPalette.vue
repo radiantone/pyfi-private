@@ -307,6 +307,29 @@
       <q-btn
         flat
         align="left"
+        icon="las la-code"
+        aria-label="Label"
+        size="xl"
+        id="lambda"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Lambda Function
+        </q-tooltip>
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Lambda
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
         icon="las la-brain"
         aria-label="Label"
         size="xl"
