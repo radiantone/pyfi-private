@@ -72,7 +72,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; SOCKETIO=http://localhost quasar build; git add -f ui/dist/spa
+	cd ui; SOCKETIO=http://localhost quasar build; git add -f dist/spa
 
 .PHONY: docs
 docs:
