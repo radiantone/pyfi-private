@@ -3371,7 +3371,7 @@ export default {
         gittag: '',
         container: false,
         imagerepo: 'local',
-        containerimage: 'pyfi/processors:latest',
+        containerimage: 'pyfi/processor:latest',
         environment: '',
         usegit: true,
         enabled: true,

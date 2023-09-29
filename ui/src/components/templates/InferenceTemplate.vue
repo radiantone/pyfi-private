@@ -1444,7 +1444,7 @@
           <q-tab-panel
             ref="tablesconfig"
             name="tablesconfig"
-            style="padding: 0px;height:560px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1565,7 +1565,7 @@
           <q-tab-panel
             ref="modelsconfig"
             name="modelsconfig"
-            style="padding: 0px;height:560px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1668,7 +1668,7 @@
           <q-tab-panel
             ref="jobsconfig"
             name="jobsconfig"
-            style="padding: 0px;height:560px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -1789,7 +1789,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:560px"
+            style="padding: 0px;height:500px"
           >
             <div
               class="q-pa-md"
@@ -4608,7 +4608,7 @@ export default {
         gittag: '',
         container: true,
         imagerepo: 'local',
-        containerimage: 'pyfi/processors:latest',
+        containerimage: 'pyfi/processor:latest',
         environment: '',
         usegit: true,
         enabled: true,
