@@ -71,7 +71,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	cd ui; SOCKETIO=https://dev.elasticcode.ai quasar build --debug
+	cd ui; SOCKETIO=https://dev.elasticcode.ai quasar build --debug; git add -f dist/spa
 
 .PHONY: docs
 docs:
