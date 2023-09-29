@@ -99,6 +99,17 @@ services:
       - "47334:47334"
       - "47335:47335"
 
+  processor:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.processor
+      tags:
+        - pyfi/processor:production
+    container_name: processor
+    image: pyfi/processor:latest
+    environment:
+      - "EVENTS=events"
+
   api:
     build:
       context: .

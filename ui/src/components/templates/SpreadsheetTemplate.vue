@@ -3063,7 +3063,7 @@ export default {
         gittag: '',
         container: true,
         imagerepo: 'local',
-        containerimage: 'pyfi/processors:latest',
+        containerimage: 'pyfi/processor:latest',
         environment: '',
         usegit: true,
         enabled: true,
