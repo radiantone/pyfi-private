@@ -300,7 +300,7 @@ export default {
           me.notifyMessage(
             'dark',
             'error',
-            'There was an error creating the folder.'
+            'There was an error creating the folder'
           )
         })
     },

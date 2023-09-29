@@ -1527,8 +1527,8 @@
           style="
             padding-top: 45px;
             padding-bottom: 20px;
-            padding-left: 0px;
-            padding-right: 0px;
+
+            padding-left: 0px !important;padding-right: 0px !important
           "
         >
           <editor
@@ -1609,13 +1609,12 @@
           style="
             padding-top: 45px;
             padding-bottom: 20px;
-            padding-left: 0px;
-            padding-right: 0px;
+            padding-left: 0px !important;padding-right: 0px !important
           "
         >
           <editor
             v-model="importcode"
-            id="editor"
+            id="importeditor"
             @init="importEditorInit"
             style="font-size: 25px; height: 60vh;margin-top:40px;margin-bottom:15px;padding-left: 0px !important"
             lang="javascript"
@@ -1630,9 +1629,23 @@
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
             label="Close"
-            class="bg-primary text-dark"
+            class="bg-secondary text-white"
             color="dark"
             v-close-popup
+          />
+          <input
+            ref="file" type="file" id="file"
+            hidden
+            v-on:change="insertFlow"
+          >
+
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            label="File"
+            class="bg-primary text-dark"
+            color="dark"
+            @click="uploadFlow"
           />
           <q-btn
             flat
@@ -2279,6 +2292,7 @@
 
 .q-card__section--vert {
   padding: 5px !important;
+  padding-left: 0px;
   padding-top: 0px !important;
 }
 
@@ -2403,6 +2417,7 @@ import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue'
 import SegmentTemplate from 'components/templates/SegmentTemplate.vue'
 import ChordTemplate from 'components/templates/ChordTemplate.vue'
 import DataTemplate from 'components/templates/DataTemplate.vue'
+import LambdaTemplate from 'components/templates/LambdaTemplate.vue'
 import LoopTemplate from 'components/templates/LoopTemplate.vue'
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue'
 import ApiTemplate from 'components/templates/ApiTemplate.vue'
@@ -2435,8 +2450,6 @@ var typeFunction = function (n) {
   return n.type
 }
 
-var dd = require('drip-drop')
-
 import { v4 as uuidv4 } from 'uuid'
 
 import 'assets/css/jsplumbtoolkit.css'
@@ -2449,7 +2462,6 @@ import Patterns from 'components/Patterns.vue'
 import { mdiContentSaveMove } from '@mdi/js'
 import DataService from 'src/components/util/DataService'
 
-// import 'floating-vue/dist/style.css'
 
 function downloadFile (file) {
   // Create a link and set the URL using `createObjectURL`
@@ -2529,6 +2541,19 @@ export default {
     }
   },
   methods: {
+    insertFlow (ev) {
+      const file = ev.target.files[0];
+      const reader = new FileReader()
+      reader.onload = e => {
+        console.log(e.target.result)
+        this.$refs.importEditor.editor.session.setValue(e.target.result)
+      }
+      reader.readAsText(file)
+    },
+    uploadFlow () {
+      console.log("Clicking upload")
+      this.$refs.file.click()
+    },
     importFlow () {
       const editor = this.$refs.importEditor.editor
       var code = editor.getValue()
@@ -3693,17 +3718,16 @@ export default {
           if (!source.data.name) {
             source.data.name = source.data.id
           }
-          let dataobject = {
+          const dataobject = {
             label: source.data.id,
             name: source.data.name,
             type: source.data.datatype,
             template: source.data.template
           }
-          if (!dataobject['template']) {
-            for (let k in source.params.source.dataset) {
-              if (k.indexOf("port") === 0) {
-
-                let field = k.replace("port", "").toLowerCase()
+          if (!dataobject.template) {
+            for (const k in source.params.source.dataset) {
+              if (k.indexOf('port') === 0) {
+                const field = k.replace('port', '').toLowerCase()
                 console.log(field, source.params.source.dataset[k])
                 dataobject[field] = source.params.source.dataset[k]
               }
@@ -4067,6 +4091,39 @@ export default {
           loop: {
             component: LoopTemplate
           },
+          lambda: {
+            component: LambdaTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
+          },
           data: {
             component: DataTemplate,
             events: {
@@ -4321,7 +4378,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                console.log("double tap ", params)
+                console.log('double tap ', params)
                 _editEdge(params.edge)
               }
             },
@@ -4336,8 +4393,8 @@ export default {
                   name: '${name}',
                   events: {
                     tap: function (params) {
-                      console.log("edge params", params)
-                      window.root.$emit("edge.clicked", params)
+                      console.log('edge params', params)
+                      window.root.$emit('edge.clicked', params)
                     }
                   }
                 }
@@ -4352,7 +4409,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                console.log("dbltap params",params)
+                console.log('dbltap params', params)
               }
             },
             overlays: [
@@ -4383,8 +4440,8 @@ export default {
                       propsData: {
                         node: nodeValue,
                         component: component,
-                        hide: (data.template && data.template === 'Object') || (component.source.dataset['portTemplate'] &&
-                                component.source.dataset['portTemplate'] === 'Object'),
+                        hide: (data.template && data.template === 'Object') || (component.source.dataset.portTemplate &&
+                                component.source.dataset.portTemplate === 'Object'),
                         name: 'default' // component.getData()['name'],
                       }
                     })
