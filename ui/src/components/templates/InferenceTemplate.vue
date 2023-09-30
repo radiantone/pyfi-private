@@ -1445,6 +1445,7 @@
             ref="tablesconfig"
             name="tablesconfig"
             style="padding: 0px;height:500px"
+            @click="updateTables"
           >
             <div
               class="q-pa-md"
@@ -1452,8 +1453,8 @@
             >
               <q-table
                 dense
-                :columns="modelcols"
-                :data="modelrows"
+                :columns="tablecols"
+                :data="tablerows"
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
@@ -1566,6 +1567,7 @@
             ref="modelsconfig"
             name="modelsconfig"
             style="padding: 0px;height:500px"
+            @click="updateModels"
           >
             <div
               class="q-pa-md"
@@ -1669,6 +1671,7 @@
             ref="jobsconfig"
             name="jobsconfig"
             style="padding: 0px;height:500px"
+            @click="updateJobs"
           >
             <div
               class="q-pa-md"
@@ -1676,8 +1679,8 @@
             >
               <q-table
                 dense
-                :columns="modelcols"
-                :data="modelrows"
+                :columns="jobcols"
+                :data="jobrows"
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
@@ -1790,6 +1793,7 @@
             ref="viewsconfig"
             name="viewsconfig"
             style="padding: 0px;height:500px"
+            @click="updateViews"
           >
             <div
               class="q-pa-md"
@@ -1797,8 +1801,8 @@
             >
               <q-table
                 dense
-                :columns="modelcols"
-                :data="modelrows"
+                :columns="viewcols"
+                :data="viewrows"
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
@@ -1938,6 +1942,7 @@
                   :options="projectnames"
                   hint="Project Name"
                   value="string"
+                  @update:model-value="updateJobs"
                   :menu-offset="[5, -9]"
                 >
                   <template
@@ -4060,6 +4065,7 @@ export default {
       this.startSchedule(this.obj.cron)
     }
     this.pullSchema()
+
   },
   data () {
     return {
@@ -4264,12 +4270,104 @@ export default {
       databaseList: [],
       projectExists: false,
       newModelDialog: false,
+
+      viewrows: [{
+        name: 'model1',
+        predict: 'target',
+        query: 'SELECT * FROM my_table',
+        actions: ''
+      }],
+      jobrows: [{
+        name: 'model1',
+        predict: 'target',
+        query: 'SELECT * FROM my_table',
+        actions: ''
+      }],
       modelrows: [{
         name: 'model1',
         predict: 'target',
         query: 'SELECT * FROM my_table',
         actions: ''
       }],
+
+      viewcols: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
+        },
+        {
+          name: 'predict',
+          label: 'Predict',
+          field: 'predict',
+          align: 'left'
+        },
+        {
+          name: 'query',
+          label: 'Query',
+          field: 'query',
+          align: 'left'
+        },
+        {
+          name: 'actions',
+          label: 'Actions',
+          field: 'actions',
+          align: 'left'
+        }
+      ],
+      tablecols: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
+        },
+        {
+          name: 'predict',
+          label: 'Predict',
+          field: 'predict',
+          align: 'left'
+        },
+        {
+          name: 'query',
+          label: 'Query',
+          field: 'query',
+          align: 'left'
+        },
+        {
+          name: 'actions',
+          label: 'Actions',
+          field: 'actions',
+          align: 'left'
+        }
+      ],
+      jobcols: [
+        {
+          name: 'name',
+          label: 'Name',
+          field: 'name',
+          align: 'left'
+        },
+        {
+          name: 'predict',
+          label: 'Predict',
+          field: 'predict',
+          align: 'left'
+        },
+        {
+          name: 'query',
+          label: 'Query',
+          field: 'query',
+          align: 'left'
+        },
+        {
+          name: 'actions',
+          label: 'Actions',
+          field: 'actions',
+          align: 'left'
+        }
+      ],
       modelcols: [
         {
           name: 'name',
@@ -4299,7 +4397,6 @@ export default {
       fetchDisabled: true,
       projectResult: 'No project',
       createDatabaseResult: '',
-      viewcols: [],
       tables: [],
       table: '',
       predictedrows: [],
@@ -4827,6 +4924,32 @@ export default {
     }
   },
   methods: {
+    updateJobs () {
+        DataService.listJobs(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+          this.jobrows = result.data
+          done(result.data)
+        })
+    },
+    updateViews () {
+        DataService.listViews(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+          this.viewrows = result.data
+          done(result.data)
+        })
+    },
+
+    updateModels () {
+        DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+          this.viewrows = result.data
+          done(result.data)
+        })
+    },
+
+    updateTables () {
+        DataService.listTables(this.obj.databasename, this.$store.state.designer.token).then((result) => {
+          this.viewrows = result.data
+          done(result.data)
+        })
+    },
     createMindsTable () {
       this.loadingObject = true
 
@@ -4854,6 +4977,7 @@ export default {
       if (node.type === 'database') {
         DataService.listTables(node.label, this.$store.state.designer.token).then((result) => {
           this.tablenames = result.data.map(db => db.label)
+          this.tablerows = result.data
           done(result.data)
         })
       }
