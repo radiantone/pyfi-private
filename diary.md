@@ -1,3 +1,9 @@
+TODO
+--------------------
+- Inference block completion. 70%
+- Lambda block: 30%
+- Select script language in code menu: Javascript, Python, 
+
 Sep 29, 2023
 
 Summary to this point
@@ -11,6 +17,7 @@ Summary to this point
   - Local block middleware will orchestrate to/from the lambda and perform updates/deployments
 - api user rbac fixes
 - User session key fixes
+- Database block completion
 - Block permissions based on plan fixes
 - Environment support
 - Inference dialog, wired to backend services
