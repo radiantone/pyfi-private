@@ -203,12 +203,6 @@ services:
     container_name: logs
     image: pyfi/logs:local
 
-  metabase:
-    image: metabase/metabase:latest
-    ports:
-      - 3001:3000
-    container_name: metabase
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -275,27 +269,6 @@ services:
     ports:
       - "5673:5672"
       - "15673:15672"
-
-  postgres:
-    container_name: postgres
-    image: edoburu/pgbouncer:latest
-    hostname: postgres
-    environment:
-       - DB_USER=postgres
-       - DB_PASSWORD=pyfi101
-       - DB_HOST=postgresdb
-       - POOL_MODE=session
-       - DB_NAME=pyfi
-       - LISTEN_PORT=6432
-       - AUTH_TYPE=trust
-       - CONN_MAX_AGE = 60
-       - ADMIN_USERS=postgres
-    ports:
-      - "6432:6432"
-    depends_on:
-      - postgresdb
-    volumes:
-      - ./conf/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
 
   postgresdb:
     container_name: postgresdb
