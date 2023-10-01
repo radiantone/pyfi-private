@@ -3038,9 +3038,6 @@ export default {
       me.getNode().component = this
     }, 3000)
     this.$el.component = this
-    window.designer.$on('trigger.data', () => {
-      me.triggerExecute()
-    })
 
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
       console.log('toggle bandwidth', bandwidth)
@@ -4407,7 +4404,13 @@ export default {
     },
     executeObject (portname, data) {
       const me = this
-      const call = this.portobjects[portname].name.replace('function: ', '')
+
+      let port = this.portobjects[portname]
+
+      if (port.type !== 'Output') {
+        return
+      }
+      const call = port.name.replace('function: ', '')
       let code = this.obj.code
       code = code + '\n' + call + '()'
 
@@ -4471,6 +4474,8 @@ export default {
         }
       }, (error) => {
         console.log('PYTHON ERROR', error)
+        this.error = true
+        this.errorMsg = error.message
       })
     },
     triggerError (portid, error) {
