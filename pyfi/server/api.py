@@ -1471,6 +1471,7 @@ def list_projects():
     names = [
         {
             "label": project.name,
+            "name": project.name,
             "icon": "las la-clipboard",
             "lazy": True,
             "type": "project",
@@ -1498,6 +1499,7 @@ def list_models(project):
         names = [
             {
                 "label": model.name,
+                "name": model.name,
                 "icon": "las la-table",
                 "lazy": True,
                 "type": "model",
@@ -1511,7 +1513,68 @@ def list_models(project):
         return jsonify([])
 
 
-@app.route("/minds/<project>/<model>", methods=["GET"])
+@app.route("/minds/project/<project>/views", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_views(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        views = project.list_views()
+
+        names = [
+            {
+                "label": view.name,
+                "name": view.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "model",
+                "id": "proj{}".format(next(counter)),
+            }
+            for view in views
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+
+@app.route("/minds/project/<project>/jobs", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_jobs(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        jobs = project.list_jobs()
+
+        names = [
+            {
+                "label": job.name,
+                "name": job.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "job",
+                "id": "job{}".format(next(counter)),
+            }
+            for job in jobs
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/<project>/model/<model>", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model(project, model):
@@ -1520,7 +1583,7 @@ def get_model(project, model):
     return jsonify(project.get_model(model))
 
 
-@app.route("/minds/<project>/<model>/status", methods=["GET"])
+@app.route("/minds/<project>/model/<model>/status", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model_status(project, model):
@@ -1531,7 +1594,7 @@ def get_model_status(project, model):
     return jsonify(model.get_status())
 
 
-@app.route("/minds/<project>/<model>/info", methods=["GET"])
+@app.route("/minds/<project>/model/<model>/info", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model_info(project, model):
@@ -1542,7 +1605,7 @@ def get_model_info(project, model):
     return jsonify(model.describe())
 
 
-@app.route("/minds/<project>/<model>/refresh", methods=["POST"])
+@app.route("/minds/<project>/model/<model>/refresh", methods=["POST"])
 @cross_origin()
 @requires_auth
 def refresh_model(project, model):
@@ -1553,7 +1616,7 @@ def refresh_model(project, model):
     return jsonify(model.refresh())
 
 
-@app.route("/minds/<project>/<model>/retrain", methods=["POST"])
+@app.route("/minds/<project>/model/<model>/retrain", methods=["POST"])
 @cross_origin()
 @requires_auth
 def retrain_model(project, model):
@@ -1564,7 +1627,7 @@ def retrain_model(project, model):
     return jsonify(model.retrain())
 
 
-@app.route("/minds/<project>/<model>", methods=["DELETE"])
+@app.route("/minds/<project>/model/<model>", methods=["DELETE"])
 @cross_origin()
 @requires_auth
 def delete_model(project, model):
@@ -1600,6 +1663,7 @@ def list_tables(database):
     names = [
         {
             "label": table.name,
+            "name": table.name,
             "icon": "las la-table",
             "lazy": True,
             "type": "table",

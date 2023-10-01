@@ -1399,6 +1399,7 @@
           active-color="dark"
           indicator-color="accent"
           active-bg-color="white"
+          @input="updateAll"
         >
           <q-tab
             name="settings"
@@ -1458,69 +1459,7 @@
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
-              >
-                <template #body="props">
-                  <q-tr
-                    :props="props"
-                    :key="getUuid"
-                  >
-                    <q-td
-                      :key="props.cols[0].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.row.name }}</a>
-                      <q-popup-edit
-                        v-model="props.row.name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.row.name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[1].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.cols[1].name }}</a>
-                      <q-popup-edit
-                        v-model="props.cols[1].name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.cols[1].name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[2].name"
-                      :props="props"
-                    >
-                      {{ props.cols[2].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[3].name"
-                      :props="props"
-                    >
-                      <q-btn
-                        dense
-                        flat
-                        round
-                        color="secondary"
-                        icon="las la-trash"
-                      />
-                    </q-td>
-                  </q-tr>
-                </template>
-              </q-table>
+              />
             </div>
 
             <q-card-actions align="left">
@@ -1550,6 +1489,7 @@
                 icon="las la-recycle"
                 class="bg-accent text-dark"
                 color="dark"
+                @click="updateTables"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1665,6 +1605,26 @@
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
+
+            <q-card-actions align="right">
+              <q-btn
+                style="position: absolute; bottom: 0px; right: 20px; width: 50px;"
+                flat
+                icon="las la-recycle"
+                class="bg-accent text-dark"
+                color="dark"
+                @click="updateModels"
+              >
+                <q-tooltip
+                  anchor="top middle"
+                  :offset="[-30, 40]"
+                  content-style="font-size: 16px"
+                  content-class="bg-black text-white"
+                >
+                  Refresh List
+                </q-tooltip>
+              </q-btn>
+            </q-card-actions>
           </q-tab-panel>
 
           <q-tab-panel
@@ -1765,7 +1725,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  New Model
+                  New Job
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -1776,6 +1736,7 @@
                 icon="las la-recycle"
                 class="bg-accent text-dark"
                 color="dark"
+                @click="updateJobs"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -1887,7 +1848,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  New Model
+                  New View
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -1899,6 +1860,7 @@
                 icon="las la-recycle"
                 class="bg-accent text-dark"
                 color="dark"
+                @click="updateViews"
               >
                 <q-tooltip
                   anchor="top middle"
@@ -2039,11 +2001,6 @@
                   <q-checkbox
                     v-model="obj.usemiddleware"
                     label="Use Middleware"
-                    style="margin-left: 40px;"
-                  />
-                  <q-checkbox
-                    v-model="obj.middlewareonly"
-                    label="Middleware Only"
                     style="margin-left: 40px;"
                   />
                   <q-checkbox
@@ -3582,21 +3539,28 @@
                 filled
                 :options-dense="true"
                 style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                v-model="modelDatabase"
-                :options="databaseList"
-                hint="Database"
+                v-model="obj.modeltable"
+                :options="tablenamesdialog"
+                hint="Table"
                 option-value="name"
                 option-label="name"
                 value="string"
                 :menu-offset="[5, -9]"
+                @update:model-value="updatePredictedColumn"
               />
 
-              <q-input
-                filled
-                v-model="model.predict"
-                style="width:100%"
+              <q-select
                 dense
+                filled
+                :options-dense="true"
+                style="font-size: 1em; margin-left:20px; margin-right: 5px;"
+                v-model="obj.modelpredict"
+                :options="predictedcolumns"
                 hint="Predicted Column"
+                option-value="name"
+                option-label="name"
+                value="string"
+                :menu-offset="[5, -9]"
               />
 
               <q-input
@@ -3626,7 +3590,7 @@
             label="Create"
             class="bg-secondary text-white"
             v-close-popup
-            :disable="!model.name || model.name.length === 0"
+            :disable="(!model.name || model.name.length === 0) && (!model.predict || model.predict.length === 0)"
           />
         </q-card-actions>
       </q-card>
@@ -3945,6 +3909,13 @@ export default {
     }, 3000)
   },
   computed: {
+    tablenamesdialog () {
+      console.log("TABLE ROWS", this.tablerows)
+      const names = this.tablerows.map(a => a.name)
+      console.log("TABLES", names)
+      debugger
+      return names
+    },
     getfuncs () {
       this.updateFunctions(this.obj.middleware)
       console.log('GETFUNCS', this.funcs)
@@ -4066,141 +4037,26 @@ export default {
     }
     this.pullSchema()
 
+    DataService.listDatabases(this.$store.state.designer.token).then((result) => {
+      this.databasenames = result.data.map(db => db.label)
+    })
+    DataService.listProjects(this.$store.state.designer.token).then((result) => {
+      this.projectnames = result.data.map(proj => proj.label)
+    })
   },
   data () {
     return {
       tablename: '',
       tablequery: '',
-      tablerows: [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          sodium: 87,
-          calcium: '14%',
-          iron: '1%'
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          sodium: 129,
-          calcium: '8%',
-          iron: '1%'
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-          sodium: 337,
-          calcium: '6%',
-          iron: '7%'
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-          sodium: 413,
-          calcium: '3%',
-          iron: '8%'
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-          sodium: 327,
-          calcium: '7%',
-          iron: '16%'
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-          sodium: 50,
-          calcium: '0%',
-          iron: '0%'
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-          sodium: 38,
-          calcium: '0%',
-          iron: '2%'
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-          sodium: 562,
-          calcium: '0%',
-          iron: '45%'
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-          sodium: 326,
-          calcium: '2%',
-          iron: '22%'
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-          sodium: 54,
-          calcium: '12%',
-          iron: '6%'
-        }
-      ],
+      tablerows: [],
       tablecols: [
         {
           name: 'name',
           required: true,
-          label: 'Dessert (100g serving)',
+          label: 'Name',
           align: 'left',
-          field: row => row.name,
-          format: val => `${val}`,
+          field: row => row.label,
           sortable: true
-        },
-        { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
-        { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
-        { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
-        { name: 'protein', label: 'Protein (g)', field: 'protein' },
-        { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
-        {
-          name: 'calcium',
-          label: 'Calcium (%)',
-          field: 'calcium',
-          sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10)
-        },
-        {
-          name: 'iron',
-          label: 'Iron (%)',
-          field: 'iron',
-          sortable: true,
-          sort: (a, b) => parseInt(a, 10) - parseInt(b, 10)
         }
       ],
       loadingObject: false,
@@ -4271,127 +4127,38 @@ export default {
       projectExists: false,
       newModelDialog: false,
 
-      viewrows: [{
-        name: 'model1',
-        predict: 'target',
-        query: 'SELECT * FROM my_table',
-        actions: ''
-      }],
-      jobrows: [{
-        name: 'model1',
-        predict: 'target',
-        query: 'SELECT * FROM my_table',
-        actions: ''
-      }],
-      modelrows: [{
-        name: 'model1',
-        predict: 'target',
-        query: 'SELECT * FROM my_table',
-        actions: ''
-      }],
+      viewrows: [],
+      jobrows: [],
+      modelrows: [],
 
       viewcols: [
         {
           name: 'name',
+          required: true,
           label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'predict',
-          label: 'Predict',
-          field: 'predict',
-          align: 'left'
-        },
-        {
-          name: 'query',
-          label: 'Query',
-          field: 'query',
-          align: 'left'
-        },
-        {
-          name: 'actions',
-          label: 'Actions',
-          field: 'actions',
-          align: 'left'
-        }
-      ],
-      tablecols: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'predict',
-          label: 'Predict',
-          field: 'predict',
-          align: 'left'
-        },
-        {
-          name: 'query',
-          label: 'Query',
-          field: 'query',
-          align: 'left'
-        },
-        {
-          name: 'actions',
-          label: 'Actions',
-          field: 'actions',
-          align: 'left'
+          align: 'left',
+          field: row => row.label,
+          sortable: true
         }
       ],
       jobcols: [
         {
           name: 'name',
+          required: true,
           label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'predict',
-          label: 'Predict',
-          field: 'predict',
-          align: 'left'
-        },
-        {
-          name: 'query',
-          label: 'Query',
-          field: 'query',
-          align: 'left'
-        },
-        {
-          name: 'actions',
-          label: 'Actions',
-          field: 'actions',
-          align: 'left'
+          align: 'left',
+          field: row => row.label,
+          sortable: true
         }
       ],
       modelcols: [
         {
           name: 'name',
+          required: true,
           label: 'Name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          name: 'predict',
-          label: 'Predict',
-          field: 'predict',
-          align: 'left'
-        },
-        {
-          name: 'query',
-          label: 'Query',
-          field: 'query',
-          align: 'left'
-        },
-        {
-          name: 'actions',
-          label: 'Actions',
-          field: 'actions',
-          align: 'left'
+          align: 'left',
+          field: row => row.label,
+          sortable: true
         }
       ],
       fetchDisabled: true,
@@ -4404,7 +4171,6 @@ export default {
       events: ['Begin', 'Error', 'Complete'],
       projectname: null,
       projectnames: [],
-      databasename: null,
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
       queues: [],
@@ -4679,14 +4445,16 @@ export default {
         query: ''
       },
       obj: {
+        modeltable: null,
         mindsobj: {},
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-brain',
+        databasename: null,
         titletab: false,
         schema: '',
         data: [],
         usemiddleware: false,
-        middlewareonly: false,
+        middlewareonly: true,
         middlewarefunc: '',
         database: 'SQLite',
         receipt: new Date(),
@@ -4924,31 +4692,37 @@ export default {
     }
   },
   methods: {
+    async updatePredictedColumn () {
+      let cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable)
+      return cols
+    },
+    updateAll () {
+      this.updateJobs()
+      this.updateTables()
+      this.updateViews()
+      this.updateModels()
+    },
     updateJobs () {
-        DataService.listJobs(this.obj.projectname, this.$store.state.designer.token).then((result) => {
-          this.jobrows = result.data
-          done(result.data)
-        })
+      DataService.listJobs(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+        this.jobrows = result.data
+      })
     },
     updateViews () {
-        DataService.listViews(this.obj.projectname, this.$store.state.designer.token).then((result) => {
-          this.viewrows = result.data
-          done(result.data)
-        })
+      DataService.listViews(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+        this.viewrows = result.data
+      })
     },
 
     updateModels () {
-        DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
-          this.viewrows = result.data
-          done(result.data)
-        })
+      DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+        this.modelrows = result.data
+      })
     },
 
     updateTables () {
-        DataService.listTables(this.obj.databasename, this.$store.state.designer.token).then((result) => {
-          this.viewrows = result.data
-          done(result.data)
-        })
+      DataService.listTables(this.obj.databasename, this.$store.state.designer.token).then((result) => {
+        this.tablerows = result.data
+      })
     },
     createMindsTable () {
       this.loadingObject = true
