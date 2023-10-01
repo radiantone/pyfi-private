@@ -94,6 +94,7 @@ services:
       - "MINDSDB_STORAGE_DIR=/root/data"
     volumes:
       - mindsdb:/root/data
+      - ./elasticdb.db:/root/elasticdb.db
     links:
       - postgresdb
     depends_on:
@@ -106,8 +107,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.processor
-      tags:
-        - pyfi/processor:local
     container_name: processor
     image: pyfi/processor:latest
     environment:
@@ -288,10 +287,12 @@ services:
       - ./conf/nginx.conf:/etc/nginx/nginx.conf
       - ./conf/mime.types:/etc/nginx/conf/mime.types
       - ./logs:/etc/nginx/logs
+      - ./ui/dist/spa:/var/share/html
     depends_on:
       - rabbitmq
       - rabbitmq2
       - clientsocket
+      - api
     links:
       - clientsocket
       - rabbitmq2

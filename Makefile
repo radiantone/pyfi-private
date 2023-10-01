@@ -46,7 +46,7 @@ pull: login
 
 .PHONY: up
 up:
-	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web pgadmin api
+	docker compose up -d postgresdb redis rabbitmq rabbitmq2 websockets websockets2 nginx globalsocket clientsocket mongodb web pgadmin api influxdb mindsdb
 
 .PHONY: stop
 stop:
@@ -106,8 +106,10 @@ build:
     if [ $${ans} = y ] || [ $${ans} = Y ]; then \
         make ui ; \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:develop ;\
     else \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:develop ;\
     fi
 
 .PHONY: login
