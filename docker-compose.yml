@@ -101,8 +101,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.processor
-      tags:
-        - pyfi/processor:local
     container_name: processor
     image: pyfi/processor:latest
     environment:

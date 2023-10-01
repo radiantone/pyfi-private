@@ -106,9 +106,12 @@ build:
     if [ $${ans} = y ] || [ $${ans} = Y ]; then \
         make ui ; \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:local ;\
     else \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:local ;\
     fi
+
 
 .PHONY: login
 login:
