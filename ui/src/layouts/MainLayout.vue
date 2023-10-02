@@ -2648,7 +2648,7 @@ export default defineComponent({
       const socket = window.socket
       if (socket) {
         socket.on('global', (msg) => {
-          // console.log('MAINLAYOUT', msg)
+          console.log('MAINLAYOUT', msg)
           if (msg.type && msg.type === 'DeploymentModel') {
             console.log('DEPLOYMENT WAS UPDATED ', msg)
             window.root.$emit('message.received', msg)
@@ -2660,7 +2660,7 @@ export default defineComponent({
           if (msg.channel === 'task') {
             me.msglogs.unshift(msg)
             me.msglogs = me.msglogs.slice(0, 200)
-
+            me.task_messages += 1
             window.root.$emit('message.count', 1)
             var bytes = JSON.stringify(msg).length
             window.root.$emit('message.size', bytes)
@@ -2925,6 +2925,16 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+    function pushUsage () {
+      if (me.stats.usage) {
+        me.$refs.toolPalette.system_usage(me.stats.usage)
+        setTimeout(() => {
+          pushUsage()
+        }, 10000)
+      }
+    }
+    pushUsage()
+
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
@@ -2970,6 +2980,9 @@ export default defineComponent({
     if (me.consolelog.length >= 1000) {
       me.consolelog = []
     }
+    window.root.$on('message.received', (msg) => {
+      console.log("MAINLAYOUT MESSAGE RECEIVED", msg)
+    })
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -3198,71 +3211,7 @@ export default defineComponent({
           properties: []
         }
       }
-      /*
-      var parallel = document.querySelector('#parallel')
-      parallel.data = {
-        node: {
-          icon: 'fas fa-list',
-          style: 'size:50px',
-          type: 'parallel',
-          name: 'Parallel',
-          label: 'Parallel',
-          description: 'A parallel tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
 
-      var pipeline = document.querySelector('#pipeline')
-      pipeline.data = {
-        node: {
-          icon: 'fas fa-long-arrow-alt-right',
-          style: 'size:50px',
-          type: 'pipeline',
-          name: 'Pipeline',
-          label: 'Pipeline',
-          description: 'A pipeline tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var segment = document.querySelector('#segment')
-      segment.data = {
-        node: {
-          icon: 'grid_view',
-          style: 'size:50px',
-          type: 'segment',
-          name: 'Segment',
-          label: 'Segment',
-          description: 'A segment tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var chord = document.querySelector('#chord')
-      chord.data = {
-        node: {
-          icon: 'low_priority',
-          style: 'size:50px',
-          type: 'chord',
-          name: 'Chord',
-          label: 'Chord',
-          description: 'A chord tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-*/
       var label = document.querySelector('#label')
       label.data = {
         id: 9,
@@ -3477,9 +3426,55 @@ export default defineComponent({
     window.designer.$root.$on('node.added', (node) => {
       me.tabChanged(me.tab)
     })
+
+    function updateObjects(objects) {
+      console.log("updateObjects")
+      setTimeout( () => {
+        DataService.getObjects(objects, me.$store.state.designer.token).then((response) => {
+          console.log("updateObjects "+objects,response.data)
+          me.stats[objects] = response.data.length
+          let cpus_total = 0
+          let load_total = 0
+          if (objects === 'nodes') {
+            response.data.forEach( (node) => {
+              load_total += node.cpuload
+              if (node.cpus) {
+                cpus_total += node.cpus
+              }
+            })
+            me.stats.usage.push(load_total.toFixed(3))
+            if (me.stats.usage.length > 11) {
+              me.stats.usage.shift()
+            }
+            me.stats.cpus_total = cpus_total
+          }
+          let cpus_running = 0
+          if (objects === 'agents') {
+            response.data.forEach( (agent) => {
+              if (agent.cpus && agent.status === 'running') {
+                cpus_running += agent.cpus
+              }
+            })
+            me.stats.cpus_running = cpus_running
+          }
+        }).catch( (error) => {
+          me.$store.commit('designer/setMessage', 'ToolPalette: Error Updating ' + objects)
+        })
+        updateObjects(objects)
+      }, 30000)
+    }
+
+    // TODO: Scheduler can send all this info over the websocket channel
+    updateObjects('nodes')
+    updateObjects('agents')
+    updateObjects('queues')
+    updateObjects('processors')
+    updateObjects('deployments')
+    updateObjects('tasks')
   },
   data () {
     return {
+      task_messages: 0,
       blockdrawer: false,
       sublevel: {
         guest: 0,
@@ -3582,6 +3577,7 @@ export default defineComponent({
       messageSize: 0,
       transmittedSize: 0,
       stats: {
+        usage: [0,0,0,0,0,0,0,0,0,0,0],
         nodes: 0,
         agents: 0,
         queues: 0,

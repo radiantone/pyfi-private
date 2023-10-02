@@ -513,7 +513,7 @@
         style="margin-top: 40px;white-space: nowrap;"
         v-if="$auth.isAuthenticated && hasHosted"
       >
-        System Usage:
+        System Load:
       </q-item-label>
       <apexchart
         type="bar"
@@ -998,12 +998,16 @@ import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js'
 import { mdiLanguagePython } from '@mdi/js'
 import { mdiLanguageMarkdownOutline } from '@mdi/js'
+import { ref } from "@vue/composition-api"
 
 import DataService from './util/DataService'
 
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
+  setup () {
+
+  },
   created () {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
@@ -1044,6 +1048,14 @@ export default {
     }
   },
   methods: {
+    system_usage (usage) {
+      console.log("system_usage", usage)
+      this.series = [
+        {
+          data: usage
+        }
+      ]
+    },
     setCommit (commit, buildDate, buildUrl, repoUrl) {
       this.commit = commit
       this.buildDate = buildDate
@@ -1523,7 +1535,7 @@ export default {
           y: {
             title: {
               formatter: function (seriesName) {
-                return 'Tasks'
+                return 'Load'
               }
             }
           },

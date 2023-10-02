@@ -2260,6 +2260,10 @@
           name="msglog"
           label="Log"
         />
+        <q-tab
+          name="errlog"
+          label="Errors"
+        />
       </q-tabs>
       <q-tab-panels
         v-model="logtab"
@@ -2304,6 +2308,20 @@
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in msglogs">
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
+                {{ log["message"] }}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
+        <q-tab-panel
+          name="errlog"
+          style="padding: 0px;"
+          ref="errlog"
+        >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+            <q-scroll-area style="height:425px;width:auto">
+              <div v-for="log in errlogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
                 {{ log["message"] }}
               </div>
@@ -2737,7 +2755,8 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      console.log('MESSAGE RECEIVED', me)
+      //console.log('MESSAGE RECEIVED', msg)
+
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
       }
@@ -3070,7 +3089,7 @@ export default {
       this.startSchedule(this.obj.cron)
     }
   },
-  data () {
+  data: function () {
     return {
       languages: ['Python', 'Javascript'],
       scheduleon: false,
@@ -3269,9 +3288,10 @@ export default {
       tab: 'settings',
       error: false,
       tasklogs: [],
-      resultlogs: [],
-      msglogs: [],
       consolelogs: [],
+      resultlogs: [],
+      errlog: [],
+      msglogs: [],
       editPort: false,
       settingstab: 'settings',
       refreshing: false,

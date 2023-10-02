@@ -229,7 +229,7 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         SESSION = session
         token = get_token_auth_header()
-        if "user" in SESSION:
+        if token in SESSION:
             return f(*args, **kwargs)
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
@@ -280,11 +280,11 @@ def requires_auth(f):
                         401,
                     )
 
-                if "user" not in SESSION:
+                if token not in SESSION:
                     user = requests.get(
                         payload["aud"][1], headers={"Authorization": "Bearer " + token}
                     ).json()
-                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+                    SESSION[token] = b64encode(bytes(json.dumps(user), "utf-8"))
 
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
@@ -297,7 +297,7 @@ def requires_auth(f):
                 401,
             )
         except JWTError as ex:
-            SESSION["user"] = None
+            SESSION[token] = None
             logging.error(ex)
             raise AuthError(
                 {"code": "invalid_jwt", "description": "Token did not validate"},
@@ -623,7 +623,7 @@ def get_output(resultid):
 def get_subscription(user):
     import json
 
-    user_bytes = b64decode(SESSION["user"])
+    user_bytes = b64decode(SESSION[get_token_auth_header()])
     user = json.loads(user_bytes.decode("utf-8"))
 
     result = chargebee.Customer.list({"email[is]": user["email"]})
@@ -698,7 +698,7 @@ def get_files(collection, path):
 
     from pyfi.db.model import UserModel
 
-    user_bytes = b64decode(SESSION["user"])
+    user_bytes = b64decode(SESSION[get_token_auth_header()])
     user = json.loads(user_bytes.decode("utf-8"))
 
     with get_session(user=user) as session:
@@ -737,7 +737,7 @@ def get_files(collection, path):
 def new_folder(collection, path):
     from pyfi.db.model import Base, UserModel
 
-    user_bytes = b64decode(SESSION["user"])
+    user_bytes = b64decode(SESSION[get_token_auth_header()])
     user = json.loads(user_bytes.decode("utf-8"))
     with get_session() as _session:
         folder = (
@@ -1274,7 +1274,7 @@ def post_files(collection, path):
     print("POST_FILE", data)
     print("POST_NAME", path + "/" + data["name"])
 
-    user_bytes = b64decode(SESSION["user"])
+    user_bytes = b64decode(SESSION[get_token_auth_header()])
     user = json.loads(user_bytes.decode("utf-8"))
 
     try:
