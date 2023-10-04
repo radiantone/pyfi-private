@@ -270,8 +270,6 @@ services:
     restart: always
     build:
       context: /home/darren/git/elasticcode-web
-    profiles:
-      - web
     ports:
       - 8443:443
       - 8180:80
@@ -293,6 +291,7 @@ services:
       - rabbitmq2
       - clientsocket
       - api
+      - web
     links:
       - clientsocket
       - rabbitmq2
