@@ -1543,7 +1543,6 @@ def list_views(project):
         return jsonify([])
 
 
-
 @app.route("/minds/project/<project>/jobs", methods=["GET"])
 @cross_origin()
 @requires_auth
