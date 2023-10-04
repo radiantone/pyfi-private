@@ -5,7 +5,7 @@ services:
   clientsocket:
     build:
       context: socket
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     image: 013035288901.dkr.ecr.us-east-1.amazonaws.com/clientsocket:production
     container_name: clientsocket
     ports:
