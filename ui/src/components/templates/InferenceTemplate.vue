@@ -3522,8 +3522,6 @@
             style="padding-top: 2em;max-width: 800px; width:500px"
           >
             <q-form
-              @submit="onSubmit"
-              @reset="onReset"
               class="q-gutter-md"
             >
               <q-input
@@ -3591,6 +3589,7 @@
             class="bg-secondary text-white"
             v-close-popup
             :disable="(!model.name || model.name.length === 0) && (!model.predict || model.predict.length === 0)"
+            @click="createModel"
           />
         </q-card-actions>
       </q-card>
@@ -4692,6 +4691,9 @@ export default {
     }
   },
   methods: {
+    createModel () {
+
+    },
     async updatePredictedColumn () {
       let cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable)
       return cols

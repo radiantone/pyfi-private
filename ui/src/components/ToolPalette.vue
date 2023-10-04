@@ -1023,7 +1023,7 @@ export default {
     this.$root.$on('show.objects', (objects) => {
       console.log('show.objects ', objects)
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      me.showStats(objects.name, objects.columns, objects.objects)
+      me.showStats(objects.name, objects.columns, objects.objects, objects.stats)
     })
   },
   computed: {
@@ -1079,7 +1079,7 @@ export default {
     login () {
       this.$root.$emit('login')
     },
-    showStats (name, columns, objects) {
+    showStats (name, columns, objects, stats) {
       const me = this
       if (this.false) {
         return
@@ -1089,14 +1089,27 @@ export default {
       this.viewStatsLoader = true
       this.viewStatsDialog = true
       me.viewStatsData = []
-      DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
-        me.viewStatsData = response.data
-        console.log(name + ' STATS:', response.data)
-        me.viewStatsLoader = false
-      }).catch((error) => {
-        me.notifyMessage('dark', 'error', 'Something went wrong')
-        me.viewStatsLoader = false
-      })
+
+      if (stats) {
+        DataService.getStats(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      } else {
+        DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      }
+
     },
 
     notifyMessage (color, icon, message) {

@@ -2598,7 +2598,7 @@ export default defineComponent({
     },
     showStats (name, objects) {
       console.log('showStats', objects)
-      this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
+      this.$root.$emit('show.objects', { stats: true, name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
     purgeQueue (name) {
       DataService.purgeQueue(name, this.$store.state.designer.token)
