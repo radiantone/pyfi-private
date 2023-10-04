@@ -113,8 +113,10 @@ build: format
     if [ $${ans} = y ] || [ $${ans} = Y ]; then \
         make ui ; \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:production ;\
     else \
 		docker buildx bake ;\
+		docker tag pyfi/processor:latest pyfi/processor:production ;\
     fi
 
 .PHONY: login
