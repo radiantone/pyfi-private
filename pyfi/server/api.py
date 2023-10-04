@@ -753,7 +753,7 @@ def new_folder(collection, path):
             _path = "/".join(path.rsplit("/")[:-1])
 
             _user = (
-                session.query(UserModel).filter_by(name=uname, clear=password).first()
+                _session.query(UserModel).filter_by(name=uname, clear=password).first()
             )
             if len(name) == 1:
                 name = name[0]
