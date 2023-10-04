@@ -1201,7 +1201,6 @@
           hint="Database Table"
           option-value="name"
           option-label="name"
-          @update:model-value="tableSelected"
           value="string"
           :menu-offset="[5, -9]"
         />
@@ -2957,6 +2956,7 @@ export default {
             field: col
           })
         })
+        this.refreshTables()
       }
     },
     crontoggle: {
