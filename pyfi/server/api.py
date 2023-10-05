@@ -689,12 +689,14 @@ def get_result(resultid):
 
     return jsonify(_r)
 
+
 @app.route("/stats/<stat>", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_stats(stat):
     status = {"status": "ok"}
     return jsonify(status), 200
+
 
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
 @cross_origin()
