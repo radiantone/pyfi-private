@@ -3909,9 +3909,9 @@ export default {
   },
   computed: {
     tablenamesdialog () {
-      console.log("TABLE ROWS", this.tablerows)
+      console.log('TABLE ROWS', this.tablerows)
       const names = this.tablerows.map(a => a.name)
-      console.log("TABLES", names)
+      console.log('TABLES', names)
       debugger
       return names
     },
@@ -4695,7 +4695,7 @@ export default {
 
     },
     async updatePredictedColumn () {
-      let cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable)
+      const cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable)
       return cols
     },
     updateAll () {

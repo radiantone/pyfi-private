@@ -27,8 +27,12 @@
         style="position:absolute;right:30px;top:0px"
       />
     </div>
-    <q-icon name="las la-database" color="secondary"  style="z-index:-9999;font-size:8em"/>
-        <q-item-label style="position:absolute;bottom:-1.2em;min-width:300px;left:-90px;text-align: center;margin:auto;width:50%;font-family: 'Indie Flower', cursive;font-size:2em;font-weight:bold;">
+    <q-icon
+      name="las la-database"
+      color="secondary"
+      style="z-index:-9999;font-size:8em"
+    />
+    <q-item-label style="position:absolute;bottom:-1.2em;min-width:300px;left:-90px;text-align: center;margin:auto;width:50%;font-family: 'Indie Flower', cursive;font-size:2em;font-weight:bold;">
       {{ obj.name }}
       <q-popup-edit
         v-model="obj.name"
@@ -43,12 +47,44 @@
         />
       </q-popup-edit>
     </q-item-label>
-    <div class=" jtk-droppable" data-port-name="queue" data-port-template="Object" data-port-event="queue" data-port-id="DatabaseOutput" style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);right:-12px;min-width:25px;min-height:25px;">
-      <jtk-source type="Output" name="source" port-template="Object" port-id="InputQueue" port-type="Output" scope="Column" filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon" filter-exclude="true"/>
-     </div>
-    <div class=" jtk-droppable" data-port-name="queue" data-port-template="Object" data-port-event="queue" data-port-id="DatabaseInput" style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);left:-12px;min-width:25px;min-height:25px;">
-      <jtk-target type="Input" name="target" port-template="Object" port-id="OutputQueue" port-type="Input" scope="Column" filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon" filter-exclude="true"/>
-     </div>
+    <div
+      class=" jtk-droppable"
+      data-port-name="queue"
+      data-port-template="Object"
+      data-port-event="queue"
+      data-port-id="DatabaseOutput"
+      style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);right:-12px;min-width:25px;min-height:25px;"
+    >
+      <jtk-source
+        type="Output"
+        name="source"
+        port-template="Object"
+        port-id="InputQueue"
+        port-type="Output"
+        scope="Column"
+        filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
+        filter-exclude="true"
+      />
+    </div>
+    <div
+      class=" jtk-droppable"
+      data-port-name="queue"
+      data-port-template="Object"
+      data-port-event="queue"
+      data-port-id="DatabaseInput"
+      style="cursor:pointer;border-radius: 10px;  background-color:#6b8791;position:absolute;top:calc(40% - 1px);left:-12px;min-width:25px;min-height:25px;"
+    >
+      <jtk-target
+        type="Input"
+        name="target"
+        port-template="Object"
+        port-id="OutputQueue"
+        port-type="Input"
+        scope="Column"
+        filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
+        filter-exclude="true"
+      />
+    </div>
   </div>
 </template>
 <style scoped>

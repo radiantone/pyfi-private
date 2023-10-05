@@ -1304,8 +1304,15 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
-        <q-select  borderless label="Language" stack-label dense="true"  style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;" v-model="obj.language" :options="languages" />
-
+        <q-select
+          borderless
+          label="Language"
+          stack-label
+          dense="true"
+          style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;"
+          v-model="obj.language"
+          :options="languages"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn

@@ -64,7 +64,10 @@
     <q-item-label
       class="text-dark"
     >
-      <a href="#" @click="login">Login</a>
+      <a
+        href="#"
+        @click="login"
+      >Login</a>
     </q-item-label>
     <q-btn
       flat

@@ -1042,7 +1042,6 @@
       </q-card>
     </q-dialog>
 
-
     <q-dialog
       v-model="clearDataConfirm"
       persistent
@@ -1107,7 +1106,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
 
     <!-- Delete dialog -->
     <q-dialog
@@ -2340,7 +2338,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
           flat
           icon="fas fa-home"
           class="bg-secondary text-accent"
@@ -2701,7 +2699,7 @@ export default {
     }
   },
   created () {
-    let me = this
+    const me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
@@ -2747,8 +2745,8 @@ export default {
       me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
       // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
       me.bytes_in += bytes
-      setTimeout(me.refreshTables,1000)
-/*
+      setTimeout(me.refreshTables, 1000)
+      /*
       this.obj.columns.forEach((column) => {
         if (column.id === msg.portname) {
           if (column.loaders) {
@@ -2792,12 +2790,12 @@ export default {
               column.loaders.pop()
             }
             if (column.loaders.length === 0) {
-                column.loading = false
+              column.loading = false
             }
             this.$forceUpdate()
             // Trigger the port AFTER a result has been emitted
             console.log('TRIGGER PORT LOADING:', column)
-            this.triggerObject(msg.portname, column, msg.obj,(_column) => {
+            this.triggerObject(msg.portname, column, msg.obj, (_column) => {
             })
           }
         })
@@ -2973,7 +2971,7 @@ export default {
       }
     },
     myhistory () {
-      let me = this
+      const me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -3009,7 +3007,7 @@ export default {
     }
   },
   mounted () {
-    let me = this
+    const me = this
 
     console.log('setId ', this.obj.id)
     this.setId(this.obj.id)
@@ -3585,7 +3583,7 @@ export default {
   },
   methods: {
     clearData () {
-      let me = this
+      const me = this
       this.saving = true
       DataService.clearData(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         me.tablerows = []
@@ -3599,7 +3597,7 @@ export default {
       console.log('TABLE SELECTED')
     },
     refreshTables () {
-      let me = this
+      const me = this
       this.saving = true
       DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log('REFRESH DataService.getRows', result)
@@ -3611,7 +3609,7 @@ export default {
       })
     },
     pullSchema () {
-      let me = this
+      const me = this
       this.saving = true
       DataService.fetchTables(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
         console.log(result)
@@ -3629,7 +3627,7 @@ export default {
       })
     },
     testConnection () {
-      let me = this
+      const me = this
       this.saving = true
       DataService.testConnection(this.obj.database, this.obj.connection, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Connection Success!'
@@ -3640,7 +3638,7 @@ export default {
       })
     },
     createSchema () {
-      let me = this
+      const me = this
       this.saving = true
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
@@ -3661,7 +3659,7 @@ export default {
       this.argobjects
     },
     updatePorts () {
-      let me = this
+      const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
 
@@ -3676,13 +3674,13 @@ export default {
 
     },
     triggerObject (portname, column, result, callback) {
-      let me = this
+      const me = this
 
       console.log('TRIGGER ALL BEGIN')
       window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
-      let resultstr = JSON.stringify(result)
+      const resultstr = JSON.stringify(result)
 
       console.log('triggerObject result', result)
       const _port = window.toolkit.getNode(this.obj.id).getPort(portname)
@@ -3721,7 +3719,7 @@ export default {
       console.log('TRIGGER ALL COMPLETE')
       window.root.$emit('trigger.complete')
       // Trigger all the ports after me
-      //this.triggerExecute(portname, column, result, callback)
+      // this.triggerExecute(portname, column, result, callback)
 
       console.log('PORT RESULT ', _port, result)
     },
@@ -3737,7 +3735,7 @@ export default {
             exe = true
           }
         }
-      }*/
+      } */
     },
     updateBandwidthChart () {
       var outBytes = tsdb.series('outBytes').query({
@@ -3794,7 +3792,7 @@ export default {
       })
     },
     doLogin () {
-      let me = this
+      const me = this
 
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
@@ -3887,7 +3885,7 @@ export default {
       }
     },
     fetchCode () {
-      let me = this
+      const me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
       // https://raw.githubusercontent.com/radiantone/pyfi-processors/main/pyfi/processors/sample.py
@@ -3996,7 +3994,7 @@ export default {
       this.editPort = false
     },
     saveProcessor () {
-      let me = this
+      const me = this
 
       this.refreshing = true
 
@@ -4135,7 +4133,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     reqEditorInit: function () {
-      let me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4150,7 +4148,7 @@ export default {
       })
     },
     middlewareEditorInit: function () {
-      let me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4166,7 +4164,7 @@ export default {
       })
     },
     notesEditorInit: function () {
-      let me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4181,7 +4179,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      let me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4196,7 +4194,7 @@ export default {
       })
     },
     editorInit: function () {
-      let me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4282,7 +4280,7 @@ export default {
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
-      port.loading = '#fff'
+      port.loading = false
       port.queue = 'None'
 
       console.log('Port:', port)
@@ -4370,4 +4368,3 @@ export default {
   }
 }
 </script>
-

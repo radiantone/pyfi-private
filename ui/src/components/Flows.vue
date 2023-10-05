@@ -66,6 +66,25 @@
           </q-toolbar>
         </div>
         <q-space />
+
+        <q-btn
+          flat
+          round
+          icon="fas fa-download"
+          size="xs"
+          color="primary"
+          class="q-mr-xs"
+          style="padding: 0;"
+          @click="download"
+        >
+          <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Download
+          </q-tooltip>
+        </q-btn>
         <q-btn
           flat
           round

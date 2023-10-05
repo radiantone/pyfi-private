@@ -1254,8 +1254,13 @@ def post_registration():
         sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
         try:
             logging.info("%s", sql)
-            session.execute(sql)
-            logging.info("Created user")
+            try:
+                session.execute(sql)
+                logging.info("Created user")
+            except sqlalchemy.exc.IntegrityError as ex:
+                if ex.orig.pgerror.find("already exists") == -1:
+                    raise ex
+
             for t in Base.metadata.sorted_tables:
                 sql = f'GRANT CONNECT ON DATABASE pyfi TO "{uname}"'
                 session.execute(sql)

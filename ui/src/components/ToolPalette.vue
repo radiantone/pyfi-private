@@ -178,10 +178,10 @@
       <q-btn
         flat
         align="left"
-        icon="las la-table"
-        aria-label="spreadsheet"
+        icon="las la-filter"
+        aria-label="query"
         size="xl"
-        id="spreadsheet"
+        id="filter"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
@@ -190,7 +190,7 @@
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Spreadsheet
+          Filter
         </q-tooltip>
       </q-btn>
       <!--
@@ -998,7 +998,7 @@ import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js'
 import { mdiLanguagePython } from '@mdi/js'
 import { mdiLanguageMarkdownOutline } from '@mdi/js'
-import { ref } from "@vue/composition-api"
+import { ref } from '@vue/composition-api'
 
 import DataService from './util/DataService'
 
@@ -1049,7 +1049,7 @@ export default {
   },
   methods: {
     system_usage (usage) {
-      console.log("system_usage", usage)
+      console.log('system_usage', usage)
       this.series = [
         {
           data: usage
@@ -1109,7 +1109,6 @@ export default {
           me.viewStatsLoader = false
         })
       }
-
     },
 
     notifyMessage (color, icon, message) {

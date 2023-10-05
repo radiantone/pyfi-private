@@ -1343,8 +1343,15 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
-        <q-select  borderless label="Language" stack-label dense="true"  style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;" v-model="obj.language" :options="languages" />
-
+        <q-select
+          borderless
+          label="Language"
+          stack-label
+          dense="true"
+          style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;"
+          v-model="obj.language"
+          :options="languages"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2755,7 +2762,7 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      //console.log('MESSAGE RECEIVED', msg)
+      // console.log('MESSAGE RECEIVED', msg)
 
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
@@ -2879,8 +2886,9 @@ export default {
         return
       }
 
+      const bytes = JSON.stringify(msg).length
+
       if (msg.channel === 'task' && msg.state) {
-        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2910,12 +2918,14 @@ export default {
       }
       if (msg.channel === 'task' && msg.message) {
         const now = Date.now()
+
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
             time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
+
         console.log('TIMEDATA', timedata)
         tsdb.series('outBytes').insert(
           {
@@ -4425,7 +4435,7 @@ export default {
     executeObject (portname, data) {
       const me = this
 
-      let port = this.portobjects[portname]
+      const port = this.portobjects[portname]
 
       if (port.type !== 'Output') {
         return

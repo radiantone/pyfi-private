@@ -3367,7 +3367,7 @@ export default defineComponent({
       var loop = document.querySelector('#loop')
       loop.data = {
         id: 17,
-        enabled: 'free',
+        enabled: 'allPlan',
         node: {
           icon: 'las la-redo-alt',
           style: 'size:50px',
@@ -3383,18 +3383,18 @@ export default defineComponent({
         }
       }
 
-      var spreadsheet = document.querySelector('#spreadsheet')
-      spreadsheet.data = {
+      var filter = document.querySelector('#filter')
+      filter.data = {
         id: 18,
-        enabled: 'free',
+        enabled: 'allPlan',
         node: {
-          icon: 'las la-table',
+          icon: 'las la-filter',
           style: 'size:50px',
-          type: 'spreadsheet',
-          name: 'Spreadsheet',
+          type: 'filter',
+          name: 'Filter',
           description: 'A description',
           package: 'ec.blocks.data',
-          label: 'Spreadsheet',
+          label: 'Filter',
           version: '1.0.0',
           disabled: false,
           columns: [],
@@ -3403,7 +3403,7 @@ export default defineComponent({
       }
 
       var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt, lambda,
-        inference, queue, database, loop, spreadsheet]
+        inference, queue, database, loop, filter]
 
       this.blocks = els
 
