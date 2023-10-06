@@ -3353,7 +3353,7 @@ export default {
         x: 0,
         y: 0,
         middleware: '# object middleware',
-        connection: 'sqlite://elasticdb',
+        connection: 'sqlite:///elasticdb.db',
         version: 'v1.2.2',
         perworker: true,
         ratelimit: '60',
@@ -3599,14 +3599,18 @@ export default {
     refreshTables () {
       const me = this
       this.saving = true
-      DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
-        console.log('REFRESH DataService.getRows', result)
-        me.tablerows = result.data
-        me.saving = false
-      }).catch((err) => {
-        console.log('ERROR', err)
-        me.saving = false
-      })
+      if (this.viewtable) {
+        DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+          console.log('REFRESH DataService.getRows', result)
+          me.tablerows = result.data
+          me.saving = false
+        }).catch((err) => {
+          console.log('ERROR', err)
+          me.saving = false
+        })
+      } else {
+        this.saving = true
+      }
     },
     pullSchema () {
       const me = this
