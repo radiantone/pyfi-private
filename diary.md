@@ -4,6 +4,21 @@ TODO
 - Lambda block: 30%
 - Select script language in code menu: Javascript, Python, 
 
+Oct 6
+
+- Added AlaSQL node package. Create new Filter block whose code editor is SQL and then
+- query the incoming data for a port and output the result
+- Each query in the code editor is an object that can be added as a port
+- 
+
+
+Oct 5
+
+- Need to change DataTemplate language selection to JSON
+- Re-added Database Example
+- Added post-reg action in Auth0 for localhost
+- Double check user remove clie
+
 Sep 29, 2023
 
 Summary to this point

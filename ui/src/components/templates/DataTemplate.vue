@@ -2529,7 +2529,7 @@ export default {
   },
   data () {
     return {
-      languages: ['Python', 'Javascript'],
+      languages: ['JSON', 'YAML', 'Python', 'Javascript', 'Typescript'],
       scheduleon: false,
       resulttype: 'finished',
       queues: [],
