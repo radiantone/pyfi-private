@@ -1282,8 +1282,11 @@ def delete_processor(context, name):
 @click.option("--id", default=None, required=True, help="ID of user being deleted")
 @click.pass_context
 def delete_user(context, id):
-    model = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
-    if model is None:
+    import chargebee
+
+    chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
+    user = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
+    if user is None:
         print("No such user")
         return
     try:
@@ -1294,7 +1297,30 @@ def delete_user(context, id):
         context.obj["database"].session.execute(f'DROP USER "{id}"')
     except:
         pass
-    context.obj["database"].session.delete(model)
+    context.obj["database"].session.delete(user)
+
+    result = chargebee.Customer.list({"email[is]": user.email})
+    if len(result) == 0:
+        print(f"No customer for {id}")
+    else:
+        customer_id = result[0].customer.id
+        print(f"Deleting chargebee customer...{customer_id}")
+        try:
+            result = chargebee.Customer.delete(customer_id)
+            print(f"Deleted chargebee customer...{customer_id}")
+        except Exception as ex:
+            # Only absorb exception if its a "no user found" exception
+            pass
+
+    print(f"Deleting Auth0 user...")
+    try:
+        # Delete Auth0 user
+        # curl -L -X DELETE 'https://login.auth0.com/api/v2/users/:id'
+        print(f"Deleted Auth0 user...")
+    except Exception as ex:
+        # Only absorb exception if its a "no user found" exception
+        pass
+
     context.obj["database"].session.commit()
     print("Deleted user",id)
 

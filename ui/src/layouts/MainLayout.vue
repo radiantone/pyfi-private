@@ -2414,7 +2414,6 @@ export default defineComponent({
       setTimeout(() => {
         this.blocks.forEach((el) => {
           const _el = document.querySelector('#block' + el.data.id)
-          console.log('updateBlock: checkPlan ', el.data.enabled)
           if (el.data.enabled && this.checkPlan(el.data.enabled)) {
             var data = el.data
             var draghandle = dd.drag(_el, {
@@ -2428,7 +2427,6 @@ export default defineComponent({
           } else {
             _el.disabled = true
             el.disabled = true
-            console.log('updateBlock: disable block ', _el)
           }
         })
       })
@@ -2457,7 +2455,6 @@ export default defineComponent({
     checkPlan (plan) {
       if (plan && this[plan]) {
         const cp = this[plan]()
-        console.log('CHECKPLAN', plan, cp)
         return cp
       }
     },
@@ -3150,6 +3147,9 @@ export default defineComponent({
         me.graph = window.toolkit.getGraph().serialize()
       }
     })
+    setTimeout( () => {
+      me.refreshObjects()
+    },2000)
     setTimeout(() => {
       var script = document.querySelector('#script')
 

@@ -1065,7 +1065,6 @@ export default {
   },
   methods: {
     system_usage (usage) {
-      console.log('system_usage', usage)
       this.series = [
         {
           data: usage
