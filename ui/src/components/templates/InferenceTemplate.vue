@@ -1469,7 +1469,7 @@
                 label="New"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="newModelDialog = true"
+                @click="newTableDialog = true"
                 :disabled="!obj.databasename"
               >
                 <q-tooltip
@@ -1478,7 +1478,7 @@
                   content-style="font-size: 16px"
                   content-class="bg-black text-white"
                 >
-                  New Model
+                  New Table
                 </q-tooltip>
               </q-btn>
             </q-card-actions>
@@ -1716,7 +1716,7 @@
                 label="New"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="newModelDialog = true"
+                @click="newJobDialog = true"
                 :disabled="!obj.databasename"
               >
                 <q-tooltip
@@ -1839,7 +1839,7 @@
                 label="New"
                 class="bg-primary text-dark"
                 color="dark"
-                @click="newModelDialog = true"
+                @click="newViewDialog = true"
                 :disabled="!obj.databasename"
               >
                 <q-tooltip
@@ -3577,7 +3577,7 @@
             flat
             style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             label="Cancel"
-            class="bg-secondary text-white"
+            class="bg-accent text-dark"
             v-close-popup
           />
         </q-card-actions>
@@ -3590,6 +3590,270 @@
             v-close-popup
             :disable="(!model.name || model.name.length === 0) && (!model.predict || model.predict.length === 0)"
             @click="createModel"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="newViewDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>New View</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-table"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <div
+            class="q-pa-lg"
+            style="padding-top: 2em;max-width: 800px; width:500px"
+          >
+            <q-form
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="viewname"
+                dense
+                style="width:100%"
+                hint="View Name"
+              />
+
+              <q-input
+                dense
+                v-model="viewdescription"
+                style="width:100%"
+                filled
+                type="textarea"
+                hint="View Description"
+              />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Cancel"
+            class="bg-accent text-dark"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Create"
+            class="bg-secondary text-white"
+            v-close-popup
+            :disable="(!viewname || viewname.length === 0)"
+            @click="createView"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="newJobDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>New Job</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-table"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <div
+            class="q-pa-lg"
+            style="padding-top: 2em;max-width: 800px; width:500px"
+          >
+            <q-form
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="jobname"
+                dense
+                style="width:100%"
+                hint="Job Name"
+              />
+
+              <q-input
+                dense
+                v-model="jobdescription"
+                style="width:100%"
+                filled
+                type="textarea"
+                hint="Job Description"
+              />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Cancel"
+            class="bg-accent text-dark"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Create"
+            class="bg-secondary text-white"
+            v-close-popup
+            :disable="(!jobname || jobname.length === 0)"
+            @click="createJob"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="newTableDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>New Table</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-table"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <div
+            class="q-pa-lg"
+            style="padding-top: 2em;max-width: 800px; width:500px"
+          >
+            <q-form
+              class="q-gutter-md"
+            >
+              <q-input
+                filled
+                v-model="tablename"
+                dense
+                style="width:100%"
+                hint="Table Name"
+              />
+
+              <q-input
+                dense
+                v-model="tablequery"
+                style="width:100%"
+                filled
+                type="textarea"
+                hint="Table Query"
+              />
+            </q-form>
+          </div>
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            label="Cancel"
+            class="bg-accent text-dark"
+            v-close-popup
+          />
+        </q-card-actions>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Create"
+            class="bg-secondary text-white"
+            v-close-popup
+            :disable="(!tablename || tablename.length === 0)"
+            @click="createTable"
           />
         </q-card-actions>
       </q-card>
@@ -4125,7 +4389,9 @@ export default {
       databaseList: [],
       projectExists: false,
       newModelDialog: false,
-
+      newTableDialog: false,
+      newJobDialog: false,
+      newViewDialog: false,
       viewrows: [],
       jobrows: [],
       modelrows: [],
