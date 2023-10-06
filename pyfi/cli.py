@@ -1283,10 +1283,20 @@ def delete_processor(context, name):
 @click.pass_context
 def delete_user(context, id):
     model = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
-
+    if model is None:
+        print("No such user")
+        return
+    try:
+        context.obj["database"].session.execute(f'DROP OWNED BY "{id}"')
+    except:
+        pass
+    try:
+        context.obj["database"].session.execute(f'DROP USER "{id}"')
+    except:
+        pass
     context.obj["database"].session.delete(model)
     context.obj["database"].session.commit()
-
+    print("Deleted user",id)
 
 @cli.group()
 @click.option("--id", default=None, help="ID of object being added")
