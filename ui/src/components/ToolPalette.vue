@@ -599,6 +599,22 @@
             <q-item
               clickable
               v-close-popup
+              @click="updateObjects"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-refresh" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Refresh
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item
+              clickable
+              v-close-popup
               disabled
             >
               <q-item-section side>
@@ -1130,6 +1146,9 @@ export default {
       script.setAttribute('type', 'application/javascript')
       head.appendChild(style)
       head.appendChild(script)
+    },
+    updateObjects () {
+      this.$root.$emit('update.objects')
     },
     openBlocks () {
       this.$root.$emit('open.blocks')
