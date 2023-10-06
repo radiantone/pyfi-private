@@ -169,8 +169,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
       includes = 'from pyodide.http import pyfetch, FetchResponse\n' +
   'from typing import Optional, Any\n' +
-  '\n' +
-  'async def request(url: str, method: str = "GET", body: Optional[str] = None,\n' +
+  'import json\n\n' +
+  'async def request(url: str, method: str = "GET", body: Optional[dict[str, any]] = {},\n' +
   '                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n' +
   '    """\n' +
   '    Async request function. Pass in Method and make sure to await!\n' +
@@ -187,7 +187,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
   '    headers = {"Authorization":"Bearer ' + this.$store.state.designer.token + '", "Content-type": "application/json"}\n' +
   '    kwargs = {"method": method, "mode": "cors"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n' +
   '    if body and method not in ["GET", "HEAD"]:\n' +
-  '        kwargs["body"] = body\n' +
+  '        kwargs["body"] = json.dumps(body)\n' +
   '    if headers:\n' +
   '        kwargs["headers"] = headers\n' +
   '    kwargs.update(fetch_kwargs)\n' +
