@@ -2259,6 +2259,7 @@ export default defineComponent({
           console.log('SET TOKEN', token)
           me.$store.commit('designer/setToken', token)
           me.updateSubscription()
+          me.refreshObjects()
         })
       }
     },
@@ -2359,6 +2360,53 @@ export default defineComponent({
     }
   },
   methods: {
+
+    updateObjects (objects) {
+      var me = this
+      console.log('updateObjects')
+      DataService.getObjects(objects, me.$store.state.designer.token).then((response) => {
+        console.log('updateObjects ' + objects, response.data)
+        me.stats[objects] = response.data.length
+        let cpus_total = 0
+        let load_total = 0
+        if (objects === 'nodes') {
+          response.data.forEach((node) => {
+            load_total += node.cpuload
+            if (node.cpus) {
+              cpus_total += node.cpus
+            }
+          })
+          me.stats.usage.push(load_total.toFixed(3))
+          if (me.stats.usage.length > 11) {
+            me.stats.usage.shift()
+          }
+          me.stats.cpus_total = cpus_total
+        }
+        let cpus_running = 0
+        if (objects === 'agents') {
+          response.data.forEach((agent) => {
+            if (agent.cpus && agent.status === 'running') {
+              cpus_running += agent.cpus
+            }
+          })
+          me.stats.cpus_running = cpus_running
+        }
+      }).catch((error) => {
+        me.$store.commit('designer/setMessage', 'ToolPalette: Error Updating ' + objects)
+      })
+    },
+    refreshObjects () {
+      this.$store.commit('designer/setMessage', 'Refreshing object counts...')
+      this.flowloading = true
+      this.updateObjects('nodes')
+      this.updateObjects('agents')
+      this.updateObjects('queues')
+      this.updateObjects('processors')
+      this.updateObjects('deployments')
+      this.updateObjects('tasks')
+      this.flowloading = false
+      this.$store.commit('designer/setMessage', 'Refreshed object counts!')
+    },
     addNewFlow () {
       this.$root.$emit('new.flow')
     },
@@ -2981,7 +3029,7 @@ export default defineComponent({
       me.consolelog = []
     }
     window.root.$on('message.received', (msg) => {
-      console.log("MAINLAYOUT MESSAGE RECEIVED", msg)
+      console.log('MAINLAYOUT MESSAGE RECEIVED', msg)
     })
     window.root.$on('message.count', (count) => {
       me.messageCount += count
@@ -3009,6 +3057,10 @@ export default defineComponent({
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
+
+    this.$root.$on('update.objects', () => {
+      this.refreshObjects()
+    })
 
     this.$root.$on('open.blocks', () => {
       this.blocksdrawer = !this.blocksdrawer
@@ -3426,51 +3478,6 @@ export default defineComponent({
     window.designer.$root.$on('node.added', (node) => {
       me.tabChanged(me.tab)
     })
-
-    function updateObjects(objects) {
-      console.log("updateObjects")
-      setTimeout( () => {
-        DataService.getObjects(objects, me.$store.state.designer.token).then((response) => {
-          console.log("updateObjects "+objects,response.data)
-          me.stats[objects] = response.data.length
-          let cpus_total = 0
-          let load_total = 0
-          if (objects === 'nodes') {
-            response.data.forEach( (node) => {
-              load_total += node.cpuload
-              if (node.cpus) {
-                cpus_total += node.cpus
-              }
-            })
-            me.stats.usage.push(load_total.toFixed(3))
-            if (me.stats.usage.length > 11) {
-              me.stats.usage.shift()
-            }
-            me.stats.cpus_total = cpus_total
-          }
-          let cpus_running = 0
-          if (objects === 'agents') {
-            response.data.forEach( (agent) => {
-              if (agent.cpus && agent.status === 'running') {
-                cpus_running += agent.cpus
-              }
-            })
-            me.stats.cpus_running = cpus_running
-          }
-        }).catch( (error) => {
-          me.$store.commit('designer/setMessage', 'ToolPalette: Error Updating ' + objects)
-        })
-        updateObjects(objects)
-      }, 30000)
-    }
-
-    // TODO: Scheduler can send all this info over the websocket channel
-    updateObjects('nodes')
-    updateObjects('agents')
-    updateObjects('queues')
-    updateObjects('processors')
-    updateObjects('deployments')
-    updateObjects('tasks')
   },
   data () {
     return {
@@ -3577,7 +3584,7 @@ export default defineComponent({
       messageSize: 0,
       transmittedSize: 0,
       stats: {
-        usage: [0,0,0,0,0,0,0,0,0,0,0],
+        usage: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         nodes: 0,
         agents: 0,
         queues: 0,
