@@ -1244,7 +1244,12 @@ def post_registration():
         # This user will be used in OSO authorizations
         uname = email.split("@")[0] + "." + password
         user = UserModel(
-            name=uname, owner=email, password=_password, clear=password, email=email, id=user_id
+            name=uname,
+            owner=email,
+            password=_password,
+            clear=password,
+            email=email,
+            id=user_id,
         )
         # users.update_one({'_id': uname},
         #                 {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},

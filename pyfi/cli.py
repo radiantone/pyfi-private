@@ -1322,7 +1322,8 @@ def delete_user(context, id):
         pass
 
     context.obj["database"].session.commit()
-    print("Deleted user",id)
+    print("Deleted user", id)
+
 
 @cli.group()
 @click.option("--id", default=None, help="ID of object being added")
