@@ -1312,11 +1312,11 @@ def delete_user(context, id):
             # Only absorb exception if its a "no user found" exception
             pass
 
-    print(f"Deleting Auth0 user...")
+    print("Deleting Auth0 user...")
     try:
         # Delete Auth0 user
         # curl -L -X DELETE 'https://login.auth0.com/api/v2/users/:id'
-        print(f"Deleted Auth0 user...")
+        print("Deleted Auth0 user...")
     except Exception as ex:
         # Only absorb exception if its a "no user found" exception
         pass

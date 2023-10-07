@@ -52,7 +52,7 @@ class DataService {
   }
 
   createModel (name: string, database: string, project: string, table: string, column: string, query: string, token: string): Promise<any> {
-    return http.post('/api/minds/project/' + project + '/model/' + name, {database:database, table: table, column: column, query: query}, {
+    return http.post('/api/minds/project/' + project + '/model/' + name, { database: database, table: table, column: column, query: query }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
