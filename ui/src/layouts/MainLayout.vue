@@ -3148,7 +3148,7 @@ export default defineComponent({
       }
     })
     setTimeout( () => {
-      me.refreshObjects()make f
+      me.refreshObjects()
     },2000)
     setTimeout(() => {
       var script = document.querySelector('#script')

@@ -1520,69 +1520,7 @@
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
-              >
-                <template #body="props">
-                  <q-tr
-                    :props="props"
-                    :key="getUuid"
-                  >
-                    <q-td
-                      :key="props.cols[0].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.row.name }}</a>
-                      <q-popup-edit
-                        v-model="props.row.name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.row.name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[1].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.cols[1].name }}</a>
-                      <q-popup-edit
-                        v-model="props.cols[1].name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.cols[1].name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[2].name"
-                      :props="props"
-                    >
-                      {{ props.cols[2].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[3].name"
-                      :props="props"
-                    >
-                      <q-btn
-                        dense
-                        flat
-                        round
-                        color="secondary"
-                        icon="las la-trash"
-                      />
-                    </q-td>
-                  </q-tr>
-                </template>
-              </q-table>
+              />
             </div>
 
             <q-card-actions align="left">
@@ -3531,13 +3469,12 @@
                 style="width:100%"
                 hint="Model Name"
               />
-
               <q-select
                 dense
                 filled
                 :options-dense="true"
                 style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                v-model="obj.modeltable"
+                v-model="model.table"
                 :options="tablenamesdialog"
                 hint="Table"
                 option-value="name"
@@ -3547,19 +3484,27 @@
                 @update:model-value="updatePredictedColumn"
               />
 
+<q-input
+                filled
+                v-model="model.column"
+                dense
+                style="width:100%"
+                hint="Predicted Column"
+              />
+              <!--
               <q-select
                 dense
                 filled
                 :options-dense="true"
                 style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                v-model="obj.modelpredict"
+                v-model="model.column"
                 :options="predictedcolumns"
                 hint="Predicted Column"
                 option-value="name"
                 option-label="name"
                 value="string"
                 :menu-offset="[5, -9]"
-              />
+              />-->
 
               <q-input
                 dense
@@ -4290,7 +4235,6 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     this.fetchCode()
     this.updateBandwidthChart()
@@ -4320,6 +4264,13 @@ export default {
           align: 'left',
           field: row => row.label,
           sortable: true
+        },
+        {
+          name: 'actions',
+          align: 'center',
+          style: 'min-width:150px',
+          classes: 'text-secondary',
+          label: 'Actions'
         }
       ],
       loadingObject: false,
@@ -4404,6 +4355,13 @@ export default {
           align: 'left',
           field: row => row.label,
           sortable: true
+        },
+        {
+          name: 'actions',
+          align: 'center',
+          style: 'min-width:150px',
+          classes: 'text-secondary',
+          label: 'Actions'
         }
       ],
       jobcols: [
@@ -4414,6 +4372,13 @@ export default {
           align: 'left',
           field: row => row.label,
           sortable: true
+        },
+        {
+          name: 'actions',
+          align: 'center',
+          style: 'min-width:150px',
+          classes: 'text-secondary',
+          label: 'Actions'
         }
       ],
       modelcols: [
@@ -4424,6 +4389,13 @@ export default {
           align: 'left',
           field: row => row.label,
           sortable: true
+        },
+        {
+          name: 'actions',
+          align: 'center',
+          style: 'min-width:150px',
+          classes: 'text-secondary',
+          label: 'Actions'
         }
       ],
       fetchDisabled: true,
@@ -4706,11 +4678,11 @@ export default {
       },
       model: {
         name: '',
-        predict: '',
+        description: '',
+        column: '',
         query: ''
       },
       obj: {
-        modeltable: null,
         mindsobj: {},
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-brain',
@@ -4958,10 +4930,27 @@ export default {
   },
   methods: {
     createModel () {
-
+      DataService.createModel(this.model.name, this.obj.databasename, this.obj.projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then( ()=> {
+        this.$q.notify({
+            color: 'secondary',
+            timeout: 2000,
+            position: 'top',
+            message: 'Create model ' + this.model.name + ' succeeded!',
+            icon: 'save'
+          })
+      }).catch( (err) => {
+          this.$q.notify({
+            color: 'negative',
+            timeout: 2000,
+            position: 'bottom',
+            message: 'Erro creating model '+this.model.name,
+            icon: 'fas fa-exclamation'
+          })
+        console.log(err)
+      })
     },
     async updatePredictedColumn () {
-      const cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable)
+      const cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable, this.$store.state.designer.token)
       return cols
     },
     updateAll () {
@@ -4983,6 +4972,7 @@ export default {
 
     updateModels () {
       DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
+        console.log("listModels",result)
         this.modelrows = result.data
       })
     },

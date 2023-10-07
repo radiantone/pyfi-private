@@ -1736,15 +1736,15 @@ def delete_project():
     pass
 
 
-@app.route("/minds/project/<project>/model", methods=["POST"])
+@app.route("/minds/project/<project>/model/<model>", methods=["POST"])
 @cross_origin()
 @requires_auth
-def create_model(project):
+def create_model(project, model):
     data: Any = request.get_json()
     project = server.get_project(project)
 
     table = server.get_database(data["database"]).get_table(data["table"])
-    project.create_model(name=data["name"], predict=data["predict"], query=table)
+    project.create_model(name=model, predict=data["column"], query=table)
 
     return jsonify({"status": "ok"})
 
