@@ -5,7 +5,7 @@
       style="padding:0px"
     >
       <img
-        src="~assets/images/elasticcode.svg"
+        src="~assets/images/elasticcode.png"
         style="padding-left: 15px; height: 55px; padding-right: 10px;"
       >
       <q-btn

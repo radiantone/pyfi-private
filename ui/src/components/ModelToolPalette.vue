@@ -1,7 +1,7 @@
 <template>
   <q-toolbar class="sidebar node-palette">
     <img
-      src="~assets/images/elasticcode.svg"
+      src="~assets/images/elasticcode.png"
       style="padding-left: 15px; height: 55px; padding-right: 10px;"
     >
 
