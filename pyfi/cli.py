@@ -733,8 +733,14 @@ def dropdb(context):
 
     for user in _users:
         if user != "postgres":
-            context.obj["database"].session.execute(f'DROP OWNED BY "{user}"')
-            context.obj["database"].session.execute(f'DROP USER "{user}"')
+            try:
+                context.obj["database"].session.execute(f'DROP OWNED BY "{user}"')
+            except:
+                pass
+            try:
+                context.obj["database"].session.execute(f'DROP USER "{user}"')
+            except:
+                pass
             print("Dropped user {}".format(user))
 
     context.obj["database"].session.commit()
@@ -1273,13 +1279,80 @@ def delete_processor(context, name):
 
 
 @delete.command(name="user", help="Delete a user object from the database")
-@click.option("--id", default=None, required=True, help="ID of user being deleted")
+@click.option(
+    "-e", "--email", default=None, required=True, help="Email of user being deleted"
+)
 @click.pass_context
-def delete_user(context, id):
-    model = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
+def delete_user(context, email):
+    import json
 
-    context.obj["database"].session.delete(model)
+    import chargebee
+    from auth0.authentication import GetToken
+    from auth0.management import Auth0
+
+    domain = os.environ["AUTH0_DOMAIN"]
+    client_id = os.environ["AUTH0_CLIENTID"]
+    client_secret = os.environ["AUTH0_CLIENTSECRET"]
+
+    get_token = GetToken(domain, client_id, client_secret=client_secret)
+    token = get_token.client_credentials("https://{}/api/v2/".format(domain))
+    print(token)
+    auth0 = Auth0(domain, token["access_token"])
+
+    users = auth0.users.list()
+    print(users)
+    """
+    user_id = '{YOUR_USER_ID}'
+auth0.users.update(user_id, {
+    'name': 'My name is...'
+})"""
+
+    chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
+    user = (
+        context.obj["database"].session.query(UserModel).filter_by(email=email).first()
+    )
+
+    if user is None:
+        print("No such user")
+        return
+
+    print(f"Deleting {email}")
+    print(user)
+    try:
+        context.obj["database"].session.execute(f'DROP OWNED BY "{user.name}"')
+    except:
+        pass
+    try:
+        context.obj["database"].session.execute(f'DROP USER "{user.name}"')
+    except:
+        pass
+
+    context.obj["database"].session.delete(user)
+
+    result = chargebee.Customer.list({"email[is]": user.email})
+    if len(result) == 0:
+        print(f"No customer for {id}")
+    else:
+        customer_id = result[0].customer.id
+        print(f"Deleting chargebee customer...{customer_id}")
+        try:
+            # result = chargebee.Customer.delete(customer_id)
+            print(f"Deleted chargebee customer...{customer_id}")
+        except Exception as ex:
+            # Only absorb exception if its a "no user found" exception
+            pass
+
+    print("Deleting Auth0 user...")
+    try:
+        # Delete Auth0 user
+        # curl -L -X DELETE 'https://login.auth0.com/api/v2/users/:id'
+        print("Deleted Auth0 user...")
+    except Exception as ex:
+        # Only absorb exception if its a "no user found" exception
+        pass
+
     context.obj["database"].session.commit()
+    print("Deleted user", id)
 
 
 @cli.group()

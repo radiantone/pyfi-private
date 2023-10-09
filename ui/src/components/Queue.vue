@@ -23,7 +23,7 @@
           :menu-offset="[5, -9]"
           @input="queueSelect"
         >
-          <template v-slot:prepend>
+          <template #prepend>
             <q-icon name="far fa-envelope" />
           </template>
         </q-select>
@@ -279,10 +279,10 @@ export default {
   },
   created () {
     var me = this
-    if(this.hide) {
+    if (this.hide) {
       this.visibility = 'hidden'
     }
-    if(window.socket) {
+    if (window.socket) {
       window.socket.on('global', (data) => {
         // console.log('QUEUE SERVER GLOBAL MESSAGE', data);
         if (data.type && data.type === 'queues') {

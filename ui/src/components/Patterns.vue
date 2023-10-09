@@ -308,8 +308,8 @@ export default {
       // Get ID of pattern group object
       // Pull out all the nodes with that group, and their ports and edges
       // Save that
-      let token = this.$store.state.designer.token
-      console.log("AUTH SAVE PATTERN TOKEN", token)
+      const token = this.$store.state.designer.token
+      console.log('AUTH SAVE PATTERN TOKEN', token)
       await DataService.newFile(
         'patterns',
         'Home',
@@ -365,7 +365,7 @@ export default {
         var me = this
         me.synchronize()
         window.root.off('save.pattern')
-        console.log("PATTERN SAVE ON")
+        console.log('PATTERN SAVE ON')
         window.root.$on('save.pattern', (id, name, image, objects) => {
           console.log('PATTERNS SAVING', objects)
           var code = JSON.stringify(objects)
@@ -388,7 +388,7 @@ export default {
     if (this.$auth.isAuthenticated) {
       var me = this
       me.synchronize()
-      console.log("PATTERN SAVE ON")
+      console.log('PATTERN SAVE ON')
       window.root.$on('save.pattern', (id, name, image, objects) => {
         console.log('PATTERNS SAVING', objects)
         var code = JSON.stringify(objects)
@@ -409,8 +409,8 @@ export default {
   data () {
     return {
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4

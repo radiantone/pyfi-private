@@ -1343,6 +1343,15 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
+        <q-select
+          borderless
+          label="Language"
+          stack-label
+          dense="true"
+          style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;"
+          v-model="obj.language"
+          :options="languages"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2258,6 +2267,10 @@
           name="msglog"
           label="Log"
         />
+        <q-tab
+          name="errlog"
+          label="Errors"
+        />
       </q-tabs>
       <q-tab-panels
         v-model="logtab"
@@ -2302,6 +2315,20 @@
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width:auto">
               <div v-for="log in msglogs">
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
+                {{ log["message"] }}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
+        <q-tab-panel
+          name="errlog"
+          style="padding: 0px;"
+          ref="errlog"
+        >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+            <q-scroll-area style="height:425px;width:auto">
+              <div v-for="log in errlogs">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
                 {{ log["message"] }}
               </div>
@@ -2735,7 +2762,8 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      console.log('MESSAGE RECEIVED', me)
+      // console.log('MESSAGE RECEIVED', msg)
+
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
       }
@@ -2858,8 +2886,9 @@ export default {
         return
       }
 
+      const bytes = JSON.stringify(msg).length
+
       if (msg.channel === 'task' && msg.state) {
-        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2889,12 +2918,14 @@ export default {
       }
       if (msg.channel === 'task' && msg.message) {
         const now = Date.now()
+
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
             time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
+
         console.log('TIMEDATA', timedata)
         tsdb.series('outBytes').insert(
           {
@@ -3036,9 +3067,6 @@ export default {
       me.getNode().component = this
     }, 3000)
     this.$el.component = this
-    window.designer.$on('trigger.data', () => {
-      me.triggerExecute()
-    })
 
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
       console.log('toggle bandwidth', bandwidth)
@@ -3071,8 +3099,9 @@ export default {
       this.startSchedule(this.obj.cron)
     }
   },
-  data () {
+  data: function () {
     return {
+      languages: ['Python', 'Javascript'],
       scheduleon: false,
       containers: [
         'pyfi/processor:latest',
@@ -3269,9 +3298,10 @@ export default {
       tab: 'settings',
       error: false,
       tasklogs: [],
-      resultlogs: [],
-      msglogs: [],
       consolelogs: [],
+      resultlogs: [],
+      errlog: [],
+      msglogs: [],
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
@@ -3348,6 +3378,8 @@ export default {
         }
       },
       obj: {
+
+        language: 'Python',
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'las la-scroll',
         titletab: false,
@@ -3841,6 +3873,9 @@ export default {
     updateFunctions (data) {
       const re = /def (\w+)\s*\((.*?)\):/g
 
+      if (data === undefined || !(Object.prototype.toString.call(data) === '[object String]')) {
+        return
+      }
       var matches = data.matchAll(re)
 
       this.funcs = []
@@ -4399,7 +4434,13 @@ export default {
     },
     executeObject (portname, data) {
       const me = this
-      const call = this.portobjects[portname].name.replace('function: ', '')
+
+      const port = this.portobjects[portname]
+
+      if (port.type !== 'Output') {
+        return
+      }
+      const call = port.name.replace('function: ', '')
       let code = this.obj.code
       code = code + '\n' + call + '()'
 
@@ -4463,6 +4504,8 @@ export default {
         }
       }, (error) => {
         console.log('PYTHON ERROR', error)
+        this.error = true
+        this.errorMsg = error.message
       })
     },
     triggerError (portid, error) {

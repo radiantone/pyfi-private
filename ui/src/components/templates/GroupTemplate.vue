@@ -537,7 +537,6 @@ export default {
         })
     },
     deleteAGroup (all) {
-
       console.log('Removing group', this.obj)
       window.toolkit.removeGroup(this.obj, all)
     },
