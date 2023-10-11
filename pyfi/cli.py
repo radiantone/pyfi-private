@@ -1282,8 +1282,11 @@ def delete_processor(context, name):
 @click.option(
     "-e", "--email", default=None, required=True, help="Email of user being deleted"
 )
+@click.option(
+    "--userid", default=None, required=True, help="ID of user being deleted"
+)
 @click.pass_context
-def delete_user(context, email):
+def delete_user(context, email, userid):
     import requests
 
     import chargebee
@@ -1306,12 +1309,19 @@ auth0.users.update(user_id, {
 })"""
     print(users)
     chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
-    user = (
-        context.obj["database"].session.query(UserModel).filter_by(email=email).first()
-    )
+    if userid:
+        user = (
+            context.obj["database"].session.query(UserModel).filter_by(id=userid).first()
+        )
+        uid = userid
+    else:
+        user = (
+            context.obj["database"].session.query(UserModel).filter_by(email=email).first()
+        )
+        uid = email
 
     if user is None:
-        print(f"No such user {email}")
+        print(f"No such user {uid}")
     else:
         print(f"Deleting {email}")
         try:
