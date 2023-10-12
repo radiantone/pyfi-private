@@ -3,8 +3,7 @@ black = black --target-version py39 pyfi
 isort = isort --profile black pyfi
 flake8 = flake8 --ignore=E203,F401,E402,F841,E501,E722,W503 pyfi
 nvm = . ${NVM_DIR}/nvm.sh
-#NODE_OPTIONS=--openssl-legacy-provider;
-
+NODE_OPTIONS=--openssl-legacy-provider
 
 .PHONY: depends
 depends:
@@ -33,8 +32,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
-	PATH=$(node20path):$PATH;
-	eslint ui/src/components
+	eslint --ext .js,.ts  ui/src/components #,.vue
 
 .PHONY: install
 install: depends init
