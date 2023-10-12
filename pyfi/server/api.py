@@ -32,6 +32,11 @@ from flask import (
     send_from_directory,
 )
 from flask import session as SESSION
+
+from flask_session import Session
+
+SESSION_TYPE = "sqlalchemy"
+
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
 from jose import JWTError, jwt
@@ -67,7 +72,7 @@ ALGORITHMS = ["RS256"]
 ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
-
+SQLALCHEMY_DATABASE_URI = CONFIG.get("database", "uri")
 request_parser = reqparse.RequestParser(bundle_errors=True)
 
 logging.basicConfig(level=logging.INFO)
@@ -75,8 +80,10 @@ logging.basicConfig(level=logging.INFO)
 hostname = platform.node()
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = "super secret key"
 app.register_blueprint(blueprint)
+Session(app)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
 app.config["SESSION_PERMANENT"] = False
 app.config["PERMANENT_SESSION_LIFETIME"] = 60  # in seconds
@@ -227,8 +234,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_auth_header()
-        if "user" in SESSION:
-            _SESSION = SESSION
+        if "user" in SESSION and SESSION["user"] is not None:
             return f(*args, **kwargs)
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
@@ -279,12 +285,13 @@ def requires_auth(f):
                         401,
                     )
 
-                if "user" not in SESSION:
+                if "user" not in SESSION or SESSION["user"] is None:
                     user = requests.get(
                         payload["aud"][1], headers={"Authorization": "Bearer " + token}
                     ).json()
                     SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
+                print(SESSION["user"])
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
             raise AuthError(
@@ -1276,6 +1283,16 @@ def post_registration():
 
         session.add(user)
 
+        result = chargebee.Customer.create({"email": email})
+        result = chargebee.Subscription.create_with_items(
+            result.customer.id,{
+              "subscription_items" : [{
+                    "item_price_id":"ec_free-USD-Monthly",
+                    "quantity": 1,
+                    "unit_price": 0
+                }]
+            }
+        )
     logging.info("Commit ended")
     return "OK"
 
