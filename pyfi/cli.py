@@ -1282,14 +1282,11 @@ def delete_processor(context, name):
 @click.option(
     "-e", "--email", default=None, required=True, help="Email of user being deleted"
 )
-@click.option(
-    "--userid", default=None, required=False, help="ID of user being deleted"
-)
+@click.option("--userid", default=None, required=False, help="ID of user being deleted")
 @click.pass_context
 def delete_user(context, email, userid):
-    import requests
-
     import chargebee
+    import requests
     from auth0.authentication import GetToken
     from auth0.management import Auth0
 
@@ -1311,12 +1308,18 @@ auth0.users.update(user_id, {
     chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
     if userid:
         user = (
-            context.obj["database"].session.query(UserModel).filter_by(id=userid).first()
+            context.obj["database"]
+            .session.query(UserModel)
+            .filter_by(id=userid)
+            .first()
         )
         uid = userid
     else:
         user = (
-            context.obj["database"].session.query(UserModel).filter_by(email=email).first()
+            context.obj["database"]
+            .session.query(UserModel)
+            .filter_by(email=email)
+            .first()
         )
         uid = email
 
@@ -1359,10 +1362,10 @@ auth0.users.update(user_id, {
 
     print("Checking Auth0...")
     try:
-        for user in users['users']:
-            if user['email'] == email:
+        for user in users["users"]:
+            if user["email"] == email:
                 print(f"Deleting Auth0 user...{email}")
-                auth0.users.delete(user['user_id'])
+                auth0.users.delete(user["user_id"])
                 print(f"Deleted Auth0 user...{email}")
 
     except Exception as ex:
