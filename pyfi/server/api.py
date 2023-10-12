@@ -234,7 +234,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_auth_header()
-        if "user" in SESSION:
+        if "user" in SESSION and SESSION["user"] is not None:
             return f(*args, **kwargs)
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
@@ -285,12 +285,13 @@ def requires_auth(f):
                         401,
                     )
 
-                if "user" not in SESSION:
+                if "user" not in SESSION or SESSION["user"] is None:
                     user = requests.get(
                         payload["aud"][1], headers={"Authorization": "Bearer " + token}
                     ).json()
                     SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
+                print(SESSION["user"])
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
             raise AuthError(
@@ -1284,13 +1285,13 @@ def post_registration():
 
         result = chargebee.Customer.create({"email": email})
         result = chargebee.Subscription.create_with_items(
-            result.customer.id,
-            {
-                "item_price_id": "ec_free-USD-Monthly",
-                "item_type": "plan",
-                "quantity": 1,
-                "unit_price": 0,
-            },
+            result.customer.id,{
+              "subscription_items" : [{
+                    "item_price_id":"ec_free-USD-Monthly",
+                    "quantity": 1,
+                    "unit_price": 0
+                }]
+            }
         )
     logging.info("Commit ended")
     return "OK"

@@ -1184,12 +1184,14 @@ export default {
       ENTERPRISE: 5,
       subscriptions: {
         'ec_developer-USD-Monthly': 'Developer',
-        'ec_hosted-USD-Yearly': 'Hosted'
+        'ec_hosted-USD-Yearly': 'Hosted',
+        'ec_free-USD-Monthly': 'Free'
       },
       buildDate: 'N/A',
       sublevel: {
         guest: 0,
         free: 1,
+        'ec_free-USD-Monthly': 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4

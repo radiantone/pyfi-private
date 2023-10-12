@@ -1283,7 +1283,7 @@ def delete_processor(context, name):
     "-e", "--email", default=None, required=True, help="Email of user being deleted"
 )
 @click.option(
-    "--userid", default=None, required=True, help="ID of user being deleted"
+    "--userid", default=None, required=False, help="ID of user being deleted"
 )
 @click.pass_context
 def delete_user(context, email, userid):
@@ -1323,7 +1323,7 @@ auth0.users.update(user_id, {
     if user is None:
         print(f"No such user {uid}")
     else:
-        print(f"Deleting {email}")
+        print(f"Deleting {uid}")
         try:
             context.obj["database"].session.execute(f'DROP OWNED BY "{user.name}"')
         except:
@@ -1336,6 +1336,13 @@ auth0.users.update(user_id, {
         context.obj["database"].session.delete(user)
 
     print("Checking subscriptions")
+
+    if user:
+        email = user.email
+    if userid and not user:
+        print(f"No user found for userid {userid}")
+        return
+
     result = chargebee.Customer.list({"email[is]": email})
     if len(result) == 0:
         print(f"No customer with email {email}")
@@ -1362,7 +1369,7 @@ auth0.users.update(user_id, {
         print(ex)
 
     context.obj["database"].session.commit()
-    print("Deleted user", id)
+    print("Deleted user", email)
 
 
 @cli.group()
