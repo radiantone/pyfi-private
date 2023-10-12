@@ -1,3 +1,4 @@
+ui/dist/ merge=ours
 ui/auth_config.json merge=ours
 .circleci/config.yml merge=ours
 ui/src/index.template.html merge=ours
