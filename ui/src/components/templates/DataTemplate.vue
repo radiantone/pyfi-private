@@ -1304,6 +1304,15 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
+        <q-select
+          borderless
+          label="Language"
+          stack-label
+          dense="true"
+          style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;"
+          v-model="obj.language"
+          :options="languages"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -2520,6 +2529,7 @@ export default {
   },
   data () {
     return {
+      languages: ['JSON', 'YAML', 'Python', 'Javascript', 'Typescript'],
       scheduleon: false,
       resulttype: 'finished',
       queues: [],
@@ -2788,6 +2798,8 @@ export default {
         }
       },
       obj: {
+
+        language: 'Python',
         // Will come from mixed in Script object (vuex state, etc)
         icon: 'fab fa-python',
         titletab: false,

@@ -2295,7 +2295,7 @@
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width:auto">
-              <div v-for="log in tasklogs">
+              <div v-for="log in tasklogs" v-bind:key="id">
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["module"]
                 }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["task"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["duration"] }}
@@ -2459,7 +2459,6 @@ export default {
   vuetify: new Vuetify(),
   components: {
     editor: require('vue2-ace-editor'),
-    BetterCounter,
     Console
   },
   watch: {
@@ -2470,7 +2469,7 @@ export default {
       this.middlewareonly = val
     },
     'obj.cron': function (val) {
-      if (val && obj.crontoggle) {
+      if (val && this.obj.crontoggle) {
         this.startSchedule(val)
       }
     },
@@ -2478,7 +2477,7 @@ export default {
       window.designer.$root.$emit('toolkit.dirty')
     },
     inBytes: function (val) {
-      // console.log('inBytes', val);
+      console.log('inBytes', val);
     }
   },
   created () {
@@ -2520,7 +2519,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (let key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2548,7 +2547,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2762,7 +2761,7 @@ export default {
   data () {
     return {
       mwfunction: '',
-      mwfunctions: ['funca','funcb','funcc'],
+      mwfunctions: ['funca', 'funcb', 'funcc'],
       schemaResult: 'Ready',
       viewcols: [],
       tables: [],
@@ -3396,21 +3395,21 @@ export default {
       }
     },
     updateBandwidthChart () {
-      let outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      let inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      let durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3471,7 +3470,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3481,7 +3480,7 @@ export default {
       })
     },
     centerOnNode () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3742,7 +3741,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -3894,7 +3893,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -3953,7 +3952,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        let schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {

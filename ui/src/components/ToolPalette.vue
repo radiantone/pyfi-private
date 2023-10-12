@@ -5,7 +5,7 @@
       style="padding:0px"
     >
       <img
-        src="~assets/images/elasticcode.svg"
+        src="~assets/images/elasticcode.png"
         style="padding-left: 15px; height: 55px; padding-right: 10px;"
       >
       <q-btn
@@ -178,10 +178,10 @@
       <q-btn
         flat
         align="left"
-        icon="las la-table"
-        aria-label="spreadsheet"
+        icon="las la-filter"
+        aria-label="query"
         size="xl"
-        id="spreadsheet"
+        id="filter"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
       >
@@ -190,7 +190,7 @@
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Spreadsheet
+          Filter
         </q-tooltip>
       </q-btn>
       <!--
@@ -513,7 +513,7 @@
         style="margin-top: 40px;white-space: nowrap;"
         v-if="$auth.isAuthenticated && hasHosted"
       >
-        System Usage:
+        System Load:
       </q-item-label>
       <apexchart
         type="bar"
@@ -596,6 +596,22 @@
 
             <q-separator />
 
+            <q-item
+              clickable
+              v-close-popup
+              @click="updateObjects"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-refresh" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Refresh
+              </q-item-section>
+            </q-item>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
@@ -998,12 +1014,16 @@ import { mdiCodeBraces } from '@mdi/js'
 import { mdiBorderNoneVariant } from '@mdi/js'
 import { mdiLanguagePython } from '@mdi/js'
 import { mdiLanguageMarkdownOutline } from '@mdi/js'
+import { ref } from '@vue/composition-api'
 
 import DataService from './util/DataService'
 
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
+  setup () {
+
+  },
   created () {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
@@ -1019,7 +1039,7 @@ export default {
     this.$root.$on('show.objects', (objects) => {
       console.log('show.objects ', objects)
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      me.showStats(objects.name, objects.columns, objects.objects)
+      me.showStats(objects.name, objects.columns, objects.objects, objects.stats)
     })
   },
   computed: {
@@ -1044,6 +1064,13 @@ export default {
     }
   },
   methods: {
+    system_usage (usage) {
+      this.series = [
+        {
+          data: usage
+        }
+      ]
+    },
     setCommit (commit, buildDate, buildUrl, repoUrl) {
       this.commit = commit
       this.buildDate = buildDate
@@ -1067,7 +1094,7 @@ export default {
     login () {
       this.$root.$emit('login')
     },
-    showStats (name, columns, objects) {
+    showStats (name, columns, objects, stats) {
       const me = this
       if (this.false) {
         return
@@ -1077,14 +1104,26 @@ export default {
       this.viewStatsLoader = true
       this.viewStatsDialog = true
       me.viewStatsData = []
-      DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
-        me.viewStatsData = response.data
-        console.log(name + ' STATS:', response.data)
-        me.viewStatsLoader = false
-      }).catch((error) => {
-        me.notifyMessage('dark', 'error', 'Something went wrong')
-        me.viewStatsLoader = false
-      })
+
+      if (stats) {
+        DataService.getStats(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      } else {
+        DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      }
     },
 
     notifyMessage (color, icon, message) {
@@ -1106,6 +1145,9 @@ export default {
       script.setAttribute('type', 'application/javascript')
       head.appendChild(style)
       head.appendChild(script)
+    },
+    updateObjects () {
+      this.$root.$emit('update.objects')
     },
     openBlocks () {
       this.$root.$emit('open.blocks')
@@ -1142,12 +1184,14 @@ export default {
       ENTERPRISE: 5,
       subscriptions: {
         'ec_developer-USD-Monthly': 'Developer',
-        'ec_hosted-USD-Yearly': 'Hosted'
+        'ec_hosted-USD-Yearly': 'Hosted',
+        'ec_free-USD-Monthly': 'Free'
       },
       buildDate: 'N/A',
       sublevel: {
         guest: 0,
         free: 1,
+        'ec_free-USD-Monthly': 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
@@ -1523,7 +1567,7 @@ export default {
           y: {
             title: {
               formatter: function (seriesName) {
-                return 'Tasks'
+                return 'Load'
               }
             }
           },

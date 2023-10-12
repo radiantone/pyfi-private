@@ -51,6 +51,14 @@ class DataService {
     })
   }
 
+  createModel (name: string, database: string, project: string, table: string, column: string, query: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + project + '/model/' + name, { database: database, table: table, column: column, query: query }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   createProject (name: string, token: string): Promise<any> {
     return http.post('/api/minds/project/' + name, {}, {
       headers: {
@@ -83,6 +91,14 @@ class DataService {
     })
   }
 
+  listColumns (database: string, table: string, token: string): Promise<any> {
+    return http.get('/api/minds/database/' + database + '/table/' + table + '/columns', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   listModels (project: string, token: string): Promise<any> {
     return http.get('/api/minds/project/' + project + '/models', {
       headers: {
@@ -99,16 +115,24 @@ class DataService {
     })
   }
 
-  listJobs (project: string, token: string): Promise<any> {
-    return http.get('/api/minds/' + project + '/jobs', {
+  listViews (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/project/' + project + '/views', {
       headers: {
         Authorization: 'Bearer ' + token
       }
     })
   }
 
-  getJob (job: string, token: string): Promise<any> {
-    return http.get('/api/minds/jobs/' + job, {
+  listJobs (project: string, token: string): Promise<any> {
+    return http.get('/api/minds/project/' + project + '/jobs', {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getJob (project: string, job: string, token: string): Promise<any> {
+    return http.get('/api/minds/project/' + project + '/job/' + job, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -117,14 +141,6 @@ class DataService {
 
   getProject (project: string, token: string): Promise<any> {
     return http.get('/api/minds/projects/' + project, {
-      headers: {
-        Authorization: 'Bearer ' + token
-      }
-    })
-  }
-
-  listViews (project: string, token: string): Promise<any> {
-    return http.get('/api/minds/' + project + '/views', {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -153,6 +169,14 @@ class DataService {
 
   fetchTables (type: string, url: string, schema: string, token: string): Promise<any> {
     return http.post('/api/db/tables', { type: type, url: url, schema: schema }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getStats (object: string, token: string): Promise<any> {
+    return http.get('/api/stats/' + object, {
       headers: {
         Authorization: 'Bearer ' + token
       }

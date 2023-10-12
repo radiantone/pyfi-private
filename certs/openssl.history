@@ -1,0 +1,30 @@
+
+  785  echo | openssl s_client -showcerts -servername elasticcode.ai -connect elasticcode.ai:443 2>/dev/null | openssl x509 -inform pem -noout -dates -text
+
+
+
+ 2034  openssl rsa -in  elasticcode.key -check
+ 2036  openssl x509 -in elasticcode.crt -text -noout
+ 2039  openssl x509 -in elasticcode.crt -text -noout -dates
+ 2042  openssl x509 -in elasticcode.crt -text -noout -dates
+ 2044  history|grep openssl
+ 2045  openssl x509 -in  elasticcode-app.crt -text -noout -dates
+ 2055  openssl x509 -in 5009c6337756cd1e.crt -text -noout -dates
+ 2057  openssl x509 -in 5009c6337756cd1e.crt -text -noout -dates
+ 2058  openssl x509 -in 1b4d8d9b80b31408.crt -text -noout -dates
+ 2064  history|grep openssl
+ 2065  openssl verify -CAfile elasticcode.crt gd_bundle-g2-g1.crt 
+ 2066  openssl verify -CAfile elasticcode.crt
+ 2067  openssl verify -CAfile gd_bundle-g2-g1.crt 
+ 2068  openssl verify -CAfile elasticcode.crt gd_bundle-g2-g1.crt 
+ 2076  openssl s_client -showcerts -connect elasticcode.ai:443
+ 2083  history|grep openssl
+ 2084  openssl s_client -connect elasticcode.ai:443
+ 2089  openssl rsa -check -noout -in elasticcode.key
+ 2090  openssl x509 -modulus -noout -in elasticcode.crt |openssl md5
+ 2091  openssl rsa -modulus -noout -in elasticcode.key|openssl md5
+ 2092  openssl x509 -modulus -noout -in elasticcode-bundle.crt |openssl md5
+ 2094  openssl x509 -modulus -noout -in elasticcode-all.crt |openssl md5
+ 2095  openssl rsa -modulus -noout -in elasticcode.key|openssl md5
+ 2106  history|grep openssl
+ 2107  history|grep openssl >openssl.history

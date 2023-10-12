@@ -30,8 +30,13 @@ from flask import (
     make_response,
     request,
     send_from_directory,
-    session,
 )
+from flask import session as SESSION
+
+from flask_session import Session
+
+SESSION_TYPE = "sqlalchemy"
+
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
 from jose import JWTError, jwt
@@ -59,7 +64,6 @@ CONFIG = configparser.ConfigParser()
 
 from pathlib import Path
 
-SESSION = session
 HOME = str(Path.home())
 AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
 API_AUDIENCE = os.environ["API_AUDIENCE"]
@@ -68,7 +72,7 @@ ALGORITHMS = ["RS256"]
 ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
-
+SQLALCHEMY_DATABASE_URI = CONFIG.get("database", "uri")
 request_parser = reqparse.RequestParser(bundle_errors=True)
 
 logging.basicConfig(level=logging.INFO)
@@ -76,8 +80,10 @@ logging.basicConfig(level=logging.INFO)
 hostname = platform.node()
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = "super secret key"
 app.register_blueprint(blueprint)
+Session(app)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
 app.config["SESSION_PERMANENT"] = False
 app.config["PERMANENT_SESSION_LIFETIME"] = 60  # in seconds
@@ -227,9 +233,8 @@ def requires_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        SESSION = session
         token = get_token_auth_header()
-        if "user" in SESSION:
+        if "user" in SESSION and SESSION["user"] is not None:
             return f(*args, **kwargs)
         jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
@@ -280,12 +285,13 @@ def requires_auth(f):
                         401,
                     )
 
-                if "user" not in SESSION:
+                if "user" not in SESSION or SESSION["user"] is None:
                     user = requests.get(
                         payload["aud"][1], headers={"Authorization": "Bearer " + token}
                     ).json()
                     SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
 
+                print(SESSION["user"])
                 _request_ctx_stack.top.current_user = payload
                 return f(*args, **kwargs)
             raise AuthError(
@@ -394,7 +400,7 @@ setattr(app, "json_encodore", AlchemyEncoder)
 @cross_origin()
 @requires_auth
 def logout():
-    session.clear()
+    SESSION.clear()
     return jsonify({"status": "ok"})
 
 
@@ -690,6 +696,14 @@ def get_result(resultid):
     return jsonify(_r)
 
 
+@app.route("/stats/<stat>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_stats(stat):
+    status = {"status": "ok"}
+    return jsonify(status), 200
+
+
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -753,7 +767,7 @@ def new_folder(collection, path):
             _path = "/".join(path.rsplit("/")[:-1])
 
             _user = (
-                session.query(UserModel).filter_by(name=uname, clear=password).first()
+                _session.query(UserModel).filter_by(name=uname, clear=password).first()
             )
             if len(name) == 1:
                 name = name[0]
@@ -1236,7 +1250,12 @@ def post_registration():
         # This user will be used in OSO authorizations
         uname = email.split("@")[0] + "." + password
         user = UserModel(
-            name=uname, owner=email, password=_password, clear=password, email=email
+            name=uname,
+            owner=email,
+            password=_password,
+            clear=password,
+            email=email,
+            id=user_id,
         )
         # users.update_one({'_id': uname},
         #                 {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},
@@ -1246,8 +1265,13 @@ def post_registration():
         sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
         try:
             logging.info("%s", sql)
-            session.execute(sql)
-            logging.info("Created user")
+            try:
+                session.execute(sql)
+                logging.info("Created user")
+            except sqlalchemy.exc.IntegrityError as ex:
+                if ex.orig.pgerror.find("already exists") == -1:
+                    raise ex
+
             for t in Base.metadata.sorted_tables:
                 sql = f'GRANT CONNECT ON DATABASE pyfi TO "{uname}"'
                 session.execute(sql)
@@ -1259,6 +1283,16 @@ def post_registration():
 
         session.add(user)
 
+        result = chargebee.Customer.create({"email": email})
+        result = chargebee.Subscription.create_with_items(
+            result.customer.id,{
+              "subscription_items" : [{
+                    "item_price_id":"ec_free-USD-Monthly",
+                    "quantity": 1,
+                    "unit_price": 0
+                }]
+            }
+        )
     logging.info("Commit ended")
     return "OK"
 
@@ -1471,6 +1505,7 @@ def list_projects():
     names = [
         {
             "label": project.name,
+            "name": project.name,
             "icon": "las la-clipboard",
             "lazy": True,
             "type": "project",
@@ -1498,6 +1533,7 @@ def list_models(project):
         names = [
             {
                 "label": model.name,
+                "name": model.name,
                 "icon": "las la-table",
                 "lazy": True,
                 "type": "model",
@@ -1511,7 +1547,67 @@ def list_models(project):
         return jsonify([])
 
 
-@app.route("/minds/<project>/<model>", methods=["GET"])
+@app.route("/minds/project/<project>/views", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_views(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        views = project.list_views()
+
+        names = [
+            {
+                "label": view.name,
+                "name": view.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "model",
+                "id": "proj{}".format(next(counter)),
+            }
+            for view in views
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/project/<project>/jobs", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_jobs(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        jobs = project.list_jobs()
+
+        names = [
+            {
+                "label": job.name,
+                "name": job.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "job",
+                "id": "job{}".format(next(counter)),
+            }
+            for job in jobs
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/<project>/model/<model>", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model(project, model):
@@ -1520,7 +1616,7 @@ def get_model(project, model):
     return jsonify(project.get_model(model))
 
 
-@app.route("/minds/<project>/<model>/status", methods=["GET"])
+@app.route("/minds/<project>/model/<model>/status", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model_status(project, model):
@@ -1531,7 +1627,7 @@ def get_model_status(project, model):
     return jsonify(model.get_status())
 
 
-@app.route("/minds/<project>/<model>/info", methods=["GET"])
+@app.route("/minds/<project>/model/<model>/info", methods=["GET"])
 @cross_origin()
 @requires_auth
 def get_model_info(project, model):
@@ -1542,7 +1638,7 @@ def get_model_info(project, model):
     return jsonify(model.describe())
 
 
-@app.route("/minds/<project>/<model>/refresh", methods=["POST"])
+@app.route("/minds/<project>/model/<model>/refresh", methods=["POST"])
 @cross_origin()
 @requires_auth
 def refresh_model(project, model):
@@ -1553,7 +1649,7 @@ def refresh_model(project, model):
     return jsonify(model.refresh())
 
 
-@app.route("/minds/<project>/<model>/retrain", methods=["POST"])
+@app.route("/minds/<project>/model/<model>/retrain", methods=["POST"])
 @cross_origin()
 @requires_auth
 def retrain_model(project, model):
@@ -1564,7 +1660,7 @@ def retrain_model(project, model):
     return jsonify(model.retrain())
 
 
-@app.route("/minds/<project>/<model>", methods=["DELETE"])
+@app.route("/minds/<project>/model/<model>", methods=["DELETE"])
 @cross_origin()
 @requires_auth
 def delete_model(project, model):
@@ -1600,6 +1696,7 @@ def list_tables(database):
     names = [
         {
             "label": table.name,
+            "name": table.name,
             "icon": "las la-table",
             "lazy": True,
             "type": "table",
@@ -1655,15 +1752,15 @@ def delete_project():
     pass
 
 
-@app.route("/minds/project/<project>/model", methods=["POST"])
+@app.route("/minds/project/<project>/model/<model>", methods=["POST"])
 @cross_origin()
 @requires_auth
-def create_model(project):
+def create_model(project, model):
     data: Any = request.get_json()
     project = server.get_project(project)
 
     table = server.get_database(data["database"]).get_table(data["table"])
-    project.create_model(name=data["name"], predict=data["predict"], query=table)
+    project.create_model(name=model, predict=data["column"], query=table)
 
     return jsonify({"status": "ok"})
 
@@ -1737,6 +1834,7 @@ def get_tables(database, url):
 @cross_origin()
 @requires_auth
 def tables():
+    """Get all the tables for the database info in the POST json"""
     """Get all the tables for the database info in the POST json"""
     data: Any = request.get_json()
 

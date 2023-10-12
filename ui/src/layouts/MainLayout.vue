@@ -1763,70 +1763,6 @@
       </q-card>
     </q-dialog>
 
-
-    <q-dialog
-      v-model="viewEdgeDialog"
-      persistent
-    >
-      <q-card
-        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
-      >
-        <q-card-section
-          class="bg-secondary"
-          style="
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 40px;
-          "
-        >
-          <div
-            style="
-              font-weight: bold;
-              font-size: 18px;
-              margin-left: 10px;
-              margin-top: -5px;
-              margin-right: 5px;
-              color: #fff;
-            "
-          >
-            <q-toolbar>
-              <q-icon
-                name="fas fa-cog"
-                color="primary"
-                style="margin-right:10px"
-              />
-              <q-item-label>Edge</q-item-label>
-              <q-space />
-              <q-icon
-                class="text-primary"
-                name="fas fa-close"
-                @click="viewEdgeDialog = false"
-                style="z-index: 10; cursor: pointer;"
-              />
-            </q-toolbar>
-          </div>
-        </q-card-section>
-        <q-card-section
-          class="row items-center"
-          style="height: 120px; width: 100%;"
-        />
-
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-            label="Close"
-            class="bg-secondary text-white"
-            color="primary"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-
     <q-dialog
       v-model="viewEdgeDialog"
       persistent
@@ -2323,6 +2259,7 @@ export default defineComponent({
           console.log('SET TOKEN', token)
           me.$store.commit('designer/setToken', token)
           me.updateSubscription()
+          me.refreshObjects()
         })
       }
     },
@@ -2423,6 +2360,53 @@ export default defineComponent({
     }
   },
   methods: {
+
+    updateObjects (objects) {
+      var me = this
+      console.log('updateObjects')
+      DataService.getObjects(objects, me.$store.state.designer.token).then((response) => {
+        console.log('updateObjects ' + objects, response.data)
+        me.stats[objects] = response.data.length
+        let cpus_total = 0
+        let load_total = 0
+        if (objects === 'nodes') {
+          response.data.forEach((node) => {
+            load_total += node.cpuload
+            if (node.cpus) {
+              cpus_total += node.cpus
+            }
+          })
+          me.stats.usage.push(load_total.toFixed(3))
+          if (me.stats.usage.length > 11) {
+            me.stats.usage.shift()
+          }
+          me.stats.cpus_total = cpus_total
+        }
+        let cpus_running = 0
+        if (objects === 'agents') {
+          response.data.forEach((agent) => {
+            if (agent.cpus && agent.status === 'running') {
+              cpus_running += agent.cpus
+            }
+          })
+          me.stats.cpus_running = cpus_running
+        }
+      }).catch((error) => {
+        me.$store.commit('designer/setMessage', 'ToolPalette: Error Updating ' + objects)
+      })
+    },
+    refreshObjects () {
+      this.$store.commit('designer/setMessage', 'Refreshing object counts...')
+      this.flowloading = true
+      this.updateObjects('nodes')
+      this.updateObjects('agents')
+      this.updateObjects('queues')
+      this.updateObjects('processors')
+      this.updateObjects('deployments')
+      this.updateObjects('tasks')
+      this.flowloading = false
+      this.$store.commit('designer/setMessage', 'Refreshed object counts!')
+    },
     addNewFlow () {
       this.$root.$emit('new.flow')
     },
@@ -2430,7 +2414,6 @@ export default defineComponent({
       setTimeout(() => {
         this.blocks.forEach((el) => {
           const _el = document.querySelector('#block' + el.data.id)
-          console.log('updateBlock: checkPlan ', el.data.enabled)
           if (el.data.enabled && this.checkPlan(el.data.enabled)) {
             var data = el.data
             var draghandle = dd.drag(_el, {
@@ -2444,7 +2427,6 @@ export default defineComponent({
           } else {
             _el.disabled = true
             el.disabled = true
-            console.log('updateBlock: disable block ', _el)
           }
         })
       })
@@ -2473,7 +2455,6 @@ export default defineComponent({
     checkPlan (plan) {
       if (plan && this[plan]) {
         const cp = this[plan]()
-        console.log('CHECKPLAN', plan, cp)
         return cp
       }
     },
@@ -2662,7 +2643,7 @@ export default defineComponent({
     },
     showStats (name, objects) {
       console.log('showStats', objects)
-      this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
+      this.$root.$emit('show.objects', { stats: true, name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
     purgeQueue (name) {
       DataService.purgeQueue(name, this.$store.state.designer.token)
@@ -2712,7 +2693,7 @@ export default defineComponent({
       const socket = window.socket
       if (socket) {
         socket.on('global', (msg) => {
-          // console.log('MAINLAYOUT', msg)
+          console.log('MAINLAYOUT', msg)
           if (msg.type && msg.type === 'DeploymentModel') {
             console.log('DEPLOYMENT WAS UPDATED ', msg)
             window.root.$emit('message.received', msg)
@@ -2724,7 +2705,7 @@ export default defineComponent({
           if (msg.channel === 'task') {
             me.msglogs.unshift(msg)
             me.msglogs = me.msglogs.slice(0, 200)
-
+            me.task_messages += 1
             window.root.$emit('message.count', 1)
             var bytes = JSON.stringify(msg).length
             window.root.$emit('message.size', bytes)
@@ -2989,6 +2970,16 @@ export default defineComponent({
     var me = this
     this.checkResolution()
 
+    function pushUsage () {
+      if (me.stats.usage) {
+        me.$refs.toolPalette.system_usage(me.stats.usage)
+        setTimeout(() => {
+          pushUsage()
+        }, 10000)
+      }
+    }
+    pushUsage()
+
     async function load () {
       await pyodide.loadPackage('micropip')
       const micropip = pyodide.pyimport('micropip')
@@ -3034,6 +3025,9 @@ export default defineComponent({
     if (me.consolelog.length >= 1000) {
       me.consolelog = []
     }
+    window.root.$on('message.received', (msg) => {
+      console.log('MAINLAYOUT MESSAGE RECEIVED', msg)
+    })
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -3060,6 +3054,10 @@ export default defineComponent({
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
+
+    this.$root.$on('update.objects', () => {
+      this.refreshObjects()
+    })
 
     this.$root.$on('open.blocks', () => {
       this.blocksdrawer = !this.blocksdrawer
@@ -3149,6 +3147,9 @@ export default defineComponent({
         me.graph = window.toolkit.getGraph().serialize()
       }
     })
+    setTimeout( () => {
+      me.refreshObjects()
+    },2000)
     setTimeout(() => {
       var script = document.querySelector('#script')
 
@@ -3262,71 +3263,7 @@ export default defineComponent({
           properties: []
         }
       }
-      /*
-      var parallel = document.querySelector('#parallel')
-      parallel.data = {
-        node: {
-          icon: 'fas fa-list',
-          style: 'size:50px',
-          type: 'parallel',
-          name: 'Parallel',
-          label: 'Parallel',
-          description: 'A parallel tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
 
-      var pipeline = document.querySelector('#pipeline')
-      pipeline.data = {
-        node: {
-          icon: 'fas fa-long-arrow-alt-right',
-          style: 'size:50px',
-          type: 'pipeline',
-          name: 'Pipeline',
-          label: 'Pipeline',
-          description: 'A pipeline tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var segment = document.querySelector('#segment')
-      segment.data = {
-        node: {
-          icon: 'grid_view',
-          style: 'size:50px',
-          type: 'segment',
-          name: 'Segment',
-          label: 'Segment',
-          description: 'A segment tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var chord = document.querySelector('#chord')
-      chord.data = {
-        node: {
-          icon: 'low_priority',
-          style: 'size:50px',
-          type: 'chord',
-          name: 'Chord',
-          label: 'Chord',
-          description: 'A chord tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-*/
       var label = document.querySelector('#label')
       label.data = {
         id: 9,
@@ -3482,7 +3419,7 @@ export default defineComponent({
       var loop = document.querySelector('#loop')
       loop.data = {
         id: 17,
-        enabled: 'free',
+        enabled: 'allPlan',
         node: {
           icon: 'las la-redo-alt',
           style: 'size:50px',
@@ -3498,18 +3435,18 @@ export default defineComponent({
         }
       }
 
-      var spreadsheet = document.querySelector('#spreadsheet')
-      spreadsheet.data = {
+      var filter = document.querySelector('#filter')
+      filter.data = {
         id: 18,
-        enabled: 'free',
+        enabled: 'allPlan',
         node: {
-          icon: 'las la-table',
+          icon: 'las la-filter',
           style: 'size:50px',
-          type: 'spreadsheet',
-          name: 'Spreadsheet',
+          type: 'filter',
+          name: 'Filter',
           description: 'A description',
           package: 'ec.blocks.data',
-          label: 'Spreadsheet',
+          label: 'Filter',
           version: '1.0.0',
           disabled: false,
           columns: [],
@@ -3518,7 +3455,7 @@ export default defineComponent({
       }
 
       var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt, lambda,
-        inference, queue, database, loop, spreadsheet]
+        inference, queue, database, loop, filter]
 
       this.blocks = els
 
@@ -3544,10 +3481,12 @@ export default defineComponent({
   },
   data () {
     return {
+      task_messages: 0,
       blockdrawer: false,
       sublevel: {
         guest: 0,
         free: 1,
+        'ec_free-USD-Monthly': 1,
         'ec_developer-USD-Monthly': 2,
         'ec_pro-USD-Monthly': 3,
         'ec_hosted-USD-Yearly': 4
@@ -3646,6 +3585,7 @@ export default defineComponent({
       messageSize: 0,
       transmittedSize: 0,
       stats: {
+        usage: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         nodes: 0,
         agents: 0,
         queues: 0,

@@ -1335,7 +1335,6 @@
             Fetch Code
           </q-tooltip>
         </q-btn>
-
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn

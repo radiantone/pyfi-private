@@ -39,13 +39,13 @@
             maxlength="20"
             dense
           >
-            <template v-slot:before>
+            <template #before>
               <i
                 class="fas fa-lock text-secondary"
                 style="font-size: 0.8em;"
               />
             </template>
-            <template v-slot:after>
+            <template #after>
               <q-btn
                 dense
                 flat
@@ -1249,7 +1249,7 @@
         row-key="name"
         style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
       >
-        <template v-slot:body="props">
+        <template #body="props">
           <q-tr
             :props="props"
             :key="getUuid"
@@ -1556,7 +1556,6 @@
             Fetch Code
           </q-tooltip>
         </q-btn>
-
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1634,7 +1633,7 @@
           horizontal
           style="height: 100%;"
         >
-          <template v-slot:before>
+          <template #before>
             <div class="q-pa-md">
               <q-table
                 dense
@@ -1645,7 +1644,7 @@
                 :rows-per-page-options="[10]"
                 style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
-                <template v-slot:body="props">
+                <template #body="props">
                   <q-tr
                     :props="props"
                     :key="getUuid"
@@ -1682,7 +1681,7 @@
                     </q-td>
                   </q-tr>
                 </template>
-                <template v-slot:loading>
+                <template #loading>
                   <q-inner-loading
                     :showing="true"
                     style="z-index: 9999999;"
@@ -1697,7 +1696,7 @@
             </div>
           </template>
 
-          <template v-slot:after>
+          <template #after>
             <div
               class="q-pa-md"
               style="height: 100%; padding: 0px;"
@@ -2151,7 +2150,7 @@
               :rows-per-page-options="[10]"
               style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
-              <template v-slot:loading>
+              <template #loading>
                 <q-inner-loading
                   :showing="true"
                   style="z-index: 9999999;"
@@ -2353,7 +2352,7 @@
           flat
           style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
-          <template v-slot:body="props">
+          <template #body="props">
             <q-tr
               :props="props"
               :key="getUuid"
@@ -2504,7 +2503,7 @@
           flat
           style="width: 100%; height: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
         >
-          <template v-slot:body="props">
+          <template #body="props">
             <q-tr
               :props="props"
               :key="getUuid"
@@ -2883,7 +2882,7 @@
           horizontal
           style="height: calc(100% - 40px);"
         >
-          <template v-slot:before>
+          <template #before>
             <q-table
               dense
               :columns="resultcolumns"
@@ -2893,7 +2892,7 @@
               :pagination="resultPagination"
               style="height: calc(100% - 0px); width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
             >
-              <template v-slot:body="props">
+              <template #body="props">
                 <q-tr
                   :props="props"
                   :key="getUuid"
@@ -2964,7 +2963,7 @@
               </template>
             </q-table>
           </template>
-          <template v-slot:after>
+          <template #after>
             <div style="height: 100%; width: 100%;">
               <editor
                 @init="resultEditorInit"
@@ -3106,9 +3105,9 @@ export default {
     'obj.status': function (val) {
       window.designer.$root.$emit('toolkit.dirty')
     },
-    workerview: function(newv, oldv) {
-      if(newv) {
-        this.refreshWorkers();
+    workerview: function (newv, oldv) {
+      if (newv) {
+        this.refreshWorkers()
       }
     },
     inBytes: function (val) {
@@ -3146,7 +3145,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (let key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -3170,7 +3169,7 @@ export default {
       }
 
       if (msg.channel === 'task' && msg.state) {
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -3904,35 +3903,35 @@ export default {
   },
   methods: {
     updateBandwidthChart () {
-      let outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      let inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      let durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
-      //this.series[2].data = durations[0].results.data
+      // this.series[2].data = durations[0].results.data
 
-      let xaxis = inBytes[0].results.time.map((x) => { let d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
-      console.log("XAXIS", xaxis)
+      const xaxis = inBytes[0].results.time.map((x) => { const d = new Date(x); return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) })
+      console.log('XAXIS', xaxis)
       this.chartOptions.xaxis.categories = xaxis
-      //console.log('updateBandwidthChart: inBytes', inBytes)
-      //console.log('updateBandwidthChart: outBytes', outBytes)
-      //console.log('updateBandwidthChart: durations', durations)
-      if(this.$refs.bandwidthChart) {
+      // console.log('updateBandwidthChart: inBytes', inBytes)
+      // console.log('updateBandwidthChart: outBytes', outBytes)
+      // console.log('updateBandwidthChart: durations', durations)
+      if (this.$refs.bandwidthChart) {
         this.$refs.bandwidthChart.updateSeries([{
           name: 'Bytes Out',
           data: outBytes[0].results.outBytes.slice(0, 25)
@@ -3941,7 +3940,6 @@ export default {
           data: inBytes[0].results.inBytes.slice(0, 25)
         }])
       }
-
     },
     showCommit (hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
@@ -3981,7 +3979,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3991,7 +3989,7 @@ export default {
       })
     },
     centerOnNode () {
-      let node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -4269,7 +4267,7 @@ export default {
         me.refreshing = false
         console.log('REFRESH PROCESSOR', proc)
         const avoid = ['icon', 'id']
-        for (let key in me.obj) {
+        for (const key in me.obj) {
           if (key in proc.data && !avoid.includes(key)) {
             console.log('Updating key ', key)
             me.obj[key] = proc.data[key]
@@ -4319,7 +4317,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
@@ -4456,7 +4454,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -4488,7 +4486,6 @@ export default {
       // window.renderer.repaint(this.obj);
     },
     addPort (port) {
-
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {
@@ -4515,7 +4512,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        let schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {

@@ -41,13 +41,13 @@
             maxlength="20"
             dense
           >
-            <template v-slot:before>
+            <template #before>
               <i
                 class="fas fa-lock text-secondary"
                 style="font-size: 0.8em;"
               />
             </template>
-            <template v-slot:after>
+            <template #after>
               <q-btn
                 dense
                 flat
@@ -530,7 +530,7 @@ export default {
       }
       if (msg.channel === 'task' && msg.state) {
         // console.log('MESSAGE STATUS received', msg);
-        let bytes = JSON.stringify(msg).length
+        const bytes = JSON.stringify(msg).length
 
         tsdb.series('inBytes').insert(
           {
@@ -1469,7 +1469,7 @@ export default {
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        let node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
@@ -1542,7 +1542,7 @@ export default {
       console.log('Removing column: ', column)
 
       for (let i = 0; i < this.obj.columns.length; i++) {
-        let col = this.obj.columns[i]
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')

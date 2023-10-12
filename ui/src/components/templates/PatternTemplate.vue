@@ -25,15 +25,23 @@
     />
     <h4 class="group-title">
       <span style="min-width: 500px;">
-        {{ obj.name }} <i class="fas fa-edit text-primary" style="cursor:pointer" >
-              <q-popup-edit
+        {{ obj.name }} <i
+          class="fas fa-edit text-primary"
+          style="cursor:pointer"
+        >
+          <q-popup-edit
 
-                style="font-size: 15px; margin-top: 5px;"
-                v-model="obj.name"
-              >
-                <q-input style="" v-model="obj.name" dense autofocus />
-              </q-popup-edit>
-              </i>
+            style="font-size: 15px; margin-top: 5px;"
+            v-model="obj.name"
+          >
+            <q-input
+              style=""
+              v-model="obj.name"
+              dense
+              autofocus
+            />
+          </q-popup-edit>
+        </i>
       </span>
       <q-toolbar>
         <q-space />
@@ -53,7 +61,13 @@
             Group Settings
           </q-tooltip>
         </q-btn>
-        <q-btn flat size="xs" :icon="icon" class="bg-secondary" @click="click">
+        <q-btn
+          flat
+          size="xs"
+          :icon="icon"
+          class="bg-secondary"
+          @click="click"
+        >
           <q-tooltip
             align="top"
             anchor="top middle"
@@ -97,12 +111,21 @@
       jtk-group-content="true"
       class="aGroupInner"
       :style="'width:' + obj.w + 'px;height:' + obj.h + 'px;'"
-    ></div>
-        <q-inner-loading :showing="showing" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
+    />
+    <q-inner-loading
+      :showing="showing"
+      style="z-index: 999999;"
+    >
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
 
-    <q-dialog v-model="deleteGroup" persistent>
+    <q-dialog
+      v-model="deleteGroup"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -127,11 +150,17 @@
             <q-toolbar>
               <q-item-label>Delete Pattern</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -258,23 +287,23 @@
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import { BaseNodeComponent } from "jsplumbtoolkit-vue2";
-import DataService from "../util/DataService";
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import DataService from '../util/DataService'
 
 export default {
-  name: "PatternTemplate",
+  name: 'PatternTemplate',
   mixins: [BaseNodeComponent],
   components: {},
-  mounted() {
-    const me = this;
-    this.toolkit = window.toolkit;
-    var group = this.toolkit.getObjectInfo(this.obj);
-    console.log("PATTERN GROUP",group);
-    DataService.getPattern('pattern2', this.$store.state.designer.token).then( (pattern) => {
-        me.showing = false;
-        console.log("PATTERN NODES",pattern)
-        window.toolkit.load({type: 'json', data: pattern.data})
-        /*
+  mounted () {
+    const me = this
+    this.toolkit = window.toolkit
+    var group = this.toolkit.getObjectInfo(this.obj)
+    console.log('PATTERN GROUP', group)
+    DataService.getPattern('pattern2', this.$store.state.designer.token).then((pattern) => {
+      me.showing = false
+      console.log('PATTERN NODES', pattern)
+      window.toolkit.load({ type: 'json', data: pattern.data })
+      /*
         pattern.data['nodes'].forEach( (node) => {
           console.log("Adding node",node)
           me.toolkit.addNode(node)
@@ -289,48 +318,48 @@ export default {
           console.log("Adding edge",edge)
 
           group.obj.addEdge(edge)
-        })*/
-    }).catch( (error) => {
-      me.showing = false;
+        }) */
+    }).catch((error) => {
+      me.showing = false
     })
   },
-  created() {},
-  data() {
+  created () {},
+  data () {
     return {
       showing: true,
-      title: "Chapter 1",
+      title: 'Chapter 1',
       dimension: 500,
       deleteGroup: false,
-      icon: "fas fa-minus",
-    };
+      icon: 'fas fa-minus'
+    }
   },
   methods: {
     resize: function () {},
     groupSettings: function () {
-      const me = this;
-      console.log("new.group.dialog", this.obj);
-      this.$root.$emit("new.group.dialog", {
+      const me = this
+      console.log('new.group.dialog', this.obj)
+      this.$root.$emit('new.group.dialog', {
         obj: this.obj,
         callback: (object) => {
-          console.log(object);
-          me.obj = object;
-        },
-      });
+          console.log(object)
+          me.obj = object
+        }
+      })
     },
     remove: function () {
-      console.log(this.obj);
-      var group = this.toolkit.getObjectInfo(this.obj);
+      console.log(this.obj)
+      var group = this.toolkit.getObjectInfo(this.obj)
 
-      this.toolkit.removeGroup(group.obj, true);
+      this.toolkit.removeGroup(group.obj, true)
     },
     click: function () {
-      this.toolkit.renderer.toggleGroup(this.obj);
-      if (this.icon === "fas fa-minus") {
-        this.icon = "fas fa-plus";
+      this.toolkit.renderer.toggleGroup(this.obj)
+      if (this.icon === 'fas fa-minus') {
+        this.icon = 'fas fa-plus'
       } else {
-        this.icon = "fas fa-minus";
+        this.icon = 'fas fa-minus'
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
