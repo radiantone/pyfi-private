@@ -1285,13 +1285,16 @@ def post_registration():
 
         result = chargebee.Customer.create({"email": email})
         result = chargebee.Subscription.create_with_items(
-            result.customer.id,{
-              "subscription_items" : [{
-                    "item_price_id":"ec_free-USD-Monthly",
-                    "quantity": 1,
-                    "unit_price": 0
-                }]
-            }
+            result.customer.id,
+            {
+                "subscription_items": [
+                    {
+                        "item_price_id": "ec_free-USD-Monthly",
+                        "quantity": 1,
+                        "unit_price": 0,
+                    }
+                ]
+            },
         )
     logging.info("Commit ended")
     return "OK"

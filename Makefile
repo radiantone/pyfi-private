@@ -3,10 +3,7 @@ black = black --target-version py39 pyfi
 isort = isort --profile black pyfi
 flake8 = flake8 --ignore=E203,F401,E402,F841,E501,E722,W503 pyfi
 nvm = . ${NVM_DIR}/nvm.sh
-node14 = ~/.nvm/versions/node/v14.18.1/bin/node
-node14path = ~/.nvm/versions/node/v14.18.1/bin
-node20 = ~/.nvm/versions/node/v20.5.1/bin/node
-node20path = ~/.nvm/versions/node/v20.5.1/bin
+NODE_OPTIONS=--openssl-legacy-provider
 
 .PHONY: depends
 depends:
@@ -35,8 +32,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
-	PATH=$(node20path):$PATH;
-	eslint ui/src/components
+	eslint --ext .js,.ts  ui/src/components #,.vue
 
 .PHONY: install
 install: depends init
@@ -79,7 +75,7 @@ install-ui:
 
 .PHONY: ui
 ui:
-	( cd ui; PATH=$(node14path):$PATH; SOCKETIO=https://app.elasticcode.ai quasar build; git add -f dist/spa )
+	( cd ui; SOCKETIO=https://app.elasticcode.ai quasar build; /usr/bin/git add -f dist/spa )
 
 .PHONY: docs
 docs:
