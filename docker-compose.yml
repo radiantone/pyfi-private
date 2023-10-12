@@ -324,9 +324,7 @@ services:
     image: elasticcode/web:local
     container_name: web
     build:
-      context: /home/darren/git/elasticcode-web
-    profiles:
-      - web
+      context: $HOME/git/elasticcode-web
     ports:
       - 8443:443
       - 8180:80
