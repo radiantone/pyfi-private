@@ -46,9 +46,11 @@ has_role(actor: UserModel, role_name: String, _: ProcessorModel) if
   role in actor.roles and
   role.name = role_name;
 
+allow(_: UserModel, "read", _: PasswordModel);
 allow(_: UserModel, "read", _: WorkerModel);
 allow(_: UserModel, "read", _: PrivilegeModel);
 allow(_: UserModel, "read", _: AgentModel);
+allow(_: UserModel, "read", _: FileModel);
 allow(_: UserModel, "read", _: EventModel);
 allow(_: UserModel, "read", _: NodeModel);
 allow(_: UserModel, "read", _: PlugModel);

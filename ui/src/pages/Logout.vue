@@ -1,10 +1,12 @@
 <template>
   <div class="fullscreen bg-primary text-dark text-center q-pa-md flex flex-center jtk-surface">
     <div>
-      <div class="text-h2" style="opacity:.4">
+      <div
+        class="text-h2"
+        style="opacity:.4"
+      >
         Logged out
       </div>
-
     </div>
   </div>
 </template>
@@ -19,6 +21,8 @@
 import { defineComponent } from '@vue/composition-api'
 
 export default defineComponent({
-  name: 'Logout'
+  name: 'Logout',
+  mounted () {
+  }
 })
 </script>

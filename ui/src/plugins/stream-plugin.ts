@@ -21,7 +21,7 @@ export default {
     // create a mixin
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      'http://localhost'
+      <string>process.env.SOCKETIO
     )
     socket.on('basicEmit', (a, b, c) => {
       // console.log("STREAM PLUGIN: SERVER EMIT", a, b, c)

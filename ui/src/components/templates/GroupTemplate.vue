@@ -21,7 +21,7 @@
       :step="10"
       :min="400"
       :max="3000"
-      style="height: 100%; position: absolute; left: -30px; top: 0px;"
+      style="height: 100%; position: absolute; left: -30px; top: 0;"
     />
     <h4 class="group-title">
       <span style="min-width: 500px;">
@@ -192,7 +192,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -273,7 +272,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -427,6 +425,8 @@
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseGroupComponent } from 'jsplumbtoolkit-vue2'
 import * as htmlToImage from 'html-to-image'
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
@@ -446,7 +446,7 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
     this.toolkit = window.toolkit
   },
   created () {
@@ -474,7 +474,7 @@ export default {
   },
   methods: {
     savePattern () {
-      var me = this
+      const me = this
       this.savePatternDialog = false
       var el = document.getElementById(this.obj.id + 'inner')
       this.showing = true
@@ -537,14 +537,12 @@ export default {
         })
     },
     deleteAGroup (all) {
-      debugger
       console.log('Removing group', this.obj)
       window.toolkit.removeGroup(this.obj, all)
     },
     resize: function () {},
-    saveTrope () {},
     groupSettings: function () {
-      var me = this
+      const me = this
       console.log('new.group.dialog', this.obj)
       this.$root.$emit('new.group.dialog', {
         obj: this.obj,
@@ -571,4 +569,3 @@ export default {
   }
 }
 </script>
-saveTrope

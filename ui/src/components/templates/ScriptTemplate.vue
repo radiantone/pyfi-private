@@ -109,7 +109,40 @@
             side
             class="text-blue-grey-8"
           >
-            Run
+            Run All
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="!scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule On
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-close-popup
+          @click="toggleScheduler"
+          v-if="scheduleon"
+        >
+          <q-item-section side>
+            <q-icon name="far fa-clock" />
+          </q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Schedule Off
           </q-item-section>
         </q-item>
         <q-separator />
@@ -258,7 +291,7 @@
         "
       >
         <q-icon
-          name="fab fa-python"
+          :name="obj.icon"
           size="xl"
           color="secondary"
           style="margin-left:-5px;margin-top:-5px"
@@ -346,6 +379,24 @@
         class="buttons"
         style="position: absolute; right: 00px; top: 68px;"
       >
+        <div
+          class="text-secondary"
+          style="margin-right: 15px;"
+          v-if="scheduleon"
+        >
+          <i
+            class="far fa-clock"
+            style="cursor: pointer;"
+          />
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Scheduler On
+          </q-tooltip>
+        </div>
         <div
           class="text-secondary"
           @click="cornerInView"
@@ -454,6 +505,7 @@
                 clickable
                 v-close-popup
                 @click="addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')"
+                v-if="!isUsed('function: ' + func.name)"
               >
                 <q-item-section side>
                   <q-icon name="fab fa-python" />
@@ -496,7 +548,7 @@
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -519,10 +571,9 @@
             icon="fa fa-play"
             size="xs"
             dense
-            v-if="obj.status === 'stopped'"
             flat
             class="edit-name text-secondary"
-            @click="obj.status = 'running'"
+            @click="triggerExecute"
             style="position: absolute; right: 110px; top: -68px; width: 25px; height: 30px;"
           >
             <q-tooltip
@@ -743,12 +794,27 @@
                 Requirements
               </q-item-section>
             </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              @click="showComponent"
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-cube" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Component
+              </q-item-section>
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </div>
     </div>
     <ul
-      v-if="obj.icon === 'fab fa-python' || obj.icon === 'fas fa-plug'"
+      v-if="obj.icon === 'fab fa-python' || obj.icon === 'las la-scroll' || obj.icon === 'fas fa-plug'"
       class="table-columns"
       v-for="column in obj.columns"
       :key="column.id"
@@ -758,26 +824,34 @@
         :style="'background:'+column.background+';border-top: 1px dashed lightgrey'"
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
+        data-port-template="Object"
       >
         <div class="table-column-edit text-primary">
           <div
             class="table-column-edit text-primary"
             style="max-height: 15px; position: absolute; right: 20px; margin-top: -10px;"
           />
-          <i
+          <q-btn
             v-if="column.type !== 'Input' && column.type !== 'Plug' && column.type !== 'Error'"
-            class="fa fa-play table-column-delete-icon"
+            icon="fa fa-play"
+            size="xs"
             title="Trigger Port"
+            flat
+            round
+            dense
             style="margin-right: 5px;"
             @click="executeObject('func:'+column.name.replace('function: ',''))"
           />
-          <i
+          <q-btn
+            icon="fa fa-times"
+            size="xs"
+            itle="Delete Port"
+            flat
+            round
+            dense
             v-if="column.type !== 'Input'"
-            class="fa fa-times table-column-delete-icon"
-            title="Delete Port"
             @click="confirmDeletePort(column.id)"
           />
-
           <i
             v-if="column.data"
             class="fas fa-envelope text-secondary"
@@ -993,11 +1067,10 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Socket</q-item-label>
+              <q-item-label>Delete Plug</q-item-label>
               <q-space />
               <q-icon
                 class="text-primary"
@@ -1016,7 +1089,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this socket?
+            Are you sure you want to delete this plug?
           </span>
         </q-card-section>
 
@@ -1042,6 +1115,70 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog
+      v-model="confirmCodeFetch"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="position: absolute; left: 0px; top: 0px; width: 100%; height: 40px;"
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Fetch Code</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Fetch code from GIT and overwrite current code?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Yes"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="fetchCode"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <!-- Delete dialog -->
     <q-dialog
       v-model="deleteConfirm"
@@ -1060,7 +1197,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1110,10 +1246,6 @@
     </q-dialog>
 
     <!-- Code dialog -->
-    <Console
-      v-if="pythonview && codeview"
-      :codewidth="codewidth"
-    />
     <q-card
       :style="
         'width: ' +
@@ -1124,14 +1256,14 @@
       "
       v-if="codeview"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important; padding-bottom: 10px;">
         <editor
           v-model="obj.code"
           @init="editorInit"
-          style="font-size: 16px; min-height: 600px;"
+          style="font-size: 16px; min-height: 600px; "
           lang="python"
           theme="chrome"
-          ref="myEditor"
+          ref="codeEditor"
           width="100%"
           height="fit"
         />
@@ -1180,7 +1312,8 @@
           class="bg-secondary text-accent"
           color="primary"
           v-close-popup
-          @click="fetchCode"
+          @click="confirmFetch"
+          :disable="!this.obj.usegit"
         >
           <q-tooltip
             anchor="top middle"
@@ -1191,29 +1324,12 @@
             Fetch Code
           </q-tooltip>
         </q-btn>
+
         <q-btn
           style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
           flat
-          icon="fab fa-python"
-          class="bg-accent text-secondary"
-          color="primary"
-          v-close-popup
-          @click="pythonview = !pythonview"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Python Console
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
-          flat
           icon="fas fa-home"
-          class="bg-secondary text-accent"
+          class="bg-primary text-white"
           color="primary"
           v-close-popup
           @click="setZoomLevel"
@@ -1227,31 +1343,30 @@
             Reset Zoom Level
           </q-tooltip>
         </q-btn>
+        <q-select
+          borderless
+          label="Language"
+          stack-label
+          dense="true"
+          style="position: absolute; bottom: 0px; right: 100px; width: 150px; margin: 0px;"
+          v-model="obj.language"
+          :options="languages"
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
-          style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
-          flat
-          label="Close"
-          class="bg-accent text-dark"
-          color="primary"
-          @click="codeview = false"
-          v-close-popup
-        />
-        <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
-          label="Save"
+          label="Close"
           class="bg-secondary text-white"
           color="primary"
-          v-close-popup
-          @click=""
+          @click="codeview=false"
         />
       </q-card-actions>
     </q-card>
 
     <q-card
-      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="requirementsview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -1266,7 +1381,24 @@
           height="fit"
         />
       </q-card-section>
-
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+          flat
+          label="Update"
+          class="bg-primary text-white"
+          color="primary"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Update Packages
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
       <q-card-actions
         align="right"
         style="margin-top: 15px;"
@@ -1426,7 +1558,7 @@
     </q-card>
 
     <q-card
-      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0px;"
+      style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
@@ -1446,7 +1578,7 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="configview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
@@ -1487,7 +1619,7 @@
             >
               <q-tab
                 name="settings"
-                label="Processor"
+                label="General"
               />
               <q-tab
                 name="containersettings"
@@ -1504,6 +1636,10 @@
               <q-tab
                 name="versions"
                 label="Version"
+              />
+              <q-tab
+                name="aitab"
+                label="AI"
               />
             </q-tabs>
             <q-tab-panels v-model="settingstab">
@@ -1524,7 +1660,7 @@
                       filled
                       v-model="obj.name"
                       dense
-                      hint="Processor Name"
+                      hint="Script Name"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1533,7 +1669,7 @@
                       filled
                       v-model="obj.description"
                       dense
-                      hint="Processor Description"
+                      hint="Script Description"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1541,7 +1677,7 @@
                       filled
                       v-model="obj.package"
                       dense
-                      hint="Processor Package"
+                      hint="Script Package"
                       lazy-rules
                       :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                     />
@@ -1581,11 +1717,13 @@
                         v-model="obj.endpoint"
                         label="API"
                         style="margin-left: 40px; margin-right: 50px;"
+                        :disable="!hasHosted"
                       />
                       <q-checkbox
                         v-model="obj.streaming"
                         label="Streaming"
                         style=""
+                        :disable="!hasHosted"
                       />
                     </q-toolbar>
                   </q-form>
@@ -1649,7 +1787,7 @@
                       dense
                       hint="Image Repository"
                       lazy-rules
-                      :disable="!obj.container"
+                      :disable="!hasHosted"
                     />
                     <q-input
                       filled
@@ -1657,13 +1795,31 @@
                       dense
                       hint="Container Image"
                       lazy-rules
-                      :disable="!obj.container"
+                      :disable="!hasHosted"
+                    />
+                    <q-select
+                      filled
+                      dense
+                      v-model="obj.containerimage"
+                      use-input
+                      input-debounce="0"
+                      hint="Prebuilt Images"
+                      :options="containers"
+                      style="width: 250px"
                     />
                   </q-form>
                   <q-toolbar>
                     <q-checkbox
                       v-model="obj.container"
                       label="Containerized"
+                      :disable="!hasHosted"
+                    />
+                    <q-space />
+                    <q-btn
+                      flat
+                      label="Advanced"
+                      class="text-white bg-primary text-primary"
+                      :disable="!hasHosted"
                     />
                   </q-toolbar>
                 </div>
@@ -1683,7 +1839,7 @@
                       dense
                       hint="API Endpoint"
                       lazy-rules
-                      :disable="!obj.endpoint"
+                      :disable="!obj.endpoint || !hasHosted"
                     />
                     <q-input
                       filled
@@ -1691,7 +1847,7 @@
                       dense
                       hint="Websocket URL"
                       lazy-rules
-                      :disable="!obj.streaming"
+                      :disable="!obj.streaming || !hasHosted"
                     />
                   </q-form>
                 </div>
@@ -1709,6 +1865,21 @@
                   />
                 </q-toolbar>
               </q-tab-panel>
+              <q-tab-panel
+                name="aitab"
+                style="padding-top: 0px; padding-bottom: 0px;"
+              >
+                <q-toolbar style="margin-left: 30px;">
+                  <q-checkbox
+                    v-model="obj.envfacts"
+                    label="Add ENV Variables as Facts"
+                  />
+                  <q-checkbox
+                    v-model="obj.infengine"
+                    label="Import Inference Engine"
+                  />
+                </q-toolbar>
+              </q-tab-panel>
             </q-tab-panels>
           </q-tab-panel>
           <q-tab-panel
@@ -1720,6 +1891,7 @@
               hint="Enter CRON Expression"
               placeholder="* * * * *"
               v-model.number="obj.cron"
+              :disable="crontoggle"
             />
             <q-input
               style="width: 100px;"
@@ -1733,32 +1905,14 @@
               label="Beat"
             />
             <q-checkbox
-              v-model="obj.useschedule"
+              v-model="crontoggle"
               style="margin-top: 30px;"
               label="Use CRON"
             />
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-card-actions align="left">
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-          flat
-          label="Save"
-          class="bg-accent text-primary"
-          color="primary"
-          @click="saveProcessor"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Save
-          </q-tooltip>
-        </q-btn>
-      </q-card-actions>
+
       <q-card-actions align="right">
         <q-btn
           flat
@@ -1781,14 +1935,14 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="environmentview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
         <q-table
           dense
           :columns="variablecolumns"
-          :data="variabledata"
+          :data="obj.variabledata"
           row-key="name"
           flat
           style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
@@ -1853,6 +2007,21 @@
           color="primary"
           @click="addVariable"
         />
+
+        <q-checkbox
+          v-model="obj.passenv"
+          label="Pass Environment"
+          style="position: absolute; bottom: 0px; left: 120px;"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Pass Environment Variables to Next Block
+          </q-tooltip>
+        </q-checkbox>
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1922,7 +2091,7 @@
       </q-card-actions>
     </q-card>
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="argumentview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
@@ -1954,7 +2123,7 @@
     </q-card>
 
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="consoleview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 500px;">
@@ -1964,6 +2133,7 @@
         >
           <div v-if="jsonmode">
             <editor
+              v-model="jsonresult"
               @init="jsonEditorInit"
               style="font-size: 1.5em;"
               lang="javascript"
@@ -2006,7 +2176,7 @@
           class="bg-primary text-white"
           color="primary"
           v-close-popup
-          @click="consolelogs = []"
+          @click="clearOutput"
         />
         <q-btn
           flat
@@ -2046,7 +2216,7 @@
       :style="'width:200px;height:300px;z-index:9999;position:absolute;top:' + cardY + 'px;left:' + cardX + 'px'"
     />
     <q-card
-      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; height: 465px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="notesview"
     >
       <q-card-section style="height: 430px; padding: 5px; z-index: 999999; padding-bottom: 10px;">
@@ -2076,7 +2246,7 @@
       </q-card-actions>
     </q-card>
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="logsview"
     >
       <q-tabs
@@ -2096,6 +2266,10 @@
         <q-tab
           name="msglog"
           label="Log"
+        />
+        <q-tab
+          name="errlog"
+          label="Errors"
         />
       </q-tabs>
       <q-tab-panels
@@ -2147,6 +2321,20 @@
             </q-scroll-area>
           </q-card-section>
         </q-tab-panel>
+        <q-tab-panel
+          name="errlog"
+          style="padding: 0px;"
+          ref="errlog"
+        >
+          <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
+            <q-scroll-area style="height:425px;width:auto">
+              <div v-for="log in errlogs">
+                {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;&nbsp;
+                {{ log["message"] }}
+              </div>
+            </q-scroll-area>
+          </q-card-section>
+        </q-tab-panel>
       </q-tab-panels>
 
       <q-card-actions align="right">
@@ -2164,7 +2352,7 @@
 
     <!-- Chart dialog -->
     <q-card
-      style="width: 100%; width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0px;"
+      style="width: 650px; z-index: 999; display: block; position: absolute; right: -655px; top: 0;"
       v-if="dataview"
     >
       <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 400px;">
@@ -2210,7 +2398,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -2270,7 +2457,6 @@
                   >
                     <a
                       class="text-secondary"
-                      @click="showResult(props.row.resultid)"
                     >{{ props.cols[1].value }}</a>
                   </q-td>
                   <q-td
@@ -2279,7 +2465,7 @@
                   >
                     <a
                       class="text-secondary"
-                      @click="showOutput(props.cols[1].value)"
+                      @click="showOutput(JSON.stringify(props.cols[2].value, null, '\t'))"
                     >Output</a>
                   </q-td>
                   <q-td
@@ -2347,16 +2533,6 @@
             </q-inner-loading>
           </template>
         </q-splitter>
-        <q-card-actions align="left">
-          <q-btn
-            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
-            flat
-            icon="refresh"
-            class="bg-secondary text-dark"
-            color="primary"
-            @click="refreshResultsData"
-          />
-        </q-card-actions>
         <q-card-actions align="right">
           <q-btn
             flat
@@ -2380,7 +2556,8 @@
     </q-dialog>
   </div>
 </template>
-<style>
+<style scoped>
+
 .parentBox {
   padding: 0px;
   margin-left: 5px;
@@ -2389,6 +2566,7 @@
 
 .q-item {
   margin-right: 0px;
+  /*padding-left: 0px;*/
 }
 
 .ace-editor {
@@ -2405,14 +2583,24 @@ tbody tr:nth-child(odd) {
 }
 
 .ace_gutter > .ace_layer {
-  background-color: #e3e8ec;
+  background-color: #eaebeb;
+}
+
+.ace_gutter-cell {
+  padding-left: 19px;
+  padding-right: 6px;
+  background-repeat: no-repeat;
+  font-size: 1.2em;
+  width: 0.5em;
+  color: #a3a4a5;
 }
 
 .resizable-content {
 }
 </style>
 <script>
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
@@ -2425,6 +2613,19 @@ import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
 
 import http from 'src/http-common'
+
+const toObject = (map) => {
+  if (!(map instanceof Map)) return map
+  return Object.fromEntries(Array.from(map.entries(), ([k, v]) => {
+    if (v instanceof Array) {
+      return [k, v.map(toObject)]
+    } else if (v instanceof Map) {
+      return [k, toObject(v)]
+    } else {
+      return [k, v]
+    }
+  }))
+}
 
 var Moment = require('moment') // require
 
@@ -2453,6 +2654,7 @@ Copy
 Delete
 
 */
+
 export default {
   name: 'ScriptTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
@@ -2464,7 +2666,7 @@ export default {
   },
   watch: {
     dataview: function (val) {
-      var me = this
+      const me = this
       if (val) {
         setTimeout(() => {
           me.updateBandwidthChart()
@@ -2488,7 +2690,7 @@ export default {
     },
     currentresult: function (val) {
       if (this.$refs.jsonEditor) {
-        this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(val), null, 2))
+        this.jsonresult = JSON.stringify(JSON.parse(val), null, 2)
       }
     },
     inBytes: function (val) {
@@ -2496,7 +2698,7 @@ export default {
     }
   },
   created () {
-    var me = this
+    const me = this
 
     this.plugIcon = mdiPowerSocketUs
     this.braces = mdiCodeBraces
@@ -2519,15 +2721,52 @@ export default {
     })
     this.$on('python.error', (error) => {
       me.getNode().getPorts().forEach((port) => {
-        if (port.data.type === 'Error' && 'error: '+error.function === port.data.name) {
-          me.errorMsg = 'Error in '+error.function
+        if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
+          me.errorMsg = 'Error in ' + error.function
           me.error = true
           me.triggerRoute(port.data.id, error)
         }
       })
     })
+    this.$on('runblock.error', (error) => {
+      me.getNode().getPorts().forEach((port) => {
+        if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
+          me.errorMsg = 'Error in ' + error.function
+          me.error = true
+          me.triggerRoute(port.data.id, error)
+        }
+      })
+    })
+    this.$on('arg.in', (arg) => {
+      if (arg) {
+        console.log('arg.in', arg)
+        try {
+          if (arg instanceof Object) {
+            arg = JSON.stringify(arg)
+          } else if (arg instanceof String) {
 
+          } else {
+            arg = arg.toString()
+          }
+          me.bytes_in += arg.length
+          me.calls_in += 1
+        } catch (e) {
+
+        }
+      }
+    })
+    this.$on('call.completed', (call) => {
+      // TODO: Trigger sequential ports that are satisfied
+      for (const fname in this.portobjects) {
+        console.log('SEQUENCE FUNC', fname)
+      }
+    })
     this.$on('message.received', (msg) => {
+      // console.log('MESSAGE RECEIVED', msg)
+
+      if (msg.type && msg.type === 'trigger') {
+        me.triggerExecute()
+      }
       if (msg.type && msg.type === 'DeploymentModel') {
         console.log('DEPLOYMENT UPDATED')
         me.refreshDeployments(false)
@@ -2536,7 +2775,7 @@ export default {
         if (msg.name === me.obj.name) {
           if (msg.object.receipt > me.obj.receipt) {
             console.log('SCRIPTPROCESSOR: I was updated in DB!', msg)
-            for (var key in me.obj) {
+            for (const key in me.obj) {
               if (key in msg.object && !avoid.includes(key)) {
                 me.obj[key] = msg.object[key]
               }
@@ -2551,21 +2790,42 @@ export default {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
+          window.root.$emit('console.message', new Date(), me.obj, msg.output)
           me.consolelogs = me.consolelogs.slice(0, 100)
           me.task_time = msg.duration
+          const resdate = new Date()
+          if (msg.output === undefined) {
+            debugger
+          }
           tsdb.series('outBytes').insert(
             {
               bytes: msg.output.length
             },
-            Date.now()
+            resdate
           )
-          me.bytes_out_5min.unshift(msg.output.length)
-          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-          me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-          me.bytes_out += msg.output.length
 
-          me.calls_in = msg.output.length
+          const answer = JSON.parse(msg.output)
+
+          const result = {
+            name: msg.function,
+            id: me.resultdata.length,
+            created: resdate,
+            state: 'COMPLETE',
+            lastupdated: resdate,
+            owner: me.$auth.user !== undefined ? me.$auth.user.name : 'guest',
+            size: msg.output.length,
+            output: answer,
+            task_id: uuidv4()
+          }
+          // update resultdata
+          me.resultdata.push(result)
+
+          // me.bytes_out_5min.unshift(msg.output.length)
+          // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+          // me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+          // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+          // me.bytes_out += msg.output.length
+
           me.updateBandwidthChart()
           // update resultdata
 
@@ -2586,11 +2846,31 @@ export default {
         const func = msg.function
         // Find the port for the function
         // Emit result over the port edges
-        for (var key in this.portobjects) {
-          debugger
+        var _plugs = {}
+
+        if (msg.plugs) {
+          _plugs = JSON.parse(msg.plugs)
+        }
+        for (let key in this.portobjects) {
+          const port = this.portobjects[key]
           key = key.replace('func:', '')
-          if (key === func) {
-            me.triggerObject('func:' + key, msg.output)
+          if (_plugs[key] !== undefined) {
+            const plug_data = _plugs[key]
+            if (port.id) {
+              me.triggerRoute(port.id, plug_data, _plugs)
+            }
+          } else {
+            if (key === func) {
+              if (port.id) {
+                const output = JSON.parse(msg.output)
+
+                me.calls_out += 1
+                me.bytes_out += msg.output.length
+                me.bytes_out_5min.unshift(msg.output.length)
+                me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+                me.triggerRoute(port.id, output, _plugs)
+              }
+            }
           }
         }
       }
@@ -2606,8 +2886,9 @@ export default {
         return
       }
 
+      const bytes = JSON.stringify(msg).length
+
       if (msg.channel === 'task' && msg.state) {
-        var bytes = JSON.stringify(msg).length
         window.root.$emit('message.count', 1)
         window.root.$emit('message.size', bytes)
         tsdb.series('inBytes').insert(
@@ -2631,18 +2912,20 @@ export default {
         // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
         me.bytes_in += bytes
 
-        me.calls_in = timedata[0].results.data.length
+        me.calls_in += 1
         me.tasklogs.unshift(msg)
         me.tasklogs = me.tasklogs.slice(0, 100)
       }
       if (msg.channel === 'task' && msg.message) {
         const now = Date.now()
+
         var timedata = tsdb.series('outBytes').query({
           metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
             time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
+
         console.log('TIMEDATA', timedata)
         tsdb.series('outBytes').insert(
           {
@@ -2671,7 +2954,7 @@ export default {
           )
         }
         me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
-        me.calls_out = timedata[0].results.data.length
+        // me.calls_out += 1
         me.resultlogs.unshift(json)
         me.resultlogs = me.resultlogs.slice(0, 100)
       }
@@ -2700,8 +2983,29 @@ export default {
     }, 3000)
   },
   computed: {
+    crontoggle: {
+      get: function () {
+        return this.obj.useschedule
+      },
+      set: function (val) {
+        this.obj.useschedule = val
+        if (val) {
+          this.startSchedule(this.obj.cron)
+        } else {
+          this.stopSchedule()
+        }
+      }
+    },
+    consoleview: {
+      get: function () {
+        return this.obj.consoleview
+      },
+      set: function (val) {
+        this.obj.consoleview = val
+      }
+    },
     myhistory () {
-      var me = this
+      const me = this
 
       var myhist = []
       window.toolkit.undoredo.undoStack.forEach((entry) => {
@@ -2737,7 +3041,16 @@ export default {
     }
   },
   mounted () {
-    var me = this
+    const me = this
+    /*
+    async function load () {
+      const pyodide = await loadPyodide()
+      me.pyodide = pyodide
+    }
+
+    load().then(() => {
+      console.log('PROCESSOR PYODIDE RESULT', me.pyodide.runPython('1 + 2'))
+    }) */
 
     this.setId(this.obj.id)
     console.log('MOUNTED STORE', this.$store)
@@ -2748,11 +3061,13 @@ export default {
     // Execute method on mixed in component, which sends to server using socket.io
     this.sayHello({ name: 'darren', age: 51 })
 
+    this.updateFunctions(this.obj.code)
     setTimeout(() => {
       console.log('ME.getNode()', me.getNode())
       me.getNode().component = this
     }, 3000)
     this.$el.component = this
+
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
       console.log('toggle bandwidth', bandwidth)
       me.obj.bandwidth = bandwidth
@@ -2774,13 +3089,26 @@ export default {
     })
     // window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
-    this.fetchCode()
+    this.fetchCode((code) => {
+      me.updatePorts()
+      me.updateColumns()
+    })
     this.updateBandwidthChart()
     this.updatePorts()
-    this.updateColumns()
+    if (this.crontoggle) {
+      this.startSchedule(this.obj.cron)
+    }
   },
-  data () {
+  data: function () {
     return {
+      languages: ['Python', 'Javascript'],
+      scheduleon: false,
+      containers: [
+        'pyfi/processor:latest',
+        'pyfi/chatgpt:latest'
+      ],
+      jsonresult: '',
+      confirmCodeFetch: false,
       currentresult: '',
       resulttype: 'finished',
       queues: [],
@@ -2849,7 +3177,6 @@ export default {
           align: 'left'
         }
       ],
-      variabledata: [],
       owner: 'darren',
       historycolumns: [
         {
@@ -2887,15 +3214,15 @@ export default {
         },
         {
           name: 'id',
-          label: 'Result',
+          label: 'ID',
           field: 'id',
           align: 'left'
         },
 
         {
-          name: 'id',
+          name: 'output',
           label: 'Output',
-          field: 'id',
+          field: 'output',
           align: 'left'
         },
         {
@@ -2923,9 +3250,9 @@ export default {
           align: 'left'
         },
         {
-          name: 'tracking',
-          label: 'Tracking',
-          field: 'tracking',
+          name: 'size',
+          label: 'Size',
+          field: 'size',
           align: 'left'
         },
         {
@@ -2971,9 +3298,10 @@ export default {
       tab: 'settings',
       error: false,
       tasklogs: [],
-      resultlogs: [],
-      msglogs: [],
       consolelogs: [],
+      resultlogs: [],
+      errlog: [],
+      msglogs: [],
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
@@ -3050,12 +3378,20 @@ export default {
         }
       },
       obj: {
+
+        language: 'Python',
         // Will come from mixed in Script object (vuex state, etc)
-        icon: 'fab fa-python',
+        icon: 'las la-scroll',
         titletab: false,
+        consoleview: false,
+        portcounters: {},
         receipt: new Date(),
         notes: '',
         style: '',
+        variabledata: [],
+        envfacts: true,
+        passenv: false,
+        infengine: true,
         x: 0,
         y: 0,
         version: 'v1.2.2',
@@ -3065,9 +3401,9 @@ export default {
         bandwidth: true,
         requirements: '',
         gittag: '',
-        container: true,
+        container: false,
         imagerepo: 'local',
-        containerimage: 'pyfi/processors:latest',
+        containerimage: 'pyfi/processor:latest',
         environment: '',
         usegit: true,
         enabled: true,
@@ -3097,7 +3433,6 @@ export default {
       text: '',
       configview: false,
       historyview: false,
-      consoleview: false,
       logsview: false,
       requirementsview: false,
       notesview: false,
@@ -3257,16 +3592,6 @@ export default {
           }
         },
         {
-          name: 'Total',
-          bytes: 'totalBytes',
-          time: '5 min',
-          spark: {
-            name: 'readwrite',
-            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
-            value: [200, 390, 310, 460, 675, 410, 250, 240]
-          }
-        },
-        {
           name: 'Out',
           bytes: 'outBytes',
           time: '5 min',
@@ -3274,6 +3599,16 @@ export default {
             name: 'readoutwrite',
             labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
             value: [460, 250, 240, 200, 675, 410, 390, 310]
+          }
+        },
+        {
+          name: 'Total',
+          bytes: 'totalBytes',
+          time: '5 min',
+          spark: {
+            name: 'readwrite',
+            labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
+            value: [200, 390, 310, 460, 675, 410, 250, 240]
           }
         },
         {
@@ -3288,7 +3623,6 @@ export default {
         }
       ],
       codeview: false,
-      pythonview: false,
       gitview: false,
       entityName: '',
       columnName: '',
@@ -3327,22 +3661,42 @@ export default {
     }
   },
   methods: {
+    toggleScheduler () {
+      this.scheduleon = !this.scheduleon
+    },
+    isUsed (portname) {
+      return portname in this.obj.portcounters
+    },
+    showComponent () {
+      window.$router.push({
+        name: 'block',
+        params: { block: this.obj }
+      })
+    },
+    clearOutput () {
+      this.consolelogs = []
+      this.jsonresult = ''
+    },
     setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
     showArgumentData (data) {
-      var me = this
+      const me = this
       this.argumentview = !this.argumentview
-
+      console.log('showArgumentData', data)
       if (this.argumentview) {
         setTimeout(() => {
-          const editor = me.$refs.jsonArgumentEditor.editor
-          editor.session.setValue(JSON.stringify(data))
+          if (me.$refs.jsonArgumentEditor) {
+            const editor = me.$refs.jsonArgumentEditor.editor
+            editor.session.setValue(data)
+          }
         })
       }
     },
     removePort (objid, col) {
       const _port = window.toolkit.getNode(objid).getPort(col)
+      console.log('Removing port ', col, _port.data.name)
+      delete this.obj.portcounters[_port.data.name]
       window.toolkit.removePort(objid, col)
       const fname = _port.data.name.replace('function: ', '')
 
@@ -3356,14 +3710,16 @@ export default {
           }
         }
       }
-      this.argports[col].forEach((portid) => {
-        window.toolkit.removePort(objid, portid)
-      })
+      if (col in this.argports) {
+        this.argports[col].forEach((portid) => {
+          window.toolkit.removePort(objid, portid)
+        })
+        delete this.argports[col]
+      }
       delete this.portobjects[col]
-      delete this.argports[col]
     },
     updatePorts () {
-      var me = this
+      const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE PORTS', node.getPorts())
 
@@ -3376,7 +3732,7 @@ export default {
       })
     },
     updateColumns () {
-      var me = this
+      const me = this
       Object.entries(this.argobjects).forEach((tuple) => {
         const argobject = tuple[1]
         me.obj.columns.forEach((column) => {
@@ -3394,21 +3750,21 @@ export default {
       })
     },
     updateBandwidthChart () {
-      var outBytes = tsdb.series('outBytes').query({
+      const outBytes = tsdb.series('outBytes').query({
         metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
-      var inBytes = tsdb.series('inBytes').query({
+      const inBytes = tsdb.series('inBytes').query({
         metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
-      var durations = tsdb.series('durations').query({
+      const durations = tsdb.series('durations').query({
         metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
           time: { is: '<', than: Date.now() - 60 * 60 }
@@ -3452,7 +3808,10 @@ export default {
       })
     },
     doLogin () {
-      var me = this
+      const me = this
+
+      // TODO: Temp code
+      me.login = false
 
       DataService.loginProcessor(this.obj.id, this.password, this.$store.state.designer.token)
         .then((result) => {
@@ -3463,7 +3822,7 @@ export default {
         })
     },
     addVariable () {
-      this.variabledata.push({
+      this.obj.variabledata.push({
         name: 'NAME',
         value: 'VALUE',
         scope: 'FLOW'
@@ -3473,7 +3832,7 @@ export default {
       window.root.$emit('add.library', this.obj)
     },
     cornerInView () {
-      var node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
         doNotAnimate: true,
@@ -3483,7 +3842,7 @@ export default {
       })
     },
     centerOnNode () {
-      var node = this.toolkit.getNode(this.obj)
+      const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
       window.toolkit.surface.centerOn(node, {
@@ -3499,36 +3858,13 @@ export default {
       console.log('FUNCS2', this.funcs)
       addNewPort({ function: 'function: ' + func.name, args: func.args }, 'Output', 'outlet-icon')
     },
-    showOutput (resultid) {
-      this.resultdataloading = true
-
-      DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(result.data)
-      })
-    },
-    showResult (resultid) {
-      this.resultdataloading = true
-
-      DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
-        this.resultdataloading = false
-
-        const editor = this.$refs.resultEditor.editor
-        editor.session.setValue(JSON.stringify(result.data, null, 2))
-      })
+    showOutput (output) {
+      console.log('showOutput', output)
+      const editor = this.$refs.resultEditor.editor
+      editor.session.setValue(output)
     },
     refreshResultsData () {
-      this.resultloading = true
-      DataService.getCalls(this.obj.name, this.$store.state.designer.token)
-        .then((calls) => {
-          this.resultdata = calls.data
-          this.resultloading = false
-        })
-        .catch((error) => {
-          this.resultloading = false
-        })
+
     },
     showResultsDialog () {
       this.viewResultsDialog = true
@@ -3537,6 +3873,9 @@ export default {
     updateFunctions (data) {
       const re = /def (\w+)\s*\((.*?)\):/g
 
+      if (data === undefined || !(Object.prototype.toString.call(data) === '[object String]')) {
+        return
+      }
       var matches = data.matchAll(re)
 
       this.funcs = []
@@ -3559,36 +3898,45 @@ export default {
         this.funcs.push({ name: name, args: _args })
       }
     },
-    fetchCode () {
-      var me = this
+    fetchCode (callback) {
+      const me = this
+      var url = new URL(this.obj.gitrepo)
+      console.log('FETCHCODE URL ', url)
+      if (this.obj.gitrepo === undefined || this.obj.gitrepo.length === 0 || !this.obj.usegit) {
+        console.log('Criteria not met', this.obj.gitrepo, this.obj.gitrepo.length, this.usegit)
+        return
+      }
+
+      // TODO: Choose branch name
+      var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
+      http.get(codeUrl).then((response) => {
+        console.log('CODE RESPONSE', response)
+
+        me.obj.code = response.data
+        // const re = /(def)\s(\w+)/g;
+        me.updateFunctions(response.data)
+
+        if (this.$refs.codeEditor) {
+          const editor = this.$refs.codeEditor.editor
+
+          if (editor) {
+            editor.session.setValue(me.obj.code)
+            callback(me.obj.code)
+          }
+        }
+      })
+    },
+    confirmFetch () {
       if (this.obj.gitrepo === undefined || this.obj.gitrepo.length == 0) {
         return
       }
-      var url = new URL(this.obj.gitrepo)
-      console.log('FETCHCODE URL ', url)
-      var codeUrl = 'https://raw.githubusercontent.com/' + url.pathname + '/main/' + this.obj.modulepath
-      console.log('CODE', codeUrl)
-      if (this.obj.code === undefined) {
-        http.get(codeUrl).then((response) => {
-          console.log('CODE RESPONSE', response)
-
-          me.obj.code = response.data
-          // const re = /(def)\s(\w+)/g;
-          me.updateFunctions(response.data)
-
-          if (this.$refs.myEditor) {
-            const editor = this.$refs.myEditor.editor
-
-            if (editor) {
-              editor.session.setValue(me.obj.code)
-            }
-          }
-        })
+      if (this.obj.code && this.obj.code.length > 0) {
+        this.confirmCodeFetch = true
       }
     },
     copyNode () {
       function findMatch (list, obj) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
             return true
@@ -3598,7 +3946,7 @@ export default {
       }
 
       function findEdge (list, edge) {
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
             return true
@@ -3608,9 +3956,9 @@ export default {
       }
 
       function haveAllNodes (nodes, edge) {
-        var source = false
-        var target = false
-        for (var i = 0; i < nodes.length; i++) {
+        let source = false
+        let target = false
+        for (let i = 0; i < nodes.length; i++) {
           var node = nodes[i]
           if (edge.source.split('.')[0] === node.id) source = true
           if (edge.target.split('.')[0] === node.id) target = true
@@ -3633,19 +3981,19 @@ export default {
       jsonData.nodes = []
       jsonData.edges = []
       jsonData.ports = []
-      for (var i = 0; i < data.nodes.length; i++) {
+      for (let i = 0; i < data.nodes.length; i++) {
         const n = data.nodes[i]
         if (findMatch(nodes, n)) {
           jsonData.nodes.push(n)
         }
       }
-      for (var i = 0; i < data.edges.length; i++) {
+      for (let i = 0; i < data.edges.length; i++) {
         const e = data.edges[i]
         if (haveAllNodes(jsonData.nodes, e)) {
           jsonData.edges.push(e)
         }
       }
-      for (var i = 0; i < jsonData.nodes.length; i++) {
+      for (let i = 0; i < jsonData.nodes.length; i++) {
         const node = jsonData.nodes[i]
         for (var p = 0; p < data.ports.length; p++) {
           var port = data.ports[p]
@@ -3657,7 +4005,7 @@ export default {
 
       window.clipboard = jsonData
       var nodes = []
-      for (var i = 0; i < window.clipboard.nodes.length; i++) {
+      for (let i = 0; i < window.clipboard.nodes.length; i++) {
         nodes.push(window.toolkit.getNode(window.clipboard.nodes[i].id))
       }
       window.nodes = nodes
@@ -3665,10 +4013,10 @@ export default {
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
     closePortEdit () {
-      editPort = false
+      this.editPort = false
     },
     saveProcessor () {
-      var me = this
+      const me = this
 
       this.refreshing = true
 
@@ -3736,7 +4084,7 @@ export default {
       }
     },
     workerviewSetup () {
-      var me = this
+      const me = this
       setTimeout(() => {
         me.workersLoading = false
       }, 2000)
@@ -3755,24 +4103,35 @@ export default {
       this.requirementsview = false
       this.logsview = false
       this.securityview = false
+
       this[view] = show
       if (this[view + 'Setup']) {
         this[view + 'Setup']()
       }
+      var elems = document.querySelectorAll('.jtk-node')
+
+      elems.forEach((el) => {
+        if (el != this.$el) {
+          el.style['z-index'] = 0
+        }
+      })
+      elems.forEach((el) => {
+        if (el != this.$el && el.jtk && el.jtk.node.getType() === 'border') {
+          console.log('HIDING BORDER')
+          el.style['z-index'] = -9999
+        }
+      })
+      this.$el.style['z-index'] = 99999
 
       if (show) {
         // window.toolkit.surface.setZoom(1.0);
 
-        var node = this.toolkit.getNode(this.obj)
+        const node = this.toolkit.getNode(this.obj)
         if (view === 'historyview') {
           console.log(this.myhistory)
         }
         if (view === 'gitview') {
           this.getCommits()
-        }
-
-        if (this.refreshDeployments) {
-          this.refreshDeployments(true)
         }
       }
     },
@@ -3805,7 +4164,7 @@ export default {
       editor.setAutoScrollEditorIntoView(true)
     },
     reqEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3820,7 +4179,7 @@ export default {
       })
     },
     notesEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3835,7 +4194,7 @@ export default {
       })
     },
     jsonArgumentEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3850,7 +4209,7 @@ export default {
       })
     },
     jsonEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3865,7 +4224,7 @@ export default {
       })
     },
     resultEditorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3880,7 +4239,7 @@ export default {
       })
     },
     editorInit: function () {
-      var me = this
+      const me = this
 
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -3888,8 +4247,13 @@ export default {
       require('brace/mode/less')
       require('brace/theme/chrome')
       require('brace/snippets/javascript') // snippet
-      const editor = this.$refs.myEditor.editor
+      const editor = this.$refs.codeEditor.editor
       editor.setAutoScrollEditorIntoView(true)
+      if (this.obj.usegit) {
+        editor.setReadOnly(true)
+      } else {
+        editor.setReadOnly(false)
+      }
       editor.on('change', function () {
         me.updateFunctions(editor.getValue())
       })
@@ -3922,8 +4286,8 @@ export default {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i]
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        const col = this.obj.columns[i]
         console.log(col)
         if (col.id === column) {
           console.log('Deleted column')
@@ -3934,7 +4298,7 @@ export default {
 
       var edges = window.toolkit.getAllEdges()
 
-      for (var i = 0; i < edges.length; i++) {
+      for (let i = 0; i < edges.length; i++) {
         console.log(edge)
         const edge = edges[i]
         console.log(edge.source.getNode().id, this.obj.id, edge.data.label, column)
@@ -3982,7 +4346,7 @@ export default {
       setTimeout(() => {
         var graph = window.toolkit.getGraph().serialize()
 
-        var schemas = []
+        const schemas = []
 
         graph.nodes.forEach((node) => {
           if (node.type === 'schema') {
@@ -4017,8 +4381,15 @@ export default {
       })
     },
     addNewPort (func, type, icon) {
-      var me = this
+      const me = this
+      const mod = ''
 
+      if (func.function in this.obj.portcounters) {
+        console.log('Function port exists already')
+        return
+      } else {
+        this.obj.portcounters[func.function] = 1
+      }
       var port = this.addPort({
         name: func.function,
         icon: icon,
@@ -4062,9 +4433,14 @@ export default {
       })
     },
     executeObject (portname, data) {
-      var me = this
-      const plugs = "plugs = {'output A':{}}\n"
-      const call = this.portobjects[portname].name.replace('function: ', '')
+      const me = this
+
+      const port = this.portobjects[portname]
+
+      if (port.type !== 'Output') {
+        return
+      }
+      const call = port.name.replace('function: ', '')
       let code = this.obj.code
       code = code + '\n' + call + '()'
 
@@ -4086,31 +4462,50 @@ export default {
           Date.now()
         )
         me.updateBandwidthChart()
+        // TODO: No longer need this, plugs returned explicitly from functions needing them
+        // So check the response for dictionary with "plugs" key
+        // const _plugs = window.pyodide.globals.get('plugs').toJs()
 
-        // update resultdata
+        let _plugs = {}
+        let _result = {}
+        if (res === Object(res)) {
+          answer = Object.fromEntries(res.toJs())
+          if (answer.plus) {
+            _plugs = toObject(answer.plugs)
+          } else {
+            _plugs = []
+          }
 
-        const _plugs = window.pyodide.globals.get('plugs').toJs()
+          if (answer.result) {
+            _result = toObject(answer.result)
+          } else {
+            _result = answer
+          }
+        }
+
         console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
-          debugger
           if (port.data.type === 'Plug') {
-            const plug_result = _plugs.get(port.data.name)
-            me.triggerRoute(port.data.id, plug_result)
+            if (_plugs.hasOwnProperty(port.data.name)) {
+              const plug_result = _plugs.get(port.data.name)
+              console.log('triggerRoute 3:', plug_result)
+              me.triggerRoute(port.data.id, plug_result, {})
+            }
           }
         })
         if (res === Object(res)) {
-          answer = Object.fromEntries(res.toJs())
-          console.log('CODE CALL RESULT', answer)
+          console.log('CODE CALL RESULT', _result, _plugs)
           this.$emit('message.received', {
             type: 'result',
             id: this.obj.id,
             function: call,
-            output: JSON.stringify(answer)
+            output: JSON.stringify(_result)
           })
         }
       }, (error) => {
-        debugger
         console.log('PYTHON ERROR', error)
+        this.error = true
+        this.errorMsg = error.message
       })
     },
     triggerError (portid, error) {
@@ -4120,25 +4515,45 @@ export default {
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
         const code = node.data.code
-        window.root.$emit(target_id, code, options.function, options.name, error)
+
+        // TODO: Insert block JSON here
+        window.root.$emit(target_id, code, options.function, options.name, error, this.obj, edge.target.id)
       })
     },
-    triggerRoute (portid, result) {
+    triggerRoute (portid, result, plugs) {
+      // TODO: If current flow is different from CRON block in another flow, then this fails
       const _port = window.toolkit.getNode(this.obj.id).getPort(portid)
+      console.log('triggerRoute: # edges', this.obj.name, _port.getEdges().length)
       _port.getEdges().forEach((edge) => {
         const options = edge.target.data
         const target_id = edge.target.getNode().data.id
         const node = edge.target.getNode()
+
+        // TODO: Check if the node has code to run or middleware?
         const code = node.data.code
-        window.root.$emit(target_id, code, options.function, options.name, result)
+
+        // TODO: Insert block JSON here
+        console.log('triggerRoute: edge:', edge, target_id)
+
+        // TODO: If passenv set, then pass the variabledata to the next block for it to
+        // set locally to itself before it runs its code
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data)
       })
     },
-    triggerObject (portname, result) {
-      var me = this
+    triggerExecute () {
+      for (var portname in this.portobjects) {
+        this.executeObject(portname)
+      }
+    },
+    triggerObject (portname, result, plugs) {
+      const me = this
+      const reslen = result.toString().length
+      const _result = JSON.parse(result)
+      const _plugs = JSON.parse(plugs)
 
       tsdb.series('outBytes').insert(
         {
-          bytes: result.length
+          bytes: result.toString().length
         },
         Date.now()
       )
@@ -4151,16 +4566,23 @@ export default {
           const target_id = edge.target.getNode().data.id
           const node = edge.target.getNode()
           const code = node.data.code
-          window.root.$emit(target_id, code, options.function, options.name, result)
+          me.calls_out += 1
+          me.bytes_out += reslen
+
+          // TODO: Insert block JSON here
+          console.log('triggerObject: triggerRoute:', target_id)
+          window.root.$emit(target_id, code, options.function, options.name, result, node.data)
         })
+        me.bytes_out_5min.unshift(reslen)
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
 
-        const _plugs = window.pyodide.globals.get('plugs').toJs()
-
-        console.log('_PLUGS', _plugs)
         this.getNode().getPorts().forEach((port) => {
           if (port.data.type === 'Plug') {
-            const plug_result = _plugs.get(port.data.name)
-            me.triggerRoute(port.data.id, plug_result)
+            if (_plugs.hasOwnProperty(port.data.name)) {
+              const plug_result = _plugs[port.data.name]
+              console.log('triggerRoute 4:', plug_result)
+              me.triggerRoute(port.data.id, plug_result, {}) // plugs
+            }
           }
         })
       } else {

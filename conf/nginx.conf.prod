@@ -1,0 +1,208 @@
+#user       www www;  ## Default: nobody
+worker_processes  5;  ## Default: 1
+error_log  logs/error.log;
+pid        logs/nginx.pid;
+worker_rlimit_nofile 8192;
+
+events {
+  worker_connections  4096;  ## Default: 1024
+}
+
+stream {
+        # List of upstream AMQP connections
+        upstream stream_amqp {
+                least_conn;
+                server rabbitmq:5672;
+                server rabbitmq2:5672;
+        }
+
+        # List of upstream STOMP connections
+        upstream stream_stomp {
+                least_conn;
+                server rabbitmq:61613;
+                server rabbitmq2:61613;
+        }
+
+        # AMQP definition
+        server {
+                listen 5672; # the port to listen on this server
+                proxy_pass stream_amqp; # forward traffic to this upstream group
+                proxy_timeout 3s;
+                proxy_connect_timeout 3s;
+        }
+
+        # STOMP definition
+        server {
+                listen 61613; # the port to listen on this server
+                proxy_pass stream_stomp; # forward traffic to this upstream group
+                proxy_timeout 3s;
+                proxy_connect_timeout 3s;
+        }
+}
+
+http {
+  include   conf/mime.types;
+  index     index.html index.htm index.php;
+
+  default_type application/octet-stream;
+  log_format   main '$remote_addr - $remote_user [$time_local]  $status '
+    '"$request" $body_bytes_sent "$http_referer" '
+    '"$http_user_agent" "$http_x_forwarded_for"';
+  access_log   logs/access.log  main;
+  sendfile     on;
+  tcp_nopush   on;
+  server_names_hash_bucket_size 128; # this seems to be required for some vhosts
+
+  server {
+        # listen to the 15672 port on this server
+        listen 15672 default_server;
+
+        # rule on the site root
+        location / {
+            # proxy HTTP request to master node on port 15672
+            proxy_pass http://rabbitmq:15672/;
+        }
+    }
+
+  upstream api_servers {
+    server api:8003;
+  }
+
+  upstream socketio_servers {
+    server clientsocket:3003;
+  }
+
+  server {
+    listen   80;
+    listen   [::]:80;
+
+    server_name www.elasticcode.ai;
+
+    return 301 https://www.elasticcode.ai$request_uri;
+  }
+
+  server {
+    listen   80;
+    listen   [::]:80;
+
+    server_name app.elasticcode.ai;
+
+    return 301 https://app.elasticcode.ai$request_uri;
+  }
+
+  server {
+    listen   443  ssl;
+
+    server_name www.elasticcode.ai;
+
+    client_body_timeout 5s;
+    client_header_timeout 5s;
+
+    client_max_body_size 50m;
+
+
+    ssl_certificate    /etc/nginx/certs/elasticcode.crt;
+    ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
+
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+
+    underscores_in_headers on;
+    proxy_read_timeout 5m;
+
+    if ($http_origin ~* (.*\.elasticcode.ai)) {
+        set $cors "true";
+    }
+
+    location / {
+        proxy_pass http://web/;
+    }
+}
+
+  server {
+    listen   443  ssl;
+
+    server_name api.elasticcode.ai;
+
+    client_body_timeout 5s;
+    client_header_timeout 5s;
+
+    client_max_body_size 50m;
+
+
+    ssl_certificate    /etc/nginx/certs/elasticcode-app.crt;
+    ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
+
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+
+    # if ($http_origin ~* (.*\.elasticcode.ai)) {
+    #    set $cors "true";
+    # }
+
+    access_log   logs/domain1.access.log  main;
+
+    location / {
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+
+      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
+      proxy_pass http://api_servers/;
+      proxy_redirect off;
+    }
+
+    }
+
+  server { 
+    listen   443  ssl;
+
+    server_name app.elasticcode.ai;
+
+    client_body_timeout 5s;
+    client_header_timeout 5s;
+
+    client_max_body_size 50m;
+
+    ssl_certificate    /etc/nginx/certs/elasticcode-app.crt;
+    ssl_certificate_key    /etc/nginx/certs/elasticcode.key;
+
+    access_log /var/log/nginx/nginx.vhost.access.log;
+    error_log /var/log/nginx/nginx.vhost.error.log;
+
+    access_log   logs/domain1.access.log  main;
+    root         /var/share/html;
+
+    location /api {
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_set_header X-NginX-Proxy true;
+
+      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
+      proxy_pass http://api_servers/;
+      proxy_redirect off;
+    }
+
+    location /socket.io/ {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $host;
+
+      proxy_pass http://socketio_servers;
+
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+    }
+
+    location ~ ^/(images|javascript|js|css|fonts|icons||img|js|flash|media|static)/  {
+      add_header Access-Control-Allow-Origin "*.elasticcode.ai";
+      add_header 'Cache-Control' 'no-cache, no-store, must-revalidate';
+      root    /var/share/html;
+      expires 30d;
+    }
+
+  }
+
+}

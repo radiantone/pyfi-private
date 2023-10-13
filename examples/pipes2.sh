@@ -2,9 +2,9 @@
 # $ . examples/pipes2.sh
 #
 
-alias ext.processors.sample.do_something="flow task run -s ext.processors.sample.do_something"
-alias ext.processors.sample.do_this="flow task run -s ext.processors.sample.do_this"
+alias proc1.do_something="flow task run -s proc1.do_something"
+alias proc2.do_this="flow task run -s proc2.do_this"
 
 # Distributed function pipeline
-(ext.processors.sample.do_something -d "$(ext.processors.sample.do_this -d "$(ext.processors.sample.do_something -d '"HI!"')")")
+(proc1.do_something -d "$(proc2.do_this -d "$(proc1.do_something -d '"HI!"')")")
 

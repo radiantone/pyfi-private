@@ -150,7 +150,7 @@ setup(
     packages=['pyfi', 'pyfi.tests', 'pyfi.util', 'pyfi.server', 'pyfi.yaml', 'pyfi.scheduler', 'pyfi.client.user', 'pyfi.config', 'pyfi.client.example', 'pyfi.client.example.api', 'pyfi.client', 'pyfi.api', 'pyfi.api.resource', 'pyfi.api.resource.dto', 'pyfi.server', 'pyfi.worker', 'pyfi.agent',
               'pyfi.blueprints', 'pyfi.util.tasks', 'pyfi.db', 'pyfi.db.postgres', 'pyfi.db.model', 'pyfi.web'],
     include_package_data=True,
-    python_requires=">=3.8.*",
+    python_requires=">=3.10",
     install_requires=[
         'amqp',
         'celery',
@@ -179,6 +179,7 @@ setup(
         'sphinx',
         'rejson',
         # 'simpy',
+        'newrelic',
         'oso',
         'sqlalchemy-oso',
         'pyschedule',

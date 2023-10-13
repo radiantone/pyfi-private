@@ -1,8 +1,11 @@
 <template>
   <div>
-    <q-toolbar class="sidebar node-palette">
+    <q-toolbar
+      class="sidebar node-palette"
+      style="padding:0px"
+    >
       <img
-        src="~assets/images/elasticcode.svg"
+        src="~assets/images/elasticcode.png"
         style="padding-left: 15px; height: 55px; padding-right: 10px;"
       >
       <q-btn
@@ -59,7 +62,7 @@
       <q-btn
         flat
         align="left"
-        icon="img:/images/python.svg"
+        icon="las la-scroll"
         aria-label="Script"
         size="xl"
         id="script"
@@ -73,6 +76,27 @@
           Script
         </q-tooltip>
       </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="icon-processor"
+        aria-label="Processor"
+        size="large"
+        id="processor"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+        :disabled="!hasHosted"
+        title="Upgrade to Hosted Plan"
+      >
+        <!--:disabled="false"-->
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Processor
+        </q-tooltip>
+      </q-btn>
+
       <q-btn
         flat
         align="left"
@@ -90,63 +114,40 @@
           API
         </q-tooltip>
       </q-btn>
-      <q-btn
-        flat
-        align="left"
-        icon="icon-processor"
-        aria-label="Processor"
-        size="large"
-        id="processor"
-        style="min-height: 56px; cursor: grabbing;"
-        class="text-dark text-bold"
-        :disabled="this.sublevel[this.$store.state.designer.subscription] < PRO"
-        title="Upgrade to PRO Plan"
-      >
-        <!--:disabled="false"-->
-        <q-tooltip
-          content-style="font-size: 16px"
-          content-class="bg-black text-white"
-        >
-          Processor
-        </q-tooltip>
-      </q-btn>
 
       <q-btn
         flat
         align="left"
-        icon="icon-port-in"
-        aria-label="Port In"
-        size="large"
-        id="portin"
+        icon="las la-sign-in-alt"
+        aria-label="Label"
+        size="xl"
+        id="queue"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
+        :disabled="!hasPro"
       >
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Port In
+          Queue
         </q-tooltip>
       </q-btn>
       <q-btn
         flat
         align="left"
-        icon="icon-port-out"
-        aria-label="Port Out"
-        id="portout"
-        size="large"
+        icon="las la-redo-alt"
+        aria-label="Loop"
+        size="xl"
+        id="loop"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Port Out
+          Loop
         </q-tooltip>
       </q-btn>
       <q-btn
@@ -164,7 +165,7 @@
         data-node-id="group"
         jtk-is-group="true"
         id="processorgroup"
-        style="min-height: 56px; cursor: grabbing;"
+        style="display:none; min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold sidebar-item"
       >
         <q-tooltip
@@ -174,26 +175,44 @@
           Process Group
         </q-tooltip>
       </q-btn>
-
       <q-btn
         flat
         align="left"
-        icon="alt_route"
-        aria-label="Router"
-        size="large"
-        id="router"
+        icon="las la-filter"
+        aria-label="query"
+        size="xl"
+        id="filter"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
-        title="Upgrade to Developer Plan"
       >
+        <!--:disabled="false"-->
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          Router
+          Filter
         </q-tooltip>
       </q-btn>
+      <!--
+            <q-btn
+              flat
+              align="left"
+              icon="alt_route"
+              aria-label="Router"
+              size="large"
+              id="router"
+              style="min-height: 56px; cursor: grabbing;"
+              class="text-dark text-bold"
+              :disabled="!isProPlan"
+              title="Upgrade to PRO Plan"
+            >
+              <q-tooltip
+                content-style="font-size: 16px"
+                content-class="bg-black text-white"
+              >
+                Router
+              </q-tooltip>
+            </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -203,8 +222,8 @@
         id="database"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
-        :disabled="!isProPlan"
-        title="Upgrade to PRO Plan"
+        :disabled="!hasHosted"
+        title="Upgrade to Hosted Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -213,6 +232,7 @@
           Database
         </q-tooltip>
       </q-btn>
+      <!--
       <q-btn
         flat
         align="left"
@@ -222,6 +242,8 @@
         id="router"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
+        :disabled="!isProPlan"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -229,7 +251,7 @@
         >
           Chart
         </q-tooltip>
-      </q-btn>
+      </q-btn>-->
       <q-btn
         flat
         align="left"
@@ -247,6 +269,83 @@
           Label
         </q-tooltip>
       </q-btn>
+
+      <q-btn
+        flat
+        align="left"
+        :icon="markdown"
+        aria-label="Label"
+        size="xl"
+        id="markdown"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Markdown
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-robot"
+        aria-label="Label"
+        size="xl"
+        id="chatgpt"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          ChatGPT
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-code"
+        aria-label="Label"
+        size="xl"
+        id="lambda"
+        style="display:none;min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Lambda Function
+        </q-tooltip>
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Lambda
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-brain"
+        aria-label="Label"
+        size="xl"
+        id="inference"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+        :disabled="!hasPro"
+      >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Inference
+        </q-tooltip>
+      </q-btn>
+
       <q-btn
         flat
         align="left"
@@ -274,6 +373,8 @@
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openLibrary"
+        :disabled="!hasPro"
+        title="Upgrade to PRO Plan"
       >
         <q-tooltip
           content-style="font-size: 16px"
@@ -285,113 +386,134 @@
       <q-btn
         flat
         align="left"
-        icon="las la-comment"
         aria-label="AI Buddy"
         size="xl"
         id="chat"
         style="min-height: 56px; cursor: grabbing;"
         class="text-dark text-bold"
         @click="openChat"
+        title="Python Tools"
+      >
+        <img
+          src="~assets/images/python.svg"
+          style="width:40px;min-width:40px"
+        >
+        <q-tooltip
+          content-style="font-size: 16px"
+          content-class="bg-black text-white"
+        >
+          Python Tools
+        </q-tooltip>
+      </q-btn>
+      <q-btn
+        flat
+        align="left"
+        icon="las la-ellipsis-h"
+        aria-label="Elipsis"
+        size="large"
+        id="openblocks"
+        style="min-height: 56px; cursor: grabbing;"
+        class="text-dark text-bold"
+        @click="openBlocks"
       >
         <q-tooltip
           content-style="font-size: 16px"
           content-class="bg-black text-white"
         >
-          AI Coding Buddy
+          More Blocks
         </q-tooltip>
       </q-btn>
+      <q-item-label class="text-secondary">
+        BETA SOFTWARE
+      </q-item-label>
       <q-space />
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
-          :disabled="!hasEnterprise()"
-        >Nodes:</a>
-        <span class="text-dark">{{ nodes }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-        :disabled="false"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Agents', agentStatsColumns,'agents')"
-          :disabled="!hasEnterprise()"
-        >Agents:</a>
-        <span class="text-dark">{{ agents }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Queues', queueStatsColumns,'queues')"
-          :disabled="!hasEnterprise()"
-        >Queues:</a>
-        <span class="text-dark">{{ queues }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Processors', procStatsColumns, 'processors')"
-          :disabled="!hasEnterprise()"
-        >Processors:</a>
-        <span class="text-dark">{{ processors }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Deployments', deployStatsColumns, 'deployments')"
-          :disabled="!hasEnterprise()"
-        >Deployments:</a>
-        <span class="text-dark">{{ deployments }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('CPUs', workerStatsColumns, 'workers')"
-          :disabled="!hasEnterprise()"
-        >CPUS:</a>
-        <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
-      </q-item-label>
-      <q-item-label
-        class="text-secondary"
-        style="margin-top: 40px; margin-right: 20px;"
-      >
-        <a
-          class="link-hover"
-          href="#"
-          @click="showStats('Tasks', taskStatsColumns, 'tasks')"
-          :disabled="!hasEnterprise()"
-        >Tasks:</a>
-        <span class="text-dark">{{ tasks }}</span>
-      </q-item-label>
+      <q-toolbar v-if="$auth.isAuthenticated && hasHosted">
+        <q-space />
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Nodes', nodeStatsColumns, 'nodes')"
+          >Nodes:</a>
+          <span class="text-dark">{{ nodes }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+          :disabled="false"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Agents', agentStatsColumns,'agents')"
+          >Agents:</a>
+          <span class="text-dark">{{ agents }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Queues', queueStatsColumns,'queues')"
+          >Queues:</a>
+          <span class="text-dark">{{ queues }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Processors', procStatsColumns, 'processors')"
+          >Processors:</a>
+          <span class="text-dark">{{ processors }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Deployments', deployStatsColumns, 'deployments')"
+          >Deployments:</a>
+          <span class="text-dark">{{ deployments }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('CPUs', workerStatsColumns, 'workers')"
+          >CPUS:</a>
+          <span class="text-dark">{{ cpus_running }}/{{ cpus_total }}</span>
+        </q-item-label>
+        <q-item-label
+          class="text-secondary"
+          style="margin-top: 40px; margin-right: 20px;"
+        >
+          <a
+            class="link-hover"
+            href="#"
+            @click="showStats('Tasks', taskStatsColumns, 'tasks')"
+          >Tasks:</a>
+          <span class="text-dark">{{ tasks }}</span>
+        </q-item-label>
+      </q-toolbar>
       <q-item-label
         class="text-secondary"
         style="margin-top: 40px;white-space: nowrap;"
-          :disabled="!hasEnterprise()"
+        v-if="$auth.isAuthenticated && hasHosted"
       >
-        System Usage:
+        System Load:
       </q-item-label>
       <apexchart
         type="bar"
@@ -399,11 +521,12 @@
         width="100"
         :options="chartOptions"
         :series="series"
-        style="margin-right: 80px;"
+        style="margin-right: 280px;"
+        v-if="$auth.isAuthenticated && hasHosted"
       />
       <q-item-label
         class="text-accent"
-        style="white-space: nowrap;margin-top:40px;margin-right: 20px;"
+        style="white-space: nowrap;margin-top:40px;margin-right: -190px;"
       >
         {{ this.subscriptions[this.$store.state.designer.subscription] }}
       </q-item-label>
@@ -458,9 +581,10 @@
               clickable
               v-close-popup
               @click="newQueue"
+              disabled
             >
               <q-item-section side>
-                <q-icon name="far fa-envelope" />
+                <q-icon name="fas fa-sign-in-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -471,125 +595,90 @@
             </q-item>
 
             <q-separator />
+
             <q-item
               clickable
               v-close-popup
+              @click="updateObjects"
             >
               <q-item-section side>
-                <q-icon name="fas fa-table" />
+                <q-icon name="fas fa-refresh" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Summary
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-calculator" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Counters
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-              @click="loadPython"
-            >
-              <q-item-section side>
-                <q-icon name="fab fa-python" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Load Python
+                Refresh
               </q-item-section>
             </q-item>
             <q-separator />
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
-                <q-icon name="far fa-sticky-note" />
+                <q-icon name="fab fa-docker" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Bulletin Board
+                Containers
               </q-item-section>
             </q-item>
             <q-item
               clickable
               v-close-popup
+              :disabled="!this.$auth.isAuthenticated"
             >
               <q-item-section side>
-                <q-icon name="fas fa-database" />
+                <q-icon name="fas fa-cog" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Data Provenance
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-wrench" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Controller Settings
+                Configure
               </q-item-section>
             </q-item>
             <q-separator />
             <q-item
               clickable
               v-close-popup
+              disabled
             >
               <q-item-section side>
-                <q-icon name="fas fa-list-alt" />
+                <q-icon name="fas fa-users" />
               </q-item-section>
               <q-item-section
                 side
                 class="text-blue-grey-8"
               >
-                Parameter Contexts
+                Manage Groups
+              </q-item-section>
+            </q-item>
+
+            <q-item
+              clickable
+              v-close-popup
+              disabled
+            >
+              <q-item-section side>
+                <q-icon name="fas fa-user" />
+              </q-item-section>
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
+                Manage Users
               </q-item-section>
             </q-item>
             <q-separator />
             <q-item
               clickable
               v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fa fa-history" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Flow Configuration History
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
+              disabled
             >
               <q-item-section side>
                 <q-icon name="fa fa-area-chart" />
@@ -598,28 +687,15 @@
                 side
                 class="text-blue-grey-8"
               >
-                Node Status History
-              </q-item-section>
-            </q-item>
-            <q-item
-              clickable
-              v-close-popup
-            >
-              <q-item-section side>
-                <q-icon name="fas fa-project-diagram" />
-              </q-item-section>
-              <q-item-section
-                side
-                class="text-blue-grey-8"
-              >
-                Templates
+                Server History
               </q-item-section>
             </q-item>
             <q-separator />
             <q-item
               clickable
               v-close-popup
-              @click="$router.push('/profile')"
+              :disabled="!this.$auth.isAuthenticated"
+              @click="showProfile"
             >
               <q-item-section side>
                 <q-icon name="fas fa-user" />
@@ -672,6 +748,7 @@
               <q-item-section
                 side
                 class="text-blue-grey-8"
+                @click="showAboutDialog=true"
               >
                 About
               </q-item-section>
@@ -746,15 +823,185 @@
         </q-inner-loading>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showAboutDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>
+                <i
+                  class="fas fa-info"
+                  style="margin-right:20px"
+                />About ElasticCode
+              </q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="showAboutDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="margin-top:30px"
+        >
+          <b>Build ID</b>: <a
+            :href="buildUrl"
+            target="build"
+          >{{ commit.substring(0, 7) }}</a>
+        </q-card-section>
+
+        <q-card-section
+          class="row items-center"
+        >
+          <b>Build Date</b>: {{ buildDate }}
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showProfileDialog"
+      persistent
+    >
+      <q-card style="width:800px;height:500px;padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>
+                <i
+                  class="fas fa-user"
+                  style="margin-right:20px"
+                />Your Profile
+              </q-item-label>
+              <q-space />
+              <q-btn
+                class="text-primary"
+                flat
+                dense
+                round
+                size="sm"
+                icon="fas fa-close"
+                @click="showProfileDialog = false"
+                style="z-index: 10;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;margin-top:20px"
+        >
+          <q-icon
+            name="fas fa-user"
+            color="primary"
+            style="font-size:5em"
+          />
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+          <span style="font-size:2em">{{ $auth.user ? $auth.user.nickname : '' }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+          <span><b>Name</b>: {{ $auth.user ? $auth.user.name : '' }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+          <span><b>Email</b>: {{ $auth.user ? $auth.user.email : '' }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+          <span><b>Verified</b>: {{ $auth.user ? $auth.user.email_verified : '' }}</span>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+        >
+          <span><b>Last Updated</b>: {{ $auth.user ? $auth.user.updated_at : '' }}</span>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            @click="showProfileDialog = false"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 <style scoped>
 .my-custom-toggle {
   border: 1px solid #6b8791;
 }
+
 .apexcharts-tooltip {
   background: black;
-  color: white;
+  color: black;
 }
 
 .link-hover:hover {
@@ -764,28 +1011,52 @@
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { mdiCodeBraces } from '@mdi/js'
-import { mdiBorderNoneVariant } from '@mdi/js';
-import DataService from './util/DataService'
+import { mdiBorderNoneVariant } from '@mdi/js'
+import { mdiLanguagePython } from '@mdi/js'
+import { mdiLanguageMarkdownOutline } from '@mdi/js'
+import { ref } from '@vue/composition-api'
 
+import DataService from './util/DataService'
 
 export default {
   name: 'ToolPalette',
   props: ['nodes', 'agents', 'queues', 'processors', 'tasks', 'deployments', 'cpus_total', 'cpus_running'],
+  setup () {
+
+  },
   created () {
     this.braces = mdiCodeBraces
     this.border = mdiBorderNoneVariant
+    this.python = mdiLanguagePython
+    this.markdown = mdiLanguageMarkdownOutline
   },
   mounted () {
     const me = this
+
+    window.$router = this.$router
 
     console.log('TOOLPALETTE STORE', this.$store)
     this.$root.$on('show.objects', (objects) => {
       console.log('show.objects ', objects)
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      me.showStats(objects.name, objects.columns, objects.objects)
+      me.showStats(objects.name, objects.columns, objects.objects, objects.stats)
     })
   },
   computed: {
+    hasHosted () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
+    hasPro () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
+      } else {
+        return false
+      }
+    }
   },
   watch: {
     '$store.state.designer.subscription': function (sub) {
@@ -793,26 +1064,37 @@ export default {
     }
   },
   methods: {
+    system_usage (usage) {
+      this.series = [
+        {
+          data: usage
+        }
+      ]
+    },
+    setCommit (commit, buildDate, buildUrl, repoUrl) {
+      this.commit = commit
+      this.buildDate = buildDate
+      this.buildUrl = buildUrl
+      this.repoUrl = repoUrl
+    },
     hasEnterprise () {
-      if (this.$store.state.designer.subscription) {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
       } else {
         return false
       }
     },
     showProfile () {
-
+      console.log(this.$auth.user)
+      this.showProfileDialog = this.$auth.isAuthenticated
     },
     logout () {
-      this.$auth.logout({ returnTo: '/logout' })
+      DataService.logout(this.$store.state.designer.token).then(this.$auth.logout({ returnTo: '/logout' }))
     },
     login () {
       this.$root.$emit('login')
     },
-    showStats (name, columns, objects) {
-      if(!this.hasEnterprise()) {
-        return
-      }
+    showStats (name, columns, objects, stats) {
       const me = this
       if (this.false) {
         return
@@ -822,14 +1104,26 @@ export default {
       this.viewStatsLoader = true
       this.viewStatsDialog = true
       me.viewStatsData = []
-      DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
-        me.viewStatsData = response.data
-        console.log(name + ' STATS:', response.data)
-        me.viewStatsLoader = false
-      }).catch((error) => {
-        me.notifyMessage('dark', 'error', 'Something went wrong')
-        me.viewStatsLoader = false
-      })
+
+      if (stats) {
+        DataService.getStats(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      } else {
+        DataService.getObjects(objects, this.$store.state.designer.token).then((response) => {
+          me.viewStatsData = response.data
+          console.log(name + ' STATS:', response.data)
+          me.viewStatsLoader = false
+        }).catch((error) => {
+          me.notifyMessage('dark', 'error', 'Something went wrong')
+          me.viewStatsLoader = false
+        })
+      }
     },
 
     notifyMessage (color, icon, message) {
@@ -844,9 +1138,19 @@ export default {
     loadPython () {
       const head = document.getElementById('head')
       const script = document.createElement('script')
-      script.setAttribute('src', 'https://pyscript.net/alpha/pyscript.js')
+      const style = document.createElement('link')
+      style.setAttribute('href', 'https://pyscript.net/latest/pyscript.css')
+      style.setAttribute('rel', 'stylesheet')
+      script.setAttribute('src', 'https://pyscript.net/latest/pyscript.js')
       script.setAttribute('type', 'application/javascript')
+      head.appendChild(style)
       head.appendChild(script)
+    },
+    updateObjects () {
+      this.$root.$emit('update.objects')
+    },
+    openBlocks () {
+      this.$root.$emit('open.blocks')
     },
     openChat () {
       this.$root.$emit('open.chat')
@@ -876,16 +1180,26 @@ export default {
       FREE: 1,
       DEVELOPER: 2,
       PRO: 3,
+      HOSTED: 4,
+      ENTERPRISE: 5,
       subscriptions: {
-        'ec_developer-USD-Monthly': 'Developer'
+        'ec_developer-USD-Monthly': 'Developer',
+        'ec_hosted-USD-Yearly': 'Hosted',
+        'ec_free-USD-Monthly': 'Free'
       },
+      buildDate: 'N/A',
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
+        'ec_free-USD-Monthly': 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
+      showProfileDialog: false,
+      showAboutDialog: false,
       viewStatsLoader: false,
+      commit: '',
       deployStatsColumns: [
         {
           name: 'name',
@@ -1249,10 +1563,11 @@ export default {
           x: {
             show: false
           },
+          theme: 'dark',
           y: {
             title: {
               formatter: function (seriesName) {
-                return 'Value'
+                return 'Load'
               }
             }
           },

@@ -52,6 +52,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
+      sourceMap: true,
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       env: {
         VERSION: 'v1.0.0 Free Version'
@@ -71,10 +72,11 @@ module.exports = configure(function (ctx) {
 
       // Options below are automatically set depending on the env, set them if you want to override
       // extractCSS: false,
-
+      sourceMap: true,
       // https://quasar.dev/quasar-cli/handling-webpack
       extendWebpack (cfg) {
         // linting is slow in TS projects, we execute it only for production builds
+        /* uncomment after fixing all the lint errors
         if (ctx.prod) {
           cfg.module.rules.push({
             enforce: 'pre',
@@ -82,10 +84,9 @@ module.exports = configure(function (ctx) {
             loader: 'eslint-loader',
             exclude: /node_modules/
           })
-        }
+        } */
       }
     },
-
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,
@@ -113,6 +114,7 @@ module.exports = configure(function (ctx) {
             protocol: 'http:',
             port: 3003
           },
+          ws: true,
           changeOrigin: true
         }
       },
@@ -180,9 +182,9 @@ module.exports = configure(function (ctx) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: 'Lambda Flow',
-        short_name: 'Flow',
-        description: 'A Quasar Framework app',
+        name: 'ElasticCode.AI',
+        short_name: 'ElasticCode',
+        description: 'A building-blocks platform',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',

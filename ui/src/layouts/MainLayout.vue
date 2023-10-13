@@ -12,7 +12,6 @@
     <q-header elevated>
       <ToolPalette
         v-if="tools === 'code'"
-        :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
         :nodes="this.stats.nodes"
@@ -23,10 +22,10 @@
         :cpus_total="this.stats.cpus_total"
         :deployments="this.stats.deployments"
         :cpus_running="this.stats.cpus_running"
+        ref="toolPalette"
       />
       <ModelToolPalette
         v-if="tools === 'model'"
-        :data-generator="dataGenerator"
         surface-id="flow1"
         selector="[data-node-type]"
       />
@@ -43,7 +42,7 @@
           icon="fa fa-list"
           label="0"
           @click="showStats('Statistics Table', 'statstable')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -61,7 +60,7 @@
           icon="fa fa-bullseye"
           :label="transmittedSize"
           @click="showStats('Data Transmitted', 'datatransmitted')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -79,7 +78,7 @@
           icon="fas fa-satellite-dish"
           :label="messageCount"
           @click="showStats('Messages Transmitted', 'messagestransmitted')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -97,7 +96,7 @@
           icon="las la-play"
           :label="stats.processors_starting"
           @click="showStats('Starting Processors', 'startingprocessors')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -115,7 +114,7 @@
           icon="fa fa-play"
           :label="stats.processors_running"
           @click="showStats('Running Processors', 'runningprocessors')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -133,7 +132,7 @@
           icon="fa fa-stop"
           :label="stats.processors_stopped"
           @click="showStats('Stopped Processors', 'stoppedprocessors')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -151,7 +150,7 @@
           icon="fa fa-warning invalid"
           :label="stats.processors_errored"
           @click="showStats('Errored Processors', 'erroredprocessors')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -169,7 +168,7 @@
           :icon="mdiEmailFast"
           :label="queuedTasks"
           @click="showStats('Queued Tasks', 'queuedtasks')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -187,7 +186,7 @@
           :icon="mdiEmailAlert"
           :label="stats.tasks_failure"
           @click="showStats('Errored Tasks', 'erroredtasks')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -205,7 +204,7 @@
           :icon="mdiEmailCheck"
           :label="stats.tasks_success"
           @click="showStats('Completed Tasks', 'completedtasks')"
-          :disabled="!hasEnterprise()"
+          :disable="!hasHosted"
         >
           <q-tooltip
             content-style="font-size: 16px"
@@ -237,7 +236,7 @@
             { icon: 'fa fa-database', value: 'model' },
             { icon: 'fab fa-python', value: 'code' },
           ]"
-          :disabled="getVersion() === 'FREE'"
+          :disable="getVersion() === 'FREE'"
         >
         <template #one>
           <div style="font-size: 0.5em; margin-left: 20px;">
@@ -370,6 +369,22 @@
             style="position: absolute; right:-15px;top:5px"
           />-->
             </q-tab>
+            <q-btn
+              flat
+              dense
+              size="md"
+              icon="las la-plus"
+              color="dark"
+              @click="addNewFlow"
+            >
+              <q-tooltip
+                content-class=""
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                Add New Flow
+              </q-tooltip>
+            </q-btn>
           </q-tabs>
           <q-btn
             flat
@@ -390,6 +405,25 @@
             dense
             class="bg-primary"
             align="left"
+            v-if="false"
+            narrow-indicator
+            active-color="dark"
+            indicator-color="primary"
+            active-bg-color="accent"
+          >
+            <q-tab
+              name="console"
+              class="text-dark"
+              icon="las la-book"
+              label="Tutorial"
+              style="font-size:16px"
+            />
+          </q-tabs>
+          <q-tabs
+            v-model="drawertab"
+            dense
+            class="bg-primary"
+            align="left"
             @input="tabChanged"
             narrow-indicator
             active-color="dark"
@@ -397,30 +431,70 @@
             active-bg-color="accent"
           >
             <q-tab
+              name="console"
+              class="text-dark"
+              icon="las la-terminal"
+              label="Console"
+              style="font-size:16px"
+            />
+            <q-tab
               name="messages"
               class="text-dark"
+              icon="las la-envelope"
               label="Messages"
+              style="font-size:16px"
             />
             <q-tab
               name="queues"
               class="text-dark"
+              icon="input"
               label="Queues"
+              style="font-size:16px"
             />
             <q-tab
               name="monitor"
               class="text-dark"
+              icon="las la-desktop"
               label="Monitor"
+              style="font-size:16px"
+              disable
             />
             <q-tab
               name="error"
               class="text-dark"
+              icon="las la-exclamation"
               label="Errors"
+              style="font-size:16px"
+              disable
             />
           </q-tabs>
           <q-tab-panels
             v-model="drawertab"
             keep-alive
           >
+            <q-tab-panel
+              name="console"
+              ref="console"
+              style="padding: 0px; width: 100%; padding-top: 0px; height: calc(100vh - 170px);"
+            >
+              <q-scroll-area style="padding:10px; height: calc(100vh - 240px); width: 100%;">
+                <div v-for="log in consolelog">
+                  <span style="font-weight:bold">{{ log.name }}:</span><span>{{ log.date }}</span>
+                  <pre>{{ log.msg }}</pre>
+                </div>
+              </q-scroll-area>
+              <q-toolbar style="padding:20px">
+                <q-space />
+                <q-btn
+                  flat
+                  dense
+                  color="secondary"
+                  @click="consolelog=[]"
+                >
+                  Clear
+                </q-btn>
+              </q-toolbar>
+            </q-tab-panel>
             <q-tab-panel
               name="messages"
               ref="messages"
@@ -816,49 +890,275 @@
       :width="750"
       style="overflow: hidden;"
     >
-      <q-toolbar
-        class="bg-accent"
-        style="padding: 0px; padding-left: 10px;"
+      <q-tabs
+        v-model="pythontabs"
+        dense
+        class="bg-primary"
+        align="left"
+        narrow-indicator
+        active-color="dark"
+        indicator-color="primary"
+        active-bg-color="accent"
       >
-        <q-item-label
-          style="
+        <q-tab
+          name="pythonconsole"
+          label="Scratchpad"
+        />
+        <q-tab
+          name="chatconsole"
+          label="AI Coder"
+        />
+      </q-tabs>
+
+      <q-tab-panels
+        v-model="pythontabs"
+        keep-alive
+      >
+        <q-tab-panel
+          name="pythonconsole"
+          style="padding: 0px;"
+          ref="pythonconsole"
+        >
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated"
+            style="z-index:9999"
+          >
+            <q-item-label>Not Logged In</q-item-label>
+          </q-inner-loading><Console />
+        </q-tab-panel>
+        <q-tab-panel
+          name="chatconsole"
+          style="padding: 0px;"
+          ref="chatconsole"
+        >
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated || !isProPlan"
+            style="z-index:9999"
+          >
+            <q-item-label v-if="!$auth.isAuthenticated">
+              Not Logged In
+            </q-item-label>
+            <q-item-label v-if="$auth.isAuthenticated || !isProPlan">
+              Upgrade to Pro Plan
+            </q-item-label>
+          </q-inner-loading>
+          <q-toolbar
+            class="bg-accent"
+            style="padding: 0px; padding-left: 10px;"
+          >
+            <q-item-label
+              style="
               font-size: 1.5em;
               font-family: 'Indie Flower', cursive;
               margin-top: 5px;
               margin-right: 1em;
             "
+            >
+              AI Coding Buddy
+            </q-item-label>
+          </q-toolbar>
+          <q-input
+            v-model="question"
+            label="Hi! Ask me anything...I can even write code!"
+            style="width:100%;padding:10px;resize: none !important;"
+            type="textarea"
+          />
+          <q-toolbar>
+            <q-space />
+            <q-btn
+              label="Go!"
+              color="secondary"
+              @click="sendChat"
+              style="margin-right:30px;margin-bottom:30px"
+            />
+          </q-toolbar>
+          <q-separator />
+          <q-scroll-area style="height:calc(100vh - 420px);">
+            <q-markdown :src="answer" />
+            <q-inner-loading
+              :showing="loadingchat"
+              style="z-index: 9999999;"
+            >
+              <q-spinner-gears
+                size="50px"
+                color="primary"
+              />
+            </q-inner-loading>
+          </q-scroll-area>
+        </q-tab-panel>
+      </q-tab-panels>
+    </q-drawer>
+    <q-drawer
+      v-model="blocksdrawer"
+      side="right"
+      bordered
+      :width="750"
+      style="overflow: hidden;"
+    >
+      <q-tabs
+        v-model="blockstabs"
+        dense
+        class="bg-primary"
+        align="left"
+        narrow-indicator
+        active-color="dark"
+        indicator-color="primary"
+        active-bg-color="accent"
+        color="accent"
+      >
+        <q-tab
+          name="blocksregistry"
+          label="Blocks"
+          icon="las la-cube"
+          class="text-dark"
+        />
+        <q-tab
+          name="blockspublic"
+          label="Public"
+          icon="las la-globe"
+          class="text-dark"
+        />
+        <q-tab
+          name="blocksmine"
+          label="Private"
+          icon="las la-user"
+          class="text-dark"
+        />
+      </q-tabs>
+
+      <q-tab-panels
+        v-model="blockstabs"
+        keep-alive
+      >
+        <q-tab-panel
+          name="blocksregistry"
+          style="display: grid;grid-gap: 10px;grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));justify-content: space-around;padding:10px"
+          ref="blocksregistry"
         >
-          AI Coding Buddy
+          <q-btn
+            flat
+            v-for="block in blocks"
+            color="secondary"
+            :key="block.data.id"
+            :icon="block.data.node.icon"
+            class="brightness text-primary"
+            :id="'block'+block.data.id"
+            style="cursor:pointer;font-size:2em;border-radius: 10px; border: 1px lightgrey solid; padding:20px"
+            @click="showBlock(block.data.node)"
+            :disable="block.disabled"
+          >
+            <div style="font-size:18px;font-family: arial">
+              {{ block.data.node.name }}
+            </div>
+          </q-btn>
+          <q-inner-loading
+            :showing="true"
+            v-if="!$auth.isAuthenticated"
+            style="z-index:9999"
+          >
+            <q-item-label>Not Logged In</q-item-label>
+          </q-inner-loading>
+        </q-tab-panel>
+      </q-tab-panels>
+    </q-drawer>
+    <q-drawer
+      v-model="blockdrawer"
+      side="right"
+      bordered
+      :width="650"
+      style="overflow: hidden;padding-top:35px"
+    >
+      <q-toolbar
+        class="bg-primary text-dark"
+        style="padding:5px"
+      >
+        <q-icon
+          :name="blockshown.icon"
+          style="font-size:2em;margin-right:10px"
+        />
+        <q-item-label
+          style="
+            font-size: 2em;
+            font-style: italic;
+            margin-top: 5px;
+            margin-right: 1em"
+        >
+          {{ blockshown.name }}
         </q-item-label>
-      </q-toolbar>
-      <q-input
-        v-model="question"
-        label="Hi! Ask me anything...I can even write code!"
-        style="width:100%;padding:10px;resize: none !important;"
-        type="textarea"
-      />
-      <q-toolbar>
         <q-space />
         <q-btn
-          label="Go!"
+          dense
+          flat
+          size="md"
           color="secondary"
-          @click="sendChat"
-          style="margin-right:30px;margin-bottom:30px"
+          icon="close"
+          @click="blockdrawer=false"
         />
       </q-toolbar>
-      <q-separator />
-      <q-scroll-area style="height:calc(100vh - 420px);">
-        <q-markdown :src="answer" />
-        <q-inner-loading
-          :showing="loadingchat"
-          style="z-index: 9999999;"
+      <div style="padding:20px;">
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 5px;
+            margin-right: 1em"
+        >Description</span>
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
         >
-          <q-spinner-gears
-            size="50px"
-            color="primary"
-          />
-        </q-inner-loading>
-      </q-scroll-area>
+          {{ blockshown.description }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Package</span>
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
+          {{ blockshown.package }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Version</span>
+        <p
+          class="text-secondary"
+          style="margin-left:20px;margin-bottom:25px"
+        >
+          {{ blockshown.version }}
+        </p>
+        <span
+          style="
+            font-size: 1.5em;
+            font-family: 'Indie Flower', cursive;
+            margin-top: 25px;
+            margin-right: 1em"
+        >Container</span>
+        <div style="padding-left: 25px">
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
+            Container: {{ blockshown.container }}
+          </p>
+          <p
+            class="text-secondary"
+            style="margin-left:20px;margin-bottom:25px"
+          >
+            Container Image: {{ blockshown.containerimage }}
+          </p>
+        </div>
+      </div>
     </q-drawer>
     <q-drawer
       v-model="librarydrawer"
@@ -888,7 +1188,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -935,7 +1234,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -954,325 +1252,346 @@
             </q-toolbar>
           </div>
         </q-card-section>
-        <table
-          style="width:100%;"
-          cellpadding="10px"
-        >
-          <thead>
+
+        <q-scroll-area style="height: calc(100% - 20px); width: 100%;">
+          <table
+            style="width:100%;"
+            cellpadding="10px"
+          >
+            <thead style="font-weight: bold">
+              <tr>
+                <td />
+                <td>Guest</td>
+                <td>Free</td>
+                <td>Developer</td>
+                <td>Pro</td>
+                <td>Hosted</td>
+                <td>Enterprise</td>
+              </tr>
+            </thead>
+            <tr style="background-color: rgb(244, 246, 247) !important; border-top: 1px solid black">
+              <td>
+                Execute Data Flows <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Execute Data Flows')"
+                />
+              </td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Browser Execution <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Browser Execution')"
+                />
+              </td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Save Data Flows <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Save Data Flows')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                GIT Integration <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('GIT Integration')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Generate Code <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Generate Code')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                REST API <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('REST API')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                AI Assistant <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('AI Assistant')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Script Library <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Script Library')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Patterns <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Patterns')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Secure Processors <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Secure Processors')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Hosted Services <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Hosted Services')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Transactional <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Transactional')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                Co-Development <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Co-Development')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                Streaming <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('Streaming')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr style="background-color: rgb(244, 246, 247) !important">
+              <td>
+                CLI <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('CLI')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
+            <tr>
+              <td>
+                On Prem <i
+                  class="fas fa-info-circle text-secondary"
+                  style="font-size:1em; cursor: pointer"
+                  @click="info('On Prem')"
+                />
+              </td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-close2" /></td>
+              <td><q-icon name="fas fa-check" /></td>
+            </tr>
             <tr>
               <td />
-              <td>Guest</td>
-              <td>Free</td>
-              <td>Developer</td>
-              <td>Pro</td>
-              <td>Hosted</td>
-              <td>Enterprise</td>
+              <td />
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Register"
+                  v-if="!$auth.isAuthenticated"
+                  @click="login"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Upgrade"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < DEVELOPER"
+                  @click="upgrade('ec_developer-USD-Monthly')"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_developer-USD-Monthly'"
+                  @click="manage"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Upgrade"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < PRO"
+                  @click="upgrade('ec_pro-USD-Monthly')"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_pro-USD-Monthly'"
+                  @click="manage"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Contact Us"
+                  v-if="$auth.isAuthenticated && this.sublevel[this.$store.state.designer.subscription] < HOSTED"
+                  @click="contact"
+                />
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  color="secondary"
+                  label="My Plan"
+                  v-if="$auth.isAuthenticated && this.$store.state.designer.subscription === 'ec_hosted-USD-Yearly'"
+                  @click="manage"
+                />
+              </td>
+              <td>
+                <q-btn
+                  dense
+                  padding="10px 15px"
+                  size="md"
+                  label="Contact Us"
+                  v-if="$auth.isAuthenticated"
+                  @click="contact"
+                />
+              </td>
             </tr>
-          </thead>
-          <tr style="background-color: rgb(244, 246, 247) !important; border-top: 1px solid black">
-            <td>
-              Execute Data Flows <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Execute Data Flows')"
-              />
-            </td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Browser Execution <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Browser Execution')"
-              />
-            </td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Save Data Flows <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Save Data Flows')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              GIT Integration <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('GIT Integration')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Generate Code <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Generate Code')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              REST API <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('REST API')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              AI Assistant <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('AI Assistant')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Script Library <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Script Library')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Patterns <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Patterns')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Secure Processors <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Secure Processors')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Hosted Services <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Hosted Services')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Transactional <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Transactional')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              Co-Development <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Co-Development')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              Streaming <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('Streaming')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr style="background-color: rgb(244, 246, 247) !important">
-            <td>
-              CLI <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('CLI')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td>
-              On Prem <i
-                class="fas fa-info-circle text-secondary"
-                style="font-size:1em; cursor: pointer"
-                @click="info('On Prem')"
-              />
-            </td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-close2" /></td>
-            <td><q-icon name="fas fa-check" /></td>
-          </tr>
-          <tr>
-            <td />
-            <td />
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Register"
-                v-if="!$auth.isAuthenticated"
-                @click="login"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription != 'ec_developer-USD-Monthly'"
-                @click="upgrade('ec_developer-USD-Monthly')"
-              />
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                color="secondary"
-                label="My Plan"
-                v-if="$auth.isAuthenticated && this.$store.state.designer.subscription == 'ec_developer-USD-Monthly'"
-                @click="manage"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated"
-                @click="upgrade('ec_pro-USD-Monthly')"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Upgrade"
-                v-if="$auth.isAuthenticated"
-                @click="upgrade('ec_hosted-USD-Yearly')"
-              />
-            </td>
-            <td>
-              <q-btn
-                dense
-                padding="10px 15px"
-                size="md"
-                label="Contact Us"
-                v-if="$auth.isAuthenticated"
-                @click="contact"
-              />
-            </td>
-          </tr>
-        </table>
+          </table>
+        </q-scroll-area>
         <q-card-actions align="left">
           <q-btn
             flat
@@ -1295,6 +1614,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
     <q-dialog
       v-model="viewQueueDialog"
       transition-show="none"
@@ -1313,7 +1633,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1445,6 +1764,68 @@
     </q-dialog>
 
     <q-dialog
+      v-model="viewEdgeDialog"
+      persistent
+    >
+      <q-card
+        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 50%;"
+      >
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+              color: #fff;
+            "
+          >
+            <q-toolbar>
+              <q-icon
+                name="fas fa-cog"
+                color="primary"
+                style="margin-right:10px"
+              />
+              <q-item-label>Edge</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="viewEdgeDialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px; width: 100%;"
+        />
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Close"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
       v-model="newQueueDialog"
       persistent
     >
@@ -1461,7 +1842,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1502,7 +1882,144 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog
+      v-model="resolutiondialog"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>
+                <i
+                  class="fas fa-exclamation"
+                  style="margin-right:20px"
+                />Recommended Resolution
+              </q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <span class="q-ml-sm">
+            Your current monitor resolution does not meet the recommended size of 2460x1440 for best user experience.
+          </span>
+        </q-card-section>
 
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Ok"
+            class="bg-secondary text-white"
+            color="primary"
+            @click="resolutiondialog = false"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="betanoticedialog"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            padding: 0px !important;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              margin-left: 0px;
+              margin-top: -5px;
+              margin-right: 0px;
+              color: #fff;
+            "
+          >
+            <q-toolbar class="bar">
+              <q-space />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 450px;"
+        >
+          <span
+            class="text-black q-ml-sm"
+            style="color:black;margin-top: 30px;margin-bottom:30px"
+          >
+            <p
+              style="font-size:20px"
+              class="text-black"
+            >Welcome to ElasticCode Early Access! We are glad you stopped by. It is important to understand this software is currently an incomplete development pre-release. Not all features are implemented in this version. Any feedback, bugs reports, or feature requests are highly encouraged! Please submit them <a
+              style="text-decoration: underline; color:#6b8791"
+              target="support"
+              href="https://elasticcode.atlassian.net/servicedesk/customer/portals"
+            >here</a></p>
+            <br>
+            <hr>
+            <br>
+            <p
+              style="font-size:16px"
+              class="text-black"
+            ><b>NOTE</b>: If the app doesn't display fully on your display, trying scaling it down from your browser until it fits completely.</p>
+            <br>
+            <b>Recommended Settings:</b>
+            <ul style="margin-left:40px">
+              <li>Monitor Resolution 2560x1440 or higher resolution</li>
+              <li>Google Chrome</li>
+            </ul>
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 150px;"
+            label="I Understand"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-dialog
       v-model="confirmQueuePurge"
       persistent
@@ -1526,7 +2043,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -1577,6 +2093,9 @@
   </q-layout>
 </template>
 <style>
+.q-splitter__after, .q-splitter__before {
+  overflow: hidden !important
+}
 
 textarea {
   resize: none !important;
@@ -1629,25 +2148,49 @@ icon-processor:before {
 <script>
 const { v4: uuidv4 } = require('uuid')
 var dd = require('drip-drop')
+// import { rest, setupWorker } from 'msw'
 
 import { defineComponent, ref } from '@vue/composition-api'
 import Designer from 'src/pages/Designer.vue'
 import ToolPalette from 'src/components/ToolPalette.vue'
 import ModelToolPalette from 'src/components/ModelToolPalette.vue'
+import Console from 'src/components/Console'
+import {
+  mdiBorderNoneVariant,
+  mdiFlash,
+  mdiFlashOutline,
+  mdiWavesArrowRight,
+  mdiCodeBraces,
+  mdiEmailFast,
+  mdiEmailAlert,
+  mdiEmailCheck
+} from '@mdi/js'
+
 import Library from 'src/components/Library.vue'
 import Processors from 'components/Processors.vue'
 import DataService from 'components/util/DataService'
 import { Auth0Lock } from 'auth0-lock'
 
 const chargebee = require('chargebee')
+/*
+export const handlers = [
+
+  rest.get('/api1/', (req, res, ctx) => {
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        username: 'admin'
+      })
+    )
+  })
+]
+ */
 
 chargebee.configure({
   site: 'elasticcode-test',
   api_key: 'test_cd3cu6vRcuyFScdCW8W8Y3QU1HmrVZ7AaXEm'
 })
-
-// import OktaSignIn from '@okta/okta-signin-widget'
-// import '@okta/okta-signin-widget/dist/css/okta-sign-in.min.css'
 
 var filesize = require('filesize')
 const size = filesize.partial({ base: 2, standard: 'jedec' })
@@ -1662,79 +2205,7 @@ import 'assets/fonts/fontawesome-webfont.woff2'
 import 'assets/fonts/fontawesome-webfont.woff'
 import 'assets/fonts/flowfont2.woff2'
 
-import {
-  mdiFlash,
-  mdiFlashOutline,
-  mdiWavesArrowRight,
-  mdiCodeBraces,
-  mdiEmailFast,
-  mdiEmailAlert,
-  mdiEmailCheck
-} from '@mdi/js'
-
 import { io, Socket } from 'socket.io-client'
-
-const socket = io('http://localhost')
-
-var options = {
-  theme: {
-    logo: 'images/elasticcode-noload.svg',
-    primaryColor: '#6b8791'
-  },
-  languageDictionary: {
-    title: '',
-    signUpTitle: ''
-  }
-}
-
-var lock = new Auth0Lock(
-  'kSiSLbwjWG3dTEPezTPARiC85QJJgjr8',
-  'dev-3583lxyoewhh4ymf.us.auth0.com',
-  options
-)
-
-var Auth = (function () {
-  var wm = new WeakMap()
-  var privateStore = {}
-  var lock
-
-  function Auth () {
-    this.lock = new Auth0Lock(
-      '<{yourClientId}>',
-      '<{yourDomain}>'
-    )
-    wm.set(privateStore, {
-      appName: 'example'
-    })
-  }
-
-  Auth.prototype.getProfile = function () {
-    return wm.get(privateStore).profile
-  }
-
-  Auth.prototype.authn = function () {
-    // Listening for the authenticated event
-    this.lock.on('authenticated', function (authResult) {
-      // Use the token in authResult to getUserInfo() and save it if necessary
-      this.getUserInfo(authResult.accessToken, function (error, profile) {
-        if (error) {
-          // Handle error
-          return
-        }
-        debugger
-        // we recommend not storing Access Tokens unless absolutely necessary
-        wm.set(privateStore, {
-          accessToken: authResult.accessToken
-        })
-
-        wm.set(privateStore, {
-          profile: profile
-        })
-      })
-    })
-  }
-  return Auth
-}())
 
 export default defineComponent({
   name: 'MainLayout',
@@ -1742,6 +2213,7 @@ export default defineComponent({
     editor: require('vue2-ace-editor'),
     Designer,
     ToolPalette,
+    Console,
     ModelToolPalette,
     Processors,
     Library
@@ -1753,6 +2225,10 @@ export default defineComponent({
     this.mdiWavesArrowRight = mdiWavesArrowRight
     this.mdiFlashOutline = mdiFlashOutline
     this.mdiFlash = mdiFlash
+    this.borderIcon = mdiBorderNoneVariant
+    this.designers = []
+
+    // this.worker = setupWorker(...handlers)
 
     // Reset connection status to disconnected
     this.$store.commit('designer/setConnected', false)
@@ -1772,14 +2248,18 @@ export default defineComponent({
     window.layout = this
 
     this.listenGlobal()
+    // this.worker.start({ onUnhandledRequest: 'bypass'})
   },
   watch: {
     '$auth.isAuthenticated': function (val) {
+      console.log('$auth.isAuthenticated', val)
       var me = this
       if (val) {
         this.security.token().then((token) => {
+          console.log('SET TOKEN', token)
           me.$store.commit('designer/setToken', token)
           me.updateSubscription()
+          me.refreshObjects()
         })
       }
     },
@@ -1795,10 +2275,17 @@ export default defineComponent({
       if (newv) {
         // This means the flow is receiving streaming messages in real-time
         console.log('Turning on messages')
+
+        // TODO: Only enable this if Streaming is on
+        const socket = io(process.env.SOCKETIO)
+        window.socket = socket
         this.listenGlobal()
       } else {
-        socket.off('global')
         console.log('Turning off messages')
+        window.socket.off('global')
+        // if (window.socket.connected) {
+        //  window.socket.close()
+        // }
       }
     },
     viewQueueDialog: function (val) {
@@ -1859,9 +2346,129 @@ export default defineComponent({
     },
     getSurfaceId () {
       return window.toolkit.surfaceId
+    },
+    hasHosted () {
+      console.log('hasHosted', this.$auth.isAuthenticated, this.$store.state.designer.subscription)
+      if (!this.$auth.isAuthenticated) {
+        return false
+      }
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
     }
   },
   methods: {
+
+    updateObjects (objects) {
+      var me = this
+      console.log('updateObjects')
+      DataService.getObjects(objects, me.$store.state.designer.token).then((response) => {
+        console.log('updateObjects ' + objects, response.data)
+        me.stats[objects] = response.data.length
+        let cpus_total = 0
+        let load_total = 0
+        if (objects === 'nodes') {
+          response.data.forEach((node) => {
+            load_total += node.cpuload
+            if (node.cpus) {
+              cpus_total += node.cpus
+            }
+          })
+          me.stats.usage.push(load_total.toFixed(3))
+          if (me.stats.usage.length > 11) {
+            me.stats.usage.shift()
+          }
+          me.stats.cpus_total = cpus_total
+        }
+        let cpus_running = 0
+        if (objects === 'agents') {
+          response.data.forEach((agent) => {
+            if (agent.cpus && agent.status === 'running') {
+              cpus_running += agent.cpus
+            }
+          })
+          me.stats.cpus_running = cpus_running
+        }
+      }).catch((error) => {
+        me.$store.commit('designer/setMessage', 'ToolPalette: Error Updating ' + objects)
+      })
+    },
+    refreshObjects () {
+      this.$store.commit('designer/setMessage', 'Refreshing object counts...')
+      this.flowloading = true
+      this.updateObjects('nodes')
+      this.updateObjects('agents')
+      this.updateObjects('queues')
+      this.updateObjects('processors')
+      this.updateObjects('deployments')
+      this.updateObjects('tasks')
+      this.flowloading = false
+      this.$store.commit('designer/setMessage', 'Refreshed object counts!')
+    },
+    addNewFlow () {
+      this.$root.$emit('new.flow')
+    },
+    updateBlocks () {
+      setTimeout(() => {
+        this.blocks.forEach((el) => {
+          const _el = document.querySelector('#block' + el.data.id)
+          if (el.data.enabled && this.checkPlan(el.data.enabled)) {
+            var data = el.data
+            var draghandle = dd.drag(_el, {
+              image: true // default drag image
+            })
+            draghandle.on('start', function (setData, e) {
+              setData('object', JSON.stringify(data))
+            })
+            _el.disabled = false
+            el.disabled = false
+          } else {
+            _el.disabled = true
+            el.disabled = true
+          }
+        })
+      })
+    },
+    isProPlan () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.PRO
+      } else {
+        return false
+      }
+    },
+    allPlan () {
+      return true
+    },
+    hasHostedPlan () {
+      console.log('hasHosted', this.$auth.isAuthenticated, this.$store.state.designer.subscription)
+      if (!this.$auth.isAuthenticated) {
+        return false
+      }
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
+    checkPlan (plan) {
+      if (plan && this[plan]) {
+        const cp = this[plan]()
+        return cp
+      }
+    },
+    showBlock (block) {
+      this.blockshown = block
+      this.blockdrawer = true
+    },
+    checkResolution () {
+      const x = window.screen.width * window.devicePixelRatio
+      const y = window.screen.height * window.devicePixelRatio
+      if (x < 2460 || y < 1440) {
+        // this.resolutiondialog = true
+      }
+    },
     hasEnterprise () {
       if (this.$store.state.designer.subscription) {
         return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
@@ -1872,7 +2479,10 @@ export default defineComponent({
     updateSubscription () {
       var me = this
       DataService.getSubscriptions(this.$auth.user.name, this.$store.state.designer.token).then((subscriptions) => {
-        if (subscriptions.data.subscription.status != 'cancelled') {
+        if (subscriptions.error && subscription.subscription === false) {
+          me.$store.commit('designer/setSubscription', 'Registered')
+        }
+        if (subscriptions.data && subscriptions.data.subscription.status !== 'cancelled') {
           subscriptions.data.subscription.subscription_items.forEach((subscription) => {
             console.log('SUBSCRIPTION', subscription)
             me.$store.commit('designer/setSubscription', subscription.item_price_id)
@@ -1880,11 +2490,27 @@ export default defineComponent({
         } else {
           me.$store.commit('designer/setSubscription', 'cancelled')
         }
+        me.updateBlocks()
+      }).catch((error) => {
+        me.notifyMessage(
+          'dark',
+          'error',
+          'There was an error retrieving your subscription.'
+        )
       })
     },
     info (title) {
       this.infotitle = title
       this.infodialog = true
+    },
+    notifyMessage (color, icon, message) {
+      this.$q.notify({
+        color: color,
+        timeout: 2000,
+        position: 'top',
+        message: message,
+        icon: icon
+      })
     },
     sendChat () {
       var me = this
@@ -1898,15 +2524,11 @@ export default defineComponent({
       })
     },
     getToken () {
-      debugger
       const accessToken = this.security.token()
       accessToken.then(function (result) {
         // here you can use the result of promiseB
         console.log('accessToken: ', result)
       })
-    },
-    loginLock () {
-      lock.show()
     },
     checkout () {
       const cbInstance = Chargebee.getInstance()
@@ -2021,7 +2643,7 @@ export default defineComponent({
     },
     showStats (name, objects) {
       console.log('showStats', objects)
-      this.$root.$emit('show.objects', { name: name, objects: objects, columns: this.objectcolumns[objects] })
+      this.$root.$emit('show.objects', { stats: true, name: name, objects: objects, columns: this.objectcolumns[objects] })
     },
     purgeQueue (name) {
       DataService.purgeQueue(name, this.$store.state.designer.token)
@@ -2068,144 +2690,146 @@ export default defineComponent({
     },
     listenGlobal () {
       var me = this
-
-      socket.on('global', (msg) => {
-        // console.log('MAINLAYOUT', msg)
-        if (msg.type && msg.type === 'DeploymentModel') {
-          console.log('DEPLOYMENT WAS UPDATED ', msg)
-          window.root.$emit('message.received', msg)
-        }
-        if (msg.type && msg.type === 'ProcessorModel') {
-          // console.log('PROCESSOR WAS UPDATED ', msg)
-          window.root.$emit('message.received', msg)
-        }
-        if (msg.channel === 'task') {
-          me.msglogs.unshift(msg)
-          me.msglogs = me.msglogs.slice(0, 200)
-
-          window.root.$emit('message.count', 1)
-          var bytes = JSON.stringify(msg).length
-          window.root.$emit('message.size', bytes)
-        } else if (msg.type && msg.type === 'stats') {
-          me.stats = msg
-        } else {
-          var qs = []
-
-          if (msg.type && msg.type === 'queues') {
-            var queued_tasks = 0
-            me.detailedqueues = msg.queues
-            msg.queues.forEach((queue) => {
-              if (queue.name.indexOf('celery') === -1) {
-                var ack_rate = 0
-                var deliver_rate = 0
-
-                var properties = []
-                if ('message_stats' in queue) {
-                  ack_rate = queue.message_stats && queue.message_stats.ack_details ? queue.message_stats.ack_details.rate : 0
-                  deliver_rate = queue.message_stats && queue.message_stats.deliver_get_details ? queue.message_stats.deliver_get_details.rate : 0
-                }
-
-                qs.push({
-                  name: queue.name,
-                  messages: queue.messages,
-                  ready: queue.messages_ready,
-                  acked_rate: ack_rate,
-                  deliver_rate: deliver_rate,
-                  unacked: queue.messages_unacknowledged,
-                  ready_rate: queue.messages_ready_details,
-                  unacked_rate: queue.messages_unacknowledged_details,
-                  bytes: queue.message_bytes,
-                  action: ''
-                })
-
-                properties.push({
-                  name: 'Messages Ready',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Messages Ackd',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Avg Ack Ingress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_ack_ingress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Avg Ingress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_ingress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Avg Engress Rate',
-                  value: parseFloat(queue.backing_queue_status.avg_egress_rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Memory',
-                  value: queue.memory
-                })
-                properties.push({
-                  name: 'Message Bytes',
-                  value: queue.message_bytes
-                })
-                properties.push({
-                  name: 'Message Bytes Persistent',
-                  value: queue.message_bytes_persistent
-                })
-                properties.push({
-                  name: 'Message Bytes Ram',
-                  value: queue.message_bytes_ram
-                })
-                properties.push({
-                  name: 'Message Bytes Ready',
-                  value: queue.message_bytes_ready
-                })
-                properties.push({
-                  name: 'Message Bytes UnAckd',
-                  value: queue.message_bytes_unacknowledged
-                })
-                properties.push({
-                  name: 'Messages',
-                  value: queue.messages
-                })
-                properties.push({
-                  name: 'Messages Persistent',
-                  value: queue.messages_persistent
-                })
-                properties.push({
-                  name: 'Messages Ram',
-                  value: queue.messages_ram
-                })
-                properties.push({
-                  name: 'Messages Ready',
-                  value: queue.messages_ready
-                })
-                properties.push({
-                  name: 'Messages Ready Rate',
-                  value: parseFloat(queue.messages_ready_details.rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Messages UnAckd Rate',
-                  value: parseFloat(queue.messages_unacknowledged_details.rate).toFixed(2)
-                })
-                properties.push({
-                  name: 'Messages Ready Ram',
-                  value: queue.messages_ready_ram
-                })
-                properties.push({
-                  name: 'Node',
-                  value: queue.node
-                })
-
-                this.queueDetails[queue.name] = properties
-                queued_tasks += parseInt(queue.messages)
-                this.queuedTasks = queued_tasks
-              }
-            })
-
-            me.queues = qs
-            window.root.$emit('update.queues', qs)
+      const socket = window.socket
+      if (socket) {
+        socket.on('global', (msg) => {
+          console.log('MAINLAYOUT', msg)
+          if (msg.type && msg.type === 'DeploymentModel') {
+            console.log('DEPLOYMENT WAS UPDATED ', msg)
+            window.root.$emit('message.received', msg)
           }
-        }
-      })
+          if (msg.type && msg.type === 'ProcessorModel') {
+            // console.log('PROCESSOR WAS UPDATED ', msg)
+            window.root.$emit('message.received', msg)
+          }
+          if (msg.channel === 'task') {
+            me.msglogs.unshift(msg)
+            me.msglogs = me.msglogs.slice(0, 200)
+            me.task_messages += 1
+            window.root.$emit('message.count', 1)
+            var bytes = JSON.stringify(msg).length
+            window.root.$emit('message.size', bytes)
+          } else if (msg.type && msg.type === 'stats') {
+            me.stats = msg
+          } else {
+            var qs = []
+
+            if (msg.type && msg.type === 'queues') {
+              var queued_tasks = 0
+              me.detailedqueues = msg.queues
+              msg.queues.forEach((queue) => {
+                if (queue.name.indexOf('celery') === -1) {
+                  var ack_rate = 0
+                  var deliver_rate = 0
+
+                  var properties = []
+                  if ('message_stats' in queue) {
+                    ack_rate = queue.message_stats && queue.message_stats.ack_details ? queue.message_stats.ack_details.rate : 0
+                    deliver_rate = queue.message_stats && queue.message_stats.deliver_get_details ? queue.message_stats.deliver_get_details.rate : 0
+                  }
+
+                  qs.push({
+                    name: queue.name,
+                    messages: queue.messages,
+                    ready: queue.messages_ready,
+                    acked_rate: ack_rate,
+                    deliver_rate: deliver_rate,
+                    unacked: queue.messages_unacknowledged,
+                    ready_rate: queue.messages_ready_details,
+                    unacked_rate: queue.messages_unacknowledged_details,
+                    bytes: queue.message_bytes,
+                    action: ''
+                  })
+
+                  properties.push({
+                    name: 'Messages Ready',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Messages Ackd',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Avg Ack Ingress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_ack_ingress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Avg Ingress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_ingress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Avg Engress Rate',
+                    value: parseFloat(queue.backing_queue_status.avg_egress_rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Memory',
+                    value: queue.memory
+                  })
+                  properties.push({
+                    name: 'Message Bytes',
+                    value: queue.message_bytes
+                  })
+                  properties.push({
+                    name: 'Message Bytes Persistent',
+                    value: queue.message_bytes_persistent
+                  })
+                  properties.push({
+                    name: 'Message Bytes Ram',
+                    value: queue.message_bytes_ram
+                  })
+                  properties.push({
+                    name: 'Message Bytes Ready',
+                    value: queue.message_bytes_ready
+                  })
+                  properties.push({
+                    name: 'Message Bytes UnAckd',
+                    value: queue.message_bytes_unacknowledged
+                  })
+                  properties.push({
+                    name: 'Messages',
+                    value: queue.messages
+                  })
+                  properties.push({
+                    name: 'Messages Persistent',
+                    value: queue.messages_persistent
+                  })
+                  properties.push({
+                    name: 'Messages Ram',
+                    value: queue.messages_ram
+                  })
+                  properties.push({
+                    name: 'Messages Ready',
+                    value: queue.messages_ready
+                  })
+                  properties.push({
+                    name: 'Messages Ready Rate',
+                    value: parseFloat(queue.messages_ready_details.rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Messages UnAckd Rate',
+                    value: parseFloat(queue.messages_unacknowledged_details.rate).toFixed(2)
+                  })
+                  properties.push({
+                    name: 'Messages Ready Ram',
+                    value: queue.messages_ready_ram
+                  })
+                  properties.push({
+                    name: 'Node',
+                    value: queue.node
+                  })
+
+                  this.queueDetails[queue.name] = properties
+                  queued_tasks += parseInt(queue.messages)
+                  this.queuedTasks = queued_tasks
+                }
+              })
+
+              me.queues = qs
+              window.root.$emit('update.queues', qs)
+            }
+          }
+        })
+      }
     },
     showMessagePayload (payload) {
       const editor = this.$refs.resultEditor.editor
@@ -2238,7 +2862,7 @@ export default defineComponent({
       this.items = []
       this.graph.nodes.forEach((node) => {
         console.log('Searching node ', node)
-        if (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1) {
+        if (node.name && (node.name.indexOf(this.text) > -1 || node.description.indexOf(this.text) > -1)) {
           this.items.push(node)
         }
       })
@@ -2317,26 +2941,6 @@ export default defineComponent({
     updateFlow (name) {
       this.flow.filename = name
     },
-    dataGenerator: function (el) {
-      // This probably needs to be automated
-      return {
-        type: el.getAttribute('data-node-type'),
-        w: 120,
-        h: 80,
-        properties: [],
-        rules: [],
-        events: [],
-        callbacks: [],
-        facts: [],
-        behaviors: [],
-        notes: [],
-        package: el.getAttribute('data-node-package'),
-        description: el.getAttribute('data-node-desc'),
-        icon: el.getAttribute('data-node-icon'),
-        name: el.getAttribute('data-node-name'),
-        id: jsPlumbUtil.uuid()
-      }
-    },
     tabChanged (tab) {
       var me = this
 
@@ -2356,12 +2960,40 @@ export default defineComponent({
         this.graph = window.toolkit.getGraph().serialize()
         window.renderer = window.toolkit.renderer
         console.log('Refreshing designer')
-        this.$refs[tab + 'designer'][0].refresh()
+        setTimeout(() => {
+          me.$refs[tab + 'designer'][0].redraw()
+        })
       }
     }
   },
   mounted () {
     var me = this
+    this.checkResolution()
+
+    function pushUsage () {
+      if (me.stats.usage) {
+        me.$refs.toolPalette.system_usage(me.stats.usage)
+        setTimeout(() => {
+          pushUsage()
+        }, 10000)
+      }
+    }
+    pushUsage()
+
+    async function load () {
+      await pyodide.loadPackage('micropip')
+      const micropip = pyodide.pyimport('micropip')
+      await micropip.install('durable-rules')
+    }
+
+    DataService.getCommit().then((response) => {
+      console.log('COMMIT', response)
+      const hash = response.data.split('|')[0]
+      const buildDate = response.data.split('|')[1]
+      const buildUrl = response.data.split('|')[2]
+      const repoUrl = response.data.split('|')[3]
+      this.$refs.toolPalette.setCommit(hash, buildDate, buildUrl, repoUrl)
+    })
     // console.log('MAINLAYOUT MESSAGE', this.$store.state.designer.message);
     // console.log('MAINLAYOUT STORE', this.$store);
     window.designer.$root.$on('toolkit.dirty', () => {
@@ -2371,6 +3003,7 @@ export default defineComponent({
 
     if (this.$auth.isAuthenticated) {
       this.security.token().then((token) => {
+        console.log('SET TOKEN', token)
         me.$store.commit('designer/setToken', token)
         DataService.getQueues(token).then((queues) => {
           me.queues = queues.data
@@ -2381,6 +3014,20 @@ export default defineComponent({
     }
 
     this.transmitted()
+    window.root.$off('console.message')
+    window.root.$on('console.message', (date, obj, msg) => {
+      me.consolelog.push({
+        name: obj.name,
+        date: date,
+        msg: msg
+      })
+    })
+    if (me.consolelog.length >= 1000) {
+      me.consolelog = []
+    }
+    window.root.$on('message.received', (msg) => {
+      console.log('MAINLAYOUT MESSAGE RECEIVED', msg)
+    })
     window.root.$on('message.count', (count) => {
       me.messageCount += count
     })
@@ -2396,6 +3043,9 @@ export default defineComponent({
         }
       }
     })
+    window.root.$on('edge.clicked', (edge) => {
+      this.viewEdgeDialog = true
+    })
     window.root.$on('view.queue', (queue) => {
       this.queuename = queue
       this.viewQueueDialog = true
@@ -2404,6 +3054,14 @@ export default defineComponent({
     this.$root.$on('manage.subscription', this.manage)
     this.$root.$on('upgrade.subscription', this.upgrade)
     this.$root.$on('checkout', this.checkout)
+
+    this.$root.$on('update.objects', () => {
+      this.refreshObjects()
+    })
+
+    this.$root.$on('open.blocks', () => {
+      this.blocksdrawer = !this.blocksdrawer
+    })
     this.$root.$on('open.chat', () => {
       this.chatdrawer = !this.chatdrawer
     })
@@ -2470,29 +3128,43 @@ export default defineComponent({
         me.tabChanged(me.tab)
       })
     })
-    this.$q.loading.show({
-      delay: 40,
-      spinnerColor: 'dark',
-      spinnerSize: 154,
-      spinnerThickness: 1
-    })
     console.log('Mounting....')
     console.log('REFS', this.$refs)
     window.toolkit = this.$refs.flow1designer[0].toolkit
+    window.layout = this
     window.toolkit.$q = this.$q
     window.renderer = window.toolkit.renderer
+    window.toolkit.load({
+      type: 'json',
+      url: '/scratch.json',
+      onload: function () {
+        // called after the data has loaded.
+        window.toolkit.surface.setZoom(1.0)
+        window.toolkit.surface.zoomToFit({ fill: 0.75 })
+        window.toolkit.surface.setPan(0, 0, false)
+        window.toolkit.surface.setPan(0, 0, false)
+        window.toolkit.surface.setPan(0, 0, false)
+        me.graph = window.toolkit.getGraph().serialize()
+      }
+    })
+    setTimeout( () => {
+      me.refreshObjects()
+    },2000)
     setTimeout(() => {
       var script = document.querySelector('#script')
 
       script.data = {
+        id: 1,
+        enabled: 'allPlan',
         node: {
-          icon: 'fab fa-python',
+          icon: 'las la-scroll',
           style: '',
           type: 'script',
           name: 'Script',
           label: 'Script',
           description: 'A script description',
           package: 'my.python.package',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2501,6 +3173,8 @@ export default defineComponent({
       var api = document.querySelector('#api')
 
       api.data = {
+        id: 2,
+        enabled: 'allPlan',
         node: {
           icon: 'las la-cloud-upload-alt',
           style: '',
@@ -2509,6 +3183,7 @@ export default defineComponent({
           label: 'API',
           description: 'A web API',
           package: 'my.python.package',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2518,10 +3193,14 @@ export default defineComponent({
       var border = document.querySelector('#border')
 
       border.data = {
+        id: 3,
+        enabled: 'allPlan',
         node: {
           style: '',
+          icon: this.borderIcon,
+          version: '1.0.0',
           type: 'border',
-          name: 'Border Title',
+          name: 'Border',
           label: 'Border'
         }
       }
@@ -2529,13 +3208,16 @@ export default defineComponent({
       var processor = document.querySelector('#processor')
 
       processor.data = {
+        id: 4,
+        enabled: 'hasHostedPlan',
         node: {
-          icon: 'fab fa-python',
+          icon: 'icon-processor',
           style: '',
           type: 'processor',
           name: 'Processor',
           label: 'Script',
           description: 'A script processor description',
+          version: '1.0.0',
           package: 'my.python.package',
           disabled: false,
           columns: [],
@@ -2543,32 +3225,19 @@ export default defineComponent({
         }
       }
 
-      var portin = document.querySelector('#portin')
-      portin.data = {
-        node: {
-          icon: 'icon-port-in',
-          style: 'size:50px',
-          type: 'portin',
-          name: 'Port In',
-          label: 'Port In',
-          description: 'A port in description',
-          package: 'queue name',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
+      var markdown = document.querySelector('#markdown')
 
-      var portout = document.querySelector('#portout')
-      portout.data = {
+      markdown.data = {
+        id: 5,
+        enabled: 'allPlan',
         node: {
-          icon: 'fas fa-plug',
-          style: 'size:50px',
-          type: 'portout',
-          name: 'Port Out',
-          label: 'Port Out',
-          description: 'A port out description',
-          package: 'queue name',
+          icon: 'lab la-markdown',
+          style: '',
+          type: 'markdown',
+          name: 'Markdown',
+          label: 'Markdown',
+          description: 'A markdown block',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2577,6 +3246,8 @@ export default defineComponent({
 
       var group = document.querySelector('#processorgroup')
       group.data = {
+        id: 8,
+        enabled: 'allPlan',
         node: {
           icon: 'far fa-object-group',
           style: 'size:50px',
@@ -2584,6 +3255,7 @@ export default defineComponent({
           name: 'Group',
           label: 'Group',
           description: 'A processor group description',
+          version: '1.0.0',
           package: 'my.python.package',
           disabled: false,
           group: true,
@@ -2591,79 +3263,20 @@ export default defineComponent({
           properties: []
         }
       }
-      /*
-      var parallel = document.querySelector('#parallel')
-      parallel.data = {
-        node: {
-          icon: 'fas fa-list',
-          style: 'size:50px',
-          type: 'parallel',
-          name: 'Parallel',
-          label: 'Parallel',
-          description: 'A parallel tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
 
-      var pipeline = document.querySelector('#pipeline')
-      pipeline.data = {
-        node: {
-          icon: 'fas fa-long-arrow-alt-right',
-          style: 'size:50px',
-          type: 'pipeline',
-          name: 'Pipeline',
-          label: 'Pipeline',
-          description: 'A pipeline tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var segment = document.querySelector('#segment')
-      segment.data = {
-        node: {
-          icon: 'grid_view',
-          style: 'size:50px',
-          type: 'segment',
-          name: 'Segment',
-          label: 'Segment',
-          description: 'A segment tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-
-      var chord = document.querySelector('#chord')
-      chord.data = {
-        node: {
-          icon: 'low_priority',
-          style: 'size:50px',
-          type: 'chord',
-          name: 'Chord',
-          label: 'Chord',
-          description: 'A chord tool description',
-          package: 'my.python.package',
-          disabled: false,
-          columns: [],
-          properties: []
-        }
-      }
-*/
       var label = document.querySelector('#label')
       label.data = {
+        id: 9,
+        enabled: 'allPlan',
         node: {
           icon: 'icon-label',
           style: 'size:50px',
           type: 'note',
           name: 'Label',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'Label',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
@@ -2672,12 +3285,36 @@ export default defineComponent({
 
       var data = document.querySelector('#data')
       data.data = {
+        id: 10,
+        enabled: 'allPlan',
         node: {
           icon: 'las la-file-alt',
           style: 'size:50px',
           type: 'data',
           name: 'Data',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          version: '1.0.0',
           label: 'Data',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var lambda = document.querySelector('#lambda')
+      lambda.data = {
+        id: 19,
+        enabled: 'allPlan',
+        node: {
+          icon: 'las la-code',
+          style: 'size:50px',
+          type: 'lambda',
+          name: 'Lambda',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          version: '1.0.0',
+          label: 'Lambda',
           disabled: false,
           columns: [],
           properties: []
@@ -2686,38 +3323,145 @@ export default defineComponent({
 
       var schema = document.querySelector('#schema')
       schema.data = {
+        id: 11,
+        enabled: 'hasHostedPlan',
         node: {
           icon: this.schemaIcon,
           style: 'size:50px',
           type: 'schema',
           name: 'Schema',
+          description: 'A description',
+          package: 'ec.blocks.general',
           label: 'Schema',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
         }
       }
 
-      var router = document.querySelector('#router')
-      router.data = {
+      var chatgpt = document.querySelector('#chatgpt')
+      chatgpt.data = {
+        id: 13,
+        enabled: 'hasHostedPlan',
         node: {
-          icon: 'alt_route',
+          icon: 'las la-robot',
           style: 'size:50px',
-          type: 'router',
-          name: 'Router',
-          label: 'Router',
+          type: 'chatgpt',
+          name: 'ChatGPT',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          label: 'ChatGPT',
+          version: '1.0.0',
           disabled: false,
           columns: [],
           properties: []
         }
       }
 
-      //, chord, segment, map, reduce
-      var els = [script, api, processor, portin, router, portout, group, label, data, schema, border]
+      var inference = document.querySelector('#inference')
+      inference.data = {
+        id: 14,
+        enabled: 'hasHostedPlan',
+        node: {
+          icon: 'las la-brain',
+          style: 'size:50px',
+          type: 'inference',
+          description: 'A description',
+          package: 'ec.blocks.ai',
+          name: 'Inference',
+          label: 'Inference',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var queue = document.querySelector('#queue')
+      queue.data = {
+        id: 15,
+        enabled: 'allPlan',
+        node: {
+          icon: 'input',
+          style: 'size:50px',
+          type: 'queue',
+          name: 'Queue',
+          description: 'A description',
+          package: 'ec.blocks.general',
+          label: 'Queue',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var database = document.querySelector('#database')
+      database.data = {
+        id: 16,
+        enabled: 'hasHostedPlan',
+        node: {
+          icon: 'fas fa-database',
+          style: 'size:50px',
+          type: 'database',
+          name: 'Database',
+          description: 'A description',
+          package: 'ec.blocks.data',
+          label: 'Database',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var loop = document.querySelector('#loop')
+      loop.data = {
+        id: 17,
+        enabled: 'allPlan',
+        node: {
+          icon: 'las la-redo-alt',
+          style: 'size:50px',
+          type: 'loop',
+          name: 'Loop',
+          description: 'A description',
+          package: 'ec.blocks.data',
+          label: 'Loop',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var filter = document.querySelector('#filter')
+      filter.data = {
+        id: 18,
+        enabled: 'allPlan',
+        node: {
+          icon: 'las la-filter',
+          style: 'size:50px',
+          type: 'filter',
+          name: 'Filter',
+          description: 'A description',
+          package: 'ec.blocks.data',
+          label: 'Filter',
+          version: '1.0.0',
+          disabled: false,
+          columns: [],
+          properties: []
+        }
+      }
+
+      var els = [script, api, processor, markdown, group, label, data, schema, border, chatgpt, lambda,
+        inference, queue, database, loop, filter]
+
+      this.blocks = els
 
       els.forEach((el) => {
         var data = el.data
-        data.id = uuidv4()
+        // data.id = uuidv4()
         var draghandle = dd.drag(el, {
           image: true // default drag image
         })
@@ -2727,9 +3471,7 @@ export default defineComponent({
       })
     })
     var me = this
-    setTimeout(function () {
-      me.$q.loading.hide()
-    }, 500)
+
     this.$root.$on('update.tab', () => {
       me.tabChanged(me.tab)
     })
@@ -2739,11 +3481,15 @@ export default defineComponent({
   },
   data () {
     return {
+      task_messages: 0,
+      blockdrawer: false,
       sublevel: {
-        'guest': 0,
-        'free': 1,
+        guest: 0,
+        free: 1,
+        'ec_free-USD-Monthly': 1,
         'ec_developer-USD-Monthly': 2,
-        'ec_pro-USD-Monthly': 3
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
       },
       GUEST: 0,
       FREE: 1,
@@ -2751,10 +3497,15 @@ export default defineComponent({
       PRO: 3,
       HOSTED: 4,
       ENTERPRISE: 5,
+      blockshown: {},
+      blocks: [
+      ],
+      blockstabs: 'blocksregistry',
       loadingchat: false,
       answer: '',
       infodialog: false,
       infotitle: '',
+      consolelog: [],
       separator: ref('vertical'),
       chooseplan: false,
       flowloading: false,
@@ -2834,6 +3585,7 @@ export default defineComponent({
       messageSize: 0,
       transmittedSize: 0,
       stats: {
+        usage: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         nodes: 0,
         agents: 0,
         queues: 0,
@@ -2851,7 +3603,9 @@ export default defineComponent({
       groups: 0,
       librarydrawer: false,
       chatdrawer: false,
+      blocksdrawer: false,
       newQueueDialog: false,
+      pythontabs: 'pythonconsole',
       messagedrawer: false,
       queueloading: false,
       queueSplitter: 50,
@@ -2912,6 +3666,8 @@ export default defineComponent({
         // rowsNumber: xx if getting data from a server
       },
       viewQueueDialog: false,
+      viewEdgeDialog: false,
+      betanoticedialog: true,
       chatModel: 40,
       splitterModel: 100,
       splitterSave: 73,
@@ -3047,7 +3803,7 @@ export default defineComponent({
           id: 1
         }
       ],
-      drawertab: 'messages',
+      drawertab: 'console',
       drawer: true,
       tab: 'flow1',
       tools: 'code',
