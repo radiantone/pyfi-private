@@ -23,8 +23,7 @@ test:
 format:
 	$(isort)
 	$(black)
-	PATH=$(node20path):$PATH;
-	eslint --fix ui/src/components
+	eslint --ext .js,.ts --fix ui/src/components #.vue
 
 .PHONY: lint
 lint:
