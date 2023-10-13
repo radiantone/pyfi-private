@@ -29,6 +29,15 @@
     - requests
   </py-env>
   <style>
+    .center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+      z-index: -9999;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
     .loader {
       position: fixed;
       left: 0px;
@@ -36,7 +45,7 @@
       width: 100%;
       height: 100%;
       z-index: -9999;
-      background: url("images/elasticcode.png") 50% 50% no-repeat rgb(249, 249, 249);
+      background: url("~/assets/images/elasticcode.png") 50% 50% no-repeat rgb(249, 249, 249);
     }
 
   </style>
@@ -57,7 +66,10 @@
 
 <!-- DO NOT touch the following DIV -->
 <div id="q-app"></div>
-<div class="loader"></div>
+<div class="center" >
+  <img src="images/elasticcode.png" >
+</div>
+
 <!--
 <img src="images/elasticcode-loading.svg" width="400px"/>
 <script>
