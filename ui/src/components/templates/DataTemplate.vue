@@ -3060,6 +3060,13 @@ export default {
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA EDGE TEMPLATE RESULT', resultstr)
+
+        const msg = {
+          type: 'output',
+          processor: this.obj.name,
+          output: resultstr
+        }
+        this.$root.$emit('message.received', msg)
         console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
         _port.getEdges().forEach((edge) => {
           console.log('DATA EDGE->NODE', edge, edge.target.getNode())
@@ -3090,7 +3097,7 @@ export default {
           // are present, then trigger the function with all the parameters
         })
       }, (error) => {
-
+        // TODO: Set error message/mode on block
       })
 
       console.log('PORT RESULT ', _port, result)

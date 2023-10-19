@@ -850,9 +850,8 @@
     </q-item-label>
     <q-btn
       flat
-      style="min-height: 45px;position:absolute; left:310px;top:55px"
+      style="min-height: 45px;position:absolute; right:20px;top:85px;font-size:1.5em"
       size="xl"
-      round
       icon="far fa-play-circle"
       class="q-mr-xs"
       @click="runFlow"
@@ -864,6 +863,57 @@
         :offset="[10, 10]"
       >
         Run Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; right:20px;top:150px;font-size:1.5em"
+      size="xl"
+      icon="far fa-save "
+      class="q-mr-xs"
+      @click="saveFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Save Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; right:15px;top:210px;font-size:2em"
+      size="xl"
+      icon="las la-file-download "
+      class="q-mr-xs"
+      @click="downloadFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Download Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; font-weight:bold; right:15px;top:285px;font-size:2em"
+      size="xl"
+      icon="las la-share-square "
+      class="q-mr-xs"
+      @click="shareFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Share Flow
       </q-tooltip>
     </q-btn>
     <div

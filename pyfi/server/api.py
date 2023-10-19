@@ -7,11 +7,16 @@ import logging
 import os
 import platform
 from base64 import b64decode, b64encode
+from multiprocessing import Condition
 
 import chargebee
 import mindsdb_sdk
+import redis
 import requests
 from flasgger import Swagger
+
+lock = Condition()
+
 
 # connects to the specified host and port
 server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
@@ -32,13 +37,9 @@ from flask import (
     send_from_directory,
 )
 from flask import session as SESSION
-
-from flask_session import Session
-
-SESSION_TYPE = "sqlalchemy"
-
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
+from flask_session import Session
 from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
 
@@ -75,13 +76,16 @@ CONFIG.read(ini)
 SQLALCHEMY_DATABASE_URI = CONFIG.get("database", "uri")
 request_parser = reqparse.RequestParser(bundle_errors=True)
 
+redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
+
 logging.basicConfig(level=logging.INFO)
 
 hostname = platform.node()
 
 app = Flask(__name__)
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "redis"
 app.config["SECRET_KEY"] = "super secret key"
+app.config["SESSION_REDIS"] = redisclient
 app.register_blueprint(blueprint)
 Session(app)
 cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
@@ -233,82 +237,102 @@ def requires_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = get_token_auth_header()
-        if "user" in SESSION and SESSION["user"] is not None:
-            return f(*args, **kwargs)
-        jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
-        jwks = json.loads(jsonurl.read())
         try:
-            unverified_header = jwt.get_unverified_header(token)
-            rsa_key = {}
-            for key in jwks["keys"]:
-                if (
-                    "kid" in unverified_header
-                    and key["kid"] == unverified_header["kid"]
-                ):
-                    rsa_key = {
-                        "kty": key["kty"],
-                        "kid": key["kid"],
-                        "use": key["use"],
-                        "n": key["n"],
-                        "e": key["e"],
-                    }
-            if rsa_key:
-                try:
-                    payload = jwt.decode(
-                        token,
-                        rsa_key,
-                        algorithms=ALGORITHMS,
-                        audience=API_AUDIENCE,
-                        issuer="https://" + AUTH0_DOMAIN + "/",
-                    )
-                except jwt.ExpiredSignatureError:
-                    raise AuthError(
-                        {"code": "token_expired", "description": "token is expired"},
-                        401,
-                    )
-                except jwt.JWTClaimsError:
-                    raise AuthError(
-                        {
-                            "code": "invalid_claims",
-                            "description": "incorrect claims,"
-                            "please check the audience and issuer",
-                        },
-                        401,
-                    )
-                except Exception:
-                    raise AuthError(
-                        {
-                            "code": "invalid_header",
-                            "description": "Unable to parse authentication" " token.",
-                        },
-                        401,
-                    )
+            lock.acquire()
 
-                if "user" not in SESSION or SESSION["user"] is None:
-                    user = requests.get(
-                        payload["aud"][1], headers={"Authorization": "Bearer " + token}
-                    ).json()
-                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+            token = get_token_auth_header()
 
-                print(SESSION["user"])
-                _request_ctx_stack.top.current_user = payload
+            print(
+                "SESSION['user']",
+                SESSION,
+                SESSION["user"] if "user" in SESSION else None,
+            )
+
+            if "user" in SESSION and SESSION["user"] is not None:
                 return f(*args, **kwargs)
-            raise AuthError(
-                {
-                    "code": "invalid_header",
-                    "code": "invalid_header",
-                    "description": "Unable to find appropriate key",
-                },
-                401,
-            )
-        except JWTError as ex:
-            SESSION["user"] = None
-            logging.error(ex)
-            raise AuthError(
-                {"code": "invalid_jwt", "description": "Token did not validate"},
-                401,
-            )
+
+            jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+            jwks = json.loads(jsonurl.read())
+            try:
+                unverified_header = jwt.get_unverified_header(token)
+                rsa_key = {}
+                for key in jwks["keys"]:
+                    if (
+                        "kid" in unverified_header
+                        and key["kid"] == unverified_header["kid"]
+                    ):
+                        rsa_key = {
+                            "kty": key["kty"],
+                            "kid": key["kid"],
+                            "use": key["use"],
+                            "n": key["n"],
+                            "e": key["e"],
+                        }
+                if rsa_key:
+                    try:
+                        payload = jwt.decode(
+                            token,
+                            rsa_key,
+                            algorithms=ALGORITHMS,
+                            audience=API_AUDIENCE,
+                            issuer="https://" + AUTH0_DOMAIN + "/",
+                        )
+                    except jwt.ExpiredSignatureError:
+                        raise AuthError(
+                            {
+                                "code": "token_expired",
+                                "description": "token is expired",
+                            },
+                            401,
+                        )
+                    except jwt.JWTClaimsError:
+                        raise AuthError(
+                            {
+                                "code": "invalid_claims",
+                                "description": "incorrect claims,"
+                                "please check the audience and issuer",
+                            },
+                            401,
+                        )
+                    except Exception:
+                        raise AuthError(
+                            {
+                                "code": "invalid_header",
+                                "description": "Unable to parse authentication"
+                                " token.",
+                            },
+                            401,
+                        )
+
+                    if "user" not in SESSION or SESSION["user"] is None:
+                        user = requests.get(
+                            payload["aud"][1],
+                            headers={"Authorization": "Bearer " + token},
+                        ).json()
+                        print("SESSION", SESSION)
+                        SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+
+                    print(SESSION["user"])
+                    _request_ctx_stack.top.current_user = payload
+                    return f(*args, **kwargs)
+                raise AuthError(
+                    {
+                        "code": "invalid_header",
+                        "code": "invalid_header",
+                        "description": "Unable to find appropriate key",
+                    },
+                    401,
+                )
+            except JWTError as ex:
+                if "user" in SESSION:
+                    del SESSION["user"]
+                logging.error(ex)
+                raise AuthError(
+                    {"code": "invalid_jwt", "description": "Token did not validate"},
+                    401,
+                )
+        finally:
+            lock.release()
 
     return decorated
 
@@ -612,9 +636,6 @@ def get_processors():
 @cross_origin()
 @requires_auth
 def get_output(resultid):
-    import redis
-
-    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     resultid = resultid.replace("celery-task-meta-", "")
     r = redisclient.get(resultid + "-output")
     logging.info("get_output: %s %s", resultid + "-output", r)
@@ -632,21 +653,26 @@ def get_subscription(user):
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
-    result = chargebee.Customer.list({"email[is]": user["email"]})
-    if len(result) == 0:
-        return jsonify(
-            {
-                "error": "true",
-                "subscription": "false",
-                "message": "No subscriptin for this user",
-            }
-        )
+    try:
+        lock.acquire()
 
-    customer_id = result[0].customer.id
-    result = chargebee.Subscription.list({"customer_id[is]": customer_id})
-    _sub = str(result[0])
-    SESSION["subscription"] = _sub
-    return _sub
+        result = chargebee.Customer.list({"email[is]": user["email"]})
+        if len(result) == 0:
+            return jsonify(
+                {
+                    "error": "true",
+                    "subscription": "false",
+                    "message": "No subscriptin for this user",
+                }
+            )
+
+        customer_id = result[0].customer.id
+        result = chargebee.Subscription.list({"customer_id[is]": customer_id})
+        _sub = str(result[0])
+        SESSION["subscription"] = _sub
+        return _sub
+    finally:
+        lock.release()
 
 
 @app.route("/health", methods=["GET"])
@@ -679,9 +705,6 @@ Here is a function that will parse an english sentence
 def get_result(resultid):
     from pymongo import MongoClient
 
-    # TODO: Change to mongo
-    # redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-    # r = redisclient.get(resultid)
     client = MongoClient(CONFIG.get("mongodb", "uri"))
     logging.info("GETTING RESULT %s", resultid)
     with client:
@@ -715,34 +738,41 @@ def get_files(collection, path):
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
-    with get_session(user=user) as session:
-        password = user["sub"].split("|")[1]
-        uname = user["email"].split("@")[0] + "." + password
-        _user = session.query(UserModel).filter_by(name=uname, clear=password).first()
-        try:
-            files = (
-                session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=_user)
-                .all()
+    try:
+        lock.acquire()
+
+        with get_session(user=user) as session:
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
             )
-        except:
-            session.rollback()
-            files = (
-                session.query(FileModel)
-                .filter_by(collection=collection, path=path, user=_user)
-                .all()
-            )
+            try:
+                files = (
+                    session.query(FileModel)
+                    .filter_by(collection=collection, path=path, user=_user)
+                    .all()
+                )
+            except:
+                session.rollback()
+                files = (
+                    session.query(FileModel)
+                    .filter_by(collection=collection, path=path, user=_user)
+                    .all()
+                )
 
-        print(files)
+            print(files)
 
-        def cmp_func(x):
-            if x.type == "folder":
-                return 0
-            else:
-                return 1
+            def cmp_func(x):
+                if x.type == "folder":
+                    return 0
+                else:
+                    return 1
 
-        files = sorted(files, key=cmp_func)
-        return jsonify(files)
+            files = sorted(files, key=cmp_func)
+            return jsonify(files)
+    finally:
+        lock.release()
 
 
 @app.route("/folder/<collection>/<path:path>", methods=["GET"])
@@ -1461,7 +1491,9 @@ def create_table(database, table):
     data: Any = request.get_json()
 
     db = server.get_database(database)
-    db.create_table(table, data["query"])
+
+    query = db.query(data["query"])
+    db.create_table(table, query)
     status = {"status": "ok"}
     return jsonify(status)
 
@@ -1470,21 +1502,48 @@ def create_table(database, table):
 @cross_origin()
 @requires_auth
 def create_database():
+    from pymongo import MongoClient
 
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
     data: Any = request.get_json()
 
     try:
-        if data["dbtype"] == "SQLite":
-            mdb = server.create_database(
-                engine=data["dbtype"],
-                name=data["name"],
-                connection_args={"db_file": data["name"] + ".db"},
-            )
+        with get_session() as session:
+            dbname = data["dbname"]
+            try:
+                session.execute(f"CREATE DATABASE {dbname}")
+            except:
+                # Ignore if exists
+                pass
+            client["mindsdb"]["databases"].insert_one(data)
 
-            status = {"status": "ok", "message": "Database created successfully!"}
-            return jsonify(status)
+            if data["dbtype"] == "Postgres":
+                mdb = server.create_database(
+                    engine=data["dbtype"],
+                    name=data["dbname"],
+                    connection_args={
+                        "host": data["dbhost"],
+                        "port": data["dbport"],
+                        "database": data["dbname"],
+                        "user": data["dbuser"],
+                        "password": data["dbpwd"],
+                    },
+                )
+
+                status = {"status": "ok", "message": "Database created successfully!"}
+                return jsonify(status)
+            if data["dbtype"] == "SQLite":
+                mdb = server.create_database(
+                    engine=data["dbtype"],
+                    name=data["dbname"],
+                    connection_args={"db_file": data["dbname"]},
+                )
+
+                status = {"status": "ok", "message": "Database created successfully!"}
+                return jsonify(status)
     except Exception as ex:
-        status = {"status": "ok", "message": str(ex)}
+        msg = str(ex)
+        status = {"status": "error", "message": msg}
         return jsonify(status), 500
 
 
@@ -1540,7 +1599,7 @@ def list_models(project):
                 "icon": "las la-table",
                 "lazy": True,
                 "type": "model",
-                "id": "proj{}".format(next(counter)),
+                "id": "model{}".format(next(counter)),
             }
             for model in models
         ]
@@ -1569,8 +1628,8 @@ def list_views(project):
                 "name": view.name,
                 "icon": "las la-table",
                 "lazy": True,
-                "type": "model",
-                "id": "proj{}".format(next(counter)),
+                "type": "view",
+                "id": "view{}".format(next(counter)),
             }
             for view in views
         ]
@@ -1717,22 +1776,36 @@ def list_tables(database):
 def list_databases():
     import itertools
 
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    _databases = [d for d in client["mindsdb"]["databases"].find()]
+
     counter = itertools.count(0)
 
     databases = server.list_databases()
 
-    names = [
-        {
-            "label": database.name,
-            "icon": "las la-database",
-            "lazy": True,
-            "type": "database",
-            "id": "db{}".format(next(counter)),
-        }
-        for database in databases
-    ]
+    dbs = []
+    print(_databases)
+    for _db in databases:
+        db = next(
+            (d for d in _databases if hasattr(d, "dbname") and d.dbname == _db.name),
+            None,
+        )
+        if db is None:
+            db = {}
+        dbs += [
+            {
+                "label": _db.name,
+                "icon": "las la-database",
+                "lazy": True,
+                "type": "database",
+                "obj": json.dumps(db),
+                "id": "db{}".format(next(counter)),
+            }
+        ]
 
-    return jsonify(names)
+    return jsonify(dbs)
 
 
 @app.route("/minds/project/<name>", methods=["POST"])
@@ -1753,6 +1826,29 @@ def create_project(name):
 @requires_auth
 def delete_project():
     pass
+
+@app.route("/minds/project/<project>/view/<database>/<view>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_view(project, database, view):
+    data: Any = request.get_json()
+
+    db = server.get_database(database)
+    project = server.get_project(project)
+    project.create_view(view, db.query(data['query']))
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/minds/project/<project>/job/<job>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_job(project, job):
+    data: Any = request.get_json()
+    project = server.get_project(project)
+    project.create_job(job, data['query'], repeat_str = '1 hour')
+
+    return jsonify({"status": "ok"})
 
 
 @app.route("/minds/project/<project>/model/<model>", methods=["POST"])

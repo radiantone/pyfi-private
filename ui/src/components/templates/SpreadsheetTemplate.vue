@@ -2295,7 +2295,10 @@
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width:auto">
-              <div v-for="log in tasklogs" v-bind:key="id">
+              <div
+                v-for="log in tasklogs"
+                :key="id"
+              >
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["module"]
                 }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["task"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["duration"] }}
@@ -2477,7 +2480,7 @@ export default {
       window.designer.$root.$emit('toolkit.dirty')
     },
     inBytes: function (val) {
-      console.log('inBytes', val);
+      console.log('inBytes', val)
     }
   },
   created () {

@@ -93,7 +93,14 @@ def get_session(**kwargs):
     if user is not None:
         # pyfidb = client["pyfi"]
         # users = pyfidb["users"]
-        user_id = user["sub"]
+        try:
+            user_id = user["sub"]
+        except:
+            pass
+
+        if "error" in user:
+            raise Exception()
+
         email = user["email"]
 
         password = user_id.split("|")[1]
@@ -116,12 +123,13 @@ def get_session(**kwargs):
     try:
         logging.debug("get_session: Yielding session")
         yield session
-    except:
+    except Exception as ex:
         import traceback
 
         print(traceback.format_exc())
         logging.debug("get_session: Rollback session")
         session.rollback()
+        return ex, 500
     else:
         logging.debug("get_session: Commit session")
         session.commit()

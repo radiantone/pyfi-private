@@ -537,7 +537,7 @@ export default {
   },
   watch: {
     inBytes: function (val) {
-      console.log('inBytes', val);
+      console.log('inBytes', val)
     }
   },
   created () {
@@ -589,7 +589,6 @@ export default {
         me.tasklogs = me.tasklogs.slice(0, 100)
       }
       if (msg.channel === 'task' && msg.message) {
-
         tsdb.series('outBytes').insert(
           {
             bytes: bytes

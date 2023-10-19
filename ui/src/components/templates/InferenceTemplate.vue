@@ -1051,8 +1051,8 @@
           dense
           :options-dense="true"
           style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-          v-model="viewtable"
-          :options="tables"
+          v-model="predictmodel"
+          :options="modelrows"
           hint="Prediction Model"
           option-value="name"
           option-label="name"
@@ -1124,7 +1124,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Fetch Data
+            Make Predictions
           </q-tooltip>
         </q-btn>
 
@@ -1144,24 +1144,6 @@
             content-class="bg-black text-white"
           >
             Reset Zoom Level
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          style="position: absolute; bottom: 0px; left: 200px; width: 50px; margin: 0px;"
-          flat
-          icon="fas fa-plus"
-          class="bg-primary text-accent"
-          color="primary"
-          v-close-popup
-          @click="addRow"
-        >
-          <q-tooltip
-            anchor="top middle"
-            :offset="[-30, 40]"
-            content-style="font-size: 16px"
-            content-class="bg-black text-white"
-          >
-            Add Row
           </q-tooltip>
         </q-btn>
       </q-card-actions>
@@ -1427,11 +1409,11 @@
           <q-tab
             name="viewsconfig"
             label="Views"
-          />
+          /><!--
           <q-tab
             name="containersettings"
             label="Container"
-          /><!--
+          />
           <q-tab
             name="schedule"
             label="Schedule"
@@ -1459,6 +1441,7 @@
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
+                :rows-per-page-options="[10]"
               />
             </div>
 
@@ -1606,32 +1589,9 @@
                         />
                       </q-popup-edit>
                     </q-td>
+
                     <q-td
                       :key="props.cols[1].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.cols[1].name }}</a>
-                      <q-popup-edit
-                        v-model="props.cols[1].name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.cols[1].name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[2].name"
-                      :props="props"
-                    >
-                      {{ props.cols[2].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[3].name"
                       :props="props"
                     >
                       <q-btn
@@ -1706,6 +1666,7 @@
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
+
                 <template #body="props">
                   <q-tr
                     :props="props"
@@ -1729,32 +1690,9 @@
                         />
                       </q-popup-edit>
                     </q-td>
+
                     <q-td
                       :key="props.cols[1].name"
-                      :props="props"
-                    >
-                      <a class="text-secondary">{{ props.cols[1].name }}</a>
-                      <q-popup-edit
-                        v-model="props.cols[1].name"
-                        v-slot="scope"
-                        buttons
-                      >
-                        <q-input
-                          v-model="props.cols[1].name"
-                          dense
-                          autofocus
-                          counter
-                        />
-                      </q-popup-edit>
-                    </q-td>
-                    <q-td
-                      :key="props.cols[2].name"
-                      :props="props"
-                    >
-                      {{ props.cols[2].value }}
-                    </q-td>
-                    <q-td
-                      :key="props.cols[3].name"
                       :props="props"
                     >
                       <q-btn
@@ -2654,7 +2592,7 @@
       v-model="configureDatabaseDialog"
     >
       <q-card
-        style="padding: 10px; padding-top: 30px; min-width: 40vw; height: 70%;"
+        style="padding: 10px; padding-top: 30px; min-width: 60vw; height: 70%;"
       >
         <q-card-section
           class="bg-secondary"
@@ -2703,22 +2641,26 @@
           >
             <template #before>
               <div class="q-pa-md q-gutter-sm">
-                <q-tree
-                  :nodes="lazy"
-                  default-expand-all
-                  node-key="id"
-                  ref="tree"
-                  @lazy-load="onLazyLoad"
-                  @update:selected="selectTreeNode"
-                  :selected="selected"
-                />
+                <q-scroll-area
+                  style="height:calc(100vh - 500px);width:auto"
+                >
+                  <q-tree
+                    :nodes="lazy"
+                    default-expand-all
+                    node-key="id"
+                    ref="tree"
+                    @lazy-load="onLazyLoad"
+                    @update:selected="selectTreeNode"
+                    :selected="selected"
+                  />
+                </q-scroll-area>
               </div>
             </template>
 
             <template #after>
               <div
                 class="q-pa-md"
-                style="width:650px;height:650px"
+                style="width:100%;height:650px"
               >
                 <q-inner-loading
                   :showing="loadingObject"
@@ -2755,7 +2697,7 @@
                       >
                         <q-input
                           filled
-                          v-model="obj.name"
+                          v-model="obj.mindsobj.dbname"
                           dense
                           hint="Database Name"
                           lazy-rules
@@ -2766,14 +2708,14 @@
                           dense
                           :options-dense="true"
                           style="font-size: 1em; margin-left:20px; margin-right: 5px;"
-                          v-model="obj.database"
+                          v-model="obj.mindsobj.dbtype"
                           :options="databases"
                           hint="Database Type"
                           value="string"
                           :menu-offset="[5, -9]"
                         />
                         <q-tab-panels
-                          v-model="obj.database"
+                          v-model="obj.mindsobj.dbtype"
                           animated
                           style="width:100%;height:100%"
                         >
@@ -2888,7 +2830,10 @@
                       </q-card-actions>
                     </div>
                   </q-tab-panel>
-                  <q-tab-panel name="table">
+                  <q-tab-panel
+                    name="table"
+                    style="height:100%;width: 100%"
+                  >
                     <q-table
                       dense
                       flat
@@ -2911,7 +2856,7 @@
                       >
                         <q-input
                           filled
-                          v-model="obj.name"
+                          v-model="obj.mindsobj.dbname"
                           dense
                           hint="Database Name"
                           lazy-rules
@@ -2920,20 +2865,19 @@
 
                         <q-input
                           filled
-                          v-model="obj.description"
+                          v-model="obj.mindsobj.dbdesc"
                           dense
                           hint="Database Description"
                           lazy-rules
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
-
                         <q-input
                           filled
-                          v-model="obj.icon"
+                          v-model="obj.mindsobj.dbtype"
                           dense
-                          hint="Icon Class"
+                          hint="Database Type"
                           lazy-rules
-                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+                          disable
                         />
 
                         <q-input
@@ -2942,7 +2886,6 @@
                           dense
                           hint="Table Name"
                           lazy-rules
-                          style="padding-top:5em"
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
                         <q-input
@@ -2983,23 +2926,6 @@
                             content-class="bg-black text-white"
                           >
                             Delete Database
-                          </q-tooltip>
-                        </q-btn>
-                        <q-btn
-                          style="position: absolute; bottom: 0px; left: 120px; width: 100px;"
-                          flat
-                          label="Update"
-                          class="bg-secondary text-white"
-                          color="dark"
-                          @click="updateDatabase"
-                        >
-                          <q-tooltip
-                            anchor="top middle"
-                            :offset="[-30, 40]"
-                            content-style="font-size: 16px"
-                            content-class="bg-black text-white"
-                          >
-                            Update Database
                           </q-tooltip>
                         </q-btn>
                       </q-card-actions>
@@ -3484,7 +3410,7 @@
                 @update:model-value="updatePredictedColumn"
               />
 
-<q-input
+              <q-input
                 filled
                 v-model="model.column"
                 dense
@@ -3513,6 +3439,7 @@
                 filled
                 type="textarea"
                 hint="Query"
+                disable
               />
             </q-form>
           </div>
@@ -3596,11 +3523,11 @@
 
               <q-input
                 dense
-                v-model="viewdescription"
+                v-model="viewquery"
                 style="width:100%"
                 filled
                 type="textarea"
-                hint="View Description"
+                hint="View Query"
               />
             </q-form>
           </div>
@@ -3621,7 +3548,7 @@
             label="Create"
             class="bg-secondary text-white"
             v-close-popup
-            :disable="(!viewname || viewname.length === 0)"
+            :disable="(!viewname || viewname.length === 0) && (!viewquery || viewquery.length === 0)"
             @click="createView"
           />
         </q-card-actions>
@@ -3684,11 +3611,11 @@
 
               <q-input
                 dense
-                v-model="jobdescription"
+                v-model="jobquery"
                 style="width:100%"
                 filled
                 type="textarea"
-                hint="Job Description"
+                hint="Job Query"
               />
             </q-form>
           </div>
@@ -4253,6 +4180,11 @@ export default {
   },
   data () {
     return {
+      predictmodel: '',
+      viewname: '',
+      viewquery: '',
+      jobname: '',
+      jobquery: '',
       tablename: '',
       tablequery: '',
       tablerows: [],
@@ -4930,22 +4862,23 @@ export default {
   },
   methods: {
     createModel () {
-      DataService.createModel(this.model.name, this.obj.databasename, this.obj.projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then( ()=> {
+      DataService.createModel(this.model.name, this.obj.databasename, this.obj.projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then(() => {
         this.$q.notify({
-            color: 'secondary',
-            timeout: 2000,
-            position: 'top',
-            message: 'Create model ' + this.model.name + ' succeeded!',
-            icon: 'save'
-          })
-      }).catch( (err) => {
-          this.$q.notify({
-            color: 'negative',
-            timeout: 2000,
-            position: 'bottom',
-            message: 'Erro creating model '+this.model.name,
-            icon: 'fas fa-exclamation'
-          })
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Create model ' + this.model.name + ' succeeded!',
+          icon: 'save'
+        })
+        this.updateModels()
+      }).catch((err) => {
+        this.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'bottom',
+          message: 'Erro creating model ' + this.model.name,
+          icon: 'fas fa-exclamation'
+        })
         console.log(err)
       })
     },
@@ -4972,7 +4905,7 @@ export default {
 
     updateModels () {
       DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
-        console.log("listModels",result)
+        console.log('listModels', result)
         this.modelrows = result.data
       })
     },
@@ -4982,10 +4915,79 @@ export default {
         this.tablerows = result.data
       })
     },
+    createJob () {
+      this.loadingObject = true
+      DataService.createJob(this.obj.projectname, this.jobname, this.jobquery, this.$store.state.designer.token).then(() => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Create job ' + this.jobname + ' succeeded!',
+          icon: 'save'
+        })
+        this.updateJobs()
+      }).catch((err) => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'bottom',
+          message: 'Erro creating job ' + this.jobname,
+          icon: 'fas fa-exclamation'
+        })
+      })
+    },
+    createView () {
+      this.loadingObject = true
+      DataService.createView(this.obj.databasename,this.obj.projectname, this.viewname, this.viewquery, this.$store.state.designer.token).then(() => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Create view ' + this.viewname + ' succeeded!',
+          icon: 'save'
+        })
+        this.updateViews()
+      }).catch((err) => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'bottom',
+          message: 'Erro creating view ' + this.viewname,
+          icon: 'fas fa-exclamation'
+        })
+      })
+    },
+    createTable () {
+      this.loadingObject = true
+      DataService.createTable(this.obj.databasename, this.tablename, this.tablequery, this.$store.state.designer.token).then(() => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Create table ' + this.tablename + ' succeeded!',
+          icon: 'save'
+        })
+        this.updateTables()
+      }).catch((err) => {
+        this.loadingObject = false
+        this.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'bottom',
+          message: 'Erro creating table ' + this.tablename,
+          icon: 'fas fa-exclamation'
+        })
+      })
+    },
     createMindsTable () {
       this.loadingObject = true
 
-      DataService.createTable(this.selectedNode.label, this.tablename, this.tablequery).then(() => {
+      DataService.createTable(this.selectedNode.label, this.tablename, this.tablequery, this.$store.state.designer.token).then(() => {
         this.loadingObject = false
         this.projectResult = 'Table created successfully.'
       }).catch((err) => {
@@ -4998,6 +5000,18 @@ export default {
         const node = this.$refs.tree.getNodeByKey(v)
         this.selected = node.id
         this.selectedNode = node
+        const mindsdb = {}
+        this.obj.mindsobj.dbtype = ''
+        this.obj.mindsobj.dbdesc = ''
+        this.obj.mindsobj.dbfile = ''
+        try {
+          mindsobj = JSON.parse(node.obj)
+          this.obj.mindsobj = mindsobj
+        } catch {
+
+        }
+        this.obj.mindsobj.dbname = node.label
+        console.log('this.obj.mindsobj.dbname', this.obj.mindsobj.dbname)
         console.log('Selected Node', v, node)
         this.inferencetabs = node.type
         setTimeout(() => {
@@ -5028,6 +5042,16 @@ export default {
 
       if (node.type === 'models') {
         DataService.listModels(node.project.label, this.$store.state.designer.token).then((result) => {
+          done(result.data)
+        })
+      }
+      if (node.type === 'views') {
+        DataService.listViews(node.project.label, this.$store.state.designer.token).then((result) => {
+          done(result.data)
+        })
+      }
+      if (node.type === 'jobs') {
+        DataService.listJobs(node.project.label, this.$store.state.designer.token).then((result) => {
           done(result.data)
         })
       }
@@ -5122,8 +5146,9 @@ export default {
       DataService.createDatabase(this.obj.mindsobj,
         this.$store.state.designer.token).then((res) => {
         this.loadingObject = false
-        this.createDatabaseResult = res.response.data.message
+        this.createDatabaseResult = 'Create database successful!'
       }).catch((err) => {
+        console.log('ERR', err)
         this.loadingObject = false
         this.createDatabaseResult = err.response.data.message
       })

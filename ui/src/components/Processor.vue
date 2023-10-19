@@ -321,17 +321,28 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             })
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
+              console.log('RES.status', res, res.status)
               const jsonoutput = res.toJs()
               const _result = toObject(jsonoutput)
               console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
               this.$emit('message.received', {
                 type: 'result',
                 id: id,
-                function: 'run',
+                function: me.middlewarefunc,
                 obj: obj,
                 param: param,
                 portname: portname,
                 output: JSON.stringify(_result)
+              })
+            }).catch((err: any) => {
+              this.$emit('middleware.error', {
+                type: 'error',
+                id: id,
+                function: me.middlewarefunc,
+                obj: obj,
+                param: param,
+                portname: portname,
+                output: err
               })
             })
           }

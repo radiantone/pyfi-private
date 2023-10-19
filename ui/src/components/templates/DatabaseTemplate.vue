@@ -344,7 +344,7 @@
         <a
           href="#"
           style="color: red;"
-        >Error<q-tooltip
+        >{{ errorMsg }}<q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
           content-style="font-size: 16px"
@@ -2765,18 +2765,24 @@ export default {
 */
       this.$forceUpdate()
     })
+    this.$on('middleware.error', (msg) => {
+      this.errorMsg = 'Middleware execution error'
+      this.error = true
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          column.loading = false
+        }
+      })
+    })
 
     this.$on('middleware.started', (msg) => {
       // When middleware has been started, show
       // the spinner icon
+      this.errorMsg = ''
+      this.error = false
       this.obj.columns.forEach((column) => {
         if (column.id === msg.portname) {
           column.loading = true
-
-          if (!column.loaders) {
-            column.loaders = []
-          }
-          column.loaders.push({})
         }
       })
       setTimeout(me.$forceUpdate)
@@ -2786,10 +2792,7 @@ export default {
       if (msg.type && msg.type === 'result') {
         this.obj.columns.forEach((column) => {
           if (column.id === msg.portname) {
-            if (column.loaders) {
-              column.loaders.pop()
-            }
-            if (column.loaders.length === 0) {
+            if (column.id === msg.portname) {
               column.loading = false
             }
             this.$forceUpdate()
@@ -3606,10 +3609,12 @@ export default {
           me.saving = false
         }).catch((err) => {
           console.log('ERROR', err)
+          me.error = true
+          me.errorMsg = 'Error fetching database rows'
           me.saving = false
         })
       } else {
-        this.saving = true
+        this.saving = false
       }
     },
     pullSchema () {
@@ -3647,6 +3652,7 @@ export default {
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
         me.saving = false
+        me.pullSchema()
       }).catch(() => {
         me.schemaResult = 'Create Schema failure'
         me.saving = false

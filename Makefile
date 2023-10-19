@@ -72,6 +72,11 @@ update: freeze format lint
 install-ui:
 	cd ui; npm install
 
+.PHONY: dev
+dev:
+	( cd ui; SOCKETIO=https://localhost quasar dev --debug)
+
+
 .PHONY: ui
 ui:
 	( cd ui; SOCKETIO=https://localhost quasar build; git add -f dist/spa )
