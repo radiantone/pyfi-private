@@ -39,10 +39,10 @@ from flask import (
 from flask import session as SESSION
 from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
-from flask_session import Session
 from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
 
+from flask_session import Session
 from pyfi.blueprints.show import blueprint
 from pyfi.client.user import USER
 from pyfi.db import get_session
@@ -1596,7 +1596,7 @@ def list_models(project):
             {
                 "label": model.name,
                 "name": model.name,
-                "icon": "las la-table",
+                "icon": "las la-cube",
                 "lazy": True,
                 "type": "model",
                 "id": "model{}".format(next(counter)),
@@ -1827,6 +1827,7 @@ def create_project(name):
 def delete_project():
     pass
 
+
 @app.route("/minds/project/<project>/view/<database>/<view>", methods=["POST"])
 @cross_origin()
 @requires_auth
@@ -1835,7 +1836,7 @@ def create_view(project, database, view):
 
     db = server.get_database(database)
     project = server.get_project(project)
-    project.create_view(view, db.query(data['query']))
+    project.create_view(view, db.query(data["query"]))
 
     return jsonify({"status": "ok"})
 
@@ -1846,7 +1847,7 @@ def create_view(project, database, view):
 def create_job(project, job):
     data: Any = request.get_json()
     project = server.get_project(project)
-    project.create_job(job, data['query'], repeat_str = '1 hour')
+    project.create_job(job, data["query"], repeat_str="1 hour")
 
     return jsonify({"status": "ok"})
 
@@ -1876,9 +1877,11 @@ def clear():
     database = data["database"]
     url = data["url"]
 
-    conn, cursor = get_cursor(database, url)
-    cursor.execute(f"DELETE from {table}")
-    cursor.execute("COMMIT")
+    conn = get_connection(database, url)
+
+    with conn.connect() as conn_session:
+        conn_session.execute(f"DELETE from {table}")
+        conn_session.execute("COMMIT")
 
     return jsonify({"status": "ok"})
 
@@ -1896,35 +1899,43 @@ def rows():
     url = data["url"]
 
     schemas = get_tables(database, url)
-    conn, cursor = get_cursor(database, url)
-    rows = cursor.execute(f"SELECT * from {table} limit 100")
+    conn = get_connection(database, url)
 
-    results = []
-    for schema in schemas:
-        if schema["name"] == table:
-            for row in rows:
-                results += [{col: data for col, data in zip(schema["cols"], row)}]
+    with conn.connect() as conn_session:
+        rows = conn_session.execute(f"SELECT * from {table} limit 100")
+
+        results = []
+        for schema in schemas:
+            if schema["name"] == table:
+                for row in rows:
+                    results += [{col: data for col, data in zip(schema["cols"], row)}]
 
     return jsonify(results)
 
 
 def get_tables(database, url):
-    conn, cursor = get_cursor(database, url)
-    tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    from sqlalchemy import MetaData
 
-    _tables = list(tables)
+    metadata = MetaData()
+
+    conn = get_connection(database, url)
+    print(metadata.create_all(conn))
+    # TODO: Switch to sqlalchemy approach
+    tables = conn.table_names()
 
     results = []
 
-    for table in _tables:
-        cur = conn.execute(f"select * from {table[0]}")
-        # instead of cursor.description:
-        desc = cur.description
-        cols = [val[0] for val in desc]
-        cur = conn.execute(f"SELECT sql FROM sqlite_schema WHERE name = '{table[0]}';")
+    from pymongo import MongoClient
 
-        results += [{"name": table[0], "cols": cols, "schema": list(cur)[0][0]}]
-        print(cols)
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    with client:
+        with conn.connect() as conn_session:
+            ddl = client["elastic"]["schemas"].find_one({"type": database, "url": url})
+            for table in tables:
+                rows = conn_session.execute(f"select * from {table} limit 1")
+                cols = [str(key) for key in rows.keys()]
+
+                results += [{"name": table, "cols": cols, "schema": ddl["schema"]}]
 
     return results
 
@@ -1933,7 +1944,6 @@ def get_tables(database, url):
 @cross_origin()
 @requires_auth
 def tables():
-    """Get all the tables for the database info in the POST json"""
     """Get all the tables for the database info in the POST json"""
     data: Any = request.get_json()
 
@@ -1946,15 +1956,26 @@ def tables():
     return jsonify({"status": "ok", "tables": results})
 
 
-def get_cursor(database, url):
+def get_connection(database, url):
     import sqlite3
     from urllib.parse import urlparse
 
+    import sqlalchemy
+
     if database == "SQLite":
+        engine = sqlalchemy.create_engine(url)
+
         dbname = urlparse(url).path.split("/")[1]
         con = sqlite3.connect(f"{dbname}")
         cur = con.cursor()
-        return con, cur
+        return engine
+
+    if database == "Postgres":
+        try:
+            engine = sqlalchemy.create_engine(url)
+            return engine
+        except Exception as ex:
+            print(ex)
 
     return None
 
@@ -1970,7 +1991,7 @@ def test():
     database = data["type"]
     url = data["url"]
 
-    if get_cursor(database, url):
+    if get_connection(database, url):
 
         return jsonify({"status": "ok"})
 
@@ -1986,15 +2007,25 @@ def schema():
 
     database = data["type"]
     url = data["url"]
-    ddl = data["schema"]
+    ddl = data["schema"].strip()
     logging.info("DDL %s", ddl)
 
-    conn, cursor = get_cursor(database, url)
+    from pymongo import MongoClient
 
-    stmts = ddl.split(";")
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    with client:
+        client["elastic"]["schemas"].update_one(
+            {"type": database, "url": url}, {"$set": data}, upsert=True
+        )
 
-    for stmt in stmts:
-        cursor.execute(stmt)
+        conn = get_connection(database, url)
+
+        with conn.connect() as conn_session:
+
+            stmts = ddl.split(";")
+
+            for stmt in stmts:
+                conn_session.execute(stmt)
 
     return jsonify({"status": "ok"})
 

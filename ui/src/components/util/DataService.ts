@@ -51,6 +51,14 @@ class DataService {
     })
   }
 
+  createJob (project: string, name: string, query: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + project + '/job/' + name, { query: query }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   createView (database: string, project: string, name: string, query: string, token: string): Promise<any> {
     return http.post('/api/minds/project/' + project + '/view/' + database + '/' + name, { query: query }, {
       headers: {
