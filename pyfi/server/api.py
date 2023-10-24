@@ -1678,6 +1678,26 @@ def get_model(project, model):
     return jsonify(project.get_model(model))
 
 
+@app.route("/minds/<project>/models/<model>/<limit>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_prediction(project, model, limit=25):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+    _dbmodel = client["mindsdb"]["models"].find_one({"project":project, "name":model})
+    database = server.get_database(_dbmodel["database"])
+    table = database.get_table(_dbmodel["table"])
+
+    predictions = _model.predict(table.limit(int(limit)))
+
+    return jsonify(predictions.to_dict())
+
+
 @app.route("/minds/<project>/model/<model>/status", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -1754,11 +1774,11 @@ def list_tables(database):
     database = server.get_database(database)
 
     tables = database.list_tables()
-
+    tables = list(set([table.name for table in tables]))
     names = [
         {
-            "label": table.name,
-            "name": table.name,
+            "label": table,
+            "name": table,
             "icon": "las la-table",
             "lazy": True,
             "type": "table",
@@ -1768,6 +1788,24 @@ def list_tables(database):
     ]
 
     return jsonify(names)
+
+
+@app.route("/minds/database/<database>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_database(database):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    db = client["mindsdb"]["databases"].find_one({"dbname":database})
+
+    return jsonify({
+        "dbname": db["dbname"],
+        "dbtype": db["dbtype"],
+        "dbuser": db["dbuser"],
+        "dbhost": db["dbhost"],
+        "dbport": db["dbport"]
+    })
 
 
 @app.route("/minds/databases", methods=["GET"])
@@ -1856,12 +1894,19 @@ def create_job(project, job):
 @cross_origin()
 @requires_auth
 def create_model(project, model):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
     data: Any = request.get_json()
-    project = server.get_project(project)
+    _project = server.get_project(project)
 
     table = server.get_database(data["database"]).get_table(data["table"])
-    project.create_model(name=model, predict=data["column"], query=table)
+    _project.create_model(name=model, predict=data["column"], query=table)
 
+    data["name"] = model
+    data["project"] = project
+    client["mindsdb"]["models"].insert_one(data)
     return jsonify({"status": "ok"})
 
 
@@ -1913,13 +1958,43 @@ def rows():
     return jsonify(results)
 
 
-def get_tables(database, url):
-    from sqlalchemy import MetaData
 
-    metadata = MetaData()
+@app.route("/db/inference/rows/<database>/<project>/<model>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def inference_rows(database, project, model):
+    """Get all the tables for the database info in the POST json"""
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    db = client["mindsdb"]["databases"].find_one({"dbname":database})
+    _dbmodel = client["mindsdb"]["models"].find_one({"project":project, "database":database, "name":model})
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+
+    # Get name of database from mongo, create connection string from stored properties
+    # get table cols
+    # get rows from mindsdb
+    cols = []
+
+    if db["dbtype"] == 'Postgres':
+        url = f"postgresql://{db['dbuser']}:{db['dbpwd']}@{db['dbhost']}:{db['dbport']}/{db['dbname']}"
+
+        tables = get_tables(db["dbtype"], url)
+
+        cols = [t['cols'] for t in tables if t["name"] == _dbmodel["table"]]
+        cols = cols[0]
+
+    return jsonify({"cols":cols, "rows":[]})
+
+
+def get_tables(database, url):
 
     conn = get_connection(database, url)
-    print(metadata.create_all(conn))
+
     # TODO: Switch to sqlalchemy approach
     tables = conn.table_names()
 
@@ -1935,7 +2010,7 @@ def get_tables(database, url):
                 rows = conn_session.execute(f"select * from {table} limit 1")
                 cols = [str(key) for key in rows.keys()]
 
-                results += [{"name": table, "cols": cols, "schema": ddl["schema"]}]
+                results += [{"name": table, "cols": cols, "schema": ddl["schema"].strip()}]
 
     return results
 

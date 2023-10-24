@@ -19,6 +19,14 @@ class DataService {
     })
   }
 
+  getInferenceRows (table: string, database: string, project: string, token: string): Promise<any> {
+    return http.get('/api/db/inference/rows/' + database + '/' + project + '/' + table, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getFiles (collection: string, folder: string, token: string): Promise<any> {
     return http.get('/api/files/' + collection + '/' + folder, {
       headers: {
@@ -130,6 +138,15 @@ class DataService {
       }
     })
   }
+
+  getPredictions (project: string, model: string, limit: number, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/models/' + model + '/' + limit, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
 
   listViews (project: string, token: string): Promise<any> {
     return http.get('/api/minds/project/' + project + '/views', {
@@ -286,6 +303,15 @@ class DataService {
       }
     })
   }
+
+  getDatabase (database: string, token: string): Promise<any> {
+    return http.get('/api/minds/database/' + database, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
 
   getDeployments (processor: string, token: string): Promise<any> {
     return http.get('/api/deployments/' + processor, {

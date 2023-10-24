@@ -64,14 +64,14 @@
       style="border: 1px solid black;"
     >
       <q-list dense>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="configview = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-cog"/>
+            <q-icon name="fas fa-cog" />
           </q-item-section>
           <q-item-section
             side
@@ -80,7 +80,7 @@
             Configure
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
@@ -88,7 +88,7 @@
           @click="obj.status = 'stopped'"
         >
           <q-item-section side>
-            <q-icon name="fas fa-stop"/>
+            <q-icon name="fas fa-stop" />
           </q-item-section>
           <q-item-section
             side
@@ -104,7 +104,7 @@
           @click="triggerExecute"
         >
           <q-item-section side>
-            <q-icon name="fas fa-play"/>
+            <q-icon name="fas fa-play" />
           </q-item-section>
           <q-item-section
             side
@@ -113,14 +113,14 @@
             Run All
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="addToLibrary"
         >
           <q-item-section side>
-            <q-icon name="fas fa-book"/>
+            <q-icon name="fas fa-book" />
           </q-item-section>
           <q-item-section
             side
@@ -129,15 +129,15 @@
             Add to Library
           </q-item-section>
         </q-item>
-        <q-separator/>
-        <q-separator/>
+        <q-separator />
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           disabled
         >
           <q-item-section side>
-            <q-icon :name="this.abacusIcon"/>
+            <q-icon :name="this.abacusIcon" />
           </q-item-section>
           <q-item-section
             side
@@ -152,7 +152,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="fas fa-book"/>
+            <q-icon name="fas fa-book" />
           </q-item-section>
           <q-item-section
             side
@@ -167,7 +167,7 @@
           disabled
         >
           <q-item-section side>
-            <q-icon name="las la-list"/>
+            <q-icon name="las la-list" />
           </q-item-section>
           <q-item-section
             side
@@ -176,14 +176,14 @@
             View Connections
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
         <q-item
           clickable
           v-close-popup
           @click="centerOnNode"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group"/>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
           <q-item-section
             side
@@ -198,7 +198,7 @@
           @click="cornerInView"
         >
           <q-item-section side>
-            <q-icon name="far fa-object-group"/>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
           <q-item-section
             side
@@ -223,7 +223,7 @@
           </q-item-section>
           <q-item-section side class="text-blue-grey-8">Group</q-item-section>
         </q-item>-->
-        <q-separator/>
+        <q-separator />
 
         <q-item
           clickable
@@ -231,7 +231,7 @@
           @click="copyNode"
         >
           <q-item-section side>
-            <q-icon name="fas fa-copy"/>
+            <q-icon name="fas fa-copy" />
           </q-item-section>
           <q-item-section
             side
@@ -240,7 +240,7 @@
             Copy
           </q-item-section>
         </q-item>
-        <q-separator/>
+        <q-separator />
 
         <q-item
           clickable
@@ -248,7 +248,7 @@
           @click="deleteConfirm = true"
         >
           <q-item-section side>
-            <q-icon name="fas fa-trash"/>
+            <q-icon name="fas fa-trash" />
           </q-item-section>
           <q-item-section
             side
@@ -429,7 +429,7 @@
                 @click="addNewTablePort({ name: model.name, args: [] }, 'Input', 'las la-table')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-table"/>
+                  <q-icon name="las la-table" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -478,7 +478,7 @@
                 @click="addNewPort({ function: event, args: [] }, 'Output', 'fas fa-bolt')"
               >
                 <q-item-section side>
-                  <q-icon name="fas fa-bolt"/>
+                  <q-icon name="fas fa-bolt" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -607,7 +607,7 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list-alt"/>
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -616,7 +616,7 @@
                 Environment
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
 
             <q-item
               clickable
@@ -624,7 +624,7 @@
               @click="showPanel('notesview', !notesview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-sticky-note"/>
+                <q-icon name="far fa-sticky-note" />
               </q-item-section>
               <q-item-section
                 side
@@ -639,7 +639,7 @@
               @click="loginProcessor"
             >
               <q-item-section side>
-                <q-icon name="fas fa-lock"/>
+                <q-icon name="fas fa-lock" />
               </q-item-section>
               <q-item-section
                 side
@@ -648,14 +648,14 @@
                 Lock
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
               @click="showPanel('middlewareview', !middlewareview)"
             >
               <q-item-section side>
-                <q-icon name="las la-exchange-alt"/>
+                <q-icon name="las la-exchange-alt" />
               </q-item-section>
               <q-item-section
                 side
@@ -664,14 +664,14 @@
                 Middleware
               </q-item-section>
             </q-item>
-            <q-separator/>
+            <q-separator />
             <q-item
               clickable
               v-close-popup
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-history"/>
+                <q-icon name="fas fa-history" />
               </q-item-section>
               <q-item-section
                 side
@@ -686,7 +686,7 @@
               @click="showPanel('logsview', !logsview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-glasses"/>
+                <q-icon name="fas fa-glasses" />
               </q-item-section>
               <q-item-section
                 side
@@ -701,7 +701,7 @@
               @click="showPanel('requirementsview', !requirementsview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-python"/>
+                <q-icon name="fab fa-python" />
               </q-item-section>
               <q-item-section
                 side
@@ -796,7 +796,7 @@
       </li>
     </ul>
 
-    <q-separator/>
+    <q-separator />
     <div
       class="row"
       id="bandwidth"
@@ -926,7 +926,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Socket</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -992,7 +992,7 @@
           >
             <q-toolbar>
               <q-item-label>Delete Processor</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-trash"
@@ -1056,7 +1056,7 @@
           hint="Prediction Model"
           option-value="name"
           option-label="name"
-          @update:model-value="tableSelected"
+          @update:input-value="tableSelected()"
           value="string"
           :menu-offset="[5, -9]"
         />
@@ -1064,8 +1064,8 @@
           <q-table
             dense
             flat
-            :data="predictedrows"
-            :columns="viewcols"
+            :data="predictionrows"
+            :columns="predictioncols"
             row-key="id"
             style="height:100%;width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
           />
@@ -1115,7 +1115,7 @@
           class="bg-primary text-secondary"
           color="primary"
           v-close-popup
-          @click="refreshTables"
+          @click="tableSelected"
           :disable="!viewtable"
         >
           <q-tooltip
@@ -1305,7 +1305,7 @@
           </template>
         </q-splitter>
       </q-card-section>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;"/>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; padding-top: 10px;" />
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -1328,7 +1328,7 @@
       </q-card-actions>
       <q-item-label style="position: absolute; left: 120px; bottom: 5px; font-size: 1.5em;">
         {{ gitcommit }}
-        <span style="margin-right: 40px;"/>
+        <span style="margin-right: 40px;" />
         {{ gitdate }}
       </q-item-label>
       <q-card-actions align="right">
@@ -1348,7 +1348,7 @@
       style="width: 400px; z-index: 999; display: block; position: absolute; right: -405px; height: 400px; top: 0;"
       v-if="editPort"
     >
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;"/>
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 650px;" />
 
       <q-card-actions align="right">
         <q-btn
@@ -1442,7 +1442,55 @@
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
                 :rows-per-page-options="[10]"
-              />
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                      >
+                        <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Delete Table
+                        </q-tooltip>
+                      </q-btn>
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
             </div>
 
             <q-card-actions align="left">
@@ -1503,7 +1551,91 @@
                 row-key="name"
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
-              />
+              >
+                <template #body="props">
+                  <q-tr
+                    :props="props"
+                    :key="getUuid"
+                  >
+                    <q-td
+                      :key="props.cols[0].name"
+                      :props="props"
+                    >
+                      <a class="text-secondary">{{ props.row.name }}</a>
+                      <q-popup-edit
+                        v-model="props.row.name"
+                        v-slot="scope"
+                        buttons
+                      >
+                        <q-input
+                          v-model="props.row.name"
+                          dense
+                          autofocus
+                          counter
+                        />
+                      </q-popup-edit>
+                    </q-td>
+
+                    <q-td
+                      :key="props.cols[1].name"
+                      :props="props"
+                    >
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-trash"
+                        @click="showDeleteItemDialog('model',props.cols[0].value)"
+                      >
+                        <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Delete Model
+                        </q-tooltip>
+                      </q-btn>
+                       <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-brain"
+                        @click="getPredictions(props.cols[0].value)"
+                      >
+                        <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Predict Model
+                        </q-tooltip>
+                      </q-btn>
+
+                       <q-btn
+                        dense
+                        flat
+                        round
+                        color="secondary"
+                        icon="las la-dumbbell"
+                        @click="trainModel(props.cols[0].value)"
+                      >
+                        <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Train Model
+                        </q-tooltip>
+                      </q-btn>
+                    </q-td>
+                  </q-tr>
+                </template>
+              </q-table>
             </div>
 
             <q-card-actions align="left">
@@ -1600,7 +1732,14 @@
                         round
                         color="secondary"
                         icon="las la-trash"
-                      />
+                      > <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Delete Job
+                        </q-tooltip></q-btn>
                     </q-td>
                   </q-tr>
                 </template>
@@ -1666,7 +1805,6 @@
                 flat
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
-
                 <template #body="props">
                   <q-tr
                     :props="props"
@@ -1701,7 +1839,14 @@
                         round
                         color="secondary"
                         icon="las la-trash"
-                      />
+                      > <q-tooltip
+                          anchor="top middle"
+                          :offset="[-30, 40]"
+                          content-style="font-size: 16px"
+                          content-class="bg-black text-white"
+                        >
+                          Delete View
+                        </q-tooltip></q-btn>
                     </q-td>
                   </q-tr>
                 </template>
@@ -1873,7 +2018,7 @@
                   style="width: 250px"
                 />
                 <q-toolbar style="margin-left: -30px;">
-                  <q-space/>
+                  <q-space />
                   <q-checkbox
                     v-model="obj.usemiddleware"
                     label="Use Middleware"
@@ -1935,7 +2080,7 @@
                   label="Containerized"
                   :disable="!hasHosted"
                 />
-                <q-space/>
+                <q-space />
                 <q-btn
                   flat
                   label="Advanced"
@@ -2239,7 +2384,7 @@
               ]"
               :content-type="'html'"
             >
-              <pre class="typing"/>
+              <pre class="typing" />
             </vue-typed-js>
           </div>
         </q-scroll-area>
@@ -2574,7 +2719,7 @@
           />
         </div>
       </q-card-section>
-      <q-card-actions align="left"/>
+      <q-card-actions align="left" />
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2587,6 +2732,79 @@
         />
       </q-card-actions>
     </q-card>
+
+
+    <q-dialog
+      v-model="deleteDBItemConfirm"
+      persistent
+    >
+      <q-card style="padding: 10px; padding-top: 30px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Delete {{ itemTypeToBeDeleted.capitalize() }}</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
+          <q-avatar
+            icon="fas fa-exclamation"
+            color="primary"
+            text-color="white"
+          />
+          <span class="q-ml-sm">
+            Are you sure you want to delete the {{ itemTypeToBeDeleted}} {{ itemNameToBeDeleted }}?
+          </span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            flat
+            label="Cancel"
+            class="bg-accent text-dark"
+            color="primary"
+            v-close-popup
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Delete"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="deleteDBItem"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
 
     <q-dialog
       v-model="configureDatabaseDialog"
@@ -2621,7 +2839,7 @@
                 style="margin-right:10px;font-size:1.5em"
               />
               <q-item-label>Inference Engine</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-close"
@@ -3132,7 +3350,6 @@
                     </div>
                   </q-tab-panel>
                   <q-tab-panel name="models">
-
                     <div
                       class="q-pa-lg"
                       style="padding-top: 2em;max-width: 800px; width:500px"
@@ -3147,7 +3364,6 @@
                           style="width:100%"
                           hint="Model Name"
                         />
-
 
                         <q-select
                           dense
@@ -3376,7 +3592,7 @@
           >
             <q-toolbar>
               <q-item-label>New Model</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-table"
@@ -3501,7 +3717,7 @@
           >
             <q-toolbar>
               <q-item-label>New View</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-table"
@@ -3589,7 +3805,7 @@
           >
             <q-toolbar>
               <q-item-label>New Job</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-table"
@@ -3677,7 +3893,7 @@
           >
             <q-toolbar>
               <q-item-label>New Table</q-item-label>
-              <q-space/>
+              <q-space />
               <q-icon
                 class="text-primary"
                 name="fas fa-table"
@@ -3792,23 +4008,30 @@ tbody tr:nth-child(odd) {
 <script>
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import {BaseNodeComponent} from 'jsplumbtoolkit-vue2'
-import {v4 as uuidv4} from 'uuid'
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import { v4 as uuidv4 } from 'uuid'
 import Vuetify from 'vuetify'
-import {mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces} from '@mdi/js'
+import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
-import {TSDB} from 'uts'
+import { TSDB } from 'uts'
 import Console from 'components/Console'
 import Processor from '../Processor.vue'
 import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
-import {ref} from 'vue'
+import { ref } from 'vue'
 
 import http from 'src/http-common'
 
 var Moment = require('moment') // require
 
 const tsdb = new TSDB()
+
+Object.defineProperty(String.prototype, 'capitalize', {
+  value: function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  },
+  enumerable: false
+});
 
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
@@ -3837,7 +4060,7 @@ export default {
   name: 'InferenceTemplate',
   mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
   vuetify: new Vuetify(),
-  setup() {
+  setup () {
     return {
       configureSplitterModel: ref(35) // start at 50%
     }
@@ -3847,6 +4070,13 @@ export default {
     Console
   },
   watch: {
+    'obj.databasename': function (val) {
+
+    },
+    predictmodel: function (val) {
+      console.log('predictmodel changed!')
+      this.tableSelected()
+    },
     'obj.middlewarefunc': function (val) {
       this.middlewarefunc = val
       console.log('SET MIDDLEWARE FUNC', val)
@@ -3868,7 +4098,7 @@ export default {
       // console.log('inBytes', val);
     }
   },
-  created() {
+  created () {
     const me = this
 
     this.plugIcon = mdiPowerSocketUs
@@ -3898,7 +4128,7 @@ export default {
       me.triggerExecute()
     })
     this.$on('call.completed', (call) => {
-      this.refreshTables()
+      this.tableSelected()
       // TODO: Trigger sequential ports that are satisfied
       for (const fname in this.portobjects) {
         console.log('SEQUENCE FUNC', fname)
@@ -3919,7 +4149,7 @@ export default {
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
           me.currentresult = msg.output
-          me.consolelogs.push({date: new Date(), output: msg.output})
+          me.consolelogs.push({ date: new Date(), output: msg.output })
         }
       }
 
@@ -3945,7 +4175,7 @@ export default {
 
       if (msg.type && msg.type === 'output') {
         if (msg.processor === this.obj.name) {
-          me.consolelogs.push({date: new Date(), output: msg.output})
+          me.consolelogs.push({ date: new Date(), output: msg.output })
           me.consolelogs = me.consolelogs.slice(0, 100)
         }
       }
@@ -3966,9 +4196,9 @@ export default {
         )
 
         var timedata = tsdb.series('inBytes').query({
-          metrics: {data: TSDB.map('bytes'), time: TSDB.map('time')},
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
-            time: {is: '<', than: Date.now() - 5 * 60}
+            time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
 
@@ -3986,9 +4216,9 @@ export default {
       if (msg.channel === 'task' && msg.message) {
         const now = Date.now()
         var timedata = tsdb.series('outBytes').query({
-          metrics: {data: TSDB.map('bytes'), time: TSDB.map('time')},
+          metrics: { data: TSDB.map('bytes'), time: TSDB.map('time') },
           where: {
-            time: {is: '<', than: Date.now() - 5 * 60}
+            time: { is: '<', than: Date.now() - 5 * 60 }
           }
         })
         console.log('TIMEDATA', timedata)
@@ -4051,14 +4281,14 @@ export default {
     }, 3000)
   },
   computed: {
-    tablenamesdialog() {
+    tablenamesdialog () {
       console.log('TABLE ROWS', this.tablerows)
       const names = this.tablerows.map(a => a.name)
       console.log('TABLES', names)
       debugger
       return names
     },
-    getfuncs() {
+    getfuncs () {
       this.updateFunctions(this.obj.middleware)
       console.log('GETFUNCS', this.funcs)
       return this.funcs.map(a => a.name)
@@ -4094,7 +4324,7 @@ export default {
         }
       }
     },
-    myhistory() {
+    myhistory () {
       const me = this
 
       var myhist = []
@@ -4106,31 +4336,31 @@ export default {
 
       return myhist
     },
-    rateLimit(val) {
+    rateLimit (val) {
     },
-    taskTime() {
+    taskTime () {
       return this.task_time
     },
-    inBytes() {
+    inBytes () {
       return this.calls_in + ' (' + this.bytes_in_human + ' bytes)'
     },
-    outBytes() {
+    outBytes () {
       return this.calls_out + ' (' + this.bytes_out_human + ' bytes)'
     },
-    totalBytes() {
+    totalBytes () {
       return this.calls_out + this.calls_in + ' (' + this.sizeOf(this.bytes_out + this.bytes_in) + ' bytes)'
     },
-    bytes_in_human() {
+    bytes_in_human () {
       return this.sizeOf(this.bytes_in)
     },
-    bytes_out_human() {
+    bytes_out_human () {
       return this.sizeOf(this.bytes_out)
     },
-    readwrite() {
+    readwrite () {
       return this.obj.readwrite
     }
   },
-  mounted() {
+  mounted () {
     const me = this
 
     console.log('setId ', this.obj.id)
@@ -4146,7 +4376,7 @@ export default {
     d3.selectAll('p').style('color', 'white')
     console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({name: 'darren', age: 51})
+    this.sayHello({ name: 'darren', age: 51 })
 
     setTimeout(() => {
       console.log('ME.getNode()', me.getNode())
@@ -4177,7 +4407,7 @@ export default {
       this.startSchedule(this.obj.cron)
     }
     this.pullSchema()
-
+    this.updateDatabase()
     DataService.listDatabases(this.$store.state.designer.token).then((result) => {
       this.databasenames = result.data.map(db => db.label)
     })
@@ -4185,8 +4415,13 @@ export default {
       this.projectnames = result.data.map(proj => proj.label)
     })
   },
-  data() {
+  data () {
     return {
+      deleteDBItemConfirm: false,
+      itemNameToBeDeleted: '',
+      itemTypeToBeDeleted: '',
+      predictionrows: [],
+      predictioncols: [],
       predictmodel: '',
       viewname: '',
       viewquery: '',
@@ -4244,8 +4479,8 @@ export default {
               label: 'Good food (with icon)',
               icon: 'restaurant_menu',
               children: [
-                {label: 'Quality ingredients'},
-                {label: 'Good recipe'}
+                { label: 'Quality ingredients' },
+                { label: 'Good recipe' }
               ]
             },
             {
@@ -4253,8 +4488,8 @@ export default {
               icon: 'room_service',
               disabled: true,
               children: [
-                {label: 'Prompt attention'},
-                {label: 'Professional waiter'}
+                { label: 'Prompt attention' },
+                { label: 'Professional waiter' }
               ]
             },
             {
@@ -4265,8 +4500,8 @@ export default {
                   label: 'Happy atmosphere (with image)',
                   img: 'https://cdn.quasar.dev/img/logo_calendar_128px.png'
                 },
-                {label: 'Good table presentation'},
-                {label: 'Pleasing decor'}
+                { label: 'Good table presentation' },
+                { label: 'Pleasing decor' }
               ]
             }
           ]
@@ -4344,7 +4579,6 @@ export default {
       predictedrows: [],
       connectResult: '',
       events: ['Begin', 'Error', 'Complete'],
-      projectname: null,
       projectnames: [],
       databases: ['SQLite', 'MySQL', 'Postgres', 'Oracle'],
       resulttype: 'finished',
@@ -4869,38 +5103,64 @@ export default {
     }
   },
   methods: {
-    async updatePredictedColumn() {
+    getPredictions (model) {
+      DataService.getPredictions(this.obj.projectname, model, 10, this.$store.state.designer.token).then( (response) => {
+        console.log("getPredictions", response)
+      })
+    },
+    showDeleteItemDialog (itemtype, name) {
+      this.deleteDBItemConfirm = true
+      this.itemTypeToBeDeleted = itemtype
+      this.itemNameToBeDeleted = name
+    },
+    deleteDBItem () {
+      if (this.itemTypeToBeDeleted === "model") {
+
+      }
+    },
+    async updatePredictedColumn () {
       const cols = await DataService.listColumns(this.obj.databasename, this.obj.modeltable, this.$store.state.designer.token)
       return cols
     },
-    updateAll() {
+    updateDatabase () {
+      DataService.getDatabase(this.obj.databasename, this.$store.state.designer.token).then((result) => {
+        console.log('getDatabase', result)
+        // TODO: Set database type, etc
+        this.obj.databasename = result.data.dbname
+        this.obj.database = result.data.dbtype
+        this.obj.connection = result.data.dburl
+      }).catch((err) => {
+
+      })
+    },
+    updateAll () {
       this.updateJobs()
       this.updateTables()
       this.updateViews()
       this.updateModels()
     },
-    updateJobs() {
+    updateJobs () {
       DataService.listJobs(this.obj.projectname, this.$store.state.designer.token).then((result) => {
         this.jobrows = result.data
       })
     },
-    updateViews() {
+    updateViews () {
       DataService.listViews(this.obj.projectname, this.$store.state.designer.token).then((result) => {
         this.viewrows = result.data
       })
     },
-    updateModels() {
+    updateModels () {
       DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
         console.log('listModels', result)
         this.modelrows = result.data
       })
     },
-    updateTables() {
+    updateTables () {
       DataService.listTables(this.obj.databasename, this.$store.state.designer.token).then((result) => {
         this.tablerows = result.data
       })
     },
-    createModel() {
+    createModel () {
       DataService.createModel(this.model.name, this.obj.databasename, this.obj.projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then(() => {
         this.$q.notify({
           color: 'secondary',
@@ -4921,7 +5181,7 @@ export default {
         console.log(err)
       })
     },
-    createJob() {
+    createJob () {
       this.loadingObject = true
       DataService.createJob(this.obj.projectname, this.jobname, this.jobquery, this.$store.state.designer.token).then(() => {
         this.loadingObject = false
@@ -4944,7 +5204,7 @@ export default {
         })
       })
     },
-    createView() {
+    createView () {
       this.loadingObject = true
       DataService.createView(this.obj.databasename, this.obj.projectname, this.viewname, this.viewquery, this.$store.state.designer.token).then(() => {
         this.loadingObject = false
@@ -4967,7 +5227,7 @@ export default {
         })
       })
     },
-    createTable() {
+    createTable () {
       this.loadingObject = true
       DataService.createTable(this.obj.databasename, this.tablename, this.tablequery, this.$store.state.designer.token).then(() => {
         this.loadingObject = false
@@ -4990,7 +5250,7 @@ export default {
         })
       })
     },
-    createMindsTable() {
+    createMindsTable () {
       this.loadingObject = true
 
       DataService.createTable(this.selectedNode.label, this.tablename, this.tablequery, this.$store.state.designer.token).then(() => {
@@ -5001,7 +5261,7 @@ export default {
         this.projectResult = err.response.data.message
       })
     },
-    createProject() {
+    createProject () {
       const me = this
       this.saving = true
       DataService.createProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
@@ -5028,7 +5288,7 @@ export default {
         })
       })
     },
-    createMindsDatabase() {
+    createMindsDatabase () {
       this.loadingObject = true
       DataService.createDatabase(this.obj.mindsobj,
         this.$store.state.designer.token).then((res) => {
@@ -5047,7 +5307,7 @@ export default {
         })
       })
     },
-    selectTreeNode(v, n) {
+    selectTreeNode (v, n) {
       if (v !== null) {
         const node = this.$refs.tree.getNodeByKey(v)
         this.selected = node.id
@@ -5063,7 +5323,7 @@ export default {
           this.obj.mindsobj.dbdesc = ''
           this.obj.mindsobj.dbfile = ''
           try {
-            let mindsobj = JSON.parse(node.obj)
+            const mindsobj = JSON.parse(node.obj)
             this.obj.mindsobj = mindsobj
           } catch {
 
@@ -5077,7 +5337,7 @@ export default {
         }, 1000)
       }
     },
-    onLazyLoad({node, key, done, fail}) {
+    onLazyLoad ({ node, key, done, fail }) {
       console.log('NODE', node)
       if (node.type === 'database') {
         DataService.listTables(node.label, this.$store.state.designer.token).then((result) => {
@@ -5142,7 +5402,7 @@ export default {
           }])
       }
     },
-    deleteProject() {
+    deleteProject () {
       const me = this
       this.saving = true
       DataService.deleteProject(this.obj.name, this.obj.database, this.obj.connection, this.$store.state.designer.token).then((result) => {
@@ -5154,15 +5414,14 @@ export default {
         me.projectResult = 'Project Deletion Error'
       })
     },
-    tableSelected() {
-      console.log('TABLE SELECTED')
-    },
-    refreshTables() {
+    tableSelected () {
       const me = this
       this.saving = true
-      DataService.getRows(this.viewtable, this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then((result) => {
+      console.log('Table selected', this.predictmodel.name, this.obj.databasename, this.obj.connection)
+      DataService.getInferenceRows(this.predictmodel.name, this.obj.databasename, this.obj.projectname, this.$store.state.designer.token).then((result) => {
         console.log('DataService.getRows', result)
-        me.predictedrows = result.data
+        me.predictionrows = result.data.rows
+        me.predictioncols = result.data.cols.map((col) => { return { name: col, label: col } })
         me.saving = false
       }).catch((err) => {
         console.log('ERROR', err)
@@ -5176,22 +5435,22 @@ export default {
         })
       })
     },
-    pullSchema() {
+    pullSchema () {
       const me = this
       this.saving = true
       this.saving = false
     },
-    setZoomLevel() {
+    setZoomLevel () {
       window.toolkit.surface.setZoom(1.0)
     },
-    removePort(objid, col) {
+    removePort (objid, col) {
       window.toolkit.removePort(objid, col)
       delete this.portobjects[col]
       // this.portobjects.remove(col)
       this.ports
       this.argobjects
     },
-    updatePorts() {
+    updatePorts () {
       const me = this
       var node = window.designer.toolkit.getNode(this.obj)
       console.log('UPDATE DATA PORTS', node.getPorts())
@@ -5200,10 +5459,10 @@ export default {
         me.updateDataPort(port)
       })
     },
-    updateDataPort(port) {
+    updateDataPort (port) {
       this.portobjects[port.id] = port.data
     },
-    updateFunctions(code) {
+    updateFunctions (code) {
       /* Parse out named objects from editor */
       const re = /def (\w+)\s*\((.*?)\):/g
 
@@ -5214,35 +5473,35 @@ export default {
 
       for (const match of matches) {
         var name = match[0].split('(')[0].split(' ').at(-1)
-        this.funcs.push({name: name, args: []})
+        this.funcs.push({ name: name, args: [] })
       }
     },
-    updateBandwidthChart() {
+    updateBandwidthChart () {
       const outBytes = tsdb.series('outBytes').query({
-        metrics: {outBytes: TSDB.map('bytes'), time: TSDB.map('time')},
+        metrics: { outBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
+          time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[1].data = outBytes[0].results.outBytes
       const inBytes = tsdb.series('inBytes').query({
-        metrics: {inBytes: TSDB.map('bytes'), time: TSDB.map('time')},
+        metrics: { inBytes: TSDB.map('bytes'), time: TSDB.map('time') },
         where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
+          time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[0].data = inBytes[0].results.inBytes
       const durations = tsdb.series('durations').query({
-        metrics: {seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds')},
+        metrics: { seconds: TSDB.map('seconds'), milliseconds: TSDB.map('milliseconds') },
         where: {
-          time: {is: '<', than: Date.now() - 60 * 60}
+          time: { is: '<', than: Date.now() - 60 * 60 }
         }
       })
       // this.series[2].data = durations[0].results.data
 
       const xaxis = inBytes[0].results.time.map((x) => {
         const d = new Date(x)
-        return d.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})
+        return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
       })
       console.log('XAXIS', xaxis)
       this.chartOptions.xaxis.categories = xaxis
@@ -5259,10 +5518,10 @@ export default {
         }])
       }
     },
-    triggerQuery(portname) {
+    triggerQuery (portname) {
 
     },
-    triggerObject(portname) {
+    triggerObject (portname) {
       const me = this
 
       console.log('TRIGGER ALL BEGIN')
@@ -5320,7 +5579,7 @@ export default {
 
       console.log('PORT RESULT ', _port, result)
     },
-    triggerExecute(port) {
+    triggerExecute (port) {
       let exe = false
 
       for (var portname in this.portobjects) {
@@ -5333,24 +5592,24 @@ export default {
         }
       }
     },
-    showCommit(hash, date) {
+    showCommit (hash, date) {
       DataService.getCode(this.obj.gitrepo.split('#')[0], hash, this.$store.state.designer.token).then((code) => {
         this.commitcode = code.data
       })
       this.gitcommit = hash
       this.gitdate = date
     },
-    addVariable() {
+    addVariable () {
       this.variabledata.push({
         name: 'NAME',
         value: 'VALUE',
         scope: 'FLOW'
       })
     },
-    addToLibrary() {
+    addToLibrary () {
       window.root.$emit('add.library', this.obj)
     },
-    cornerInView() {
+    cornerInView () {
       const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.0)
       window.toolkit.surface.centerOn(node, {
@@ -5360,7 +5619,7 @@ export default {
         }
       })
     },
-    centerOnNode() {
+    centerOnNode () {
       const node = this.toolkit.getNode(this.obj)
       window.toolkit.surface.setZoom(1.09)
 
@@ -5373,11 +5632,11 @@ export default {
         }
       })
     },
-    addFunc(func) {
+    addFunc (func) {
       console.log('FUNCS2', this.funcs)
-      addNewPort({function: func.name, args: func.args}, 'Output', 'las la-search')
+      addNewPort({ function: func.name, args: func.args }, 'Output', 'las la-search')
     },
-    showOutput(resultid) {
+    showOutput (resultid) {
       this.resultdataloading = true
 
       DataService.getOutput(resultid, this.$store.state.designer.token).then((result) => {
@@ -5387,7 +5646,7 @@ export default {
         editor.session.setValue(result.data)
       })
     },
-    showResult(resultid) {
+    showResult (resultid) {
       this.resultdataloading = true
 
       DataService.getResult(resultid, this.$store.state.designer.token).then((result) => {
@@ -5397,7 +5656,7 @@ export default {
         editor.session.setValue(JSON.stringify(result.data, null, 2))
       })
     },
-    refreshResultsData() {
+    refreshResultsData () {
       this.resultloading = true
       DataService.getCalls(this.obj.name, this.$store.state.designer.token)
         .then((calls) => {
@@ -5408,7 +5667,7 @@ export default {
           this.resultloading = false
         })
     },
-    fetchCode() {
+    fetchCode () {
       const me = this
       var url = new URL(this.obj.gitrepo)
       console.log('URL ', url)
@@ -5434,10 +5693,10 @@ export default {
         })
       }
     },
-    copyNode() {
+    copyNode () {
       console.log('COPY NODE')
 
-      function findMatch(list, obj) {
+      function findMatch (list, obj) {
         for (let i = 0; i < list.length; i++) {
           var o = list[i]
           if (o.id === obj.id) {
@@ -5447,7 +5706,7 @@ export default {
         return false
       }
 
-      function findEdge(list, edge) {
+      function findEdge (list, edge) {
         for (let i = 0; i < list.length; i++) {
           var e = list[i]
           if (e.source === edge.source || e.target === edge.target) {
@@ -5457,7 +5716,7 @@ export default {
         return false
       }
 
-      function haveAllNodes(nodes, edge) {
+      function haveAllNodes (nodes, edge) {
         let source = false
         let target = false
         for (let i = 0; i < nodes.length; i++) {
@@ -5514,10 +5773,10 @@ export default {
       console.log('jsonData:', jsonData)
       this.$store.commit('designer/setMessage', 'Node copied!')
     },
-    closePortEdit() {
+    closePortEdit () {
       this.editPort = false
     },
-    saveProcessor() {
+    saveProcessor () {
       const me = this
 
       this.refreshing = true
@@ -5552,44 +5811,44 @@ export default {
           })
         })
     },
-    sizeOf(bytes) {
+    sizeOf (bytes) {
       if (bytes === 0) {
         return '0.00 B'
       }
       var e = Math.floor(Math.log(bytes) / Math.log(1024))
       return (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
     },
-    mouseEnter(event) {
+    mouseEnter (event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       this.mousecard = true
     },
-    mouseExit(event) {
+    mouseExit (event) {
       console.log('mouseExit')
       // this.mousecard = false;
     },
-    mouseMove(event) {
+    mouseMove (event) {
       this.cardX = event.clientX
       this.cardY = event.clientY
       console.log(this.cardX, this.cardY)
     },
-    setBandwidth(value) {
+    setBandwidth (value) {
       console.log('SET BANDWIDTH', value)
       this.obj.bandwidth = value
     },
-    onSubmit() {
+    onSubmit () {
     },
-    onReset() {
+    onReset () {
     },
-    getUuid() {
+    getUuid () {
       return 'key_' + uuidv4()
     },
-    rowStripe(row) {
+    rowStripe (row) {
       if (row % 2 === 0) {
         return 'background-color:white'
       }
     },
-    showPanel(view, show) {
+    showPanel (view, show) {
       this.configview = false
       this.codeview = false
       this.dataview = false
@@ -5622,13 +5881,13 @@ export default {
         }
       }
     },
-    updateDescription(value, initialValue) {
+    updateDescription (value, initialValue) {
       console.log('updateDesc', value, initialValue)
       this.renameConfirm = true
       this.renameValue = value
       this.initialValue = initialValue
     },
-    updateName(value, initialValue, column) {
+    updateName (value, initialValue, column) {
       console.log('column edited ', column)
       console.log('updateName', value, initialValue)
       this.renameConfirm = true
@@ -5704,28 +5963,28 @@ export default {
         editor.session.setValue(me.obj.code)
       }
     },
-    showCode() {
+    showCode () {
       // this.code = true;
     },
-    showTooltip(show) {
+    showTooltip (show) {
       this.tooltip = show
     },
-    confirmDeletePort(id) {
+    confirmDeletePort (id) {
       this.deletePortID = id
       this.deleteItem = true
     },
-    resetToolkit() {
+    resetToolkit () {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged() {
+    valueChanged () {
       console.log('emitting toolkit.dirty')
       this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode() {
+    deleteNode () {
       window.toolkit.removeNode(this.obj)
     },
-    removeColumn(column) {
+    removeColumn (column) {
       // Delete all argument columns too
       console.log('Removing column: ', column)
 
@@ -5761,7 +6020,7 @@ export default {
       }
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
+    addPort (port) {
       port.background = 'white'
       port.datatype = 'Column'
       if (this.types.length > 0) {
@@ -5785,7 +6044,7 @@ export default {
 
       return port
     },
-    addNewTablePort(table, type, icon) {
+    addNewTablePort (table, type, icon) {
       var port = this.addPort({
         name: table.name,
         icon: icon,
@@ -5799,7 +6058,7 @@ export default {
 
       }
     },
-    addNewPort(func, type, icon) {
+    addNewPort (func, type, icon) {
       var port = this.addPort({
         name: func.function,
         icon: icon,
@@ -5815,7 +6074,7 @@ export default {
 
       }
     },
-    addErrorPort() {
+    addErrorPort () {
       if (this.error) {
         this.$q.notify({
           color: 'negative',
