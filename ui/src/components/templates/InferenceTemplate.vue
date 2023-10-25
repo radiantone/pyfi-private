@@ -1365,13 +1365,13 @@
     <!-- Config dialog -->
 
     <q-card
-      style="width: 850px; height:630px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
+      style="width: 850px; height:650px; z-index: 999; display: block; position: absolute; right: -855px; top: 0;"
       v-if="configview"
     >
       <q-item-label style="position:absolute;z-index:99999;float:left;bottom:10px;left:25px">
         {{ projectResult }}
       </q-item-label>
-      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 520px;">
+      <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 550px;">
         <q-tabs
           v-model="tab"
           dense
@@ -1427,7 +1427,7 @@
           <q-tab-panel
             ref="tablesconfig"
             name="tablesconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
             @click="updateTables"
           >
             <div
@@ -1537,7 +1537,7 @@
           <q-tab-panel
             ref="modelsconfig"
             name="modelsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
             @click="updateModels"
           >
             <div
@@ -1550,6 +1550,7 @@
                 :data="modelrows"
                 row-key="name"
                 flat
+                :rows-per-page-options="[10]"
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
                 <template #body="props">
@@ -1597,7 +1598,7 @@
                           Delete Model
                         </q-tooltip>
                       </q-btn>
-                       <q-btn
+                      <q-btn
                         dense
                         flat
                         round
@@ -1615,7 +1616,7 @@
                         </q-tooltip>
                       </q-btn>
 
-                       <q-btn
+                      <q-btn
                         dense
                         flat
                         round
@@ -1683,7 +1684,7 @@
           <q-tab-panel
             ref="jobsconfig"
             name="jobsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
             @click="updateJobs"
           >
             <div
@@ -1696,6 +1697,7 @@
                 :data="jobrows"
                 row-key="name"
                 flat
+                :rows-per-page-options="[10]"
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
                 <template #body="props">
@@ -1732,14 +1734,16 @@
                         round
                         color="secondary"
                         icon="las la-trash"
-                      > <q-tooltip
+                      >
+                        <q-tooltip
                           anchor="top middle"
                           :offset="[-30, 40]"
                           content-style="font-size: 16px"
                           content-class="bg-black text-white"
                         >
                           Delete Job
-                        </q-tooltip></q-btn>
+                        </q-tooltip>
+                      </q-btn>
                     </q-td>
                   </q-tr>
                 </template>
@@ -1790,7 +1794,7 @@
           <q-tab-panel
             ref="viewsconfig"
             name="viewsconfig"
-            style="padding: 0px;height:500px"
+            style="padding: 0px;height:570px"
             @click="updateViews"
           >
             <div
@@ -1803,6 +1807,7 @@
                 :data="viewrows"
                 row-key="name"
                 flat
+                :rows-per-page-options="[10]"
                 style="width: 100%; margin-top: 20px; border-top-radius: 0px; border-bottom-radius: 0px;"
               >
                 <template #body="props">
@@ -1839,14 +1844,16 @@
                         round
                         color="secondary"
                         icon="las la-trash"
-                      > <q-tooltip
+                      >
+                        <q-tooltip
                           anchor="top middle"
                           :offset="[-30, 40]"
                           content-style="font-size: 16px"
                           content-class="bg-black text-white"
                         >
                           Delete View
-                        </q-tooltip></q-btn>
+                        </q-tooltip>
+                      </q-btn>
                     </q-td>
                   </q-tr>
                 </template>
@@ -1897,7 +1904,7 @@
           <q-tab-panel
             ref="settings"
             name="settings"
-            style="padding: 0px;height: 520px"
+            style="padding: 0px;height: 570px"
           >
             <div
               class="q-pa-md"
@@ -2367,6 +2374,18 @@
           style="height:475px;width:auto"
           ref="scroll"
         >
+          <div v-if="jsonmode">
+            <editor
+              v-model="currentresult"
+              @init="jsonEditorInit"
+              style="font-size: 1.5em;"
+              lang="javascript"
+              theme="chrome"
+              ref="jsonEditor"
+              width="100%"
+              height="475px"
+            />
+          </div>
           <div v-for="(log, index) in consolelogs">
             <div v-if="consolehistory">
               <pre style="font-weight: bold;">{{ log["date"] }}</pre>
@@ -2397,7 +2416,7 @@
           class="bg-primary text-white"
           color="primary"
           v-close-popup
-          @click="consolelogs = []"
+          @click="clearOutput"
         />
         <q-btn
           flat
@@ -2412,6 +2431,11 @@
           v-model="consolehistory"
           label="History"
           style="position: absolute; bottom: 0px; left: 210px;"
+        />
+        <q-checkbox
+          v-model="jsonmode"
+          label="JSON View"
+          style="position: absolute; bottom: 0px; left: 300px;"
         />
       </q-card-actions>
       <q-card-actions align="right">
@@ -2521,7 +2545,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          style="position: absolute; bottom: 0px; left: 150px; width: 50px; margin: 0px;"
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
           flat
           icon="fas fa-home"
           class="bg-secondary text-accent"
@@ -2733,7 +2757,6 @@
       </q-card-actions>
     </q-card>
 
-
     <q-dialog
       v-model="deleteDBItemConfirm"
       persistent
@@ -2779,7 +2802,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete the {{ itemTypeToBeDeleted}} {{ itemNameToBeDeleted }}?
+            Are you sure you want to delete the {{ itemTypeToBeDeleted }} {{ itemNameToBeDeleted }}?
           </span>
         </q-card-section>
 
@@ -2804,7 +2827,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-
 
     <q-dialog
       v-model="configureDatabaseDialog"
@@ -4027,11 +4049,11 @@ var Moment = require('moment') // require
 const tsdb = new TSDB()
 
 Object.defineProperty(String.prototype, 'capitalize', {
-  value: function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
+  value: function () {
+    return this.charAt(0).toUpperCase() + this.slice(1)
   },
   enumerable: false
-});
+})
 
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
@@ -4148,7 +4170,7 @@ export default {
     this.$on('message.received', (msg) => {
       if (msg.type && msg.type === 'result') {
         if (msg.id === this.obj.id) {
-          me.currentresult = msg.output
+          me.jsonresult = msg.output
           me.consolelogs.push({ date: new Date(), output: msg.output })
         }
       }
@@ -4281,6 +4303,26 @@ export default {
     }, 3000)
   },
   computed: {
+    consolehistory: function (val) {
+      if (val) {
+        this.jsonmode = false
+      }
+    },
+    jsonmode: function (val) {
+      if (val) {
+        setTimeout(() => {
+          debugger
+          this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(this.jsonresult), null, 2))
+        })
+      }
+    },
+    currentresult: function (val) {
+      if (this.$refs.jsonEditor) {
+        debugger
+        this.$refs.jsonEditor.editor.session.setValue(JSON.stringify(JSON.parse(this.jsonresult), null, 2))
+      }
+      return this.jsonresult
+    },
     tablenamesdialog () {
       console.log('TABLE ROWS', this.tablerows)
       const names = this.tablerows.map(a => a.name)
@@ -4417,6 +4459,8 @@ export default {
   },
   data () {
     return {
+      jsonmode: false,
+      jsonresult: '',
       deleteDBItemConfirm: false,
       itemNameToBeDeleted: '',
       itemTypeToBeDeleted: '',
@@ -5103,9 +5147,28 @@ export default {
     }
   },
   methods: {
+    clearOutput () {
+      this.consolelogs = []
+      this.jsonresult = ''
+    },
+    jsonEditorInit: function () {
+      const me = this
+
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.jsonEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+      editor.on('change', function () {
+        me.updateFunctions(editor.getValue())
+      })
+    },
     getPredictions (model) {
-      DataService.getPredictions(this.obj.projectname, model, 10, this.$store.state.designer.token).then( (response) => {
-        console.log("getPredictions", response)
+      DataService.getPredictions(this.obj.projectname, model, 10, this.$store.state.designer.token).then((response) => {
+        console.log('getPredictions', response)
       })
     },
     showDeleteItemDialog (itemtype, name) {
@@ -5114,7 +5177,7 @@ export default {
       this.itemNameToBeDeleted = name
     },
     deleteDBItem () {
-      if (this.itemTypeToBeDeleted === "model") {
+      if (this.itemTypeToBeDeleted === 'model') {
 
       }
     },
@@ -5421,7 +5484,9 @@ export default {
       DataService.getInferenceRows(this.predictmodel.name, this.obj.databasename, this.obj.projectname, this.$store.state.designer.token).then((result) => {
         console.log('DataService.getRows', result)
         me.predictionrows = result.data.rows
-        me.predictioncols = result.data.cols.map((col) => { return { name: col, label: col } })
+        me.predictioncols = result.data.cols.map((col) => {
+          return { name: col, label: col }
+        })
         me.saving = false
       }).catch((err) => {
         console.log('ERROR', err)
@@ -5521,6 +5586,10 @@ export default {
     triggerQuery (portname) {
 
     },
+    replaceMiddlewareVariables (name) {
+      // Replace <vars>
+      me.obj.middleware = me.obj.middleware.replaceAll('<project>',this.obj.projectname).replaceAll('<name>',name)
+    },
     triggerObject (portname) {
       const me = this
 
@@ -5528,6 +5597,8 @@ export default {
       window.root.$emit('trigger.begin')
       console.log('triggerObject', portname, this.portobjects[portname])
       const objectname = this.portobjects[portname].name
+
+      this.replaceMiddlewareVariables(objectname)
 
       const result = this.execute(this.obj.code + '\n\n' + objectname)
       console.log('triggerObject result', result)

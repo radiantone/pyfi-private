@@ -1681,7 +1681,7 @@ def get_model(project, model):
 @app.route("/minds/<project>/models/<model>/<limit>", methods=["GET"])
 @cross_origin()
 @requires_auth
-def get_prediction(project, model, limit=25):
+def get_predictions(project, model, limit=25):
     from pymongo import MongoClient
 
     client = MongoClient(CONFIG.get("mongodb", "uri"))
@@ -1696,6 +1696,24 @@ def get_prediction(project, model, limit=25):
     predictions = _model.predict(table.limit(int(limit)))
 
     return jsonify(predictions.to_dict())
+
+
+@app.route("/minds/<project>/models/<model>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def get_prediction(project, model):
+    import pandas as pd
+
+    data: Any = request.get_json()
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+
+    values = data["data"]
+    result = _model.predict(pd.DataFrame.from_records([values]))
+    _r = result.to_dict()
+    return jsonify(_r)
 
 
 @app.route("/minds/<project>/model/<model>/status", methods=["GET"])
@@ -1850,7 +1868,6 @@ def list_databases():
 @cross_origin()
 @requires_auth
 def create_project(name):
-    data: Any = request.get_json()
     try:
         server.create_project(name)
         return jsonify({"status": "ok", "message": "Project created successfully!"})

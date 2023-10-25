@@ -291,7 +291,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any, portname: string) => {
           let obj = data
           this.id = id
-
+          console.log("PROCESSOR", data, block)
           // Set object based on its incoming type
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
