@@ -850,7 +850,7 @@
     </q-item-label>
     <q-btn
       flat
-      style="min-height: 45px;position:absolute; right:20px;top:85px;font-size:1.5em"
+      style="min-height: 45px;position:absolute; left:315px;top:60px;font-size:2em"
       size="xl"
       icon="far fa-play-circle"
       class="q-mr-xs"
@@ -867,7 +867,7 @@
     </q-btn>
     <q-btn
       flat
-      style="min-height: 45px;position:absolute; right:20px;top:150px;font-size:1.5em"
+      style="min-height: 45px;position:absolute; right:20px;top:100px;font-size:1.5em"
       size="xl"
       icon="far fa-save "
       class="q-mr-xs"
@@ -884,7 +884,7 @@
     </q-btn>
     <q-btn
       flat
-      style="min-height: 45px;position:absolute; right:15px;top:210px;font-size:2em"
+      style="min-height: 45px;position:absolute; right:15px;top:160px;font-size:2em"
       size="xl"
       icon="las la-file-download "
       class="q-mr-xs"
@@ -901,7 +901,7 @@
     </q-btn>
     <q-btn
       flat
-      style="min-height: 45px;position:absolute; font-weight:bold; right:15px;top:285px;font-size:2em"
+      style="min-height: 45px;position:absolute; font-weight:bold; right:15px;top:235px;font-size:2em"
       size="xl"
       icon="las la-share-square "
       class="q-mr-xs"

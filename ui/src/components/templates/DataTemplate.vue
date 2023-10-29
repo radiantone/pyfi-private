@@ -1092,7 +1092,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Socket</q-item-label>
+              <q-item-label>Delete Plug</q-item-label>
               <q-space />
               <q-icon
                 class="text-primary"
@@ -1111,7 +1111,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this socket?
+            Are you sure you want to delete this plug?
           </span>
         </q-card-section>
 

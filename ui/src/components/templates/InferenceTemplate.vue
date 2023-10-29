@@ -412,7 +412,7 @@
             content-class="text-dark bg-white "
             dense
             menu-self="top left"
-            dropdown-icon="las la-table"
+            dropdown-icon="las la-cube"
             color="secondary"
             padding="0px"
             size=".8em"
@@ -426,10 +426,10 @@
               <q-item
                 clickable
                 v-close-popup
-                @click="addNewTablePort({ name: model.name, args: [] }, 'Input', 'las la-table')"
+                @click="addNewTablePort({ name: model.name, args: [] }, 'Input', 'las la-cube')"
               >
                 <q-item-section side>
-                  <q-icon name="las la-table" />
+                  <q-icon name="las la-cube" />
                 </q-item-section>
                 <q-item-section
                   side
@@ -447,6 +447,54 @@
             content-class="bg-black text-white"
           >
             Add Model
+          </q-tooltip>
+        </div>
+        <div
+          class="text-secondary"
+          style="margin-right: 10px;"
+        >
+          <!--<i class="outlet-icon" style="cursor: pointer;" />-->
+
+          <q-btn-dropdown
+            flat
+            content-class="text-dark bg-white "
+            dense
+            menu-self="top left"
+            dropdown-icon="las la-table"
+            color="secondary"
+            padding="0px"
+            size=".8em"
+            style="margin-right: 0px;"
+          >
+            <q-list
+              dense
+              v-for="view in viewrows"
+              :key="view.name"
+            >
+              <q-item
+                clickable
+                v-close-popup
+                @click="addNewTablePort({ name: view.name, args: [] }, 'Input', 'las la-table')"
+              >
+                <q-item-section side>
+                  <q-icon name="las la-table" />
+                </q-item-section>
+                <q-item-section
+                  side
+                  class="text-blue-grey-8"
+                >
+                  {{ view.name }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Add Views
           </q-tooltip>
         </div>
 
@@ -499,26 +547,6 @@
           </q-tooltip>
         </div>
         <div style="position: absolute; right: 8px; top: 0;">
-          <q-btn
-            size="xs"
-            icon="las la-exchange-alt"
-            dense
-            flat
-            class="show-code text-secondary"
-            style="position: absolute; right: 115px; top: -68px; width: 25px; height: 30px;"
-            clickable
-            v-close-popup
-            @click="showPanel('middlewareview', !middlewareview)"
-          >
-            <q-tooltip
-              anchor="top middle"
-              :offset="[-30, 40]"
-              content-style="font-size: 16px"
-              content-class="bg-black text-white"
-            >
-              Middleware
-            </q-tooltip>
-          </q-btn>
           <q-btn
             size="xs"
             icon="fas fa-table"
@@ -740,10 +768,29 @@
             round
             v-if="column.type === 'Output'"
           />
+
+          <q-btn
+            size="xs"
+            icon="las la-exchange-alt"
+            dense
+            flat
+            class="show-code text-secondary"
+            clickable
+            @click="showModelMiddleware(column.id)"
+          >
+            <q-tooltip
+              anchor="top middle"
+              :offset="[-30, 40]"
+              content-style="font-size: 16px"
+              content-class="bg-black text-white"
+            >
+              Middleware
+            </q-tooltip>
+          </q-btn>
           <q-btn
             icon="fa fa-cog"
             size="xs"
-            title="Configure Table"
+            title="Configure"
             flat
             dense
             round
@@ -752,7 +799,7 @@
           <q-btn
             icon="fa fa-times"
             size="xs"
-            title="Delete Table Port"
+            title="Delete Port"
             flat
             dense
             round
@@ -944,7 +991,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this socket?
+            Are you sure you want to delete this port?
           </span>
         </q-card-section>
 
@@ -1052,7 +1099,7 @@
           :options-dense="true"
           style="font-size: 1em; margin-left:20px; margin-right: 5px;"
           v-model="predictmodel"
-          :options="modelrows"
+          :options="viewrows"
           hint="Prediction Model"
           option-value="name"
           option-label="name"
@@ -1115,8 +1162,8 @@
           class="bg-primary text-secondary"
           color="primary"
           v-close-popup
-          @click="tableSelected"
-          :disable="!viewtable"
+          @click="refreshView"
+          :disable="!predictmodel"
         >
           <q-tooltip
             anchor="top middle"
@@ -1124,7 +1171,7 @@
             content-style="font-size: 16px"
             content-class="bg-black text-white"
           >
-            Make Predictions
+            Refresh View
           </q-tooltip>
         </q-btn>
 
@@ -2014,15 +2061,13 @@
                   lazy-rules
                   :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
-                <q-select
+                <q-input
                   filled
-                  dense
                   v-model="obj.middlewarefunc"
-                  use-input
-                  input-debounce="0"
-                  :options="getfuncs"
+                  dense
                   hint="Middleware Function"
-                  style="width: 250px"
+                  lazy-rules
+                  :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                 />
                 <q-toolbar style="margin-left: -30px;">
                   <q-space />
@@ -2570,7 +2615,7 @@
           label="Close"
           class="bg-secondary text-white"
           color="primary"
-          @click="middlewareview = false"
+          @click="closeModelMiddleware"
           v-close-popup
         />
       </q-card-actions>
@@ -3197,14 +3242,6 @@
                           lazy-rules
                           :rules="[(val) => (val && val.length > 0) || 'Please type something']"
                         />
-                        <q-input
-                          filled
-                          v-model="obj.icon"
-                          dense
-                          hint="Icon Class"
-                          lazy-rules
-                          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-                        />
                       </q-form>
 
                       <q-card-actions align="left">
@@ -3684,7 +3721,6 @@
                 filled
                 type="textarea"
                 hint="Query"
-                disable
               />
             </q-form>
           </div>
@@ -4459,6 +4495,7 @@ export default {
   },
   data () {
     return {
+      portcolumn: null,
       jsonmode: false,
       jsonresult: '',
       deleteDBItemConfirm: false,
@@ -4823,7 +4860,6 @@ export default {
       editPort: false,
       settingstab: 'settings',
       refreshing: false,
-      consolehistory: false,
       saving: false,
       splitterModel: 50,
       codeSplitterModel: 50,
@@ -5147,6 +5183,16 @@ export default {
     }
   },
   methods: {
+    showModelMiddleware (column) {
+      console.log("showModelMiddleware", column, this.portobjects[column])
+      this.middleware = this.portobjects[column].middleware
+      this.portcolumn = column
+      this.showPanel('middlewareview', !this.middlewareview)
+    },
+    closeModelMiddleware () {
+      this.middlewareview = false
+      this.portobjects[this.portcolumn].middleware = this.middleware
+    },
     clearOutput () {
       this.consolelogs = []
       this.jsonresult = ''
@@ -5178,7 +5224,11 @@ export default {
     },
     deleteDBItem () {
       if (this.itemTypeToBeDeleted === 'model') {
+          DataService.deleteModel(this.itemNameToBeDeleted).then( () => {
 
+          }).catch( (err) => {
+
+          })
       }
     },
     async updatePredictedColumn () {
@@ -5588,7 +5638,7 @@ export default {
     },
     replaceMiddlewareVariables (name) {
       // Replace <vars>
-      me.obj.middleware = me.obj.middleware.replaceAll('<project>',this.obj.projectname).replaceAll('<name>',name)
+      this.obj.middleware = this.obj.middleware.replaceAll('<project>',this.obj.projectname).replaceAll('<name>',name)
     },
     triggerObject (portname) {
       const me = this
@@ -6103,7 +6153,7 @@ export default {
       port.id = 'port' + uuidv4()
       port.id = port.id.replace(/-/g, '')
       port.description = 'A description'
-
+      port.middleware = '# port middleware'
       port.queue = 'None'
 
       console.log('Port:', port)

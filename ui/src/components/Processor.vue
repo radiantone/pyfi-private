@@ -314,7 +314,14 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
 
             const _ = (window as any).pyodide.runPython(includes)
-            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            let mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            if (me.portobjects[portname] && me.portobjects[portname].middleware) {
+              let port = me.portobjects[portname]
+              console.log("PORT MIDDLEWARE", port)
+              // If port has middleware configured, use that instead
+              // 36 mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+              mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            }
             console.log('CODE MIDDLEWARE', mcode)
             this.$emit('middleware.started', {
               portname: portname

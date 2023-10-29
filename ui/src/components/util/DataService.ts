@@ -139,6 +139,14 @@ class DataService {
     })
   }
 
+  deleteModel (model: string, token: string): Promise<any> {
+    return http.delete('/api/minds/models/' + model, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getPredictions (project: string, model: string, limit: number, token: string): Promise<any> {
     return http.get('/api/minds/' + project + '/models/' + model + '/' + limit, {
       headers: {
