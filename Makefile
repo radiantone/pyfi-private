@@ -23,7 +23,7 @@ test:
 format:
 	$(isort)
 	$(black)
-	eslint --ext .js,.ts --fix ui/src/components #.vue
+	eslint --ext .js,.ts,.vue --fix ui/src/components #.vue
 
 .PHONY: lint
 lint:
@@ -31,7 +31,7 @@ lint:
 	$(flake8)
 	$(isort) --check-only --df
 	$(black) --check --diff
-	eslint --ext .js,.ts  ui/src/components #,.vue
+	eslint --ext .js,.ts  ui/src/components
 
 .PHONY: install
 install: depends init
