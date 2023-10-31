@@ -2418,7 +2418,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2458,8 +2457,7 @@ Delete
 */
 export default {
   name: 'ScriptTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     Console

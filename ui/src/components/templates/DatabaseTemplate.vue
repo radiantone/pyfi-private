@@ -2553,17 +2553,6 @@
 </template>
 <style scoped>
 
-.spinload {
-    width: 12px;
-    height: 12px;
-    border: 2px solid #abbcc3;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-    }
-
     @keyframes rotation {
     0% {
         transform: rotate(0deg);
@@ -2623,7 +2612,6 @@ tbody tr:nth-child(odd) {
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 import { ref } from 'vue'
 import { TSDB } from 'uts'
@@ -2663,8 +2651,7 @@ Delete
 */
 export default {
   name: 'DatabaseTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   setup () {
     // expose to template and other options API hooks
     return {
@@ -3051,7 +3038,6 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     this.fetchCode()
     this.updateBandwidthChart()

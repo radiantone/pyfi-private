@@ -677,6 +677,7 @@
               </q-item-section>
             </q-item>
             <q-separator />
+
             <q-item
               clickable
               v-close-popup
@@ -769,6 +770,11 @@
             v-if="column.type === 'Output'"
           />
 
+          <i
+            class="spinload"
+            v-if="column.loading"
+            style="font-size:1.3em;margin-left:5px"
+          />
           <q-btn
             size="xs"
             icon="las la-exchange-alt"
@@ -4068,7 +4074,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -4116,8 +4121,7 @@ Delete
 */
 export default {
   name: 'InferenceTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   setup () {
     return {
       configureSplitterModel: ref(35) // start at 50%
@@ -4344,6 +4348,14 @@ export default {
         this.jsonmode = false
       }
     },
+    consoleview: {
+      get: function () {
+        return this.obj.consoleview
+      },
+      set: function (val) {
+        this.obj.consoleview = val
+      }
+    },
     jsonmode: function (val) {
       if (val) {
         setTimeout(() => {
@@ -4477,6 +4489,24 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
+    this.$on('port.started', (portid) => {
+      console.log('MESSAGE RECEIVED: port started', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now true', column.id)
+          column.loading = true
+        }
+      })
+    })
+    this.$on('port.finished', (portid) => {
+      console.log('MESSAGE RECEIVED: port finished', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now false', column.id)
+          column.loading = false
+        }
+      })
+    })
     this.deployLoading = true
     this.fetchCode()
     this.updateBandwidthChart()
@@ -4497,6 +4527,7 @@ export default {
     return {
       portcolumn: null,
       jsonmode: false,
+      consolehistory: false,
       jsonresult: '',
       deleteDBItemConfirm: false,
       itemNameToBeDeleted: '',
@@ -4942,6 +4973,7 @@ export default {
         icon: 'las la-brain',
         databasename: null,
         titletab: false,
+        consoleview: false,
         schema: '',
         data: [],
         usemiddleware: false,
@@ -4994,7 +5026,6 @@ export default {
       text: '',
       configview: false,
       historyview: false,
-      consoleview: false,
       logsview: false,
       requirementsview: false,
       notesview: false,
@@ -5184,7 +5215,7 @@ export default {
   },
   methods: {
     showModelMiddleware (column) {
-      console.log("showModelMiddleware", column, this.portobjects[column])
+      console.log('showModelMiddleware', column, this.portobjects[column])
       this.middleware = this.portobjects[column].middleware
       this.portcolumn = column
       this.showPanel('middlewareview', !this.middlewareview)
@@ -5224,11 +5255,11 @@ export default {
     },
     deleteDBItem () {
       if (this.itemTypeToBeDeleted === 'model') {
-          DataService.deleteModel(this.itemNameToBeDeleted).then( () => {
+        DataService.deleteModel(this.itemNameToBeDeleted).then(() => {
 
-          }).catch( (err) => {
+        }).catch((err) => {
 
-          })
+        })
       }
     },
     async updatePredictedColumn () {
@@ -5638,7 +5669,7 @@ export default {
     },
     replaceMiddlewareVariables (name) {
       // Replace <vars>
-      this.obj.middleware = this.obj.middleware.replaceAll('<project>',this.obj.projectname).replaceAll('<name>',name)
+      this.obj.middleware = this.obj.middleware.replaceAll('<project>', this.obj.projectname).replaceAll('<name>', name)
     },
     triggerObject (portname) {
       const me = this

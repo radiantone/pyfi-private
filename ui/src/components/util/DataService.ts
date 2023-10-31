@@ -155,7 +155,6 @@ class DataService {
     })
   }
 
-
   listViews (project: string, token: string): Promise<any> {
     return http.get('/api/minds/project/' + project + '/views', {
       headers: {
@@ -319,7 +318,6 @@ class DataService {
       }
     })
   }
-
 
   getDeployments (processor: string, token: string): Promise<any> {
     return http.get('/api/deployments/' + processor, {

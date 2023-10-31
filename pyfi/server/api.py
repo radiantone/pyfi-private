@@ -1689,7 +1689,7 @@ def get_predictions(project, model, limit=25):
     _project = server.get_project(project)
 
     _model = _project.get_model(model)
-    _dbmodel = client["mindsdb"]["models"].find_one({"project":project, "name":model})
+    _dbmodel = client["mindsdb"]["models"].find_one({"project": project, "name": model})
     database = server.get_database(_dbmodel["database"])
     table = database.get_table(_dbmodel["table"])
 
@@ -1815,15 +1815,17 @@ def get_database(database):
     from pymongo import MongoClient
 
     client = MongoClient(CONFIG.get("mongodb", "uri"))
-    db = client["mindsdb"]["databases"].find_one({"dbname":database})
+    db = client["mindsdb"]["databases"].find_one({"dbname": database})
 
-    return jsonify({
-        "dbname": db["dbname"],
-        "dbtype": db["dbtype"],
-        "dbuser": db["dbuser"],
-        "dbhost": db["dbhost"],
-        "dbport": db["dbport"]
-    })
+    return jsonify(
+        {
+            "dbname": db["dbname"],
+            "dbtype": db["dbtype"],
+            "dbuser": db["dbuser"],
+            "dbhost": db["dbhost"],
+            "dbport": db["dbport"],
+        }
+    )
 
 
 @app.route("/minds/databases", methods=["GET"])
@@ -1975,7 +1977,6 @@ def rows():
     return jsonify(results)
 
 
-
 @app.route("/db/inference/rows/<database>/<project>/<model>", methods=["GET"])
 @cross_origin()
 @requires_auth
@@ -1985,8 +1986,10 @@ def inference_rows(database, project, model):
 
     client = MongoClient(CONFIG.get("mongodb", "uri"))
 
-    db = client["mindsdb"]["databases"].find_one({"dbname":database})
-    _dbmodel = client["mindsdb"]["models"].find_one({"project":project, "database":database, "name":model})
+    db = client["mindsdb"]["databases"].find_one({"dbname": database})
+    _dbmodel = client["mindsdb"]["models"].find_one(
+        {"project": project, "database": database, "name": model}
+    )
 
     _project = server.get_project(project)
 
@@ -1997,15 +2000,15 @@ def inference_rows(database, project, model):
     # get rows from mindsdb
     cols = []
 
-    if db["dbtype"] == 'Postgres':
+    if db["dbtype"] == "Postgres":
         url = f"postgresql://{db['dbuser']}:{db['dbpwd']}@{db['dbhost']}:{db['dbport']}/{db['dbname']}"
 
         tables = get_tables(db["dbtype"], url)
 
-        cols = [t['cols'] for t in tables if t["name"] == _dbmodel["table"]]
+        cols = [t["cols"] for t in tables if t["name"] == _dbmodel["table"]]
         cols = cols[0]
 
-    return jsonify({"cols":cols, "rows":[]})
+    return jsonify({"cols": cols, "rows": []})
 
 
 def get_tables(database, url):
@@ -2027,7 +2030,9 @@ def get_tables(database, url):
                 rows = conn_session.execute(f"select * from {table} limit 1")
                 cols = [str(key) for key in rows.keys()]
 
-                results += [{"name": table, "cols": cols, "schema": ddl["schema"].strip()}]
+                results += [
+                    {"name": table, "cols": cols, "schema": ddl["schema"].strip()}
+                ]
 
     return results
 

@@ -919,6 +919,11 @@
               {{ column.name }}
 
             </span>
+            <i
+              class="spinload"
+              v-if="column.loading"
+              style="font-size:1.3em;margin-left:5px"
+            />
           </span>
         </div>
         <jtk-source
@@ -2603,7 +2608,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2657,8 +2661,7 @@ Delete
 
 export default {
   name: 'ScriptTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -2708,6 +2711,24 @@ export default {
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
 
+    this.$on('port.started', (portid) => {
+      console.log('MESSAGE RECEIVED: port started', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now true', column.id)
+          column.loading = true
+        }
+      })
+    })
+    this.$on('port.finished', (portid) => {
+      console.log('MESSAGE RECEIVED: port finished', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now false', column.id)
+          column.loading = false
+        }
+      })
+    })
     window.root.$on('show.tooltips', (value) => {
       console.log('start tooltips:', value)
       me.tooltips = value
@@ -2724,7 +2745,6 @@ export default {
       me.error = true
       me.getNode().getPorts().forEach((port) => {
         if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
-
           me.triggerRoute(port.data.id, error)
         }
       })
@@ -2763,8 +2783,14 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      // console.log('MESSAGE RECEIVED', msg)
-
+      console.log('MESSAGE RECEIVED', msg)
+      me.obj.columns.forEach((column) => {
+        console.log('MESSAGE RECEIVED COLUMN', column)
+        if (column.id === msg.port) {
+          console.log('MESSAGE RECEIVED COLUMN LOADING now false', column.id)
+          column.loading = false
+        }
+      })
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
       }
@@ -4538,7 +4564,7 @@ export default {
 
         // TODO: If passenv set, then pass the variabledata to the next block for it to
         // set locally to itself before it runs its code
-        window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data, portid)
       })
     },
     triggerExecute () {

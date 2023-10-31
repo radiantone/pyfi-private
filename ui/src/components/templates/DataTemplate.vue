@@ -2214,7 +2214,6 @@ tbody tr:nth-child(odd) {
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2254,8 +2253,7 @@ Delete
 */
 export default {
   name: 'DataTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
