@@ -769,7 +769,6 @@
             round
             v-if="column.type === 'Output'"
           />
-
           <i
             class="spinload"
             v-if="column.loading"
@@ -3507,7 +3506,7 @@
                           class="bg-secondary text-white"
                           v-close-popup
                           :disable="(!model.name || model.name.length === 0) && (!model.predict || model.predict.length === 0)"
-                          @click="createModel"
+                          @click="createModel(projectnode)"
                         />
                       </q-card-actions>
                     </div>
@@ -3748,7 +3747,7 @@
             class="bg-secondary text-white"
             v-close-popup
             :disable="(!model.name || model.name.length === 0) && (!model.predict || model.predict.length === 0)"
-            @click="createModel"
+            @click="createModel(obj.projectname)"
           />
         </q-card-actions>
       </q-card>
@@ -4525,6 +4524,7 @@ export default {
   },
   data () {
     return {
+      projectnode: null,
       portcolumn: null,
       jsonmode: false,
       consolehistory: false,
@@ -5304,8 +5304,29 @@ export default {
         this.tablerows = result.data
       })
     },
-    createModel () {
-      DataService.createModel(this.model.name, this.obj.databasename, this.obj.projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then(() => {
+    trainModel (projectname) {
+      DataService.trainModel(this.model.name, projectname, this.$store.state.designer.token).then(() => {
+        this.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Training model ' + this.model.name + '!',
+          icon: 'save'
+        })
+        this.updateModels()
+      }).catch((err) => {
+        this.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'bottom',
+          message: 'Erro training model ' + this.model.name,
+          icon: 'fas fa-exclamation'
+        })
+        console.log(err)
+      })
+    },
+    createModel (projectname) {
+      DataService.createModel(this.model.name, this.obj.databasename, projectname, this.model.table, this.model.column, this.model.query, this.$store.state.designer.token).then(() => {
         this.$q.notify({
           color: 'secondary',
           timeout: 2000,
@@ -5544,6 +5565,7 @@ export default {
             project: node,
             id: 'jobs' + node.id
           }])
+        this.projectnode = node.label
       }
     },
     deleteProject () {
