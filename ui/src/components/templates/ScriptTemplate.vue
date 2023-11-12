@@ -360,6 +360,7 @@
         <a
           href="#"
           style="color: red;"
+          @click="errorview = true"
         >Error<q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
@@ -917,8 +918,12 @@
           <span>
             <span :id="column.id">
               {{ column.name }}
-
             </span>
+            <i
+              class="spinload"
+              v-if="column.loading"
+              style="font-size:1.3em;margin-left:5px"
+            />
           </span>
         </div>
         <jtk-source
@@ -930,7 +935,6 @@
           filter-exclude="true"
           type="Output"
         />
-
         <jtk-target
           v-if="column.type === 'Input'"
           name="target"
@@ -1070,7 +1074,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Plug</q-item-label>
+              <q-item-label>Delete Socket</q-item-label>
               <q-space />
               <q-icon
                 class="text-primary"
@@ -1089,7 +1093,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this plug?
+            Are you sure you want to delete this socket?
           </span>
         </q-card-section>
 
@@ -1244,6 +1248,99 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Error card -->
+
+    <q-card
+      :style="
+        'width: ' +
+          errorwidth +
+          'px;z-index: 999;display: block;position: absolute;right: -' +
+          (errorwidth + 5) +
+          'px;top: 0px;'
+      "
+      v-if="errorview"
+    >
+      <q-card-section style="padding: 5px; z-index: 999999; padding: 0px !important; padding-bottom: 10px;">
+        <editor
+          v-model="errorStack"
+          @init="errorEditorInit"
+          style="font-size: 16px; min-height: 600px;"
+          lang="text"
+          theme="chrome"
+          ref="errorEditor"
+          width="100%"
+          height="fit"
+        />
+      </q-card-section>
+      <q-card-actions align="left">
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 0px; width: 50px;"
+          flat
+          icon="far fa-arrow-alt-circle-left"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="errorwidth -= 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Shrink
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 50px; width: 50px; margin: 0px;"
+          flat
+          icon="far fa-arrow-alt-circle-right"
+          class="bg-accent text-dark"
+          color="primary"
+          v-close-popup
+          @click="errorwidth += 100"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Expand
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          style="position: absolute; bottom: 0px; left: 100px; width: 50px; margin: 0px;"
+          flat
+          icon="fas fa-home"
+          class="bg-primary text-white"
+          color="primary"
+          v-close-popup
+          @click="setZoomLevel"
+        >
+          <q-tooltip
+            anchor="top middle"
+            :offset="[-30, 40]"
+            content-style="font-size: 16px"
+            content-class="bg-black text-white"
+          >
+            Reset Zoom Level
+          </q-tooltip>
+        </q-btn>
+      </q-card-actions>
+      <q-card-actions align="right">
+        <q-btn
+          flat
+          style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+          label="Close"
+          class="bg-secondary text-white"
+          color="primary"
+          @click="errorview=false"
+        />
+      </q-card-actions>
+    </q-card>
 
     <!-- Code dialog -->
     <q-card
@@ -2603,7 +2700,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2613,6 +2709,23 @@ import BetterCounter from '../BetterCounter'
 import DataService from 'components/util/DataService'
 
 import http from 'src/http-common'
+
+/*
+function override(object, prop, replacer) {
+    var old = object[prop]; object[prop] = replacer(old)
+}
+function getZoom(element) {
+   if (!element) return 1;
+   return window.getComputedStyle(element).zoom * getZoom(element.parentElement);
+}
+override(editor.renderer, "screenToTextCoordinates", function(old) {
+    return function(x, y) {
+        var zoom = getZoom(this.container)  // Get zoom of current Designer canvas
+          .
+        return old.call(this, x/zoom, y/zoom)
+    }
+})
+ */
 
 const toObject = (map) => {
   if (!(map instanceof Map)) return map
@@ -2657,8 +2770,7 @@ Delete
 
 export default {
   name: 'ScriptTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -2708,6 +2820,24 @@ export default {
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
 
+    this.$on('port.started', (portid) => {
+      console.log('MESSAGE RECEIVED: port started', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now true', column.id)
+          column.loading = true
+        }
+      })
+    })
+    this.$on('port.finished', (portid) => {
+      console.log('MESSAGE RECEIVED: port finished', portid)
+      this.obj.columns.forEach((column) => {
+        if (column.id === portid) {
+          console.log('MESSAGE RECEIVED COLUMN now false', column.id)
+          column.loading = false
+        }
+      })
+    })
     window.root.$on('show.tooltips', (value) => {
       console.log('start tooltips:', value)
       me.tooltips = value
@@ -2720,10 +2850,11 @@ export default {
       me.updateColumns()
     })
     this.$on('python.error', (error) => {
+      me.errorMsg = 'Error in ' + error.function
+      me.errorStack = error.error
+      me.error = true
       me.getNode().getPorts().forEach((port) => {
         if (port.data.type === 'Error' && 'error: ' + error.function === port.data.name) {
-          me.errorMsg = 'Error in ' + error.function
-          me.error = true
           me.triggerRoute(port.data.id, error)
         }
       })
@@ -2762,8 +2893,14 @@ export default {
       }
     })
     this.$on('message.received', (msg) => {
-      // console.log('MESSAGE RECEIVED', msg)
-
+      console.log('MESSAGE RECEIVED', msg)
+      me.obj.columns.forEach((column) => {
+        console.log('MESSAGE RECEIVED COLUMN', column)
+        if (column.id === msg.port) {
+          console.log('MESSAGE RECEIVED COLUMN LOADING now false', column.id)
+          column.loading = false
+        }
+      })
       if (msg.type && msg.type === 'trigger') {
         me.triggerExecute()
       }
@@ -3117,6 +3254,7 @@ export default {
       argumentview: false,
       afuncs: [],
       codewidth: 950,
+      errorwidth: 650,
       queuecolumns: [
         {
           name: 'task',
@@ -3280,6 +3418,7 @@ export default {
       types: [],
       deployLoading: false,
       errorMsg: 'An error',
+      errorStack: '',
       password: '',
       tasktime_out_5min: [0, 0, 0, 0, 0, 0, 0, 0],
       totalbytes_5min: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -3623,6 +3762,7 @@ export default {
         }
       ],
       codeview: false,
+      errorview: false,
       gitview: false,
       entityName: '',
       columnName: '',
@@ -4153,6 +4293,16 @@ export default {
         edge.innerText = value
       })
     },
+    errorEditorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/text') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      const editor = this.$refs.errorEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+    },
     gitEditorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
@@ -4537,7 +4687,7 @@ export default {
 
         // TODO: If passenv set, then pass the variabledata to the next block for it to
         // set locally to itself before it runs its code
-        window.root.$emit(target_id, code, options.function, options.name, result, node.data)
+        window.root.$emit(target_id, code, options.function, options.name, result, node.data, portid)
       })
     },
     triggerExecute () {

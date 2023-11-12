@@ -344,7 +344,7 @@
         <a
           href="#"
           style="color: red;"
-        >Error<q-tooltip
+        >{{ errorMsg }}<q-tooltip
           anchor="top middle"
           :offset="[-30, 40]"
           content-style="font-size: 16px"
@@ -2553,17 +2553,6 @@
 </template>
 <style scoped>
 
-.spinload {
-    width: 12px;
-    height: 12px;
-    border: 2px solid #abbcc3;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
-    }
-
     @keyframes rotation {
     0% {
         transform: rotate(0deg);
@@ -2623,7 +2612,6 @@ tbody tr:nth-child(odd) {
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 import { ref } from 'vue'
 import { TSDB } from 'uts'
@@ -2663,8 +2651,7 @@ Delete
 */
 export default {
   name: 'DatabaseTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   setup () {
     // expose to template and other options API hooks
     return {
@@ -2765,18 +2752,24 @@ export default {
 */
       this.$forceUpdate()
     })
+    this.$on('middleware.error', (msg) => {
+      this.errorMsg = 'Middleware execution error'
+      this.error = true
+      this.obj.columns.forEach((column) => {
+        if (column.id === msg.portname) {
+          column.loading = false
+        }
+      })
+    })
 
     this.$on('middleware.started', (msg) => {
       // When middleware has been started, show
       // the spinner icon
+      this.errorMsg = ''
+      this.error = false
       this.obj.columns.forEach((column) => {
         if (column.id === msg.portname) {
           column.loading = true
-
-          if (!column.loaders) {
-            column.loaders = []
-          }
-          column.loaders.push({})
         }
       })
       setTimeout(me.$forceUpdate)
@@ -2786,10 +2779,7 @@ export default {
       if (msg.type && msg.type === 'result') {
         this.obj.columns.forEach((column) => {
           if (column.id === msg.portname) {
-            if (column.loaders) {
-              column.loaders.pop()
-            }
-            if (column.loaders.length === 0) {
+            if (column.id === msg.portname) {
               column.loading = false
             }
             this.$forceUpdate()
@@ -3048,7 +3038,6 @@ export default {
     window.root.$on('update.queues', (queues) => {
       this.queues = queues.map((queue) => queue.name)
     })
-    window.designer.$root.$emit('toolkit.dirty')
     this.deployLoading = true
     this.fetchCode()
     this.updateBandwidthChart()
@@ -3606,10 +3595,12 @@ export default {
           me.saving = false
         }).catch((err) => {
           console.log('ERROR', err)
+          me.error = true
+          me.errorMsg = 'Error fetching database rows'
           me.saving = false
         })
       } else {
-        this.saving = true
+        this.saving = false
       }
     },
     pullSchema () {
@@ -3647,6 +3638,7 @@ export default {
       DataService.createSchema(this.obj.database, this.obj.connection, this.obj.schema, this.$store.state.designer.token).then(() => {
         me.schemaResult = 'Create Schema succeeded'
         me.saving = false
+        me.pullSchema()
       }).catch(() => {
         me.schemaResult = 'Create Schema failure'
         me.saving = false

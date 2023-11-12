@@ -19,6 +19,14 @@ class DataService {
     })
   }
 
+  getInferenceRows (table: string, database: string, project: string, token: string): Promise<any> {
+    return http.get('/api/db/inference/rows/' + database + '/' + project + '/' + table, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
   getFiles (collection: string, folder: string, token: string): Promise<any> {
     return http.get('/api/files/' + collection + '/' + folder, {
       headers: {
@@ -50,6 +58,31 @@ class DataService {
       }
     })
   }
+
+  createJob (project: string, name: string, query: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + project + '/job/' + name, { query: query }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  createView (database: string, project: string, name: string, query: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + project + '/view/' + database + '/' + name, { query: query }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  trainModel (model: string, project: string, token: string): Promise<any> {
+    return http.post('/api/minds/project/' + project + '/model/' + model + '/train', {  }, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
 
   createModel (name: string, database: string, project: string, table: string, column: string, query: string, token: string): Promise<any> {
     return http.post('/api/minds/project/' + project + '/model/' + name, { database: database, table: table, column: column, query: query }, {
@@ -109,6 +142,22 @@ class DataService {
 
   getModel (model: string, token: string): Promise<any> {
     return http.get('/api/minds/models/' + model, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  deleteModel (model: string, token: string): Promise<any> {
+    return http.delete('/api/minds/models/' + model, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getPredictions (project: string, model: string, limit: number, token: string): Promise<any> {
+    return http.get('/api/minds/' + project + '/models/' + model + '/' + limit, {
       headers: {
         Authorization: 'Bearer ' + token
       }
@@ -265,6 +314,14 @@ class DataService {
 
   getVersions (flow: string, token: string): Promise<any> {
     return http.get('/api/versions/' + flow, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
+  }
+
+  getDatabase (database: string, token: string): Promise<any> {
+    return http.get('/api/minds/database/' + database, {
       headers: {
         Authorization: 'Bearer ' + token
       }

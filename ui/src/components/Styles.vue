@@ -5,6 +5,26 @@
 /* --- Node common -------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------- */
 
+.spinload {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #abbcc3;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    }
+
 .q-splitter--vertical > .q-splitter__separator > div {
   cursor: col-resize;
 }

@@ -2295,7 +2295,10 @@
         >
           <q-card-section style="padding: 5px; z-index: 999999; padding-bottom: 10px; height: 450px;">
             <q-scroll-area style="height:425px;width:auto">
-              <div v-for="log in tasklogs" v-bind:key="id">
+              <div
+                v-for="log in tasklogs"
+                :key="id"
+              >
                 {{ log["date"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["state"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{
                   log["module"]
                 }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["task"] }}&nbsp;&nbsp; --&nbsp;&nbsp;{{ log["duration"] }}
@@ -2415,7 +2418,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2455,8 +2457,7 @@ Delete
 */
 export default {
   name: 'ScriptTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     Console
@@ -2477,7 +2478,7 @@ export default {
       window.designer.$root.$emit('toolkit.dirty')
     },
     inBytes: function (val) {
-      console.log('inBytes', val);
+      console.log('inBytes', val)
     }
   },
   created () {

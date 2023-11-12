@@ -1092,7 +1092,7 @@
             "
           >
             <q-toolbar>
-              <q-item-label>Delete Socket</q-item-label>
+              <q-item-label>Delete Plug</q-item-label>
               <q-space />
               <q-icon
                 class="text-primary"
@@ -1111,7 +1111,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this socket?
+            Are you sure you want to delete this plug?
           </span>
         </q-card-section>
 
@@ -2214,7 +2214,6 @@ tbody tr:nth-child(odd) {
 /* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda, mdiAbacus, mdiPowerSocketUs, mdiCodeBraces } from '@mdi/js'
 
 import { TSDB } from 'uts'
@@ -2254,8 +2253,7 @@ Delete
 */
 export default {
   name: 'DataTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor'),
     BetterCounter,
@@ -3060,6 +3058,13 @@ export default {
       result.then((result) => {
         const resultstr = result.toString()
         console.log('DATA EDGE TEMPLATE RESULT', resultstr)
+
+        const msg = {
+          type: 'output',
+          processor: this.obj.name,
+          output: resultstr
+        }
+        this.$root.$emit('message.received', msg)
         console.log('DATA EDGE PORT EDGES', _port.getEdges().length)
         _port.getEdges().forEach((edge) => {
           console.log('DATA EDGE->NODE', edge, edge.target.getNode())
@@ -3090,7 +3095,7 @@ export default {
           // are present, then trigger the function with all the parameters
         })
       }, (error) => {
-
+        // TODO: Set error message/mode on block
       })
 
       console.log('PORT RESULT ', _port, result)

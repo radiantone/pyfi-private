@@ -291,7 +291,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
         (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any, portname: string) => {
           let obj = data
           this.id = id
-
+          console.log('PROCESSOR', data, block)
+          this.$emit('port.started', portname)
           // Set object based on its incoming type
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
@@ -314,25 +315,47 @@ export default mixins(ProcessorBase).extend<ProcessorState,
             console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
 
             const _ = (window as any).pyodide.runPython(includes)
-            const mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            let mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            if (me.portobjects[portname] && me.portobjects[portname].middleware) {
+              const port = me.portobjects[portname]
+              console.log('PORT MIDDLEWARE', port)
+              // If port has middleware configured, use that instead
+              // 36 mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+              mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            }
             console.log('CODE MIDDLEWARE', mcode)
             this.$emit('middleware.started', {
               portname: portname
             })
             const result = (window as any).pyodide.runPythonAsync(mcode)
             result.then((res: any) => {
+              console.log('RES.status', res, res.status)
               const jsonoutput = res.toJs()
               const _result = toObject(jsonoutput)
               console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
               this.$emit('message.received', {
                 type: 'result',
                 id: id,
-                function: 'run',
+                function: me.middlewarefunc,
                 obj: obj,
                 param: param,
                 portname: portname,
                 output: JSON.stringify(_result)
               })
+
+              this.$emit('port.finised', portname)
+            }).catch((err: any) => {
+              this.$emit('middleware.error', {
+                type: 'error',
+                id: id,
+                function: me.middlewarefunc,
+                obj: obj,
+                param: param,
+                portname: portname,
+                output: err
+              })
+
+              this.$emit('port.finised', portname)
             })
           }
 
@@ -481,6 +504,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   output: JSON.stringify(answer.result),
                   plugs: JSON.stringify(_plugs)
                 })
+
+                this.$emit('port.finised', portname)
               }, (error: any) => {
                 console.log('runBlock ERROR', error)
                 this.$emit('runblock.error', {
@@ -491,6 +516,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   function: func,
                   error: error.toString()
                 })
+
+                this.$emit('port.finised', portname)
               })
             } else {
               call = 'import json\n' + call;
@@ -545,6 +572,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   output: JSON.stringify(_result),
                   plugs: JSON.stringify(_plugs)
                 })
+
+                this.$emit('port.finised', portname)
               }, (error: any) => {
                 console.log('PYTHON ERROR', error)
                 this.$emit('python.error', {
@@ -555,6 +584,8 @@ export default mixins(ProcessorBase).extend<ProcessorState,
                   function: func,
                   error: error.toString()
                 })
+
+                this.$emit('port.finised', portname)
               })
             }
           }

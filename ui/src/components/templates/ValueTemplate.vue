@@ -510,7 +510,6 @@ tbody tr:nth-child(odd) {
 
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 import { v4 as uuidv4 } from 'uuid'
-import Vuetify from 'vuetify'
 import { mdiLambda } from '@mdi/js'
 import { TSDB } from 'uts'
 var Moment = require('moment') // require
@@ -530,14 +529,13 @@ import DataService from 'components/util/DataService'
 
 export default {
   name: 'DataTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
     editor: require('vue2-ace-editor')
   },
   watch: {
     inBytes: function (val) {
-      console.log('inBytes', val);
+      console.log('inBytes', val)
     }
   },
   created () {
@@ -589,7 +587,6 @@ export default {
         me.tasklogs = me.tasklogs.slice(0, 100)
       }
       if (msg.channel === 'task' && msg.message) {
-
         tsdb.series('outBytes').insert(
           {
             bytes: bytes
