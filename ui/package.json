@@ -2,11 +2,11 @@
   "name": "flow",
   "version": "0.0.1",
   "description": "A Visual Data Flow Editor",
-  "productName": "FLOW",
+  "productName": "ElasticCode",
   "author": "Darren Govoni",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.ts,.vue ./",
+    "lint": "eslint --ext .js,.ts,.vue ./src/components",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
@@ -14,16 +14,15 @@
     "@auth0/auth0-spa-js": "^2.0.0",
     "@mdi/js": "^6.6.96",
     "@mui/icons-material": "^5.6.2",
-    "@okta/okta-auth-js": "^4.4.0",
-    "@okta/okta-signin-widget": "^7.0.2",
-    "@okta/okta-vue": "3.1",
     "@quasar/app": "^2.2.6",
     "@quasar/cli": "^1.3.2",
     "@quasar/extras": "^1.10.4",
+    "@quasar/quasar-ui-qmarkdown": "^1.4.4",
     "@vue/composition-api": "^0.6.4",
+    "alasql": "^4.1.10",
     "apexcharts": "^3.22.3",
     "auth0-lock": "^11.34.2",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "chargebee": "^2.17.0",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
@@ -31,8 +30,8 @@
     "drip-drop": "^2.0.3",
     "filesize": "^10.0.5",
     "flexsearch": "^0.7.21",
+    "fs": "^0.0.1-security",
     "html-to-image": "^1.9.0",
-    "jQuery": "^1.7.4",
     "jsplumbtoolkit": "file:jsplumb/jsplumbtoolkit.tgz",
     "jsplumbtoolkit-demo-support": "file:jsplumb/jsplumbtoolkit-demo-support.tgz",
     "jsplumbtoolkit-drop": "file:jsplumb/jsplumbtoolkit-drop.tgz",
@@ -41,7 +40,6 @@
     "jsplumbtoolkit-undo-redo": "file:jsplumb/jsplumbtoolkit-undo-redo.tgz",
     "jsplumbtoolkit-vue2": "file:jsplumb/jsplumbtoolkit-vue2.tgz",
     "jsplumbtoolkit-vue2-drop": "file:jsplumb/jsplumbtoolkit-vue2-drop.tgz",
-    "log4js": "^6.6.1",
     "moment": "^2.29.3",
     "pyodide": "^0.21.3",
     "pyscript-js": "^1.2.4",
@@ -49,22 +47,24 @@
     "raphael": "^2.3.0",
     "socket.io-client": "^4.4.1",
     "socketio": "^1.0.0",
+    "typescript-eslint": "^0.0.1-alpha.0",
     "uts": "^1.1.3",
     "uuid": "^8.3.2",
     "vue-apexcharts": "^1.6.0",
+    "vue-grid-layout": "^2.1.3",
     "vue-i18n": "^8.0.0",
+    "vue-json-ui-editor": "^1.0.0",
     "vue-prism-editor": "^1.3.0",
     "vue-typed-js": "^0.1.2",
     "vue-typed-mixins": "^0.2.0",
     "vue2-ace-editor": "0.0.15",
-    "vuetify": "^2.5.6",
     "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@quasar/quasar-app-extension-qmarkdown": "^1.4.4",
     "@types/node": "^10.17.15",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "@typescript-eslint/parser": "^5.43.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
     "babel-eslint": "^10.0.1",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^14.1.0",
@@ -76,6 +76,8 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^9.7.0",
+    "fork-ts-checker-webpack-plugin": "^6.5.3",
+    "msw": "^1.2.2",
     "prettier": "github:aMarCruz/prettier"
   },
   "browserslist": [
@@ -94,5 +96,8 @@
     "node": ">= 10.18.1",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

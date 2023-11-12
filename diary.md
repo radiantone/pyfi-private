@@ -1,4 +1,164 @@
+TODO
+--------------------
+- Inference block completion. 70%
+- Lambda block: 30%
+- Select script language in code menu: Javascript, Python, 
+
+Oct 6
+
+- Added AlaSQL node package. Create new Filter block whose code editor is SQL and then
+- query the incoming data for a port and output the result
+- Each query in the code editor is an object that can be added as a port
+- 
+
+
+Oct 5
+
+- Need to change DataTemplate language selection to JSON
+- Re-added Database Example
+- Added post-reg action in Auth0 for localhost
+- Double check user remove clie
+
+Sep 29, 2023
+
+Summary to this point
+---------------------------------------
+- Inference block/api progress
+- Flow rename, delete
+- Upload flow from local file
+- Lambda block starter
+  - Add multiple functions and wire them up
+  - Invisible lambda function will unwrap parameters and dispatch to functions and get result and return it
+  - Local block middleware will orchestrate to/from the lambda and perform updates/deployments
+- api user rbac fixes
+- User session key fixes
+- Database block completion
+- Block permissions based on plan fixes
+- Environment support
+- Inference dialog, wired to backend services
+- New Relic support
+- Makefile, compose and environment baseline updates
+- eslint support in makefile
+- Circleci fix by building UI locally
+- quasar 2, vuejs3, mono repo projects created
+- IDE integrations: circleci, codestream plugins
+- New relic integrations: jira, 
+
+Aug 24, 2023
+
+- Fixed circleci problems
+  - UI is built locally and stored in git now
+- Fixed eslint/typescript versioning
+- Updated plan to embed vue grid layout in app view and allow for drag/drop of HTML components onto the view and connect them to internal data APIs
+  - Drag/drop VUE components to build UI
+
+## Inference  Block
+- API for mindsdb
+- mindsdb container
+- Block settings
+
+July 5, 2023
+
+## Inference Block
+- Maps to a MindsDB Project
+  - Created Once
+- Add new models to the block, which are part of the project
+- API interacts with MindsDB service/container for the block
+- Block reads current project, models from API
+- Adding a model to the block port to receive input
+- 
+July 4, 2023
+
+## Inference Block
+- create mindsdb database # points to real database too
+   - list tables (lists in the target db or in mindsdb?)
+
+- projects
+   - models
+   - 
+Inference Block
+   - Uses remote mindsb container
+   - Configures the target DB credentials
+   - Represents "a project"
+   - Holds various models
+   - Lists the tables from the target DB
+   
+   - When receiving an event from a database block, it also receives
+   the table. This data is used to configure the inbound request
+   - Inputs to the inference block connect to models which are configured
+   with target database/query, and a predicted value
+   - The model emits the predictions
+   - The view tab shows the predictions based on the selected model in real time
+
+Flow
+- Browser invokes Elastic API, which invokes MindsDB container/service, which connects  
+   to remote (or other container) database. 
+  - Database block talks to Elastic API, which talks to remote database via sqlalchemy
+    - Elastic API connects to MindsDB via sqlalchemy, which talks to remote database in 
+      in order to get the data to make predictions
+
+June 19, 2023
+
+- Database block
+  - API to submit data
+  - Pass config
+  - Define middleware
+  - Invoke middleware
+  - Set middleware func
+  - 
+
+June 18, 2023
+
+- Pass label into make so you can change the version of the stack being deployed
+  - e.g. make up  will default to production on the production branch
+  - make up --version=<commit hash> will bring up that version of the stack build
+  - This allows for an effective blue/green deployment where the blue deployment can quickly be reinstated
+
+June 14, 2023
+
+## TWO MAIN USAGE PATTERNS FOR ELASTICCODE
+
+### Embedded in Your App
+- Tested mocking a server with mws package. Works great. 
+  - Idea here will be that ElasicCode is embedded in your app and acts like a virtual server
+    - Your app issues normal AJAX calls to a specified URL to interact with ElasicCode
+    - Your app can also obtain references to the ElasticCode singleton object where it can register event listeners.
+    - Use Cases
+      1. Invoke a web service, get some data back. EC will intercept the service call and execute a flow or block
+      2. Register an event listener and receive event data from EC as data flows execute
+      3. 
+      
+### Server Side Flows
+
 ## MVP
+June 11, 2023
+
+- Added "includes" code before any block code runs. Has HTTP request convenience function that automatically adds the Auth0 bearer token
+- Data block functionality:
+  - Create a schema
+  - Pull a schema
+  - Add a table from schema
+  - Add a query
+  - Table port accepts input
+    - invokes middleware with input
+  - Table port is also output (invoked after call succeeds)
+  - Middleware is pre-set based on config of block (e.g. what database etc)
+    - The middleware code might change
+  - TODO:
+    - Block config properties to be set as env vars so they are accessible from middleware
+      - For example, name of database to store the data, type of db etc
+
+June 6, 2023
+- Database block
+- Connect Data object to table port on database block. Data is inserted into table. 
+  - Add schema popdown for table row
+  - Output edges from Table row have popdown widget that selects the type of output event.
+    - Transaction Success
+    - Transaction Error
+      - Additional submenu items in popdown for different Transaction Errors
+    - Schema Error
+  - (Optional) Output edge from data object has popdown for types like:
+    - Insert, Upsert, Delete
 
 BUG:
 

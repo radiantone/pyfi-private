@@ -1,3 +1,5 @@
+# type: ignore
+
 from .models import (
     ActionModel,
     AgentModel,

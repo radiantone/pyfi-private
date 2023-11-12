@@ -6,6 +6,8 @@ import getpass
 import hashlib
 import logging
 
+import newrelic.agent
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(filename)s: "
@@ -33,12 +35,16 @@ from sqlalchemy import literal_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_oso import authorized_sessionmaker
 
+if "NEW_RELIC_CONFIG_FILE" in os.environ:
+    newrelic.agent.initialize(os.environ["NEW_RELIC_CONFIG_FILE"])
+
 from pyfi.db.model import (
     AgentModel,
     ArgumentModel,
     CallModel,
     DeploymentModel,
     EventModel,
+    FileModel,
     LoginModel,
     LogModel,
     NetworkModel,
@@ -296,6 +302,7 @@ def cli(context, debug, db, backend, broker, api, user, password, ini, config):
                 EventModel: "read",
                 CallModel: "read",
                 TaskModel: "read",
+                FileModel: "read",
                 QueueModel: "read",
                 SocketModel: "read",
                 PasswordModel: "read",
@@ -629,6 +636,51 @@ def add_node_to_network(context, name, node):
 
 
 @db.command()
+@click.option("-f", "--file", default="elastic.sql", help="Database backup file")
+@click.pass_context
+def restore(context, file):
+    """Restore the database from a backup file"""
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ["pg_restore", "--no-owner", "--dbname=" + context.obj["dburi"], file],
+            stdout=subprocess.PIPE,
+        )
+        output = process.communicate()[0]
+        if int(process.returncode) != 0:
+            print("Command failed. Return code : {}".format(process.returncode))
+
+        print("Restore successful from " + os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+
+
+@db.command()
+@click.option("-f", "--file", default="elastic.sql", help="Database backup file")
+@click.pass_context
+def backup(context, file):
+    """Backup the database into a SQL file"""
+    import subprocess
+
+    try:
+        process = subprocess.Popen(
+            ["pg_dump", "--dbname=" + context.obj["dburi"], "-f", file],
+            stdout=subprocess.PIPE,
+        )
+        output = process.communicate()[0]
+        if process.returncode != 0:
+            print("Command failed. Return code : {}".format(process.returncode))
+            exit(1)
+        print("Backup successful to " + os.path.abspath(file))
+        return output
+    except Exception as ex:
+        logging.error(ex)
+        exit(1)
+
+
+@db.command()
 @click.option(
     "-d", "--directory", default="migrations", help="Directory of migration pyfi agent"
 )
@@ -681,8 +733,14 @@ def dropdb(context):
 
     for user in _users:
         if user != "postgres":
-            context.obj["database"].session.execute(f"DROP OWNED BY {user}")
-            context.obj["database"].session.execute(f"DROP USER {user}")
+            try:
+                context.obj["database"].session.execute(f'DROP OWNED BY "{user}"')
+            except:
+                pass
+            try:
+                context.obj["database"].session.execute(f'DROP USER "{user}"')
+            except:
+                pass
             print("Dropped user {}".format(user))
 
     context.obj["database"].session.commit()
@@ -1221,13 +1279,100 @@ def delete_processor(context, name):
 
 
 @delete.command(name="user", help="Delete a user object from the database")
-@click.option("--id", default=None, required=True, help="ID of user being deleted")
+@click.option(
+    "-e", "--email", default=None, required=True, help="Email of user being deleted"
+)
+@click.option("--userid", default=None, required=False, help="ID of user being deleted")
 @click.pass_context
-def delete_user(context, id):
-    model = context.obj["database"].session.query(UserModel).filter_by(id=id).first()
+def delete_user(context, email, userid):
+    import chargebee
+    import requests
+    from auth0.authentication import GetToken
+    from auth0.management import Auth0
 
-    context.obj["database"].session.delete(model)
+    domain = os.environ["AUTH0_DOMAIN"]
+    client_id = os.environ["AUTH0_CLIENTID"]
+    client_secret = os.environ["AUTH0_CLIENTSECRET"]
+
+    get_token = GetToken(domain, client_id, client_secret=client_secret)
+    token = get_token.client_credentials("https://{}/api/v2/".format(domain))
+    auth0 = Auth0(domain, token["access_token"])
+
+    users = auth0.users.list()
+    """
+    user_id = '{YOUR_USER_ID}'
+auth0.users.update(user_id, {
+    'name': 'My name is...'
+})"""
+    print(users)
+    chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
+    if userid:
+        user = (
+            context.obj["database"]
+            .session.query(UserModel)
+            .filter_by(id=userid)
+            .first()
+        )
+        uid = userid
+    else:
+        user = (
+            context.obj["database"]
+            .session.query(UserModel)
+            .filter_by(email=email)
+            .first()
+        )
+        uid = email
+
+    if user is None:
+        print(f"No such user {uid}")
+    else:
+        print(f"Deleting {uid}")
+        try:
+            context.obj["database"].session.execute(f'DROP OWNED BY "{user.name}"')
+        except:
+            pass
+        try:
+            context.obj["database"].session.execute(f'DROP USER "{user.name}"')
+        except:
+            pass
+
+        context.obj["database"].session.delete(user)
+
+    print("Checking subscriptions")
+
+    if user:
+        email = user.email
+    if userid and not user:
+        print(f"No user found for userid {userid}")
+        return
+
+    result = chargebee.Customer.list({"email[is]": email})
+    if len(result) == 0:
+        print(f"No customer with email {email}")
+    else:
+        for customer in result:
+            customer_id = customer.customer.id
+            print(f"Deleting chargebee customer...{email} {customer_id}")
+            try:
+                result = chargebee.Customer.delete(customer_id)
+                print(f"Deleted chargebee customer...{email} {customer_id}")
+            except Exception as ex:
+                # Only absorb exception if its a "no user found" exception
+                pass
+
+    print("Checking Auth0...")
+    try:
+        for user in users["users"]:
+            if user["email"] == email:
+                print(f"Deleting Auth0 user...{email}")
+                auth0.users.delete(user["user_id"])
+                print(f"Deleted Auth0 user...{email}")
+
+    except Exception as ex:
+        print(ex)
+
     context.obj["database"].session.commit()
+    print("Deleted user", email)
 
 
 @cli.group()
@@ -2194,7 +2339,7 @@ def add_user(context, name, email, password):
         context.obj["database"].session.add(user)
         context.obj["database"].session.commit()
 
-        sql = f"CREATE USER {name} WITH PASSWORD '{password}'"
+        sql = f"CREATE USER \"{name}\" WITH PASSWORD '{password}'"
         print(sql)
         context.obj["database"].session.execute(sql)
 
@@ -2801,6 +2946,51 @@ def start_worker(context, name, agent, hostname, pool, skip_venv, queue):
 
     context.obj["database"].session.commit()
     wprocess.join()
+
+
+@ls.command(name="files")
+@click.option(
+    "-c", "--collection", default=None, required=False, help="Name of collection"
+)
+@click.argument("path")
+@click.pass_context
+def ls_files(context, collection, path):
+    """List files"""
+    from pyfi.client.user import USER
+
+    x = PrettyTable()
+    names = [
+        "Name",
+        "Type",
+        "Owner",
+        "Last Updated",
+    ]
+    x.field_names = names
+    session = context.obj["database"].session
+    try:
+        files = (
+            session.query(FileModel)
+            .filter_by(collection=collection, path=path, user=USER)
+            .all()
+        )
+    except:
+        session.rollback()
+        files = (
+            session.query(FileModel)
+            .filter_by(collection=collection, path=path, user=USER)
+            .all()
+        )
+
+    def cmp_func(x):
+        if x.type == "folder":
+            return 0
+        else:
+            return 1
+
+    files = sorted(files, key=cmp_func)
+    for file in files:
+        x.add_row([file.name, file.type, file.owner, file.lastupdated])
+    print(x)
 
 
 @ls.command(name="passwords")
@@ -4852,7 +5042,7 @@ def api_start(context, ip, port):
         server.app_context().push()
 
         try:
-            """
+
             options = {
                 "bind": "%s:%s" % ("0.0.0.0", str(port)),
                 "workers": cpus,
@@ -4860,8 +5050,8 @@ def api_start(context, ip, port):
                 "timeout": 120,
             }
             StandaloneApplication(server, options).run()
-            """
-            bjoern.run(server, ip, port)
+
+            # bjoern.run(server, ip, port)
         except Exception as ex:
             logging.error(ex)
             logger.info("Shutting down...")

@@ -12,6 +12,11 @@ const routes: RouteConfig[] = [
     path: '/app',
     component: () => import('layouts/AppLayout.vue')
   },
+  {
+    path: '/block',
+    name: 'block',
+    component: () => import('layouts/BlockLayout.vue')
+  },
   // Always leave this as last one,
   // but you can also remove it
   {
@@ -19,11 +24,12 @@ const routes: RouteConfig[] = [
     component: () => import('pages/Error404.vue')
   }, //,
   // { path: '/login/callback', component: LoginCallback }
+  /*
   {
     path: '/profile',
     name: 'profile',
     component: () => import('components/Profile.vue')
-  },
+  }, */
   {
     path: '/logout',
     name: 'logout',

@@ -4,7 +4,7 @@ from os import getenv
 from os.path import exists
 from sys import argv
 
-from revChatGPT.revChatGPT import Chatbot
+# from revChatGPT.revChatGPT import Chatbot
 from svglib.svglib import svg2rlg
 
 
@@ -59,7 +59,7 @@ def consult(prompt):
             config = json.load(f)
 
         debug = True
-        chatbot = Chatbot(config, debug=debug, captcha_solver=CaptchaSolver())
+        chatbot = None  # Chatbot(config, debug=debug, captcha_solver=CaptchaSolver())
         '''
         if prompt.startswith("!"):
             if prompt == "!help":

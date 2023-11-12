@@ -1,6 +1,9 @@
+# type: ignore
+
 """
 Class database model definitions
 """
+
 import json
 from datetime import datetime
 from typing import Any, Optional
@@ -135,7 +138,7 @@ class LogModel(Base):
     )
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True)
+    user = relationship("UserModel", lazy=True, cascade="all")
 
     public = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.now, nullable=False)
@@ -316,6 +319,8 @@ class FileModel(BaseModel):
     versions = relationship(
         "VersionModel", back_populates="file", cascade="all, delete-orphan"
     )
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user = relationship("UserModel", lazy=True, cascade="all")
 
 
 flows_versions = Table(
@@ -491,7 +496,7 @@ class ProcessorModel(HasLogs, BaseModel):
     detached = Column(Boolean, default=False)
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", backref="processor", lazy=True)
+    user = relationship("UserModel", backref="processor", lazy=True, cascade="all")
 
     flow_id = Column(String(40), ForeignKey("flow.id"), nullable=True)
 
@@ -549,7 +554,7 @@ class NetworkModel(BaseModel):
     )
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True)
+    user = relationship("UserModel", lazy=True, cascade="all")
 
 
 class WorkModel(BaseModel):
@@ -665,7 +670,7 @@ class ArgumentModel(BaseModel):
     task_id = Column(String(40), ForeignKey("task.id"))
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True)
+    user = relationship("UserModel", lazy=True, cascade="all")
     plugs = relationship("PlugModel", backref="argument")
 
 
@@ -762,7 +767,7 @@ class SocketModel(BaseModel):
     )
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True)
+    user = relationship("UserModel", lazy=True, cascade="all")
 
     # Wait for all sourceplugs to deliver their data before invoking the task
     wait = Column(Boolean, default=False)
@@ -813,7 +818,7 @@ class PlugModel(BaseModel):
     argument_id = Column(String, ForeignKey("argument.id"))
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True)
+    user = relationship("UserModel", lazy=True, cascade="all")
 
     description = Column(Text(), nullable=True, default="Some description")
     queue = relationship("QueueModel", secondary=plugs_queues, uselist=False)
@@ -863,7 +868,7 @@ class LoginModel(Base):
     )
 
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
-    user = relationship("UserModel", lazy=True, overlaps="logins")
+    user = relationship("UserModel", lazy=True, overlaps="logins", cascade="all")
 
 
 oso.register_class(BaseModel)
@@ -891,3 +896,4 @@ oso.register_class(GateModel)
 oso.register_class(LoginModel)
 oso.register_class(JobModel)
 oso.register_class(DeploymentModel)
+oso.register_class(FileModel)

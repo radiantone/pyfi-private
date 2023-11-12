@@ -11,6 +11,13 @@
       >
         <q-item-label>Not Logged In</q-item-label>
       </q-inner-loading>
+      <q-inner-loading
+        :showing="true"
+        v-if="$auth.isAuthenticated && !hasDeveloper()"
+        style="z-index:9999"
+      >
+        <q-item-label>Subscription Required</q-item-label>
+      </q-inner-loading>
       <q-breadcrumbs>
         <div style="margin-left: 20px;">
           <q-toolbar style="padding: 0px;">
@@ -209,6 +216,20 @@ export default {
   created () {
   },
   methods: {
+    hasEnterprise () {
+      if (this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
+      } else {
+        return false
+      }
+    },
+    hasDeveloper () {
+      if (this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.DEVELOPER
+      } else {
+        return false
+      }
+    },
     synchronize () {
       var me = this
       this.loading = true
@@ -287,6 +308,8 @@ export default {
       // Get ID of pattern group object
       // Pull out all the nodes with that group, and their ports and edges
       // Save that
+      const token = this.$store.state.designer.token
+      console.log('AUTH SAVE PATTERN TOKEN', token)
       await DataService.newFile(
         'patterns',
         'Home',
@@ -295,7 +318,8 @@ export default {
         false,
         'pattern',
         'fas fa-project-diagram',
-        JSON.stringify({ image: pattern.image, code: pattern.code }, this.$store.state.designer.token)
+        JSON.stringify({ image: pattern.image, code: pattern.code }),
+        token
       )
         .then((response) => {
           me.synchronize()
@@ -324,11 +348,24 @@ export default {
     }
   },
   watch: {
+    '$store.state.designer.token': function (val) {
+      if (val) {
+        this.$root.$on('update.' + this.collection, this.synchronize)
+        this.$root.$on('save.flow.' + this.flowid, this.saveFlowEvent)
+        this.$root.$on('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
+        this.synchronize()
+      } else {
+        this.$root.$off('update.' + this.collection, this.synchronize)
+        this.$root.$off('save.flow.' + this.flowid, this.saveFlowEvent)
+        this.$root.$off('save.flow.to.folder.' + this.flowid, this.saveToFolderEvent)
+      }
+    },
     '$auth.isAuthenticated': function (val) {
       if (val) {
         var me = this
         me.synchronize()
         window.root.off('save.pattern')
+        console.log('PATTERN SAVE ON')
         window.root.$on('save.pattern', (id, name, image, objects) => {
           console.log('PATTERNS SAVING', objects)
           var code = JSON.stringify(objects)
@@ -351,6 +388,7 @@ export default {
     if (this.$auth.isAuthenticated) {
       var me = this
       me.synchronize()
+      console.log('PATTERN SAVE ON')
       window.root.$on('save.pattern', (id, name, image, objects) => {
         console.log('PATTERNS SAVING', objects)
         var code = JSON.stringify(objects)
@@ -370,6 +408,19 @@ export default {
   },
   data () {
     return {
+      sublevel: {
+        guest: 0,
+        free: 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
+      },
+      GUEST: 0,
+      FREE: 1,
+      DEVELOPER: 2,
+      PRO: 3,
+      HOSTED: 4,
+      ENTERPRISE: 5,
       loading: false,
       showpath: true,
       showaddfolder: false,

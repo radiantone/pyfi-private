@@ -3,6 +3,6 @@
 - Processor objects implement various interfaces for dealing with events and messages
 - Templates render Processor objects as a view
 - Messages arrive over socket.io (via designer canvas) and affect vuex data which triggers events in various template views
-    - For example, modification to processor id 1234 arrives over socket. Canvas will update vuex with new state, any existing 
+    - For example, modification to processor id 1234 arrives over socket. Canvas will update vuex with new state, any existing
     template views with that processor will automatically react/refresh
-- 
+- A NOTE

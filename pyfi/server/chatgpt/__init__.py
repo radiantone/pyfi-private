@@ -5,7 +5,7 @@ from os import getenv
 from os.path import exists
 from sys import argv, exit
 
-from revChatGPT.revChatGPT import Chatbot
+# from revChatGPT.revChatGPT import Chatbot
 
 
 class CaptchaSolver:
@@ -99,7 +99,7 @@ def verify_config(config):
 
 def chatGPT_main(config, debug):
     print("Logging in...")
-    chatbot = Chatbot(config, debug=debug, captcha_solver=CaptchaSolver())
+    chatbot = None  # Chatbot(config, debug=debug, captcha_solver=CaptchaSolver())
     while True:
         prompt = get_input("\nYou:\n")
         if prompt.startswith("!"):

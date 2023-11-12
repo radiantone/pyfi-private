@@ -7,13 +7,22 @@ import logging
 import os
 import platform
 from base64 import b64decode, b64encode
+from multiprocessing import Condition
 
 import chargebee
+import mindsdb_sdk
+import redis
 import requests
+from flasgger import Swagger
 
-from .chatgpt import configure
+lock = Condition()
 
-configure()
+
+# connects to the specified host and port
+server = mindsdb_sdk.connect(os.environ["MINDSDB_SERVER"])
+# from .chatgpt import configure
+
+# configure()
 chargebee.configure(os.environ["CB_KEY"], os.environ["CB_SITE"])
 
 from functools import wraps
@@ -26,13 +35,14 @@ from flask import (
     make_response,
     request,
     send_from_directory,
-    session,
 )
-from flask_cors import cross_origin
+from flask import session as SESSION
+from flask_cors import CORS, cross_origin
 from flask_restx import Api, Resource, fields, reqparse
 from jose import JWTError, jwt
 from six.moves.urllib.request import urlopen
 
+from flask_session import Session
 from pyfi.blueprints.show import blueprint
 from pyfi.client.user import USER
 from pyfi.db import get_session
@@ -50,40 +60,91 @@ from pyfi.db.model import (
     VersionModel,
     WorkerModel,
 )
-from pyfi.server.chatgpt.cli import consult
 
 CONFIG = configparser.ConfigParser()
-SESSION = session
 
 from pathlib import Path
 
 HOME = str(Path.home())
-AUTH0_DOMAIN = "dev-3583lxyoewhh4ymf.us.auth0.com"
-API_AUDIENCE = "http://localhost:8000/"
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+API_AUDIENCE = os.environ["API_AUDIENCE"]
 ALGORITHMS = ["RS256"]
 
 ini = HOME + "/pyfi.ini"
 
 CONFIG.read(ini)
-
+SQLALCHEMY_DATABASE_URI = CONFIG.get("database", "uri")
 request_parser = reqparse.RequestParser(bundle_errors=True)
+
+redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
 
 logging.basicConfig(level=logging.INFO)
 
 hostname = platform.node()
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
+app.config["SESSION_TYPE"] = "redis"
+app.config["SECRET_KEY"] = "super secret key"
+app.config["SESSION_REDIS"] = redisclient
 app.register_blueprint(blueprint)
+Session(app)
+cors = CORS(app, resources={r"/*": {"origins": "*.elasticcode.ai"}})
+app.config["SESSION_PERMANENT"] = False
+app.config["PERMANENT_SESSION_LIFETIME"] = 60  # in seconds
 
 api = Api(
     app,
     version="1.0",
-    title="LambdaFLOW API",
-    description="LambdaFLOW Backend API",
+    title="ElasticCode API",
+    description="ElasticCode Backend API",
 )
 
 setattr(app, "json_encoder", AlchemyEncoder)
+template = {
+    "swagger": "2.0",
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "in": "header",
+        }
+    },
+    "security": [{"Bearer": []}],
+    "info": {
+        "title": "ElasticCode API",
+        "description": "ElasticCode API",
+        "contact": {
+            "responsibleOrganization": "elasticcode.ai",
+            "responsibleDeveloper": "darren@elasticcode.ai",
+            "email": "support@elasticcode.ai",
+            "url": "elasticcode.ai",
+        },
+        "termsOfService": "https://elasticcode.ai/terms",
+        "version": "0.0.1",
+    },
+    "host": os.environ["API_HOST"],  # overrides localhost:500
+    "basePath": "/",  # base bash for blueprint registration
+    "schemes": ["https", "http"],
+    "operationId": "getmyData",
+}
+
+swagger_config = {
+    "title": "ElasticCode API",
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "execute",
+            "route": "/execute",
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "specs_route": "/ui",
+    "url_prefix": "/docs",
+}
+swagger = Swagger(app=app, template=template, config=swagger_config)
 
 
 # Error handler
@@ -154,81 +215,124 @@ def requires_scope(required_scope):
     return False
 
 
+def hasPlan(plan):
+    sub = SESSION["subscription"]
+    print(sub)
+    return True
+
+
+def requires_subscription(*args, **kwargs):
+    """Determines if the Access Token is valid"""
+
+    def decorated(f, *args, **kwargs):
+        if request:
+            sub = SESSION["subscription"]
+        return f
+
+    return decorated
+
+
 def requires_auth(f):
     """Determines if the Access Token is valid"""
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = get_token_auth_header()
-        jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
-        jwks = json.loads(jsonurl.read())
         try:
-            unverified_header = jwt.get_unverified_header(token)
-            rsa_key = {}
-            for key in jwks["keys"]:
-                if (
-                    "kid" in unverified_header
-                    and key["kid"] == unverified_header["kid"]
-                ):
-                    rsa_key = {
-                        "kty": key["kty"],
-                        "kid": key["kid"],
-                        "use": key["use"],
-                        "n": key["n"],
-                        "e": key["e"],
-                    }
-            if rsa_key:
-                try:
-                    payload = jwt.decode(
-                        token,
-                        rsa_key,
-                        algorithms=ALGORITHMS,
-                        audience=API_AUDIENCE,
-                        issuer="https://" + AUTH0_DOMAIN + "/",
-                    )
-                except jwt.ExpiredSignatureError:
-                    raise AuthError(
-                        {"code": "token_expired", "description": "token is expired"},
-                        401,
-                    )
-                except jwt.JWTClaimsError:
-                    raise AuthError(
-                        {
-                            "code": "invalid_claims",
-                            "description": "incorrect claims,"
-                            "please check the audience and issuer",
-                        },
-                        401,
-                    )
-                except Exception:
-                    raise AuthError(
-                        {
-                            "code": "invalid_header",
-                            "description": "Unable to parse authentication" " token.",
-                        },
-                        401,
-                    )
+            lock.acquire()
 
-                if "user" not in SESSION:
-                    user = requests.get(
-                        payload["aud"][1], headers={"Authorization": "Bearer " + token}
-                    ).json()
-                    SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+            token = get_token_auth_header()
 
-                _request_ctx_stack.top.current_user = payload
+            print(
+                "SESSION['user']",
+                SESSION,
+                SESSION["user"] if "user" in SESSION else None,
+            )
+
+            if "user" in SESSION and SESSION["user"] is not None:
                 return f(*args, **kwargs)
-            raise AuthError(
-                {
-                    "code": "invalid_header",
-                    "description": "Unable to find appropriate key",
-                },
-                401,
-            )
-        except JWTError:
-            raise AuthError(
-                {"code": "invalid_jwt", "description": "Token did not validate"},
-                401,
-            )
+
+            jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
+            jwks = json.loads(jsonurl.read())
+            try:
+                unverified_header = jwt.get_unverified_header(token)
+                rsa_key = {}
+                for key in jwks["keys"]:
+                    if (
+                        "kid" in unverified_header
+                        and key["kid"] == unverified_header["kid"]
+                    ):
+                        rsa_key = {
+                            "kty": key["kty"],
+                            "kid": key["kid"],
+                            "use": key["use"],
+                            "n": key["n"],
+                            "e": key["e"],
+                        }
+                if rsa_key:
+                    try:
+                        payload = jwt.decode(
+                            token,
+                            rsa_key,
+                            algorithms=ALGORITHMS,
+                            audience=API_AUDIENCE,
+                            issuer="https://" + AUTH0_DOMAIN + "/",
+                        )
+                    except jwt.ExpiredSignatureError:
+                        raise AuthError(
+                            {
+                                "code": "token_expired",
+                                "description": "token is expired",
+                            },
+                            401,
+                        )
+                    except jwt.JWTClaimsError:
+                        raise AuthError(
+                            {
+                                "code": "invalid_claims",
+                                "description": "incorrect claims,"
+                                "please check the audience and issuer",
+                            },
+                            401,
+                        )
+                    except Exception:
+                        raise AuthError(
+                            {
+                                "code": "invalid_header",
+                                "description": "Unable to parse authentication"
+                                " token.",
+                            },
+                            401,
+                        )
+
+                    if "user" not in SESSION or SESSION["user"] is None:
+                        user = requests.get(
+                            payload["aud"][1],
+                            headers={"Authorization": "Bearer " + token},
+                        ).json()
+                        print("SESSION", SESSION)
+                        SESSION["user"] = b64encode(bytes(json.dumps(user), "utf-8"))
+
+                    print(SESSION["user"])
+                    _request_ctx_stack.top.current_user = payload
+                    return f(*args, **kwargs)
+                raise AuthError(
+                    {
+                        "code": "invalid_header",
+                        "code": "invalid_header",
+                        "description": "Unable to find appropriate key",
+                    },
+                    401,
+                )
+            except JWTError as ex:
+                if "user" in SESSION:
+                    del SESSION["user"]
+                logging.error(ex)
+                raise AuthError(
+                    {"code": "invalid_jwt", "description": "Token did not validate"},
+                    401,
+                )
+        finally:
+            lock.release()
 
     return decorated
 
@@ -316,8 +420,16 @@ def create_endpoint(modulename, taskname):
 setattr(app, "json_encodore", AlchemyEncoder)
 
 
+@app.route("/logout", methods=["GET"])
+@cross_origin()
+@requires_auth
+def logout():
+    SESSION.clear()
+    return jsonify({"status": "ok"})
+
+
 @app.route("/emptyqueue/<queuename>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def empty_queue(queuename):
     # send DELETE method to queue contents URL
@@ -327,7 +439,7 @@ def empty_queue(queuename):
 
 
 @app.route("/emptyqueues", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def empty_queues():
     # Fetch all queues
@@ -336,7 +448,7 @@ def empty_queues():
 
 
 @app.route("/git/code", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_code():
     from pydriller import Repository
@@ -356,7 +468,7 @@ def get_code():
 
 
 @app.route("/git", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_git():
     from pydriller import Repository
@@ -385,7 +497,7 @@ def get_git():
 
 
 @app.route("/login/<id>", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def login_processor(id):
     data: Any = request.get_json()
@@ -397,10 +509,9 @@ def login_processor(id):
 
 
 @app.route("/processor/<name>", methods=["POST", "GET", "DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def do_processor(name):
-
     if request.method == "GET":
         with get_session() as session:
             _processor = session.query(ProcessorModel).filter_by(name=name).first()
@@ -445,11 +556,76 @@ def do_processor(name):
                 return jsonify({"status": "ok"})
 
 
+@app.route("/runblock", methods=["POST"])
+@cross_origin()
+def run_block():
+    """Run a given block in a container and return the result"""
+    import os
+    from uuid import uuid4
+
+    import docker
+
+    block = request.get_json()
+
+    client = docker.from_env()
+
+    _uuid = str(uuid4())
+    try:
+        with open("/tmp/" + _uuid, "w") as pfile:
+            pfile.write(block["block"]["code"] + "\n\n")
+            pfile.write(block["call"] + "\n")
+            print(block["block"]["code"] + "\n\n")
+            print(block["call"] + "\n")
+
+        result = client.containers.run(
+            block["block"]["containerimage"],
+            auto_remove=False,
+            volumes={"/tmp": {"bind": "/tmp/", "mode": "rw"}},
+            entrypoint="",
+            command="python /tmp/" + _uuid,
+        )
+        result = result.decode("utf-8").strip()
+        return result
+    finally:
+        os.remove("/tmp/" + _uuid)
+
+
+@app.route("/execute", methods=["GET"])
+@cross_origin()
+@requires_auth
+def execute_flow():
+    """Execute a saved flow
+    Execute a Flow and return the results.
+    ---
+    definitions:
+      Result:
+        type: object
+        properties:
+          name:
+            id: string
+      Flow:
+        type: object
+        properties:
+          name:
+            type: string
+    responses:
+      200:
+        description: JSON Result of Flow
+        schema:
+          $ref: '#/definitions/Result'
+        examples:
+          result: [{'some':'data'}]
+    """
+    result = []
+
+    return jsonify(result)
+
+
 @app.route("/processors", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_processors():
-
+    """Example endpoint returning a list of processors"""
     with get_session() as session:
         processors = session.query(ProcessorModel).all()
 
@@ -457,12 +633,9 @@ def get_processors():
 
 
 @app.route("/output/<resultid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_output(resultid):
-    import redis
-
-    redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
     resultid = resultid.replace("celery-task-meta-", "")
     r = redisclient.get(resultid + "-output")
     logging.info("get_output: %s %s", resultid + "-output", r)
@@ -472,7 +645,7 @@ def get_output(resultid):
 
 
 @app.route("/subscriptions/<user>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_subscription(user):
     import json
@@ -480,32 +653,58 @@ def get_subscription(user):
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
-    result = chargebee.Customer.list({"email[is]": user["email"]})
-    customer_id = result[0].customer.id
-    result = chargebee.Subscription.list({"customer_id[is]": customer_id})
+    try:
+        lock.acquire()
 
-    return str(result[0])
+        result = chargebee.Customer.list({"email[is]": user["email"]})
+        if len(result) == 0:
+            return jsonify(
+                {
+                    "error": "true",
+                    "subscription": "false",
+                    "message": "No subscriptin for this user",
+                }
+            )
+
+        customer_id = result[0].customer.id
+        result = chargebee.Subscription.list({"customer_id[is]": customer_id})
+        _sub = str(result[0])
+        SESSION["subscription"] = _sub
+        return _sub
+    finally:
+        lock.release()
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return "OK", 200
 
 
 @app.route("/chatgpt", methods=["POST"])
+@cross_origin()
 @requires_auth
 def consult_chatgpt():
-    from flask import Response
-
     data = request.get_json()
-    answer = consult(data["question"])
-    return answer
+    # answer = consult(data["question"])
+    return """
+Here is a function that will parse an english sentence
+
+
+    import spacy
+
+    def parse(sentence):
+       return "The parsed sentence"
+
+
+    """
 
 
 @app.route("/result/<resultid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_result(resultid):
     from pymongo import MongoClient
 
-    # TODO: Change to mongo
-    # redisclient = redis.Redis.from_url(CONFIG.get("redis", "uri"))
-    # r = redisclient.get(resultid)
     client = MongoClient(CONFIG.get("mongodb", "uri"))
     logging.info("GETTING RESULT %s", resultid)
     with client:
@@ -520,50 +719,70 @@ def get_result(resultid):
     return jsonify(_r)
 
 
+@app.route("/stats/<stat>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_stats(stat):
+    status = {"status": "ok"}
+    return jsonify(status), 200
+
+
 @app.route("/files/<collection>/<path:path>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_files(collection, path):
     import json
 
-    print(SESSION["user"])
+    from pyfi.db.model import UserModel
+
     user_bytes = b64decode(SESSION["user"])
     user = json.loads(user_bytes.decode("utf-8"))
 
-    with get_session(user=user) as session:
-        # files = session.query(FileModel).all()
+    try:
+        lock.acquire()
 
-        try:
-            files = (
-                session.query(FileModel)
-                .filter_by(collection=collection, path=path)
-                .all()
+        with get_session(user=user) as session:
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
             )
-        except:
-            session.rollback()
-            files = (
-                session.query(FileModel)
-                .filter_by(collection=collection, path=path)
-                .all()
-            )
+            try:
+                files = (
+                    session.query(FileModel)
+                    .filter_by(collection=collection, path=path, user=_user)
+                    .all()
+                )
+            except:
+                session.rollback()
+                files = (
+                    session.query(FileModel)
+                    .filter_by(collection=collection, path=path, user=_user)
+                    .all()
+                )
 
-        print(files)
+            print(files)
 
-        def cmp_func(x):
-            if x.type == "folder":
-                return 0
-            else:
-                return 1
+            def cmp_func(x):
+                if x.type == "folder":
+                    return 0
+                else:
+                    return 1
 
-        files = sorted(files, key=cmp_func)
-        return jsonify(files)
+            files = sorted(files, key=cmp_func)
+            return jsonify(files)
+    finally:
+        lock.release()
 
 
 @app.route("/folder/<collection>/<path:path>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def new_folder(collection, path):
+    from pyfi.db.model import Base, UserModel
 
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
     with get_session() as _session:
         folder = (
             _session.query(FileModel)
@@ -572,7 +791,14 @@ def new_folder(collection, path):
         )
         if not folder:
             name = path.rsplit("/")[-1:]
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+
             _path = "/".join(path.rsplit("/")[:-1])
+
+            _user = (
+                _session.query(UserModel).filter_by(name=uname, clear=password).first()
+            )
             if len(name) == 1:
                 name = name[0]
             else:
@@ -587,6 +813,7 @@ def new_folder(collection, path):
                 icon="fas fa-folder",
                 path=_path,
                 code="",
+                user=_user,
             )
             _session.add(folder)
 
@@ -594,17 +821,16 @@ def new_folder(collection, path):
 
 
 @app.route("/files/<fid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_file(fid):
-
     with get_session() as session:
         file = session.query(FileModel).filter_by(id=fid).first()
         return file.code, 200
 
 
 @app.route("/queue/<queue>/contents", methods=["DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def purge_queue(queue):
     from pyfi.util.rabbit import purge_queue
@@ -613,7 +839,7 @@ def purge_queue(queue):
 
 
 @app.route("/queue/messages/<queue>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_queue_messages(queue):
     import json
@@ -651,10 +877,9 @@ def get_queue_messages(queue):
 
 
 @app.route("/workers/<processor>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_workers(processor):
-
     with get_session() as session:
         _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         if not _processor:
@@ -680,10 +905,9 @@ def get_workers(processor):
 
 
 @app.route("/deployments/<processor>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_deployments(processor):
-
     with get_session() as session:
         _processor = session.query(ProcessorModel).filter_by(name=processor).first()
         deps = []
@@ -707,22 +931,52 @@ def get_deployments(processor):
 
 
 @app.route("/pattern/<pid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_pattern(pid):
-
     with open("pyfi/server/patterns/" + pid + ".json", "r") as pattern:
-
         _pattern = json.loads(pattern.read())
 
         return jsonify(_pattern)
 
 
+@app.route("/db/submit", methods=["POST"])
+@cross_origin()
+@requires_auth
+def db_submit():
+    import warnings
+
+    import sqlalchemy
+    from pandas import json_normalize
+
+    # Create the engine to connect to the PostgreSQL database
+    data = request.get_json(silent=True)
+
+    dburl = data["database"]["url"]
+    table = data["database"]["table"]
+    rows = data["data"]
+
+    engine = sqlalchemy.create_engine(dburl)
+
+    df = json_normalize(rows)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        df.to_sql(
+            table,
+            con=engine,
+            if_exists="append",
+            index=False,
+        )
+
+    print(data)
+    return jsonify({"operation": "commit", "status": "success"})
+
+
 @app.route("/code/extract", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def code_extract():
-
     data = request.get_json(silent=True)
     code = data["code"]
 
@@ -732,17 +986,16 @@ def code_extract():
 
 
 @app.route("/deployments", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_deploys():
-
     with get_session() as session:
         deployments = session.query(DeploymentModel).all()
         return jsonify(deployments)
 
 
 @app.route("/queues", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_queues():
     from pyfi.util.rabbit import get_queues as rabbit_queue_queues
@@ -766,50 +1019,45 @@ def get_queues():
 
 
 @app.route("/agents", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_agents():
-
     with get_session() as session:
         agents = session.query(AgentModel).all()
         return jsonify(agents)
 
 
 @app.route("/workers", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_workers_():
-
     with get_session() as session:
         workers = session.query(WorkerModel).all()
         return jsonify(workers)
 
 
 @app.route("/tasks", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_tasks():
-
     with get_session() as session:
         tasks = session.query(TaskModel).all()
         return jsonify(tasks)
 
 
 @app.route("/nodes", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_nodes():
-
     with get_session() as session:
         nodes = session.query(NodeModel).all()
         return jsonify(nodes)
 
 
 @app.route("/networks", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_networks():
-
     with get_session() as session:
         networks = []
         _networks = session.query(NetworkModel).all()
@@ -906,10 +1154,9 @@ def get_networks():
 
 
 @app.route("/files/<fid>", methods=["DELETE"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def delete_file(fid):
-
     print("Deleting file", fid)
     with get_session() as session:
         try:
@@ -941,11 +1188,27 @@ def delete_file(fid):
             return jsonify(status), 500
 
 
+@app.route("/rename/flow/<flowid>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rename_flow(flowid):
+
+    data = request.get_json(silent=True)
+
+    with get_session() as session:
+        flow = session.query(FileModel).filter(FileModel.id == flowid).first()
+        flow.filename = data["name"]
+        session.add(flow)
+        session.commit()
+
+        status = {"status": "ok", "id": flowid}
+        return jsonify(status)
+
+
 @app.route("/versions/<flowid>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_versions(flowid):
-
     with get_session() as session:
         logging.info("Getting versions for %s", flowid)
         versions = (
@@ -969,10 +1232,9 @@ def get_versions(flowid):
 
 
 @app.route("/calls/<name>", methods=["GET"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def get_calls(name):
-
     with get_session() as session:
         processor = session.query(ProcessorModel).filter_by(name=name).first()
         if not processor:
@@ -992,128 +1254,896 @@ def get_calls(name):
 
 @app.route("/registration", methods=["POST"])
 def post_registration():
-    user = request.get_json(silent=True)
-    print(user)
+    import hashlib
+    from datetime import datetime
+
+    # from pymongo import MongoClient
+    import sqlalchemy
+
+    from pyfi.db.model import Base, UserModel
+
+    data = request.get_json(silent=True)
+    logging.info("REGISTRATION: %s", data)
+
+    email = data["params"]["user"]["email"]
+    tenant = data["params"]["user"]["tenant"]
+    user_id = data["params"]["user"]["user_id"]
+    password = user_id.split("|")[1]
+    # client = MongoClient(CONFIG.get("mongodb", "uri"))
+    # pyfidb = client["pyfi"]
+    # users = pyfidb["users"]
+
+    # users.update_one({"email": email}, {'$set': data['params']['user']}, upsert=True)
+
+    with get_session() as session:
+        _password = hashlib.md5(password.encode()).hexdigest()
+        # This user will be used in OSO authorizations
+        uname = email.split("@")[0] + "." + password
+        user = UserModel(
+            name=uname,
+            owner=email,
+            password=_password,
+            clear=password,
+            email=email,
+            id=user_id,
+        )
+        # users.update_one({'_id': uname},
+        #                 {'$set': {'_id': uname, 'email': email, 'user_id': user_id, 'password': password}},
+        #             upsert=True)
+
+        user.lastupdated = datetime.now()
+        sql = f"CREATE USER \"{uname}\" WITH PASSWORD '{password}'"
+        try:
+            logging.info("%s", sql)
+            try:
+                session.execute(sql)
+                logging.info("Created user")
+            except sqlalchemy.exc.IntegrityError as ex:
+                if ex.orig.pgerror.find("already exists") == -1:
+                    raise ex
+
+            for t in Base.metadata.sorted_tables:
+                sql = f'GRANT CONNECT ON DATABASE pyfi TO "{uname}"'
+                session.execute(sql)
+                sql = f'GRANT SELECT, UPDATE, INSERT, DELETE ON "{t.name}" TO "{uname}"'
+                session.execute(sql)
+        except sqlalchemy.exc.ProgrammingError as ex:
+            if ex.orig.pgerror.find("already exists") == -1:
+                raise ex
+
+        session.add(user)
+
+        result = chargebee.Customer.create({"email": email})
+        result = chargebee.Subscription.create_with_items(
+            result.customer.id,
+            {
+                "subscription_items": [
+                    {
+                        "item_price_id": "ec_free-USD-Monthly",
+                        "quantity": 1,
+                        "unit_price": 0,
+                    }
+                ]
+            },
+        )
+    logging.info("Commit ended")
     return "OK"
 
 
 @app.route("/files/<collection>/<path:path>", methods=["POST"])
-@cross_origin(headers=["Content-Type", "Authorization"])
+@cross_origin()
 @requires_auth
 def post_files(collection, path):
+    from pyfi.db.model import UserModel
+
     print("POST", collection, path)
     data = request.get_json(silent=True)
     print("POST_FILE", data)
     print("POST_NAME", path + "/" + data["name"])
 
-    with get_session() as session:
-        files = session.query(FileModel).all()
-        if "id" in data and (
-            ("saveas" in data and not data["saveas"]) or "saveas" not in data
-        ):
-            print("FINDING FILE BY ID", data["id"])
-            file = session.query(FileModel).filter_by(id=data["id"]).first()
-        else:
-            print("FINDING FILE BY PATH", path + "/" + data["name"])
-            file = (
-                session.query(FileModel)
-                .filter_by(
-                    name=path + "/" + data["name"],
-                    path=path,
-                    collection=collection,
-                    type=data["type"],
-                )
-                .first()
+    user_bytes = b64decode(SESSION["user"])
+    user = json.loads(user_bytes.decode("utf-8"))
+
+    try:
+        with get_session(user=user) as session:
+            password = user["sub"].split("|")[1]
+            uname = user["email"].split("@")[0] + "." + password
+            _user = (
+                session.query(UserModel).filter_by(name=uname, clear=password).first()
             )
-        print("FILE FOUND", file)
-        if file:
-            if ("id" in data and data["id"] == file.id) and (
-                "saveas" in data and data["saveas"]
+
+            if "id" in data and (
+                ("saveas" in data and not data["saveas"]) or "saveas" not in data
             ):
-                # overwrite file
-                print("Overwriting ", data)
-                file.name = path + "/" + data["name"]
-                if "file" not in data:
-                    data["file"] = ""
-                file.code = data["file"]
-                session.add(file)
-                fid = file.id
-                try:
-                    session.commit()
-                except:
-                    error = {"status": "error", "message": "Unable to overwrite file"}
-                    session.rollback()
-                    return jsonify(error), 409
-            elif "id" in data and data["id"] == file.id:
-                print("Overwriting ", data)
-                if "file" not in data:
-                    data["file"] = ""
-                file.code = data["file"]
-                session.add(file)
-                fid = file.id
-                try:
-                    session.commit()
-                except:
-                    error = {"status": "error", "message": "Unable to overwrite file"}
-                    session.rollback()
-                    return jsonify(error), 409
+                print("FINDING FILE BY ID", data["id"])
+                file = (
+                    session.query(FileModel)
+                    .filter_by(id=data["id"], user=_user)
+                    .first()
+                )
             else:
-                session.rollback()
-                error = {
-                    "status": "error",
-                    "message": "File name exists",
-                    "id": file.id,
-                }
-                return jsonify(error), 409
+                print("FINDING FILE BY PATH", path + "/" + data["name"])
+                file = (
+                    session.query(FileModel)
+                    .filter_by(
+                        name=path + "/" + data["name"],
+                        path=path,
+                        collection=collection,
+                        type=data["type"],
+                        user=_user,
+                    )
+                    .first()
+                )
+            print("FILE FOUND", file)
+            if file:
+                if ("id" in data and data["id"] == file.id) and (
+                    "saveas" in data and data["saveas"]
+                ):
+                    # overwrite file
+                    print("Overwriting ", data)
+                    file.name = path + "/" + data["name"]
+                    if "file" not in data:
+                        data["file"] = ""
+                    file.code = data["file"]
+                    session.add(file)
+                    fid = file.id
+                    try:
+                        session.commit()
+                        print("Committed")
+                    except:
+                        import traceback
 
-        else:
-            file = (
-                session.query(FileModel)
-                .filter_by(
+                        print(traceback.format_exc())
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
+                        session.rollback()
+                        return jsonify(error), 409
+                elif "id" in data and data["id"] == file.id:
+                    print("Overwriting ", data)
+                    if "file" not in data:
+                        data["file"] = ""
+                    file.code = data["file"]
+                    session.add(file)
+                    fid = file.id
+                    try:
+                        session.commit()
+                    except:
+                        import traceback
+
+                        print(traceback.format_exc())
+                        error = {
+                            "status": "error",
+                            "message": "Unable to overwrite file",
+                        }
+                        session.rollback()
+                        return jsonify(error), 409
+                else:
+                    session.rollback()
+                    error = {
+                        "status": "error",
+                        "message": "File name exists",
+                        "id": file.id,
+                    }
+                    return jsonify(error), 409
+
+            else:
+                file = (
+                    session.query(FileModel)
+                    .filter_by(
+                        name=path + "/" + data["name"],
+                        path=path,
+                        collection=collection,
+                        type=data["type"],
+                        user=_user,
+                    )
+                    .first()
+                )
+
+                if file:
+                    error = {
+                        "status": "error",
+                        "message": "File name exists",
+                        "id": file.id,
+                    }
+                    return jsonify(error), 409
+
+                file = FileModel(
                     name=path + "/" + data["name"],
-                    path=path,
+                    filename=data["name"],
                     collection=collection,
                     type=data["type"],
+                    icon=data["icon"],
+                    path=path,
+                    code=data["file"],
+                    user=_user,
                 )
-                .first()
-            )
 
-            if file:
-                error = {
-                    "status": "error",
-                    "message": "File name exists",
-                    "id": file.id,
-                }
-                return jsonify(error), 409
+                if "saveas" in data:
+                    print("SAVEAS", file)
 
-            file = FileModel(
-                name=path + "/" + data["name"],
-                filename=data["name"],
-                collection=collection,
-                type=data["type"],
-                icon=data["icon"],
-                path=path,
-                code=data["file"],
-            )
+            if data["type"] == "flow":
+                logging.info("Creating version %s %s", file.name, file.id)
+                version = VersionModel(name=file.name, file=file, flow=file.code)
+                session.add(version)
+                logging.info("Added version %s", version)
 
-            if "saveas" in data:
-                print("SAVEAS", file)
+            session.add(file)
+            try:
+                session.commit()
+            except Exception as ex:
+                print(ex)
+                return jsonify({"status": "error", "message": str(ex)}), 500
 
-        if data["type"] == "flow":
-            logging.info("Creating version %s %s", file.name, file.id)
-            version = VersionModel(name=file.name, file=file, flow=file.code)
-            session.add(version)
-            logging.info("Added version %s", version)
+            status = {"status": "ok", "id": file.id}
+            print("STATUS", status)
+            return jsonify(status)
+    except Exception as ex:
+        return jsonify({"status": "error", "message": str(ex)})
 
-        session.add(file)
+
+@app.route("/minds/database/<database>/<table>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_table(database, table):
+
+    data: Any = request.get_json()
+
+    db = server.get_database(database)
+
+    query = db.query(data["query"])
+    db.create_table(table, query)
+    status = {"status": "ok"}
+    return jsonify(status)
+
+
+@app.route("/minds/database", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_database():
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    data: Any = request.get_json()
+
+    try:
+        with get_session() as session:
+            dbname = data["dbname"]
+            try:
+                session.execute(f"CREATE DATABASE {dbname}")
+            except:
+                # Ignore if exists
+                pass
+            client["mindsdb"]["databases"].insert_one(data)
+
+            if data["dbtype"] == "Postgres":
+                mdb = server.create_database(
+                    engine=data["dbtype"],
+                    name=data["dbname"],
+                    connection_args={
+                        "host": data["dbhost"],
+                        "port": data["dbport"],
+                        "database": data["dbname"],
+                        "user": data["dbuser"],
+                        "password": data["dbpwd"],
+                    },
+                )
+
+                status = {"status": "ok", "message": "Database created successfully!"}
+                return jsonify(status)
+            if data["dbtype"] == "SQLite":
+                mdb = server.create_database(
+                    engine=data["dbtype"],
+                    name=data["dbname"],
+                    connection_args={"db_file": data["dbname"]},
+                )
+
+                status = {"status": "ok", "message": "Database created successfully!"}
+                return jsonify(status)
+    except Exception as ex:
+        msg = str(ex)
+        status = {"status": "error", "message": msg}
+        return jsonify(status), 500
+
+
+@app.route("/minds/database", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_database():
+    pass
+
+
+@app.route("/minds/projects", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_projects():
+    import itertools
+
+    counter = itertools.count(0)
+
+    projects = server.list_projects()
+
+    names = [
+        {
+            "label": project.name,
+            "name": project.name,
+            "icon": "las la-clipboard",
+            "lazy": True,
+            "type": "project",
+            "id": "proj{}".format(next(counter)),
+        }
+        for project in projects
+    ]
+
+    return jsonify(names)
+
+
+@app.route("/minds/project/<project>/models", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_models(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        models = project.list_models()
+
+        names = [
+            {
+                "label": model.name,
+                "name": model.name,
+                "icon": "las la-cube",
+                "lazy": True,
+                "type": "model",
+                "status": model.get_status(),
+                "id": "model{}".format(next(counter)),
+            }
+            for model in models
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/project/<project>/views", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_views(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        views = project.list_views()
+
+        names = [
+            {
+                "label": view.name,
+                "name": view.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "view",
+                "id": "view{}".format(next(counter)),
+            }
+            for view in views
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/project/<project>/jobs", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_jobs(project):
+
+    import itertools
+
+    counter = itertools.count(0)
+
+    project = server.get_project(project)
+    try:
+        jobs = project.list_jobs()
+
+        names = [
+            {
+                "label": job.name,
+                "name": job.name,
+                "icon": "las la-table",
+                "lazy": True,
+                "type": "job",
+                "id": "job{}".format(next(counter)),
+            }
+            for job in jobs
+        ]
+
+        return jsonify(names)
+    except:
+        return jsonify([])
+
+
+@app.route("/minds/<project>/model/<model>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.get_model(model))
+
+
+@app.route("/minds/<project>/models/<model>/<limit>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_predictions(project, model, limit=25):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+    _dbmodel = client["mindsdb"]["models"].find_one({"project": project, "name": model})
+    database = server.get_database(_dbmodel["database"])
+    table = database.get_table(_dbmodel["table"])
+
+    predictions = _model.predict(table.limit(int(limit)))
+
+    return jsonify(predictions.to_dict())
+
+
+@app.route("/minds/<project>/models/<model>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def get_prediction(project, model):
+    import pandas as pd
+
+    data: Any = request.get_json()
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+
+    values = data["data"]
+    result = _model.predict(pd.DataFrame.from_records([values]))
+    _r = result.to_dict()
+    return jsonify(_r)
+
+
+@app.route("/minds/<project>/model/<model>/status", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_status(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.get_status())
+
+
+@app.route("/minds/<project>/model/<model>/info", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_model_info(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.describe())
+
+
+@app.route("/minds/<project>/model/<model>/refresh", methods=["POST"])
+@cross_origin()
+@requires_auth
+def refresh_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.refresh())
+
+
+@app.route("/minds/<project>/model/<model>/retrain", methods=["POST"])
+@cross_origin()
+@requires_auth
+def retrain_model(project, model):
+    project = server.get_project(project)
+
+    model = project.get_model(model)
+
+    return jsonify(model.retrain())
+
+
+@app.route("/minds/<project>/model/<model>", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_model(project, model):
+    project = server.get_project(project)
+
+    return jsonify(project.drop_model(model))
+
+
+@app.route("/minds/database/<database>/<table>/<limit>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_table(database, table, limit):
+    database = server.get_database(database)
+
+    _table = database.get_table(table)
+
+    _table.limit(limit)
+    return jsonify(_table.fetch())
+
+
+@app.route("/minds/database/<database>/tables", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_tables(database):
+    import itertools
+
+    counter = itertools.count(0)
+
+    database = server.get_database(database)
+
+    tables = database.list_tables()
+    tables = list(set([table.name for table in tables]))
+    names = [
+        {
+            "label": table,
+            "name": table,
+            "icon": "las la-table",
+            "lazy": True,
+            "type": "table",
+            "id": "table{}".format(next(counter)),
+        }
+        for table in tables
+    ]
+
+    return jsonify(names)
+
+
+@app.route("/minds/database/<database>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def get_database(database):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    db = client["mindsdb"]["databases"].find_one({"dbname": database})
+
+    return jsonify(
+        {
+            "dbname": db["dbname"],
+            "dbtype": db["dbtype"],
+            "dbuser": db["dbuser"],
+            "dbhost": db["dbhost"],
+            "dbport": db["dbport"],
+        }
+    )
+
+
+@app.route("/minds/databases", methods=["GET"])
+@cross_origin()
+@requires_auth
+def list_databases():
+    import itertools
+
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    _databases = [d for d in client["mindsdb"]["databases"].find()]
+
+    counter = itertools.count(0)
+
+    databases = server.list_databases()
+
+    dbs = []
+    print(_databases)
+    for _db in databases:
+        db = next(
+            (d for d in _databases if hasattr(d, "dbname") and d.dbname == _db.name),
+            None,
+        )
+        if db is None:
+            db = {}
+        dbs += [
+            {
+                "label": _db.name,
+                "icon": "las la-database",
+                "lazy": True,
+                "type": "database",
+                "obj": json.dumps(db),
+                "id": "db{}".format(next(counter)),
+            }
+        ]
+
+    return jsonify(dbs)
+
+
+@app.route("/minds/project/<name>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_project(name):
+    try:
+        server.create_project(name)
+        return jsonify({"status": "ok", "message": "Project created successfully!"})
+    except Exception as ex:
+        status = {"status": "ok", "message": str(ex)}
+        return jsonify(status), 500
+
+
+@app.route("/minds/project", methods=["DELETE"])
+@cross_origin()
+@requires_auth
+def delete_project():
+    pass
+
+
+@app.route("/minds/project/<project>/view/<database>/<view>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_view(project, database, view):
+    data: Any = request.get_json()
+
+    db = server.get_database(database)
+    project = server.get_project(project)
+    project.create_view(view, db.query(data["query"]))
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/minds/project/<project>/job/<job>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_job(project, job):
+    data: Any = request.get_json()
+    project = server.get_project(project)
+    project.create_job(job, data["query"], repeat_str="1 hour")
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/minds/project/<project>/model/<model>/train", methods=["POST"])
+@cross_origin()
+@requires_auth
+def train_model(project, model):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    data: Any = request.get_json()
+    _project = server.get_project(project)
+
+    table = server.get_database(data["database"]).get_table(data["table"])
+    _model = _project.get_model(model)
+    _model.refresh()
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/minds/project/<project>/model/<model>", methods=["POST"])
+@cross_origin()
+@requires_auth
+def create_model(project, model):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    data: Any = request.get_json()
+    _project = server.get_project(project)
+
+    table = server.get_database(data["database"]).get_table(data["table"])
+    _project.create_model(name=model, predict=data["column"], query=table)
+
+    data["name"] = model
+    data["project"] = project
+    client["mindsdb"]["models"].insert_one(data)
+    return jsonify({"status": "ok"})
+
+
+@app.route("/db/clear", methods=["POST"])
+@cross_origin()
+@requires_auth
+def clear():
+    """Clear data from the database table"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    conn = get_connection(database, url)
+
+    with conn.connect() as conn_session:
+        conn_session.execute(f"DELETE from {table}")
+        conn_session.execute("COMMIT")
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/db/rows", methods=["POST"])
+@cross_origin()
+@requires_auth
+def rows():
+    """Get all the tables for the database info in the POST json"""
+
+    data: Any = request.get_json()
+
+    table = data["viewtable"]
+    database = data["database"]
+    url = data["url"]
+
+    schemas = get_tables(database, url)
+    conn = get_connection(database, url)
+
+    with conn.connect() as conn_session:
+        rows = conn_session.execute(f"SELECT * from {table} limit 100")
+
+        results = []
+        for schema in schemas:
+            if schema["name"] == table:
+                for row in rows:
+                    results += [{col: data for col, data in zip(schema["cols"], row)}]
+
+    return jsonify(results)
+
+
+@app.route("/db/inference/rows/<database>/<project>/<model>", methods=["GET"])
+@cross_origin()
+@requires_auth
+def inference_rows(database, project, model):
+    """Get all the tables for the database info in the POST json"""
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    db = client["mindsdb"]["databases"].find_one({"dbname": database})
+    _dbmodel = client["mindsdb"]["models"].find_one(
+        {"project": project, "database": database, "name": model}
+    )
+
+    _project = server.get_project(project)
+
+    _model = _project.get_model(model)
+
+    # Get name of database from mongo, create connection string from stored properties
+    # get table cols
+    # get rows from mindsdb
+    cols = []
+
+    if db["dbtype"] == "Postgres":
+        url = f"postgresql://{db['dbuser']}:{db['dbpwd']}@{db['dbhost']}:{db['dbport']}/{db['dbname']}"
+
+        tables = get_tables(db["dbtype"], url)
+
+        cols = [t["cols"] for t in tables if t["name"] == _dbmodel["table"]]
+        cols = cols[0]
+
+    return jsonify({"cols": cols, "rows": []})
+
+
+def get_tables(database, url):
+
+    conn = get_connection(database, url)
+
+    # TODO: Switch to sqlalchemy approach
+    tables = conn.table_names()
+
+    results = []
+
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    with client:
+        with conn.connect() as conn_session:
+            ddl = client["elastic"]["schemas"].find_one({"type": database, "url": url})
+            for table in tables:
+                rows = conn_session.execute(f"select * from {table} limit 1")
+                cols = [str(key) for key in rows.keys()]
+
+                results += [
+                    {"name": table, "cols": cols, "schema": ddl["schema"].strip()}
+                ]
+
+    return results
+
+
+@app.route("/db/tables", methods=["POST"])
+@cross_origin()
+@requires_auth
+def tables():
+    """Get all the tables for the database info in the POST json"""
+    data: Any = request.get_json()
+
+    database = data["type"]
+    url = data["url"]
+    ddl = data["schema"]
+
+    results = get_tables(database, url)
+
+    return jsonify({"status": "ok", "tables": results})
+
+
+def get_connection(database, url):
+    import sqlite3
+    from urllib.parse import urlparse
+
+    import sqlalchemy
+
+    if database == "SQLite":
+        engine = sqlalchemy.create_engine(url)
+
+        dbname = urlparse(url).path.split("/")[1]
+        con = sqlite3.connect(f"{dbname}")
+        cur = con.cursor()
+        return engine
+
+    if database == "Postgres":
         try:
-            session.commit()
+            engine = sqlalchemy.create_engine(url)
+            return engine
         except Exception as ex:
             print(ex)
 
-        status = {"status": "ok", "id": file.id}
-        print("STATUS", status)
-        return jsonify(status)
+    return None
+
+
+@app.route("/db/test", methods=["POST"])
+@cross_origin()
+@requires_auth
+def test():
+    """Test database connection"""
+
+    data: Any = request.get_json()
+
+    database = data["type"]
+    url = data["url"]
+
+    if get_connection(database, url):
+
+        return jsonify({"status": "ok"})
+
+    return jsonify({"status": "error"}), 500
+
+
+@app.route("/db/schema", methods=["POST"])
+@cross_origin()
+@requires_auth
+def schema():
+    """Create one or more schemas/tables for the provided database info"""
+    data: Any = request.get_json()
+
+    database = data["type"]
+    url = data["url"]
+    ddl = data["schema"].strip()
+    logging.info("DDL %s", ddl)
+
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+    with client:
+        client["elastic"]["schemas"].update_one(
+            {"type": database, "url": url}, {"$set": data}, upsert=True
+        )
+
+        conn = get_connection(database, url)
+
+        with conn.connect() as conn_session:
+
+            stmts = ddl.split(";")
+
+            for stmt in stmts:
+                conn_session.execute(stmt)
+
+    return jsonify({"status": "ok"})
 
 
 @app.route("/assets/<path:path>")

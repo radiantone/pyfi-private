@@ -1,6 +1,5 @@
 <template>
   <div style="height: fit">
-
     <q-scroll-area style="height: calc(100vh - 180px); width: 100%;">
       <q-list separator>
         <q-item
@@ -8,11 +7,9 @@
           :key="item.id"
           :id="'row' + item.id"
           class="dragrow"
-        >
-        </q-item>
+        />
       </q-list>
     </q-scroll-area>
-
   </div>
 </template>
 <style>

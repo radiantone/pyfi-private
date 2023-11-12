@@ -1,46 +1,108 @@
 <template>
-<div>
-   <q-table style="height:400px;width:100%"
-        :data="this.properties"
-        :columns="columns"
-        row-key="property"
-        :separator="separator"
-        :rows-per-page-options="[6]"
-        :pagination.sync="pagination"
-        virtual-scroll
-      >
-
-    <template v-slot:body="props">
+  <div>
+    <q-table
+      style="height:400px;width:100%"
+      :data="this.properties"
+      :columns="columns"
+      row-key="property"
+      :separator="separator"
+      :rows-per-page-options="[6]"
+      :pagination.sync="pagination"
+      virtual-scroll
+    >
+      <template #body="props">
         <q-tr :props="props">
-          <q-td key="property" :props="props" :width="150" :style="'background-color:'+props.row.background">
+          <q-td
+            key="property"
+            :props="props"
+            :width="150"
+            :style="'background-color:'+props.row.background"
+          >
             {{ props.row.property }}
-            <q-popup-edit v-model="props.row.property" title="Property Name" buttons >
-              <q-input type="string" v-model="props.row.property" dense autofocus />
+            <q-popup-edit
+              v-model="props.row.property"
+              title="Property Name"
+              buttons
+            >
+              <q-input
+                type="string"
+                v-model="props.row.property"
+                dense
+                autofocus
+              />
             </q-popup-edit>
           </q-td>
-          <q-td key="description" :props="props" :style="'background-color:'+props.row.background">
-              {{ props.row.description }}
-              <q-popup-edit v-model="props.row.description" title="Property Description" buttons >
-              <q-input type="string" v-model="props.row.description" dense autofocus />
+          <q-td
+            key="description"
+            :props="props"
+            :style="'background-color:'+props.row.background"
+          >
+            {{ props.row.description }}
+            <q-popup-edit
+              v-model="props.row.description"
+              title="Property Description"
+              buttons
+            >
+              <q-input
+                type="string"
+                v-model="props.row.description"
+                dense
+                autofocus
+              />
             </q-popup-edit>
           </q-td>
-          <q-td key="value" :width="200" :props="props" >
+          <q-td
+            key="value"
+            :width="200"
+            :props="props"
+          >
             {{ props.row.value }}
-            <q-popup-edit v-model="props.row.value" title="Value" buttons >
-              <q-input type="string" v-model="props.row.value" dense autofocus />
+            <q-popup-edit
+              v-model="props.row.value"
+              title="Value"
+              buttons
+            >
+              <q-input
+                type="string"
+                v-model="props.row.value"
+                dense
+                autofocus
+              />
             </q-popup-edit>
           </q-td>
-          <q-td key="type" :width="80" :props="props" >
-            <q-select dense borderless v-model="props.row.type" :options="types" value="string"/>
+          <q-td
+            key="type"
+            :width="80"
+            :props="props"
+          >
+            <q-select
+              dense
+              borderless
+              v-model="props.row.type"
+              :options="types"
+              value="string"
+            />
           </q-td>
-          <q-td key="action" :props="props" style="width:25px">
-            <q-btn flat round dense size="md" class="bg-white text-primary" :id="props.row.id" @click="deleteProperty(props.row)" icon="delete"/>
+          <q-td
+            key="action"
+            :props="props"
+            style="width:25px"
+          >
+            <q-btn
+              flat
+              round
+              dense
+              size="md"
+              class="bg-white text-primary"
+              :id="props.row.id"
+              @click="deleteProperty(props.row)"
+              icon="delete"
+            />
           </q-td>
         </q-tr>
-
-    </template>
- </q-table>
-    </div>
+      </template>
+    </q-table>
+  </div>
 </template>
 
 <script>

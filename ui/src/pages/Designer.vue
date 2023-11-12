@@ -26,7 +26,7 @@
             { icon: 'far fa-object-group', value: 'select', slot: 'select' },
           ]"
         >
-          <template v-slot:pan>
+          <template #pan>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -35,7 +35,7 @@
               Pan Mode
             </q-tooltip>
           </template>
-          <template v-slot:select>
+          <template #select>
             <q-tooltip
               content-class
               content-style="font-size: 16px"
@@ -52,6 +52,7 @@
           icon="fa fa-stop"
           class="q-mr-xs"
           @click="nodeStatus('stopped')"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -68,6 +69,7 @@
           icon="fa fa-play"
           class="q-mr-xs"
           @click="nodeStatus('running')"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -77,7 +79,10 @@
             Start Nodes
           </q-tooltip>
         </q-btn>
-
+        <q-separator
+          vertical
+          inset
+        />
         <q-btn
           flat
           style="min-height: 45px;"
@@ -92,7 +97,7 @@
           >
             Clear Nodes
           </q-tooltip>
-        </q-btn>
+        </q-btn><!--
         <q-separator
           vertical
           inset
@@ -113,7 +118,7 @@
             Run Flow
           </q-tooltip>
         </q-btn>
-
+-->
         <q-separator
           vertical
           inset
@@ -205,6 +210,7 @@
           size="sm"
           icon="fas fa-save"
           @click="saveFlow"
+          :disabled="!hasFree()"
         >
           <q-tooltip
             content-class
@@ -220,6 +226,7 @@
           size="sm"
           :icon="this.saveAsIcon"
           @click="saveToFolder"
+          :disabled="!hasFree()"
         >
           <q-tooltip
             content-class
@@ -234,7 +241,7 @@
           style="min-height: 45px;"
           size="sm"
           icon="fas fa-upload"
-          :disabled="getVersion() === 'FREE'"
+          :disabled="!hasEnterprise()"
         >
           <q-tooltip
             content-class
@@ -291,6 +298,54 @@
             :offset="[10, 10]"
           >
             Toggle Bandwidth Display
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+          @click="importflowdialog = true"
+          icon="las la-file-upload"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Import Flow
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+          @click="viewConfigureDialog = true"
+          icon="las la-cog"
+        >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Configure
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          style="min-height: 45px;"
+          size="md"
+        >
+          <img
+            src="~assets/images/swagger.svg"
+            style="width:20px;min-width:20px;color:#054848"
+          >
+          <q-tooltip
+            content-class
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Swagger
           </q-tooltip>
         </q-btn>
         <q-separator
@@ -421,11 +476,13 @@
             name="processors"
             class="text-dark"
             label="Processors"
+            v-if="hasEnterprise()"
           />
           <q-tab
             name="network"
             class="text-dark"
             label="Network"
+            v-if="hasEnterprise()"
           />
         </q-tabs>
 
@@ -437,6 +494,7 @@
             name="processors"
             ref="processors"
             style="padding: 0px; width: 100%; padding-top: 0px;"
+            v-if="hasEnterprise()"
           >
             <Processors
               :objecttype="'processor'"
@@ -470,6 +528,7 @@
             name="network"
             ref="network"
             style="padding: 0px;"
+            v-if="hasEnterprise()"
           >
             <Networks />
           </q-tab-panel>
@@ -636,6 +695,7 @@
               clickable
               v-close-popup
               @click="nodeStatus('running')"
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-play" />
@@ -651,6 +711,8 @@
               clickable
               v-close-popup
               @click="nodeStatus('stopped')"
+
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-stop" />
@@ -744,6 +806,7 @@
               clickable
               v-close-popup
               @click="emptyQueuesDialog = true"
+              :disabled="!hasHosted()"
             >
               <q-item-section side>
                 <q-icon name="fas fa-minus-circle" />
@@ -785,6 +848,74 @@
     >
       Zoom: {{ zoom }}
     </q-item-label>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; left:315px;top:60px;font-size:2em"
+      size="xl"
+      icon="far fa-play-circle"
+      class="q-mr-xs"
+      @click="runFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Run Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; right:20px;top:100px;font-size:1.5em"
+      size="xl"
+      icon="far fa-save "
+      class="q-mr-xs"
+      @click="saveFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Save Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; right:15px;top:160px;font-size:2em"
+      size="xl"
+      icon="las la-file-download "
+      class="q-mr-xs"
+      @click="downloadFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Download Flow
+      </q-tooltip>
+    </q-btn>
+    <q-btn
+      flat
+      style="min-height: 45px;position:absolute; font-weight:bold; right:15px;top:235px;font-size:2em"
+      size="xl"
+      icon="las la-share-square "
+      class="q-mr-xs"
+      @click="shareFlow"
+      color="primary"
+    >
+      <q-tooltip
+        content-class
+        content-style="font-size: 16px"
+        :offset="[10, 10]"
+      >
+        Share Flow
+      </q-tooltip>
+    </q-btn>
     <div
       elevated
       class="q-pa-md"
@@ -964,6 +1095,13 @@
                 />
               </q-popup-edit>
               {{ node !== null ? node.data.name : 'No Selection' }}
+              <q-tooltip
+                content-class
+                content-style="font-size: 16px"
+                :offset="[10, 10]"
+              >
+                {{ node !== null ? node.id : '' }}
+              </q-tooltip>
             </div>
             <div
               class="text-info"
@@ -999,14 +1137,12 @@
                 top: 40px;
                 left: 45px;
               "
-            >
-              {{ node !== null ? node.id : '' }}
-            </div>
+            />
 
-            <img
-              src="~assets/images/droplet.svg"
-              style="width: 30px;"
-            >
+            <i
+              class="las la-cube"
+              style="margin-left:5px; font-size:2em"
+            />
           </q-card-section>
           <q-card-section>
             <q-toolbar
@@ -1199,7 +1335,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1271,7 +1406,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1343,7 +1477,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1420,7 +1553,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1445,15 +1577,15 @@
           style="
             padding-top: 45px;
             padding-bottom: 20px;
-            padding-left: 0px;
-            padding-right: 0px;
+
+            padding-left: 0px !important;padding-right: 0px !important
           "
         >
           <editor
             v-model="thecode"
             id="editor"
             @init="editorInit"
-            style="font-size: 25px; height: 60vh;"
+            style="font-size: 25px; height: 60vh;margin-top:40px;margin-bottom:15px;padding-left: 0px !important"
             lang="javascript"
             theme="chrome"
             ref="myEditor"
@@ -1463,12 +1595,12 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn
-            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
             flat
-            label="Update"
-            class="bg-accent text-dark"
-            color="primary"
-            v-close-popup
+            label="Download"
+            class="bg-primary text-dark"
+            color="dark"
+            @click="downloadFlow"
           />
           <q-btn
             flat
@@ -1481,6 +1613,103 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="importflowdialog"
+      transition-show="none"
+      persistent
+      style="height: 60vh;"
+    >
+      <q-card style="max-width: 100vw; width: 1500px;">
+        <q-card-section
+          class="bg-secondary"
+          style="
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 40px;
+          "
+        >
+          <div
+            style="
+              font-weight: bold;
+              font-size: 18px;
+              color: white;
+              margin-left: 10px;
+              margin-top: -5px;
+              margin-right: 5px;
+            "
+          >
+            <q-toolbar>
+              <q-item-label>Import Flow</q-item-label>
+              <q-space />
+              <q-icon
+                class="text-primary"
+                name="fas fa-close"
+                @click="importflowdialog = false"
+                style="z-index: 10; cursor: pointer;"
+              />
+            </q-toolbar>
+          </div>
+        </q-card-section>
+
+        <q-card-section
+          class="row items-center"
+          style="
+            padding-top: 45px;
+            padding-bottom: 20px;
+            padding-left: 0px !important;padding-right: 0px !important
+          "
+        >
+          <editor
+            v-model="importcode"
+            id="importeditor"
+            @init="importEditorInit"
+            style="font-size: 25px; height: 60vh;margin-top:40px;margin-bottom:15px;padding-left: 0px !important"
+            lang="javascript"
+            theme="chrome"
+            ref="importEditor"
+            width="100%"
+            height="60vh"
+          />
+        </q-card-section>
+        <q-card-actions align="left">
+          <q-btn
+            style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
+            flat
+            label="Close"
+            class="bg-secondary text-white"
+            color="dark"
+            v-close-popup
+          />
+          <input
+            ref="file" type="file" id="file"
+            hidden
+            v-on:change="insertFlow"
+          >
+
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 100px; width: 100px;"
+            label="File"
+            class="bg-primary text-dark"
+            color="dark"
+            @click="uploadFlow"
+          />
+          <q-btn
+            flat
+            style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
+            label="Import"
+            class="bg-secondary text-white"
+            color="primary"
+            v-close-popup
+            @click="importFlow"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog
       v-model="selectAlert"
       persistent
@@ -1500,7 +1729,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1572,7 +1800,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1601,7 +1828,7 @@
           horizontal
           style="height: calc(100% - 40px);"
         >
-          <template v-slot:before>
+          <template #before>
             <q-table
               dense
               :columns="versioncolumns"
@@ -1616,7 +1843,7 @@
                 border-bottom-radius: 0px;
               "
             >
-              <template v-slot:body="props">
+              <template #body="props">
                 <q-tr
                   :props="props"
                   :key="getUuid"
@@ -1665,7 +1892,7 @@
             </q-table>
           </template>
           <template
-            v-slot:after
+            #after
           >
             <div style="height: 100%; width: 100%;">
               <Designer
@@ -1738,7 +1965,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1746,6 +1972,11 @@
             "
           >
             <q-toolbar>
+              <q-icon
+                name="fas fa-font"
+                color="primary"
+                style="margin-right:10px"
+              />
               <q-item-label>Variables</q-item-label>
               <q-space />
               <q-icon
@@ -1774,7 +2005,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -1870,7 +2101,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -1878,6 +2108,11 @@
             "
           >
             <q-toolbar>
+              <q-icon
+                name="fas fa-cog"
+                color="primary"
+                style="margin-right:10px"
+              />
               <q-item-label>Configure</q-item-label>
               <q-space />
               <q-icon
@@ -1892,70 +2127,7 @@
         <q-card-section
           class="row items-center"
           style="height: 120px; width: 100%;"
-        >
-          <q-table
-            dense
-            :columns="variablecolumns"
-            :data="variabledata"
-            row-key="name"
-            flat
-            style="
-              width: 100%;
-              margin-top: 20px;
-              border-top-radius: 0px;
-              border-bottom-radius: 0px;
-            "
-          >
-            <template v-slot:body="props">
-              <q-tr
-                :props="props"
-                :key="getUuid"
-              >
-                <q-td
-                  :key="props.cols[0].name"
-                  :props="props"
-                >
-                  <a class="text-secondary">{{ props.row.name }}</a>
-                  <q-popup-edit
-                    v-model="props.row.name"
-                    v-slot="scope"
-                    buttons
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td
-                  :key="props.cols[1].name"
-                  :props="props"
-                >
-                  <a class="text-secondary">{{ props.row.value }}</a>
-                  <q-popup-edit
-                    v-model="props.row.value"
-                    v-slot="scope"
-                  >
-                    <q-input
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                      counter
-                    />
-                  </q-popup-edit>
-                </q-td>
-                <q-td
-                  :key="props.cols[2].name"
-                  :props="props"
-                >
-                  {{ props.cols[2].value }}
-                </q-td>
-              </q-tr>
-            </template>
-          </q-table>
-        </q-card-section>
+        />
 
         <q-card-actions align="right">
           <q-btn
@@ -1991,7 +2163,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -2028,7 +2199,7 @@
               border-bottom-radius: 0px;
             "
           >
-            <template v-slot:body="props">
+            <template #body="props">
               <q-tr
                 :props="props"
                 :key="getUuid"
@@ -2091,7 +2262,6 @@
             style="
               font-weight: bold;
               font-size: 18px;
-              color: white;
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
@@ -2146,6 +2316,12 @@
   </q-layout>
 </template>
 <style>
+.q-item__section--avatar {
+  min-width: unset !important;
+}
+.q-dialog > .q-card > .q-card__section--vert {
+  padding: 0px !important;
+}
 .q-icon {
   font-size: 16px;
 }
@@ -2161,12 +2337,13 @@
 }
 
 .scroll {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .q-card__section--vert {
-  padding: 5px;
-  padding-top: 0px;
+  padding: 5px !important;
+  padding-left: 0px;
+  padding-top: 0px !important;
 }
 
 .absolute-full {
@@ -2247,7 +2424,6 @@
 .delete-relationship {
   border-radius: 0px !important;
   padding: 5px;
-  z-index: 0;
   cursor: pointer;
   z-index: 9;
 
@@ -2291,13 +2467,19 @@ import ParallelTemplate from 'src/components/templates/ParallelTemplate.vue'
 import SegmentTemplate from 'components/templates/SegmentTemplate.vue'
 import ChordTemplate from 'components/templates/ChordTemplate.vue'
 import DataTemplate from 'components/templates/DataTemplate.vue'
+import LambdaTemplate from 'components/templates/LambdaTemplate.vue'
+import LoopTemplate from 'components/templates/LoopTemplate.vue'
 import ScriptTemplate from 'components/templates/ScriptTemplate.vue'
 import ApiTemplate from 'components/templates/ApiTemplate.vue'
 import ProcessorTemplate from 'components/templates/ProcessorTemplate.vue'
 import GroupTemplate from 'components/templates/GroupTemplate.vue'
 import PatternTemplate from 'components/templates/PatternTemplate.vue'
 import BorderTemplate from 'components/templates/BorderTemplate.vue'
-
+import QueueTemplate from 'components/templates/QueueTemplate.vue'
+import DatabaseTemplate from 'components/templates/DatabaseTemplate.vue'
+import SpreadsheetTemplate from 'components/templates/SpreadsheetTemplate.vue'
+import MarkdownTemplate from 'components/templates/MarkdownTemplate.vue'
+import InferenceTemplate from 'components/templates/InferenceTemplate.vue'
 import DocumentTemplate from 'components/templates/DocumentTemplate.vue'
 import PortInTemplate from 'components/templates/PortInTemplate.vue'
 import PortOutTemplate from 'components/templates/PortOutTemplate.vue'
@@ -2318,8 +2500,6 @@ var typeFunction = function (n) {
   return n.type
 }
 
-var dd = require('drip-drop')
-
 import { v4 as uuidv4 } from 'uuid'
 
 import 'assets/css/jsplumbtoolkit.css'
@@ -2332,7 +2512,6 @@ import Patterns from 'components/Patterns.vue'
 import { mdiContentSaveMove } from '@mdi/js'
 import DataService from 'src/components/util/DataService'
 
-// import 'floating-vue/dist/style.css'
 
 function downloadFile (file) {
   // Create a link and set the URL using `createObjectURL`
@@ -2402,33 +2581,6 @@ export default {
     connected () {
       return this.$store.state.designer.connected
     },
-    htmlDataComponent () {
-      return {
-        template:
-          "<div style='box-shadow: 0 0 5px grey;background-color:rgb(244, 246, 247); z-index:999999; width: 200px; height:40px; padding: 3px; font-size: 12px'> Name " +
-          "<span style='font-weight: bold; color: #775351' data-source=''>Queue</span><i class='pull-right fas fa-cog text-primary'/>" +
-          '<div style=\'color:black;font-weight:normal;font-family: "Roboto", "-apple-system", "Helvetica Neue", Helvetica, Arial, sans-serif;background-color: white; border-top: 1px solid #abbcc3; width:200px;height:20px; position:absolute; top:20px; left:0px; padding: 1px; padding-left: 3px;font-size: 12px;padding-top:3px\'> Queued ' +
-          "<span style='font-weight: bold; color: #775351'>0 (0 bytes)</span>" +
-          '</div>' +
-          '</div>',
-
-        data () {
-          return {
-            name: 'component',
-            value: ''
-          }
-        },
-        created () {
-          // value of "this" is formComponent
-          console.log(this.name + ' created')
-        },
-        methods: {
-          // proxy components method to parent method,
-          // actually you done have to
-          onInputProxy: this.onInput
-        }
-      }
-    },
     fname: {
       get () {
         return this.flowname
@@ -2439,6 +2591,52 @@ export default {
     }
   },
   methods: {
+    insertFlow (ev) {
+      const file = ev.target.files[0];
+      const reader = new FileReader()
+      reader.onload = e => {
+        console.log(e.target.result)
+        this.$refs.importEditor.editor.session.setValue(e.target.result)
+      }
+      reader.readAsText(file)
+    },
+    uploadFlow () {
+      console.log("Clicking upload")
+      this.$refs.file.click()
+    },
+    importFlow () {
+      const editor = this.$refs.importEditor.editor
+      var code = editor.getValue()
+      window.toolkit.load({
+        type: 'json',
+        data: JSON.parse(code),
+        onload: function () {
+          window.toolkit.setSelection(window.nodes)
+          window.toolkit.surface.zoomToSelection({ doNotZoomIfVisible: true })
+        }
+      })
+    },
+    hasFree () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] > this.FREE
+      } else {
+        return false
+      }
+    },
+    hasHosted () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] >= this.HOSTED
+      } else {
+        return false
+      }
+    },
+    hasEnterprise () {
+      if (this.$auth.isAuthenticated && this.$store.state.designer.subscription) {
+        return this.sublevel[this.$store.state.designer.subscription] === this.ENTERPRISE
+      } else {
+        return false
+      }
+    },
     setEdgeType (edgetype) {
       this.edgetype = !this.edgetype
       if (this.edgetype) {
@@ -2453,13 +2651,6 @@ export default {
           window.toolkit.setType(edges[i], 'flowchart')
           this.edgeLabel = 'Boxy Edges'
         }
-      }
-    },
-    getVersion () {
-      if (this.$store.state.designer.version.indexOf("Free") >= 0) {
-        return "FREE"
-      } else {
-        return "DEV"
       }
     },
     notifyNode (id) {
@@ -2480,8 +2671,10 @@ export default {
       this.viewHistoryDialog = true
     },
     downloadFlow () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2560,14 +2753,15 @@ export default {
     },
     redraw () {
       window.toolkit.surface.refresh()
-      // this.$store.commit('designer/setMessage', 'Canvas refreshed!');
+      this.$store.commit('designer/setMessage', 'Canvas refreshed!')
+      /*
       this.$q.notify({
         color: 'secondary',
         timeout: 2000,
         position: 'top',
         message: 'Canvas refreshed',
         icon: 'fas fa-refresh'
-      })
+      }) */
     },
     resetView () {
       window.toolkit.surface.setZoom(1.0)
@@ -2583,22 +2777,31 @@ export default {
       console.log('Synchronizing flows')
       this.$refs._flows.synchronize()
     },
-    editorInit: function () {
-      var me = this
-
+    importEditorInit: function () {
       require('brace/ext/language_tools') // language extension prerequsite...
       require('brace/mode/html')
       require('brace/mode/python') // language
       require('brace/mode/less')
       require('brace/theme/chrome')
       require('brace/snippets/javascript') // snippet
-      console.log('editorInit')
+      const editor = this.$refs.importEditor.editor
+      editor.setAutoScrollEditorIntoView(true)
+    },
+    editorInit: function () {
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
       const editor = this.$refs.myEditor.editor
       editor.setAutoScrollEditorIntoView(true)
     },
     saveToFolder () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2614,8 +2817,10 @@ export default {
       )
     },
     saveFlow () {
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = this.variabledata
       var thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2629,8 +2834,10 @@ export default {
     },
     showCode () {
       this.code = true
+      const graph = window.toolkit.getGraph().serialize()
+      graph.variables = this.variabledata
       this.thecode = JSON.stringify(
-        window.toolkit.getGraph().serialize(),
+        graph,
         null,
         '\t'
       )
@@ -2790,19 +2997,27 @@ export default {
   },
   mounted () {
     var me = this
-    console.log("DESIGNER STORE MESSAGE",me.$store.state.designer.message)
+    console.log('DESIGNER STORE MESSAGE', me.$store.state.designer.message)
     setTimeout(() => {
       // me.$store.state.designer.message="Connected";
       me.$store.commit('designer/setMessage', 'Connected')
     }, 5000)
 
-    if (this.flowid == 'flow1') {
+    if (this.flowid === 'flow1') {
       this.$root.$emit('update.tab')
     }
     setTimeout(() => {
       me.showName = true
     }, 1000)
-
+    this.$root.$on('save.flow.started', (flowuid) => {
+      me.loading = true
+    })
+    this.$root.$on('save.flow.succeeded', (flowuid) => {
+      me.loading = false
+    })
+    this.$root.$on('save.flow.error', (flowuid) => {
+      me.loading = false
+    })
     this.$root.$on('log.message', (message) => {
       me.messages.unshift(message)
     })
@@ -2922,7 +3137,7 @@ export default {
                     }
                   })
                 } else {
-                  DataService.getPattern(data.patternid, this.$store.state.designer.token)
+                  DataService.getPattern(data.patternid, me.$store.state.designer.token)
                     .then((pattern) => {
                       me.showing = false
                       console.log('LOADED PATTERN', pattern)
@@ -2986,6 +3201,19 @@ export default {
   },
   data: () => {
     return {
+      GUEST: 0,
+      FREE: 1,
+      DEVELOPER: 2,
+      PRO: 3,
+      HOSTED: 4,
+      ENTERPRISE: 5,
+      sublevel: {
+        guest: 0,
+        free: 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
+      },
       edgetype: true,
       owner: 'darren',
       messages: [],
@@ -3460,7 +3688,9 @@ export default {
       status: 'Ready',
       gridLines: true,
       code: false,
-      thecode: 'the code',
+      importflowdialog: false,
+      thecode: '',
+      importcode: '',
       plotpoints: [],
       confirm: false,
       tropes: false,
@@ -3518,10 +3748,12 @@ export default {
         edgeFactory: function (params, data, callback) {
           // you must hit the callback if you provide the edgeFactory.
           console.log('EDGE FACTORY:', params, data, callback)
-          if (!data.name) {
+          if (!data.name && data.label) {
             data.name = data.label
           }
-          data.event = data.label.toLowerCase()
+          if (data.label) {
+            data.event = data.label.toLowerCase()
+          }
           callback(data)
         },
         // the name of the property in each node's data that is the key for the data for the ports for that node.
@@ -3532,17 +3764,26 @@ export default {
         // Prevent connections from a column to itself or to another column on the same table.
         //
         beforeStartConnect: function (source, edgetype) {
-          debugger
           console.log('beforeStartConnect', source, source.getType(), edgetype)
           if (!source.data.name) {
             source.data.name = source.data.id
           }
-          return {
+          const dataobject = {
             label: source.data.id,
             name: source.data.name,
             type: source.data.datatype,
             template: source.data.template
           }
+          if (!dataobject.template) {
+            for (const k in source.params.source.dataset) {
+              if (k.indexOf('port') === 0) {
+                const field = k.replace('port', '').toLowerCase()
+                console.log(field, source.params.source.dataset[k])
+                dataobject[field] = source.params.source.dataset[k]
+              }
+            }
+          }
+          return dataobject
         },
         beforeConnect: function (source, target) {
           console.log('beforeConnect:', source, target)
@@ -3585,8 +3826,12 @@ export default {
               var targetType = params.target.data.type
 
               console.log(sourceType, targetType)
-              if (!((sourceType === 'Output' || sourceType === 'Plug' || sourceType === 'Error') && targetType === 'Input')) {
-                window.toolkit.removeEdge(params.edge)
+              if ((sourceType === 'Output' && targetType === 'Table') || (sourceType === 'Table' && targetType === 'Input')) {
+                // Allow the edge
+              } else {
+                if (!((sourceType === 'Output' || sourceType === 'InputOutput' || sourceType === 'Plug' || sourceType === 'Error') && (targetType === 'Input' || targetType === 'InputOutput'))) {
+                  window.toolkit.removeEdge(params.edge)
+                }
               }
 
               console.log(params.target.getEdges())
@@ -3668,8 +3913,53 @@ export default {
               }
             }
           },
+          spreadsheet: {
+            component: SpreadsheetTemplate
+          },
+          database: {
+            component: DatabaseTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
+          },
+          queue: {
+            component: QueueTemplate
+          },
           border: {
             component: BorderTemplate
+          },
+          markdown: {
+            component: MarkdownTemplate
+          },
+          inference: {
+            component: InferenceTemplate
           },
           api: {
             component: ApiTemplate,
@@ -3848,11 +4138,107 @@ export default {
               }
             }
           },
+          loop: {
+            component: LoopTemplate
+          },
+          lambda: {
+            component: LambdaTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
+          },
           data: {
-            component: DataTemplate
+            component: DataTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           schema: {
-            component: SchemaTemplate
+            component: SchemaTemplate,
+            events: {
+              tap: function (params) {
+                if (
+                  params.e.srcElement.localName === 'span' &&
+                  params.e.srcElement.className === 'proc-title'
+                ) {
+                  var parentId = params.e.srcElement.firstChild.parentNode.id
+                  var childId = params.e.srcElement.firstChild.id
+                  if (
+                    ((childId && childId.indexOf('port') === -1) || !childId) &&
+                    ((parentId && parentId.indexOf('port') === -1) || !parentId)
+                  ) {
+                    toolkit.toggleSelection(params.node)
+                    var elems = document.querySelectorAll('.jtk-node')
+
+                    elems.forEach((el) => {
+                      el.style['z-index'] = 0
+                    })
+                    params.el.style['z-index'] = 99999
+                    var nodes = toolkit.getSelection().getAll()
+                    if (nodes.length === 0) {
+                      window.root.$emit('node.selected', null)
+                    } else {
+                      window.root.$emit('node.selected', params.node)
+                      window.root.$emit('nodes.selected', nodes)
+                    }
+                  }
+                }
+              }
+            }
           },
           router: {
             component: RouterTemplate,
@@ -4042,6 +4428,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
+                console.log('double tap ', params)
                 _editEdge(params.edge)
               }
             },
@@ -4056,6 +4443,8 @@ export default {
                   name: '${name}',
                   events: {
                     tap: function (params) {
+                      console.log('edge params', params)
+                      window.root.$emit('edge.clicked', params)
                     }
                   }
                 }
@@ -4070,7 +4459,7 @@ export default {
             cssClass: 'common-edge',
             events: {
               dbltap: function (params) {
-                _editEdge(params.edge)
+                console.log('dbltap params', params)
               }
             },
             overlays: [
@@ -4082,13 +4471,13 @@ export default {
                   event: '${event}',
                   name: '${name}',
                   create: function (component) {
-                    let data = component.getData()
-                    //if (data.template && data.template === 'Object') {
+                    const data = component.getData()
+                    // if (data.template && data.template === 'Object') {
                     //  return
-                    //}
+                    // }
                     const QueueClass = Vue.extend(Queue)
                     var nodeValue = null
-                    debugger
+
                     if (component.source.attributes['data-jtk-port-id']) {
                       nodeValue =
                         component.source.attributes['data-jtk-port-id']
@@ -4101,7 +4490,8 @@ export default {
                       propsData: {
                         node: nodeValue,
                         component: component,
-                        hide: data.template && data.template === 'Object',
+                        hide: (data.template && data.template === 'Object') || (component.source.dataset.portTemplate &&
+                                component.source.dataset.portTemplate === 'Object'),
                         name: 'default' // component.getData()['name'],
                       }
                     })

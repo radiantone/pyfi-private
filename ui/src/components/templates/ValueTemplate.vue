@@ -11,12 +11,24 @@
     @mouseover1="mouseEnter"
     @mouseleave1="mouseExit"
   >
-    <q-inner-loading :showing="refreshing" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
+    <q-inner-loading
+      :showing="refreshing"
+      style="z-index: 999999;"
+    >
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
 
-    <q-inner-loading :showing="login" style="z-index: 9999999;">
-      <q-spinner-gears size="0px" color="primary" />
+    <q-inner-loading
+      :showing="login"
+      style="z-index: 9999999;"
+    >
+      <q-spinner-gears
+        size="0px"
+        color="primary"
+      />
       <div class="text-center">
         <q-toolbar>
           <q-input
@@ -29,18 +41,29 @@
             maxlength="20"
             dense
           >
-            <template v-slot:before>
-              <i class="fas fa-lock text-secondary" style="font-size: 0.8em;" />
+            <template #before>
+              <i
+                class="fas fa-lock text-secondary"
+                style="font-size: 0.8em;"
+              />
             </template>
-            <template v-slot:after>
-              <q-btn dense flat label="Unlock" color="secondary" />
+            <template #after>
+              <q-btn
+                dense
+                flat
+                label="Unlock"
+                color="secondary"
+              />
             </template>
           </q-input>
         </q-toolbar>
       </div>
     </q-inner-loading>
 
-    <div class="name" style="background: white; height: 90px;">
+    <div
+      class="name"
+      style="background: white; height: 90px;"
+    >
       <div
         title="Data"
         style="
@@ -64,7 +87,7 @@
           font-size: 40px;
           margin-right: 5px;
         "
-      ></div>
+      />
       <span
         style="position: absolute; left: 55px; font-size: 20px; top: 5px;"
         class="text-black"
@@ -130,8 +153,11 @@
         v1.2.2
       </span>
 
-      <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
-        <div style="position: absolute; right: 8px; top: 0px;">
+      <div
+        class="buttons"
+        style="position: absolute; right: 00px; top: 68px;"
+      >
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -223,12 +249,16 @@
           filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon"
           filter-exclude="true"
           style="height: 50px; width: 100%;"
-          >Output
+        >
+          Output
         </jtk-source>
       </li>
     </ul>
 
-    <q-dialog v-model="deleteItem" persistent>
+    <q-dialog
+      v-model="deleteItem"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-primary"
@@ -248,17 +278,22 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -292,7 +327,10 @@
     </q-dialog>
 
     <!-- Delete dialog -->
-    <q-dialog v-model="deleteConfirm" persistent>
+    <q-dialog
+      v-model="deleteConfirm"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -312,17 +350,22 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -380,7 +423,7 @@
           ref="myEditor"
           width="100%"
           height="fit"
-        ></editor>
+        />
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -463,19 +506,20 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
-import { BaseNodeComponent } from 'jsplumbtoolkit-vue2';
-import { v4 as uuidv4 } from 'uuid';
-import Vuetify from 'vuetify';
-import { mdiLambda } from '@mdi/js';
-import { TSDB } from 'uts';
-var Moment = require('moment'); // require
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-const tsdb = new TSDB();
+import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
+import { v4 as uuidv4 } from 'uuid'
+import { mdiLambda } from '@mdi/js'
+import { TSDB } from 'uts'
+var Moment = require('moment') // require
+
+const tsdb = new TSDB()
 
 // Import the mixin class
-import Processor from '../Processor.vue';
-import BetterCounter from '../BetterCounter';
-import DataService from 'components/util/DataService';
+import Processor from '../Processor.vue'
+import BetterCounter from '../BetterCounter'
+import DataService from 'components/util/DataService'
 // use mixins to mix in methods, data, store for 'Processor' objects.
 // The template thus defers to the mixed in methods for its state
 // The Processor object mixin connects to the vuex store and websocket detail, and api as well.
@@ -485,186 +529,178 @@ import DataService from 'components/util/DataService';
 
 export default {
   name: 'DataTemplate',
-  mixins: [BaseNodeComponent, BetterCounter, Processor], // Mixin the components
-  vuetify: new Vuetify(),
+  mixins: [BaseNodeComponent, BetterCounter, Processor],
   components: {
-    editor: require('vue2-ace-editor'),
-    BetterCounter,
+    editor: require('vue2-ace-editor')
   },
   watch: {
     inBytes: function (val) {
-      //console.log('inBytes', val);
-    },
+      console.log('inBytes', val)
+    }
   },
-  created() {
-    var me = this;
+  created () {
+    const me = this
 
-    this.lambdaIcon = mdiLambda;
-    console.log('me.tooltips ', me.tooltips);
-    console.log('start listening for show.tooltips');
+    this.lambdaIcon = mdiLambda
+    console.log('me.tooltips ', me.tooltips)
+    console.log('start listening for show.tooltips')
     window.root.$on('show.tooltips', (value) => {
-      console.log('start tooltips:', value);
-      me.tooltips = value;
-      console.log('ME:', me);
-      console.log('TOOLTIPS', me.tooltips);
-    });
+      console.log('start tooltips:', value)
+      me.tooltips = value
+      console.log('ME:', me)
+      console.log('TOOLTIPS', me.tooltips)
+    })
 
     this.$on('message.received', (msg) => {
-      //console.log('MESSAGE RECEIVED', msg);
-      if (msg['room'] && msg['room'] !== me.obj.name) {
-        //console.log('MESSAGE NOT FOR ME');
-        return;
+      // console.log('MESSAGE RECEIVED', msg);
+      if (msg.room && msg.room !== me.obj.name) {
+        // console.log('MESSAGE NOT FOR ME');
+        return
       }
-      if (msg['channel'] === 'task' && msg['state']) {
-        //console.log('MESSAGE STATUS received', msg);
-        var bytes = JSON.stringify(msg).length;
+      const bytes = JSON.stringify(msg).length
+      if (msg.channel === 'task' && msg.state) {
+        // console.log('MESSAGE STATUS received', msg);
 
         tsdb.series('inBytes').insert(
           {
-            bytes: bytes,
+            bytes: bytes
           },
           Date.now()
-        );
+        )
 
         var timedata = tsdb.series('inBytes').query({
           metrics: { data: TSDB.map('bytes') },
           where: {
-            time: { is: '<', than: Date.now() - 5 * 60 },
-          },
-        });
+            time: { is: '<', than: Date.now() - 5 * 60 }
+          }
+        })
 
-        //me.bytes_in_5min = averaged_data
-        me.bytes_in_5min.unshift(bytes); // + (Math.random()*100)
-        //console.log('BYTE_IN_5MIN', me.bytes_in_5min);
-        me.bytes_in_5min = me.bytes_in_5min.slice(0, 8);
-        //console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
-        me.bytes_in += bytes;
+        // me.bytes_in_5min = averaged_data
+        me.bytes_in_5min.unshift(bytes) // + (Math.random()*100)
+        // console.log('BYTE_IN_5MIN', me.bytes_in_5min);
+        me.bytes_in_5min = me.bytes_in_5min.slice(0, 8)
+        // console.log('BYTE_IN_5MIN SLICED', me.bytes_in_5min.slice(0, 8));
+        me.bytes_in += bytes
 
-        me.calls_in = timedata[0]['results'].data.length;
-        me.tasklogs.unshift(msg);
-        me.tasklogs = me.tasklogs.slice(0, 100);
+        me.calls_in = timedata[0].results.data.length
+        me.tasklogs.unshift(msg)
+        me.tasklogs = me.tasklogs.slice(0, 100)
       }
-      if (msg['channel'] === 'task' && msg['message']) {
-        var timedata = tsdb.series('outBytes').query({
-          metrics: { data: TSDB.map('bytes') },
-          where: {
-            time: { is: '<', than: Date.now() - 5 * 60 },
-          },
-        });
+      if (msg.channel === 'task' && msg.message) {
         tsdb.series('outBytes').insert(
           {
-            bytes: bytes,
+            bytes: bytes
           },
           Date.now()
-        );
-        var json = JSON.parse(msg['message']);
-        me.bytes_out += msg['message'].length;
-        me.bytes_out_5min.unshift(msg['message'].length);
-        if (msg['state'] === 'postrun' && msg['duration']) {
-          const moment = Moment(msg['duration'], 'H:mm:ss.SSS');
-          //console.log('MOMENT', moment);
+        )
+        var json = JSON.parse(msg.message)
+        me.bytes_out += msg.message.length
+        me.bytes_out_5min.unshift(msg.message.length)
+        if (msg.state === 'postrun' && msg.duration) {
+          const moment = Moment(msg.duration, 'H:mm:ss.SSS')
+          // console.log('MOMENT', moment);
           me.tasktime_out_5min.unshift(
             moment.seconds() + moment.milliseconds()
-          );
-          me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8);
+          )
+          me.tasktime_out_5min = me.tasktime_out_5min.slice(0, 8)
 
-          me.task_time = json.duration;
+          me.task_time = json.duration
         }
-        //console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
-        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8);
-        me.calls_out = timedata[0]['results'].data.length;
-        me.resultlogs.unshift(json);
-        me.resultlogs = me.resultlogs.slice(0, 100);
+        // console.log('TASKTIME_OUT_5MIN', me.tasktime_out_5min);
+        me.bytes_out_5min = me.bytes_out_5min.slice(0, 8)
+        me.calls_out = timedata[0].results.data.length
+        me.resultlogs.unshift(json)
+        me.resultlogs = me.resultlogs.slice(0, 100)
       }
-      if (msg['channel'] === 'log' && msg['message']) {
-        me.msglogs.unshift(msg);
-        me.msglogs = me.msglogs.slice(0, 100);
+      if (msg.channel === 'log' && msg.message) {
+        me.msglogs.unshift(msg)
+        me.msglogs = me.msglogs.slice(0, 100)
       }
-      me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out);
-      me.totalbytes_5min = me.totalbytes_5min.slice(0, 8);
-      //console.log('TASKLOGS', me.tasklogs);
-      //console.log('MSGLOGS', me.msglogs);
-    });
+      me.totalbytes_5min.unshift(me.bytes_in + me.bytes_out)
+      me.totalbytes_5min = me.totalbytes_5min.slice(0, 8)
+      // console.log('TASKLOGS', me.tasklogs);
+      // console.log('MSGLOGS', me.msglogs);
+    })
     // Print some fields from the mixin component
     console.log(
       'BetterCounter: ',
       this.delayMs,
       this.internalPerformAsyncIncrement
-    );
-    console.log('getcount', this.countLabel);
+    )
+    console.log('getcount', this.countLabel)
     // Changing this.delayMs will cause it to be saved in the vuex store and sync'd with server.
     // Any changes to the server will arrive through the customer Store via websockets, update the
     // vuex model and cause any reactive components in this view to change as well.
     setTimeout(() => {
-      me.delayMs = 500; // Update the reactive mixin data field
-      me.internalPerformAsyncIncrement();
-      me.delayMs += 10;
-      me.count += 10;
-      //me.name = 'MyProcessor 2!';
-    }, 3000);
+      me.delayMs = 500 // Update the reactive mixin data field
+      me.internalPerformAsyncIncrement()
+      me.delayMs += 10
+      me.count += 10
+      // me.name = 'MyProcessor 2!';
+    }, 3000)
   },
   computed: {
-    taskTime() {
-      return this.task_time;
+    taskTime () {
+      return this.task_time
     },
-    inBytes() {
-      return this.calls_in + ' (' + this.bytes_in_human + ' bytes)';
+    inBytes () {
+      return this.calls_in + ' (' + this.bytes_in_human + ' bytes)'
     },
-    outBytes() {
-      return this.calls_out + ' (' + this.bytes_out_human + ' bytes)';
+    outBytes () {
+      return this.calls_out + ' (' + this.bytes_out_human + ' bytes)'
     },
-    totalBytes() {
+    totalBytes () {
       return (
         this.calls_out +
         this.calls_in +
         ' (' +
         this.sizeOf(this.bytes_out + this.bytes_in) +
         ' bytes)'
-      );
+      )
     },
-    bytes_in_human() {
-      return this.sizeOf(this.bytes_in);
+    bytes_in_human () {
+      return this.sizeOf(this.bytes_in)
     },
-    bytes_out_human() {
-      return this.sizeOf(this.bytes_out);
+    bytes_out_human () {
+      return this.sizeOf(this.bytes_out)
     },
-    readwrite() {
-      return this.obj.readwrite;
-    },
+    readwrite () {
+      return this.obj.readwrite
+    }
   },
-  mounted() {
-    var me = this;
-    console.log('MOUNTED STORE', this.$store);
-    console.log('BYTES_IN', this['bytes_in']);
+  mounted () {
+    const me = this
+    console.log('MOUNTED STORE', this.$store)
+    console.log('BYTES_IN', this.bytes_in)
 
-    d3.selectAll('p').style('color', 'white');
-    console.log('D3 ran');
+    d3.selectAll('p').style('color', 'white')
+    console.log('D3 ran')
     // Execute method on mixed in component, which sends to server using socket.io
-    this.sayHello({ name: 'darren', age: 51 });
+    this.sayHello({ name: 'darren', age: 51 })
 
     setTimeout(() => {
-      console.log('ME.getNode()', me.getNode());
-      me.getNode().component = this;
-    }, 3000);
-    this.$el.component = this;
+      console.log('ME.getNode()', me.getNode())
+      me.getNode().component = this
+    }, 3000)
+    this.$el.component = this
     window.designer.$on('toggle.bandwidth', (bandwidth) => {
-      console.log('toggle bandwidth', bandwidth);
-      me.obj.bandwidth = bandwidth;
-    });
+      console.log('toggle bandwidth', bandwidth)
+      me.obj.bandwidth = bandwidth
+    })
 
-    this.deployLoading = true;
+    this.deployLoading = true
     DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
       .then((deployments) => {
-        console.log('DEPLOYMENTS', deployments);
-        this.deployLoading = false;
-        this.deploydata = deployments.data;
+        console.log('DEPLOYMENTS', deployments)
+        this.deployLoading = false
+        this.deploydata = deployments.data
       })
       .catch((err) => {
-        console.log('DEPLOYMENTS ERROR', err);
-        this.deployLoading = false;
-      });
+        console.log('DEPLOYMENTS ERROR', err)
+        this.deployLoading = false
+      })
   },
-  data() {
+  data () {
     return {
       deployLoading: false,
       loginname: '',
@@ -698,280 +734,280 @@ export default {
           data: [
             {
               x: new Date(1538778600000),
-              y: [6629.81, 6650.5, 6623.04, 6633.33],
+              y: [6629.81, 6650.5, 6623.04, 6633.33]
             },
             {
               x: new Date(1538780400000),
-              y: [6632.01, 6643.59, 6620, 6630.11],
+              y: [6632.01, 6643.59, 6620, 6630.11]
             },
             {
               x: new Date(1538782200000),
-              y: [6630.71, 6648.95, 6623.34, 6635.65],
+              y: [6630.71, 6648.95, 6623.34, 6635.65]
             },
             {
               x: new Date(1538784000000),
-              y: [6635.65, 6651, 6629.67, 6638.24],
+              y: [6635.65, 6651, 6629.67, 6638.24]
             },
             {
               x: new Date(1538785800000),
-              y: [6638.24, 6640, 6620, 6624.47],
+              y: [6638.24, 6640, 6620, 6624.47]
             },
             {
               x: new Date(1538787600000),
-              y: [6624.53, 6636.03, 6621.68, 6624.31],
+              y: [6624.53, 6636.03, 6621.68, 6624.31]
             },
             {
               x: new Date(1538789400000),
-              y: [6624.61, 6632.2, 6617, 6626.02],
+              y: [6624.61, 6632.2, 6617, 6626.02]
             },
             {
               x: new Date(1538791200000),
-              y: [6627, 6627.62, 6584.22, 6603.02],
+              y: [6627, 6627.62, 6584.22, 6603.02]
             },
             {
               x: new Date(1538793000000),
-              y: [6605, 6608.03, 6598.95, 6604.01],
+              y: [6605, 6608.03, 6598.95, 6604.01]
             },
             {
               x: new Date(1538794800000),
-              y: [6604.5, 6614.4, 6602.26, 6608.02],
+              y: [6604.5, 6614.4, 6602.26, 6608.02]
             },
             {
               x: new Date(1538796600000),
-              y: [6608.02, 6610.68, 6601.99, 6608.91],
+              y: [6608.02, 6610.68, 6601.99, 6608.91]
             },
             {
               x: new Date(1538798400000),
-              y: [6608.91, 6618.99, 6608.01, 6612],
+              y: [6608.91, 6618.99, 6608.01, 6612]
             },
             {
               x: new Date(1538800200000),
-              y: [6612, 6615.13, 6605.09, 6612],
+              y: [6612, 6615.13, 6605.09, 6612]
             },
             {
               x: new Date(1538802000000),
-              y: [6612, 6624.12, 6608.43, 6622.95],
+              y: [6612, 6624.12, 6608.43, 6622.95]
             },
             {
               x: new Date(1538803800000),
-              y: [6623.91, 6623.91, 6615, 6615.67],
+              y: [6623.91, 6623.91, 6615, 6615.67]
             },
             {
               x: new Date(1538805600000),
-              y: [6618.69, 6618.74, 6610, 6610.4],
+              y: [6618.69, 6618.74, 6610, 6610.4]
             },
             {
               x: new Date(1538807400000),
-              y: [6611, 6622.78, 6610.4, 6614.9],
+              y: [6611, 6622.78, 6610.4, 6614.9]
             },
             {
               x: new Date(1538809200000),
-              y: [6614.9, 6626.2, 6613.33, 6623.45],
+              y: [6614.9, 6626.2, 6613.33, 6623.45]
             },
             {
               x: new Date(1538811000000),
-              y: [6623.48, 6627, 6618.38, 6620.35],
+              y: [6623.48, 6627, 6618.38, 6620.35]
             },
             {
               x: new Date(1538812800000),
-              y: [6619.43, 6620.35, 6610.05, 6615.53],
+              y: [6619.43, 6620.35, 6610.05, 6615.53]
             },
             {
               x: new Date(1538814600000),
-              y: [6615.53, 6617.93, 6610, 6615.19],
+              y: [6615.53, 6617.93, 6610, 6615.19]
             },
             {
               x: new Date(1538816400000),
-              y: [6615.19, 6621.6, 6608.2, 6620],
+              y: [6615.19, 6621.6, 6608.2, 6620]
             },
             {
               x: new Date(1538818200000),
-              y: [6619.54, 6625.17, 6614.15, 6620],
+              y: [6619.54, 6625.17, 6614.15, 6620]
             },
             {
               x: new Date(1538820000000),
-              y: [6620.33, 6634.15, 6617.24, 6624.61],
+              y: [6620.33, 6634.15, 6617.24, 6624.61]
             },
             {
               x: new Date(1538821800000),
-              y: [6625.95, 6626, 6611.66, 6617.58],
+              y: [6625.95, 6626, 6611.66, 6617.58]
             },
             {
               x: new Date(1538823600000),
-              y: [6619, 6625.97, 6595.27, 6598.86],
+              y: [6619, 6625.97, 6595.27, 6598.86]
             },
             {
               x: new Date(1538825400000),
-              y: [6598.86, 6598.88, 6570, 6587.16],
+              y: [6598.86, 6598.88, 6570, 6587.16]
             },
             {
               x: new Date(1538827200000),
-              y: [6588.86, 6600, 6580, 6593.4],
+              y: [6588.86, 6600, 6580, 6593.4]
             },
             {
               x: new Date(1538829000000),
-              y: [6593.99, 6598.89, 6585, 6587.81],
+              y: [6593.99, 6598.89, 6585, 6587.81]
             },
             {
               x: new Date(1538830800000),
-              y: [6587.81, 6592.73, 6567.14, 6578],
+              y: [6587.81, 6592.73, 6567.14, 6578]
             },
             {
               x: new Date(1538832600000),
-              y: [6578.35, 6581.72, 6567.39, 6579],
+              y: [6578.35, 6581.72, 6567.39, 6579]
             },
             {
               x: new Date(1538834400000),
-              y: [6579.38, 6580.92, 6566.77, 6575.96],
+              y: [6579.38, 6580.92, 6566.77, 6575.96]
             },
             {
               x: new Date(1538836200000),
-              y: [6575.96, 6589, 6571.77, 6588.92],
+              y: [6575.96, 6589, 6571.77, 6588.92]
             },
             {
               x: new Date(1538838000000),
-              y: [6588.92, 6594, 6577.55, 6589.22],
+              y: [6588.92, 6594, 6577.55, 6589.22]
             },
             {
               x: new Date(1538839800000),
-              y: [6589.3, 6598.89, 6589.1, 6596.08],
+              y: [6589.3, 6598.89, 6589.1, 6596.08]
             },
             {
               x: new Date(1538841600000),
-              y: [6597.5, 6600, 6588.39, 6596.25],
+              y: [6597.5, 6600, 6588.39, 6596.25]
             },
             {
               x: new Date(1538843400000),
-              y: [6598.03, 6600, 6588.73, 6595.97],
+              y: [6598.03, 6600, 6588.73, 6595.97]
             },
             {
               x: new Date(1538845200000),
-              y: [6595.97, 6602.01, 6588.17, 6602],
+              y: [6595.97, 6602.01, 6588.17, 6602]
             },
             {
               x: new Date(1538847000000),
-              y: [6602, 6607, 6596.51, 6599.95],
+              y: [6602, 6607, 6596.51, 6599.95]
             },
             {
               x: new Date(1538848800000),
-              y: [6600.63, 6601.21, 6590.39, 6591.02],
+              y: [6600.63, 6601.21, 6590.39, 6591.02]
             },
             {
               x: new Date(1538850600000),
-              y: [6591.02, 6603.08, 6591, 6591],
+              y: [6591.02, 6603.08, 6591, 6591]
             },
             {
               x: new Date(1538852400000),
-              y: [6591, 6601.32, 6585, 6592],
+              y: [6591, 6601.32, 6585, 6592]
             },
             {
               x: new Date(1538854200000),
-              y: [6593.13, 6596.01, 6590, 6593.34],
+              y: [6593.13, 6596.01, 6590, 6593.34]
             },
             {
               x: new Date(1538856000000),
-              y: [6593.34, 6604.76, 6582.63, 6593.86],
+              y: [6593.34, 6604.76, 6582.63, 6593.86]
             },
             {
               x: new Date(1538857800000),
-              y: [6593.86, 6604.28, 6586.57, 6600.01],
+              y: [6593.86, 6604.28, 6586.57, 6600.01]
             },
             {
               x: new Date(1538859600000),
-              y: [6601.81, 6603.21, 6592.78, 6596.25],
+              y: [6601.81, 6603.21, 6592.78, 6596.25]
             },
             {
               x: new Date(1538861400000),
-              y: [6596.25, 6604.2, 6590, 6602.99],
+              y: [6596.25, 6604.2, 6590, 6602.99]
             },
             {
               x: new Date(1538863200000),
-              y: [6602.99, 6606, 6584.99, 6587.81],
+              y: [6602.99, 6606, 6584.99, 6587.81]
             },
             {
               x: new Date(1538865000000),
-              y: [6587.81, 6595, 6583.27, 6591.96],
+              y: [6587.81, 6595, 6583.27, 6591.96]
             },
             {
               x: new Date(1538866800000),
-              y: [6591.97, 6596.07, 6585, 6588.39],
+              y: [6591.97, 6596.07, 6585, 6588.39]
             },
             {
               x: new Date(1538868600000),
-              y: [6587.6, 6598.21, 6587.6, 6594.27],
+              y: [6587.6, 6598.21, 6587.6, 6594.27]
             },
             {
               x: new Date(1538870400000),
-              y: [6596.44, 6601, 6590, 6596.55],
+              y: [6596.44, 6601, 6590, 6596.55]
             },
             {
               x: new Date(1538872200000),
-              y: [6598.91, 6605, 6596.61, 6600.02],
+              y: [6598.91, 6605, 6596.61, 6600.02]
             },
             {
               x: new Date(1538874000000),
-              y: [6600.55, 6605, 6589.14, 6593.01],
+              y: [6600.55, 6605, 6589.14, 6593.01]
             },
             {
               x: new Date(1538875800000),
-              y: [6593.15, 6605, 6592, 6603.06],
+              y: [6593.15, 6605, 6592, 6603.06]
             },
             {
               x: new Date(1538877600000),
-              y: [6603.07, 6604.5, 6599.09, 6603.89],
+              y: [6603.07, 6604.5, 6599.09, 6603.89]
             },
             {
               x: new Date(1538879400000),
-              y: [6604.44, 6604.44, 6600, 6603.5],
+              y: [6604.44, 6604.44, 6600, 6603.5]
             },
             {
               x: new Date(1538881200000),
-              y: [6603.5, 6603.99, 6597.5, 6603.86],
+              y: [6603.5, 6603.99, 6597.5, 6603.86]
             },
             {
               x: new Date(1538883000000),
-              y: [6603.85, 6605, 6600, 6604.07],
+              y: [6603.85, 6605, 6600, 6604.07]
             },
             {
               x: new Date(1538884800000),
-              y: [6604.98, 6606, 6604.07, 6606],
-            },
-          ],
-        },
+              y: [6604.98, 6606, 6604.07, 6606]
+            }
+          ]
+        }
       ],
       chartOptions2: {
         plotOptions: {
           candlestick: {
             colors: {
               upward: '#abbcc3',
-              downward: '#6b8791',
+              downward: '#6b8791'
             },
             wick: {
-              useFillColor: true,
-            },
-          },
+              useFillColor: true
+            }
+          }
         },
         candlestick: {
           colors: {
             upward: '#abbcc3',
-            downward: '#6b8791',
+            downward: '#6b8791'
           },
           wick: {
-            useFillColor: true,
-          },
+            useFillColor: true
+          }
         },
         chart: {
           type: 'candlestick',
-          height: 350,
+          height: 350
         },
         xaxis: {
-          type: 'datetime',
+          type: 'datetime'
         },
         yaxis: {
           tooltip: {
-            enabled: true,
-          },
-        },
+            enabled: true
+          }
+        }
       },
       obj: {
         // Will come from mixed in Script object (vuex state, etc)
@@ -1004,7 +1040,7 @@ export default {
           'https://radiantone:xxxx@github.com/radiantone/pyfi-processors#egg=ext-processor',
         columns: [],
         readwrite: 0,
-        properties: [],
+        properties: []
       },
       text: '',
       configview: false,
@@ -1027,112 +1063,112 @@ export default {
           hostname: 'agent2',
           processor: 'proc1',
           cpus: 5,
-          status: 'running',
-        },
+          status: 'running'
+        }
       ],
       deploycolumns: [
         {
           name: 'name',
           label: 'Name',
           field: 'name',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'owner',
           label: 'Owner',
           field: 'owner',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'hostname',
           label: 'Hostname',
           field: 'hostname',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'worker',
           label: 'Worker',
           field: 'worker',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'cpus',
           label: 'CPUS',
           field: 'cpus',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'status',
           label: 'Status',
           field: 'status',
-          align: 'left',
-        },
+          align: 'left'
+        }
       ],
       workercolumns: [
         {
           name: 'Name',
           label: 'Name',
           field: 'name',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'Host',
           label: 'Host',
           field: 'host',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'CPU',
           label: 'CPU',
           field: 'cpu',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'RAM',
           label: 'RAM',
           field: 'ram',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'Disk',
           label: 'Disk',
           field: 'disk',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'Tasks',
           label: 'Tasks',
           field: 'tasks',
-          align: 'left',
-        },
+          align: 'left'
+        }
       ],
       columns: [
         {
           name: 'name',
           label: 'Name',
           field: 'name',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'bytes',
           align: 'center',
           label: 'Bytes',
-          field: 'bytes',
+          field: 'bytes'
         },
         {
           name: 'time',
           align: 'right',
           classes: 'text-secondary',
           label: 'Time',
-          field: 'time',
+          field: 'time'
         },
         {
           name: 'spark',
           align: 'center',
           classes: 'text-secondary',
           label: 'Spark',
-          field: 'spark',
-        },
+          field: 'spark'
+        }
       ],
       workerdata: [
         {
@@ -1141,7 +1177,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1149,7 +1185,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1157,7 +1193,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1165,7 +1201,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1173,7 +1209,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1181,7 +1217,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1189,7 +1225,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1197,7 +1233,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1205,7 +1241,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1213,7 +1249,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1221,7 +1257,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1229,7 +1265,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1237,7 +1273,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1245,7 +1281,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1253,7 +1289,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1261,7 +1297,7 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
+          tasks: 'Task1'
         },
         {
           name: 'Name1',
@@ -1269,8 +1305,8 @@ export default {
           cpu: 'CPU1',
           disk: 'Disk1',
           ram: 'RAM1',
-          tasks: 'Task1',
-        },
+          tasks: 'Task1'
+        }
       ],
       data: [
         {
@@ -1280,8 +1316,8 @@ export default {
           spark: {
             name: 'in',
             labels: ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'],
-            value: [200, 675, 410, 390, 310, 460, 250, 240],
-          },
+            value: [200, 675, 410, 390, 310, 460, 250, 240]
+          }
         },
         {
           name: 'Read/Write',
@@ -1290,8 +1326,8 @@ export default {
           spark: {
             name: 'readwrite',
             labels: ['12am', '3am', '12pm', '3pm', '6pm', '6am', '9am', '9pm'],
-            value: [200, 390, 310, 460, 675, 410, 250, 240],
-          },
+            value: [200, 390, 310, 460, 675, 410, 250, 240]
+          }
         },
         {
           name: 'Out',
@@ -1300,8 +1336,8 @@ export default {
           spark: {
             name: 'readoutwrite',
             labels: ['3pm', '6pm', '9pm', '12am', '3am', '6am', '9am', '12pm'],
-            value: [460, 250, 240, 200, 675, 410, 390, 310],
-          },
+            value: [460, 250, 240, 200, 675, 410, 390, 310]
+          }
         },
         {
           name: 'Task/Time',
@@ -1310,9 +1346,9 @@ export default {
           spark: {
             name: 'taskstime',
             labels: ['9am', '12pm', '3pm', '6pm', '9pm', '12am', '3am', '6am'],
-            value: [390, 310, 460, 250, 240, 200, 675, 410],
-          },
-        },
+            value: [390, 310, 460, 250, 240, 200, 675, 410]
+          }
+        }
       ],
       codeview: false,
       gitview: false,
@@ -1327,7 +1363,7 @@ export default {
         error: false,
         join: false,
         split: false,
-        complete: false,
+        complete: false
       },
       confirm: false,
       deleteItem: false,
@@ -1335,12 +1371,12 @@ export default {
       prompt: false,
       contentStyle: {
         backgroundColor: 'rgba(0,0,0,0.02)',
-        color: '#555',
+        color: '#555'
       },
 
       contentActiveStyle: {
         backgroundColor: '#eee',
-        color: 'black',
+        color: 'black'
       },
 
       thumbStyle: {
@@ -1348,109 +1384,109 @@ export default {
         borderRadius: '5px',
         backgroundColor: '#027be3',
         width: '5px',
-        opacity: 0.75,
-      },
-    };
+        opacity: 0.75
+      }
+    }
   },
   methods: {
-    saveProcessor() {
-      this.saving = true;
+    saveProcessor () {
+      this.saving = true
     },
-    refreshDeployments() {
-      this.deployLoading = true;
+    refreshDeployments () {
+      this.deployLoading = true
       DataService.getDeployments(this.obj.name, this.$store.state.designer.token)
         .then((deployments) => {
-          console.log('DEPLOYMENTS', deployments);
-          this.deployLoading = false;
-          this.deploydata = deployments.data;
+          console.log('DEPLOYMENTS', deployments)
+          this.deployLoading = false
+          this.deploydata = deployments.data
         })
         .catch((err) => {
-          console.log('DEPLOYMENTS ERROR', err);
-          this.deployLoading = false;
-        });
+          console.log('DEPLOYMENTS ERROR', err)
+          this.deployLoading = false
+        })
     },
-    sizeOf(bytes) {
+    sizeOf (bytes) {
       if (bytes === 0) {
-        return '0.00 B';
+        return '0.00 B'
       }
-      var e = Math.floor(Math.log(bytes) / Math.log(1024));
+      var e = Math.floor(Math.log(bytes) / Math.log(1024))
       return (
         (bytes / Math.pow(1024, e)).toFixed(2) + ' ' + ' KMGTP'.charAt(e) + 'B'
-      );
+      )
     },
-    mouseEnter(event) {
-      this.cardX = event.clientX;
-      this.cardY = event.clientY;
-      this.mousecard = true;
+    mouseEnter (event) {
+      this.cardX = event.clientX
+      this.cardY = event.clientY
+      this.mousecard = true
     },
-    mouseExit(event) {
-      console.log('mouseExit');
-      //this.mousecard = false;
+    mouseExit (event) {
+      console.log('mouseExit')
+      // this.mousecard = false;
     },
-    mouseMove(event) {
-      this.cardX = event.clientX;
-      this.cardY = event.clientY;
-      console.log(this.cardX, this.cardY);
+    mouseMove (event) {
+      this.cardX = event.clientX
+      this.cardY = event.clientY
+      console.log(this.cardX, this.cardY)
     },
-    setBandwidth(value) {
-      console.log('SET BANDWIDTH', value);
-      this.obj.bandwidth = value;
+    setBandwidth (value) {
+      console.log('SET BANDWIDTH', value)
+      this.obj.bandwidth = value
     },
-    onSubmit() {},
-    onReset() {},
-    refreshWorkers() {
-      var me = this;
-      this.workersLoading = true;
+    onSubmit () {},
+    onReset () {},
+    refreshWorkers () {
+      const me = this
+      this.workersLoading = true
       setTimeout(() => {
-        me.workersLoading = false;
-      }, 2000);
+        me.workersLoading = false
+      }, 2000)
     },
-    loginProcessor() {
-      this.login = true;
+    loginProcessor () {
+      this.login = true
     },
-    refreshProcessor() {
-      var me = this;
-      this.refreshing = true;
+    refreshProcessor () {
+      const me = this
+      this.refreshing = true
       setTimeout(() => {
-        me.refreshing = false;
-      }, 2000);
+        me.refreshing = false
+      }, 2000)
     },
-    getUuid() {
-      return 'key_' + uuidv4();
+    getUuid () {
+      return 'key_' + uuidv4()
     },
-    rowStripe(row) {
+    rowStripe (row) {
       if (row % 2 === 0) {
-        return 'background-color:white';
+        return 'background-color:white'
       }
     },
-    workerviewSetup() {
-      var me = this;
+    workerviewSetup () {
+      const me = this
       setTimeout(() => {
-        me.workersLoading = false;
-      }, 2000);
+        me.workersLoading = false
+      }, 2000)
     },
-    showPanel(view, show) {
-      this.configview = false;
-      this.codeview = false;
-      this.dataview = false;
-      this.gitview = false;
-      this.workerview = false;
-      this.historyview = false;
-      this.environmentview = false;
-      this.scalingview = false;
-      this.commentsview = false;
-      this.requirementsview = false;
-      this.logsview = false;
-      this.securityview = false;
-      this[view] = show;
+    showPanel (view, show) {
+      this.configview = false
+      this.codeview = false
+      this.dataview = false
+      this.gitview = false
+      this.workerview = false
+      this.historyview = false
+      this.environmentview = false
+      this.scalingview = false
+      this.commentsview = false
+      this.requirementsview = false
+      this.logsview = false
+      this.securityview = false
+      this[view] = show
       if (this[view + 'Setup']) {
-        this[view + 'Setup']();
+        this[view + 'Setup']()
       }
 
       if (show) {
-        //window.toolkit.surface.setZoom(1.0);
+        // window.toolkit.surface.setZoom(1.0);
 
-        var node = this.toolkit.getNode(this.obj);
+        const node = this.toolkit.getNode(this.obj)
         /*
         window.toolkit.surface.centerOn(node, {
           doNotAnimate: true,
@@ -1459,152 +1495,152 @@ export default {
             console.log(loc);
             window.toolkit.surface.pan(-350, -300);
           },
-        });*/
+        }); */
       }
     },
-    updateDescription(value, initialValue) {
-      console.log('updateDesc', value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
+    updateDescription (value, initialValue) {
+      console.log('updateDesc', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
     },
-    updateName(value, initialValue, column) {
-      console.log('column edited ', column);
-      console.log('updateName', value, initialValue);
-      this.renameConfirm = true;
-      this.renameValue = value;
-      this.initialValue = initialValue;
-      var edges = document.querySelectorAll('[data-source=' + column + ']');
+    updateName (value, initialValue, column) {
+      console.log('column edited ', column)
+      console.log('updateName', value, initialValue)
+      this.renameConfirm = true
+      this.renameValue = value
+      this.initialValue = initialValue
+      var edges = document.querySelectorAll('[data-source=' + column + ']')
 
       edges.forEach((edge) => {
-        edge.innerText = value;
-      });
+        edge.innerText = value
+      })
     },
     editorInit: function () {
-      var me = this;
+      const me = this
 
-      require('brace/ext/language_tools'); // language extension prerequsite...
-      require('brace/mode/html');
-      require('brace/mode/python'); // language
-      require('brace/mode/less');
-      require('brace/theme/chrome');
-      require('brace/snippets/javascript'); // snippet
-      console.log('editorInit');
-      const editor = this.$refs.myEditor.editor;
+      require('brace/ext/language_tools') // language extension prerequsite...
+      require('brace/mode/html')
+      require('brace/mode/python') // language
+      require('brace/mode/less')
+      require('brace/theme/chrome')
+      require('brace/snippets/javascript') // snippet
+      console.log('editorInit')
+      const editor = this.$refs.myEditor.editor
 
-      editor.setAutoScrollEditorIntoView(true);
+      editor.setAutoScrollEditorIntoView(true)
 
       setTimeout(function () {
         // me.thecode = me.obj.code;
-      }, 500);
+      }, 500)
     },
-    showCode() {
+    showCode () {
       // this.code = true;
     },
-    showTooltip(show) {
-      this.tooltip = show;
+    showTooltip (show) {
+      this.tooltip = show
     },
-    confirmDeleteSpeech(id) {
-      this.deleteSpeechID = id;
-      this.deleteItem = true;
+    confirmDeleteSpeech (id) {
+      this.deleteSpeechID = id
+      this.deleteItem = true
     },
-    resetToolkit() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', false);
+    resetToolkit () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', false)
     },
-    valueChanged() {
-      console.log('emitting toolkit.dirty');
-      this.$root.$emit('toolkit.dirty', true);
+    valueChanged () {
+      console.log('emitting toolkit.dirty')
+      this.$root.$emit('toolkit.dirty', true)
     },
-    deleteNode() {
-      window.toolkit.removeNode(this.obj);
+    deleteNode () {
+      window.toolkit.removeNode(this.obj)
     },
-    removeColumn(column) {
-      console.log('Removing column: ', column);
+    removeColumn (column) {
+      console.log('Removing column: ', column)
 
-      for (var i = 0; i < this.obj.columns.length; i++) {
-        var col = this.obj.columns[i];
-        console.log(col);
+      for (let i = 0; i < this.obj.columns.length; i++) {
+        const col = this.obj.columns[i]
+        console.log(col)
         if (col.id === column) {
-          console.log('Deleted column');
-          this.obj.columns.splice(i, 1);
-          break;
+          console.log('Deleted column')
+          this.obj.columns.splice(i, 1)
+          break
         }
       }
 
-      var edges = window.toolkit.getAllEdges();
+      var edges = window.toolkit.getAllEdges()
 
-      for (var i = 0; i < edges.length; i++) {
-        console.log(edge);
-        const edge = edges[i];
+      for (let i = 0; i < edges.length; i++) {
+        console.log(edge)
+        const edge = edges[i]
         console.log(
           edge.source.getNode().id,
           this.obj.id,
           edge.data.label,
           column
-        );
+        )
         if (
           edge.source.getNode().id === this.obj.id &&
           edge.data.label === column
         ) {
-          window.toolkit.removeEdge(edge);
+          window.toolkit.removeEdge(edge)
         }
       }
       // Delete all the edges for this column id
-      console.log(this.obj);
-      window.toolkit.removePort(this.obj.id, column);
+      console.log(this.obj)
+      window.toolkit.removePort(this.obj.id, column)
       // window.renderer.repaint(this.obj);
     },
-    addPort(port) {
-      port.background = 'white';
-      port.datatype = 'Column';
-      port.id = 'port' + uuidv4();
-      port.id = port.id.replace(/-/g, '');
-      port.description = 'A description';
-      console.log('Port:', port);
-      window.toolkit.addNewPort(this.obj.id, 'column', port);
-      window.renderer.repaint(this.obj);
-      console.log('Firing node updated...');
+    addPort (port) {
+      port.background = 'white'
+      port.datatype = 'Column'
+      port.id = 'port' + uuidv4()
+      port.id = port.id.replace(/-/g, '')
+      port.description = 'A description'
+      console.log('Port:', port)
+      window.toolkit.addNewPort(this.obj.id, 'column', port)
+      window.renderer.repaint(this.obj)
+      console.log('Firing node updated...')
 
-      console.log(this.obj.columns);
+      console.log(this.obj.columns)
     },
-    addNewPort(name, icon) {
+    addNewPort (name, icon) {
       this.addPort({
         name: name,
         icon: icon,
-        type: name,
-      });
-      this.ports[name] = true;
+        type: name
+      })
+      this.ports[name] = true
     },
-    addErrorPort() {
+    addErrorPort () {
       if (this.error) {
         this.$q.notify({
           color: 'negative',
           timeout: 2000,
           position: 'bottom',
           message: 'Error is already created',
-          icon: 'fas fa-exclamation',
-        });
-        return;
+          icon: 'fas fa-exclamation'
+        })
+        return
       }
       this.addPort({
         name: 'Error',
         icon: 'fas fa-exclamation',
-        type: 'Error',
-      });
-      this.error = true;
+        type: 'Error'
+      })
+      this.error = true
     },
     selectNode: function () {
-      console.log('selected: ', this.obj.id);
-      window.root.$emit('node.selected', this.obj);
+      console.log('selected: ', this.obj.id)
+      window.root.$emit('node.selected', this.obj)
     },
     deleteEntity: function (name) {
-      this.entityName = name;
-      this.confirm = true;
+      this.entityName = name
+      this.confirm = true
     },
     clicked: function () {
-      console.log('clicked');
-    },
-  },
-};
+      console.log('clicked')
+    }
+  }
+}
 </script>

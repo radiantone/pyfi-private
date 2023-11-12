@@ -23,7 +23,7 @@
           :menu-offset="[5, -9]"
           @input="queueSelect"
         >
-          <template v-slot:prepend>
+          <template #prepend>
             <q-icon name="far fa-envelope" />
           </template>
         </q-select>
@@ -165,7 +165,7 @@
     <q-card
       style="
         width: 350px;
-        height: 400px
+        height: 400px;
         z-index: 999;
         display: block;
         position: absolute;
@@ -217,7 +217,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -268,9 +267,6 @@
   </div>
 </template>
 <script>
-import { io, Socket } from 'socket.io-client'
-
-const socket = io('http://localhost')
 
 export default {
   name: 'Button',
@@ -283,15 +279,17 @@ export default {
   },
   created () {
     var me = this
-    if(this.hide) {
+    if (this.hide) {
       this.visibility = 'hidden'
     }
-    socket.on('global', (data) => {
-      // console.log('QUEUE SERVER GLOBAL MESSAGE', data);
-      if (data.type && data.type === 'queues') {
-        me.messageReceived(data)
-      }
-    })
+    if (window.socket) {
+      window.socket.on('global', (data) => {
+        // console.log('QUEUE SERVER GLOBAL MESSAGE', data);
+        if (data.type && data.type === 'queues') {
+          me.messageReceived(data)
+        }
+      })
+    }
     this.$on('message.received', (msg) => {
       // console.log('QUEUE MESSAGE RECEIVED', msg);
     })
@@ -301,8 +299,11 @@ export default {
       this.queueName = 'None'
     }
   },
-  computed: {},
+  computed: {
+
+  },
   methods: {
+
     queueSelect (val) {
       console.log('QUEUE SELECTED ', val)
       this.component.edge.data.queue = val

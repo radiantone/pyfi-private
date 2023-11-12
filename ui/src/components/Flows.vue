@@ -66,6 +66,25 @@
           </q-toolbar>
         </div>
         <q-space />
+
+        <q-btn
+          flat
+          round
+          icon="fas fa-download"
+          size="xs"
+          color="primary"
+          class="q-mr-xs"
+          style="padding: 0;"
+          @click="download"
+        >
+          <q-tooltip
+            content-class=""
+            content-style="font-size: 16px"
+            :offset="[10, 10]"
+          >
+            Download
+          </q-tooltip>
+        </q-btn>
         <q-btn
           flat
           round
@@ -137,7 +156,7 @@
                 font-size: 1.3em;
               "
               @click="selectFileOrFolder(item)"
-            >{{ ( item.filename ? item.filename : item.name ) }}</a>
+            >{{ (item.filename ? item.filename : item.name) }}</a>
           </q-item-section>
           <q-space />
           <q-toolbar>
@@ -156,6 +175,20 @@
               >
                 Rename
               </q-tooltip>
+
+              <q-popup-edit
+                v-model="item.filename"
+                buttons
+                @save="renameFlow(item)"
+              >
+                <q-input
+                  type="string"
+                  v-model="item.filename"
+                  dense
+                  autofocus
+                  color="white"
+                />
+              </q-popup-edit>
             </q-btn>
             <q-btn
               flat
@@ -171,7 +204,6 @@
                 :offset="[10, 10]"
               >
                 Delete
-                {{ objecttype.charAt(0).toUpperCase() + objecttype.slice(1) }}
               </q-tooltip>
             </q-btn>
           </q-toolbar>
@@ -204,7 +236,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -236,6 +267,7 @@
             label="Cancel"
             class="bg-accent text-dark"
             color="primary"
+            @click="cancelSave"
             v-close-popup
           />
           <q-btn
@@ -274,7 +306,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -348,7 +379,6 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
@@ -410,6 +440,7 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
 a.text-secondary:hover {
   cursor: pointer;
   text-decoration: underline;
@@ -452,11 +483,36 @@ export default {
     this.$root.$off('save.flow.to.folder.' + this.flowid)
   },
   methods: {
+    renameFlow (item) {
+      var me = this
+      console.log('renameFlow id, old, val', item.id, item.filename)
+      DataService.renameFlow(item.id, item.filename, this.$store.state.designer.token).then(() => {
+        me.$q.notify({
+          color: 'secondary',
+          timeout: 2000,
+          position: 'top',
+          message: 'Rename flow ' + item.id + ' to ' + item.filename + ' succeeded!',
+          icon: 'save'
+        })
+      }).catch((err) => {
+        me.$q.notify({
+          color: 'negative',
+          timeout: 2000,
+          position: 'top',
+          message: 'An error occurred renaming flow ' + item.id + ' to ' + item.filename,
+          icon: 'error'
+        })
+      })
+    },
+    cancelSave () {
+      this.$root.$emit('save.flow.succeeded')
+    },
     async doOverwriteFlow () {
       console.log('doOverwriteFlow')
       await this.saveFlow()
     },
     async saveFlow () {
+      this.$root.$emit('save.flow.started', this.flowid)
       const me = this
       this.loading = true
       console.log(
@@ -488,12 +544,14 @@ export default {
             message: 'Save flow ' + this.flowname + ' succeeded!',
             icon: 'save'
           })
+          this.$root.$emit('save.flow.succeeded', this.flowuuid)
           me.flowuuid = response.data.id
           console.log('this.flowuuid is', this.flowuuid)
           this.$root.$emit('flow.uuid', this.flowid, this.flowuuid)
         })
         .catch(({ response }) => {
           console.log(response)
+          this.$root.$emit('save.flow.error', this.flowuuid)
           me.loading = false
           me.saveas = false
           if (response.status === 409) {
@@ -561,7 +619,7 @@ export default {
           me.notifyMessage(
             'dark',
             'error',
-            'There was an error creating the folder.'
+            'There was an error creating the folder'
           )
         })
     },
@@ -632,6 +690,12 @@ export default {
     synchronize () {
       this.loading = true
       var me = this
+      const token = this.$store.state.designer.token
+      if ((!this.$auth.isAuthenticated && token) ||
+        (!token || token === 'none')) {
+        console.log('Library: Not yet authenticated, returning')
+        return
+      }
       try {
         var files = DataService.getFiles(this.collection, this.foldername, this.$store.state.designer.token)
         files
