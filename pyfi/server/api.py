@@ -1599,6 +1599,7 @@ def list_models(project):
                 "icon": "las la-cube",
                 "lazy": True,
                 "type": "model",
+                "status": model.get_status(),
                 "id": "model{}".format(next(counter)),
             }
             for model in models
@@ -1905,6 +1906,24 @@ def create_job(project, job):
     data: Any = request.get_json()
     project = server.get_project(project)
     project.create_job(job, data["query"], repeat_str="1 hour")
+
+    return jsonify({"status": "ok"})
+
+
+@app.route("/minds/project/<project>/model/<model>/train", methods=["POST"])
+@cross_origin()
+@requires_auth
+def train_model(project, model):
+    from pymongo import MongoClient
+
+    client = MongoClient(CONFIG.get("mongodb", "uri"))
+
+    data: Any = request.get_json()
+    _project = server.get_project(project)
+
+    table = server.get_database(data["database"]).get_table(data["table"])
+    _model = _project.get_model(model)
+    _model.refresh()
 
     return jsonify({"status": "ok"})
 
