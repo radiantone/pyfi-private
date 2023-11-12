@@ -84,10 +84,8 @@ services:
   mindsdb:
     image: mindsdb/mindsdb
     container_name: mindsdb
-    environment:
-      - "MINDSDB_STORAGE_DIR=/root/data"
     volumes:
-      - mindsdb:/root/data
+      - ./mdb_data:/root/mdb_storage
       - ./elasticdb.db:/root/elasticdb.db
     links:
       - postgresdb
