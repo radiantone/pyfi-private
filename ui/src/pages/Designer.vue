@@ -2322,6 +2322,12 @@
 .q-dialog > .q-card > .q-card__section--vert {
   padding: 0px !important;
 }
+.q-card__section--vert {
+  padding: 5px !important;
+  padding-left: 0px;
+  padding-top: 0px !important;
+}
+
 .q-icon {
   font-size: 16px;
 }
@@ -2340,11 +2346,7 @@
   overflow: hidden !important;
 }
 
-.q-card__section--vert {
-  padding: 5px !important;
-  padding-left: 0px;
-  padding-top: 0px !important;
-}
+
 
 .absolute-full {
   right: 0px !important;
@@ -3172,6 +3174,7 @@ export default {
               } else {
                 window.toolkit.addNode(node.node, data)
               }
+
 
               node.toolkit = window.toolkit
               console.log('NODES', me.surface.getNodes())

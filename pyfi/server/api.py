@@ -1750,15 +1750,22 @@ def refresh_model(project, model):
     return jsonify(model.refresh())
 
 
-@app.route("/minds/<project>/model/<model>/retrain", methods=["POST"])
+@app.route("/minds/project/<project>/model/retrain/<model>", methods=["POST"])
 @cross_origin()
 @requires_auth
 def retrain_model(project, model):
-    project = server.get_project(project)
+    _project = server.get_project(project)
 
-    model = project.get_model(model)
-
-    return jsonify(model.retrain())
+    _model = _project.get_model(model)
+    _model.retrain()
+    return jsonify(
+        {
+            "project": project,
+            "model": model,
+            "operation": "training",
+            "status": "success",
+        }
+    )
 
 
 @app.route("/minds/<project>/model/<model>", methods=["DELETE"])

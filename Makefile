@@ -23,7 +23,7 @@ test:
 format:
 	$(isort)
 	$(black)
-	eslint --ext .js,.ts,.vue --fix ui/src/components #.vue
+	eslint --ext .js,.ts, --fix ui/src/components #.vue
 
 .PHONY: lint
 lint:

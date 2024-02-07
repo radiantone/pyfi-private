@@ -82,8 +82,18 @@ services:
       - influxdb_data:/var/lib/influxdb2
 
   mindsdb:
-    image: mindsdb/mindsdb
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mindsdb
+    image: mindsdb/mindsdb:local
     container_name: mindsdb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
     volumes:
       - ./mdb_data:/root/mdb_storage
       - ./elasticdb.db:/root/elasticdb.db

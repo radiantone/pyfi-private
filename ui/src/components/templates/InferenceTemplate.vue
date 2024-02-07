@@ -1062,7 +1062,7 @@
             text-color="white"
           />
           <span class="q-ml-sm">
-            Are you sure you want to delete this processor?
+            Are you sure you want to delete this block?
           </span>
         </q-card-section>
 
@@ -5254,11 +5254,15 @@ export default {
       this.itemNameToBeDeleted = name
     },
     deleteDBItem () {
+      var me = this
+      me.saving = true
+
       if (this.itemTypeToBeDeleted === 'model') {
-        DataService.deleteModel(this.itemNameToBeDeleted).then(() => {
-
+        DataService.deleteModel(this.obj.projectname, this.itemNameToBeDeleted).then(() => {
+          me.saving = false
+          me.updateModels()
         }).catch((err) => {
-
+          me.saving = false
         })
       }
     },
@@ -5294,9 +5298,13 @@ export default {
       })
     },
     updateModels () {
+      this.saving = true
       DataService.listModels(this.obj.projectname, this.$store.state.designer.token).then((result) => {
         console.log('listModels', result)
         this.modelrows = result.data
+        this.saving = false
+      }).catch((err) => {
+        this.saving = false
       })
     },
     updateTables () {
@@ -5304,8 +5312,9 @@ export default {
         this.tablerows = result.data
       })
     },
-    trainModel (projectname) {
-      DataService.trainModel(this.model.name, projectname, this.$store.state.designer.token).then(() => {
+    trainModel (model) {
+      this.saving = true
+      DataService.trainModel(model, this.obj.projectname, this.$store.state.designer.token).then(() => {
         this.$q.notify({
           color: 'secondary',
           timeout: 2000,
@@ -5322,6 +5331,7 @@ export default {
           message: 'Erro training model ' + this.model.name,
           icon: 'fas fa-exclamation'
         })
+        this.saving = false
         console.log(err)
       })
     },

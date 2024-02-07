@@ -76,13 +76,12 @@ class DataService {
   }
 
   trainModel (model: string, project: string, token: string): Promise<any> {
-    return http.post('/api/minds/project/' + project + '/model/' + model + '/train', {  }, {
+    return http.post('/api/minds/project/' + project + '/model/retrain/' + model, { }, {
       headers: {
         Authorization: 'Bearer ' + token
       }
     })
   }
-
 
   createModel (name: string, database: string, project: string, table: string, column: string, query: string, token: string): Promise<any> {
     return http.post('/api/minds/project/' + project + '/model/' + name, { database: database, table: table, column: column, query: query }, {
@@ -148,8 +147,8 @@ class DataService {
     })
   }
 
-  deleteModel (model: string, token: string): Promise<any> {
-    return http.delete('/api/minds/models/' + model, {
+  deleteModel (project: string, model: string, token: string): Promise<any> {
+    return http.delete('/api/minds/' + project + '/model/' + model, {
       headers: {
         Authorization: 'Bearer ' + token
       }

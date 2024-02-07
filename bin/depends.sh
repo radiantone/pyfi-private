@@ -7,3 +7,8 @@ sudo apt install -y python3-dev
 sudo apt install -y libpq-dev
 sudo apt install -y postgresql-common
 sudo apt install -y libev-dev
+sudo apt install -y system76-cuda-latest
+sudo apt install -y nvidia-container-toolkit 
+sudo apt install -y nvidia-docker2
+sudo systemctl daemon-reload
+sudo systemctl restart docker
