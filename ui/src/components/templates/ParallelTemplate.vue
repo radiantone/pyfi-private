@@ -11,12 +11,24 @@
     @mouseover1="mouseEnter"
     @mouseleave1="mouseExit"
   >
-    <q-inner-loading :showing="refreshing" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
+    <q-inner-loading
+      :showing="refreshing"
+      style="z-index: 999999;"
+    >
+      <q-spinner-gears
+        size="50px"
+        color="primary"
+      />
     </q-inner-loading>
 
-    <q-inner-loading :showing="login" style="z-index: 9999999;">
-      <q-spinner-gears size="0px" color="primary" />
+    <q-inner-loading
+      :showing="login"
+      style="z-index: 9999999;"
+    >
+      <q-spinner-gears
+        size="0px"
+        color="primary"
+      />
       <div class="text-center">
         <q-toolbar>
           <q-input
@@ -29,127 +41,227 @@
             maxlength="20"
             dense
           >
-            <template v-slot:before>
-              <i class="fas fa-lock text-secondary" style="font-size: 0.8em;" />
+            <template #before>
+              <i
+                class="fas fa-lock text-secondary"
+                style="font-size: 0.8em;"
+              />
             </template>
-            <template v-slot:after>
-              <q-btn dense flat label="Unlock" color="secondary" />
+            <template #after>
+              <q-btn
+                dense
+                flat
+                label="Unlock"
+                color="secondary"
+              />
             </template>
           </q-input>
         </q-toolbar>
       </div>
     </q-inner-loading>
-    <q-menu context-menu style="border: 1px solid black;">
+    <q-menu
+      context-menu
+      style="border: 1px solid black;"
+    >
       <q-list dense>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-cog"></q-icon>
+            <q-icon name="fas fa-cog" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Configure
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-times-circle"></q-icon>
+            <q-icon name="far fa-times-circle" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Disable</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Disable
+          </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-database"></q-icon>
+            <q-icon name="fas fa-database" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Provenance Data
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fa fa-area-chart"></q-icon>
+            <q-icon name="fa fa-area-chart" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Status History
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-list"></q-icon>
+            <q-icon name="fas fa-list" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View State
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-book"></q-icon>
+            <q-icon name="fas fa-book" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Usage
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-plug"></q-icon>
+            <q-icon name="fas fa-plug" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             View Connections
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Center in View
           </q-item-section>
         </q-item>
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-palette"></q-icon>
+            <q-icon name="fas fa-palette" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Change Color
           </q-item-section>
         </q-item>
         <q-separator />
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="far fa-object-group"></q-icon>
+            <q-icon name="far fa-object-group" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Group</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Group
+          </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-project-diagram"></q-icon>
+            <q-icon name="fas fa-project-diagram" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
             Create Template
           </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-copy"></q-icon>
+            <q-icon name="fas fa-copy" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Copy</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Copy
+          </q-item-section>
         </q-item>
         <q-separator />
 
-        <q-item clickable v-close-popup>
+        <q-item
+          clickable
+          v-close-popup
+        >
           <q-item-section side>
-            <q-icon name="fas fa-trash"></q-icon>
+            <q-icon name="fas fa-trash" />
           </q-item-section>
-          <q-item-section side class="text-blue-grey-8">Delete</q-item-section>
+          <q-item-section
+            side
+            class="text-blue-grey-8"
+          >
+            Delete
+          </q-item-section>
         </q-item>
       </q-list>
     </q-menu>
-    <div class="name" style="background: white; height: 90px;">
+    <div
+      class="name"
+      style="background: white; height: 90px;"
+    >
       <div
         title="Script"
         style="
@@ -180,9 +292,12 @@
               "
             >
               <q-item-section side>
-                <q-icon name="fas fa-database"></q-icon>
+                <q-icon name="fas fa-database" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Database
               </q-item-section>
             </q-item>
@@ -195,41 +310,72 @@
               "
             >
               <q-item-section side>
-                <q-icon name="fab fa-python"></q-icon>
+                <q-icon name="fab fa-python" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Script
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-cloud'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'fas fa-cloud'"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-cloud"></q-icon>
+                <q-icon name="fas fa-cloud" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 API
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-file'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'fas fa-file'"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-file"></q-icon>
+                <q-icon name="fas fa-file" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Document
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-link'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'fas fa-link'"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-link"></q-icon>
+                <q-icon name="fas fa-link" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 URL
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'fas fa-table'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'fas fa-table'"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-table"></q-icon>
+                <q-icon name="fas fa-table" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Spreadsheet
               </q-item-section>
             </q-item>
@@ -245,17 +391,27 @@
                 <q-icon
                   :name="this.lambdaIcon"
                   style="font-weight: bold; font-size: 1.2em;"
-                ></q-icon>
+                />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Lambda
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="obj.icon = 'alt_route'">
+            <q-item
+              clickable
+              v-close-popup
+              @click="obj.icon = 'alt_route'"
+            >
               <q-item-section side>
-                <q-icon name="alt_route"></q-icon>
+                <q-icon name="alt_route" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Router
               </q-item-section>
             </q-item>
@@ -315,13 +471,19 @@
       >
         v1.2.2
       </span>
-      <div class="buttons" style="position: absolute; right: 00px; top: 68px;">
+      <div
+        class="buttons"
+        style="position: absolute; right: 00px; top: 68px;"
+      >
         <div
           class="text-secondary"
           @click="showPanel('workerview', !workerview)"
           style="margin-right: 10px;"
         >
-          <i class="fas fa-hard-hat" style="cursor: pointer;" />
+          <i
+            class="fas fa-hard-hat"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -336,7 +498,10 @@
           @click="obj.bandwidth = !obj.bandwidth"
           style="margin-right: 10px;"
         >
-          <i class="fas fa-tachometer-alt" style="cursor: pointer;" />
+          <i
+            class="fas fa-tachometer-alt"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -367,7 +532,10 @@
           style="margin-right: 10px;"
           @click="addNewPort('Error', 'fas fa-exclamation')"
         >
-          <i class="fas fa-exclamation" style="cursor: pointer;" />
+          <i
+            class="fas fa-exclamation"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -382,7 +550,10 @@
           @click="addNewPort('Input', 'outlet-icon')"
           style="margin-right: 10px;"
         >
-          <i class="outlet-icon" style="cursor: pointer;" />
+          <i
+            class="outlet-icon"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -397,7 +568,10 @@
           style="margin-right: 10px;"
           @click="addNewPort('Output', 'fas fa-plug')"
         >
-          <i class="fas fa-plug" style="cursor: pointer;"></i>
+          <i
+            class="fas fa-plug"
+            style="cursor: pointer;"
+          />
           <q-tooltip
             anchor="top middle"
             :offset="[-30, 40]"
@@ -408,7 +582,7 @@
           </q-tooltip>
         </div>
 
-        <div style="position: absolute; right: 8px; top: 0px;">
+        <div style="position: absolute; right: 8px; top: 0;">
           <q-btn
             size="xs"
             icon="fas fa-code"
@@ -521,27 +695,46 @@
           "
         >
           <q-list dense>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-save"></q-icon>
+                <q-icon name="fas fa-save" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Save
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup>
+            <q-item
+              clickable
+              v-close-popup
+            >
               <q-item-section side>
-                <q-icon name="fas fa-list"></q-icon>
+                <q-icon name="fas fa-list" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Results
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="refreshProcessor">
+            <q-item
+              clickable
+              v-close-popup
+              @click="refreshProcessor"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-refresh"></q-icon>
+                <q-icon name="fas fa-refresh" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Refresh
               </q-item-section>
             </q-item>
@@ -553,17 +746,27 @@
               @click="showPanel('commentsview', !commentsview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-comments"></q-icon>
+                <q-icon name="far fa-comments" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Comments
               </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="loginProcessor">
+            <q-item
+              clickable
+              v-close-popup
+              @click="loginProcessor"
+            >
               <q-item-section side>
-                <q-icon name="fas fa-lock"></q-icon>
+                <q-icon name="fas fa-lock" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Lock
               </q-item-section>
             </q-item>
@@ -574,9 +777,12 @@
               @click="showPanel('gitview', !gitview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-github"></q-icon>
+                <q-icon name="fab fa-github" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Git
               </q-item-section>
             </q-item>
@@ -586,9 +792,12 @@
               @click="showPanel('historyview', !historyview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-history"></q-icon>
+                <q-icon name="fas fa-history" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 History
               </q-item-section>
             </q-item>
@@ -598,9 +807,12 @@
               @click="showPanel('logsview', !logsview)"
             >
               <q-item-section side>
-                <q-icon name="fas fa-glasses"></q-icon>
+                <q-icon name="fas fa-glasses" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Logs
               </q-item-section>
             </q-item>
@@ -610,9 +822,12 @@
               @click="showPanel('requirementsview', !requirementsview)"
             >
               <q-item-section side>
-                <q-icon name="fab fa-python"></q-icon>
+                <q-icon name="fab fa-python" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Requirements
               </q-item-section>
             </q-item>
@@ -624,9 +839,12 @@
               @click="showPanel('environmentview', !environmentview)"
             >
               <q-item-section side>
-                <q-icon name="far fa-list-alt"></q-icon>
+                <q-icon name="far fa-list-alt" />
               </q-item-section>
-              <q-item-section side class="text-blue-grey-8">
+              <q-item-section
+                side
+                class="text-blue-grey-8"
+              >
                 Environment
               </q-item-section>
             </q-item>
@@ -646,8 +864,8 @@
         "
         :style="
           'background:' +
-          column.background +
-          ';border-top: 1px dashed lightgrey'
+            column.background +
+            ';border-top: 1px dashed lightgrey'
         "
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
@@ -679,19 +897,31 @@
                 size=".8em"
               >
                 <q-list dense>
-                  <q-item clickable v-close-popup>
+                  <q-item
+                    clickable
+                    v-close-popup
+                  >
                     <q-item-section side>
-                      <q-icon name="fas fa-question"></q-icon>
+                      <q-icon name="fas fa-question" />
                     </q-item-section>
-                    <q-item-section side class="text-blue-grey-8">
+                    <q-item-section
+                      side
+                      class="text-blue-grey-8"
+                    >
                       Query 1
                     </q-item-section>
                   </q-item>
-                  <q-item clickable v-close-popup>
+                  <q-item
+                    clickable
+                    v-close-popup
+                  >
                     <q-item-section side>
-                      <q-icon name="fas fa-question"></q-icon>
+                      <q-icon name="fas fa-question" />
                     </q-item-section>
-                    <q-item-section side class="text-blue-grey-8">
+                    <q-item-section
+                      side
+                      class="text-blue-grey-8"
+                    >
                       Query 2
                     </q-item-section>
                   </q-item>
@@ -730,8 +960,8 @@
         "
         :style="
           'background:' +
-          column.background +
-          ';border-top: 1px dashed lightgrey'
+            column.background +
+            ';border-top: 1px dashed lightgrey'
         "
         :primary-key="column.primaryKey"
         :data-port-id="column.id"
@@ -810,7 +1040,11 @@
     </ul>
 
     <q-separator />
-    <div class="row" id="bandwidth" v-if="obj.bandwidth">
+    <div
+      class="row"
+      id="bandwidth"
+      v-if="obj.bandwidth"
+    >
       <q-table
         dense
         hide-header
@@ -820,7 +1054,7 @@
         row-key="name"
         style="width: 100%; border-top-radius: 0px; border-bottom-radius: 0px;"
       >
-        <template v-slot:body="props">
+        <template #body="props">
           <q-tr
             :props="props"
             :key="getUuid"
@@ -877,7 +1111,7 @@
                 color="white"
                 line-width="2"
                 padding="0"
-              ></v-sparkline>
+              />
               <v-sparkline
                 v-if="props.cols[1].value === 'outBytes'"
                 :labels="props.row.spark.labels"
@@ -885,7 +1119,7 @@
                 color="white"
                 line-width="2"
                 padding="0"
-              ></v-sparkline>
+              />
               <v-sparkline
                 v-if="props.cols[1].value === 'totalBytes'"
                 :labels="props.row.spark.labels"
@@ -893,7 +1127,7 @@
                 color="white"
                 line-width="2"
                 padding="0"
-              ></v-sparkline>
+              />
               <v-sparkline
                 v-if="props.cols[1].value === 'taskTime'"
                 :labels="props.row.spark.labels"
@@ -901,7 +1135,7 @@
                 color="white"
                 line-width="2"
                 padding="0"
-              ></v-sparkline>
+              />
             </q-td>
             <q-td
               :key="props.cols[1].name"
@@ -914,7 +1148,10 @@
         </template>
       </q-table>
     </div>
-    <q-dialog v-model="deleteItem" persistent>
+    <q-dialog
+      v-model="deleteItem"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-primary"
@@ -934,17 +1171,22 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -978,7 +1220,10 @@
     </q-dialog>
 
     <!-- Delete dialog -->
-    <q-dialog v-model="deleteConfirm" persistent>
+    <q-dialog
+      v-model="deleteConfirm"
+      persistent
+    >
       <q-card style="padding: 10px; padding-top: 30px;">
         <q-card-section
           class="bg-secondary"
@@ -998,17 +1243,22 @@
               margin-left: 10px;
               margin-top: -5px;
               margin-right: 5px;
-              color: #fff;
             "
           >
             <q-toolbar>
               <q-item-label>Delete Item</q-item-label>
               <q-space />
-              <q-icon class="text-primary" name="fas fa-trash" />
+              <q-icon
+                class="text-primary"
+                name="fas fa-trash"
+              />
             </q-toolbar>
           </div>
         </q-card-section>
-        <q-card-section class="row items-center" style="height: 120px;">
+        <q-card-section
+          class="row items-center"
+          style="height: 120px;"
+        >
           <q-avatar
             icon="fas fa-exclamation"
             color="primary"
@@ -1066,7 +1316,7 @@
           ref="myEditor"
           width="100%"
           height="fit"
-        ></editor>
+        />
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -1150,7 +1400,7 @@
           ref="myEditor"
           width="100%"
           height="fit"
-        ></editor>
+        />
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -1161,8 +1411,7 @@
           color="primary"
           @click="requirementsview = false"
           v-close-popup
-        >
-        </q-btn>
+        />
       </q-card-actions>
       <q-card-actions align="right">
         <q-btn
@@ -1192,11 +1441,21 @@
       v-if="gitview"
     >
       <q-card-section>
-        <q-splitter v-model="splitterModel" horizontal style="height: 465px;">
-          <template v-slot:before>
+        <q-splitter
+          v-model="splitterModel"
+          horizontal
+          style="height: 465px;"
+        >
+          <template #before>
             <div class="q-pa-md">
-              <div class="text-h4 q-mb-md">Before</div>
-              <div v-for="n in 20" :key="n" class="q-my-md">
+              <div class="text-h4 q-mb-md">
+                Before
+              </div>
+              <div
+                v-for="n in 20"
+                :key="n"
+                class="q-my-md"
+              >
                 {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
                 elit. Quis praesentium cumque magnam odio iure quidem, quod
                 illum numquam possimus obcaecati commodi minima assumenda
@@ -1205,10 +1464,16 @@
             </div>
           </template>
 
-          <template v-slot:after>
+          <template #after>
             <div class="q-pa-md">
-              <div class="text-h4 q-mb-md">After</div>
-              <div v-for="n in 20" :key="n" class="q-my-md">
+              <div class="text-h4 q-mb-md">
+                After
+              </div>
+              <div
+                v-for="n in 20"
+                :key="n"
+                class="q-my-md"
+              >
                 {{ n }}. Lorem ipsum dolor sit, amet consectetur adipisicing
                 elit. Quis praesentium cumque magnam odio iure quidem, quod
                 illum numquam possimus obcaecati commodi minima assumenda
@@ -1220,7 +1485,7 @@
       </q-card-section>
       <q-card-section
         style="padding: 5px; z-index: 999999; padding-bottom: 10px;"
-      ></q-card-section>
+      />
       <q-card-actions align="left">
         <q-btn
           style="position: absolute; bottom: 0px; left: 0px; width: 100px;"
@@ -1297,8 +1562,7 @@
           padding-bottom: 10px;
           height: 650px;
         "
-      >
-      </q-card-section>
+      />
 
       <q-card-actions align="right">
         <q-btn
@@ -1344,24 +1608,55 @@
           indicator-color="accent"
           active-bg-color="white"
         >
-          <q-tab name="settings" label="Settings" />
-          <q-tab name="concurrency" label="Concurrency" />
-          <q-tab name="schedule" label="Schedule" />
-          <q-tab name="security" label="Security" />
-          <q-tab name="scaling" label="Scaling" />
+          <q-tab
+            name="settings"
+            label="Settings"
+          />
+          <q-tab
+            name="concurrency"
+            label="Concurrency"
+          />
+          <q-tab
+            name="schedule"
+            label="Schedule"
+          />
+          <q-tab
+            name="security"
+            label="Security"
+          />
+          <q-tab
+            name="scaling"
+            label="Scaling"
+          />
         </q-tabs>
 
-        <q-tab-panels v-model="tab" keep-alive>
-          <q-tab-panel name="settings" style="padding: 0px;" ref="settings">
+        <q-tab-panels
+          v-model="tab"
+          keep-alive
+        >
+          <q-tab-panel
+            name="settings"
+            style="padding: 0px;"
+            ref="settings"
+          >
             <q-tabs
               v-model="settingstab"
               class="text-primary"
               align="center"
               dense
             >
-              <q-tab name="settings" label="Processor" />
-              <q-tab name="containersettings" label="Container" />
-              <q-tab name="apisettings" label="API" />
+              <q-tab
+                name="settings"
+                label="Processor"
+              />
+              <q-tab
+                name="containersettings"
+                label="Container"
+              />
+              <q-tab
+                name="apisettings"
+                label="API"
+              />
               <q-tab
                 v-if="obj.icon === lambdaIcon"
                 name="lambda"
@@ -1438,7 +1733,10 @@
 
                     <q-toolbar>
                       <q-space />
-                      <q-checkbox v-model="obj.usegit" label="GIT" />
+                      <q-checkbox
+                        v-model="obj.usegit"
+                        label="GIT"
+                      />
                       <q-checkbox
                         v-model="obj.container"
                         label="Containerized"
@@ -1522,9 +1820,12 @@
               <q-tab-panel
                 name="lambda"
                 v-if="obj.icon === lambdaIcon"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
-                <div class="q-pa-md" style="max-width: 100%;">
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%;"
+                >
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1547,9 +1848,12 @@
               <q-tab-panel
                 name="database"
                 v-if="obj.icon === 'fas fa-database'"
-                style="padding-top: 0px;"
+                style="padding-top: 0;"
               >
-                <div class="q-pa-md" style="max-width: 100%;">
+                <div
+                  class="q-pa-md"
+                  style="max-width: 100%;"
+                >
                   <q-form
                     @submit="onSubmit"
                     @reset="onReset"
@@ -1590,9 +1894,15 @@
                 border-bottom-radius: 0px;
               "
             >
-              <template v-slot:loading>
-                <q-inner-loading :showing="true" style="z-index: 9999999;">
-                  <q-spinner-gears size="50px" color="primary" />
+              <template #loading>
+                <q-inner-loading
+                  :showing="true"
+                  style="z-index: 9999999;"
+                >
+                  <q-spinner-gears
+                    size="50px"
+                    color="primary"
+                  />
                 </q-inner-loading>
               </template>
             </q-table>
@@ -1602,20 +1912,30 @@
               type="number"
               v-model.number="obj.concurrency"
             />
-            <q-inner-loading :showing="deployLoading" style="z-index: 9999999;">
-              <q-spinner-gears size="50px" color="primary" />
+            <q-inner-loading
+              :showing="deployLoading"
+              style="z-index: 9999999;"
+            >
+              <q-spinner-gears
+                size="50px"
+                color="primary"
+              />
             </q-inner-loading>
-                    <q-btn
-          style="position: absolute; bottom: 0px; right: 0px; margin-right:20px"
-          flat
-          icon="refresh"
-          class="bg-primary text-white"
-          color="primary"
-          @click="refreshDeployments"
-          v-close-popup
-        />
+            <q-btn
+              style="position: absolute; bottom: 0px; right: 0px; margin-right:20px"
+              flat
+              icon="refresh"
+              class="bg-primary text-white"
+              color="primary"
+              @click="refreshDeployments"
+              v-close-popup
+            />
           </q-tab-panel>
-          <q-tab-panel name="schedule" style="padding: 20px;" ref="schedule">
+          <q-tab-panel
+            name="schedule"
+            style="padding: 20px;"
+            ref="schedule"
+          >
             <q-input
               hint="Enter CRON Expression"
               placeholder="* * * * *"
@@ -1638,10 +1958,16 @@
               label="Use CRON"
             />
           </q-tab-panel>
-          <q-tab-panel name="security" style="padding: 20px;" ref="security">
-          </q-tab-panel>
-          <q-tab-panel name="scaling" style="padding: 20px;" ref="scaling">
-          </q-tab-panel>
+          <q-tab-panel
+            name="security"
+            style="padding: 20px;"
+            ref="security"
+          />
+          <q-tab-panel
+            name="scaling"
+            style="padding: 20px;"
+            ref="scaling"
+          />
         </q-tab-panels>
       </q-card-section>
       <q-card-actions align="left">
@@ -1673,9 +1999,15 @@
           @click="configview = false"
         />
       </q-card-actions>
-          <q-inner-loading :showing="saving" style="z-index: 999999;">
-      <q-spinner-gears size="50px" color="primary" />
-    </q-inner-loading>
+      <q-inner-loading
+        :showing="saving"
+        style="z-index: 999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
+      </q-inner-loading>
     </q-card>
 
     <q-card
@@ -1691,8 +2023,14 @@
       "
       v-if="workerview"
     >
-      <q-inner-loading :showing="workersLoading" style="z-index: 9999999;">
-        <q-spinner-gears size="50px" color="primary" />
+      <q-inner-loading
+        :showing="workersLoading"
+        style="z-index: 9999999;"
+      >
+        <q-spinner-gears
+          size="50px"
+          color="primary"
+        />
       </q-inner-loading>
 
       <q-card-section
@@ -1711,8 +2049,7 @@
             border-top-radius: 0px;
             border-bottom-radius: 0px;
           "
-        >
-        </q-table>
+        />
       </q-card-section>
       <q-card-actions align="left">
         <q-btn
@@ -1734,7 +2071,10 @@
           </q-tooltip>
         </q-btn>
       </q-card-actions>
-      <q-card-actions align="right" style="padding-top: 20px;">
+      <q-card-actions
+        align="right"
+        style="padding-top: 20px;"
+      >
         <q-btn
           flat
           style="position: absolute; bottom: 0px; right: 0px; width: 100px;"
@@ -1992,13 +2332,12 @@
       class="bg-secondary"
       :style="
         'width:200px;height:300px;z-index:9999;position:absolute;top:' +
-        cardY +
-        'px;left:' +
-        cardX +
-        'px'
+          cardY +
+          'px;left:' +
+          cardX +
+          'px'
       "
-    >
-    </q-card>
+    />
     <q-card
       style="
         width: 100%;
@@ -2171,13 +2510,34 @@
       "
       v-if="logsview"
     >
-      <q-tabs v-model="logtab" class="text-primary" align="center" dense>
-        <q-tab name="tasklog" label="Task" />
-        <q-tab name="resultlog" label="Result" />
-        <q-tab name="msglog" label="Log" />
+      <q-tabs
+        v-model="logtab"
+        class="text-primary"
+        align="center"
+        dense
+      >
+        <q-tab
+          name="tasklog"
+          label="Task"
+        />
+        <q-tab
+          name="resultlog"
+          label="Result"
+        />
+        <q-tab
+          name="msglog"
+          label="Log"
+        />
       </q-tabs>
-      <q-tab-panels v-model="logtab" keep-alive>
-        <q-tab-panel name="tasklog" style="padding: 0px;" ref="tasklog">
+      <q-tab-panels
+        v-model="logtab"
+        keep-alive
+      >
+        <q-tab-panel
+          name="tasklog"
+          style="padding: 0px;"
+          ref="tasklog"
+        >
           <q-card-section
             style="
               padding: 5px;
@@ -2198,7 +2558,11 @@
             </q-scroll-area>
           </q-card-section>
         </q-tab-panel>
-        <q-tab-panel name="resultlog" style="padding: 0px;" ref="tasklog">
+        <q-tab-panel
+          name="resultlog"
+          style="padding: 0px;"
+          ref="tasklog"
+        >
           <q-card-section
             style="
               padding: 5px;
@@ -2217,7 +2581,11 @@
             </q-scroll-area>
           </q-card-section>
         </q-tab-panel>
-        <q-tab-panel name="msglog" style="padding: 0px;" ref="msglog">
+        <q-tab-panel
+          name="msglog"
+          style="padding: 0px;"
+          ref="msglog"
+        >
           <q-card-section
             style="
               padding: 5px;
@@ -2276,10 +2644,10 @@
             height="390"
             :options="chartOptions2"
             :series="series2"
-          ></apexchart>
+          />
         </div>
       </q-card-section>
-      <q-card-actions align="left"></q-card-actions>
+      <q-card-actions align="left" />
       <q-card-actions align="right">
         <q-btn
           flat
@@ -2316,11 +2684,12 @@ tbody tr:nth-child(odd) {
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 
-import ScriptTemplate from 'components/templates/ProcessorTemplate';
+import ScriptTemplate from 'components/templates/ProcessorTemplate'
 
 export default {
   name: 'ParallelTemplate',
   mixins: [ScriptTemplate]
-};
+}
 </script>

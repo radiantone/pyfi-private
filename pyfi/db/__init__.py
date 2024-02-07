@@ -1,3 +1,5 @@
+# type: ignore
+
 import configparser
 import logging
 from contextlib import contextmanager
@@ -78,7 +80,7 @@ def receive_before_update(mapper, connection, target):
 
 @contextmanager
 def get_session(**kwargs):
-
+    # from pymongo import MongoClient
     logging.debug("get_session: Creating session")
 
     from sqlalchemy.orm import scoped_session, sessionmaker
@@ -87,11 +89,32 @@ def get_session(**kwargs):
     user = kwargs["user"] if "user" in kwargs else None
     uri = CONFIG.get("database", "uri")
 
+    # client = MongoClient(CONFIG.get("mongodb", "uri"))
     if user is not None:
+        # pyfidb = client["pyfi"]
+        # users = pyfidb["users"]
+        try:
+            user_id = user["sub"]
+        except:
+            pass
+
+        if "error" in user:
+            raise Exception()
+
+        email = user["email"]
+
+        password = user_id.split("|")[1]
+        uname = email.split("@")[0] + "." + password
+        # user = users.find_one({ "_id": uname})
+        # print(user)
         # Get user from database, get login password
         # login = {}
-        # uri = CONFIG.get("database","base").replace("USER", user['name']).replace("PASSWORD", login['password'])
-        pass
+        uri = (
+            CONFIG.get("database", "base")
+            .replace("USER", uname)
+            .replace("PASSWORD", password)
+        )
+        logging.info("DB URI FOR USER: %s", uri)
 
     _engine = create_engine(uri, isolation_level="AUTOCOMMIT", poolclass=NullPool)
     conn = _engine.connect()
@@ -100,9 +123,13 @@ def get_session(**kwargs):
     try:
         logging.debug("get_session: Yielding session")
         yield session
-    except:
+    except Exception as ex:
+        import traceback
+
+        print(traceback.format_exc())
         logging.debug("get_session: Rollback session")
         session.rollback()
+        return ex, 500
     else:
         logging.debug("get_session: Commit session")
         session.commit()

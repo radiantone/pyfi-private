@@ -48,8 +48,9 @@ export const useAuth0 = ({
           this.popupOpen = false
         }
 
-        this.user = await this.auth0Client.getUser()
-        this.isAuthenticated = true
+        const user = await this.auth0Client.getUser()
+        this.user = user
+        this.isAuthenticated = user !== undefined
         callback(this.user)
       },
       /** Handles the callback when logging in using a redirect */

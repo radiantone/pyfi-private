@@ -1,9 +1,9 @@
 <template>
   <div
     class="aGroup"
-    style="border: 2px dashed black; min-height: 150px; z-index: -100;"
+    style="border: 2px dashed black; min-height: 150px; z-index: -9999;"
     :id="obj.id"
-    @mousedown="mousein = !mousein"
+    @mousedown="setLayer"
   >
     <q-slider
       v-model="obj.w"
@@ -22,7 +22,7 @@
       :step="10"
       :min="400"
       :max="3000"
-      style="height: 100%; position: absolute; left: -30px; top: 0px;"
+      style="height: 100%; position: absolute; left: -30px; top: 0;"
     />
     <div
       :style="
@@ -146,9 +146,9 @@
 }
 </style>
 <script>
-import { BaseGroupComponent } from 'jsplumbtoolkit-vue2'
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import * as htmlToImage from 'html-to-image'
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image'
 import { v4 as uuidv4 } from 'uuid'
 
 export default {
@@ -164,7 +164,6 @@ export default {
     }
   },
   mounted () {
-    var me = this
     this.toolkit = window.toolkit
   },
   created () {
@@ -192,8 +191,13 @@ export default {
     }
   },
   methods: {
+    setLayer () {
+      console.log('setLayer')
+      this.mousein = !this.mousein
+      this.$el.style.zIndex = -999999
+    },
     savePattern () {
-      var me = this
+      const me = this
       this.savePatternDialog = false
       var el = document.getElementById(this.obj.id + 'inner')
       this.showing = true
@@ -256,23 +260,10 @@ export default {
         })
     },
     deleteAGroup (all) {
-      debugger
       console.log('Removing group', this.obj)
       window.toolkit.removeGroup(this.obj, all)
     },
     resize: function () {},
-    saveTrope () {},
-    groupSettings: function () {
-      var me = this
-      console.log('new.group.dialog', this.obj)
-      this.$root.$emit('new.group.dialog', {
-        obj: this.obj,
-        callback: (object) => {
-          console.log(object)
-          me.obj = object
-        }
-      })
-    },
     remove: function () {
       console.log(this.obj)
       var group = this.toolkit.getObjectInfo(this.obj)
@@ -290,4 +281,3 @@ export default {
   }
 }
 </script>
-saveTrope

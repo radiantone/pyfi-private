@@ -100,7 +100,7 @@
         no-nodes-label="No networks available"
         class="text-secondary"
       >
-        <template v-slot:default-header="prop">
+        <template #default-header="prop">
           <div
             class="row items-center rapidquestnode"
             :id="prop.node.id"
@@ -170,7 +170,7 @@
         :options="libraries"
         style="width: 300px; margin-left: 30px;"
       >
-        <template v-slot:no-option>
+        <template #no-option>
           <q-item>
             <q-item-section class="text-grey">
               No results
@@ -233,9 +233,7 @@
 <script>
 const dd = require('drip-drop')
 import DataService from 'components/util/DataService'
-import { mdiArrowCollapseAll } from '@mdi/js'
-import { mdiArrowExpandAll } from '@mdi/js'
-import { mdiCardTextOutline } from '@mdi/js'
+import { mdiArrowCollapseAll, mdiArrowExpandAll, mdiCardTextOutline } from '@mdi/js'
 
 function addClass (el, classNameToAdd) {
   if (el.className.indexOf(classNameToAdd) === -1) {
@@ -303,7 +301,7 @@ export default {
       console.log('updated')
     },
     afterShow () {
-      let i;
+      let i
       const me = this
       this.initializeDrag()
       console.log('afterShow ', me.highlight)

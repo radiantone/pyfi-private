@@ -2,13 +2,12 @@
 declare global {
     interface Window { store: any; }
 }
-import { PropType } from 'vue';
-import mixins from 'vue-typed-mixins';
-import { Wrapper } from '../util';
+import { PropType } from 'vue'
+import mixins from 'vue-typed-mixins'
+import { Wrapper } from '../util'
 import {
   DesignerComponentBase
-} from '../store/DesignerStore';
-
+} from '../store/DesignerStore'
 
 export default mixins(DesignerComponentBase).extend<
   Data,
@@ -16,19 +15,19 @@ export default mixins(DesignerComponentBase).extend<
   Computed,
   Props
 >({
-  created() {
-    this.$store = window.store;
+  created () {
+    this.$store = window.store
   },
   props: {
     wrapper: {
       type: Object as PropType<Wrapper>,
-      default: () => ({ increment: 11 }),
-    },
+      default: () => ({ increment: 11 })
+    }
   },
-  mounted() {
-      console.log("this.$store",this.$store);
+  mounted () {
+    console.log('this.$store', this.$store)
   }
-});
+})
 
 interface Data {
   message: number;

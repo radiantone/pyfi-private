@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:latest
 
 RUN mkdir -p /var/log/supervisor
 RUN apt-get update && \
@@ -23,9 +23,8 @@ ADD conf/pyfi.ini /root/pyfi.ini
 WORKDIR /opt/pyfi
 RUN pip3 install virtualenv
 
-RUN apt install -y python3.9
-RUN virtualenv --python=python3.9 venv
-#RUN python3.9 -m venv venv
+RUN apt install -y python3
+RUN virtualenv --python=python3 venv
 RUN venv/bin/pip uninstall -y setuptools
 RUN venv/bin/pip install setuptools==59.1.1
 RUN venv/bin/pip install --upgrade flask

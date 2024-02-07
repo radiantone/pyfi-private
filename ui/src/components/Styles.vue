@@ -1,9 +1,46 @@
-<template></template>
+<template />
 <style>
 @import "//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css";
 /* ----------------------------------------------------------------------------------------------------- */
 /* --- Node common -------------------------------------------------------------------------------- */
 /* ----------------------------------------------------------------------------------------------------- */
+
+.spinload {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #abbcc3;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    }
+
+.q-splitter--vertical > .q-splitter__separator > div {
+  cursor: col-resize;
+}
+
+.brightness {
+  background-color:rgba(227,232,236,0.4);
+}
+
+.q-field__bottom {
+    padding-left: 0px !important;
+}
+
+.brightness:hover {
+  background-color:rgba(227,232,236,1.0);
+}
+
 .outlet-icon {
   display: block;
   text-indent: -9999px;
@@ -11,6 +48,14 @@
   height: 16px;
   background: url("~assets/images/outlet.svg");
   background-size: 16px 16px;
+}
+.q-item__section--side>.q-icon {
+    font-size: 16px !important;
+}
+
+.bar {
+  background: url("~assets/images/bar.png");
+  background-size: cover;
 }
 
 .outlet-icon2 {
@@ -23,14 +68,21 @@
   background-size: 45px 45px;
 }
 
+.q-tree__node--selected {
+  background-color: #e3e8ec !important;
+  color: black;
+}
+
 .outlet-svg {
   fill: red;
 }
-
+.q-dialog > .q-card > .q-card__section--vert {
+  padding: 0px !important;
+}
 .shadow-1-null:before {
   content: "";
   height: 7px;
-  width: 280;
+  width: 280px;
   position: absolute;
   bottom: 0px;
   background: white;
@@ -308,5 +360,5 @@
 </style>
 
 <script>
-export default {};
+export default {}
 </script>

@@ -1,13 +1,34 @@
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 import Vue from 'vue'
 import mixins from 'vue-typed-mixins'
 import { Wrapper } from '../util'
 import { io, Socket } from 'socket.io-client'
 import { parseCronExpression, IntervalBasedCronScheduler } from 'cron-schedule'
 import Moment from 'moment/moment'
+import DataService from 'components/util/DataService'
 
 let scheduler
+
+const GUEST = 0
+const FREE = 1
+const DEVELOPER = 2
+const PRO = 3
+const HOSTED = 4
+const ENTERPRISE = 5
+
+const toObject = (map : any): any => {
+  if (!(map instanceof Map)) return map
+  return Object.fromEntries(Array.from(map.entries(), ([k, v]) => {
+    if (v instanceof Array) {
+      return [k, v.map(toObject)]
+    } else if (v instanceof Map) {
+      return [k, toObject(v)]
+    } else {
+      return [k, v]
+    }
+  }))
+}
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -31,16 +52,34 @@ export interface ProcessorState {
   id: string;
   interval: number;
   scheduler: any;
+
+  obj: any;
+  middlewareonly: boolean;
+  usemiddleware: boolean;
+  middleware: string;
+  middlewarefunc: string;
+  sublevel: { [key: string]: any };
+  variables: [];
+  environment: { [key: string]: any };
   portobjects: { [key: string]: any };
   argobjects: { [key: string]: any };
   errorobjects: { [key: string]: any };
+  tasks: any[];
 }
 
 export const ProcessorMixin = Vue.extend({
   data () {
     return {
+      sublevel: {},
       name: 'Processor',
       portobjects: {},
+      middlewareonly: true,
+      usemiddleware: false,
+      middlewarefunc: '',
+      variables: [],
+      obj: {},
+      environment: {},
+      middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
       argobjects: {},
       errorobjects: {}
     }
@@ -50,12 +89,23 @@ export const ProcessorMixin = Vue.extend({
 export class ProcessorBase extends ProcessorMixin implements ProcessorState {
   name!: ProcessorState['name'];
   id!: ProcessorState['id'];
+  middlewareonly!: ProcessorState['middlewareonly'];
+  usemiddleware!: ProcessorState['usemiddleware'];
+  middlewarefunc!: ProcessorState['middlewarefunc'];
+  middleware!: ProcessorState['middleware'];
+  environment!: ProcessorState['environment'];
   interval!: ProcessorState['interval'];
+  variables!: ProcessorState['variables'];
+  obj!: ProcessorState['obj'];
   scheduler!: ProcessorState['scheduler'];
+  sublevel!: ProcessorState['sublevel'];
+  tasks!: ProcessorState['tasks'];
 }
 
+const socketserver = <string>process.env.SOCKETIO
+
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost'
+  socketserver
 )
 
 const mapToObj = (m: Map<string, any>) => {
@@ -72,11 +122,15 @@ interface ProcessorInterface {
   getPort(func: string, name: string): any;
   listenMessages(): void;
   setId(id: string): void;
+  getEnvironment(): any;
   execute(data: any): void;
   startSchedule(cron: string): void;
+  stopSchedule(): void;
 }
 
 type Methods = ProcessorInterface
+
+let includes = ''
 
 interface Computed {
 }
@@ -93,9 +147,18 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       return {
         scheduler: null,
         interval: -1,
+        tasks: [],
         name: 'MyProcessor',
         id: 'any',
+        middlewareonly: true,
+        usemiddleware: false,
+        middlewarefunc: '',
+        variables: [],
+        middleware: '## middleware will receive the input, make API call to database service, receive output and pass it along\n',
+        sublevel: {},
+        environment: {},
         portobjects: {},
+        obj: {},
         argobjects: {},
         errorobjects: {}
       }
@@ -104,10 +167,48 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     created () {
       var me = this
 
+      includes = 'from pyodide.http import pyfetch, FetchResponse\n' +
+  'from typing import Optional, Any\n' +
+  'import json\n\n' +
+  'async def request(url: str, method: str = "GET", body: Optional[dict[str, any]] = {},\n' +
+  '                  headers: Optional[dict[str, str]] = None, **fetch_kwargs: Any) -> FetchResponse:\n' +
+  '    """\n' +
+  '    Async request function. Pass in Method and make sure to await!\n' +
+  '    Parameters:\n' +
+  '        url: str = URL to make request to\n' +
+  '        method: str = {"GET", "POST", "PUT", "DELETE"} from `JavaScript` global fetch())\n' +
+  '        body: str = body as json string. Example, body=json.dumps(my_dict)\n' +
+  '        headers: dict[str, str] = header as dict, will be converted to string...\n' +
+  '            Example, headers=json.dumps({"Content-Type": "application/json"})\n' +
+  '        fetch_kwargs: Any = any other keyword arguments to pass to `pyfetch` (will be passed to `fetch`)\n' +
+  '    Return:\n' +
+  '        response: pyodide.http.FetchResponse = use with .status or await.json(), etc.\n' +
+  '    """\n' +
+  '    headers = {"Authorization":"Bearer ' + this.$store.state.designer.token + '", "Content-type": "application/json"}\n' +
+  '    kwargs = {"method": method, "mode": "cors"}  # CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing\n' +
+  '    if body and method not in ["GET", "HEAD"]:\n' +
+  '        kwargs["body"] = json.dumps(body)\n' +
+  '    if headers:\n' +
+  '        kwargs["headers"] = headers\n' +
+  '    kwargs.update(fetch_kwargs)\n' +
+  '\n' +
+  '    response = await pyfetch(url, **kwargs)\n' +
+  '    return response' +
+  '\n'
+
       socket.on('basicEmit', (a, b, c) => {
-        me.$store.commit('designer/setMessage', b)
+        if (me.$store) {
+          me.$store.commit('designer/setMessage', b)
+        }
       })
       me.listenMessages()
+      me.sublevel = {
+        guest: 0,
+        free: 1,
+        'ec_developer-USD-Monthly': 2,
+        'ec_pro-USD-Monthly': 3,
+        'ec_hosted-USD-Yearly': 4
+      }
     },
     watch: {
       interval: function (newv, oldv) {
@@ -135,6 +236,15 @@ export default mixins(ProcessorBase).extend<ProcessorState,
     mounted () {
 
     },
+    computed: {
+      hasHosted () {
+        if (this.$store.state.designer.subscription) {
+          return this.sublevel[this.$store.state.designer.subscription] >= HOSTED
+        } else {
+          return false
+        }
+      }
+    },
     methods: {
       getVersion () {
         if (this.$store.state.designer.version.indexOf('Free') >= 0) {
@@ -143,19 +253,26 @@ export default mixins(ProcessorBase).extend<ProcessorState,
           return 'DEV'
         }
       },
+      getEnvironment () {
+        return this.environment
+      },
+      stopSchedule () {
+        console.log('stopSchedule')
+        this.scheduler.stop()
+      },
       startSchedule (cronstr: string) {
         var me = this
-        console.log('UPDATING CRON')
+        console.log('startSchedule')
         scheduler = new IntervalBasedCronScheduler(this.interval)
         scheduler.stop()
         const cron = parseCronExpression(cronstr)
         scheduler.registerTask(cron, () => {
-          console.log(new Date(), this.name, 'TASK EXECUTED')
           me.$emit('message.received', {
             type: 'trigger'
           })
         })
-        // scheduler.start()
+        this.scheduler = scheduler
+        scheduler.start()
       },
       getPort (func: string, name: string) {
         for (var i = 0; i < this.portobjects[func].length; i++) {
@@ -170,49 +287,142 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       setId (id: string) {
         var me = this;
 
-        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any) => {
+        (window as any).root.$off(id);
+        (window as any).root.$on(id, async (code: string, func: string, argument: string, data: any, block: any, portname: string) => {
           let obj = data
           this.id = id
+          console.log('PROCESSOR', data, block)
+          this.$emit('port.started', portname)
+          // Set object based on its incoming type
           if (data instanceof Map) {
             obj = mapToObj(<Map<string, any>>data)
           } else if (data instanceof Object) {
             if (data.type && data.type === 'error') {
               obj = data
             } else {
-              // TODO: Check for instance of PyProxy here
-              obj = Object.fromEntries(data.toJs())
+              if ('toJs' in data) {
+                obj = Object.fromEntries(data.toJs())
+              }
             }
           }
 
+          // TODO: This needs to be controlled by the block and the middleware, not heres
+          const param = { data: obj, database: { table: argument, url: this.obj.connection, type: this.obj.database } }
+
+          const param_string = JSON.stringify(param)
+
+          if (me.usemiddleware) {
+            console.log('RUN MIDDLEWARE', func, argument, obj, me.middlewarefunc, me.middleware)
+
+            const _ = (window as any).pyodide.runPython(includes)
+            let mcode = me.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            if (me.portobjects[portname] && me.portobjects[portname].middleware) {
+              const port = me.portobjects[portname]
+              console.log('PORT MIDDLEWARE', port)
+              // If port has middleware configured, use that instead
+              // 36 mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+              mcode = port.middleware + '\n\n' + me.middlewarefunc + '(' + param_string + ')\n'
+            }
+            console.log('CODE MIDDLEWARE', mcode)
+            this.$emit('middleware.started', {
+              portname: portname
+            })
+            const result = (window as any).pyodide.runPythonAsync(mcode)
+            result.then((res: any) => {
+              console.log('RES.status', res, res.status)
+              const jsonoutput = res.toJs()
+              const _result = toObject(jsonoutput)
+              console.log('RUN MIDDLEWARE RESULT', jsonoutput, _result, JSON.stringify(_result))
+              this.$emit('message.received', {
+                type: 'result',
+                id: id,
+                function: me.middlewarefunc,
+                obj: obj,
+                param: param,
+                portname: portname,
+                output: JSON.stringify(_result)
+              })
+
+              this.$emit('port.finised', portname)
+            }).catch((err: any) => {
+              this.$emit('middleware.error', {
+                type: 'error',
+                id: id,
+                function: me.middlewarefunc,
+                obj: obj,
+                param: param,
+                portname: portname,
+                output: err
+              })
+
+              this.$emit('port.finised', portname)
+            })
+          }
+
+          // Find the matching port receiving the call
+          this.$emit('arg.in', obj)
           console.log('NODE DATA RECEIVED', id, func, argument, obj)
-
           let port = null
-          for (var i = 0; i < me.portobjects[func].length; i++) {
-            if (me.portobjects[func][i].name === argument) {
-              port = me.portobjects[func][i]
-              port.data = obj
-            }
-          }
-          console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
+          let complete = false
 
-          let complete = true
-          for (var i = 0; i < me.portobjects[func].length; i++) {
-            const port = me.portobjects[func][i]
-            if (port.data === undefined || port.data === null) {
-              complete = false
-              break
+          if (func && me.portobjects[func]) {
+            for (var i = 0; i < me.portobjects[func].length; i++) {
+              if (me.portobjects[func][i].name === argument) {
+                port = me.portobjects[func][i]
+                port.data = obj
+              }
+            }
+            console.log('PROCESSOR EXECUTING PORT', func, argument, data, port)
+
+            // Determine if the port arguments are complete
+            complete = true
+            for (var i = 0; i < me.portobjects[func].length; i++) {
+              const port = me.portobjects[func][i]
+              if (port.data === undefined || port.data === null) {
+                complete = false
+                break
+              }
+            }
+          } else {
+            if (func === undefined) {
+              console.log('MIDDLEWARE', this.usemiddleware, this.middlewareonly)
+              if (this.usemiddleware && this.middlewareonly) {
+                console.log('NO FUNCTION, CALLING MIDDLEWARE ONLY', me.middlewarefunc, this.middleware)
+                this.$emit('middleware.complete', {
+                  type: 'middleware',
+                  bytes: param_string.length,
+                  portname: portname
+                })
+              }
             }
           }
+          // Execute on port if complete
+          console.log('COMPLETE', complete)
           if (complete) {
-            debugger
             console.log('FUNCTION', func, 'IS COMPLETE!')
-            console.log('   INVOKING:', func)
-            const plugs = "plugs = {'output A':{}}\n"
+            console.log('ENV', me.obj.variabledata)
+            console.log('   INVOKING:', func, data)
             let call = func + '('
+
             let count = 0
+            const argdata: any[] = []
+            let funcargs: any = ''
+
+            if (this.obj.passenv) {
+              let env = 'import os\n'
+              // TODO: Set the code os.environ variables using this.obj.variabledata if this.obj.passenv is true
+
+              this.obj.variabledata.forEach((variable: { [key: string]: string }) => {
+                env += "os.environ['" + variable.name + "'] = \"" + variable.value + '"'
+              })
+              // set env string
+              code = env + '\n\n' + code
+            }
+            // For all ports associated with the requested function
             me.portobjects[func].forEach((_arg: any) => {
               let jsonarg = _arg.data
 
+              argdata.push(jsonarg)
               // If we already have JSON encoded data, then pass it along
               // otherwise, convert it to JSON
               let isobj = false
@@ -233,7 +443,7 @@ export default mixins(ProcessorBase).extend<ProcessorState,
 
               console.log('    ARG:', _arg, jsonarg)
               if (count > 0) {
-                call = call + ','
+                funcargs = funcargs + ','
               }
 
               // We have to double encode and decode the data because the raw
@@ -241,46 +451,143 @@ export default mixins(ProcessorBase).extend<ProcessorState,
               // JSON result to a JSON string which can then be converted to a python object
               // with json.loads
               if (isobj) {
-                call = call + 'json.loads(' + JSON.stringify(jsonarg) + ')'
+                funcargs = funcargs + 'json.loads(' + JSON.stringify(jsonarg) + ')'
               } else {
-                call = call + jsonarg
+                funcargs = funcargs + jsonarg
               }
               count += 1
             })
-            call = call + ')'
-            call = plugs + '\n' + 'import json\n' + call
+            call = call + funcargs + ')'
+
+            if (this.usemiddleware && !this.middlewareonly) {
+              call = 'middleware  ( ' + call + ' )'
+            } else if (this.usemiddleware && this.middlewareonly) {
+              call = 'middleware  ( ' + funcargs + ' )'
+            }
+
             console.log('FUNCTION CALL', call)
             console.log('CODE CALL', code + '\n' + call)
             var start = Moment(new Date())
-            const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
 
-            result.then((res: any) => {
-              const _plugs = (window as any).pyodide.globals.get('plugs').toJs()
-              let answer = res
-              var end = Moment(new Date())
-              const diff = end.diff(start)
-              var time = Moment.utc(diff).format('HH:mm:ss.SSS')
-              if (res === Object(res)) {
-                answer = Object.fromEntries(res.toJs())
-              }
-              console.log('CODE CALL RESULT', answer)
-              this.$emit('message.received', {
-                type: 'result',
-                id: this.id,
-                function: func,
-                duration: time,
-                output: JSON.stringify(answer)
+            // Run in container
+            if (block && block.container) {
+              call = 'import json\n_result = ' + call
+              console.log('RUN BLOCK IN CONTAINER', block)
+              call = call + '\nprint(json.dumps(_result))\n'
+              console.log('CODE CALL RUNBLOCK', code + '\n' + call)
+              DataService.runBlock(block, call, this.$store.state.designer.token).then((result: any) => {
+                console.log('CONTAINER RESULT', result)
+                var end = Moment(new Date())
+                const diff = end.diff(start)
+                var time = Moment.utc(diff).format('HH:mm:ss.SSS')
+
+                let answer = result.data
+                try {
+                  const parse = JSON.parse(result.data)
+                  answer = parse
+                } catch (error) {
+
+                }
+
+                let _plugs = {}
+                if (answer.hasOwnProperty('plugs')) {
+                  _plugs = answer.plugs
+                }
+
+                this.$emit('message.received', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  arg: argument.toString().length,
+                  duration: time,
+                  port: portname,
+                  output: JSON.stringify(answer.result),
+                  plugs: JSON.stringify(_plugs)
+                })
+
+                this.$emit('port.finised', portname)
+              }, (error: any) => {
+                console.log('runBlock ERROR', error)
+                this.$emit('runblock.error', {
+                  type: 'error',
+                  block: block,
+                  call: call,
+                  port: portname,
+                  function: func,
+                  error: error.toString()
+                })
+
+                this.$emit('port.finised', portname)
               })
-            }, (error: any) => {
-              debugger
-              console.log('PYTHON ERROR', error)
-              this.$emit('python.error', {
-                type: 'error',
-                id: me.id,
-                function: func,
-                error: error.toString()
+            } else {
+              call = 'import json\n' + call;
+              // If not containerized then run this code
+              (window as any).pyodide.runPython(includes)
+              console.log('RUN PYTHON ENVIRONMENT', this.obj.variabledata)
+
+              const result = (window as any).pyodide.runPythonAsync(code + '\n' + call)
+
+              result.then((res: any) => {
+                let answer = res
+                var end = Moment(new Date())
+                const diff = end.diff(start)
+                var time = Moment.utc(diff).format('HH:mm:ss.SSS')
+
+                console.log('CODE CALL RESULT', res)
+                // let _result = {}
+                if (res === Object(res)) {
+                  answer = Object.fromEntries(res.toJs())
+                //  _plugs = toObject(answer.plugs)
+                //  _result = toObject(answer.result)
+                }
+
+                let _result = toObject(answer)
+                let _plugs = {}
+                if (answer.hasOwnProperty('plugs')) {
+                  _plugs = toObject(answer.plugs)
+                  _result = toObject(answer.result)
+                  console.log('CODE CALL PLUGS', _plugs)
+                }
+                console.log('CODE CALL ANSWER', answer, _plugs, _result, JSON.stringify(answer))
+
+                this.$emit('message.received', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  port: portname,
+                  arg: argument.toString(),
+                  duration: time,
+                  output: JSON.stringify(_result),
+                  plugs: JSON.stringify(_plugs)
+                })
+
+                this.$emit('call.completed', {
+                  type: 'result',
+                  id: this.id,
+                  function: func,
+                  port: portname,
+                  finished: new Date(),
+                  arg: argument.toString(),
+                  duration: time,
+                  output: JSON.stringify(_result),
+                  plugs: JSON.stringify(_plugs)
+                })
+
+                this.$emit('port.finised', portname)
+              }, (error: any) => {
+                console.log('PYTHON ERROR', error)
+                this.$emit('python.error', {
+                  type: 'error',
+                  id: me.id,
+                  args: argdata,
+                  port: portname,
+                  function: func,
+                  error: error.toString()
+                })
+
+                this.$emit('port.finised', portname)
               })
-            })
+            }
           }
 
           this.$emit('refresh')
@@ -297,8 +604,10 @@ export default mixins(ProcessorBase).extend<ProcessorState,
       async execute (data: any) {
         console.log('Running: ', data)
         // noinspection TypeScriptUnresolvedVariable
-        const plugs = "plugs = {'output A':{}}\n"
-        data = plugs + '\n' + data
+
+        // TODO: No longer need this, plugs returned explicitly from functions needing them
+        // const plugs = "plugs = {'output A':{}}\n"
+        // data = plugs + '\n' + data
         const result = (window as any).pyodide.runPythonAsync(data)
         return result
       },

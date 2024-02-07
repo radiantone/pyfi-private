@@ -1,0 +1,6 @@
+FROM mindsdb/mindsdb:latest
+
+RUN pip install torchvision==0.16
+
+CMD ["/bin/sh","-c","bash /root/mindsdb_launcher.sh start"]
+

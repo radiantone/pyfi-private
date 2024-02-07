@@ -3,7 +3,6 @@
     <div
       :class="'node jtk-node text-primary'"
       style="
-      color: primary;
       text-size: 35px;
       max-width: 250px;
       border: black 1px;
@@ -16,8 +15,6 @@
         z-index: 99999;
         background: white !important;
         color: black;
-        position: relative;
-        top: -100px;
         left: 80px;
         padding-left: 20px;
         font-size: 20px;
@@ -27,19 +24,19 @@
         border-left: 1px solid black;
       "
       >
-          <span style="padding-top:10px;background-color: white">{{ note }}
-            <q-popup-edit
-              v-model="note"
-              buttons
-            >
-              <q-input
-                type="string"
-                v-model="note"
-                dense
-                autofocus
-                color="white"
-              />
-            </q-popup-edit></span>
+        <span style="padding-top:10px;background-color: white">{{ obj.note }}
+          <q-popup-edit
+            v-model="obj.note"
+            buttons
+          >
+            <q-input
+              type="string"
+              v-model="obj.note"
+              dense
+              autofocus
+              color="white"
+            />
+          </q-popup-edit></span>
       </div>
     </div>
   </div>
@@ -53,6 +50,8 @@
 }
 </style>
 <script>
+/* eslint-disable @typescript-eslint/no-this-alias, @typescript-eslint/restrict-plus-operands, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+
 import { BaseNodeComponent } from 'jsplumbtoolkit-vue2'
 
 export default {
@@ -60,7 +59,7 @@ export default {
   mixins: [BaseNodeComponent],
   components: {},
   created () {
-    var me = this
+    const me = this
     console.log('me.tooltips ', me.tooltips)
     console.log('start listening for show.tooltips')
     /*
@@ -78,6 +77,9 @@ export default {
   },
   data () {
     return {
+      obj: {
+        note: 'A Handsome Note'
+      },
       entityName: '',
       columnName: '',
       confirm: false,
@@ -85,7 +87,6 @@ export default {
       deleteSpeech: false,
       edit: false,
       deleteConfirm: false,
-      note: 'A Handsome Note',
       tooltip: true,
       tooltips: false,
       prompt: false,
